@@ -91,10 +91,12 @@ namespace Shipping.ShippingPoint
             return await Task.FromResult(false);
         }
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model)
         {
-            var shippingMethodName = form["shippingoption"].ToString().Replace("___", "_").Split(new[] { '_' })[0];
-            var shippingOptionId = form["selectedShippingOption"].ToString();
+            model.TryGetValue("shippingoption", out var shippingOption);
+            model.TryGetValue("selectedShippingOption", out var shippingOptionId);
+            
+            var shippingMethodName = shippingOption?.Replace("___", "_").Split(new[] { '_' })[0];
 
             if (string.IsNullOrEmpty(shippingOptionId))
                 return new List<string>() { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
@@ -117,10 +119,7 @@ namespace Shipping.ShippingPoint
                 _workContext.CurrentStore.Id);
 
             var forCustomer =
-            string.Format("<strong>{0}:</strong> {1}<br><strong>{2}:</strong> {3}<br>",
-                _translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName"), chosenShippingOption.ShippingPointName,
-                _translationService.GetResource("Shipping.ShippingPoint.Fields.Description"), chosenShippingOption.Description
-            );
+                $"<strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName")}:</strong> {chosenShippingOption.ShippingPointName}<br><strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.Description")}:</strong> {chosenShippingOption.Description}<br>";
 
             await _userFieldService.SaveField(
                 _workContext.CurrentCustomer,
@@ -144,7 +143,7 @@ namespace Shipping.ShippingPoint
 
             var stringBuilder = new StringBuilder();
             string serializedAttribute;
-            using (var tw = new StringWriter(stringBuilder))
+            await using (var tw = new StringWriter(stringBuilder))
             {
                 var xmlS = new XmlSerializer(typeof(Domain.ShippingPointSerializable));
                 xmlS.Serialize(tw, serializedObject);

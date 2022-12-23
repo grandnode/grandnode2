@@ -305,7 +305,7 @@ namespace Shipping.ByWeight
 
         public IList<string> LimitedToGroups => new List<string>();
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model)
         {
             //you can implement here any validation logic
             return await Task.FromResult(new List<string>());

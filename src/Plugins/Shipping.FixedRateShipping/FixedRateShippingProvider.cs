@@ -118,7 +118,7 @@ namespace Shipping.FixedRateShipping
 
         public IShipmentTracker ShipmentTracker => null;
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model)
         {
             return await Task.FromResult(new List<string>());
         }

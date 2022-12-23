@@ -43,7 +43,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         IShipmentTracker ShipmentTracker { get; }
 
 
-        Task<IList<string>> ValidateShippingForm(IFormCollection form);
+        Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model);
 
         /// <summary>
         /// Gets a route name for displaying plugin ("shipping" checkout step)

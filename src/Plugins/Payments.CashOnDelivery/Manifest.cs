@@ -8,5 +8,5 @@ using Payments.CashOnDelivery;
     SystemName = CashOnDeliveryPaymentDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "1.02"
+    Version = "2.00"
 )]

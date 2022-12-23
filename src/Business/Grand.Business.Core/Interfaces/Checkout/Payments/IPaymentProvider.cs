@@ -90,16 +90,16 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// <summary>
         /// Validate payment form
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model">Dictionary</param>
         /// <returns>List of validating errors</returns>
-        Task<IList<string>> ValidatePaymentForm(IFormCollection form);
+        Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model);
 
         /// <summary>
         /// Get payment information
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model">Dictionary</param>
         /// <returns>Payment info holder</returns>
-        Task<PaymentTransaction> SavePaymentInfo(IFormCollection form);
+        Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model);
 
         /// <summary>
         /// Gets a route url for displaying plugin in public store ("payment info" checkout step)

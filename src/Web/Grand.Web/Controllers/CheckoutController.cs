@@ -126,9 +126,10 @@ namespace Grand.Web.Controllers
         }
 
         [NonAction]
-        protected async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        private async Task<IList<string>> ValidateShippingForm(IFormCollection form)
         {
-            var warnings = (await GetShippingComputation(form["shippingoption"]).ValidateShippingForm(form)).ToList();
+            var warnings = (await GetShippingComputation(form["shippingoption"])
+                .ValidateShippingForm(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()))).ToList();
             foreach (var warning in warnings)
                 ModelState.AddModelError("", warning);
             return warnings;
@@ -951,13 +952,13 @@ namespace Grand.Web.Controllers
                 if (paymentMethod == null)
                     throw new Exception("Payment method is not selected");
 
-                var warnings = await paymentMethod.ValidatePaymentForm(form);
+                var warnings = await paymentMethod.ValidatePaymentForm(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()));
                 foreach (var warning in warnings)
                     ModelState.AddModelError("", warning);
                 if (ModelState.IsValid)
                 {
                     //save payment info
-                    var paymentTransaction = await paymentMethod.SavePaymentInfo(form);
+                    var paymentTransaction = await paymentMethod.SavePaymentInfo(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()));
                     if (paymentTransaction != null)
                     {
                         //save

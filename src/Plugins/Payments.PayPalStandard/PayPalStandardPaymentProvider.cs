@@ -460,9 +460,9 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Validate payment form
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model"></param>
         /// <returns>List of validating errors</returns>
-        public async Task<IList<string>> ValidatePaymentForm(IFormCollection form)
+        public async Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model)
         {
             return await Task.FromResult(new List<string>());
         }
@@ -470,9 +470,9 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Get payment information
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model"></param>
         /// <returns>Payment info holder</returns>
-        public async Task<PaymentTransaction> SavePaymentInfo(IFormCollection form)
+        public async Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model)
         {
             return await Task.FromResult<PaymentTransaction>(null);
         }

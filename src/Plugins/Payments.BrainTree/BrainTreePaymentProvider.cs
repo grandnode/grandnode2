@@ -53,50 +53,51 @@ namespace Payments.BrainTree
             return await Task.FromResult<PaymentTransaction>(null);
         }
 
-        public async Task<IList<string>> ValidatePaymentForm(IFormCollection form)
+        public async Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model)
         {
             var warnings = new List<string>();
-
             //validate
             var validator = new PaymentInfoValidator(_brainTreePaymentSettings, _translationService);
-            var model = new PaymentInfoModel
-            {
-                CardholderName = form["CardholderName"],
-                CardNumber = form["CardNumber"],
-                CardCode = form["CardCode"],
-                ExpireMonth = form["ExpireMonth"],
-                ExpireYear = form["ExpireYear"],
-                CardNonce = form["CardNonce"]
-            };
-            var validationResult = validator.Validate(model);
-            if (!validationResult.IsValid)
-                foreach (var error in validationResult.Errors)
-                {
-                    warnings.Add(error.ErrorMessage);
-                }
+            var paymentInfoModel = new PaymentInfoModel();
+            if (model.TryGetValue("CardholderName", out var cardholderName))
+                paymentInfoModel.CardholderName = cardholderName;
+            if (model.TryGetValue("CardNumber", out var cardNumber))
+                paymentInfoModel.CardNumber = cardNumber;
+            if (model.TryGetValue("CardCode", out var cardCode))
+                paymentInfoModel.CardCode = cardCode;
+            if (model.TryGetValue("ExpireMonth", out var expireMonth))
+                paymentInfoModel.ExpireMonth = expireMonth;
+            if (model.TryGetValue("ExpireYear", out var expireYear))
+                paymentInfoModel.ExpireYear = expireYear;
+            if (model.TryGetValue("CardNonce", out var cardNonce))
+                paymentInfoModel.CardNonce = cardNonce;
+
+            var validationResult = await validator.ValidateAsync(paymentInfoModel);
+            if (validationResult.IsValid) return await Task.FromResult(warnings);
+            warnings.AddRange(validationResult.Errors.Select(error => error.ErrorMessage));
             return await Task.FromResult(warnings);
         }
 
-        public async Task<PaymentTransaction> SavePaymentInfo(IFormCollection form)
+        public async Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model)
         {
+            if (model.TryGetValue("CardNonce", out var cardNonce) && !StringValues.IsNullOrEmpty(cardNonce))
+                _httpContextAccessor.HttpContext!.Session.SetString("CardNonce", cardNonce.ToString());
 
-            if (form.TryGetValue("CardNonce", out var cardNonce) && !StringValues.IsNullOrEmpty(cardNonce))
-                _httpContextAccessor.HttpContext.Session.SetString("CardNonce", cardNonce.ToString());
-                
-            if (form.TryGetValue("CardholderName", out var cardholderName) && !StringValues.IsNullOrEmpty(cardholderName))
-                _httpContextAccessor.HttpContext.Session.SetString("CardholderName", cardholderName.ToString());
+            if (model.TryGetValue("CardholderName", out var cardholderName) &&
+                !StringValues.IsNullOrEmpty(cardholderName))
+                _httpContextAccessor.HttpContext!.Session.SetString("CardholderName", cardholderName.ToString());
 
-            if (form.TryGetValue("CardNumber", out var cardNumber) && !StringValues.IsNullOrEmpty(cardNumber))
-                _httpContextAccessor.HttpContext.Session.SetString("CardNumber", cardNumber.ToString());
+            if (model.TryGetValue("CardNumber", out var cardNumber) && !StringValues.IsNullOrEmpty(cardNumber))
+                _httpContextAccessor.HttpContext!.Session.SetString("CardNumber", cardNumber.ToString());
 
-            if (form.TryGetValue("ExpireMonth", out var expireMonth) && !StringValues.IsNullOrEmpty(expireMonth))
-                _httpContextAccessor.HttpContext.Session.SetString("ExpireMonth", expireMonth.ToString());
+            if (model.TryGetValue("ExpireMonth", out var expireMonth) && !StringValues.IsNullOrEmpty(expireMonth))
+                _httpContextAccessor.HttpContext!.Session.SetString("ExpireMonth", expireMonth.ToString());
 
-            if (form.TryGetValue("ExpireYear", out var expireYear) && !StringValues.IsNullOrEmpty(expireYear))
-                _httpContextAccessor.HttpContext.Session.SetString("ExpireYear", expireYear.ToString());
+            if (model.TryGetValue("ExpireYear", out var expireYear) && !StringValues.IsNullOrEmpty(expireYear))
+                _httpContextAccessor.HttpContext!.Session.SetString("ExpireYear", expireYear.ToString());
 
-            if (form.TryGetValue("CardCode", out var creditCardCvv2) && !StringValues.IsNullOrEmpty(creditCardCvv2))
-                _httpContextAccessor.HttpContext.Session.SetString("CardCode", creditCardCvv2.ToString());
+            if (model.TryGetValue("CardCode", out var creditCardCvv2) && !StringValues.IsNullOrEmpty(creditCardCvv2))
+                _httpContextAccessor.HttpContext!.Session.SetString("CardCode", creditCardCvv2.ToString());
 
             return await Task.FromResult<PaymentTransaction>(null);
         }
@@ -119,8 +120,7 @@ namespace Payments.BrainTree
             var privateKey = _brainTreePaymentSettings.PrivateKey;
 
             //new gateway
-            var gateway = new BraintreeGateway
-            {
+            var gateway = new BraintreeGateway {
                 Environment = useSandBox ? Braintree.Environment.SANDBOX : Braintree.Environment.PRODUCTION,
                 MerchantId = merchantId,
                 PublicKey = publicKey,
@@ -128,30 +128,29 @@ namespace Payments.BrainTree
             };
 
             //new transaction request
-            var transactionRequest = new TransactionRequest
-            {
+            var transactionRequest = new TransactionRequest {
                 Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount),
             };
 
             if (_brainTreePaymentSettings.Use3DS)
             {
-                transactionRequest.PaymentMethodNonce = _httpContextAccessor.HttpContext.Session.GetString("CardNonce").ToString();
+                transactionRequest.PaymentMethodNonce =
+                    _httpContextAccessor.HttpContext!.Session.GetString("CardNonce")!;
             }
             else
             {
                 //transaction credit card request
-                var transactionCreditCardRequest = new TransactionCreditCardRequest
-                {
-                    Number = _httpContextAccessor.HttpContext.Session.GetString("CardNumber").ToString(),
-                    CVV = _httpContextAccessor.HttpContext.Session.GetString("CardCode").ToString(),
-                    ExpirationDate = _httpContextAccessor.HttpContext.Session.GetString("ExpireMonth").ToString() + "/" + _httpContextAccessor.HttpContext.Session.GetString("ExpireYear").ToString()
+                var transactionCreditCardRequest = new TransactionCreditCardRequest {
+                    Number = _httpContextAccessor.HttpContext!.Session.GetString("CardNumber")!,
+                    CVV = _httpContextAccessor.HttpContext.Session.GetString("CardCode")!,
+                    ExpirationDate = _httpContextAccessor.HttpContext.Session.GetString("ExpireMonth")! + "/" +
+                                     _httpContextAccessor.HttpContext.Session.GetString("ExpireYear")!
                 };
                 transactionRequest.CreditCard = transactionCreditCardRequest;
             }
 
             //address request
-            var addressRequest = new AddressRequest
-            {
+            var addressRequest = new AddressRequest {
                 FirstName = customer.BillingAddress.FirstName,
                 LastName = customer.BillingAddress.LastName,
                 StreetAddress = customer.BillingAddress.Address1,
@@ -160,14 +159,13 @@ namespace Payments.BrainTree
             transactionRequest.BillingAddress = addressRequest;
 
             //transaction options request
-            var transactionOptionsRequest = new TransactionOptionsRequest
-            {
+            var transactionOptionsRequest = new TransactionOptionsRequest {
                 SubmitForSettlement = true
             };
             transactionRequest.Options = transactionOptionsRequest;
 
             //sending a request
-            var result = gateway.Transaction.Sale(transactionRequest);
+            var result = await gateway.Transaction.SaleAsync(transactionRequest);
 
             //result
             if (result.IsSuccess())
@@ -197,10 +195,11 @@ namespace Payments.BrainTree
         /// </summary>
         /// <param name="paymentTransaction">Payment transaction</param>
         public Task PostRedirectPayment(PaymentTransaction paymentTransaction)
-        {    
+        {
             //nothing
             return Task.CompletedTask;
         }
+
         /// <summary>
         /// Returns a value indicating whether payment method should be hidden during checkout
         /// </summary>
@@ -231,19 +230,22 @@ namespace Payments.BrainTree
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (double)((((float)subtotal.subTotalWithDiscount) * ((float)_brainTreePaymentSettings.AdditionalFee)) / 100f);
+                result = (double)((((float)subtotal.subTotalWithDiscount) *
+                                   ((float)_brainTreePaymentSettings.AdditionalFee)) / 100f);
             }
             else
             {
                 //fixed value
                 result = _brainTreePaymentSettings.AdditionalFee;
             }
+
             if (result > 0)
             {
                 var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
                 var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
                 result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
             }
+
             //return result;
             return await Task.FromResult(result);
         }
@@ -294,7 +296,7 @@ namespace Payments.BrainTree
         /// <summary>
         /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods)
         /// </summary>
-        /// <param name="order">Order</param>
+        /// <param name="paymentTransaction"></param>
         /// <returns>Result</returns>
         public async Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction)
         {
@@ -304,7 +306,6 @@ namespace Payments.BrainTree
             //it's not a redirection payment method. So we always return false
             return await Task.FromResult(false);
         }
-
 
 
         /// <summary>
@@ -342,10 +343,8 @@ namespace Payments.BrainTree
         /// <summary>
         /// Gets a payment method type
         /// </summary>
-        public PaymentMethodType PaymentMethodType
-        {
-            get
-            {
+        public PaymentMethodType PaymentMethodType {
+            get {
                 return PaymentMethodType.Standard;
             }
         }
@@ -375,10 +374,10 @@ namespace Payments.BrainTree
         /// </summary>
         public async Task<string> Description()
         {
-            return await Task.FromResult(_translationService.GetResource("Plugins.Payments.BrainTree.PaymentMethodDescription"));
+            return await Task.FromResult(
+                _translationService.GetResource("Plugins.Payments.BrainTree.PaymentMethodDescription"));
         }
 
         public string LogoURL => "/Plugins/Payments.BrainTree/logo.jpg";
-
     }
 }
