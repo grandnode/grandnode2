@@ -219,7 +219,7 @@ var vmorder = new Vue({
                                 } else {
                                     index = 0;
                                 }
-                                var elem = model.ShippingMethods[index].Name + '___' + model.ShippingMethods[index].ShippingRateProviderSystemName;
+                                var elem = model.ShippingMethods[index].Name + ':' + model.ShippingMethods[index].ShippingRateProviderSystemName;
                                 vmorder.loadPartialView(elem);
                             }
                             vmorder.updateTotals();

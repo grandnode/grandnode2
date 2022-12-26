@@ -117,7 +117,7 @@ namespace Grand.Web.Controllers
         [NonAction]
         protected IShippingRateCalculationProvider GetShippingComputation(string input)
         {
-            var shippingMethodName = input.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            var shippingMethodName = input.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1];
             var shippingMethod = _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingMethodName);
             if (shippingMethod == null)
                 throw new Exception("Shipping method is not selected");
@@ -126,10 +126,10 @@ namespace Grand.Web.Controllers
         }
 
         [NonAction]
-        private async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        private async Task<IList<string>> ValidateShippingForm(CheckoutShippingMethodModel model)
         {
-            var warnings = (await GetShippingComputation(form["shippingoption"])
-                .ValidateShippingForm(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()))).ToList();
+            var warnings = (await GetShippingComputation(model.ShippingOption)
+                .ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
             foreach (var warning in warnings)
                 ModelState.AddModelError("", warning);
             return warnings;
@@ -780,7 +780,7 @@ namespace Grand.Web.Controllers
             }
         }
 
-        public virtual async Task<IActionResult> SaveShippingMethod(IFormCollection form)
+        public virtual async Task<IActionResult> SaveShippingMethod(CheckoutShippingMethodModel model)
         {
             try
             {
@@ -796,15 +796,16 @@ namespace Grand.Web.Controllers
                     throw new Exception("Shipping is not required");
 
                 //parse selected method 
-                string shippingoption = form["shippingoption"];
-                if (string.IsNullOrEmpty(shippingoption))
+                //model.TryGetValue("shippingoption", out var shipping);
+                if (string.IsNullOrEmpty(model.ShippingOption))
                     throw new Exception("Selected shipping method can't be parsed");
-                var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
-                if (splittedOption.Length != 2)
+                
+                var splitOption = model.ShippingOption.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                if (splitOption.Length != 2)
                     throw new Exception("Selected shipping method can't be parsed");
 
-                var selectedName = splittedOption[0];
-                var shippingRateProviderSystemName = splittedOption[1];
+                var selectedName = splitOption[0];
+                var shippingRateProviderSystemName = splitOption[1];
 
                 //clear shipping option XML/Description
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "",
@@ -813,7 +814,7 @@ namespace Grand.Web.Controllers
                     "", store.Id);
 
                 //validate customer's input
-                var warnings = (await ValidateShippingForm(form)).ToList();
+                var warnings = (await ValidateShippingForm(model)).ToList();
 
                 //find it
                 //performance optimization. try cache first

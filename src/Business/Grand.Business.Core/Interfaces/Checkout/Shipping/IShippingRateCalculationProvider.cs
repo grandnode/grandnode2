@@ -2,7 +2,6 @@ using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Infrastructure.Plugins;
 using Grand.Domain.Orders;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Shipping
 {
@@ -41,9 +40,8 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// Gets a shipment tracker
         /// </summary>
         IShipmentTracker ShipmentTracker { get; }
-
-
-        Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model);
+        
+        Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data);
 
         /// <summary>
         /// Gets a route name for displaying plugin ("shipping" checkout step)

@@ -36,45 +36,37 @@ namespace Shipping.ShippingPoint.Controllers
         public async Task<IActionResult> Get(string shippingOptionId)
         {
             var shippingPoint = await _shippingPointService.GetStoreShippingPointById(shippingOptionId);
-            if (shippingPoint != null)
-            {
-                double rateBase = await _currencyService.ConvertFromPrimaryStoreCurrency(shippingPoint.PickupFee, _workContext.WorkingCurrency);
-                var fee = _priceFormatter.FormatShippingPrice(rateBase);
+            if (shippingPoint == null) return Content("ShippingPointController: given Shipping Option doesn't exist");
+            var rateBase = await _currencyService.ConvertFromPrimaryStoreCurrency(shippingPoint.PickupFee, _workContext.WorkingCurrency);
+            var fee = _priceFormatter.FormatShippingPrice(rateBase);
 
-                var viewModel = new PointModel() {
-                    ShippingPointName = shippingPoint.ShippingPointName,
-                    Description = shippingPoint.Description,
-                    PickupFee = fee,
-                    OpeningHours = shippingPoint.OpeningHours,
-                    Address1 = shippingPoint.Address1,
-                    City = shippingPoint.City,
-                    CountryName = (await _countryService.GetCountryById(shippingPoint.CountryId))?.Name,
-                    ZipPostalCode = shippingPoint.ZipPostalCode,
-                };
-                return View(viewModel);
-            }
-            return Content("ShippingPointController: given Shipping Option doesn't exist");
+            var viewModel = new PointModel() {
+                ShippingPointName = shippingPoint.ShippingPointName,
+                Description = shippingPoint.Description,
+                PickupFee = fee,
+                OpeningHours = shippingPoint.OpeningHours,
+                Address1 = shippingPoint.Address1,
+                City = shippingPoint.City,
+                CountryName = (await _countryService.GetCountryById(shippingPoint.CountryId))?.Name,
+                ZipPostalCode = shippingPoint.ZipPostalCode,
+            };
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Points(string shippingOption)
         {
-            var parameter = shippingOption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries)[0];
+            var parameter = shippingOption.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0];
 
-            if (parameter == _translationService.GetResource("Shipping.ShippingPoint.PluginName"))
-            {
-                var shippingPoints = await _shippingPointService.GetAllStoreShippingPoint(_workContext.CurrentStore.Id);
+            if (parameter != _translationService.GetResource("Shipping.ShippingPoint.PluginName"))
+                return Content("ShippingPointController: given Shipping Option doesn't exist");
+            var shippingPoints = await _shippingPointService.GetAllStoreShippingPoint(_workContext.CurrentStore.Id);
 
-                var shippingPointsModel = new List<SelectListItem>();
-                shippingPointsModel.Add(new SelectListItem() { Value = "", Text = _translationService.GetResource("Shipping.ShippingPoint.SelectShippingOption") });
+            var shippingPointsModel = new List<SelectListItem> {
+                new() { Value = "", Text = _translationService.GetResource("Shipping.ShippingPoint.SelectShippingOption") }
+            };
+            shippingPointsModel.AddRange(shippingPoints.Select(shippingPoint => new SelectListItem() { Value = shippingPoint.Id, Text = shippingPoint.ShippingPointName }));
 
-                foreach (var shippingPoint in shippingPoints)
-                {
-                    shippingPointsModel.Add(new SelectListItem() { Value = shippingPoint.Id, Text = shippingPoint.ShippingPointName });
-                }
-
-                return View(shippingPointsModel);
-            }
-            return Content("ShippingPointController: given Shipping Option doesn't exist");
+            return View(shippingPointsModel);
 
         }
     }

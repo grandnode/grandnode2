@@ -24,7 +24,7 @@
 </div>
 
 <h6>@Loc["Shipping.ShippingPoint.ChooseShippingPoint"]</h6>
-<select class="form-control" name="selectedShippingOption" onchange="renderShippingOptionInfo(value)">
+<select class="form-control" name="data[selectedShippingOption]" onchange="renderShippingOptionInfo(value)">
     @foreach (var shippingOption in Model)
     {
         <option value="@shippingOption.Value">@shippingOption.Text</option>

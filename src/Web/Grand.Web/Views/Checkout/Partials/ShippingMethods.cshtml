@@ -10,7 +10,7 @@
                                @@click="vmorder.selectedShippingMethod = index; vmorder.ShippingMethodError = undefined"
                                name="shippingoption"
                                :data-order="index"
-                               :value="shippingMethod.Name + '___' + shippingMethod.ShippingRateProviderSystemName"
+                               :value="shippingMethod.Name + ':' + shippingMethod.ShippingRateProviderSystemName"
                                :checked="shippingMethod.Selected"
                                class="custom-control-input">
                         <span class="custom-control-label"></span>

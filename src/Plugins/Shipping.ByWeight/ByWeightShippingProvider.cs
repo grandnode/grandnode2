@@ -13,7 +13,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Shipping.ByWeight.Services;
 
@@ -305,7 +304,7 @@ namespace Shipping.ByWeight
 
         public IList<string> LimitedToGroups => new List<string>();
 
-        public async Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model)
+        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
         {
             //you can implement here any validation logic
             return await Task.FromResult(new List<string>());

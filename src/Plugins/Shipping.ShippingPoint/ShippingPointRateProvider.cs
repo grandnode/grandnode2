@@ -8,7 +8,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Shipping.ShippingPoint.Services;
 using System.Xml.Serialization;
 
@@ -91,12 +90,11 @@ namespace Shipping.ShippingPoint
             return await Task.FromResult(false);
         }
 
-        public async Task<IList<string>> ValidateShippingForm(Dictionary<string, string> model)
+        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
         {
-            model.TryGetValue("shippingoption", out var shippingOption);
-            model.TryGetValue("selectedShippingOption", out var shippingOptionId);
+            data.TryGetValue("selectedShippingOption", out var shippingOptionId);
             
-            var shippingMethodName = shippingOption?.Replace("___", "_").Split(new[] { '_' })[0];
+            var shippingMethodName = shippingOption?.Split(new[] { ':' })[0];
 
             if (string.IsNullOrEmpty(shippingOptionId))
                 return new List<string>() { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
