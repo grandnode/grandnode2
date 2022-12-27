@@ -53,7 +53,7 @@ namespace Payments.BrainTree
             return await Task.FromResult<PaymentTransaction>(null);
         }
 
-        public async Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model)
+        public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
         {
             var warnings = new List<string>();
             //validate
@@ -78,7 +78,7 @@ namespace Payments.BrainTree
             return await Task.FromResult(warnings);
         }
 
-        public async Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model)
+        public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
         {
             if (model.TryGetValue("CardNonce", out var cardNonce) && !StringValues.IsNullOrEmpty(cardNonce))
                 _httpContextAccessor.HttpContext!.Session.SetString("CardNonce", cardNonce.ToString());

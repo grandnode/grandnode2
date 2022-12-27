@@ -109,13 +109,13 @@ namespace Payments.CashOnDelivery
             return result;
         }
 
-        public async Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model)
+        public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
         {
             var warnings = new List<string>();
             return await Task.FromResult(warnings);
         }
 
-        public async Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model)
+        public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
         {
             return await Task.FromResult<PaymentTransaction>(null);
         }

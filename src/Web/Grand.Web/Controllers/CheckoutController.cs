@@ -937,7 +937,7 @@ namespace Grand.Web.Controllers
             }
         }
 
-        public virtual async Task<IActionResult> SavePaymentInfo(IFormCollection form)
+        public virtual async Task<IActionResult> SavePaymentInfo(IDictionary<string, string> model)
         {
             try
             {
@@ -953,13 +953,13 @@ namespace Grand.Web.Controllers
                 if (paymentMethod == null)
                     throw new Exception("Payment method is not selected");
 
-                var warnings = await paymentMethod.ValidatePaymentForm(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()));
+                var warnings = await paymentMethod.ValidatePaymentForm(model);
                 foreach (var warning in warnings)
                     ModelState.AddModelError("", warning);
                 if (ModelState.IsValid)
                 {
                     //save payment info
-                    var paymentTransaction = await paymentMethod.SavePaymentInfo(form.ToDictionary(x=>x.Key, y=>y.Value.ToString()));
+                    var paymentTransaction = await paymentMethod.SavePaymentInfo(model);
                     if (paymentTransaction != null)
                     {
                         //save

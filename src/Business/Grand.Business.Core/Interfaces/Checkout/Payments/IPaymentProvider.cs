@@ -2,7 +2,6 @@ using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Infrastructure.Plugins;
 using Grand.Domain.Orders;
-using Microsoft.AspNetCore.Http;
 using Grand.Domain.Payments;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Payments
@@ -92,14 +91,14 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// </summary>
         /// <param name="model">Dictionary</param>
         /// <returns>List of validating errors</returns>
-        Task<IList<string>> ValidatePaymentForm(Dictionary<string, string> model);
+        Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model);
 
         /// <summary>
         /// Get payment information
         /// </summary>
         /// <param name="model">Dictionary</param>
         /// <returns>Payment info holder</returns>
-        Task<PaymentTransaction> SavePaymentInfo(Dictionary<string, string> model);
+        Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model);
 
         /// <summary>
         /// Gets a route url for displaying plugin in public store ("payment info" checkout step)
