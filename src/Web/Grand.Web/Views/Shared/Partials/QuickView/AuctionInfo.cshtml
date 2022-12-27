@@ -27,9 +27,9 @@
                 </template>
                 <template v-if="new Date(PopupQuickViewVueModal.EndTime).getTime() > new Date().getTime()">
                     <div class="input-group product-add-to-cart flex-nowrap">
-                        <input :id="'auction_' + PopupQuickViewVueModal.Id + '_HighestBidValue'" :name="'auction_' + PopupQuickViewVueModal.Id + '.HighestBidValue'" type="number" class="form-control bid-input" :value="PopupQuickViewVueModal.HighestBidValue + 1" />
+                        <input :name="'HighestBidValue'" type="number" class="form-control bid-input" :value="PopupQuickViewVueModal.HighestBidValue + 1" />
                         <div class="input-group-append">
-                            <button :id="'bid-button-' + PopupQuickViewVueModal.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" :data-productid="PopupQuickViewVueModal.Id" :onclick="'AxiosCart.addbid(`/addbid/AddBid/'+ PopupQuickViewVueModal.Id +'/3`, `#product-details-form`); return false;'">
+                            <button :id="'bid-button-' + PopupQuickViewVueModal.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" :data-productid="PopupQuickViewVueModal.Id" :onclick="'AxiosCart.addbid(`/AddBid/'+ PopupQuickViewVueModal.Id +', `#product-details-form`); return false;'">
                                 <b-icon icon="hammer" class="mx-1"></b-icon><span>@Loc["ShoppingCart.Bid"]</span>
                             </button>
                         </div>

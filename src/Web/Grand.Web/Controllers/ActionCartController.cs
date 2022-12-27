@@ -13,6 +13,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
+using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -608,8 +609,8 @@ namespace Grand.Web.Controllers
             #endregion
         }
 
-        [HttpPost]
-        public virtual async Task<IActionResult> AddBid(string productId, int shoppingCartTypeId, IFormCollection form,
+        [HttpPost] 
+        public virtual async Task<IActionResult> AddBid(AddBidModel model,
             [FromServices] IAuctionService auctionService)
         {
             var customer = _workContext.CurrentCustomer;
@@ -621,19 +622,12 @@ namespace Grand.Web.Controllers
                     message = _translationService.GetResource("ShoppingCart.Mustberegisteredtobid")
                 });
             }
-            double bid = 0;
-            foreach (string formKey in form.Keys)
-            {
-                if (formKey.Equals(string.Format("auction_{0}.HighestBidValue", productId), StringComparison.OrdinalIgnoreCase))
-                {
-                    double.TryParse(form[formKey], out bid);
-                    if (bid == 0)
-                        double.TryParse(form[formKey], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US").NumberFormat, out bid);
+            double.TryParse(model.HighestBidValue, out var bid);
+            if (bid == 0)
+                double.TryParse(model.HighestBidValue, NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US").NumberFormat, out bid);
 
-                    bid = Math.Round(bid, 2);
-                    break;
-                }
-            }
+            bid = Math.Round(bid, 2);
+            
             if (bid <= 0)
             {
                 return Json(new
@@ -643,7 +637,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            Product product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
@@ -656,7 +650,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? form["WarehouseId"].ToString() : _workContext.CurrentStore.DefaultWarehouseId;
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
 
             var shoppingCartItem = new ShoppingCartItem {
                 Attributes = new List<CustomAttribute>(),

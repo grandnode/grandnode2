@@ -159,9 +159,7 @@
                                     <!--auction-->
                                     @if (Model.ProductType == ProductType.Auction)
                                     {
-                                        var dataDictAuction = new ViewDataDictionary(ViewData);
-                                        dataDictAuction.TemplateInfo.HtmlFieldPrefix = string.Format("auction_{0}", Model.Id);
-                                        <partial name="Partials/AuctionInfo" model="Model" view-data="dataDictAuction" />
+                                        <partial name="Partials/AuctionInfo" model="Model" />
                                     }
                                     @{
                                         var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
