@@ -477,25 +477,25 @@ namespace Grand.Web.Controllers
         [ClosedStore(true)]
         [PublicStore(true)]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> PrivacyPreference(IFormCollection form,
+        public virtual async Task<IActionResult> PrivacyPreference(IDictionary<string, string> model,
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IUserFieldService userFieldService,
-            [FromServices] ICookiePreference _cookiePreference)
+            [FromServices] ICookiePreference cookiePreference)
         {
 
             if (!storeInformationSettings.DisplayPrivacyPreference)
                 return Json(new { success = false });
 
-            var consent = "ConsentCookies";
+            const string consent = "ConsentCookies";
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "", _workContext.CurrentStore.Id);
             var selectedConsentCookies = new List<string>();
-            foreach (var item in form)
+            foreach (var item in model)
             {
                 if (item.Key.StartsWith(consent))
                     selectedConsentCookies.Add(item.Value);
             }
             var dictionary = new Dictionary<string, bool>();
-            var consentCookies = _cookiePreference.GetConsentCookies();
+            var consentCookies = cookiePreference.GetConsentCookies();
             foreach (var item in consentCookies)
             {
                 if (item.AllowToDisable)
