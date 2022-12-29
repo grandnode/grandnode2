@@ -57,11 +57,11 @@ namespace Grand.Web.Commands.Handler.Customers
 
         public async Task<bool> Handle(CustomerRegisteredCommand request, CancellationToken cancellationToken)
         {
-
             //VAT number
             if (_taxSettings.EuVatEnabled)
             {
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.VatNumber, request.Model.VatNumber);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.VatNumber,
+                    request.Model.VatNumber);
 
                 var vat = await _checkVatService.GetVatNumberStatus(request.Model.VatNumber);
 
@@ -72,56 +72,56 @@ namespace Grand.Web.Commands.Handler.Customers
 
             //form fields
             if (_customerSettings.GenderEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Gender, request.Model.Gender);
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.FirstName, request.Model.FirstName);
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Gender,
+                    request.Model.Gender);
+            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.FirstName,
+                request.Model.FirstName);
+            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.LastName,
+                request.Model.LastName);
             if (_customerSettings.DateOfBirthEnabled)
             {
                 DateTime? dateOfBirth = request.Model.ParseDateOfBirth();
                 await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.DateOfBirth, dateOfBirth);
             }
+
             if (_customerSettings.CompanyEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Company, request.Model.Company);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Company,
+                    request.Model.Company);
             if (_customerSettings.StreetAddressEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress, request.Model.StreetAddress);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress,
+                    request.Model.StreetAddress);
             if (_customerSettings.StreetAddress2Enabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress2, request.Model.StreetAddress2);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress2,
+                    request.Model.StreetAddress2);
             if (_customerSettings.ZipPostalCodeEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.ZipPostalCode, request.Model.ZipPostalCode);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.ZipPostalCode,
+                    request.Model.ZipPostalCode);
             if (_customerSettings.CityEnabled)
                 await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.City, request.Model.City);
             if (_customerSettings.CountryEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.CountryId, request.Model.CountryId);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.CountryId,
+                    request.Model.CountryId);
             if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StateProvinceId, request.Model.StateProvinceId);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StateProvinceId,
+                    request.Model.StateProvinceId);
             if (_customerSettings.PhoneEnabled)
-                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Phone, request.Model.Phone);
+                await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Phone,
+                    request.Model.Phone);
             if (_customerSettings.FaxEnabled)
                 await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Fax, request.Model.Fax);
 
             //newsletter
             if (_customerSettings.NewsletterEnabled)
             {
-                var categories = new List<string>();
-                foreach (string formKey in request.Form.Keys)
-                {
-                    if (formKey.Contains("customernewsletterCategory_"))
-                    {
-                        try
-                        {
-                            var category = formKey.Split('_')[1];
-                            categories.Add(category);
-                        }
-                        catch { }
-                    }
-                }
-
+                var categories = request.Model.SelectedNewsletterCategory?.ToList();
                 //save newsletter value
-                var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(request.Model.Email, request.Store.Id);
+                var newsletter =
+                    await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(request.Model.Email,
+                        request.Store.Id);
                 if (newsletter != null)
                 {
                     newsletter.Categories.Clear();
-                    categories.ForEach(x => newsletter.Categories.Add(x));
+                    categories?.ForEach(x => newsletter.Categories.Add(x));
                     if (request.Model.Newsletter)
                     {
                         newsletter.Active = true;
@@ -132,8 +132,7 @@ namespace Grand.Web.Commands.Handler.Customers
                 {
                     if (request.Model.Newsletter)
                     {
-                        var newsLetterSubscription = new NewsLetterSubscription
-                        {
+                        var newsLetterSubscription = new NewsLetterSubscription {
                             NewsLetterSubscriptionGuid = Guid.NewGuid(),
                             Email = request.Model.Email,
                             CustomerId = request.Customer.Id,
@@ -141,7 +140,7 @@ namespace Grand.Web.Commands.Handler.Customers
                             StoreId = request.Store.Id,
                             CreatedOnUtc = DateTime.UtcNow
                         };
-                        categories.ForEach(x => newsLetterSubscription.Categories.Add(x));
+                        categories?.ForEach(x => newsLetterSubscription.Categories.Add(x));
                         await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);
                     }
                 }
@@ -151,17 +150,22 @@ namespace Grand.Web.Commands.Handler.Customers
             await _customerService.UpdateCustomerField(request.Customer, x => x.Attributes, request.CustomerAttributes);
 
             //insert default address (if possible)
-            var defaultAddress = new Address
-            {
+            var defaultAddress = new Address {
                 FirstName = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName),
                 LastName = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName),
                 Email = request.Customer.Email,
                 Company = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Company),
                 VatNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber),
-                CountryId = !string.IsNullOrEmpty(request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CountryId)) ?
-                            request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CountryId) : "",
-                StateProvinceId = !string.IsNullOrEmpty(request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StateProvinceId)) ?
-                    request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StateProvinceId) : "",
+                CountryId =
+                    !string.IsNullOrEmpty(
+                        request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CountryId))
+                        ? request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CountryId)
+                        : "",
+                StateProvinceId =
+                    !string.IsNullOrEmpty(
+                        request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StateProvinceId))
+                        ? request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StateProvinceId)
+                        : "",
                 City = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.City),
                 Address1 = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress),
                 Address2 = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress2),
@@ -184,7 +188,8 @@ namespace Grand.Web.Commands.Handler.Customers
 
             //notifications
             if (_customerSettings.NotifyNewCustomerRegistration)
-                await _messageProviderService.SendCustomerRegisteredMessage(request.Customer, request.Store, _languageSettings.DefaultAdminLanguageId);
+                await _messageProviderService.SendCustomerRegisteredMessage(request.Customer, request.Store,
+                    _languageSettings.DefaultAdminLanguageId);
 
             //New customer has a free shipping for the first order
             if (_customerSettings.RegistrationFreeShipping)
@@ -203,33 +208,33 @@ namespace Grand.Web.Commands.Handler.Customers
             if (address == null)
                 throw new ArgumentNullException(nameof(address));
 
-            if (String.IsNullOrWhiteSpace(address.FirstName))
+            if (string.IsNullOrWhiteSpace(address.FirstName))
                 return false;
 
-            if (String.IsNullOrWhiteSpace(address.LastName))
+            if (string.IsNullOrWhiteSpace(address.LastName))
                 return false;
 
-            if (String.IsNullOrWhiteSpace(address.Email))
+            if (string.IsNullOrWhiteSpace(address.Email))
                 return false;
 
             if (_addressSettings.CompanyEnabled &&
                 _addressSettings.CompanyRequired &&
-                String.IsNullOrWhiteSpace(address.Company))
+                string.IsNullOrWhiteSpace(address.Company))
                 return false;
 
             if (_addressSettings.VatNumberEnabled &&
                 _addressSettings.VatNumberRequired &&
-                String.IsNullOrWhiteSpace(address.VatNumber))
+                string.IsNullOrWhiteSpace(address.VatNumber))
                 return false;
 
             if (_addressSettings.StreetAddressEnabled &&
                 _addressSettings.StreetAddressRequired &&
-                String.IsNullOrWhiteSpace(address.Address1))
+                string.IsNullOrWhiteSpace(address.Address1))
                 return false;
 
             if (_addressSettings.StreetAddress2Enabled &&
                 _addressSettings.StreetAddress2Required &&
-                String.IsNullOrWhiteSpace(address.Address2))
+                string.IsNullOrWhiteSpace(address.Address2))
                 return false;
 
             if (_addressSettings.ZipPostalCodeEnabled &&
@@ -240,7 +245,7 @@ namespace Grand.Web.Commands.Handler.Customers
 
             if (_addressSettings.CountryEnabled)
             {
-                if (String.IsNullOrEmpty(address.CountryId))
+                if (string.IsNullOrEmpty(address.CountryId))
                     return false;
 
                 var country = await _countryService.GetCountryById(address.CountryId);
@@ -264,25 +269,21 @@ namespace Grand.Web.Commands.Handler.Customers
 
             if (_addressSettings.CityEnabled &&
                 _addressSettings.CityRequired &&
-                String.IsNullOrWhiteSpace(address.City))
+                string.IsNullOrWhiteSpace(address.City))
                 return false;
 
             if (_addressSettings.PhoneEnabled &&
                 _addressSettings.PhoneRequired &&
-                String.IsNullOrWhiteSpace(address.PhoneNumber))
+                string.IsNullOrWhiteSpace(address.PhoneNumber))
                 return false;
 
             if (_addressSettings.FaxEnabled &&
                 _addressSettings.FaxRequired &&
-                String.IsNullOrWhiteSpace(address.FaxNumber))
+                string.IsNullOrWhiteSpace(address.FaxNumber))
                 return false;
 
             var attributes = await _addressAttributeService.GetAllAddressAttributes();
-            if (attributes.Any(x => x.IsRequired))
-                return false;
-
-            return true;
+            return !attributes.Any(x => x.IsRequired);
         }
-
     }
 }

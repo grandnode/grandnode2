@@ -1,6 +1,9 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Binders;
+using Grand.Web.Common.Models;
 using Grand.Web.Models.Newsletter;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,6 +16,7 @@ namespace Grand.Web.Models.Customer
             AvailableCountries = new List<SelectListItem>();
             AvailableStates = new List<SelectListItem>();
             CustomerAttributes = new List<CustomerAttributeModel>();
+            SelectedAttributes = new List<CustomAttributeModel>();
             NewsletterCategories = new List<NewsletterSimpleCategory>();
         }
         [DataType(DataType.EmailAddress)]
@@ -120,7 +124,7 @@ namespace Grand.Web.Models.Customer
         public bool NewsletterEnabled { get; set; }
         [GrandResourceDisplayName("Account.Fields.Newsletter")]
         public bool Newsletter { get; set; }
-
+        public string[] SelectedNewsletterCategory { get; set; }
         public bool AcceptPrivacyPolicyEnabled { get; set; }
 
         //EU VAT
@@ -130,6 +134,9 @@ namespace Grand.Web.Models.Customer
         
         public bool DisplayCaptcha { get; set; }
 
+        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+        
         public IList<CustomerAttributeModel> CustomerAttributes { get; set; }
         public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; }
     }

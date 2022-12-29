@@ -8,14 +8,13 @@
                 {
                     <li>
                         @{
-                            string controlId = $"customernewsletterCategory_{attribute.Id}";
-                            string textPrompt = attribute.Name;
+                            var controlId = $"customerNewsletterCategory_{attribute.Id}";
                         }
                         <label for="@(controlId)" class="custom-control custom-checkbox">
-                            <input class="custom-control-input" id="@(controlId)" type="checkbox" name="@(controlId)" value="@(attribute.Id)" 
+                            <input class="custom-control-input" id="@(controlId)" type="checkbox" name="SelectedNewsletterCategory" value="@(attribute.Id)" 
                                    checked="@(attribute.Selected)" />
                             <span class="custom-control-label"></span>
-                            <span class="custom-control-description">@textPrompt</span>
+                            <span class="custom-control-description">@(attribute.Name)</span>
                         </label>
                         <div>
                             @Html.Raw(attribute.Description)

@@ -8,7 +8,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Messages;
 using Grand.Domain.Tax;
 using Grand.Web.Commands.Models.Customers;
-using Grand.Web.Events;
 using MediatR;
 
 namespace Grand.Web.Commands.Handler.Customers
@@ -91,15 +90,9 @@ namespace Grand.Web.Commands.Handler.Customers
             {
                 await UpdateNewsletter(request);
             }
-
             //save customer attributes
             await _customerService.UpdateCustomerField(request.Customer, x => x.Attributes, request.CustomerAttributes);
-
-            //notification
-            await _mediator.Publish(new CustomerInfoEvent(request.Customer, request.Model, request.Form, request.CustomerAttributes));
-
             return true;
-
         }
 
         private async Task UpdateTax(UpdateCustomerInfoCommand request)
@@ -151,26 +144,14 @@ namespace Grand.Web.Commands.Handler.Customers
 
         private async Task UpdateNewsletter(UpdateCustomerInfoCommand request)
         {
-            var categories = new List<string>();
-            foreach (string formKey in request.Form.Keys)
-            {
-                if (formKey.Contains("customernewsletterCategory_"))
-                {
-                    try
-                    {
-                        var category = formKey.Split('_')[1];
-                        categories.Add(category);
-                    }
-                    catch { }
-                }
-            }
+            var categories = request.Model.SelectedNewsletterCategory?.ToList();
             //save newsletter value
             var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(request.Customer.Email, request.Store.Id);
 
             if (newsletter != null)
             {
                 newsletter.Categories.Clear();
-                categories.ForEach(x => newsletter.Categories.Add(x));
+                categories?.ForEach(x => newsletter.Categories.Add(x));
 
                 if (request.Model.Newsletter)
                 {
@@ -196,7 +177,7 @@ namespace Grand.Web.Commands.Handler.Customers
                         StoreId = request.Store.Id,
                         CreatedOnUtc = DateTime.UtcNow
                     };
-                    categories.ForEach(x => newsLetterSubscription.Categories.Add(x));
+                    categories?.ForEach(x => newsLetterSubscription.Categories.Add(x));
                     await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);
                 }
             }

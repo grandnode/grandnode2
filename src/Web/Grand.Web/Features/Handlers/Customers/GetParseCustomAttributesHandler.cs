@@ -31,13 +31,12 @@ namespace Grand.Web.Features.Handlers.Customers
 
                     continue;
                 }
-                string controlId = string.Format("customer_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
@@ -47,10 +46,10 @@ namespace Grand.Web.Features.Handlers.Customers
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            request.Form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
                                     if (!String.IsNullOrEmpty(item))
                                         customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
@@ -77,7 +76,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     case AttributeControlType.MultilineTextbox:
                     case AttributeControlType.Hidden:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 var enteredText = ctrlAttributes.ToString().Trim();

@@ -23,12 +23,11 @@ using Grand.Web.Models.Customer;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class AccountController : BasePublicController
+    public class AccountController : BasePublicController
     {
         #region Fields
 
@@ -405,7 +404,7 @@ namespace Grand.Web.Controllers
         [AutoValidateAntiforgeryToken]
         //available even when navigation is not allowed
         [PublicStore(true)]
-        public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl, bool captchaValid, IFormCollection form,
+        public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl, bool captchaValid,
            [FromServices] ICustomerAttributeParser customerAttributeParser)
         {
             //check whether registration is allowed
@@ -419,7 +418,7 @@ namespace Grand.Web.Controllers
             }
 
             //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { Form = form });
+            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { SelectedAttributes = model.SelectedAttributes });
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings)
             {
@@ -439,7 +438,7 @@ namespace Grand.Web.Controllers
                     model.Username = model.Username.Trim();
                 }
 
-                bool isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+                var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
                 var registrationRequest = new RegistrationRequest(_workContext.CurrentCustomer, model.Email,
                     _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password,
                     _customerSettings.DefaultPasswordFormat, _workContext.CurrentStore.Id, isApproved);
@@ -449,7 +448,6 @@ namespace Grand.Web.Controllers
                     await _mediator.Send(new CustomerRegisteredCommand() {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
-                        Form = form,
                         Model = model,
                         Store = _workContext.CurrentStore
                     });
@@ -595,8 +593,9 @@ namespace Grand.Web.Controllers
             //send welcome message
             await _messageProviderService.SendCustomerWelcomeMessage(customer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
-            var model = new AccountActivationModel();
-            model.Result = _translationService.GetResource("Account.AccountActivation.Activated");
+            var model = new AccountActivationModel {
+                Result = _translationService.GetResource("Account.AccountActivation.Activated")
+            };
             return View(model);
         }
 
@@ -620,14 +619,14 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> Info(CustomerInfoModel model, IFormCollection form,
+        public virtual async Task<IActionResult> Info(CustomerInfoModel model,
             [FromServices] ICustomerAttributeParser customerAttributeParser)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
             //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { Form = form, CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList() });
+            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { SelectedAttributes = model.SelectedAttributes, CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList() });
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
 
             foreach (var error in customerAttributeWarnings)
@@ -637,12 +636,11 @@ namespace Grand.Web.Controllers
 
             try
             {
-                if (ModelState.IsValid && ModelState.ErrorCount == 0)
+                if (ModelState is { IsValid: true, ErrorCount: 0 })
                 {
                     await _mediator.Send(new UpdateCustomerInfoCommand() {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
-                        Form = form,
                         Model = model,
                         OriginalCustomerIfImpersonated = _workContext.OriginalCustomerIfImpersonated,
                         Store = _workContext.CurrentStore
