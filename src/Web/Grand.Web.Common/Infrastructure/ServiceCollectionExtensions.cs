@@ -12,7 +12,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
-using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +31,6 @@ using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNet.Common.UrlMatchers;
 using WebMarkupMin.AspNetCore6;
 using WebMarkupMin.NUglify;
-
 using IWmmLogger = WebMarkupMin.Core.Loggers.ILogger;
 using WmmThrowExceptionLogger = WebMarkupMin.Core.Loggers.ThrowExceptionLogger;
 
@@ -59,8 +57,9 @@ namespace Grand.Web.Common.Infrastructure
                 if (DataSettingsManager.DatabaseIsInstalled())
                 {
                     //whether to allow the use of anti-forgery cookies from SSL protected page on the other store pages which are not
-                    options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
-
+                    options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways
+                        ? CookieSecurePolicy.Always
+                        : CookieSecurePolicy.SameAsRequest;
                 }
             });
         }
@@ -80,7 +79,9 @@ namespace Grand.Web.Common.Infrastructure
                 };
                 if (DataSettingsManager.DatabaseIsInstalled())
                 {
-                    options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways
+                        ? CookieSecurePolicy.Always
+                        : CookieSecurePolicy.SameAsRequest;
                 }
             });
         }
@@ -122,22 +123,25 @@ namespace Grand.Web.Common.Infrastructure
                 if (azureConfig.PersistKeysToAzureKeyVault)
                     services.AddDataProtection()
                         // This blob must already exist before the application is run
-                        .PersistKeysToAzureBlobStorage(azureConfig.PersistKeysAzureBlobStorageConnectionString, azureConfig.DataProtectionContainerName, azureConfig.DataProtectionBlobName)
+                        .PersistKeysToAzureBlobStorage(azureConfig.PersistKeysAzureBlobStorageConnectionString,
+                            azureConfig.DataProtectionContainerName, azureConfig.DataProtectionBlobName)
                         .ProtectKeysWithAzureKeyVault(new Uri(azureConfig.KeyIdentifier),
-                        new DefaultAzureCredential());
+                            new DefaultAzureCredential());
                 else
                 {
                     services.AddDataProtection()
-                        .PersistKeysToAzureBlobStorage(azureConfig.PersistKeysAzureBlobStorageConnectionString, azureConfig.DataProtectionContainerName, azureConfig.DataProtectionBlobName);
+                        .PersistKeysToAzureBlobStorage(azureConfig.PersistKeysAzureBlobStorageConnectionString,
+                            azureConfig.DataProtectionContainerName, azureConfig.DataProtectionBlobName);
                 }
-
             }
             else
             {
                 var securityConfig = new SecurityConfig();
                 configuration.GetSection("Security").Bind(securityConfig);
 
-                var dataProtectionKeysPath = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation) ? CommonPath.DataProtectionKeysPath : securityConfig.KeyPersistenceLocation;
+                var dataProtectionKeysPath = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation)
+                    ? CommonPath.DataProtectionKeysPath
+                    : securityConfig.KeyPersistenceLocation;
                 var dataProtectionKeysFolder = new DirectoryInfo(dataProtectionKeysPath);
 
                 //configure the data protection system to persist keys to the specified directory
@@ -165,22 +169,28 @@ namespace Grand.Web.Common.Infrastructure
             //add main cookie authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
-                options.Cookie.Name = securityConfig.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
+                options.Cookie.Name =
+                    securityConfig.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
 
-                options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways
+                    ? CookieSecurePolicy.Always
+                    : CookieSecurePolicy.SameAsRequest;
             });
 
             //add external authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme, options =>
             {
-                options.Cookie.Name = securityConfig.CookiePrefix + GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
+                options.Cookie.Name = securityConfig.CookiePrefix +
+                                      GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
-                options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways
+                    ? CookieSecurePolicy.Always
+                    : CookieSecurePolicy.SameAsRequest;
             });
 
             //register external authentication plugins now
@@ -194,7 +204,6 @@ namespace Grand.Web.Common.Infrastructure
             //add new Authentication
             foreach (var instance in externalAuthInstances)
                 instance.AddAuthentication(authenticationBuilder, configuration);
-
         }
 
         /// <summary>
@@ -214,7 +223,7 @@ namespace Grand.Web.Common.Infrastructure
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
 
-            if(securityConfig.EnableRuntimeCompilation) mvcBuilder.AddRazorRuntimeCompilation();
+            if (securityConfig.EnableRuntimeCompilation) mvcBuilder.AddRazorRuntimeCompilation();
 
             if (securityConfig.UseHsts)
             {
@@ -250,7 +259,8 @@ namespace Grand.Web.Common.Infrastructure
             services.AddValidatorsFromAssemblies(assemblies);
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
-            mvcBuilder.AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
+            mvcBuilder.AddNewtonsoftJson(options =>
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
             //register controllers as services, it'll allow to override them
             mvcBuilder.AddControllersAsServices();
@@ -277,8 +287,10 @@ namespace Grand.Web.Common.Infrastructure
                 options.IgnoredPaths.Add("/.well-known/pki-validation");
                 //determine who can access the MiniProfiler results
                 options.ResultsAuthorize = request =>
-                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>().DisplayMiniProfilerInPublicStore ||
-                    request.HttpContext.RequestServices.GetRequiredService<IPermissionService>().Authorize(StandardPermission.AccessAdminPanel).Result;
+                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>()
+                        .DisplayMiniProfilerInPublicStore ||
+                    request.HttpContext.RequestServices.GetRequiredService<IPermissionService>()
+                        .Authorize(StandardPermission.AccessAdminPanel).Result;
             });
         }
 
@@ -302,16 +314,15 @@ namespace Grand.Web.Common.Infrastructure
                 });
             }
         }
-        
+
         public static void AddGrandHealthChecks(this IServiceCollection services)
         {
             var connection = DataSettingsManager.LoadSettings();
             var hcBuilder = services.AddHealthChecks();
             hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
             hcBuilder.AddMongoDb(connection.ConnectionString,
-                   name: "mongodb-check",
-                   tags: new[] { "mongodb" });
-
+                name: "mongodb-check",
+                tags: new[] { "mongodb" });
         }
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
@@ -322,55 +333,53 @@ namespace Grand.Web.Common.Infrastructure
             {
                 // Add WebMarkupMin services
                 services.AddWebMarkupMin(options =>
-                {
-                    options.AllowMinificationInDevelopmentEnvironment = true;
-                    options.AllowCompressionInDevelopmentEnvironment = true;
-                })
-                .AddHtmlMinification(options =>
-                {
-                    options.MinificationSettings.RemoveOptionalEndTags = false;
+                    {
+                        options.AllowMinificationInDevelopmentEnvironment = true;
+                        options.AllowCompressionInDevelopmentEnvironment = true;
+                    })
+                    .AddHtmlMinification(options =>
+                    {
+                        options.MinificationSettings.RemoveOptionalEndTags = false;
 
-                    options.ExcludedPages = new List<IUrlMatcher> {
-                    new WildcardUrlMatcher("/swagger/*"),
-                    new WildcardUrlMatcher("/admin/*"),
-                    new ExactUrlMatcher("/admin")
-                    };
-                    options.CssMinifierFactory = new NUglifyCssMinifierFactory();
-                    options.JsMinifierFactory = new NUglifyJsMinifierFactory();
-                })
-                .AddXmlMinification(options =>
-                {
-                    options.ExcludedPages = new List<IUrlMatcher> {
-                    new WildcardUrlMatcher("/swagger/*"),
-                    new WildcardUrlMatcher("/admin/*"),
-                    new ExactUrlMatcher("/admin")
-                    };
-                })
-                .AddHttpCompression(options =>
-                {
-                    options.ExcludedPages = new List<IUrlMatcher> {
-                    new WildcardUrlMatcher("/swagger/*")
-                    };
-                    options.CompressorFactories = new List<ICompressorFactory>
-                        {
-                        new BuiltInBrotliCompressorFactory(new BuiltInBrotliCompressionSettings
-                        {
-                            Level = CompressionLevel.Fastest
-                        }),
-                        new DeflateCompressorFactory(new DeflateCompressionSettings
-                        {
-                            Level = CompressionLevel.Fastest
-                        }),
-                        new GZipCompressorFactory(new GZipCompressionSettings
-                        {
-                            Level = CompressionLevel.Fastest
-                        })
+                        options.ExcludedPages = new List<IUrlMatcher> {
+                            new WildcardUrlMatcher("/swagger/*"),
+                            new WildcardUrlMatcher("/admin/*"),
+                            new ExactUrlMatcher("/admin")
                         };
-                });
+                        options.CssMinifierFactory = new NUglifyCssMinifierFactory();
+                        options.JsMinifierFactory = new NUglifyJsMinifierFactory();
+                    })
+                    .AddXmlMinification(options =>
+                    {
+                        options.ExcludedPages = new List<IUrlMatcher> {
+                            new WildcardUrlMatcher("/swagger/*"),
+                            new WildcardUrlMatcher("/admin/*"),
+                            new ExactUrlMatcher("/admin")
+                        };
+                    })
+                    .AddHttpCompression(options =>
+                    {
+                        options.ExcludedPages = new List<IUrlMatcher> {
+                            new WildcardUrlMatcher("/swagger/*")
+                        };
+                        options.CompressorFactories = new List<ICompressorFactory> {
+                            new BuiltInBrotliCompressorFactory(new BuiltInBrotliCompressionSettings {
+                                Level = CompressionLevel.Fastest
+                            }),
+                            new DeflateCompressorFactory(new DeflateCompressionSettings {
+                                Level = CompressionLevel.Fastest
+                            }),
+                            new GZipCompressorFactory(new GZipCompressionSettings {
+                                Level = CompressionLevel.Fastest
+                            })
+                        };
+                    });
             }
+
             if (performanceConfig.HtmlMinificationErrors)
                 services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
+
         public static void AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)
         {
             var applicationInsights = new ApplicationInsightsConfig();
@@ -379,8 +388,8 @@ namespace Grand.Web.Common.Infrastructure
             {
                 services.AddApplicationInsightsTelemetry();
             }
-
         }
+
         /// <summary>
         /// Adds services for WebEncoderOptions
         /// </summary>
@@ -395,7 +404,6 @@ namespace Grand.Web.Common.Infrastructure
                 options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All);
             });
         }
-
 
 
         /// <summary>

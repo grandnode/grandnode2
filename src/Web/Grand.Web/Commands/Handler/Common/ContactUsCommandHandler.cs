@@ -53,19 +53,20 @@ namespace Grand.Web.Commands.Handler.Common
                     TextPrompt = attribute.GetTranslation(x => x.TextPrompt, request.Language.Id),
                     IsRequired = attribute.IsRequired,
                     AttributeControlType = attribute.AttributeControlType,
-                    DefaultValue = request.Form?[$"contact_attribute_{attribute.Id}"] ?? attribute.DefaultValue,
+                    DefaultValue = request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value ?? attribute.DefaultValue
                 };
                 if (attribute.AttributeControlType == Domain.Catalog.AttributeControlType.Datepicker)
                 {
-                    int.TryParse(request.Form?[$"contact_attribute_{attribute.Id}_day"], out var selectedDay);
+                    int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_day")?.Value, out var selectedDay);
+                    int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_month")?.Value,out var selectedMonth);
+                    int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_year")?.Value, out var selectedYear);
+                    
                     if (selectedDay > 0)
                         attributeModel.SelectedDay = selectedDay;
 
-                    int.TryParse(request.Form?[$"contact_attribute_{attribute.Id}_month"], out var selectedMonth);
                     if (selectedMonth > 0)
                         attributeModel.SelectedMonth = selectedMonth;
 
-                    int.TryParse(request.Form?[$"contact_attribute_{attribute.Id}_year"], out var selectedYear);
                     if (selectedYear > 0)
                         attributeModel.SelectedYear = selectedYear;
                 }
@@ -83,7 +84,8 @@ namespace Grand.Web.Commands.Handler.Common
                     var attributeValues = attribute.ContactAttributeValues;
                     foreach (var attributeValue in attributeValues)
                     {
-                        var preSelected = request.Form?[$"contact_attribute_{attribute.Id}"].ToString();
+                        var preSelected = request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value; 
+
                         var attributeValueModel = new ContactUsModel.ContactAttributeValueModel {
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),

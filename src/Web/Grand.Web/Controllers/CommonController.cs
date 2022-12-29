@@ -355,7 +355,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> ContactUsSend(
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IPageService pageService,
-            ContactUsModel model, IFormCollection form, bool captchaValid)
+            ContactUsModel model, bool captchaValid)
         {
             if (storeInformationSettings.StoreClosed)
             {
@@ -374,7 +374,6 @@ namespace Grand.Web.Controllers
             {
                 var result = await _mediator.Send(new ContactUsSendCommand() {
                     CaptchaValid = captchaValid,
-                    Form = form,
                     Model = model,
                     Store = _workContext.CurrentStore,
                     IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
@@ -390,21 +389,20 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //notification
-                    await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model, form));
+                    await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model));
 
                     model = result.model;
                     return View(model);
                 }
             }
-            model = await _mediator.Send(new ContactUsCommand() {
+            var model1 = await _mediator.Send(new ContactUsCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model,
-                Form = form
             });
 
-            return View(model);
+            return View(model1);
         }
 
 
@@ -528,10 +526,10 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactAttributeChange(IFormCollection form)
+        public virtual async Task<IActionResult> ContactAttributeChange(ContactAttributeChangeModel model)
         {
             var result = await _mediator.Send(new ContactAttributeChangeCommand() {
-                Form = form,
+                Attributes = model.Attributes,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
             });

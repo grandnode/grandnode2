@@ -11,11 +11,10 @@ namespace Grand.Web.Events
         public ContactUsModel Model { get; private set; }
         public IFormCollection Form { get; private set; }
 
-        public ContactUsEvent(Customer customer, ContactUsModel model, IFormCollection form)
+        public ContactUsEvent(Customer customer, ContactUsModel model)
         {
             Customer = customer;
             Model = model;
-            Form = form;
         }
     }
 }

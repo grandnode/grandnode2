@@ -2,6 +2,9 @@
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Domain.Common;
+using Grand.Web.Common.Binders;
+using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Models.Common
 {
@@ -11,6 +14,7 @@ namespace Grand.Web.Models.Common
         {
             ContactAttributes = new List<ContactAttributeModel>();
             ContactAttribute = new List<CustomAttribute>();
+            Attributes = new List<CustomAttributeModel>();
         }
 
         [GrandResourceDisplayName("ContactUs.Email")]
@@ -31,6 +35,9 @@ namespace Grand.Web.Models.Common
 
         public bool DisplayCaptcha { get; set; }
 
+        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+        public IList<CustomAttributeModel> Attributes { get; set; }
+        
         public string ContactAttributeInfo { get; set; }
         public IList<CustomAttribute> ContactAttribute { get; set; }
         public IList<ContactAttributeModel> ContactAttributes { get; set; }

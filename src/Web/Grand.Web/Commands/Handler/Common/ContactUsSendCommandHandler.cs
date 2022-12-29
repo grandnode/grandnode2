@@ -88,7 +88,6 @@ namespace Grand.Web.Commands.Handler.Common
             var contactAttributes = await _contactAttributeService.GetAllContactAttributes(request.Store.Id);
             foreach (var attribute in contactAttributes)
             {
-                string controlId = string.Format("contact_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:
@@ -96,7 +95,7 @@ namespace Grand.Web.Commands.Handler.Common
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
@@ -107,10 +106,11 @@ namespace Grand.Web.Commands.Handler.Common
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            request.Form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
                                     customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes, attribute, item).ToList();
                                 }
@@ -134,7 +134,7 @@ namespace Grand.Web.Commands.Handler.Common
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 var enteredText = ctrlAttributes.ToString().Trim();
@@ -145,9 +145,9 @@ namespace Grand.Web.Commands.Handler.Common
                         break;
                     case AttributeControlType.Datepicker:
                         {
-                            request.Form.TryGetValue(controlId + "_day", out var date);
-                            request.Form.TryGetValue(controlId + "_month", out var month);
-                            request.Form.TryGetValue(controlId + "_year", out var year);
+                            var date = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_day")?.Value;
+                            var month = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_month")?.Value;
+                            var year = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_year")?.Value;
                             DateTime? selectedDate = null;
                             try
                             {
@@ -163,7 +163,7 @@ namespace Grand.Web.Commands.Handler.Common
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            request.Form.TryGetValue(controlId, out var guid);
+                            var guid = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             Guid.TryParse(guid, out Guid downloadGuid);
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
