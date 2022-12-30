@@ -144,7 +144,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost, ActionName("MerchandiseReturn")]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> MerchandiseReturnSubmit(string orderId, MerchandiseReturnModel model, IFormCollection form)
+        public virtual async Task<IActionResult> MerchandiseReturnSubmit(string orderId, MerchandiseReturnModel model)
         {
             var order = await _orderService.GetOrderById(orderId);
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
@@ -181,7 +181,7 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand() { Address = address, Model = model, Form = form, Order = order });
+                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand() { Address = address, Model = model, Order = order });
                 if (result.rr.ReturnNumber > 0)
                 {
                     model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"), result.rr.ReturnNumber, Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.rr.Id }));

@@ -13,7 +13,8 @@ using MediatR;
 
 namespace Grand.Web.Commands.Handler.Orders
 {
-    public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<MerchandiseReturnSubmitCommand, (MerchandiseReturnModel model, MerchandiseReturn rr)>
+    public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<MerchandiseReturnSubmitCommand, (
+        MerchandiseReturnModel model, MerchandiseReturn rr)>
     {
         private readonly IWorkContext _workContext;
         private readonly IProductService _productService;
@@ -41,13 +42,16 @@ namespace Grand.Web.Commands.Handler.Orders
             _languageSettings = languageSettings;
         }
 
-        public async Task<(MerchandiseReturnModel model, MerchandiseReturn rr)> Handle(MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
+        public async Task<(MerchandiseReturnModel model, MerchandiseReturn rr)> Handle(
+            MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
         {
             var rr = new MerchandiseReturn {
                 StoreId = _workContext.CurrentStore.Id,
                 OrderId = request.Order.Id,
                 CustomerId = _workContext.CurrentCustomer.Id,
-                OwnerId = await _groupService.IsOwner(_workContext.CurrentCustomer) ? _workContext.CurrentCustomer.Id : _workContext.CurrentCustomer.OwnerId,
+                OwnerId = await _groupService.IsOwner(_workContext.CurrentCustomer)
+                    ? _workContext.CurrentCustomer.Id
+                    : _workContext.CurrentCustomer.OwnerId,
                 SeId = request.Order.SeId,
                 CustomerComments = request.Model.Comments,
                 StaffNotes = string.Empty,
@@ -63,58 +67,46 @@ namespace Grand.Web.Commands.Handler.Orders
             foreach (var orderItem in request.Order.OrderItems)
             {
                 var product = await _productService.GetProductById(orderItem.ProductId);
-                if (!product.NotReturnable)
-                {
-                    int quantity = 0; //parse quantity
-                    string rrrId = "";
-                    string rraId = "";
+                if (product.NotReturnable) continue;
 
-                    foreach (string formKey in request.Form.Keys)
-                    {
-                        if (formKey.Equals(string.Format("quantity{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
-                        {
-                            int.TryParse(request.Form[formKey], out quantity);
-                        }
+                var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity;
+                var rrrId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnReasonId;
+                var rraId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnActionId;
 
-                        if (formKey.Equals(string.Format("reason{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
-                        {
-                            rrrId = request.Form[formKey];
-                        }
+                if (quantity is not > 0) continue;
 
-                        if (formKey.Equals(string.Format("action{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
-                        {
-                            rraId = request.Form[formKey];
-                        }
-                    }
-
-                    if (quantity > 0)
-                    {
-                        var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
-                        var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
-                        rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
-                            RequestedAction = rra != null ? rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id) : "not available",
-                            ReasonForReturn = rrr != null ? rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id) : "not available",
-                            Quantity = quantity,
-                            OrderItemId = orderItem.Id
-                        });
-                        rr.VendorId = orderItem.VendorId;
-                        vendors.Add(orderItem.VendorId);
-                    }
-                }
+                var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
+                var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
+                rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
+                    RequestedAction = rra != null
+                        ? rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                        : "not available",
+                    ReasonForReturn = rrr != null
+                        ? rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                        : "not available",
+                    Quantity = quantity.Value,
+                    OrderItemId = orderItem.Id
+                });
+                rr.VendorId = orderItem.VendorId;
+                vendors.Add(orderItem.VendorId);
             }
+
             if (vendors.Distinct().Count() > 1)
             {
                 request.Model.Error = _translationService.GetResource("MerchandiseReturns.MultiVendorsItems");
                 return (request.Model, rr);
             }
+
             if (rr.MerchandiseReturnItems.Any())
             {
                 await _merchandiseReturnService.InsertMerchandiseReturn(rr);
 
                 //notify store owner here (email)
-                await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order, _languageSettings.DefaultAdminLanguageId);
+                await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
+                    _languageSettings.DefaultAdminLanguageId);
                 //notify customer
-                await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order, request.Order.CustomerLanguageId);
+                await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
+                    request.Order.CustomerLanguageId);
             }
             else
             {
