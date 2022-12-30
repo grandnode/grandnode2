@@ -488,8 +488,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> SaveBilling(
             [FromServices] AddressSettings addressSettings,
-            CheckoutBillingAddressModel model,
-            IFormCollection form)
+            CheckoutBillingAddressModel model)
         {
             try
             {
@@ -510,7 +509,7 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //custom address attributes
-                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
+                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
                     var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
                     foreach (var error in customAttributeWarnings)
                     {
@@ -597,8 +596,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> SaveShipping(
             [FromServices] AddressSettings addressSettings,
-            CheckoutShippingAddressModel model,
-            IFormCollection form)
+            CheckoutShippingAddressModel model)
         {
             try
             {
@@ -678,7 +676,7 @@ namespace Grand.Web.Controllers
                     {
                         //custom address attributes
                         var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes()
-                            { Form = form });
+                            { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
                         var customAttributeWarnings =
                             await _addressAttributeParser.GetAttributeWarnings(customAttributes);
                         foreach (var error in customAttributeWarnings)

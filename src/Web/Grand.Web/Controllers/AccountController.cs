@@ -771,7 +771,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model, IFormCollection form,
+        public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model,
             [FromServices] AddressSettings addressSettings,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
@@ -781,7 +781,7 @@ namespace Grand.Web.Controllers
             var customer = _workContext.CurrentCustomer;
 
             //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
+            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.Address.SelectedAttributes });
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
@@ -843,7 +843,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, string addressId, IFormCollection form,
+        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, string addressId,
             [FromServices] AddressSettings addressSettings,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
@@ -858,14 +858,14 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("CustomerAddresses");
 
             //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
+            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.Address.SelectedAttributes });
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
                 ModelState.AddModelError("", error);
             }
 
-            if (ModelState.IsValid && ModelState.ErrorCount == 0)
+            if (ModelState is { IsValid: true, ErrorCount: 0 })
             {
                 address = model.Address.ToEntity(address, _workContext.CurrentCustomer, addressSettings);
                 address.Attributes = customAttributes;                
@@ -887,7 +887,8 @@ namespace Grand.Web.Controllers
                 Address = address,
                 ExcludeProperties = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries
+                LoadCountries = () => countries,
+                OverrideAttributes = customAttributes
             });
 
             return View(model);

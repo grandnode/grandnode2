@@ -4,8 +4,9 @@
 }
 @foreach (var attribute in Model)
 {
-    string controlId = string.Format("address_attribute_{0}", attribute.Id);
-    string textPrompt = attribute.Name;
+    var controlId = $"address_attribute_{attribute.Id}";
+    var controlName = $"attributes[{attribute.Id}]";
+    var textPrompt = attribute.Name;
 
     <div class="inputs custom-attributes col-sm-12 mb-3">
         <label class="col-form-label" for="@(controlId)">@textPrompt:</label>
@@ -19,8 +20,8 @@
             case AttributeControlType.DropdownList:
                 {
 
-                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
-                        <select v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'custom-select form-control']" name="@(controlId)" id="@(controlId)">
+                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } v-slot="{ errors, classes }">
+                        <select v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'custom-select form-control']" name="@(controlName)" id="@(controlId)">
                             @if (!attribute.IsRequired)
                             {
                                 <option value="">---</option>
@@ -57,7 +58,7 @@
                                 @foreach (var attributeValue in attribute.Values)
                                 {
                                     <label class="custom-control custom-radio">
-                                        <input class="custom-control-input" type="radio" id="@(controlId)_@(attributeValue.Id)" name="@(controlId)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)" @if (attributeValue.IsPreSelected) { <text> data-checked="true" </text> }>
+                                        <input class="custom-control-input" type="radio" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)" @if (attributeValue.IsPreSelected) { <text> data-checked="true" </text> }>
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@attributeValue.Name</span>
                                     </label>
@@ -85,7 +86,7 @@
                                 @foreach (var attributeValue in attribute.Values)
                                 {
                                     <label class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="@(controlId)_@(attributeValue.Id)" name="@(controlId)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)"  @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)>
+                                        <input class="custom-control-input" type="checkbox" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)"  @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)>
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@attributeValue.Name</span>
                                     </label>
@@ -98,8 +99,8 @@
                 break;
             case AttributeControlType.TextBox:
                 {
-                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
-                        <input name="@(controlId)" type="text"
+                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } v-slot="{ errors, classes }">
+                        <input name="@(controlName)" type="text"
                                id="@(controlId)" v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-control textbox']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                     </validation-provider>
@@ -107,8 +108,8 @@
                 break;
             case AttributeControlType.MultilineTextbox:
                 {
-                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
-                        <textarea name="@(controlId)"
+                    <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } v-slot="{ errors, classes }">
+                        <textarea name="@(controlName)"
                                   id="@(controlId)" v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-control']"></textarea>
                         <span class="field-validation-error">{{ errors[0] }}</span>
                     </validation-provider>
