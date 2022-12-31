@@ -2,8 +2,8 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
+using Grand.Web.Common.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Commands.Models.ShoppingCart
 {
@@ -13,6 +13,6 @@ namespace Grand.Web.Commands.Models.ShoppingCart
         public Store Store { get; set; }
 
         public IList<ShoppingCartItem> Cart { get; set; }
-        public IFormCollection Form { get; set; }
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
     }
 }

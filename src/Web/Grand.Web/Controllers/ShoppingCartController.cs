@@ -22,6 +22,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Models.ShoppingCart;
 
 namespace Grand.Web.Controllers
 {
@@ -116,7 +117,7 @@ namespace Grand.Web.Controllers
 
         [DenySystemAccount]
         [HttpPost]
-        public virtual async Task<IActionResult> CheckoutAttributeChange(IFormCollection form,
+        public virtual async Task<IActionResult> CheckoutAttributeChange(CheckoutAttributeSelectedModel model,
             [FromServices] ICheckoutAttributeParser checkoutAttributeParser,
             [FromServices] ICheckoutAttributeFormatter checkoutAttributeFormatter)
         {
@@ -126,7 +127,7 @@ namespace Grand.Web.Controllers
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Cart = cart,
-                Form = form
+                SelectedAttributes = model.Attributes
             });
 
             var enabledAttributeIds = new List<string>();
@@ -143,7 +144,7 @@ namespace Grand.Web.Controllers
                         disabledAttributeIds.Add(attribute.Id);
                 }
             }
-            var model = await _mediator.Send(new GetOrderTotals() {
+            var orderTotals = await _mediator.Send(new GetOrderTotals() {
                 Cart = cart,
                 IsEditable = true,
                 Store = _workContext.CurrentStore,
@@ -157,7 +158,7 @@ namespace Grand.Web.Controllers
             {
                 enabledattributeids = enabledAttributeIds.ToArray(),
                 disabledattributeids = disabledAttributeIds.ToArray(),
-                model,
+                model = orderTotals,
                 checkoutattributeinfo = await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _workContext.CurrentCustomer),
             });
         }
@@ -502,18 +503,18 @@ namespace Grand.Web.Controllers
         }
 
         [DenySystemAccount]
-        public virtual async Task<IActionResult> StartCheckout(IFormCollection form = null)
+        public virtual async Task<IActionResult> StartCheckout(CheckoutAttributeSelectedModel model)
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
-            var checkoutAttributes = new List<CustomAttribute>();
+            List<CustomAttribute> checkoutAttributes;
             //parse and save checkout attributes
-            if (form != null && form.Count > 0)
+            if (model?.Attributes != null && model.Attributes.Count > 0)
             {
                 checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand() {
                     Customer = _workContext.CurrentCustomer,
                     Store = _workContext.CurrentStore,
                     Cart = cart,
-                    Form = form
+                    SelectedAttributes = model.Attributes
                 })).ToList();
             }
             else
@@ -528,15 +529,12 @@ namespace Grand.Web.Controllers
             }
 
             //everything is OK
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer))
-            {
-                if (!_orderSettings.AnonymousCheckoutAllowed)
-                    return Challenge();
+            if (!await _groupService.IsGuest(_workContext.CurrentCustomer)) return RedirectToRoute("Checkout");
+            if (!_orderSettings.AnonymousCheckoutAllowed)
+                return Challenge();
 
-                return RedirectToRoute("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
-            }
+            return RedirectToRoute("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
 
-            return RedirectToRoute("Checkout");
         }
 
         [AutoValidateAntiforgeryToken]

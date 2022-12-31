@@ -11,11 +11,11 @@
             <span v-if="attribute.IsRequired" class="required">*</span>
             <template v-if="attribute.AttributeControlType == 4">
                 <label :for="'checkout_attribute_' + attribute.Id" class="sr-only">checkout_attribute_{{attribute.Id}}</label>
-                    <input :name="'checkout_attribute_' + attribute.Id" type="text" class="form-control textbox" :id="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange();" />
+                    <input :name="'attributes['+attribute.Id+']'" type="text" class="form-control textbox" :id="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange();" />
             </template>
             <template v-if="attribute.AttributeControlType == 1">
                 <label :for="'checkout_attribute_' + attribute.Id" class="sr-only">checkout_attribute_{{attribute.Id}}</label>
-                <select :id="'checkout_attribute_' + attribute.Id" class="form-control custom-select" onchange="checkoutAttributeChange()" :name="'checkout_attribute_' + attribute.Id">
+                <select :id="'checkout_attribute_' + attribute.Id" class="form-control custom-select" onchange="checkoutAttributeChange()" :name="'attributes['+attribute.Id+']'">
                     <template v-if="attribute.IsRequired == false">
                         <option value="">---</option>
                     </template>
@@ -37,7 +37,7 @@
                                 checkout_attribute_{{attribute.Id}}
                             </legend>
                             <label class="custom-control custom-radio">
-                                <input class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'checkout_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" onclick="checkoutAttributeChange()" />
+                                <input class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes['+attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" onclick="checkoutAttributeChange()" />
                                 <span class="custom-control-label"></span>
                                 <span class="custom-control-description" :for="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                     <template v-if="attributeValue.PriceAdjustment == null">
@@ -59,8 +59,8 @@
                     <ul class="option-list px-0 mb-0">
                         <li v-for="attributeValue in attribute.Values">
                             <label class="custom-control custom-checkbox">
-                                <input v-if="attribute.AttributeControlType == 50" class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="checkbox" :name="'checkout_attribute_' + attribute.Id" :value="attributeValue.Id" onclick="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" disabled="disabled" />
-                                <input v-else class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="checkbox" :name="'checkout_attribute_' + attribute.Id" :value="attributeValue.Id" onclick="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" />
+                                <input v-if="attribute.AttributeControlType == 50" class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="checkbox" :name="'attributes['+attribute.Id+']'" :value="attributeValue.Id" onclick="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" disabled="disabled" />
+                                <input v-else class="custom-control-input" :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="checkbox" :name="'attributes['+attribute.Id+']'" :value="attributeValue.Id" onclick="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" />
                                 <span class="custom-control-label"></span>
                                 <span class="custom-control-description" :for="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                     <template v-if="attributeValue.PriceAdjustment == null">
@@ -76,10 +76,10 @@
                 </fieldset>
             </template>
             <template v-if="attribute.AttributeControlType == 10">
-                <textarea class="form-control" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange()">{{attribute.DefaultValue}}</textarea>
+                <textarea class="form-control" :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange()">{{attribute.DefaultValue}}</textarea>
             </template>
             <template v-if="attribute.AttributeControlType == 20">
-                <input :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" class="form-control" :value="attribute.DefaultValue" v-model="attribute.DefaultValue" onchange="checkoutAttributeChange();" type="date" />
+                <input :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" class="form-control" :value="attribute.DefaultValue" v-model="attribute.DefaultValue" onchange="checkoutAttributeChange();" type="date" />
             </template>
             <template v-if="attribute.AttributeControlType == 30">
                 <template>
@@ -87,7 +87,7 @@
                         <b-form-file :accept="attribute.AllowedFileExtensions" type="file" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id"  onchange="uploadFile(this)" />
                     </div>
                 </template>
-                <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" />
+                <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" />
                 <div id="download-message" class="alert my-2" style="display:none;"></div>
                 <a :id="'checkout_attribute_' + attribute.Id + 'downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
                     Download
@@ -143,7 +143,7 @@
                 <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
                     <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
                         <label :for="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
-                            <input :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'checkout_attribute_' + attribute.Id" :value="attributeValue.Id" onchange="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" />
+                            <input :id="'checkout_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes['+attribute.Id+']'" :value="attributeValue.Id" onchange="checkoutAttributeChange()" :checked="attributeValue.IsPreSelected" />
                             <template v-if="attributeValue.PriceAdjustment == null">
                                 <span class="color-container" :title="attributeValue.Name">
                                     <span class="color" :style="'background-color:' + attributeValue.ColorSquaresRgb"></span>
