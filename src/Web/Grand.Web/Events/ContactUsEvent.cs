@@ -9,8 +9,7 @@ namespace Grand.Web.Events
     {
         public Customer Customer { get; private set; }
         public ContactUsModel Model { get; private set; }
-        public IFormCollection Form { get; private set; }
-
+        
         public ContactUsEvent(Customer customer, ContactUsModel model)
         {
             Customer = customer;
