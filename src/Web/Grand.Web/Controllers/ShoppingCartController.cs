@@ -697,7 +697,7 @@ namespace Grand.Web.Controllers
 
         [AutoValidateAntiforgeryToken]
         [HttpPost]
-        public virtual async Task<IActionResult> GetEstimateShipping(string countryId, string stateProvinceId, string zipPostalCode, IFormCollection form)
+        public virtual async Task<IActionResult> GetEstimateShipping(string countryId, string stateProvinceId, string zipPostalCode)
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
