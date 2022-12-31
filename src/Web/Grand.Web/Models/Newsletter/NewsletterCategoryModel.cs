@@ -9,6 +9,7 @@ namespace Grand.Web.Models.Newsletter
             NewsletterCategories = new List<NewsletterSimpleCategory>();
         }
         public string NewsletterEmailId { get; set; }
+        public string[] Category { get; set; }
         public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; }
     }
     public class NewsletterSimpleCategory

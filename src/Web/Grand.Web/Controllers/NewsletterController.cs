@@ -1,6 +1,7 @@
 ﻿using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Models.Newsletter;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,13 +37,13 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> SaveCategories(IFormCollection form)
+        public virtual async Task<IActionResult> SaveCategories(NewsletterCategoryModel model)
         {
-            var model = await _mediator.Send(new SubscriptionCategoryCommand() { Values = form.Keys.ToDictionary(k => k, v => Request.Form[v].ToString()) });
+            var result = await _mediator.Send(new SubscriptionCategoryCommand() { Model = model});
             return Json(new
             {
-                Success = model.success,
-                Message = model.message
+                Success = result.success,
+                Message = result.message
             });
         }
 
