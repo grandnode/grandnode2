@@ -176,35 +176,35 @@ namespace Grand.Web.Controllers
         //handle product attribute selection event. this way we return new price, overridden gtin/sku/mpn
         //currently we use this method on the product details pages
         [HttpPost]
-        public virtual async Task<IActionResult> ProductDetails_AttributeChange(string productId, bool loadPicture, IFormCollection form)
+        public virtual async Task<IActionResult> ProductDetails_AttributeChange(ProductModel model, bool loadPicture)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 return new JsonResult("");
 
-            var model = await _mediator.Send(new GetProductDetailsAttributeChange() {
+            var modelProduct = await _mediator.Send(new GetProductDetailsAttributeChange() {
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
-                Form = form,
+                Model = model, 
                 LoadPicture = loadPicture,
                 Product = product,
             });
 
             return Json(new
             {
-                gtin = model.Gtin,
-                mpn = model.Mpn,
-                sku = model.Sku,
-                price = model.Price,
-                stockAvailability = model.StockAvailability,
-                outOfStockSubscription = model.DisplayOutOfStockSubscription,
-                buttonTextOutOfStockSubscription = model.ButtonTextOutOfStockSubscription,
-                enabledattributemappingids = model.EnabledAttributeMappingIds.ToArray(),
-                disabledattributemappingids = model.DisabledAttributeMappingids.ToArray(),
-                notAvailableAttributeMappingids = model.NotAvailableAttributeMappingids.ToArray(),
-                pictureFullSizeUrl = model.PictureFullSizeUrl,
-                pictureDefaultSizeUrl = model.PictureDefaultSizeUrl,
+                gtin = modelProduct.Gtin,
+                mpn = modelProduct.Mpn,
+                sku = modelProduct.Sku,
+                price = modelProduct.Price,
+                stockAvailability = modelProduct.StockAvailability,
+                outOfStockSubscription = modelProduct.DisplayOutOfStockSubscription,
+                buttonTextOutOfStockSubscription = modelProduct.ButtonTextOutOfStockSubscription,
+                enabledattributemappingids = modelProduct.EnabledAttributeMappingIds.ToArray(),
+                disabledattributemappingids = modelProduct.DisabledAttributeMappingids.ToArray(),
+                notAvailableAttributeMappingids = modelProduct.NotAvailableAttributeMappingids.ToArray(),
+                pictureFullSizeUrl = modelProduct.PictureFullSizeUrl,
+                pictureDefaultSizeUrl = modelProduct.PictureDefaultSizeUrl,
             });
         }
 

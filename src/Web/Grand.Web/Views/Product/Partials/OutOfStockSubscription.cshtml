@@ -5,7 +5,7 @@
     <script asp-location="Footer" asp-order="300">
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("out-of-stock-subscribe-@Model.Id").addEventListener('click', function (event) {
-                var form = document.querySelector('#product-details-form');
+                var form = document.querySelector('@($"#product-details-form-{Model.Id}")');
                 var data = new FormData(form);
                 axios({
                     url: '@Url.RouteUrl("OutOfStockSubscribePopup", new { productId = Model.Id })',

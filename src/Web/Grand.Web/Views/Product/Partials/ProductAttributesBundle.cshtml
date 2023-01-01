@@ -11,7 +11,7 @@
     //generate change event script
     foreach (var attribute in Model)
     {
-        string controlId = string.Format("product_attribute_{0}", attribute.Id);
+        string controlId = $"product_attribute_{attribute.Id}";
         switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:
@@ -75,8 +75,6 @@
     
 
 }
-
-
 <div id="product-attributes">
     <product-attributes-bundle-@(productId)></product-attributes-bundle-@(productId)>
 </div>

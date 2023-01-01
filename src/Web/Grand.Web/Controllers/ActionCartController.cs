@@ -13,9 +13,9 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
+using Grand.Web.Models.Catalog;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
@@ -337,36 +337,17 @@ namespace Grand.Web.Controllers
             return null;
         }
 
-        private async Task<double?> GetCustomerEnteredPrice(IFormCollection form, string productId)
+        private async Task<double?> GetCustomerEnteredPrice(ProductModel model)
         {
             double? customerEnteredPriceConverted = null;
-            foreach (string formKey in form.Keys)
-            {
-                if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", productId), StringComparison.OrdinalIgnoreCase))
-                {
-                    if (double.TryParse(form[formKey], out double customerEnteredPrice))
-                        customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
-                    break;
-                }
-            }
+            if (double.TryParse(model.CustomerEnteredPrice, out var customerEnteredPrice))
+                customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
+
             return customerEnteredPriceConverted;
         }
-
-        private int GetQuantity(IFormCollection form, string productId)
-        {
-            int quantity = 1;
-            foreach (string formKey in form.Keys)
-                if (formKey.Equals(string.Format("addtocart_{0}.EnteredQuantity", productId), StringComparison.OrdinalIgnoreCase))
-                {
-                    int.TryParse(form[formKey], out quantity);
-                    break;
-                }
-
-            return quantity;
-        }
-
         [HttpPost]
-        public virtual async Task<IActionResult> AddProductDetails(string productId, int shoppingCartTypeId, IFormCollection form)
+        public virtual async Task<IActionResult> AddProductDetails(string productId, int shoppingCartTypeId, 
+            ProductModel model)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -384,87 +365,63 @@ namespace Grand.Web.Controllers
             double? customerEnteredPriceConverted = null;
             if (product.EnteredPrice)
             {
-                customerEnteredPriceConverted = await GetCustomerEnteredPrice(form, productId);
+                customerEnteredPriceConverted = await GetCustomerEnteredPrice(model);
             }
-
-            var quantity = GetQuantity(form, productId);
-
+            
             //product and gift voucher attributes
-            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
+            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
 
             //rental attributes
             DateTime? rentalStartDate = null;
             DateTime? rentalEndDate = null;
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                product.ParseReservationDates(form, out rentalStartDate, out rentalEndDate);
+                product.ParseReservationDates(model, out rentalStartDate, out rentalEndDate);
             }
 
             //product reservation
-            string reservationId = "";
-            string parameter = "";
-            string duration = "";
+            var parameter = "";
+            var duration = "";
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                foreach (string formKey in form.Keys)
+                switch (product.IntervalUnitId)
                 {
-                    if (formKey.Contains("Reservation"))
-                    {
-                        reservationId = form["Reservation"].ToString();
-                        break;
-                    }
-                }
-
-                if (product.IntervalUnitId == IntervalUnit.Hour || product.IntervalUnitId == IntervalUnit.Minute)
-                {
-                    if (string.IsNullOrEmpty(reservationId))
-                    {
+                    case IntervalUnit.Hour or IntervalUnit.Minute when string.IsNullOrEmpty(model.Reservation):
                         return Json(new
                         {
                             success = false,
                             message = _translationService.GetResource("Product.Addtocart.Reservation.Required")
                         });
-                    }
-                    var productReservationService = HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
-                    var reservation = await productReservationService.GetProductReservation(reservationId);
-                    if (reservation == null)
+                    case IntervalUnit.Hour or IntervalUnit.Minute:
                     {
-                        return Json(new
+                        var productReservationService = HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
+                        var reservation = await productReservationService.GetProductReservation(model.Reservation);
+                        if (reservation == null)
                         {
-                            success = false,
-                            message = "No reservation found"
-                        });
+                            return Json(new
+                            {
+                                success = false,
+                                message = "No reservation found"
+                            });
+                        }
+                        duration = reservation.Duration;
+                        rentalStartDate = reservation.Date;
+                        parameter = reservation.Parameter;
+                        break;
                     }
-                    duration = reservation.Duration;
-                    rentalStartDate = reservation.Date;
-                    parameter = reservation.Parameter;
-                }
-                else if (product.IntervalUnitId == IntervalUnit.Day)
-                {
-                    string datefrom = "";
-                    string dateto = "";
-                    foreach (var item in form)
+                    case IntervalUnit.Day:
                     {
-                        if (item.Key == "reservationDatepickerFrom")
+                        const string datePickerFormat = "MM/dd/yyyy";
+                        if (!string.IsNullOrEmpty(model.ReservationDatepickerFrom))
                         {
-                            datefrom = item.Value;
+                            rentalStartDate = DateTime.ParseExact(model.ReservationDatepickerFrom, datePickerFormat, CultureInfo.InvariantCulture);
+                        }
+                        if (!string.IsNullOrEmpty(model.ReservationDatepickerTo))
+                        {
+                            rentalEndDate = DateTime.ParseExact(model.ReservationDatepickerTo, datePickerFormat, CultureInfo.InvariantCulture);
                         }
 
-                        if (item.Key == "reservationDatepickerTo")
-                        {
-                            dateto = item.Value;
-                        }
-                    }
-
-                    string datePickerFormat = "MM/dd/yyyy";
-                    if (!string.IsNullOrEmpty(datefrom))
-                    {
-                        rentalStartDate = DateTime.ParseExact(datefrom, datePickerFormat, CultureInfo.InvariantCulture);
-                    }
-
-                    if (!string.IsNullOrEmpty(dateto))
-                    {
-                        rentalEndDate = DateTime.ParseExact(dateto, datePickerFormat, CultureInfo.InvariantCulture);
+                        break;
                     }
                 }
             }
@@ -473,10 +430,8 @@ namespace Grand.Web.Controllers
 
             //save item
             var addToCartWarnings = new List<string>();
-
-
-            string warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-                form["WarehouseId"].ToString() :
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
+                model.WarehouseId:
                 product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
                 (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
 
@@ -485,7 +440,7 @@ namespace Grand.Web.Controllers
             var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
                 productId, cartType, _workContext.CurrentStore.Id, warehouseId,
                 attributes, customerEnteredPriceConverted,
-                rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration,
+                rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
                 new ShoppingCartValidatorOptions() {
                     GetRequiredProductWarnings = false,
                     GetInventoryWarnings = (cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist),
@@ -510,7 +465,7 @@ namespace Grand.Web.Controllers
                 Product = product,
                 Customer = _workContext.CurrentCustomer,
                 ShoppingCartItem = shoppingCartItem,
-                Quantity = quantity,
+                Quantity = model.EnteredQuantity,
                 CartType = cartType,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
                 Attributes = attributes,
@@ -520,7 +475,7 @@ namespace Grand.Web.Controllers
                 TaxDisplayType = _workContext.TaxDisplayType,
                 Duration = duration,
                 Parameter = parameter,
-                ReservationId = reservationId,
+                ReservationId = model.Reservation,
                 StartDate = rentalStartDate,
                 EndDate = rentalEndDate
             });
@@ -728,7 +683,7 @@ namespace Grand.Web.Controllers
 
 
             //availability dates
-            if (!product.IsAvailable() && !(product.ProductTypeId == ProductType.Auction))
+            if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
                 return Json(new
                 {
                     success = false,
@@ -768,7 +723,7 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId, IFormCollection form)
+        public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId, ProductModel model)
         {
             var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartItemId);
             if (cart == null)
@@ -830,59 +785,30 @@ namespace Grand.Web.Controllers
             double? customerEnteredPriceConverted = null;
             if (product.EnteredPrice)
             {
-                foreach (string formKey in form.Keys)
-                {
-                    if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", cart.ProductId), StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (double.TryParse(form[formKey], out double customerEnteredPrice))
-                            customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
-                        break;
-                    }
-                }
+                if (double.TryParse(model.CustomerEnteredPrice, out double customerEnteredPrice))
+                    customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
             }
             #endregion
 
-            #region Quantity
-
-            var quantity = cart.Quantity;
-            foreach (string formKey in form.Keys)
-                if (formKey.Equals(string.Format("addtocart_{0}.EnteredQuantity", cart.ProductId), StringComparison.OrdinalIgnoreCase))
-                {
-                    int.TryParse(form[formKey], out quantity);
-                    break;
-                }
-
-            #endregion
-
             //product and gift voucher attributes
-            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
+            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
 
             //rental attributes
             DateTime? rentalStartDate = cart.RentalStartDateUtc;
             DateTime? rentalEndDate = cart.RentalEndDateUtc;
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                product.ParseReservationDates(form, out rentalStartDate, out rentalEndDate);
+                product.ParseReservationDates(model, out rentalStartDate, out rentalEndDate);
             }
 
             //product reservation
-            string reservationId = cart.ReservationId;
-            string parameter = cart.Parameter;
-            string duration = cart.Duration;
+            var parameter = cart.Parameter;
+            var duration = cart.Duration;
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                foreach (string formKey in form.Keys)
-                {
-                    if (formKey.Contains("Reservation"))
-                    {
-                        reservationId = form["Reservation"].ToString();
-                        break;
-                    }
-                }
-
                 if (product.IntervalUnitId == IntervalUnit.Hour || product.IntervalUnitId == IntervalUnit.Minute)
                 {
-                    if (string.IsNullOrEmpty(reservationId))
+                    if (string.IsNullOrEmpty(model.Reservation))
                     {
                         return Json(new
                         {
@@ -891,7 +817,7 @@ namespace Grand.Web.Controllers
                         });
                     }
                     var productReservationService = HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
-                    var reservation = await productReservationService.GetProductReservation(reservationId);
+                    var reservation = await productReservationService.GetProductReservation(model.Reservation);
                     if (reservation == null)
                     {
                         return Json(new
@@ -906,44 +832,27 @@ namespace Grand.Web.Controllers
                 }
                 else if (product.IntervalUnitId == IntervalUnit.Day)
                 {
-                    string datefrom = "";
-                    string dateto = "";
-                    foreach (var item in form)
+                    const string datePickerFormat = "MM/dd/yyyy";
+                    if (!string.IsNullOrEmpty(model.ReservationDatepickerFrom))
                     {
-                        if (item.Key == "reservationDatepickerFrom")
-                        {
-                            datefrom = item.Value;
-                        }
-
-                        if (item.Key == "reservationDatepickerTo")
-                        {
-                            dateto = item.Value;
-                        }
+                        rentalStartDate = DateTime.ParseExact(model.ReservationDatepickerFrom, datePickerFormat, CultureInfo.InvariantCulture);
                     }
-
-                    string datePickerFormat = "MM/dd/yyyy";
-                    if (!string.IsNullOrEmpty(datefrom))
+                    if (!string.IsNullOrEmpty(model.ReservationDatepickerTo))
                     {
-                        rentalStartDate = DateTime.ParseExact(datefrom, datePickerFormat, CultureInfo.InvariantCulture);
-                    }
-
-                    if (!string.IsNullOrEmpty(dateto))
-                    {
-                        rentalEndDate = DateTime.ParseExact(dateto, datePickerFormat, CultureInfo.InvariantCulture);
+                        rentalEndDate = DateTime.ParseExact(model.ReservationDatepickerTo, datePickerFormat, CultureInfo.InvariantCulture);
                     }
                 }
             }
-
             //save item
             var addToCartWarnings = new List<string>();
 
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-                form["WarehouseId"].ToString() : cart.WarehouseId;
+                model.WarehouseId : cart.WarehouseId;
 
             //update existing item
             addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
                 cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
-                rentalStartDate, rentalEndDate, quantity, true));
+                rentalStartDate, rentalEndDate, model.EnteredQuantity, true));
 
             if (addToCartWarnings.Any())
             {

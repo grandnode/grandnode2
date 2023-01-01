@@ -51,7 +51,7 @@
 <div class="page product-details-page product-standard">
     <vc:widget widget-zone="productdetails_top" additional-data="@Model.Id"></vc:widget>
     <validation-observer ref="ProductFormObserver">
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
+        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
             <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
                 <div class="container position-relative">
                     <div class="row">
@@ -111,13 +111,9 @@
                                 <partial name="Partials/ProductBundles" model="Model" />
                             }
                             <!--attributes-->
-                            @{
-                                if (Model.ProductAttributes.Any())
-                                {
-                                    var dataDictAttributes = new ViewDataDictionary(ViewData);
-                                    dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
-                                    <partial name="Partials/ProductAttributes" model="Model.ProductAttributes" view-data="dataDictAttributes" />
-                                }
+                            @if (Model.ProductAttributes.Any())
+                            {
+                                <partial name="Partials/ProductAttributes" model="Model" />
                             }
                             <!--warehouses-->
                             @if (Model.AllowToSelectWarehouse)
@@ -125,20 +121,14 @@
                                 <partial name="Partials/Warehouses" model="Model" />
                             }
                             <!--gift voucher-->
-                            @{
-                                if (Model.GiftVoucher.IsGiftVoucher)
-                                {
-                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
-                                    dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", Model.Id);
-                                    <partial name="Partials/GiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
-                                }
+                            @if (Model.GiftVoucher.IsGiftVoucher)
+                            {
+                                <partial name="Partials/GiftVoucherInfo" model="Model" />
                             }
                             <!--reservation info-->
                             @if (Model.ProductType == ProductType.Reservation)
                             {
-                                var dataDictReservation = new ViewDataDictionary(ViewData);
-                                dataDictReservation.TemplateInfo.HtmlFieldPrefix = string.Format("reservation_{0}", Model.Id);
-                                <partial name="Partials/ReservationInfo" model="Model" view-data="dataDictReservation" />
+                                <partial name="Partials/ReservationInfo" model="Model" />
                             }
                             <!--price & add to cart-->
                             <div class="overview-buttons generalMarginSupporter">
@@ -150,9 +140,7 @@
                                 }
                                 <div class="col-lg-12 px-0">
                                     @{
-                                        var dataDictPrice = new ViewDataDictionary(ViewData);
-                                        dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", Model.Id);
-                                        <partial name="Partials/Prices" model="Model.ProductPrice" view-data="dataDictPrice" />
+                                        <partial name="Partials/Prices" model="Model.ProductPrice"/>
                                     }
                                 </div>
                                 <div class="generalMarginSupporter">
@@ -161,17 +149,11 @@
                                     {
                                         <partial name="Partials/AuctionInfo" model="Model" />
                                     }
-                                    @{
-                                        var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
-                                        dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
-                                        var dataDictAddToCart = new ViewDataDictionary(ViewData);
-                                        dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
-                                    }
-                                    <partial name="Partials/AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart" />
+                                    <partial name="Partials/AddToCart" model="Model.AddToCart"  />
                                     <div class="btn-group mt-2 mb-3 w-100">
-                                        @if (Model.ProductType == ProductType.SimpleProduct || Model.ProductType == ProductType.BundledProduct)
+                                        @if (Model.ProductType is ProductType.SimpleProduct or ProductType.BundledProduct)
                                         {
-                                            <partial name="Partials/AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist" />
+                                            <partial name="Partials/AddToWishlist" model="Model.AddToCart" />
                                             <partial name="Partials/ProductsComparison" model="Model" />
                                         }
                                         @if (Model.EmailAFriendEnabled)

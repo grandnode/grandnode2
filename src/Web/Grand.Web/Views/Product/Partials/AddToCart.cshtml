@@ -1,17 +1,17 @@
 ﻿@model ProductDetailsModel.AddToCartModel
 @{
-    var shoppingCartType = Model.UpdateShoppingCartItemType.HasValue ? Model.UpdateShoppingCartItemType.Value : ShoppingCartType.ShoppingCart;
+    var shoppingCartType = Model.UpdateShoppingCartItemType ?? ShoppingCartType.ShoppingCart;
 }
-@if (!String.IsNullOrEmpty(Model.UpdatedShoppingCartItemId))
+@if (!string.IsNullOrEmpty(Model.UpdatedShoppingCartItemId))
 {
-    <input asp-for="UpdatedShoppingCartItemId" type="hidden" />
+    <input asp-for="UpdatedShoppingCartItemId" type="hidden"/>
 }
 @if (Model.EnteredPrice)
 {
     <div class="customer-entered-price mb-3 d-flex w-100 flex-column">
         <div class="price-input">
-            <label asp-for="CustomerEnteredPrice" class="enter-price-label">@Loc["Products.EnterProductPrice"]</label>
-            <input asp-for="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="form-control enter-price-input" />
+            <label for=@($"CustomerEnteredPrice_{Model.ProductId}") class="enter-price-label">@Loc["Products.EnterProductPrice"]</label>
+            <input type="text" id=@($"CustomerEnteredPrice_{Model.ProductId}") name="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="form-control enter-price-input"/>
         </div>
         <div class="price-range pt-1">
             @Model.CustomerEnteredPriceRange
@@ -20,7 +20,7 @@
 }
 @if (!Model.DisableBuyButton || Model.EnteredPrice)
 {
-    if (!String.IsNullOrEmpty(Model.MinimumQuantityNotification))
+    if (!string.IsNullOrEmpty(Model.MinimumQuantityNotification))
     {
         <div class="min-qty-notification text-danger w-100 mb-2">@Model.MinimumQuantityNotification</div>
     }
@@ -28,78 +28,55 @@
 
         @if (!Model.DisableBuyButton)
         {
-        @if (Model.AllowedQuantities.Any())
-        {
-            <select asp-for="EnteredQuantity" asp-items="Model.AllowedQuantities" class="custom-select form-control qty-dropdown mr-2"></select>
-            if (!String.IsNullOrEmpty(Model.MeasureUnit))
+            @if (Model.AllowedQuantities.Any())
             {
-                <span class="qty-unit d-flex align-items-center mr-2">
-                    @Model.MeasureUnit
-                </span>
+                <select name="EnteredQuantity" id=@($"EnteredQuantity_{Model.ProductId}") asp-items="Model.AllowedQuantities" class="custom-select form-control qty-dropdown mr-2"></select>
+                if (!string.IsNullOrEmpty(Model.MeasureUnit))
+                {
+                    <span class="qty-unit d-flex align-items-center mr-2">
+                        @Model.MeasureUnit
+                    </span>
+                }
             }
-        }
-        else
-        {
-
-            var addId = "addtocart_" + @Model.ProductId + "_EnteredQuantity";
-            <label for="@addId" class="sr-only">@Loc["ShoppingCart.AddToCart"]</label>
-            <input asp-for="EnteredQuantity" class="qty-input form-control text-center" type="number" inputmode="numeric" />
-            if (!String.IsNullOrEmpty(Model.MeasureUnit))
+            else
             {
-                <span class="qty-unit d-flex align-items-center mr-2">
-                    @Model.MeasureUnit
-                </span>
+                <label for=@($"EnteredQuantity_{Model.ProductId}") class="sr-only">@Loc["ShoppingCart.AddToCart"]</label>
+                <input type="number" inputmode="numeric" id=@($"EnteredQuantity_{Model.ProductId}") name="EnteredQuantity" value="1" class="qty-input form-control text-center">
+                if (!string.IsNullOrEmpty(Model.MeasureUnit))
+                {
+                    <span class="qty-unit d-flex align-items-center mr-2">
+                        @Model.MeasureUnit
+                    </span>
+                }
             }
 
-        }
-        {
-        var addToCartText = "";
-        if (!String.IsNullOrEmpty(Model.UpdatedShoppingCartItemId) && Model.UpdateShoppingCartItemType.HasValue && (Model.UpdateShoppingCartItemType.Value == ShoppingCartType.ShoppingCart || Model.UpdateShoppingCartItemType.Value == ShoppingCartType.OnHoldCart))
-        {
-        addToCartText = Loc["ShoppingCart.AddToCart.Update"];
-        }
-        else
-        {
-        addToCartText = Loc["ShoppingCart.AddToCart"];
-        if (Model.IsReservation)
-        {
-        addToCartText = Loc["ShoppingCart.Reservation"];
-        }
-        if (Model.AvailableForPreOrder)
-        {
-        addToCartText = Loc["ShoppingCart.PreOrder"];
-        }
-        if (Model.IsAuction)
-        {
-        addToCartText = Loc["ShoppingCart.BuyNow"];
-        }
-        }
-
-        <script asp-location="Footer" asp-order="300">
-                    if (document.getElementById("@Html.IdFor(model => model.EnteredQuantity)")) {
-                        document.getElementById("@Html.IdFor(model => model.EnteredQuantity)").addEventListener("keyup", function (event) {
-                            if (event.keyCode == 13) {
-                                document.getElementById("add-to-cart-button-@Model.ProductId").click();
-                                return false;
-                            }
-                        });
-                    }
-                    if (document.getElementById("@Html.IdFor(model => model.CustomerEnteredPrice)")) {
-                        document.getElementById("@Html.IdFor(model => model.CustomerEnteredPrice)").addEventListener("keyup", function (event) {
-                        if (event.keyCode == 13) {
-                            document.getElementById("add-to-cart-button-@Model.ProductId").click();
-                            return false;
-                        }
-                        });
-                    }
-
-        </script>
-        <div class="input-group-append">
-            <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', '#product-details-form');return false;">
-                <span>@addToCartText</span>
-            </button>
-        </div>
-        }
+            var addToCartText = "";
+            if (!string.IsNullOrEmpty(Model.UpdatedShoppingCartItemId) && Model.UpdateShoppingCartItemType.HasValue && (Model.UpdateShoppingCartItemType.Value == ShoppingCartType.ShoppingCart || Model.UpdateShoppingCartItemType.Value == ShoppingCartType.OnHoldCart))
+            {
+                addToCartText = Loc["ShoppingCart.AddToCart.Update"];
+            }
+            else
+            {
+                addToCartText = Loc["ShoppingCart.AddToCart"];
+            }
+            if (Model.IsReservation)
+            {
+                addToCartText = Loc["ShoppingCart.Reservation"];
+            }
+            if (Model.AvailableForPreOrder)
+            {
+                addToCartText = Loc["ShoppingCart.PreOrder"];
+            }
+            if (Model.IsAuction)
+            {
+                addToCartText = Loc["ShoppingCart.BuyNow"];
+            }
+            
+            <div class="input-group-append">
+                <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', @($"'#product-details-form-{Model.ProductId}'"));return false;">
+                    <span>@addToCartText</span>
+                </button>
+            </div>
         }
     </div>
 }

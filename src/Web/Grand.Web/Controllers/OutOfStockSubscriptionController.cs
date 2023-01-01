@@ -92,16 +92,15 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost, ActionName("SubscribePopup")]
-        public virtual async Task<IActionResult> SubscribePopup(string productId, IFormCollection form)
+        public virtual async Task<IActionResult> SubscribePopup(ProductModel model)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
             var customer = _workContext.CurrentCustomer;
-
-            string warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-                form["WarehouseId"].ToString() :
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
+                model.WarehouseId :
                  product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
                  (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
 
@@ -156,7 +155,7 @@ namespace Grand.Web.Controllers
                 product.BackorderModeId == BackorderMode.NoBackorders &&
                 product.AllowOutOfStockSubscriptions)
             {
-                var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
+                var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
                 var subscription = await _outOfStockSubscriptionService
                     .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
 
@@ -245,23 +244,18 @@ namespace Grand.Web.Controllers
             return View(model);
         }
         [HttpPost, ActionName("CustomerSubscriptions")]
-        public virtual async Task<IActionResult> CustomerSubscriptionsPOST(IFormCollection formCollection)
+        public virtual async Task<IActionResult> CustomerSubscriptions(string[] subscriptions)
         {
-            foreach (var key in formCollection.Keys)
+            foreach (var id in subscriptions)
             {
-                var value = formCollection[key];
-
-                if (value.Equals("on") && key.StartsWith("biss", StringComparison.OrdinalIgnoreCase))
+                var subscription = await _outOfStockSubscriptionService.GetSubscriptionById(id);
+                if (subscription != null && subscription.CustomerId == _workContext.CurrentCustomer.Id)
                 {
-                    var id = key.Replace("biss", "").Trim();
-                    var subscription = await _outOfStockSubscriptionService.GetSubscriptionById(id);
-                    if (subscription != null && subscription.CustomerId == _workContext.CurrentCustomer.Id)
-                    {
-                        await _outOfStockSubscriptionService.DeleteSubscription(subscription);
-                    }
+                    await _outOfStockSubscriptionService.DeleteSubscription(subscription);
                 }
+                
             }
-
+            
             return RedirectToRoute("CustomerOutOfStockSubscriptions");
         }
 

@@ -249,25 +249,22 @@ namespace Grand.Web.Extensions
             return destination;
         }
 
-        public static void ParseReservationDates(this Product product, IFormCollection form,
+        public static void ParseReservationDates(this Product product, ProductModel model,
             out DateTime? startDate, out DateTime? endDate)
         {
             startDate = null;
             endDate = null;
 
-            string startControlId = string.Format("reservationDatepickerFrom_{0}", product.Id);
-            string endControlId = string.Format("reservationDatepickerTo_{0}", product.Id);
-            var ctrlStartDate = form[startControlId];
-            var ctrlEndDate = form[endControlId];
             try
             {
-                //currenly we support only this format (as in the \Views\Product\_RentalInfo.cshtml file)
+                //currently we support only this format (as in the \Views\Product\_RentalInfo.cshtml file)
                 const string datePickerFormat = "MM/dd/yyyy";
-                startDate = DateTime.ParseExact(ctrlStartDate, datePickerFormat, CultureInfo.InvariantCulture);
-                endDate = DateTime.ParseExact(ctrlEndDate, datePickerFormat, CultureInfo.InvariantCulture);
+                startDate = DateTime.ParseExact(model.ReservationDatepickerFrom, datePickerFormat, CultureInfo.InvariantCulture);
+                endDate = DateTime.ParseExact(model.ReservationDatepickerTo, datePickerFormat, CultureInfo.InvariantCulture);
             }
             catch
             {
+                // ignored
             }
         }
     }

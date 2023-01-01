@@ -1,4 +1,4 @@
-﻿@model IList<ProductDetailsModel.ProductAttributeModel>
+﻿@model ProductDetailsModel
 @using System.Text;
 
 <div id="product-attributes"></div>
@@ -6,13 +6,12 @@
     //dynamic update support
     var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
-    var productId = Model.First().ProductId;
-    var attributeChangeHandlerFuncName = string.Format("attribute_change_handler_{0}", productId);
+    var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
     var fileLink = @Url.RouteUrl("UploadFileProductAttribute");
     //generate change event script
-    foreach (var attribute in Model)
+    foreach (var attribute in Model.ProductAttributes)
     {
-        string controlId = string.Format("product_attribute_{0}", attribute.Id);
+        string controlId = $"product_attribute_{attribute.Id}";
         switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:
@@ -45,10 +44,10 @@
     }
     //render scripts
     <div id="product-attributes">
-        <template v-if="standardProductAttributes.ProductAttributes !== 'undefined'">
+        <template v-if="standardProductAttributes_@(Model.Id).ProductAttributes !== 'undefined'">
             <div class="attributes">
                 <table class="table">
-                    <tr v-for="attribute in standardProductAttributes.ProductAttributes">
+                    <tr v-for="attribute in standardProductAttributes_@(Model.Id).ProductAttributes">
                         <td :id="'product_attribute_label_' + attribute.Id">
                             <span class="attribute-name">{{attribute.Name}}</span> <span v-if="attribute.IsRequired" class="required">*</span>
                             <template v-if="attribute.TextPrompt !==null">
@@ -61,11 +60,11 @@
                         <td :id="'product_attribute_input_' + attribute.Id">
                             <template v-if="attribute.AttributeControlType==4">
                                 <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
-                                <input :name="'product_attribute_' + attribute.Id" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue" @@change="standardProductAttributes.attrchange" />
+                                <input :name="'attributes[' + attribute.Id+']'" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue" @@change="standardProductAttributes_@(Model.Id).attrchange" />
                             </template>
                             <template v-if="attribute.AttributeControlType==1">
                                 <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
-                                <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'product_attribute_' + attribute.Id" @@change="standardProductAttributes.attrchange">
+                                <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'attributes[' + attribute.Id+']'" @@change="standardProductAttributes_@(Model.Id).attrchange">
                                     <template v-if="attribute.IsRequired==false">
                                         <option value="">---</option>
                                     </template>
@@ -88,11 +87,11 @@
                                                 <input class="custom-control-input"
                                                        :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                        type="radio"
-                                                       :name="'product_attribute_' + attribute.Id"
+                                                       :name="'attributes[' + attribute.Id+']'"
                                                        :value="attributeValue.Id"
                                                        :checked="attributeValue.IsPreSelected"
                                                        :data-disable="attributeValue.Id"
-                                                       @@change="standardProductAttributes.attrchange" />
+                                                       @@change="standardProductAttributes_@(Model.Id).attrchange" />
                                                 <span class="custom-control-label"></span>
                                                 <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                                     <template v-if="attributeValue.PriceAdjustment==null">
@@ -117,20 +116,20 @@
                                                        class="custom-control-input"
                                                        :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                        type="checkbox"
-                                                       :name="'product_attribute_' + attribute.Id"
+                                                       :name="'attributes[' + attribute.Id+']'"
                                                        :value="attributeValue.Id"
                                                        :checked="attributeValue.IsPreSelected"
-                                                       @@change="standardProductAttributes.attrchange"
+                                                       @@change="standardProductAttributes_@(Model.Id).attrchange"
                                                        disabled="disabled" />
                                                 <input v-else
                                                        class="custom-control-input"
                                                        :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                        type="checkbox"
-                                                       :name="'product_attribute_' + attribute.Id"
+                                                       :name="'attributes[' + attribute.Id+']'"
                                                        :value="attributeValue.Id"
                                                        :checked="attributeValue.IsPreSelected"
                                                        :data-disable="attributeValue.Id"
-                                                       @@change="standardProductAttributes.attrchange" />
+                                                       @@change="standardProductAttributes_@(Model.Id).attrchange" />
                                                 <span class="custom-control-label"></span>
                                                 <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                                     <template v-if="attributeValue.PriceAdjustment==null">
@@ -146,7 +145,7 @@
                                 </fieldset>
                             </template>
                             <template v-if="attribute.AttributeControlType==10">
-                                <textarea :id="'product_attribute_' + attribute.Id" :name="'product_attribute_' + attribute.Id">{{attribute.DefaultValue}}</textarea>
+                                <textarea :id="'product_attribute_' + attribute.Id" :name="'attributes[' + attribute.Id+']'">{{attribute.DefaultValue}}</textarea>
                             </template>
                             <template v-if="attribute.AttributeControlType==30">
                                 <template>
@@ -162,7 +161,7 @@
                                 <input class="hidden-upload-input"
                                        type="hidden"
                                        :id="'product_attribute_' + attribute.Id"
-                                       :name="'product_attribute_' + attribute.Id"
+                                       :name="'attributes[' + attribute.Id+']'"
                                        v-model="attribute.DefaultValue"
                                        :value="attribute.DefaultValue" />
                                 <div id="download-message" class="alert my-2" style="display: none;"></div>
@@ -172,7 +171,7 @@
                                 <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
                                     <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
                                         <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
-                                            <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes.attrchange" />
+                                            <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes_@(Model.Id).attrchange" />
                                             <template v-if="attributeValue.PriceAdjustment==null">
                                                 <span class="color-container" :title="attributeValue.Name"> <span class="color" :style="'background-color:' + attributeValue.ColorSquaresRgb"></span> </span>
                                             </template>
@@ -188,7 +187,7 @@
                                     <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
                                         <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
                                             <template v-if="attributeValue.PriceAdjustment==null">
-                                                <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes.attrchange" />
+                                                <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes_@(Model.Id).attrchange" />
                                                 <span :id="'imgSqr_' + attributeValue.Id" class="color-container">
                                                     <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span>
                                                 </span>
@@ -197,7 +196,7 @@
                                                 </b-tooltip>
                                             </template>
                                             <template v-else>
-                                                <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes.attrchange" />
+                                                <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes_@(Model.Id).attrchange" />
                                                 <span :id="'imgSqr_' + attributeValue.Id" class="color-container"> <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span> </span>
                                                 <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
                                                     <div class="image-square-tooltip">
@@ -217,7 +216,7 @@
         </template>
     </div>
     <script asp-location="Footer" asp-order="300">
-        var standardProductAttributes = new Vue({
+        var standardProductAttributes_@(Model.Id) = new Vue({
             data: function () {
                 return {
                     ProductAttributes: null
@@ -225,46 +224,46 @@
             },
             methods: {
                 attrchange: function @(attributeChangeHandlerFuncName)() {
-                    var form = document.getElementById('product-details-form');
+                    var form = document.getElementById('@($"product-details-form-{Model.Id}")');
                     var data = new FormData(form);
                     axios({
-                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = productId, loadPicture = attributesHaveAssociatedPictures }))',
+                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = attributesHaveAssociatedPictures }))',
                         data: data,
                         method: 'post',
-                        params: { product: '@productId' },
+                        params: { product: '@Model.Id' },
                     }).then(function (response) {
                         if (response.data.price) {
-                            document.querySelector('.price-value-@productId').innerText = response.data.price;
+                            document.querySelector('.price-value-@Model.Id').innerText = response.data.price;
                         }
                         if (response.data.sku) {
-                            if(document.querySelector('#sku-@productId'))
-                                document.querySelector('#sku-@productId').innerText = response.data.sku;
+                            if(document.querySelector('#sku-@Model.Id'))
+                                document.querySelector('#sku-@Model.Id').innerText = response.data.sku;
                         }
                         if (response.data.mpn) {
-                            if(document.querySelector('#mpn-@productId'))
-                                document.querySelector('#mpn-@productId').innerText = response.data.mpn;
+                            if(document.querySelector('#mpn-@Model.Id'))
+                                document.querySelector('#mpn-@Model.Id').innerText = response.data.mpn;
                         }
                         if (response.data.gtin) {
-                            if(document.querySelector('#gtin-@productId'))
-                                document.querySelector('#gtin-@productId').innerText = response.data.gtin;
+                            if(document.querySelector('#gtin-@Model.Id'))
+                                document.querySelector('#gtin-@Model.Id').innerText = response.data.gtin;
                         }
                         if (response.data.stockAvailability) {
-                            if(document.querySelector('#stock-availability-value-@productId'))
-                                document.querySelector('#stock-availability-value-@productId').innerText = response.data.stockAvailability;
+                            if(document.querySelector('#stock-availability-value-@Model.Id'))
+                                document.querySelector('#stock-availability-value-@Model.Id').innerText = response.data.stockAvailability;
                         }
                         if (response.data.outOfStockSubscription) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@productId');
+                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
                             if (element)
                                 element.style.display = "block";
                         }
                         if (response.data.outOfStockSubscription == false) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@productId');
+                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
                             if (element) {
                                 element.style.display = "none";
                             }
                         }
                         if (response.data.buttonTextOutOfStockSubscription) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@productId');
+                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
                             if (element)
                                 element.value = response.data.buttonTextOutOfStockSubscription;
                         }
@@ -280,35 +279,29 @@
                                 document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
                             }
                         }
-                        if (response.data.notAvailableAttributeMappingids) {
+                        @*if (response.data.notAvailableAttributeMappingids) {
                             document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                             for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
                                 if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
                                     document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
                                 }
                             }
-                        }
-                        var product = this.product;
+                        }*@
                         setTimeout(function () {
                             if (response.data.pictureDefaultSizeUrl) {
-                                if (document.querySelector(".product-grouped")) {
-                                    document.getElementById('main-product-img-' + product).setAttribute("src", response.data.pictureDefaultSizeUrl);
-                                }
-                                else {
-                                    document.getElementById('main-product-img-@productId').setAttribute("src", response.data.pictureDefaultSizeUrl);
-                                }
+                                document.getElementById('main-product-img-@Model.Id').setAttribute("src", response.data.pictureDefaultSizeUrl);
                             }
                         }, 100);
                     });
                 },
             },
             created() {
-                this.ProductAttributes = @Json.Serialize(Model);
+                this.ProductAttributes = @Json.Serialize(Model.ProductAttributes);
             }
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-            standardProductAttributes.attrchange();
+            standardProductAttributes_@(Model.Id).attrchange();
         });
     </script>
 }
