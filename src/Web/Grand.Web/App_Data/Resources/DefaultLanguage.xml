@@ -15299,6 +15299,9 @@
 	<Resource Name="ShoppingCart.AlreadyHighestBidder" Area="Front">
 		<Value>You are already the highest bidder</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.AlreadyReservation" Area="Front">
+		<Value>You have are already reserved this resource</Value>
+	</Resource>	
 	<Resource Name="ShoppingCart.AssociatedAttributeWarning" Area="Front">
 		<Value>{0}. {1}. {2}</Value>
 	</Resource>

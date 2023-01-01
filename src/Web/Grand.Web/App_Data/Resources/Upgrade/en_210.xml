@@ -6,4 +6,7 @@
 	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.Code.Required" Area="Admin">
 		<Value>Please provide a warehouse code.</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.AlreadyReservation" Area="Front">
+		<Value>You have are already reserved this resource</Value>
+	</Resource>
 </Language>
