@@ -29,10 +29,10 @@ namespace Grand.Web.Controllers
             }
             return Json(new
             {
-                Success = model.Success,
-                Result = model.Result,
+                model.Success,
+                model.Result,
                 Showcategories = model.ShowCategories,
-                ResultCategory = model.ResultCategory,
+                model.ResultCategory,
             });
         }
 

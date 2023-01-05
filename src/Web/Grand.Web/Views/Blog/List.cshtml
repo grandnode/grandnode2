@@ -66,7 +66,7 @@
                     }
                     <div class="card-header">
                         <h3 class="h5 mb-0">
-                            <a href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                 @item.Title
                             </a>
                         </h3>
@@ -81,16 +81,16 @@
                                 @for (var i = 0; i < item.Tags.Count; i++)
                                 {
                                     var tag = item.Tags[i];
-                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
+                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new { tag})">@tag</a>
                                 }
                             </div>
                         }
                         <div class="buttons mt-3">
                             @if (item.AllowComments)
                             {
-                                <a href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
+                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName})#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
                             }
-                            <a href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName})" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
                         </div>
                     </div>
                     <div class="card-footer">

@@ -6,7 +6,7 @@
         <ul class="list">
             @foreach (var vendor in Model.Vendors)
             {
-                <li><a href="@Url.RouteUrl("Vendor", new { SeName = vendor.SeName })">@vendor.Name</a>
+                <li><a href="@Url.RouteUrl("Vendor", new { vendor.SeName })">@vendor.Name</a>
                 </li>
             }
         </ul>            

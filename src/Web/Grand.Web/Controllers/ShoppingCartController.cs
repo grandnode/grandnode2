@@ -365,7 +365,7 @@ namespace Grand.Web.Controllers
                 success = !warnings.Any(),
                 warnings = string.Join(", ", warnings),
                 totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), model.Items.Sum(x => x.Quantity)),
-                model = model
+                model
             });
 
         }
@@ -632,7 +632,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                model = model
+                model
             });
         }
 
@@ -691,7 +691,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                model = model
+                model
             });
         }
 
@@ -747,7 +747,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                model = model
+                model
             });
         }
 
@@ -779,7 +779,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                model = model
+                model
             });
 
         }

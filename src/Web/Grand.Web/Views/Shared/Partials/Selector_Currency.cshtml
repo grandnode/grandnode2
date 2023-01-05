@@ -31,7 +31,7 @@ var currencyModel = new CurrencyModel
         var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
         var currencies = availableCurrencies.Select(x => new
         {
-            Name = x.Name,
+            x.Name,
             Text = x.CurrencyCode,
             Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
             Selected = x.Id.Equals(workContext.WorkingCurrency.Id)

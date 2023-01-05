@@ -507,7 +507,7 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
-                            updatetopwishlistsectionhtml = updatetopwishlistsectionhtml,
+                            updatetopwishlistsectionhtml,
                             wishlistqty = qty,
                             model = addtoCartModel
                         });
@@ -717,8 +717,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                success = true,
-                model = model,
+                success = true, model,
             });
         }
 

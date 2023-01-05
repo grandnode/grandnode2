@@ -136,7 +136,7 @@ namespace Grand.Web.Controllers
 
             await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true, NotifyStoreOwner = true });
 
-            return RedirectToRoute("OrderDetails", new { orderId = orderId });
+            return RedirectToRoute("OrderDetails", new { orderId });
         }
 
         //My account / Order details page / PDF invoice
@@ -209,7 +209,7 @@ namespace Grand.Web.Controllers
             var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
 
             if (paymentTransaction == null || !await _paymentService.CanRePostRedirectPayment(paymentTransaction))
-                return RedirectToRoute("OrderDetails", new { orderId = orderId });
+                return RedirectToRoute("OrderDetails", new { orderId });
 
             await _paymentService.PostRedirectPayment(paymentTransaction);
 
@@ -221,7 +221,7 @@ namespace Grand.Web.Controllers
 
             //if no redirection has been done (to a third-party payment page)
             //theoretically it's not possible
-            return RedirectToRoute("OrderDetails", new { orderId = orderId });
+            return RedirectToRoute("OrderDetails", new { orderId });
         }
 
         //My account / Order details page / Shipment details page

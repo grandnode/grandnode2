@@ -15,7 +15,7 @@
         @foreach (var cat in Model.CategoryBreadcrumb)
         {
             <li class="breadcrumb-item">
-                <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = cat.SeName })" title="@cat.Name">@cat.Name</a>
+                <a href="@Url.RouteUrl("KnowledgebaseCategory", new { cat.SeName })" title="@cat.Name">@cat.Name</a>
             </li>
         }
     </ol>
@@ -91,7 +91,7 @@
                 {
                     if (item.IsArticle)
                     {
-                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = item.SeName })">
+                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { item.SeName })">
                             @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs
@@ -104,7 +104,7 @@
                     }
                     else
                     {
-                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = item.SeName })">
+                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseCategory", new { item.SeName })">
                             @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs

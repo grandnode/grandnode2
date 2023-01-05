@@ -35,7 +35,7 @@
                                     document.getElementById("btnApprove").addEventListener('click', function (event) {
                                         if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
                                             axios({
-                                                url: '@Url.Action("Approved", "Course", new { Id = Model.Id })',
+                                                url: '@Url.Action("Approved", "Course", new { Model.Id })',
                                                 method: 'post',
                                             }).then(function (response) {
                                                 if (response) {

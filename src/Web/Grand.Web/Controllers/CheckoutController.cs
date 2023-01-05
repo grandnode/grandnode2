@@ -852,7 +852,7 @@ namespace Grand.Web.Controllers
                 }
 
                 var message = string.Join(", ", warnings.ToArray());
-                return Json(new { error = 1, message = message });
+                return Json(new { error = 1, message });
             }
             catch (Exception exc)
             {

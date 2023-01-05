@@ -21,7 +21,7 @@
                         }
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
                         {
-                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })">@mpage.Name</a>
                         }
                         <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</a>
                         <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</a>
@@ -71,7 +71,7 @@
                         }
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow2).ToList())
                         {
-                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })" target="_blank">@mpage.Name</a>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })" target="_blank">@mpage.Name</a>
                         }
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                     <div class="pl-0 list-group list-pad">
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow3).ToList())
                         {
-                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { mpage.SeName })">@mpage.Name</a>
                         }
                     </div>
                 </div>

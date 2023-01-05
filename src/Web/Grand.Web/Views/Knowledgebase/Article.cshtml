@@ -10,7 +10,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(articleUrl);
     }
 }
@@ -28,7 +28,7 @@
             @foreach (var cat in Model.CategoryBreadcrumb)
             {
                 <li class="breadcrumb-item">
-                    <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = cat.SeName })" title="@cat.Name">@cat.Name</a>
+                    <a href="@Url.RouteUrl("KnowledgebaseCategory", new { cat.SeName })" title="@cat.Name">@cat.Name</a>
                 </li>
             }
         </ol>
@@ -56,7 +56,7 @@
         <div class="list-group">
             @foreach (var article in Model.RelatedArticles)
             {
-                <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = article.SeName })">
+                <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { article.SeName })">
                     @article.Name
                 </a>
             }

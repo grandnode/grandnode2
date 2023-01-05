@@ -10,7 +10,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var courseUrl = Url.RouteUrl("Course", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var courseUrl = Url.RouteUrl("Course", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(courseUrl);
     }
 

@@ -12,23 +12,23 @@
     {
         if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
         }
         else
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity });
         }
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
+        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity });
     }
     else
     {
         if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
         }
         else
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
         }
         addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
     }
@@ -38,7 +38,7 @@
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
     <div class="picture-container">
-        <a class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
+        <a class="img-container" href="@Url.RouteUrl("Product", new { Model.SeName })" title="@Model.DefaultPictureModel.Title">
             <b-card-img-lazy alt="@Model.DefaultPictureModel.AlternateText" class="main-product-img" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title"></b-card-img-lazy>
             @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
             {
@@ -58,7 +58,7 @@
     </div>
     <div class="card-body">
         <h3 class="card-title mb-0">
-            <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">
+            <a href="@Url.RouteUrl("Product", new { Model.SeName })">
                 @Model.Name
             </a>
         </h3>
@@ -77,7 +77,7 @@
                 <template>
                     <div class="rating">
                         <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))" precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
-                        <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
+                        <b-link href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
                     </div>
                 </template>
             }
@@ -197,7 +197,7 @@
                                                 case AttributeControlType.RadioList:
                                                 case AttributeControlType.Checkboxes:
                                                 case AttributeControlType.ReadonlyCheckboxes:
-                                                    <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                         @Html.Raw(spec.Name)
                                                     </a>
                                                     break;
@@ -210,7 +210,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
                                                         </a>
                                                     }
@@ -224,7 +224,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
                                                         </a>
                                                     }

@@ -63,7 +63,7 @@
                                         </label>
                                     </td>
                                     <td class="product">
-                                        @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
+                                        @Html.RouteLink(item.ProductName, "Product", new { item.SeName })
                                         @if (!string.IsNullOrEmpty(item.AttributeDescription))
                                         {
                                             <br />
