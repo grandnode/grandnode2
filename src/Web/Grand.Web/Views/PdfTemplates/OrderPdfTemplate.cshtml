@@ -1,4 +1,4 @@
-﻿@using Grand.Business.Core.Interfaces.Catalog.Products
+@using Grand.Business.Core.Interfaces.Catalog.Products
 @using Grand.Business.Core.Interfaces.Checkout.GiftVouchers
 @using Grand.Business.Core.Interfaces.Checkout.Payments
 @using Grand.Business.Core.Interfaces.Common.Directory
@@ -24,25 +24,6 @@
 <head>
     <title></title>
     <style>
-
-        .orderItems {
-            width: 100%;
-            border: 1px solid black;
-        }
-
-            .orderItems tr th {
-                background-color: #f5f5f5;
-                text-align: left;
-                padding: 0 5px 0 5px;
-            }
-
-            .orderItems tr,
-            .orderItems tr td,
-            .orderItems tr th {
-                border: 1px solid black;
-                padding: 0 5px 0 5px;
-            }
-
         .summary {
             padding-top:20px;
         }
@@ -62,17 +43,11 @@
         width: 400px;
         margin-right: 0px;
         margin-left: auto;
-        white-space: nowrap;
         /* border: 1px solid black; */
         border: none;
         border-collapse: collapse;
       }
-
-      .TitleSection {
-        margin-top: 50px;
-        font-weight: bold;
-      }
-
+      
       .Header {
         background-color: grey;
         color: white;
@@ -85,17 +60,14 @@
       table.Table,
       table.Table th,
       table.Table td {
-        white-space: nowrap;
+        /*white-space: nowrap;*/
         text-align: left;
         /* border: 1px solid black; */
         border-collapse: collapse;
       }
       table.Table th,
       table.Table td {
-        padding-top: 12px;
-        padding-bottom: 3px;
-        padding-left: 8px;
-        padding-right: 8px;
+        padding: 12px 8px 3px;
         text-align: right;
       }
       table.Table th.leftalign,
@@ -139,7 +111,7 @@
     </style>
 </head>
 <body>
-    <main style="padding:10pt; font-size:12px">
+<main style="padding:10pt; font-size:14px">
     @{
         var i = 0;
     }
@@ -155,45 +127,50 @@
         if (logoExists)
         {
             var url = await _pictureService.GetPictureUrl(logoPicture, 0, false, store.SslEnabled ? store.SecureUrl : store.Url);
-            <div style="float: right"><img src="@url" title="logo" alt="logo" /></div>
+            <div style="float: right; top:10px;">
+                <img src="@url" title="logo" alt="logo"/>
+            </div>
         }
         <h6>@(string.Format(_translationService.GetResource("PDFInvoice.Order#", order.CustomerLanguageId), order.OrderNumber))</h6>
-        <table class="Table">
+        <table class="CodeTable">
             <tr>
-                <td style="border-style: none;">
+                <td class="leftalign">
                     @if (order.BillingAddress != null)
                     {
-                        
-                            <b>@(_translationService.GetResource("PDFInvoice.BillingInformation", order.CustomerLanguageId))</b><br />
-                            @if (!string.IsNullOrEmpty(order.BillingAddress.Company))
-                            {
-                                @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.BillingAddress.Company))<br />
-                            }
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.BillingAddress.FirstName + " " + order.BillingAddress.LastName))<br />
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.BillingAddress.PhoneNumber))<br />
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.BillingAddress.Address1))<br />
-                            @(order.BillingAddress.City + ", " + order.BillingAddress.ZipPostalCode)<br />
-                            @((await _countryService.GetCountryById(order.BillingAddress.CountryId))?.Name)<br />
-                                var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
-                                var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
-                            @(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))<br />
-                            @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })                        
+                        <b>@(_translationService.GetResource("PDFInvoice.BillingInformation", order.CustomerLanguageId))</b>
+                        <br/>
+                        @if (!string.IsNullOrEmpty(order.BillingAddress.Company))
+                        {
+                            @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.BillingAddress.Company))<br/>
+                        }
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.BillingAddress.FirstName + " " + order.BillingAddress.LastName))<br/>
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.BillingAddress.PhoneNumber))<br/>
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.BillingAddress.Address1))<br/>
+                        @(order.BillingAddress.City + ", " + order.BillingAddress.ZipPostalCode)<br/>
+                        @((await _countryService.GetCountryById(order.BillingAddress.CountryId))?.Name)<br/>
+                        <br/>
+                        var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
+                        var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
+                        @(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))<br/>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })
                     }
                 </td>
-                <td style="border-style: none;">
+                <td class="leftalign">
                     @if (order.ShippingAddress != null)
                     {
-                            <b>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</b><br />
-                            @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
-                            {
-                                @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br />
-                            }
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br />
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br />
-                            @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br />
-                            @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br />
-                            @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br />
-                            @(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))<br />
+                        <b>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</b>
+                        <br/>
+                        @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
+                        {
+                            @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br/>
+                        }
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br/>
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br/>
+                        @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br/>
+                        @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
+                        @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
+                        <br/>
+                        @(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))<br/>
                     }
                 </td>
             </tr>
@@ -204,10 +181,10 @@
         </div>
         <table class="Table">
             <tr>
-              <td class="Header" colspan="2">@(_translationService.GetResource("PDFInvoice.ProductName", order.CustomerLanguageId))</td>
-              <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductPrice", order.CustomerLanguageId))</td>
-              <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductQuantity", order.CustomerLanguageId))</td>
-              <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductTotal", order.CustomerLanguageId))</td>
+                <td class="Header leftalign" colspan="2">@(_translationService.GetResource("PDFInvoice.ProductName", order.CustomerLanguageId))</td>
+                <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductPrice", order.CustomerLanguageId))</td>
+                <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductQuantity", order.CustomerLanguageId))</td>
+                <td class="Header">@(_translationService.GetResource("PDFInvoice.ProductTotal", order.CustomerLanguageId))</td>
             </tr>
             @foreach (var item in order.OrderItems.Where(x => x.VendorId == Model.Item2 || !limitbyVendor).ToList())
             {
@@ -216,57 +193,114 @@
                         @((await _productService.GetProductByIdIncludeArch(item.ProductId)).Name)
                         @if (!string.IsNullOrEmpty(item.AttributeDescription))
                         {
-                            <br />
+                            <br/>
                             <small>@(Html.Raw(item.AttributeDescription))</small>
                         }
                     </td>
-                    <td>@if(priceIncludesTax){@item.UnitPriceInclTax}else{@item.UnitPriceExclTax}</td>
+                    <td>
+                        @if (priceIncludesTax)
+                        {
+                            @item.UnitPriceInclTax.ToString("N2")
+                        }
+                        else
+                        {
+                            @item.UnitPriceExclTax.ToString("N2")
+                        }
+                    </td>
                     <td>@item.Quantity</td>
-                    <td class="bold">@if(priceIncludesTax){@item.PriceInclTax}else{@item.PriceExclTax}</td>
+                    <td class="bold">
+                        @if (priceIncludesTax)
+                        {
+                            @item.PriceInclTax.ToString("N2")
+                        }
+                        else
+                        {
+                            @item.PriceExclTax.ToString("N2")
+                        }
+                    </td>
                 </tr>
             }
         </table>
         @if (!limitbyVendor)
         {
             <div class="summary">
-                
-                <div class="right">
-                    <ul style="list-style-type:none">
-                        <li>@(_translationService.GetResource("PDFInvoice.Sub-Total", order.CustomerLanguageId))@if(priceIncludesTax){ @order.OrderSubtotalInclTax}else{ @order.OrderSubtotalExclTax} @order.CustomerCurrencyCode</li>
-                        @if (order.OrderSubTotalDiscountInclTax > 0||order.OrderSubTotalDiscountExclTax > 0)
+
+                <div style="float: right">
+
+                    @(_translationService.GetResource("PDFInvoice.Sub-Total", order.CustomerLanguageId))
+                    @if (priceIncludesTax)
+                    {
+                        @order.OrderSubtotalInclTax.ToString("N2")
+                    }
+                    else
+                    {
+                        @order.OrderSubtotalExclTax.ToString("N2")
+                    }
+                    @order.CustomerCurrencyCode <br/>
+                    @if (order.OrderSubTotalDiscountInclTax > 0 || order.OrderSubTotalDiscountExclTax > 0)
+                    {
+                        @(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @if (priceIncludesTax)
+                                                                                                            {
+                                                                                                                @order.OrderSubTotalDiscountInclTax.ToString("N2")
+                                                                                                            }
+                                                                                                            else
+                                                                                                            {
+                                                                                                                @order.OrderSubTotalDiscountExclTax.ToString("N2")
+                                                                                                            }
+                        @order.CustomerCurrencyCode
+                    }
+                    @if (order.PaymentMethodAdditionalFeeInclTax > 0 || order.PaymentMethodAdditionalFeeExclTax > 0)
+                    {
+                        @(_translationService.GetResource("PDFInvoice.PaymentmethodAdditionalFee", order.CustomerLanguageId)) @if (priceIncludesTax)
+                                                                                                                              {
+                                                                                                                                  @order.PaymentMethodAdditionalFeeInclTax.ToString("N2")
+                                                                                                                              }
+                                                                                                                              else
+                                                                                                                              {
+                                                                                                                                  @order.PaymentMethodAdditionalFeeExclTax.ToString("N2")
+                                                                                                                              }
+                        @order.CustomerCurrencyCode<br/>
+                    }
+                    @(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId))
+                    @if (priceIncludesTax)
+                    {
+                        @order.OrderShippingInclTax.ToString("N2")
+                    }
+                    else
+                    {
+                        @order.OrderShippingExclTax.ToString("N2")
+                    }
+                    @order.CustomerCurrencyCode<br/>
+                    @if (order.OrderDiscount > 0)
+                    {
+                        @(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId))
+                        @order.OrderDiscount.ToString("N2")
+                        @order.CustomerCurrencyCode<br/>
+                    }
+                    @foreach (var gcuh in await _giftVoucherService.GetAllGiftVoucherUsageHistory(order.Id))
+                    {
+                        if (gcuh.UsedValue > 0)
                         {
-                            <li>@(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @if(priceIncludesTax){ @order.OrderSubTotalDiscountInclTax}else{  @order.OrderSubTotalDiscountExclTax} @order.CustomerCurrencyCode</li>
+                            var giftvoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
+                            @(string.Format(_translationService.GetResource("PDFInvoice.GiftVoucherInfo", order.CustomerLanguageId), giftvoucher.Code))
+                            @gcuh.UsedValue<br/>
                         }
-                        @if (order.PaymentMethodAdditionalFeeInclTax > 0 ||order.PaymentMethodAdditionalFeeExclTax > 0)
-                        {
-                            <li>@(_translationService.GetResource("PDFInvoice.PaymentmethodAdditionalFee", order.CustomerLanguageId)) @if(priceIncludesTax){@order.PaymentMethodAdditionalFeeInclTax}else{  @order.PaymentMethodAdditionalFeeExclTax} @order.CustomerCurrencyCode</li>
-                        }
-                        <li>@(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId)) @if(priceIncludesTax){@order.OrderShippingInclTax}else{  @order.PaymentMethodAdditionalFeeExclTax}  @order.OrderShippingExclTax @order.CustomerCurrencyCode</li>
-                        @if (order.OrderDiscount > 0)
-                        {
-                            <li>@(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @order.OrderDiscount @order.CustomerCurrencyCode</li>
-                        }
-                        @foreach (var gcuh in await _giftVoucherService.GetAllGiftVoucherUsageHistory(order.Id))
-                        {
-                            if (gcuh.UsedValue > 0)
-                            {
-                                var giftvoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-                                <li>@(string.Format(_translationService.GetResource("PDFInvoice.GiftVoucherInfo", order.CustomerLanguageId), giftvoucher.Code)) @gcuh.UsedValue</li>
-                            }
-                        }
-                        @if (order.OrderTax > 0)
-                        {
-                            <li>@(_translationService.GetResource("PDFInvoice.Tax", order.CustomerLanguageId)) @order.OrderTax @order.CustomerCurrencyCode</li>
-                        }
-                        <li>@(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId)) @order.OrderTotal @order.CustomerCurrencyCode</li>
-                    </ul>
+                    }
+                    @if (order.OrderTax > 0)
+                    {
+                        @(_translationService.GetResource("PDFInvoice.Tax", order.CustomerLanguageId))
+                        @order.OrderTax.ToString("N2")
+                        @order.CustomerCurrencyCode<br/>
+                    }
+                    <b>@(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId)) @order.OrderTotal.ToString("N2") @order.CustomerCurrencyCode<br/></b>
+
                 </div>
             </div>
         }
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceFooterText))
         {
             <footer class="footer">
-                 @Html.Raw(_pdfSettings.InvoiceFooterText)
+                @Html.Raw(_pdfSettings.InvoiceFooterText)
             </footer>
         }
         if (Model.Item1.Count - 1 > i)
@@ -275,6 +309,6 @@
         }
         i++;
     }
-    </main>
+</main>
 </body>
 </html>
