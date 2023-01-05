@@ -68,7 +68,7 @@ namespace Grand.Web.Features.Handlers.Products
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
                request.Model.WarehouseId :
                request.Product.UseMultipleWarehouses ? request.Store.DefaultWarehouseId :
-               (string.IsNullOrEmpty(request.Store.DefaultWarehouseId) ? request.Product.WarehouseId : request.Store.DefaultWarehouseId);
+               string.IsNullOrEmpty(request.Store.DefaultWarehouseId) ? request.Product.WarehouseId : request.Store.DefaultWarehouseId;
 
             //rental attributes
             DateTime? rentalStartDate = null;

@@ -4,7 +4,7 @@
     var ratingPercent = 0;
     if (Model.TotalReviews != 0)
     {
-        ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
+        ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
 <div class="product-reviews-overview d-inline-flex align-items-center flex-wrap" @if (Model.TotalReviews > 0)

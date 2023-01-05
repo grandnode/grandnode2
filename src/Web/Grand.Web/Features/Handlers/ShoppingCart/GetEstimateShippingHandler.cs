@@ -36,7 +36,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             if (model.Enabled)
             {
                 //countries
-                var defaultEstimateCountryId = (request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null) ? request.Customer.ShippingAddress.CountryId : model.CountryId;
+                var defaultEstimateCountryId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.CountryId : model.CountryId;
                 if (string.IsNullOrEmpty(defaultEstimateCountryId))
                     defaultEstimateCountryId = request.Store.DefaultCountryId;
 
@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         Selected = c.Id == defaultEstimateCountryId
                     });
                 //states
-                var defaultEstimateStateId = (request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null) ? request.Customer.ShippingAddress.StateProvinceId : model.StateProvinceId;
+                var defaultEstimateStateId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.StateProvinceId : model.StateProvinceId;
                 var states = !String.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
                 if (states.Any())
                     foreach (var s in states)

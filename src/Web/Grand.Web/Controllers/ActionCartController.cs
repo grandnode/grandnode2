@@ -124,7 +124,7 @@ namespace Grand.Web.Controllers
         protected string GetWarehouse(Product product)
         {
             return product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-               (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+               string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
         }
 
         [HttpPost]
@@ -187,9 +187,9 @@ namespace Grand.Web.Controllers
                 quantity: quantity,
                 validator: new ShoppingCartValidatorOptions() {
                     GetRequiredProductWarnings = false,
-                    GetInventoryWarnings = (cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist),
-                    GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
-                    GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
+                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
+                    GetAttributesWarnings = cartType != ShoppingCartType.Wishlist,
+                    GetGiftVoucherWarnings = cartType != ShoppingCartType.Wishlist
                 });
 
             if (addToCart.warnings.Any())
@@ -433,7 +433,7 @@ namespace Grand.Web.Controllers
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
                 model.WarehouseId:
                 product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-                (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+                string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
 
 
             //add to the cart
@@ -443,7 +443,7 @@ namespace Grand.Web.Controllers
                 rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
                 new ShoppingCartValidatorOptions() {
                     GetRequiredProductWarnings = false,
-                    GetInventoryWarnings = (cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist),
+                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
                 });
 
             addToCartWarnings.AddRange(warnings);

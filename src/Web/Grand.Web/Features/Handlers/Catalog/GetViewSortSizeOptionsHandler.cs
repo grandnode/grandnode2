@@ -59,7 +59,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 foreach (var option in activeOptions)
                 {
                     var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
-                    var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", (option.Key).ToString());
+                    var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", option.Key.ToString());
 
                     var sortValue = ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
                     request.PagingFilteringModel.AvailableSortOptions.Add(new SelectListItem {

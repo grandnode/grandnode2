@@ -133,7 +133,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Desc = item.GetTranslation(x => x.ShortDescription, request.Language.Id) ?? "",
                     PictureUrl = pictureUrl,
                     AllowCustomerReviews = rating.AllowCustomerReviews,
-                    Rating = rating.TotalReviews > 0 ? (((rating.RatingSum * 100) / rating.TotalReviews) / 5) : 0,
+                    Rating = rating.TotalReviews > 0 ? rating.RatingSum * 100 / rating.TotalReviews / 5 : 0,
                     Price = price.Price,
                     PriceWithDiscount = price.PriceWithDiscount,
                     Url = $"{storeurl}/{item.SeName}"
@@ -242,10 +242,10 @@ namespace Grand.Web.Features.Handlers.Catalog
             string price, priceWithDiscount;
 
             var finalPriceWithoutDiscount =
-                (await (_taxService.GetProductPrice(product,
-                (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: false)).finalPrice))).productprice;
+                (await _taxService.GetProductPrice(product,
+                    (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: false)).finalPrice)).productprice;
 
-            var appliedPrice = (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: true));
+            var appliedPrice = await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: true);
             var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
 
             price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);

@@ -102,7 +102,7 @@ namespace Grand.Web.Features.Handlers.Catalog
               (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
             //products
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery() {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 Customer = request.Customer,
                 VendorId = request.Vendor.Id,
@@ -112,7 +112,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            }));
+            });
 
             model.Products = (await _mediator.Send(new GetProductOverview() {
                 Products = products.products,

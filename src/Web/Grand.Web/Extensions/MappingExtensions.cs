@@ -110,7 +110,7 @@ namespace Grand.Web.Extensions
                 SystemName = entity.SystemName,
                 IncludeInSitemap = entity.IncludeInSitemap,
                 IsPasswordProtected = entity.IsPasswordProtected,
-                Password = (entity.Password == password) ? password : "",
+                Password = entity.Password == password ? password : "",
                 Title = entity.IsPasswordProtected && !(entity.Password == password) ? "" : entity.GetTranslation(x => x.Title, language.Id),
                 Body = entity.IsPasswordProtected && !(entity.Password == password) ? "" : entity.GetTranslation(x => x.Body, language.Id),
                 MetaKeywords = entity.GetTranslation(x => x.MetaKeywords, language.Id),

@@ -104,9 +104,9 @@
                                               control-year="@($"attributes[{attribute.Id}_year]")"
                                               begin-year="@(DateTime.Now.Year)"
                                               end-year="@(DateTime.Now.Year+1)"
-                                              selected-day="(attribute.SelectedDay.HasValue ? attribute.SelectedDay.Value : 0)"
-                                              selected-month="(attribute.SelectedMonth.HasValue ? attribute.SelectedMonth.Value : 0)"
-                                              selected-year="(attribute.SelectedYear.HasValue ? attribute.SelectedYear.Value : 0)"
+                                              selected-day="attribute.SelectedDay.HasValue ? attribute.SelectedDay.Value : 0"
+                                              selected-month="attribute.SelectedMonth.HasValue ? attribute.SelectedMonth.Value : 0"
+                                              selected-year="attribute.SelectedYear.HasValue ? attribute.SelectedYear.Value : 0"
                                               PartialViewName="Partials/DatePickerDropDowns"
                                               class="input-group" />
                     }

@@ -103,7 +103,7 @@ namespace Grand.Web.Commands.Handler.Customers
 
             if (prevVatNumber != request.Model.VatNumber)
             {
-                var vat = (await _checkVatService.GetVatNumberStatus(request.Model.VatNumber));
+                var vat = await _checkVatService.GetVatNumberStatus(request.Model.VatNumber);
                 await _userFieldService.SaveField(request.Customer,
                         SystemCustomerFieldNames.VatNumberStatusId,
                         (int)vat.status);

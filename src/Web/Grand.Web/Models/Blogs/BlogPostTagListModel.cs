@@ -22,16 +22,16 @@ namespace Grand.Web.Models.Blogs
 
         protected int GetFontSize(double weight, double mean, double stdDev)
         {
-            var factor = (weight - mean);
+            var factor = weight - mean;
 
             if (factor != 0 && stdDev != 0) factor /= stdDev;
 
-            return (factor > 2) ? 150 :
-                (factor > 1) ? 120 :
-                (factor > 0.5) ? 100 :
-                (factor > -0.5) ? 90 :
-                (factor > -1) ? 85 :
-                (factor > -2) ? 80 :
+            return factor > 2 ? 150 :
+                factor > 1 ? 120 :
+                factor > 0.5 ? 100 :
+                factor > -0.5 ? 90 :
+                factor > -1 ? 85 :
+                factor > -2 ? 80 :
                 75;
         }
 
@@ -57,7 +57,7 @@ namespace Grand.Web.Models.Blogs
 
             foreach (var d in values)
             {
-                var diff = (d - mean);
+                var diff = d - mean;
                 sumOfDiffSquares += diff * diff;
                 count++;
             }

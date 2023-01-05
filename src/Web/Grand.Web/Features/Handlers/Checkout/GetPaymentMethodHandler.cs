@@ -61,7 +61,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
                     model.LoyaltyPointsBalance = loyaltyPointsBalance;
                     var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: true)).shoppingCartTotal;
-                    model.LoyaltyPointsEnoughToPayForOrder = (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0);
+                    model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0;
                 }
             }
 

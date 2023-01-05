@@ -86,11 +86,11 @@ namespace Grand.Web.Features.Handlers.Blogs
                             ExtraField = picture?.ExtraField
                         };
                         //"title" attribute
-                        pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                        pictureModel.Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
                             picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
                             string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), post.Title);
                         //"alt" attribute
-                        pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                        pictureModel.AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
                             picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
                             string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title);
 

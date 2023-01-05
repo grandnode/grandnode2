@@ -338,8 +338,8 @@ namespace Grand.Web.Features.Handlers.Products
                                     //prices
 
                                     //calculate for the maximum quantity (in case if we have tier prices)
-                                    var infoprice = (await _pricingService.GetFinalPrice(product,
-                                        _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true, int.MaxValue));
+                                    var infoprice = await _pricingService.GetFinalPrice(product,
+                                        _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true, int.MaxValue);
 
                                     priceModel.AppliedDiscounts = infoprice.appliedDiscounts;
                                     priceModel.PreferredTierPrice = infoprice.preferredTierPrice;
@@ -439,11 +439,11 @@ namespace Grand.Web.Features.Handlers.Products
                     Style = picture?.Style,
                     ExtraField = picture?.ExtraField,
                     //"title" attribute
-                    Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
                         picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
                         string.Format(res["Media.Product.ImageLinkTitleFormat"], name),
                     //"alt" attribute
-                    AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
                         picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
                         string.Format(res["Media.Product.ImageAlternateTextFormat"], name)
                 };

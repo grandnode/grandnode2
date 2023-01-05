@@ -24,7 +24,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var model = new PasswordRecoveryConfirmModel();
 
             //validate token
-            if (!(request.Customer.IsPasswordRecoveryTokenValid(request.Token)))
+            if (!request.Customer.IsPasswordRecoveryTokenValid(request.Token))
             {
                 model.DisablePasswordChanging = true;
                 model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");

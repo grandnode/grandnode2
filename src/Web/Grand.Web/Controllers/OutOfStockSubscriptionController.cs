@@ -76,8 +76,8 @@ namespace Grand.Web.Controllers
                 return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
 
             warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-               (string.IsNullOrEmpty(warehouseId) ? "" : warehouseId) :
-               (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+               string.IsNullOrEmpty(warehouseId) ? "" : warehouseId :
+               string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
 
             var subscription = await _outOfStockSubscriptionService
                    .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id,
@@ -101,7 +101,7 @@ namespace Grand.Web.Controllers
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
                 model.WarehouseId :
                  product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-                 (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+                 string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
 
             if (!await _groupService.IsRegistered(customer))
                 return Json(new
@@ -111,7 +111,7 @@ namespace Grand.Web.Controllers
                     resource = _translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered")
                 });
 
-            if ((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock) &&
+            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
                 product.BackorderModeId == BackorderMode.NoBackorders &&
                 product.AllowOutOfStockSubscriptions &&
                 _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) <= 0)

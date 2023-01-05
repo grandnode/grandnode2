@@ -201,7 +201,7 @@ namespace Grand.Web.Controllers
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
-            if ((await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed))
+            if (await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                 return Challenge();
 
             //reset checkout data
@@ -232,7 +232,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> Completed(string orderId)
         {
             //validation
-            if ((await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed))
+            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
                 return Challenge();
 
             Order order = null;
@@ -443,7 +443,7 @@ namespace Grand.Web.Controllers
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
-            if ((await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed))
+            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
                 return Challenge();
 
             //validation (each shopping cart item)
@@ -726,7 +726,7 @@ namespace Grand.Web.Controllers
                             address.Attributes = customAttributes;
                             address.CreatedOnUtc = DateTime.UtcNow;
                             address.AddressType = _addressSettings.AddressTypeEnabled
-                                ? (model.BillToTheSameAddress ? AddressType.Any : AddressType.Shipping)
+                                ? model.BillToTheSameAddress ? AddressType.Any : AddressType.Shipping
                                 : AddressType.Any;
                             //other null validations
                             _workContext.CurrentCustomer.Addresses.Add(address);
@@ -739,7 +739,7 @@ namespace Grand.Web.Controllers
                 }
 
                 if (model.BillToTheSameAddress && !model.PickUpInStore &&
-                    (_workContext.CurrentCustomer.ShippingAddress!.AddressType != AddressType.Shipping))
+                    _workContext.CurrentCustomer.ShippingAddress!.AddressType != AddressType.Shipping)
                 {
                     _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress;
                     await _customerService.UpdateBillingAddress(_workContext.CurrentCustomer.BillingAddress,
@@ -1069,8 +1069,8 @@ namespace Grand.Web.Controllers
         {
             try
             {
-                if ((await _groupService.IsGuest(_workContext.CurrentCustomer) &&
-                     !_orderSettings.AnonymousCheckoutAllowed))
+                if (await _groupService.IsGuest(_workContext.CurrentCustomer) &&
+                    !_orderSettings.AnonymousCheckoutAllowed)
                     return Challenge();
 
                 var paymentTransaction = await _paymentTransactionService.GetById(paymentTransactionId);

@@ -229,7 +229,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
                     //products
-                    var searchproducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    var searchproducts = await _mediator.Send(new GetSearchProductsQuery() {
                         LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                         CategoryIds = categoryIds,
                         CollectionId = collectionId,
@@ -248,7 +248,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         PageIndex = request.Command.PageNumber - 1,
                         PageSize = request.Command.PageSize,
                         VendorId = vendorId
-                    }));
+                    });
 
                     request.Model.Products = (await _mediator.Send(new GetProductOverview() {
                         Products = searchproducts.products,

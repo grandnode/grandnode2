@@ -104,7 +104,7 @@ namespace Grand.Web.Features.Handlers.Customers
 
                     foreach (var s in states)
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = s.Id == model.StateProvinceId });
                     }
                 }
             }

@@ -120,11 +120,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Style = picture?.Style,
                     ExtraField = picture?.ExtraField,
                     //"title" attribute
-                    Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)) ?
                         picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
                         string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name),
                     //"alt" attribute
-                    AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id)) ?
                         picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
                         string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name)
                 };
@@ -186,7 +186,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //products
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(
                 _httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery() {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 CategoryIds = categoryIds,
                 Customer = request.Customer,
@@ -197,7 +197,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            }));
+            });
 
             model.Products = (await _mediator.Send(new GetProductOverview() {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,

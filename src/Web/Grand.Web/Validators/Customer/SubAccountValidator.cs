@@ -21,11 +21,11 @@ namespace Grand.Web.Validators.Customer
             RuleFor(x => x.LastName).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.LastName.Required"));
 
             RuleFor(x => x.Password).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Password.Required"))
-                .When(subaccount => (string.IsNullOrEmpty(subaccount.Id)) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
+                .When(subaccount => string.IsNullOrEmpty(subaccount.Id) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
 
             if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
                 RuleFor(x => x.Password).Matches(customerSettings.PasswordRegularExpression).WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")))
-                    .When(subaccount => (string.IsNullOrEmpty(subaccount.Id)) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
+                    .When(subaccount => string.IsNullOrEmpty(subaccount.Id) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
 
         }
     }

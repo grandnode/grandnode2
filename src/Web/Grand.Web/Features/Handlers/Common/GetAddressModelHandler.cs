@@ -127,7 +127,7 @@ namespace Grand.Web.Features.Handlers.Common
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, language.Id),
                         Value = c.Id.ToString(),
-                        Selected = !string.IsNullOrEmpty(model.CountryId) ? c.Id == model.CountryId : (c.Id == store.DefaultCountryId)
+                        Selected = !string.IsNullOrEmpty(model.CountryId) ? c.Id == model.CountryId : c.Id == store.DefaultCountryId
                     });
                 }
 
@@ -143,7 +143,7 @@ namespace Grand.Web.Features.Handlers.Common
                         model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, language.Id),
                             Value = s.Id.ToString(),
-                            Selected = (s.Id == model.StateProvinceId)
+                            Selected = s.Id == model.StateProvinceId
                         });
                     }
                 }
@@ -207,7 +207,7 @@ namespace Grand.Web.Features.Handlers.Common
                 }
 
                 //set already selected attributes
-                var selectedAddressAttributes = overrideAttributes ?? (address?.Attributes);
+                var selectedAddressAttributes = overrideAttributes ?? address?.Attributes;
 
                 switch (attribute.AttributeControlType)
                 {

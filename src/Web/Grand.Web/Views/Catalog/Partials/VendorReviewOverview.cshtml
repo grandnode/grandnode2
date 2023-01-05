@@ -4,7 +4,7 @@
     var ratingPercent = 0;
     if (Model.TotalReviews != 0)
     {
-        ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
+        ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
 @if (Model.AllowCustomerReviews)
@@ -14,7 +14,7 @@
             double ratingValue = 0;
             if (Model.TotalReviews != 0)
             {
-                ratingValue = Convert.ToDouble(((Model.RatingSum * (double)100) / Model.TotalReviews) / (double)100);
+                ratingValue = Convert.ToDouble(Model.RatingSum * (double)100 / Model.TotalReviews / (double)100);
             }
         }
         <div class="rating">

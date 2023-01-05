@@ -46,7 +46,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
             {
                 var cat = new List<CategoryModel>();
-                foreach (var x in (await _categoryService.GetAllCategoriesDisplayedOnHomePage()))
+                foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage())
                 {
                     var catModel = x.ToModel(request.Language);
                     //prepare picture model
@@ -59,11 +59,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                         Style = picture?.Style,
                         ExtraField = picture?.ExtraField,
                         //"title" attribute
-                        Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                        Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)) ?
                             picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
                             string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name),
                         //"alt" attribute
-                        AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                        AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id)) ?
                             picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
                             string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name)
                     };

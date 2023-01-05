@@ -49,8 +49,8 @@ namespace Grand.Web.Controllers
 
             //hide page if it`s set as no published
             if (!model.Published
-                && !(await _permissionService.Authorize(StandardPermission.AccessAdminPanel))
-                && !(await _permissionService.Authorize(StandardPermission.ManagePages)))
+                && !await _permissionService.Authorize(StandardPermission.AccessAdminPanel)
+                && !await _permissionService.Authorize(StandardPermission.ManagePages))
                 return RedirectToRoute("HomePage");
 
             //layout

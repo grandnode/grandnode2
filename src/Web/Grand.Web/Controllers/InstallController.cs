@@ -154,7 +154,7 @@ namespace Grand.Web.Controllers
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
 
                     var userNameandPassword = "";
-                    if (!(string.IsNullOrEmpty(model.MongoDBUsername)))
+                    if (!string.IsNullOrEmpty(model.MongoDBUsername))
                         userNameandPassword = model.MongoDBUsername + ":" + model.MongoDBPassword + "@";
 
                     connectionString = "mongodb://" + userNameandPassword + model.MongoDBServerName + "/" + model.MongoDBDatabaseName;

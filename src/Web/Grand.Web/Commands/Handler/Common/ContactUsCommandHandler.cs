@@ -90,7 +90,7 @@ namespace Grand.Web.Commands.Handler.Common
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,
-                            IsPreSelected = string.IsNullOrEmpty(preSelected) ? attributeValue.IsPreSelected : (preSelected.Contains(attributeValue.Id)),
+                            IsPreSelected = string.IsNullOrEmpty(preSelected) ? attributeValue.IsPreSelected : preSelected.Contains(attributeValue.Id),
                             DisplayOrder = attributeValue.DisplayOrder,
                         };
                         attributeModel.Values.Add(attributeValueModel);

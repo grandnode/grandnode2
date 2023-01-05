@@ -566,11 +566,11 @@ namespace Grand.Web.Features.Handlers.Products
                 Style = picture?.Style,
                 ExtraField = picture?.ExtraField,
                 //"title" attribute
-                Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
                     picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
                     string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), name),
                 //"alt" attribute
-                AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
                     picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
                     string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), name)
             };
@@ -629,9 +629,9 @@ namespace Grand.Web.Features.Handlers.Products
                     {
                         var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice);
                         var oldPriceBase = oldproductprice.productprice;
-                        var finalPriceWithoutDiscount = (await (_taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: false)).finalPrice))).productprice;
+                        var finalPriceWithoutDiscount = (await _taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: false)).finalPrice)).productprice;
 
-                        var appliedPrice = (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: true));
+                        var appliedPrice = await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: true);
                         var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
                         var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
 
@@ -1095,11 +1095,11 @@ namespace Grand.Web.Features.Handlers.Products
                         Style = picture?.Style,
                         ExtraField = picture?.ExtraField,
                         //"title" attribute
-                        Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)) ?
+                        Title = picture != null && !string.IsNullOrEmpty(picture.TitleAttribute) ?
                             picture.TitleAttribute :
                             string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), p1.Name),
                         //"alt" attribute
-                        AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute)) ?
+                        AlternateText = picture != null && !string.IsNullOrEmpty(picture.AltAttribute) ?
                             picture.AltAttribute :
                             string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), p1.Name)
                     };

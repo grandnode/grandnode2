@@ -99,7 +99,7 @@ namespace Grand.Web.Features.Handlers.Common
                         model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, request.Language.Id),
                             Value = s.Id.ToString(),
-                            Selected = (s.Id == model.StateProvinceId)
+                            Selected = s.Id == model.StateProvinceId
                         });
                     }
                 }

@@ -58,7 +58,7 @@
                 double ratingValue = 0;
                 if (Model.ReviewOverviewModel.TotalReviews != 0)
                 {
-                    ratingValue = Convert.ToDouble(((Model.ReviewOverviewModel.RatingSum * (double)100) / Model.ReviewOverviewModel.TotalReviews) / (double)100);
+                    ratingValue = Convert.ToDouble(Model.ReviewOverviewModel.RatingSum * (double)100 / Model.ReviewOverviewModel.TotalReviews / (double)100);
                 }
                 <template>
                     <div class="rating">
@@ -188,7 +188,7 @@
                                                     </a>
                                                     break;
                                                 case AttributeControlType.ColorSquares:
-                                                    if ((spec.PictureModel.FullSizeImageUrl) != null)
+                                                    if (spec.PictureModel.FullSizeImageUrl != null)
                                                     {
                                                         <a class="btn btn-sm btn-light name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
@@ -202,7 +202,7 @@
                                                     }
                                                     break;
                                                 case AttributeControlType.ImageSquares:
-                                                    if ((spec.PictureModel.FullSizeImageUrl) != null)
+                                                    if (spec.PictureModel.FullSizeImageUrl != null)
                                                     {
                                                         <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
