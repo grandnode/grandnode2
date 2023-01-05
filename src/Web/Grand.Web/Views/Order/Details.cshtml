@@ -5,14 +5,7 @@
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
-    if (!Model.PrintMode)
-    {
-        Layout = "_SingleColumn";
-    }
-    else
-    {
-        Layout = "_Print";
-    }
+    Layout = !Model.PrintMode ? "_SingleColumn" : "_Print";
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.OrderDetails"]);

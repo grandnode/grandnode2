@@ -67,16 +67,11 @@ namespace Grand.Web.Features.Handlers.Orders
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
 
                 var unitPrice = string.Empty;
-                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                {
+                unitPrice = _priceFormatter.FormatPrice(request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ?
                     //including tax
-                    unitPrice = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax);
-                }
-                else
-                {
+                    orderItem.UnitPriceInclTax :
                     //excluding tax
-                    unitPrice = _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax);
-                }
+                    orderItem.UnitPriceExclTax);
 
                 model.MerchandiseReturnItems.Add(new MerchandiseReturnDetailsModel.MerchandiseReturnItemModel
                 {

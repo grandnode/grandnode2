@@ -9,11 +9,8 @@
     .Select(x =>
     {
 //currency char
-var currencySymbol = "";
-        if (!string.IsNullOrEmpty(x.DisplayLocale))
-            currencySymbol = new RegionInfo(x.DisplayLocale).CurrencySymbol;
-        else
-            currencySymbol = x.CurrencyCode;
+        var currencySymbol = "";
+        currencySymbol = !string.IsNullOrEmpty(x.DisplayLocale) ? new RegionInfo(x.DisplayLocale).CurrencySymbol : x.CurrencyCode;
 
 //model
 var currencyModel = new CurrencyModel

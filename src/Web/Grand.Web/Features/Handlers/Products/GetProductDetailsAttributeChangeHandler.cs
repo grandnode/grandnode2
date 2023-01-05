@@ -126,11 +126,7 @@ namespace Grand.Web.Features.Handlers.Products
                    .FindSubscription(request.Customer.Id,
                     request.Product.Id, customAttributes, request.Store.Id, warehouseId);
 
-                if (subscription != null)
-                    model.ButtonTextOutOfStockSubscription = _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable");
-                else
-                    model.ButtonTextOutOfStockSubscription = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable");
-
+                model.ButtonTextOutOfStockSubscription = _translationService.GetResource(subscription != null ? "OutOfStockSubscriptions.DeleteNotifyWhenAvailable" : "OutOfStockSubscriptions.NotifyMeWhenAvailable");
             }
             if (request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {

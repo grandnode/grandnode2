@@ -221,10 +221,11 @@ namespace Grand.Web.Commands.Handler.Common
                     //if not found
                     if (!found)
                     {
-                        if (!string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)))
-                            warnings.Add(a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id));
-                        else
-                            warnings.Add(string.Format(_translationService.GetResource("ContactUs.SelectAttribute"), a2.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)));
+                        warnings.Add(
+                            !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id))
+                                ? a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)
+                                : string.Format(_translationService.GetResource("ContactUs.SelectAttribute"),
+                                    a2.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)));
                     }
                 }
             }

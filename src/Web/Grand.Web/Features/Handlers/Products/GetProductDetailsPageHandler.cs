@@ -1027,14 +1027,7 @@ namespace Grand.Web.Features.Handlers.Products
                     if (reservations.Any())
                     {
                         var first = reservations.Where(x => x.Date >= DateTime.UtcNow).OrderBy(x => x.Date).FirstOrDefault();
-                        if (first != null)
-                        {
-                            model.StartDate = first.Date;
-                        }
-                        else
-                        {
-                            model.StartDate = DateTime.UtcNow;
-                        }
+                        model.StartDate = first?.Date ?? DateTime.UtcNow;
                     }
                     var list = reservations.GroupBy(x => x.Parameter).ToList().Select(x => x.Key);
                     foreach (var item in list)
