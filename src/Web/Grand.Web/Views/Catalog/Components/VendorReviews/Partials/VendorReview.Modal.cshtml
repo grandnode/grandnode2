@@ -1,6 +1,6 @@
 ﻿@model VendorReviewsModel
 @{
-    var vendorlink = @Url.RouteUrl("Vendor", new { SeName = Model.VendorSeName } );
+    var vendorlink = Url.RouteUrl("Vendor", new { SeName = Model.VendorSeName } );
 }
 <b-modal id="ModalVendorReview" ref="ModalVendorReview" :dark-theme="darkMode" size="xl" @@shown="vendorreviews.modalReviewShown()" @@hide="vendorreviews.modalReviewClose()" centered hide-footer hide-header>
     <template v-if="vendorreviews.Model !== null">

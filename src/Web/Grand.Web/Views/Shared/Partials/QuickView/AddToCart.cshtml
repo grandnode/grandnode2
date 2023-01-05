@@ -1,6 +1,6 @@
 ﻿@{
-    var addtocart = @Url.RouteUrl("AddProductDetails");
-    var updateitemcart = @Url.RouteUrl("UpdateItemCart");
+    var addtocart = Url.RouteUrl("AddProductDetails");
+    var updateitemcart = Url.RouteUrl("UpdateItemCart");
 }
 <template v-if="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null">
     <input type="hidden" id="shoppingCartItemId" name="shoppingCartItemId" :value="UpdatedShoppingCartItemId" />

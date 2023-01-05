@@ -1,7 +1,7 @@
 ﻿@model ProductReviewsModel
 
 @{
-    var productlink = @Url.RouteUrl("Product", new { SeName = Model.ProductSeName });
+    var productlink = Url.RouteUrl("Product", new { SeName = Model.ProductSeName });
 }
 
 <b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="productreviews.modalReviewShown()" @@hide="productreviews.modalReviewClose()" centered hide-footer hide-header>

@@ -7,7 +7,7 @@
     var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
     var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
-    var fileLink = @Url.RouteUrl("UploadFileProductAttribute");
+    var fileLink = Url.RouteUrl("UploadFileProductAttribute");
     //generate change event script
     foreach (var attribute in Model.ProductAttributes)
     {

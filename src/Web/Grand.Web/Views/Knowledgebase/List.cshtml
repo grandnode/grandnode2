@@ -22,7 +22,7 @@
 }
 
 @section left {
-    @await Component.InvokeAsync("KnowledgebaseCategories", @Model)
+    @await Component.InvokeAsync("KnowledgebaseCategories", Model)
 }
 
 <div class="page">
@@ -63,7 +63,7 @@
         </form>
 
         @await Component.InvokeAsync("PageBlock", new { systemName = "KnowledgebaseHomePage" })
-        @await Component.InvokeAsync("KnowledgebaseHomepageArticles", @Model)
+        @await Component.InvokeAsync("KnowledgebaseHomepageArticles", Model)
     }
     else
     {
@@ -82,7 +82,7 @@
             }
         }
 
-        @Html.Raw(@Model.CurrentCategoryDescription)
+        @Html.Raw(Model.CurrentCategoryDescription)
 
         @if (Model.Items.Any())
         {
@@ -92,7 +92,7 @@
                     if (item.IsArticle)
                     {
                         <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = item.SeName })">
-                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(@item.FormattedBreadcrumbs))
+                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs
                             }
@@ -105,7 +105,7 @@
                     else
                     {
                         <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = item.SeName })">
-                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(@item.FormattedBreadcrumbs))
+                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs
                             }

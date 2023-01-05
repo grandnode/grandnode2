@@ -247,7 +247,7 @@
         </div>
         @if (Model.ShowQty)
         {
-            var qtyId = "addtocart_" + @Model.Id + "_EnteredQuantity";
+            var qtyId = "addtocart_" + Model.Id + "_EnteredQuantity";
             <input class="form-control input-group-addon catalog-quantity" type="number" min="1" id="@qtyId" name="@qtyId" value="1">
         }
         <div class="btn-group">

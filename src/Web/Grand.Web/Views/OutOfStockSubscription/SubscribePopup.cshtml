@@ -35,7 +35,7 @@
         }
         else
         {
-            <input type="submit" id="out-of-stock-notify-me" value="@(Model.AlreadySubscribed ? @Loc["OutOfStockSubscriptions.Unsubscribe"] : @Loc["OutOfStockSubscriptions.NotifyMe"])"
+            <input type="submit" id="out-of-stock-notify-me" value="@(Model.AlreadySubscribed ? Loc["OutOfStockSubscriptions.Unsubscribe"] : Loc["OutOfStockSubscriptions.NotifyMe"])"
                    class="btn btn-success btn-sm notify-me-button" />
                 <script>
                     document.getElementById('out-of-stock-subscription-form').addEventListener('submit', function (event) {
