@@ -23,7 +23,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var pageUrl = Url.RouteUrl("Page", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var pageUrl = Url.RouteUrl("Page", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(pageUrl);
     }
 }

@@ -77,7 +77,7 @@
             var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
             if (canonicalUrlsEnabled)
             {
-                var categoryUrl = Url.RouteUrl("ArticlesByCategory", new { SeName = Model.CurrentCategorySeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+                var categoryUrl = Url.RouteUrl("ArticlesByCategory", new { SeName = Model.CurrentCategorySeName }, Url.ActionContext.HttpContext.Request.Scheme);
                 pagebuilder.AddCanonicalUrlParts(categoryUrl);
             }
         }

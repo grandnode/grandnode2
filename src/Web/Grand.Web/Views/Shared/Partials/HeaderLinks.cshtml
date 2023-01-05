@@ -3,7 +3,7 @@
 @inject IPageHeadBuilder pagebuilder
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{
-    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
     var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
     var isAdminAccess = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.AccessAdminPanel);

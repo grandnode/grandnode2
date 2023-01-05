@@ -10,7 +10,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(articleUrl);
     }
 }
@@ -36,7 +36,7 @@
 }
 
 @section left {
-    @await Component.InvokeAsync("KnowledgebaseCategories", new Grand.Web.Models.Knowledgebase.KnowledgebaseHomePageModel { CurrentCategoryId = Model.ParentCategoryId })
+    @await Component.InvokeAsync("KnowledgebaseCategories", new KnowledgebaseHomePageModel { CurrentCategoryId = Model.ParentCategoryId })
 }
 
 <div class="page">

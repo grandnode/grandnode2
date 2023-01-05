@@ -135,7 +135,7 @@ namespace Grand.Web.Controllers
                     using (var ziparchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
                         var fileName = (!String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id.ToString()) + download.Extension;
-                        if (Grand.Infrastructure.OperatingSystem.IsWindows())
+                        if (Infrastructure.OperatingSystem.IsWindows())
                         {
                             await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, download.DownloadBinary);
                             ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
@@ -154,7 +154,7 @@ namespace Grand.Web.Controllers
                                 if (d1 != null && !d1.UseDownloadUrl)
                                 {
                                     fileName = (!String.IsNullOrWhiteSpace(d1.Filename) ? d1.Filename : p1.Id.ToString()) + d1.Extension;
-                                    if (Grand.Infrastructure.OperatingSystem.IsWindows())
+                                    if (Infrastructure.OperatingSystem.IsWindows())
                                     {
                                         await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, d1.DownloadBinary);
                                         ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);

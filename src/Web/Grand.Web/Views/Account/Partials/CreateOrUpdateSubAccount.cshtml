@@ -1,5 +1,5 @@
 ﻿@model SubAccountModel
-@inject Grand.Domain.Customers.CustomerSettings customerSettings
+@inject CustomerSettings customerSettings
 @{
     var edit_email = !string.IsNullOrEmpty(Model.Id) && !customerSettings.AllowUsersToChangeEmail;
     var validPassword = string.IsNullOrEmpty(Model.Id) ? "'required|min:Password'" : "";

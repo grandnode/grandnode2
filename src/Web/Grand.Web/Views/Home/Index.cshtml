@@ -15,7 +15,7 @@
             var picture = await pictureService.GetPictureUrl(seoSettings.StorePictureId);
             <meta property="og:image" content="@picture" />
         }
-        <meta property="og:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
+        <meta property="og:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
     }
     @if (seoSettings.TwitterMetaTags)
     {
@@ -29,7 +29,7 @@
             <meta property="twitter:image" content="@picture" />
         }
 
-        <meta property="twitter:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
+        <meta property="twitter:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
     }
 }
 
