@@ -1,19 +1,13 @@
-﻿@using Grand.Domain.Shipping
-@model IList<Shipment>
-@inject Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService _orderService
-@inject Grand.Business.Core.Interfaces.Checkout.Shipping.IShipmentService _shipmentService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _cournyService
-@inject Grand.Business.Core.Interfaces.Catalog.Products.IProductService _productService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _countryService
-@inject Grand.Business.Core.Interfaces.Common.Configuration.ISettingService _settingService
-@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService _storeService
-@inject Grand.Infrastructure.IWorkContext _workContext
-@inject Grand.Business.Core.Interfaces.Storage.IPictureService _pictureService
-@inject PdfSettings _pdfSettings
-@inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
-@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
+﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Localization
+@using Grand.Business.Core.Interfaces.Catalog.Products
+@model IList<Grand.Domain.Shipping.Shipment>
+@inject IOrderService _orderService
+@inject IProductService _productService
+@inject ICountryService _countryService
+@inject IWorkContext _workContext
+@inject ITranslationService _translationService
 
 @{
     var companyName = _workContext.CurrentStore.CompanyName;
@@ -56,7 +50,7 @@
     </style>
 </head>
 <body>
-    @for (int i = 0; i < Model.Count; i++)
+    @for (var i = 0; i < Model.Count; i++)
     {
         var order = await _orderService.GetOrderById(Model[i].OrderId);
         var shipment = Model[i];
@@ -94,7 +88,7 @@
             </tr>
             @foreach (var item in shipment.ShipmentItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
                 if (orderItem != null && (orderItem.VendorId == _workContext.CurrentVendor?.Id || !limitbyVendor))
                 {
                     <tr>

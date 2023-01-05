@@ -5,7 +5,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
-using HtmlRendererCore.PdfSharp;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Grand.Business.Common.Services.Pdf
 {
@@ -30,17 +30,7 @@ namespace Grand.Business.Common.Services.Pdf
             _downloadRepository = downloadRepository;
             _storeFilesContext = storeFilesContext;
         }
-
-        private PdfGenerateConfig PdfConfig()
-        {
-            var config = new PdfGenerateConfig {
-                PageSize = PdfSharpCore.PageSize.A4
-            };
-            config.SetMargins(20);
-            config.PageOrientation = PdfSharpCore.PageOrientation.Portrait;
-            return config;
-        }
-
+       
         public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "")
         {
             if (stream == null)
@@ -50,8 +40,11 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentNullException(nameof(orders));
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate, new(orders, vendorId));
-            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
-            pdf.Save(stream);
+            TextReader sr = new StringReader(html);
+            using (var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent))
+            {
+                doc.SaveAsPDF(stream);
+            };
         }
 
         public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
@@ -92,8 +85,8 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentException($"Cannot load language. ID={languageId}");
 
             var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(ShipmentsTemplate, shipments);
-            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
-            pdf.Save(stream);
+           /* var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
+            pdf.Save(stream);*/
         }
 
         public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")
