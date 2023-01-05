@@ -2,7 +2,7 @@ name: Build and deploy .NET Core app to Linux WebApp grandnode
 on:
   push:
     branches:
-    - master
+    - feature/pdf-scryber
 env:
   AZURE_WEBAPP_NAME: grandnode
   AZURE_WEBAPP_PACKAGE_PATH: src/Web/Grand.Web/publish
