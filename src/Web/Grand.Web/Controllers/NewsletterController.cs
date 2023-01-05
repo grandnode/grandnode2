@@ -3,7 +3,6 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Models.Newsletter;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers

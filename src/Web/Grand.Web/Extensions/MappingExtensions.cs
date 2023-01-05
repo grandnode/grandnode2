@@ -11,7 +11,6 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Course;
 using Grand.Web.Models.Pages;
 using Grand.Web.Models.Vendors;
-using Microsoft.AspNetCore.Http;
 using System.Globalization;
 
 namespace Grand.Web.Extensions

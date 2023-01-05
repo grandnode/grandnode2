@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Migrations;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;

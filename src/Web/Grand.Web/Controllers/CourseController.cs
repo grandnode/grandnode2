@@ -12,7 +12,6 @@ using Grand.Web.Commands.Models.Courses;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers
 {

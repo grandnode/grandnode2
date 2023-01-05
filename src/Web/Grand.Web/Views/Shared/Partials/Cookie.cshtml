@@ -1,5 +1,4 @@
-﻿@using Grand.Domain.Customers
-@inject StoreInformationSettings storeInformationSettings
+﻿@inject StoreInformationSettings storeInformationSettings
 @inject IWorkContext workContext
 
 @if (storeInformationSettings.DisplayCookieInformation && !workContext.CurrentCustomer.IsSystemAccount)

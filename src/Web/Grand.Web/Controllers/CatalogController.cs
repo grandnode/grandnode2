@@ -24,7 +24,6 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers
 {
