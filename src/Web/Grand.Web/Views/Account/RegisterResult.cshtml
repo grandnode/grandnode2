@@ -9,7 +9,7 @@
     //continue URL
     var qs = Context.Request.Query["ReturnUrl"];
     var continueUrl = "";
-    if (!String.IsNullOrEmpty(qs) && Url.IsLocalUrl(qs))
+    if (!string.IsNullOrEmpty(qs) && Url.IsLocalUrl(qs))
     {
         continueUrl = qs;
     }

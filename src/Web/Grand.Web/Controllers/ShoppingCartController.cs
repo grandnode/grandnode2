@@ -201,7 +201,7 @@ namespace Grand.Web.Controllers
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
@@ -421,25 +421,23 @@ namespace Grand.Web.Controllers
                     sidebarshoppingcartmodel = miniShoppingCartmodel,
                 });
             }
-            else
-            {
-                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-                var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
-                    Cart = cart,
-                    Customer = _workContext.CurrentCustomer,
-                    Currency = _workContext.WorkingCurrency,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore,
-                    TaxDisplayType = _workContext.TaxDisplayType
-                });
 
-                return Json(new
-                {
-                    totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), miniShoppingCartmodel.TotalProducts),
-                    sidebarshoppingcartmodel = miniShoppingCartmodel,
-                    model = shoppingcartmodel,
-                });
-            }
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
+            var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
+                Cart = cart,
+                Customer = _workContext.CurrentCustomer,
+                Currency = _workContext.WorkingCurrency,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                TaxDisplayType = _workContext.TaxDisplayType
+            });
+
+            return Json(new
+            {
+                totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), miniShoppingCartmodel.TotalProducts),
+                sidebarshoppingcartmodel = miniShoppingCartmodel,
+                model = shoppingcartmodel,
+            });
         }
 
         [DenySystemAccount]
@@ -579,7 +577,7 @@ namespace Grand.Web.Controllers
                             }
                             else
                             {
-                                if (!String.IsNullOrEmpty(validationResult.UserError))
+                                if (!string.IsNullOrEmpty(validationResult.UserError))
                                 {
                                     //some user error
                                     message = validationResult.UserError;

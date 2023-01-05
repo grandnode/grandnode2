@@ -38,13 +38,13 @@ namespace Grand.Web.Features.Handlers.Common
                 model.Company = request.Address.Company;
                 model.CountryId = request.Address.CountryId;
                 Country country = null;
-                if (!String.IsNullOrEmpty(request.Address.CountryId))
+                if (!string.IsNullOrEmpty(request.Address.CountryId))
                     country = await _countryService.GetCountryById(request.Address.CountryId);
                 model.CountryName = country != null ? country.GetTranslation(x => x.Name, request.Language.Id) : null;
 
                 model.StateProvinceId = request.Address.StateProvinceId;
                 StateProvince state = null;
-                if (!String.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
+                if (!string.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
                     state = country.StateProvinces.FirstOrDefault(x => x.Id == request.Address.StateProvinceId);
                 model.StateProvinceName = state != null ? state.GetTranslation(x => x.Name, request.Language.Id) : null;
 
@@ -91,7 +91,7 @@ namespace Grand.Web.Features.Handlers.Common
                 if (_vendorSettings.StateProvinceEnabled)
                 {
                     var states = await _countryService
-                        .GetStateProvincesByCountryId(!String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "", request.Language.Id);
+                        .GetStateProvincesByCountryId(!string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "", request.Language.Id);
                     
                     model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
                     foreach (var s in states)

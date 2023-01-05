@@ -134,7 +134,7 @@ namespace Grand.Web.Models.Catalog
             public bool EnteredPrice { get; set; }
             [GrandResourceDisplayName("Products.EnterProductPrice")]
             public double CustomerEnteredPrice { get; set; }
-            public String CustomerEnteredPriceRange { get; set; }
+            public string CustomerEnteredPriceRange { get; set; }
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }
             //reservation

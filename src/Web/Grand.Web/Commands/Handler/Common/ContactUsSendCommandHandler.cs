@@ -151,7 +151,7 @@ namespace Grand.Web.Commands.Handler.Common
                             DateTime? selectedDate = null;
                             try
                             {
-                                selectedDate = new DateTime(Int32.Parse(year), Int32.Parse(month), Int32.Parse(date));
+                                selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(date));
                             }
                             catch { }
                             if (selectedDate.HasValue)

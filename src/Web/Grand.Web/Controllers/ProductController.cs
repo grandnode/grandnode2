@@ -121,7 +121,7 @@ namespace Grand.Web.Controllers
             }
             //update existing shopping cart item?
             ShoppingCartItem updatecartitem = null;
-            if (_shoppingCartSettings.AllowCartItemEditing && !String.IsNullOrEmpty(updatecartitemid))
+            if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
             {
                 var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id);
 
@@ -268,7 +268,7 @@ namespace Grand.Web.Controllers
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))

@@ -46,7 +46,7 @@ namespace Grand.Web.Validators.Common
                     if (country != null && country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
-                        if (String.IsNullOrEmpty(y))
+                        if (string.IsNullOrEmpty(y))
                         {
                             return false;
                         }

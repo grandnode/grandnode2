@@ -76,9 +76,9 @@ namespace Grand.Web.Features.Handlers.Checkout
                 {
                     var shippingOptionToSelect = model.ShippingMethods.ToList()
                         .Find(so =>
-                           !String.IsNullOrEmpty(so.Name) &&
+                           !string.IsNullOrEmpty(so.Name) &&
                            so.Name.Equals(selectedShippingOption.Name, StringComparison.OrdinalIgnoreCase) &&
-                           !String.IsNullOrEmpty(so.ShippingRateProviderSystemName) &&
+                           !string.IsNullOrEmpty(so.ShippingRateProviderSystemName) &&
                            so.ShippingRateProviderSystemName.Equals(selectedShippingOption.ShippingRateProviderSystemName, StringComparison.OrdinalIgnoreCase));
                     if (shippingOptionToSelect != null)
                     {

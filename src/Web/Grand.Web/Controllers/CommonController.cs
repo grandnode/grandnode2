@@ -571,7 +571,7 @@ namespace Grand.Web.Controllers
 
             var qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
-            if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();
             //remove path (passed in IE)
             fileName = Path.GetFileName(fileName);
@@ -579,7 +579,7 @@ namespace Grand.Web.Controllers
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))

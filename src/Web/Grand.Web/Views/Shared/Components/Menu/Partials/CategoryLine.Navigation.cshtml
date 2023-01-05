@@ -2,7 +2,7 @@
 @functions{
     public bool BreadCrumbContainsCurrentCategoryId(CategorySimpleModel category)
     {
-        if (String.IsNullOrEmpty(Model.CurrentCategoryId))
+        if (string.IsNullOrEmpty(Model.CurrentCategoryId))
             return false;
 
         if (category.Id == Model.CurrentCategoryId)

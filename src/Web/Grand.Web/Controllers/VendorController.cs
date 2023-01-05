@@ -105,7 +105,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             var model = new ApplyVendorModel();
-            if (!String.IsNullOrEmpty(_workContext.CurrentCustomer.VendorId))
+            if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.VendorId))
             {
                 //already applied for vendor account
                 model.DisableFormInput = true;

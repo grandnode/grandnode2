@@ -239,7 +239,7 @@ namespace Grand.Web.Commands.Handler.Customers
 
             if (_addressSettings.ZipPostalCodeEnabled &&
                 _addressSettings.ZipPostalCodeRequired &&
-                String.IsNullOrWhiteSpace(address.ZipPostalCode))
+                string.IsNullOrWhiteSpace(address.ZipPostalCode))
                 return false;
 
 
@@ -257,7 +257,7 @@ namespace Grand.Web.Commands.Handler.Customers
                     var states = country.StateProvinces;
                     if (states.Any())
                     {
-                        if (String.IsNullOrEmpty(address.StateProvinceId))
+                        if (string.IsNullOrEmpty(address.StateProvinceId))
                             return false;
 
                         var state = states.FirstOrDefault(x => x.Id == address.StateProvinceId);

@@ -78,13 +78,13 @@ namespace Grand.Web.Features.Handlers.Common
                 model.VatNumber = address.VatNumber;
                 model.CountryId = address.CountryId;
                 Country country = null;
-                if (!String.IsNullOrEmpty(address.CountryId))
+                if (!string.IsNullOrEmpty(address.CountryId))
                     country = await _countryService.GetCountryById(address.CountryId);
                 model.CountryName = country != null ? country.GetTranslation(x => x.Name, language.Id) : null;
 
                 model.StateProvinceId = address.StateProvinceId;
                 StateProvince state = null;
-                if (!String.IsNullOrEmpty(address.StateProvinceId) && country != null)
+                if (!string.IsNullOrEmpty(address.StateProvinceId) && country != null)
                     state = country.StateProvinces.FirstOrDefault(x => x.Id == address.StateProvinceId);
                 model.StateProvinceName = state != null ? state.GetTranslation(x => x.Name, language.Id) : null;
 

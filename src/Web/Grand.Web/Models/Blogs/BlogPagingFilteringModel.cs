@@ -9,7 +9,7 @@ namespace Grand.Web.Models.Blogs
         public virtual DateTime? GetParsedMonth()
         {
             DateTime? result = null;
-            if (!String.IsNullOrEmpty(Month))
+            if (!string.IsNullOrEmpty(Month))
             {
                 var tempDate = Month.Split(new [] { '-' });
                 if (tempDate.Length == 2)

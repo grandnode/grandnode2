@@ -195,7 +195,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     {
                         //advanced search
                         var categoryId = request.Model.cid;
-                        if (!String.IsNullOrEmpty(categoryId))
+                        if (!string.IsNullOrEmpty(categoryId))
                         {
                             categoryIds.Add(categoryId);
                             //include subcategories
@@ -265,7 +265,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     request.Model.NoResults = !request.Model.Products.Any();
 
                     //search term statistics
-                    if (!String.IsNullOrEmpty(searchTerms))
+                    if (!string.IsNullOrEmpty(searchTerms))
                     {
                         var searchTerm = await _searchTermService.GetSearchTermByKeyword(searchTerms, request.Store.Id);
                         if (searchTerm != null)

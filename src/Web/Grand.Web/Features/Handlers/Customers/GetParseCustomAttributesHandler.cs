@@ -51,7 +51,7 @@ namespace Grand.Web.Features.Handlers.Customers
                             {
                                 foreach (var item in cblAttributes.Split(','))
                                 {
-                                    if (!String.IsNullOrEmpty(item))
+                                    if (!string.IsNullOrEmpty(item))
                                         customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }

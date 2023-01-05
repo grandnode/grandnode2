@@ -102,7 +102,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 {
                     Id = merchandiseReturnNote.Id,
                     MerchandiseReturnId = merchandiseReturnNote.MerchandiseReturnId,
-                    HasDownload = !String.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
+                    HasDownload = !string.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
                     Note =  merchandiseReturnNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc)
                 });

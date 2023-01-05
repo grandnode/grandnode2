@@ -391,7 +391,7 @@ namespace Grand.Web.Features.Handlers.Products
             };
 
             //automatically generate product description?
-            if (_seoSettings.GenerateProductMetaDescription && String.IsNullOrEmpty(model.MetaDescription))
+            if (_seoSettings.GenerateProductMetaDescription && string.IsNullOrEmpty(model.MetaDescription))
             {
                 //based on short description
                 model.MetaDescription = model.ShortDescription;

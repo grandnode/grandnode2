@@ -530,7 +530,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> SearchTermAutoComplete(string term, string categoryId, [FromServices] CatalogSettings catalogSettings)
         {
-            if (String.IsNullOrWhiteSpace(term) || term.Length < catalogSettings.ProductSearchTermMinimumLength)
+            if (string.IsNullOrWhiteSpace(term) || term.Length < catalogSettings.ProductSearchTermMinimumLength)
                 return Content("");
 
             var result = await _mediator.Send(new GetSearchAutoComplete() {

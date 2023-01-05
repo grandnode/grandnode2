@@ -49,7 +49,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     });
                 //states
                 var defaultEstimateStateId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.StateProvinceId : model.StateProvinceId;
-                var states = !String.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
+                var states = !string.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
                 if (states.Any())
                     foreach (var s in states)
                         model.AvailableStates.Add(new SelectListItem {

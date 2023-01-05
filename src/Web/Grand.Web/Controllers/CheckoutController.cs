@@ -573,18 +573,15 @@ namespace Grand.Web.Controllers
                 //load next step
                 if (cart.RequiresShipping())
                     return await LoadStepAfterBillingAddress(cart);
-                else
-                {
-                    //shipping is not required
-                    _workContext.CurrentCustomer.ShippingAddress = null;
-                    await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.ShippingAddress,
-                        null);
+                //shipping is not required
+                _workContext.CurrentCustomer.ShippingAddress = null;
+                await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.ShippingAddress,
+                    null);
 
-                    await _userFieldService.SaveField<ShippingOption>(_workContext.CurrentCustomer,
-                        SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
-                    //load next step
-                    return await LoadStepAfterShippingMethod(cart);
-                }
+                await _userFieldService.SaveField<ShippingOption>(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
+                //load next step
+                return await LoadStepAfterShippingMethod(cart);
             }
             catch (Exception exc)
             {
@@ -748,27 +745,25 @@ namespace Grand.Web.Controllers
                         SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
                     return await LoadStepAfterBillingAddress(cart);
                 }
-                else
-                {
-                    var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
-                        Cart = cart,
-                        Currency = _workContext.WorkingCurrency,
-                        Customer = _workContext.CurrentCustomer,
-                        Language = _workContext.WorkingLanguage,
-                        Store = _workContext.CurrentStore,
-                        SelectedCountryId = model.ShippingNewAddress.CountryId,
-                    });
-                    if (!billingAddressModel.ExistingAddresses.Any())
-                        billingAddressModel.NewAddressPreselected = true;
 
-                    return Json(new {
-                        update_section = new UpdateSectionJsonModel {
-                            name = "billing",
-                            model = billingAddressModel
-                        },
-                        goto_section = "billing"
-                    });
-                }
+                var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
+                    Cart = cart,
+                    Currency = _workContext.WorkingCurrency,
+                    Customer = _workContext.CurrentCustomer,
+                    Language = _workContext.WorkingLanguage,
+                    Store = _workContext.CurrentStore,
+                    SelectedCountryId = model.ShippingNewAddress.CountryId,
+                });
+                if (!billingAddressModel.ExistingAddresses.Any())
+                    billingAddressModel.NewAddressPreselected = true;
+
+                return Json(new {
+                    update_section = new UpdateSectionJsonModel {
+                        name = "billing",
+                        model = billingAddressModel
+                    },
+                    goto_section = "billing"
+                });
             }
             catch (Exception exc)
             {

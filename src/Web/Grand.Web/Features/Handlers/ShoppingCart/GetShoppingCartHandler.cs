@@ -208,7 +208,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     AttributeControlType = attribute.AttributeControlTypeId,
                     DefaultValue = attribute.DefaultValue
                 };
-                if (!String.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
+                if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 {
                     attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
                         .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)

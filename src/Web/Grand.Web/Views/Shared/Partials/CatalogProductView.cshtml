@@ -111,7 +111,7 @@
                         @(Model.ProductPrice.HighestBidValue > 0 ? Model.ProductPrice.HighestBid : Model.ProductPrice.StartPrice)
                     </div>
                 }
-                @if (!String.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
                 {
                     <div class="old-price price">
                         @Model.ProductPrice.OldPrice

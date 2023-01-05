@@ -549,7 +549,7 @@ namespace Grand.Web.Controllers
             var usernameAvailable = false;
             var statusText = _translationService.GetResource("Account.CheckUsernameAvailability.NotAvailable");
 
-            if (_customerSettings.UsernamesEnabled && !String.IsNullOrWhiteSpace(username))
+            if (_customerSettings.UsernamesEnabled && !string.IsNullOrWhiteSpace(username))
             {
                 if (_workContext.CurrentCustomer != null &&
                     _workContext.CurrentCustomer.Username != null &&
@@ -580,7 +580,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var cToken = await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.AccountActivationToken);
-            if (String.IsNullOrEmpty(cToken))
+            if (string.IsNullOrEmpty(cToken))
                 return RedirectToRoute("HomePage");
 
             if (!cToken.Equals(token, StringComparison.OrdinalIgnoreCase))

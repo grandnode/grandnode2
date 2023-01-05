@@ -215,7 +215,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
             }
             //search term statistics
-            if (!String.IsNullOrEmpty(request.Term) && _catalogSettings.SaveSearchAutoComplete)
+            if (!string.IsNullOrEmpty(request.Term) && _catalogSettings.SaveSearchAutoComplete)
             {
                 var searchTerm = await _searchTermService.GetSearchTermByKeyword(request.Term, request.Store.Id);
                 if (searchTerm != null)

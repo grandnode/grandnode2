@@ -198,8 +198,8 @@ namespace Grand.Web.Extensions
             destination.Email = model.Email;
             destination.Company = model.Company;
             destination.VatNumber = model.VatNumber;
-            destination.CountryId = !String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
-            destination.StateProvinceId = !String.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
+            destination.CountryId = !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
+            destination.StateProvinceId = !string.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
             destination.City = model.City;
             destination.Address1 = model.Address1;
             destination.Address2 = model.Address2;
@@ -235,8 +235,8 @@ namespace Grand.Web.Extensions
                     model.FaxNumber = model.FaxNumber.Trim();
             }
             destination.Company = model.Company;
-            destination.CountryId = !String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
-            destination.StateProvinceId = !String.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
+            destination.CountryId = !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
+            destination.StateProvinceId = !string.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
             destination.City = model.City;
             destination.Address1 = model.Address1;
             destination.Address2 = model.Address2;

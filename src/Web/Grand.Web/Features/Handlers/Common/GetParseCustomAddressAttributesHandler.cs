@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.Common
                             {
                                 foreach (var item in cblAttributes.Split(','))
                                 {
-                                    if (!String.IsNullOrEmpty(item))
+                                    if (!string.IsNullOrEmpty(item))
                                         customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }

@@ -17,11 +17,11 @@
 }
 <div class="page blog-page">
     <h2 class="generalTitle">
-        @if (String.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
+        @if (string.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
         {
             if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
             {
-                @String.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
+                @string.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
             }
             else
             {
@@ -30,7 +30,7 @@
         }
         else
         {
-            @String.Format(Loc["Blog.TaggedWith"], Model.PagingFilteringContext.Tag)
+            @string.Format(Loc["Blog.TaggedWith"], Model.PagingFilteringContext.Tag)
         }
         @if (!string.IsNullOrEmpty(Model.SearchKeyword))
         {
@@ -71,7 +71,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                        @Html.Raw(!String.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
+                        @Html.Raw(!string.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
                         @if (item.Tags.Any())
                         {
                             <div class="tags">

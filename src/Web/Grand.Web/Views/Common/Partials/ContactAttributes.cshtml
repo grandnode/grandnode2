@@ -114,7 +114,7 @@
                 case AttributeControlType.FileUpload:
                     {
                         Download download = null;
-                        if (!String.IsNullOrEmpty(attribute.DefaultValue))
+                        if (!string.IsNullOrEmpty(attribute.DefaultValue))
                         {
                             download = await downloadService.GetDownloadByGuid(new Guid(attribute.DefaultValue));
                         }
