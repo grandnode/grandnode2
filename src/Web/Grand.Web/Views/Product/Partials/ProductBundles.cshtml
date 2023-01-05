@@ -19,7 +19,7 @@
                 var dataDictAttributes = new ViewDataDictionary(ViewData);
                 dataDictAttributes.Add("BundleProductId", Model.Id);
                 dataDictAttributes.Add("ProductId", item.ProductId);
-                dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", item.ProductId);
+                dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{item.ProductId}";
                 <div class="col-12 pt-1">
                     <partial name="Partials/ProductAttributesBundle" model="item.ProductAttributes" view-data="dataDictAttributes" />
                 </div>

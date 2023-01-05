@@ -154,7 +154,7 @@ namespace Grand.Web.Controllers
                 await pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
-            return File(bytes, "application/pdf", string.Format("order_{0}.pdf", order.Id));
+            return File(bytes, "application/pdf", $"order_{order.Id}.pdf");
         }
 
         //My account / Order details page / Add order note        

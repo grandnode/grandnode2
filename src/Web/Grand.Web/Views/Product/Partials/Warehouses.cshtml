@@ -15,7 +15,7 @@
     {
         <script asp-location="Footer" asp-order="300">
             @{
-                var attributeChangeHandlerFuncName = string.Format("attribute_change_handler_{0}();", Model.Id);
+                var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}();";
             }
             document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('WarehouseId').addEventListener('change', function () { @attributeChangeHandlerFuncName });

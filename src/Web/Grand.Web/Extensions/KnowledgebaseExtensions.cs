@@ -69,7 +69,7 @@ namespace Grand.Web.Extensions
                 var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
                 result = String.IsNullOrEmpty(result)
                     ? categoryName
-                    : string.Format("{0} {1} {2}", result, separator, categoryName);
+                    : $"{result} {separator} {categoryName}";
             }
 
             return result;
