@@ -43,12 +43,13 @@ namespace Grand.Web.Components
             if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
                 return Content("");
 
-            var model = new ProductEmailAFriendModel();
-            model.ProductId = product.Id;
-            model.ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
-            model.ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id);
-            model.YourEmailAddress = _workContext.CurrentCustomer.Email;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
+            var model = new ProductEmailAFriendModel {
+                ProductId = product.Id,
+                ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id),
+                YourEmailAddress = _workContext.CurrentCustomer.Email,
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage
+            };
 
             return View(model);
 

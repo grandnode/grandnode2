@@ -80,17 +80,17 @@ namespace Grand.Web.Features.Handlers.Orders
 
         public async Task<OrderDetailsModel> Handle(GetOrderDetails request, CancellationToken cancellationToken)
         {
-            var model = new OrderDetailsModel();
-
-            model.Id = request.Order.Id;
-            model.OrderNumber = request.Order.OrderNumber;
-            model.OrderCode = request.Order.Code;
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc);
-            model.OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name;
-            model.IsReOrderAllowed = _orderSettings.IsReOrderAllowed;
-            model.IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = request.Order });
-            model.PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending;
-            model.ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote;
+            var model = new OrderDetailsModel {
+                Id = request.Order.Id,
+                OrderNumber = request.Order.OrderNumber,
+                OrderCode = request.Order.Code,
+                CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc),
+                OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name,
+                IsReOrderAllowed = _orderSettings.IsReOrderAllowed,
+                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = request.Order }),
+                PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending,
+                ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote
+            };
 
             //shipping info
             await PrepareShippingInfo(request, model);

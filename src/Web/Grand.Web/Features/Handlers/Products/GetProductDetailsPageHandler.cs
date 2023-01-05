@@ -564,16 +564,16 @@ namespace Grand.Web.Features.Handlers.Products
                 ImageUrl = await _pictureService.GetPictureUrl(defaultPicture.PictureId, defaultPictureSize, !isAssociatedProduct),
                 FullSizeImageUrl = await _pictureService.GetPictureUrl(defaultPicture.PictureId, 0, !isAssociatedProduct),
                 Style = picture?.Style,
-                ExtraField = picture?.ExtraField
+                ExtraField = picture?.ExtraField,
+                //"title" attribute
+                Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                    string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), name),
+                //"alt" attribute
+                AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                    string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), name)
             };
-            //"title" attribute
-            defaultPictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
-                picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
-                string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), name);
-            //"alt" attribute
-            defaultPictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
-                picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
-                string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), name);
 
             //all pictures
             var pictureModels = new List<PictureModel>();
@@ -588,16 +588,16 @@ namespace Grand.Web.Features.Handlers.Products
                         ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId, _mediaSettings.ProductDetailsPictureSize),
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
                         Style = picture?.Style,
-                        ExtraField = picture?.ExtraField
+                        ExtraField = picture?.ExtraField,
+                        //"title" attribute
+                        Title = !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
+                            picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                            string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), name),
+                        //"alt" attribute
+                        AlternateText = !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
+                            picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                            string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), name)
                     };
-                    //"title" attribute
-                    pictureModel.Title = !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
-                        picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
-                        string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), name);
-                    //"alt" attribute
-                    pictureModel.AlternateText = !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
-                       picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
-                       string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), name);
 
                     pictureModels.Add(pictureModel);
                 }
@@ -609,8 +609,9 @@ namespace Grand.Web.Features.Handlers.Products
         private async Task<ProductDetailsModel.ProductPriceModel> PrepareProductPriceModel(Product product)
         {
             var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices);
-            var model = new ProductDetailsModel.ProductPriceModel();
-            model.ProductId = product.Id;
+            var model = new ProductDetailsModel.ProductPriceModel {
+                ProductId = product.Id
+            };
             if (displayPrices)
             {
                 model.HidePrices = false;
@@ -694,8 +695,9 @@ namespace Grand.Web.Features.Handlers.Products
 
         private async Task<ProductDetailsModel.AddToCartModel> PrepareAddToCartModel(Product product, ShoppingCartItem updatecartitem = null)
         {
-            var model = new ProductDetailsModel.AddToCartModel();
-            model.ProductId = product.Id;
+            var model = new ProductDetailsModel.AddToCartModel {
+                ProductId = product.Id
+            };
             if (updatecartitem != null)
             {
                 model.UpdatedShoppingCartItemId = updatecartitem.Id;
@@ -754,8 +756,9 @@ namespace Grand.Web.Features.Handlers.Products
 
         private ProductDetailsModel.GiftVoucherModel PrepareGiftVoucherModel(Product product, ShoppingCartItem updatecartitem = null)
         {
-            var model = new ProductDetailsModel.GiftVoucherModel();
-            model.IsGiftVoucher = product.IsGiftVoucher;
+            var model = new ProductDetailsModel.GiftVoucherModel {
+                IsGiftVoucher = product.IsGiftVoucher
+            };
             if (model.IsGiftVoucher)
             {
                 model.GiftVoucherType = product.GiftVoucherTypeId;
@@ -1097,16 +1100,16 @@ namespace Grand.Web.Features.Handlers.Products
                         ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId, _mediaSettings.ProductBundlePictureSize),
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
                         Style = picture?.Style,
-                        ExtraField = picture?.ExtraField
+                        ExtraField = picture?.ExtraField,
+                        //"title" attribute
+                        Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)) ?
+                            picture.TitleAttribute :
+                            string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), p1.Name),
+                        //"alt" attribute
+                        AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute)) ?
+                            picture.AltAttribute :
+                            string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), p1.Name)
                     };
-                    //"title" attribute
-                    pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)) ?
-                        picture.TitleAttribute :
-                        string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), p1.Name);
-                    //"alt" attribute
-                    pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute)) ?
-                        picture.AltAttribute :
-                        string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"), p1.Name);
 
                     bundleProduct.DefaultPictureModel = pictureModel;
 

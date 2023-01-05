@@ -58,19 +58,18 @@ namespace Grand.Web.Features.Handlers.Orders
 
         public async Task<MerchandiseReturnModel> Handle(GetMerchandiseReturn request, CancellationToken cancellationToken)
         {
-            var model = new MerchandiseReturnModel();
-            model.OrderId = request.Order.Id;
-            model.OrderNumber = request.Order.OrderNumber;
-            model.OrderCode = request.Order.Code;
-            model.ShowPickupAddress = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress;
-            model.ShowPickupDate = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate;
-            model.PickupDateRequired = _orderSettings.MerchandiseReturns_PickupDateRequired;
-
-            //return reasons
-            model.AvailableReturnReasons = await PrepareAvailableReturnReasons();
-
-            //return actions
-            model.AvailableReturnActions = await PrepareAvailableReturnActions();
+            var model = new MerchandiseReturnModel {
+                OrderId = request.Order.Id,
+                OrderNumber = request.Order.OrderNumber,
+                OrderCode = request.Order.Code,
+                ShowPickupAddress = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress,
+                ShowPickupDate = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate,
+                PickupDateRequired = _orderSettings.MerchandiseReturns_PickupDateRequired,
+                //return reasons
+                AvailableReturnReasons = await PrepareAvailableReturnReasons(),
+                //return actions
+                AvailableReturnActions = await PrepareAvailableReturnActions()
+            };
 
             //products
             await PrepareItems(request, model);

@@ -87,9 +87,9 @@ namespace Grand.Web.Features.Handlers.Orders
                     OrderStatus = status?.Name,
                     PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
                     ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
-                    IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order })
+                    IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }),
+                    OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, request.Language)
                 };
-                orderModel.OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, request.Language);
 
                 model.Orders.Add(orderModel);
             }

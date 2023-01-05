@@ -437,16 +437,16 @@ namespace Grand.Web.Features.Handlers.Products
                     ImageUrl = await _pictureService.GetPictureUrl(productpicture.PictureId, pictureSize),
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(productpicture.PictureId),
                     Style = picture?.Style,
-                    ExtraField = picture?.ExtraField
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                        picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                        string.Format(res["Media.Product.ImageLinkTitleFormat"], name),
+                    //"alt" attribute
+                    AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                        picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                        string.Format(res["Media.Product.ImageAlternateTextFormat"], name)
                 };
-                //"title" attribute
-                pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
-                    picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
-                    string.Format(res["Media.Product.ImageLinkTitleFormat"], name);
-                //"alt" attribute
-                pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
-                    picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
-                    string.Format(res["Media.Product.ImageAlternateTextFormat"], name);
 
                 return pictureModel;
             };
@@ -477,18 +477,20 @@ namespace Grand.Web.Features.Handlers.Products
                     var pa = await _mediator.Send(new GetProductAttribute() { Id = attribute.ProductAttributeId });
                     if (pa != null)
                     {
-                        var productAttributeModel = new ProductOverviewModel.ProductAttributeModel();
-                        productAttributeModel.Name = pa.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
-                        productAttributeModel.SeName = pa.SeName;
-                        productAttributeModel.TextPrompt = attribute.TextPrompt;
-                        productAttributeModel.IsRequired = attribute.IsRequired;
-                        productAttributeModel.AttributeControlType = attribute.AttributeControlTypeId;
-                        productAttributeModel.UserFields = pa.UserFields;
+                        var productAttributeModel = new ProductOverviewModel.ProductAttributeModel {
+                            Name = pa.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                            SeName = pa.SeName,
+                            TextPrompt = attribute.TextPrompt,
+                            IsRequired = attribute.IsRequired,
+                            AttributeControlType = attribute.AttributeControlTypeId,
+                            UserFields = pa.UserFields
+                        };
                         foreach (var item in attribute.ProductAttributeValues)
                         {
-                            var value = new ProductOverviewModel.ProductAttributeValueModel();
-                            value.Name = item.Name;
-                            value.ColorSquaresRgb = item.ColorSquaresRgb;
+                            var value = new ProductOverviewModel.ProductAttributeValueModel {
+                                Name = item.Name,
+                                ColorSquaresRgb = item.ColorSquaresRgb
+                            };
                             //"image square" picture (with with "image squares" attribute type only)
                             if (!string.IsNullOrEmpty(item.ImageSquaresPictureId))
                             {

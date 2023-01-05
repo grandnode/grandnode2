@@ -57,16 +57,16 @@ namespace Grand.Web.Features.Handlers.Catalog
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
                         Style = picture?.Style,
-                        ExtraField = picture?.ExtraField
+                        ExtraField = picture?.ExtraField,
+                        //"title" attribute
+                        Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                            picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                            string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name),
+                        //"alt" attribute
+                        AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                            picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                            string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name)
                     };
-                    //"title" attribute
-                    catModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
-                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name);
-                    //"alt" attribute
-                    catModel.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
-                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name);
 
                     cat.Add(catModel);
                 }

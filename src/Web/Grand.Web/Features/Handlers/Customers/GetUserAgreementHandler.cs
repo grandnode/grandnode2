@@ -28,9 +28,10 @@ namespace Grand.Web.Features.Handlers.Customers
             if (product == null || !product.HasUserAgreement)
                 return null;
 
-            var model = new UserAgreementModel();
-            model.UserAgreementText = product.UserAgreementText;
-            model.OrderItemGuid = request.OrderItemId;
+            var model = new UserAgreementModel {
+                UserAgreementText = product.UserAgreementText,
+                OrderItemGuid = request.OrderItemId
+            };
             return model;
 
         }

@@ -85,10 +85,11 @@ namespace Grand.Web.Controllers
         [ClosedStore(true)]
         public virtual IActionResult Login(bool? checkoutAsGuest)
         {
-            var model = new LoginModel();
-            model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
-            model.CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault();
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
+            var model = new LoginModel {
+                UsernamesEnabled = _customerSettings.UsernamesEnabled,
+                CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
+            };
             return View(model);
         }
 
@@ -276,8 +277,9 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual IActionResult PasswordRecovery()
         {
-            var model = new PasswordRecoveryModel();
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
+            var model = new PasswordRecoveryModel {
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage
+            };
             return View(model);
         }
 

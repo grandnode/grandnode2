@@ -39,8 +39,9 @@ namespace Grand.Web.Features.Handlers.News
 
         public async Task<NewsItemListModel> Handle(GetNewsItemList request, CancellationToken cancellationToken)
         {
-            var model = new NewsItemListModel();
-            model.WorkingLanguageId = _workContext.WorkingLanguage.Id;
+            var model = new NewsItemListModel {
+                WorkingLanguageId = _workContext.WorkingLanguage.Id
+            };
 
             if (request.Command.PageSize <= 0) request.Command.PageSize = _newsSettings.NewsArchivePageSize;
             if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
@@ -59,13 +60,14 @@ namespace Grand.Web.Features.Handlers.News
 
         private async Task<NewsItemListModel.NewsItemModel> PrepareNewsItemModel(NewsItem newsItem)
         {
-            var model = new NewsItemListModel.NewsItemModel();
-            model.Id = newsItem.Id;
-            model.SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id);
-            model.Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-            model.Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id);
-            model.Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id);
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc);
+            var model = new NewsItemListModel.NewsItemModel {
+                Id = newsItem.Id,
+                SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id),
+                Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
+                Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
+                Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+                CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc)
+            };
             //prepare picture model
             if (!string.IsNullOrEmpty(newsItem.PictureId))
             {

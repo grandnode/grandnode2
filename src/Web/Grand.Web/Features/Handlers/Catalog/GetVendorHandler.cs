@@ -69,14 +69,13 @@ namespace Grand.Web.Features.Handlers.Catalog
                 SeName = request.Vendor.GetSeName(request.Language.Id),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
                 RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage),
-                UserFields = request.Vendor.UserFields
+                UserFields = request.Vendor.UserFields,
+                Address = await _mediator.Send(new GetVendorAddress() {
+                    Language = request.Language,
+                    Address = request.Vendor.Address,
+                    ExcludeProperties = false,
+                })
             };
-
-            model.Address = await _mediator.Send(new GetVendorAddress() {
-                Language = request.Language,
-                Address = request.Vendor.Address,
-                ExcludeProperties = false,
-            });
 
             //prepare picture model
             var pictureModel = new PictureModel {

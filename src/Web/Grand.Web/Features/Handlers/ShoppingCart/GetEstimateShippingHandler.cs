@@ -30,8 +30,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         public async Task<EstimateShippingModel> Handle(GetEstimateShipping request, CancellationToken cancellationToken)
         {
-            var model = new EstimateShippingModel();
-            model.Enabled = request.Cart.Any() && request.Cart.RequiresShipping() && _shippingSettings.EstimateShippingEnabled;
+            var model = new EstimateShippingModel {
+                Enabled = request.Cart.Any() && request.Cart.RequiresShipping() && _shippingSettings.EstimateShippingEnabled
+            };
             if (model.Enabled)
             {
                 //countries

@@ -40,9 +40,10 @@ namespace Grand.Web.Features.Handlers.Customers
                 var product = await _productService.GetProductById(item.Key);
                 if (product != null)
                 {
-                    var bid = new ProductBidTuple();
-                    bid.Ended = product.AuctionEnded;
-                    bid.OrderId = item.Where(x => x.Win && x.CustomerId == request.Customer.Id).FirstOrDefault()?.OrderId;
+                    var bid = new ProductBidTuple {
+                        Ended = product.AuctionEnded,
+                        OrderId = item.Where(x => x.Win && x.CustomerId == request.Customer.Id).FirstOrDefault()?.OrderId
+                    };
                     var amount = product.HighestBid;
                     bid.CurrentBidAmount = _priceFormatter.FormatPrice(amount, primaryCurrency);
                     bid.CurrentBidAmountValue = amount;

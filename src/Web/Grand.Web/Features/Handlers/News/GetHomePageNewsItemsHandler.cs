@@ -61,13 +61,14 @@ namespace Grand.Web.Features.Handlers.News
 
         private async Task<HomePageNewsItemsModel.NewsItemModel> PrepareNewsItemModel(NewsItem newsItem)
         {
-            var model = new HomePageNewsItemsModel.NewsItemModel();
-            model.Id = newsItem.Id;
-            model.SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id);
-            model.Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-            model.Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id);
-            model.Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id);
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc);
+            var model = new HomePageNewsItemsModel.NewsItemModel {
+                Id = newsItem.Id,
+                SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id),
+                Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
+                Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
+                Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+                CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc)
+            };
             //prepare picture model
             if (!string.IsNullOrEmpty(newsItem.PictureId))
             {

@@ -60,8 +60,13 @@
                     }
                     <div asp-validation-summary="ModelOnly" class="message-error"></div>
                     @{
-                        var dataDictAddress = new ViewDataDictionary(ViewData);
-                        dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+                        var dataDictAddress = new ViewDataDictionary(ViewData)
+                        {
+                            TemplateInfo =
+                            {
+                                HtmlFieldPrefix = "Address"
+                            }
+                        };
                         <partial name="Partials/CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
                     }
                     @if (Model.TermsOfServiceEnabled)

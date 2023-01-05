@@ -55,10 +55,11 @@ namespace Grand.Web.Features.Handlers.Checkout
 
         public async Task<CheckoutShippingAddressModel> Handle(GetShippingAddress request, CancellationToken cancellationToken)
         {
-            var model = new CheckoutShippingAddressModel();
-            model.BillToTheSameAddress = true;
-            //allow pickup in store?
-            model.AllowPickUpInStore = _shippingSettings.AllowPickUpInStore;
+            var model = new CheckoutShippingAddressModel {
+                BillToTheSameAddress = true,
+                //allow pickup in store?
+                AllowPickUpInStore = _shippingSettings.AllowPickUpInStore
+            };
             if (model.AllowPickUpInStore)
             {
                 await PreparePickupPoints(model, request);

@@ -97,8 +97,9 @@ namespace Grand.Web.Commands.Handler.Newsletter
 
         private async Task<NewsletterCategoryModel> PrepareNewsletterCategory(string id)
         {
-            var model = new NewsletterCategoryModel();
-            model.NewsletterEmailId = id;
+            var model = new NewsletterCategoryModel {
+                NewsletterEmailId = id
+            };
             var categories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(_workContext.CurrentStore.Id);
             foreach (var item in categories)
             {

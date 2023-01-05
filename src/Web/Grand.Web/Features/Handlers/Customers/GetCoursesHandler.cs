@@ -27,8 +27,9 @@ namespace Grand.Web.Features.Handlers.Customers
 
         public async Task<CoursesModel> Handle(GetCourses request, CancellationToken cancellationToken)
         {
-            var model = new CoursesModel();
-            model.CustomerId = request.Customer.Id;
+            var model = new CoursesModel {
+                CustomerId = request.Customer.Id
+            };
             var courses = await _courseService.GetByCustomer(request.Customer, request.Store.Id);
             foreach (var item in courses)
             {

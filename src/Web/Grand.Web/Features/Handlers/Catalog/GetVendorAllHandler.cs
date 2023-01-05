@@ -64,16 +64,15 @@ namespace Grand.Web.Features.Handlers.Catalog
                     MetaTitle = vendor.GetTranslation(x => x.MetaTitle, request.Language.Id),
                     SeName = vendor.GetSeName(request.Language.Id),
                     AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
-                    UserFields = vendor.UserFields
+                    UserFields = vendor.UserFields,
+                    //prepare vendor address
+                    Address = await _mediator.Send(new GetVendorAddress()
+                    {
+                        Language = request.Language,
+                        Address = vendor.Address,
+                        ExcludeProperties = false,
+                    })
                 };
-
-                //prepare vendor address
-                vendorModel.Address = await _mediator.Send(new GetVendorAddress()
-                {
-                    Language = request.Language,
-                    Address = vendor.Address,
-                    ExcludeProperties = false,
-                });
 
                 //prepare picture model
                 var pictureModel = new PictureModel

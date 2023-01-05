@@ -48,10 +48,11 @@ namespace Grand.Web.Features.Handlers.Orders
             if (request.Shipment == null)
                 throw new ArgumentNullException(nameof(request.Shipment));
 
-            var model = new ShipmentDetailsModel();
+            var model = new ShipmentDetailsModel {
+                Id = request.Shipment.Id,
+                ShipmentNumber = request.Shipment.ShipmentNumber
+            };
 
-            model.Id = request.Shipment.Id;
-            model.ShipmentNumber = request.Shipment.ShipmentNumber;
             if (request.Shipment.ShippedDateUtc.HasValue)
                 model.ShippedDate = _dateTimeService.ConvertToUserTime(request.Shipment.ShippedDateUtc.Value, DateTimeKind.Utc);
             if (request.Shipment.DeliveryDateUtc.HasValue)
@@ -76,10 +77,12 @@ namespace Grand.Web.Features.Handlers.Orders
                             {
                                 foreach (var shipmentEvent in shipmentEvents)
                                 {
-                                    var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel();
-                                    shipmentStatusEventModel.Date = shipmentEvent.Date;
-                                    shipmentStatusEventModel.EventName = shipmentEvent.EventName;
-                                    shipmentStatusEventModel.Location = shipmentEvent.Location;
+                                    var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel
+                                        {
+                                            Date = shipmentEvent.Date,
+                                            EventName = shipmentEvent.EventName,
+                                            Location = shipmentEvent.Location
+                                        };
                                     model.ShipmentStatusEvents.Add(shipmentStatusEventModel);
                                 }
                             }

@@ -50,8 +50,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         public async Task<OrderTotalsModel> Handle(GetOrderTotals request, CancellationToken cancellationToken)
         {
-            var model = new OrderTotalsModel();
-            model.IsEditable = request.IsEditable;
+            var model = new OrderTotalsModel {
+                IsEditable = request.IsEditable
+            };
 
             if (request.Cart.Any())
             {
@@ -213,8 +214,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var gcModel = new OrderTotalsModel.GiftVoucher {
                 Id = appliedGiftVoucher.GiftVoucher.Id,
                 CouponCode = appliedGiftVoucher.GiftVoucher.Code,
+                Amount = _priceFormatter.FormatPrice(-appliedGiftVoucher.AmountCanBeUsed, false)
             };
-            gcModel.Amount = _priceFormatter.FormatPrice(-appliedGiftVoucher.AmountCanBeUsed, false);
 
             var remainingAmountBase = appliedGiftVoucher.GiftVoucher.GetGiftVoucherRemainingAmount() - appliedGiftVoucher.AmountCanBeUsed;
             gcModel.Remaining = _priceFormatter.FormatPrice(remainingAmountBase, false);

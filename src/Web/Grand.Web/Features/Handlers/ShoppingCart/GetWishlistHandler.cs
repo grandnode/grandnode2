@@ -119,9 +119,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     ProductUrl = _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = sename }),
                     Quantity = sci.Quantity,
                     AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes),
+                    AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually
                 };
-
-                cartItemModel.AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually; 
 
                 //allowed quantities
                 var allowedQuantities = product.ParseAllowedQuantities();
