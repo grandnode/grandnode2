@@ -27,7 +27,7 @@ namespace Grand.Web.Validators.Common
             }
             if (addressSettings.CountryEnabled && addressSettings.StateProvinceEnabled)
             {
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);

@@ -54,7 +54,7 @@ namespace Grand.Web.Validators.Customer
                 customerSettings.StateProvinceEnabled &&
                 customerSettings.StateProvinceRequired)
             {
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     //does selected country has states?
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
@@ -75,7 +75,7 @@ namespace Grand.Web.Validators.Customer
             }
             if (customerSettings.DateOfBirthEnabled && customerSettings.DateOfBirthRequired)
             {
-                RuleFor(x => x.DateOfBirthDay).Must((x, context) =>
+                RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
                     if (!dateOfBirth.HasValue)
@@ -85,7 +85,7 @@ namespace Grand.Web.Validators.Customer
                 }).WithMessage(translationService.GetResource("Account.Fields.DateOfBirth.Required"));
 
                 //minimum age
-                RuleFor(x => x.DateOfBirthDay).Must((x, context) =>
+                RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
                     if (dateOfBirth.HasValue && customerSettings.DateOfBirthMinimumAge.HasValue &&
