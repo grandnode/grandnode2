@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<BrandModel>> Handle(GetBrandAll request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.BRAND_ALL_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.BRAND_ALL_MODEL_KEY,
                 request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);

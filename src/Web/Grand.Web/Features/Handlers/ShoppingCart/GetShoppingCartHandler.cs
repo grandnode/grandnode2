@@ -160,7 +160,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 });
                 if (!minOrderSubtotalAmountOk)
                 {
-                    double minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, request.Currency);
+                    var minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, request.Currency);
                     model.MinOrderSubtotalWarning = string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false));
                 }
             }
@@ -232,8 +232,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         //display price if allowed
                         if (await _permissionService.Authorize(StandardPermission.DisplayPrices))
                         {
-                            double priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
-                            double priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
+                            var priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
+                            var priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
                             if (priceAdjustmentBase > 0)
                                 attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment);
                             else if (priceAdjustmentBase < 0)
@@ -408,10 +408,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var unitprices = await _pricingService.GetUnitPrice(sci, product, true);
-                    double discountAmount = unitprices.discountAmount;
+                    var discountAmount = unitprices.discountAmount;
                     List<ApplyDiscount> appliedDiscounts = unitprices.appliedDiscounts;
                     var productprices = await _taxService.GetProductPrice(product, unitprices.unitprice);
-                    double taxRate = productprices.taxRate;
+                    var taxRate = productprices.taxRate;
 
                     cartItemModel.UnitPriceWithoutDiscountValue =
                         (await _taxService.GetProductPrice(product, (await _pricingService.GetUnitPrice(sci, product, false)).unitprice)).productprice;
@@ -429,7 +429,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     }
                     //sub total
                     var subtotal = await _pricingService.GetSubTotal(sci, product, true);
-                    double shoppingCartItemDiscountBase = subtotal.discountAmount;
+                    var shoppingCartItemDiscountBase = subtotal.discountAmount;
                     List<ApplyDiscount> scDiscounts = subtotal.appliedDiscounts;
                     var shoppingCartItemSubTotalWithDiscount = (await _taxService.GetProductPrice(product, subtotal.subTotal)).productprice;
                     cartItemModel.SubTotal = _priceFormatter.FormatPrice(shoppingCartItemSubTotalWithDiscount);

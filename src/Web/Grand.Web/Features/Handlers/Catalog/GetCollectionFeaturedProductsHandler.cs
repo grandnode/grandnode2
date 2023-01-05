@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CollectionModel>> Handle(GetCollectionFeaturedProducts request, CancellationToken cancellationToken)
         {
-            string collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
+            var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
                             string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
                             request.Language.Id);
 
@@ -87,7 +87,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 //We cache a value indicating whether we have featured products
                 IPagedList<Product> featuredProducts = null;
 
-                string cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
+                var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                     item.Id,
                     string.Join(",", request.Customer.GetCustomerGroupIds()),
                     request.Store.Id);

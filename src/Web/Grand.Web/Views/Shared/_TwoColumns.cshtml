@@ -2,7 +2,7 @@
     Layout = "_Layout";
 
     //current category ID
-    string currentCategoryId = "";
+    var currentCategoryId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.OrdinalIgnoreCase))
     {
@@ -11,7 +11,7 @@
 
 
     //current collection ID
-    string currentCollectionId = "";
+    var currentCollectionId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("collection", StringComparison.OrdinalIgnoreCase))
     {
@@ -19,7 +19,7 @@
     }
 
     //current brand ID
-    string currentBrandId = "";
+    var currentBrandId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("brand", StringComparison.OrdinalIgnoreCase))
     {
@@ -27,7 +27,7 @@
     }
 
     //current product ID
-    string currentProductId = "";
+    var currentProductId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.OrdinalIgnoreCase))
     {

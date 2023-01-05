@@ -36,7 +36,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CollectionModel>> Handle(GetHomepageCollections request, CancellationToken cancellationToken)
         {
-            string collectionsCacheKey = string.Format(CacheKeyConst.COLLECTION_HOMEPAGE_KEY, request.Store.Id, request.Language.Id);
+            var collectionsCacheKey = string.Format(CacheKeyConst.COLLECTION_HOMEPAGE_KEY, request.Store.Id, request.Language.Id);
 
             var model = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
             {

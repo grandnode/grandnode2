@@ -25,7 +25,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         private async Task<List<string>> GetChildCategoryIds(GetChildCategoryIds request)
         {
-            string cacheKey = string.Format(CacheKeyConst.CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY,
                 request.ParentCategoryId,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);

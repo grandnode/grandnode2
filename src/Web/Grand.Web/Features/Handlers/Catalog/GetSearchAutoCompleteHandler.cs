@@ -241,7 +241,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             string price, priceWithDiscount;
 
-            double finalPriceWithoutDiscount =
+            var finalPriceWithoutDiscount =
                 (await (_taxService.GetProductPrice(product,
                 (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: false)).finalPrice))).productprice;
 

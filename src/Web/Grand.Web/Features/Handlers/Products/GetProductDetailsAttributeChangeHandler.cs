@@ -93,12 +93,12 @@ namespace Grand.Web.Features.Handlers.Products
                     rentalStartDate, rentalEndDate,
                     true);
 
-                double discountAmount = unitprice.discountAmount;
+                var discountAmount = unitprice.discountAmount;
                 List<ApplyDiscount> scDiscounts = unitprice.appliedDiscounts;
-                double finalPrice = unitprice.unitprice;
+                var finalPrice = unitprice.unitprice;
                 var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
-                double finalPriceWithDiscount = productprice.productprice;
-                double taxRate = productprice.taxRate;
+                var finalPriceWithDiscount = productprice.productprice;
+                var taxRate = productprice.taxRate;
                 model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
             }
             //stock

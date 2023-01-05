@@ -56,7 +56,7 @@
     </style>
 </head>
 <body>
-    @for (int i = 0; i < Model.Count; i++)
+    @for (var i = 0; i < Model.Count; i++)
     {
         var order = await _orderService.GetOrderById(Model[i].OrderId);
         var shipment = Model[i];

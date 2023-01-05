@@ -19,7 +19,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         public async Task<CategoryNavigationModel> Handle(GetCategoryNavigation request, CancellationToken cancellationToken)
         {
             //get active category
-            string activeCategoryId = "";
+            var activeCategoryId = "";
             if (!string.IsNullOrEmpty(request.CurrentCategoryId))
             {
                 //category details page

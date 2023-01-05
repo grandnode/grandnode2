@@ -64,7 +64,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
                         shippingOption.Rate, request.Cart)).shippingRate;
 
-                    double rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                    var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
                     soModel.Fee = _priceFormatter.FormatShippingPrice(rateBase);
 
                     model.ShippingMethods.Add(soModel);

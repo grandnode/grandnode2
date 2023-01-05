@@ -72,7 +72,7 @@ namespace Grand.Web.Features.Handlers.News
             //prepare picture model
             if (!string.IsNullOrEmpty(newsItem.PictureId))
             {
-                int pictureSize = _mediaSettings.NewsListThumbPictureSize;
+                var pictureSize = _mediaSettings.NewsListThumbPictureSize;
                 model.PictureModel = new PictureModel
                 {
                     Id = newsItem.PictureId,

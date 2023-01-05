@@ -34,10 +34,10 @@ namespace Grand.Web.Commands.Handler.Vendors
         public async Task<VendorReview> Handle(InsertVendorReviewCommand request, CancellationToken cancellationToken)
         {
             //save review
-            int rating = request.Model.AddVendorReview.Rating;
+            var rating = request.Model.AddVendorReview.Rating;
             if (rating < 1 || rating > 5)
                 rating = _vendorSettings.DefaultVendorRatingValue;
-            bool isApproved = !_vendorSettings.VendorReviewsMustBeApproved;
+            var isApproved = !_vendorSettings.VendorReviewsMustBeApproved;
 
             var vendorReview = new VendorReview
             {

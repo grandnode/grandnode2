@@ -50,7 +50,7 @@ namespace Grand.Web.Features.Handlers.Blogs
                     }
 
 
-                    int current = 0;
+                    var current = 0;
                     foreach (var kvp in months)
                     {
                         var date = kvp.Key;

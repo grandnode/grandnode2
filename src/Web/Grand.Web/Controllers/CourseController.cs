@@ -174,8 +174,8 @@ namespace Grand.Web.Controllers
             if (download.DownloadBinary == null)
                 return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) {
@@ -209,8 +209,8 @@ namespace Grand.Web.Controllers
             if (download.DownloadBinary == null)
                 return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "video/mp4";
             return new FileContentResult(download.DownloadBinary, contentType) {

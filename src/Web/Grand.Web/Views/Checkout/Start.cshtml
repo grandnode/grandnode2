@@ -20,12 +20,12 @@
                 }
 @{
     //step numbers
-    int shippingAddressStepNumber = 1;
-                int billingAddressStepNumber = 2;
-                int shippingMethodStepNumber = 3;
-                int paymentMethodStepNumber = 4;
-                int paymentInfoStepNumber = 5;
-                int confirmOrderStepNumber = 6;
+    var shippingAddressStepNumber = 1;
+                var billingAddressStepNumber = 2;
+                var shippingMethodStepNumber = 3;
+                var paymentMethodStepNumber = 4;
+                var paymentInfoStepNumber = 5;
+                var confirmOrderStepNumber = 6;
     if (!Model.ShippingRequired)
     {
         billingAddressStepNumber = 1;

@@ -86,8 +86,8 @@ namespace Grand.Web.Features.Handlers.Products
             var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices, _workContext.CurrentCustomer);
             var enableShoppingCart = await _permissionService.Authorize(StandardPermission.EnableShoppingCart, _workContext.CurrentCustomer);
             var enableWishlist = await _permissionService.Authorize(StandardPermission.EnableWishlist, _workContext.CurrentCustomer);
-            int pictureSize = request.ProductThumbPictureSize.HasValue ? request.ProductThumbPictureSize.Value : _mediaSettings.ProductThumbPictureSize;
-            bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+            var pictureSize = request.ProductThumbPictureSize.HasValue ? request.ProductThumbPictureSize.Value : _mediaSettings.ProductThumbPictureSize;
+            var priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
             var res = new Dictionary<string, string>
             {
@@ -204,7 +204,7 @@ namespace Grand.Web.Features.Handlers.Products
                         //catalog price, not used in views, but it's for front developer
                         if (product.CatalogPrice > 0)
                         {
-                            double catalogPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice, _workContext.WorkingCurrency);
+                            var catalogPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice, _workContext.WorkingCurrency);
                             priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
                         }
 
@@ -246,7 +246,7 @@ namespace Grand.Web.Features.Handlers.Products
                                             else if (minPossiblePrice.HasValue)
                                             {
                                                 //calculate prices
-                                                double finalPrice = (await _taxService.GetProductPrice(minPriceProduct, minPossiblePrice.Value, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
+                                                var finalPrice = (await _taxService.GetProductPrice(minPriceProduct, minPossiblePrice.Value, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
 
                                                 priceModel.OldPrice = null;
                                                 priceModel.Price = string.Format(res["Products.PriceRangeFrom"], _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax));
@@ -302,14 +302,14 @@ namespace Grand.Web.Features.Handlers.Products
                         //catalog price, not used in views, but it's for front developer
                         if (product.CatalogPrice > 0)
                         {
-                            double catalogPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice, _workContext.WorkingCurrency);
+                            var catalogPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice, _workContext.WorkingCurrency);
                             priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
                         }
 
                         //start price for product auction
                         if (product.StartPrice > 0)
                         {
-                            double startPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice, _workContext.WorkingCurrency);
+                            var startPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice, _workContext.WorkingCurrency);
                             priceModel.StartPrice = _priceFormatter.FormatPrice(startPrice, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
                             priceModel.StartPriceValue = startPrice;
                         }
@@ -317,7 +317,7 @@ namespace Grand.Web.Features.Handlers.Products
                         //highest bid for product auction
                         if (product.HighestBid > 0)
                         {
-                            double highestBid = await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid, _workContext.WorkingCurrency);
+                            var highestBid = await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid, _workContext.WorkingCurrency);
                             priceModel.HighestBid = _priceFormatter.FormatPrice(highestBid, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
                             priceModel.HighestBidValue = highestBid;
                         }
@@ -344,12 +344,12 @@ namespace Grand.Web.Features.Handlers.Products
                                     priceModel.AppliedDiscounts = infoprice.appliedDiscounts;
                                     priceModel.PreferredTierPrice = infoprice.preferredTierPrice;
 
-                                    double minPossiblePrice = infoprice.finalPrice;
+                                    var minPossiblePrice = infoprice.finalPrice;
 
-                                    double oldPriceBase = (await _taxService.GetProductPrice(product, product.OldPrice, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
-                                    double finalPrice = (await _taxService.GetProductPrice(product, minPossiblePrice, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
+                                    var oldPriceBase = (await _taxService.GetProductPrice(product, product.OldPrice, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
+                                    var finalPrice = (await _taxService.GetProductPrice(product, minPossiblePrice, priceIncludesTax, _workContext.CurrentCustomer)).productprice;
 
-                                    double oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
+                                    var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
 
                                     //do we have tier prices configured?
                                     var tierPrices = new List<TierPrice>();
@@ -364,7 +364,7 @@ namespace Grand.Web.Features.Handlers.Products
                                     }
                                     //When there is just one tier (with  qty 1), 
                                     //there are no actual savings in the list.
-                                    bool displayFromMessage = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices[0].Quantity <= 1);
+                                    var displayFromMessage = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices[0].Quantity <= 1);
                                     if (displayFromMessage)
                                     {
                                         priceModel.OldPrice = null;

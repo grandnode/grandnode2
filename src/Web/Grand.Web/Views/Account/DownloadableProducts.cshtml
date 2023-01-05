@@ -27,7 +27,7 @@
                     </tr>
                 </thead>
                 <tbody role="rowgroup">
-                    @for (int i = 0; i < Model.Items.Count; i++)
+                    @for (var i = 0; i < Model.Items.Count; i++)
                     {
                         var item = Model.Items[i];
                         <tr role="row">

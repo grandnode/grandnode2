@@ -2,9 +2,9 @@
 @model ProductOverviewModel
 @{
     //prepare "Add to cart" Axios link
-    string addtocartlink = "";
-    string addtowishlistlink = "";
-    string quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
+    var addtocartlink = "";
+    var addtowishlistlink = "";
+    var quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
 
     var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
     var quantity = 1;

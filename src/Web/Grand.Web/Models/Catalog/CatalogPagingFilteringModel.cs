@@ -76,7 +76,7 @@ namespace Grand.Web.Models.Catalog
                 //comma separated list of parameters to exclude
                 const string excludedQueryStringParams = "pagenumber";
                 var excludedQueryStringParamsSplitted = excludedQueryStringParams.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string exclude in excludedQueryStringParamsSplitted)
+                foreach (var exclude in excludedQueryStringParamsSplitted)
                     url = CommonExtensions.ModifyQueryString(url, exclude, null);
                 return url;
             }
@@ -86,7 +86,7 @@ namespace Grand.Web.Models.Catalog
                 if (optionIds == null)
                     return "";
 
-                string result = string.Join(",", optionIds);
+                var result = string.Join(",", optionIds);
                 return result;
             }
 

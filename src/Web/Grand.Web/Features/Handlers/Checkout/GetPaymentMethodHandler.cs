@@ -52,8 +52,8 @@ namespace Grand.Web.Features.Handlers.Checkout
             //loyalty points
             if (_loyaltyPointsSettings.Enabled)
             {
-                int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
-                double loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
+                var loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
+                var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
                 if (loyaltyPointsAmount > 0 &&
                     _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
@@ -86,8 +86,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                     LogoUrl = pm.LogoURL
                 };
                 //payment method additional fee
-                double paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-                double rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
+                var paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
+                var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
                 if (rate > 0)
                     pmModel.Fee = _priceFormatter.FormatPaymentMethodAdditionalFee(rate);
 

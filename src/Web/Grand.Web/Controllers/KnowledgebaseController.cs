@@ -110,7 +110,7 @@ namespace Grand.Web.Controllers
             model.CurrentCategoryName = category.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id);
             model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id);
 
-            string breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
+            var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
             string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()), _workContext.CurrentStore.Id, _workContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
                 (await category.GetCategoryBreadCrumb(_knowledgebaseService, _aclService, _workContext))
@@ -234,7 +234,7 @@ namespace Grand.Web.Controllers
             var category = await _knowledgebaseService.GetKnowledgebaseCategory(article.ParentCategoryId);
             if (category != null)
             {
-                string breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
+                var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
                 article.ParentCategoryId,
                 string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id,

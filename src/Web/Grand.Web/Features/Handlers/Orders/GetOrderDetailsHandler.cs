@@ -255,8 +255,8 @@ namespace Grand.Web.Features.Handlers.Orders
 
         private async Task PrepareTax(GetOrderDetails request, OrderDetailsModel model)
         {
-            bool displayTax = true;
-            bool displayTaxRates = true;
+            var displayTax = true;
+            var displayTaxRates = true;
             if (_taxSettings.HideTaxInOrderSummary && request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;

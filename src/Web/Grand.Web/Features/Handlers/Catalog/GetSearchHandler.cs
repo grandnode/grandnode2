@@ -96,7 +96,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             request.Command = options.command;
 
 
-            string cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
                request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
@@ -108,9 +108,9 @@ namespace Grand.Web.Features.Handlers.Catalog
                 foreach (var c in allCategories)
                 {
                     //generate full category name (breadcrumb)
-                    string categoryBreadcrumb = "";
+                    var categoryBreadcrumb = "";
                     var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories);
-                    for (int i = 0; i <= breadcrumb.Count - 1; i++)
+                    for (var i = 0; i <= breadcrumb.Count - 1; i++)
                     {
                         categoryBreadcrumb += breadcrumb[i].GetTranslation(x => x.Name, request.Language.Id);
                         if (i != breadcrumb.Count - 1)
@@ -186,11 +186,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                 else
                 {
                     var categoryIds = new List<string>();
-                    string collectionId = "";
+                    var collectionId = "";
                     double? minPriceConverted = null;
                     double? maxPriceConverted = null;
-                    bool searchInDescriptions = false;
-                    string vendorId = "";
+                    var searchInDescriptions = false;
+                    var vendorId = "";
                     if (request.Model.adv)
                     {
                         //advanced search

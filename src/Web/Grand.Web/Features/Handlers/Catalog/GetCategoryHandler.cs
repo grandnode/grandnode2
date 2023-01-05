@@ -83,7 +83,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 model.DisplayCategoryBreadcrumb = true;
 
-                string breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
+                var breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
                     request.Category.Id,
                     string.Join(",", customer.GetCustomerGroupIds()),
                     storeId,
@@ -139,7 +139,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 //We cache a value indicating whether we have featured products
                 IPagedList<Product> featuredProducts = null;
-                string cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
+                var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
                     string.Join(",", customer.GetCustomerGroupIds()), storeId);
 
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>

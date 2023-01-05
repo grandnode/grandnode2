@@ -13,7 +13,7 @@ namespace Grand.Web.Models.Catalog
 
         protected virtual int GetFontSize(double weight, double mean, double stdDev)
         {
-            double factor = (weight - mean);
+            var factor = (weight - mean);
 
             if (factor != 0 && stdDev != 0) factor /= stdDev;
 
@@ -29,9 +29,9 @@ namespace Grand.Web.Models.Catalog
         protected virtual double Mean(IEnumerable<double> values)
         {
             double sum = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
                 sum += d;
                 count++;
@@ -44,11 +44,11 @@ namespace Grand.Web.Models.Catalog
         {
             mean = Mean(values);
             double sumOfDiffSquares = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
-                double diff = (d - mean);
+                var diff = (d - mean);
                 sumOfDiffSquares += diff * diff;
                 count++;
             }
@@ -66,7 +66,7 @@ namespace Grand.Web.Models.Catalog
             foreach (var tag in Tags)
                 itemWeights.Add(tag.ProductCount);
             double mean;
-            double stdDev = StdDev(itemWeights, out mean);
+            var stdDev = StdDev(itemWeights, out mean);
 
             return GetFontSize(productTag.ProductCount, mean, stdDev);
         }

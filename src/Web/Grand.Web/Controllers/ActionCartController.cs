@@ -148,7 +148,7 @@ namespace Grand.Web.Controllers
 
             var customer = _workContext.CurrentCustomer;
 
-            string warehouseId = GetWarehouse(product);
+            var warehouseId = GetWarehouse(product);
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
 
@@ -623,7 +623,7 @@ namespace Grand.Web.Controllers
 
             if (warnings.Any())
             {
-                string toReturn = "";
+                var toReturn = "";
                 foreach (var warning in warnings)
                 {
                     toReturn += warning + "</br>";
@@ -785,7 +785,7 @@ namespace Grand.Web.Controllers
             double? customerEnteredPriceConverted = null;
             if (product.EnteredPrice)
             {
-                if (double.TryParse(model.CustomerEnteredPrice, out double customerEnteredPrice))
+                if (double.TryParse(model.CustomerEnteredPrice, out var customerEnteredPrice))
                     customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
             }
             #endregion

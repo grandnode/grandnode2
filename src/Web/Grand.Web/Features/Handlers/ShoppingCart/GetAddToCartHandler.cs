@@ -111,7 +111,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
-                    double taxRate = productprices.taxRate;
+                    var taxRate = productprices.taxRate;
                     model.Price = !request.CustomerEnteredPrice.HasValue ? _priceFormatter.FormatPrice(productprices.productprice) : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
                     model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                     model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
@@ -151,7 +151,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
                 List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-                double subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
+                var subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
                 model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
                 model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
                 if (shoppingCartSubTotal.discountAmount > 0)

@@ -82,7 +82,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     SeName = t.GetSeName(request.Language.Id)
                 }).ToList();
 
-            string brandCacheKey = string.Format(CacheKeyConst.BRAND_NAVIGATION_MENU,
+            var brandCacheKey = string.Format(CacheKeyConst.BRAND_NAVIGATION_MENU,
                 request.Language.Id, request.Store.Id);
 
             var cachedBrandModel = await _cacheBase.GetAsync(brandCacheKey, async () =>
@@ -98,7 +98,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     .ToList()
                 );
 
-            string collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MENU,
+            var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MENU,
                 request.Language.Id, request.Store.Id);
 
             var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>

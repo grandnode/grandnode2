@@ -47,7 +47,7 @@
     {
         <div class="tags generalMarginSupporter">
             <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
-            @for (int i = 0; i < Model.Tags.Count; i++)
+            @for (var i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
                 <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>

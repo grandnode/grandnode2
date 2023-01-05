@@ -148,8 +148,8 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
-            string pictureId = string.Empty;
-            string contentType = string.Empty;
+            var pictureId = string.Empty;
+            var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
             if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
@@ -273,8 +273,8 @@ namespace Grand.Web.Controllers
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 
-            string pictureId = string.Empty;
-            string contentType = string.Empty;
+            var pictureId = string.Empty;
+            var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
             if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))

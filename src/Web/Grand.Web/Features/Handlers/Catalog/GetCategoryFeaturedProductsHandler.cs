@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CategoryModel>> Handle(GetCategoryFeaturedProducts request, CancellationToken cancellationToken)
         {
-            string categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_FEATURED_PRODUCTS_HOMEPAGE_KEY,
+            var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_FEATURED_PRODUCTS_HOMEPAGE_KEY,
                 string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
                 request.Language.Id);
 
@@ -86,7 +86,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 //We cache a value indicating whether we have featured products
                 IPagedList<Product> featuredProducts = null;
-                string cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, item.Id,
+                var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, item.Id,
                     string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id);
 
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>

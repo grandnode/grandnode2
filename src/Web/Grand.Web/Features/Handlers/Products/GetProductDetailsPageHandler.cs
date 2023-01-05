@@ -284,7 +284,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             #region Collections
 
-            string collectionsCacheKey = string.Format(CacheKeyConst.PRODUCT_COLLECTIONS_MODEL_KEY,
+            var collectionsCacheKey = string.Format(CacheKeyConst.PRODUCT_COLLECTIONS_MODEL_KEY,
                 product.Id,
                 _workContext.WorkingLanguage.Id,
                 string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
@@ -628,12 +628,12 @@ namespace Grand.Web.Features.Handlers.Products
                     else
                     {
                         var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice);
-                        double oldPriceBase = oldproductprice.productprice;
-                        double finalPriceWithoutDiscount = (await (_taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: false)).finalPrice))).productprice;
+                        var oldPriceBase = oldproductprice.productprice;
+                        var finalPriceWithoutDiscount = (await (_taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: false)).finalPrice))).productprice;
 
                         var appliedPrice = (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: true));
-                        double finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
-                        double oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
+                        var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
+                        var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
 
                         if (finalPriceWithoutDiscount != oldPrice && oldPrice > 0)
                             model.OldPrice = _priceFormatter.FormatPrice(oldPrice);
@@ -672,11 +672,11 @@ namespace Grand.Web.Features.Handlers.Products
                         if (product.ProductTypeId == ProductType.Auction)
                         {
                             model.IsAuction = true;
-                            double highestBid = await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid, _workContext.WorkingCurrency);
+                            var highestBid = await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid, _workContext.WorkingCurrency);
                             model.HighestBid = _priceFormatter.FormatPrice(highestBid);
                             model.HighestBidValue = highestBid;
                             model.DisableBuyButton = product.DisableBuyButton;
-                            double startPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice, _workContext.WorkingCurrency);
+                            var startPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice, _workContext.WorkingCurrency);
                             model.StartPrice = _priceFormatter.FormatPrice(startPrice);
                             model.StartPriceValue = startPrice;
                         }
@@ -743,8 +743,8 @@ namespace Grand.Web.Features.Handlers.Products
             model.EnteredPrice = product.EnteredPrice;
             if (model.EnteredPrice)
             {
-                double minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice, _workContext.WorkingCurrency);
-                double maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice, _workContext.WorkingCurrency);
+                var minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice, _workContext.WorkingCurrency);
+                var maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice, _workContext.WorkingCurrency);
 
                 model.CustomerEnteredPrice = updatecartitem != null && updatecartitem.EnteredPrice.HasValue ? updatecartitem.EnteredPrice.Value : minimumCustomerEnteredPrice;
                 model.CustomerEnteredPriceRange = string.Format(_translationService.GetResource("Products.EnterProductPrice.Range"),
@@ -852,9 +852,9 @@ namespace Grand.Web.Features.Handlers.Products
                         var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices);
                         if (displayPrices)
                         {
-                            double attributeValuePriceAdjustment = await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
+                            var attributeValuePriceAdjustment = await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                             var productprice = await _taxService.GetProductPrice(product, attributeValuePriceAdjustment);
-                            double taxRate = productprice.taxRate;
+                            var taxRate = productprice.taxRate;
                             if (productprice.productprice > 0)
                                 valueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(productprice.productprice, false);
                             else if (productprice.productprice < 0)
@@ -1083,8 +1083,8 @@ namespace Grand.Web.Features.Handlers.Products
                     if (displayPrices)
                     {
                         var productprice = await _taxService.GetProductPrice(p1, (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
-                        double taxRateBundle = productprice.taxRate;
-                        double finalPriceWithDiscountBase = productprice.productprice;
+                        var taxRateBundle = productprice.taxRate;
+                        var finalPriceWithDiscountBase = productprice.productprice;
                         bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
                         bundleProduct.PriceValue = productprice.productprice;
                     }

@@ -110,7 +110,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     //subtotal
                     var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                     var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
-                    double orderSubTotalDiscountAmountBase = shoppingCartSubTotal.discountAmount;
+                    var orderSubTotalDiscountAmountBase = shoppingCartSubTotal.discountAmount;
                     List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
 
                     model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
@@ -182,7 +182,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         else
                         {
                             var productprices = await _taxService.GetProductPrice(product, (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                            double taxRate = productprices.taxRate;
+                            var taxRate = productprices.taxRate;
                             cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice);
                         }
 

@@ -62,7 +62,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 IPagedList<Product> featuredProducts = null;
 
                 //We cache a value indicating whether we have featured products
-                string cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
+                var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                     request.Collection.Id,
                     string.Join(",", request.Customer.GetCustomerGroupIds()),
                     request.Store.Id);

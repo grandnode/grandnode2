@@ -24,7 +24,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<VendorNavigationModel> Handle(GetVendorNavigation request, CancellationToken cancellationToken)
         {
-            string cacheKey = CacheKeyConst.VENDOR_NAVIGATION_MODEL_KEY;
+            var cacheKey = CacheKeyConst.VENDOR_NAVIGATION_MODEL_KEY;
             var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>
             {
                 var vendors = await _vendorService.GetAllVendors(pageSize: _vendorSettings.VendorsBlockItemsToDisplay);

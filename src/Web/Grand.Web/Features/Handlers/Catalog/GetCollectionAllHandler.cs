@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CollectionModel>> Handle(GetCollectionAll request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.COLLECTION_ALL_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.COLLECTION_ALL_MODEL_KEY,
                 request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);

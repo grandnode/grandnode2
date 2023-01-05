@@ -79,7 +79,7 @@
                                                                 v-bind:class="[classes , 'custom-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
                                                                 ref="quantity@(item.Id)"
                                                                 asp-for="@Model.Items[j].Quantity">
-                                                            @for (int i = 0; i <= item.Quantity; i++)
+                                                            @for (var i = 0; i <= item.Quantity; i++)
                                                             {
                                                                 <option value="@(i)">@(i)</option>
                                                             }

@@ -93,7 +93,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                             var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

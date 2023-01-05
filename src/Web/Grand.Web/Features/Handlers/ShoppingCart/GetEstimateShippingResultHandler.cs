@@ -76,9 +76,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             //calculate discounted and taxed rate
                             var total = await _orderTotalCalculationService.AdjustShippingRate(shippingOption.Rate, request.Cart);
                             List<ApplyDiscount> appliedDiscounts = total.appliedDiscounts;
-                            double shippingTotal = total.shippingRate;
+                            var shippingTotal = total.shippingRate;
 
-                            double rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                            var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
                             soModel.Price = _priceFormatter.FormatShippingPrice(rate);
                             model.ShippingOptions.Add(soModel);
                         }
@@ -94,8 +94,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                                     Description = _translationService.GetResource("Checkout.PickUpInStore.Description"),
                                 };
 
-                                double shippingTotal = pickupPoints.Max(x => x.PickupFee);
-                                double rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                                var shippingTotal = pickupPoints.Max(x => x.PickupFee);
+                                var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
                                 soModel.Price = _priceFormatter.FormatShippingPrice(rate);
                                 model.ShippingOptions.Add(soModel);
                             }

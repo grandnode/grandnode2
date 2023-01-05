@@ -15,14 +15,14 @@ namespace Grand.Web.Models.Blogs
             foreach (var tag in Tags)
                 itemWeights.Add(tag.BlogPostCount);
             double mean;
-            double stdDev = StdDev(itemWeights, out mean);
+            var stdDev = StdDev(itemWeights, out mean);
 
             return GetFontSize(blogPostTag.BlogPostCount, mean, stdDev);
         }
 
         protected int GetFontSize(double weight, double mean, double stdDev)
         {
-            double factor = (weight - mean);
+            var factor = (weight - mean);
 
             if (factor != 0 && stdDev != 0) factor /= stdDev;
 
@@ -38,9 +38,9 @@ namespace Grand.Web.Models.Blogs
         protected double Mean(IEnumerable<double> values)
         {
             double sum = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
                 sum += d;
                 count++;
@@ -53,11 +53,11 @@ namespace Grand.Web.Models.Blogs
         {
             mean = Mean(values);
             double sumOfDiffSquares = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
-                double diff = (d - mean);
+                var diff = (d - mean);
                 sumOfDiffSquares += diff * diff;
                 count++;
             }

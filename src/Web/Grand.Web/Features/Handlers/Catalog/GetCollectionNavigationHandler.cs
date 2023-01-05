@@ -27,7 +27,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<CollectionNavigationModel> Handle(GetCollectionNavigation request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
                 request.CurrentCollectionId, request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
             var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>

@@ -61,10 +61,10 @@ namespace Grand.Web.Extensions
             IList<KnowledgebaseCategory> allCategories,
             string separator = ">>", string languageId = "")
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             var breadcrumb = GetCategoryBreadCrumb(category, allCategories);
-            for (int i = 0; i <= breadcrumb.Count - 1; i++)
+            for (var i = 0; i <= breadcrumb.Count - 1; i++)
             {
                 var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
                 result = String.IsNullOrEmpty(result)

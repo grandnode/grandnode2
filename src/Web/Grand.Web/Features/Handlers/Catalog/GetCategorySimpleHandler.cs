@@ -50,7 +50,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(GetCategorySimple request)
         {
             var currentCategory = await _categoryService.GetCategoryById(request.CurrentCategoryId);
-            string cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_MODEL_KEY,
                 request.Language.Id,
                 request.Store.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),

@@ -38,7 +38,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CategoryModel>> Handle(GetHomepageCategory request, CancellationToken cancellationToken)
         {
-            string categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
+            var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
                             string.Join(",", request.Customer.GetCustomerGroupIds()),
                             request.Store.Id,
                             request.Language.Id);

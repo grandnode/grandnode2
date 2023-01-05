@@ -120,7 +120,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 };
 
                 var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
-                int qtyReturn = 0;
+                var qtyReturn = 0;
 
                 foreach (var rr in merchandiseReturns)
                 {

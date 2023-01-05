@@ -11,7 +11,7 @@
     //generate change event script
     foreach (var attribute in Model.ProductAttributes)
     {
-        string controlId = $"product_attribute_{attribute.Id}";
+        var controlId = $"product_attribute_{attribute.Id}";
         switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:

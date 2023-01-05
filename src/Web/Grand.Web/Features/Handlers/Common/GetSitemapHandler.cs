@@ -64,7 +64,7 @@ namespace Grand.Web.Features.Handlers.Common
 
         public async Task<SitemapModel> Handle(GetSitemap request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.SITEMAP_PAGE_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.SITEMAP_PAGE_MODEL_KEY,
                 request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);

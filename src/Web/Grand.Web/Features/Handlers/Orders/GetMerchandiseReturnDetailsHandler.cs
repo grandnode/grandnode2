@@ -66,7 +66,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 var orderItem = request.Order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
 
-                string unitPrice = string.Empty;
+                var unitPrice = string.Empty;
                 if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
                 {
                     //including tax
