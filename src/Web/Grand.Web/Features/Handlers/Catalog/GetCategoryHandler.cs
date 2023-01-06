@@ -176,8 +176,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             }
 
 
-            var categoryIds = new List<string>();
-            categoryIds.Add(request.Category.Id);
+            var categoryIds = new List<string> { request.Category.Id };
             if (_catalogSettings.ShowProductsFromSubcategories)
             {
                 //include subcategories

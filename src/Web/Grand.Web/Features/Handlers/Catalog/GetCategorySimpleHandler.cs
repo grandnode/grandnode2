@@ -110,8 +110,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 //product number for each category
                 if (_catalogSettings.ShowCategoryProductNumber)
                 {
-                    var categoryIds = new List<string>();
-                    categoryIds.Add(category.Id);
+                    var categoryIds = new List<string> { category.Id };
                     //include subcategories
                     if (_catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
                         categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { Customer = request.Customer, Store = request.Store, ParentCategoryId = category.Id }));

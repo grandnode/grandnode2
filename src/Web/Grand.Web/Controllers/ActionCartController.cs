@@ -263,9 +263,10 @@ namespace Grand.Web.Controllers
                         }
 
                         //display notification message and update appropriate blocks
-                        var shoppingCartTypes = new List<ShoppingCartType>();
-                        shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-                        shoppingCartTypes.Add(ShoppingCartType.Auctions);
+                        var shoppingCartTypes = new List<ShoppingCartType> {
+                            ShoppingCartType.ShoppingCart,
+                            ShoppingCartType.Auctions
+                        };
                         if (_shoppingCartSettings.AllowOnHoldCart)
                             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
@@ -530,9 +531,10 @@ namespace Grand.Web.Controllers
                         }
 
                         //display notification message and update appropriate blocks
-                        var shoppingCartTypes = new List<ShoppingCartType>();
-                        shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-                        shoppingCartTypes.Add(ShoppingCartType.Auctions);
+                        var shoppingCartTypes = new List<ShoppingCartType> {
+                            ShoppingCartType.ShoppingCart,
+                            ShoppingCartType.Auctions
+                        };
                         if (_shoppingCartSettings.AllowOnHoldCart)
                             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 

@@ -97,9 +97,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
             if (!request.Customer.ShoppingCartItems.Any()) return model;
             
-            var shoppingCartTypes = new List<ShoppingCartType>();
-            shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-            shoppingCartTypes.Add(ShoppingCartType.Auctions);
+            var shoppingCartTypes = new List<ShoppingCartType> {
+                ShoppingCartType.ShoppingCart,
+                ShoppingCartType.Auctions
+            };
             if (_shoppingCartSettings.AllowOnHoldCart)
                 shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 

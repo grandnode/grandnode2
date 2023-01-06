@@ -83,9 +83,10 @@ namespace Grand.Web.Controllers
 
         protected ShoppingCartType[] PrepareCartTypes()
         {
-            var shoppingCartTypes = new List<ShoppingCartType>();
-            shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-            shoppingCartTypes.Add(ShoppingCartType.Auctions);
+            var shoppingCartTypes = new List<ShoppingCartType> {
+                ShoppingCartType.ShoppingCart,
+                ShoppingCartType.Auctions
+            };
             if (_shoppingCartSettings.AllowOnHoldCart)
                 shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
@@ -392,8 +393,7 @@ namespace Grand.Web.Controllers
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
                 return RedirectToRoute("HomePage");
 
-            var shoppingCartTypes = new List<ShoppingCartType>();
-            shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
+            var shoppingCartTypes = new List<ShoppingCartType> { ShoppingCartType.ShoppingCart };
             if (_shoppingCartSettings.AllowOnHoldCart)
                 shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
@@ -449,8 +449,7 @@ namespace Grand.Web.Controllers
             if (!_shoppingCartSettings.AllowOnHoldCart)
                 return RedirectToRoute("HomePage");
 
-            var shoppingCartTypes = new List<ShoppingCartType>();
-            shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
+            var shoppingCartTypes = new List<ShoppingCartType> { ShoppingCartType.ShoppingCart };
             if (_shoppingCartSettings.AllowOnHoldCart)
                 shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 

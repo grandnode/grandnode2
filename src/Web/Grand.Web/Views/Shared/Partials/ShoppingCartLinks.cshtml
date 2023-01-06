@@ -6,9 +6,11 @@
 @using Grand.Business.Core.Utilities.Common.Security
 @{
 
-    var shoppingCartTypes = new List<ShoppingCartType>();
-    shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-    shoppingCartTypes.Add(ShoppingCartType.Auctions);
+    var shoppingCartTypes = new List<ShoppingCartType>
+    {
+        ShoppingCartType.ShoppingCart,
+        ShoppingCartType.Auctions
+    };
     if (shoppingCartSettings.AllowOnHoldCart)
         shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 

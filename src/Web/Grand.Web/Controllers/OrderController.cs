@@ -146,8 +146,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var orders = new List<Order>();
-            orders.Add(order);
+            var orders = new List<Order> { order };
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
