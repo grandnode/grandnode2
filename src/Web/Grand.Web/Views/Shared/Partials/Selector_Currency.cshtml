@@ -8,12 +8,11 @@
     var availableCurrencies = (await currencyService.GetAllCurrencies(storeId: workContext.CurrentStore.Id))
     .Select(x =>
     {
-//currency char
-        var currencySymbol = "";
-        currencySymbol = !string.IsNullOrEmpty(x.DisplayLocale) ? new RegionInfo(x.DisplayLocale).CurrencySymbol : x.CurrencyCode;
+        //currency char
+        var currencySymbol = !string.IsNullOrEmpty(x.DisplayLocale) ? new RegionInfo(x.DisplayLocale).CurrencySymbol : x.CurrencyCode;
 
-//model
-var currencyModel = new CurrencyModel
+        //model
+        var currencyModel = new CurrencyModel
         {
             Id = x.Id,
             Name = x.GetTranslation(y => y.Name, workContext.WorkingLanguage.Id),
