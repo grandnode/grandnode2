@@ -163,16 +163,13 @@ namespace Grand.Web.Features.Handlers.Orders
                 }
                 else
                 {
-                    if (request.Order.PickupPoint != null)
+                    if (request.Order.PickupPoint?.Address != null)
                     {
-                        if (request.Order.PickupPoint.Address != null)
-                        {
-                            model.PickupAddress = await _mediator.Send(new GetAddressModel {
-                                Language = request.Language,
-                                Address = request.Order.PickupPoint.Address,
-                                ExcludeProperties = false,
-                            });
-                        }
+                        model.PickupAddress = await _mediator.Send(new GetAddressModel {
+                            Language = request.Language,
+                            Address = request.Order.PickupPoint.Address,
+                            ExcludeProperties = false,
+                        });
                     }
                 }
                 model.ShippingMethod = request.Order.ShippingMethod;
@@ -202,7 +199,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
             model.PaymentMethodStatus = request.Order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id);
             var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(request.Order.OrderGuid);
-            model.CanRePostProcessPayment = paymentTransaction != null ? await _paymentService.CanRePostRedirectPayment(paymentTransaction) : false;
+            model.CanRePostProcessPayment = paymentTransaction != null && await _paymentService.CanRePostRedirectPayment(paymentTransaction);
         }
 
         private async Task PrepareOrderTotal(GetOrderDetails request, OrderDetailsModel model)

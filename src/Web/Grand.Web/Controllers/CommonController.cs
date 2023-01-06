@@ -336,7 +336,7 @@ namespace Grand.Web.Controllers
             if (storeInformationSettings.StoreClosed)
             {
                 var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
+                if (closestorepage is not { AccessibleWhenStoreClosed: true })
                     return RedirectToRoute("StoreClosed");
             }
             var model = await _mediator.Send(new ContactUsCommand {
@@ -360,7 +360,7 @@ namespace Grand.Web.Controllers
             if (storeInformationSettings.StoreClosed)
             {
                 var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
+                if (closestorepage is not { AccessibleWhenStoreClosed: true })
                     return RedirectToRoute("StoreClosed");
             }
 
@@ -547,7 +547,7 @@ namespace Grand.Web.Controllers
             [FromServices] IContactAttributeService contactAttributeService)
         {
             var attribute = await contactAttributeService.GetContactAttributeById(attributeId);
-            if (attribute == null || attribute.AttributeControlType != AttributeControlType.FileUpload)
+            if (attribute is not { AttributeControlType: AttributeControlType.FileUpload })
             {
                 return Json(new
                 {

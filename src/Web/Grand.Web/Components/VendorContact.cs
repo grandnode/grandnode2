@@ -47,7 +47,7 @@ namespace Grand.Web.Components
                 return Content("");
 
             var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
+            if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
 
             var model = new ContactVendorModel {

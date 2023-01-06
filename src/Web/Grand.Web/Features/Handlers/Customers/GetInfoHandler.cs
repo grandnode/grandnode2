@@ -116,14 +116,14 @@ namespace Grand.Web.Features.Handlers.Customers
             //if (newsletter == null)
             //    newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByCustomerId(request.Customer.Id);
 
-            model.Newsletter = newsletter != null && newsletter.Active;
+            model.Newsletter = newsletter is { Active: true };
 
             var categories = (await _newsletterCategoryService.GetAllNewsletterCategory()).ToList();
             categories.ForEach(x => model.NewsletterCategories.Add(new NewsletterSimpleCategory {
                 Id = x.Id,
                 Description = x.GetTranslation(y => y.Description, request.Language.Id),
                 Name = x.GetTranslation(y => y.Name, request.Language.Id),
-                Selected = newsletter == null ? false : newsletter.Categories.Contains(x.Id),
+                Selected = newsletter != null && newsletter.Categories.Contains(x.Id),
             }));
         }
 

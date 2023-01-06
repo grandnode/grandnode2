@@ -352,7 +352,7 @@ namespace Grand.Web.Controllers
                 return Content("Download is not available.");
 
             var document = await documentService.GetById(documentId);
-            if (document == null || !document.Published)
+            if (document is not { Published: true })
                 return InvokeHttp404();
 
             if (_workContext.CurrentCustomer == null || document.CustomerId != _workContext.CurrentCustomer.Id)

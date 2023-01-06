@@ -40,7 +40,7 @@ namespace Grand.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+            if (product is not { Published: true } || !_catalogSettings.EmailAFriendEnabled)
                 return Content("");
 
             var model = new ProductEmailAFriendModel {

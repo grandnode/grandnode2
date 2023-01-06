@@ -75,8 +75,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var newsItem = await _newsService.GetNewsById(newsItemId);
-            if (newsItem == null ||
-                !newsItem.Published ||
+            if (newsItem is not { Published: true } ||
                 (newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) ||
                 (newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow) ||
                 //Store acl
@@ -105,7 +104,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var newsItem = await _newsService.GetNewsById(newsItemId);
-            if (newsItem == null || !newsItem.Published || !newsItem.AllowComments)
+            if (newsItem is not { Published: true } || !newsItem.AllowComments)
                 return RedirectToRoute("HomePage");
 
             //validate CAPTCHA

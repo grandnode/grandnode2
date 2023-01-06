@@ -264,7 +264,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(articleId);
-            if (article == null || !article.AllowComments)
+            if (article is not { AllowComments: true })
                 return RedirectToRoute("HomePage");
 
             if (await groupService.IsGuest(workContext.CurrentCustomer) && !_knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)

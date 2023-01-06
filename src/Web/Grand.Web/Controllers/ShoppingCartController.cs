@@ -168,7 +168,7 @@ namespace Grand.Web.Controllers
             [FromServices] IDownloadService downloadService)
         {
             var attribute = await _checkoutAttributeService.GetCheckoutAttributeById(attributeId);
-            if (attribute == null || attribute.AttributeControlTypeId != AttributeControlType.FileUpload)
+            if (attribute is not { AttributeControlTypeId: AttributeControlType.FileUpload })
             {
                 return Json(new
                 {
@@ -637,8 +637,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> ApplyGiftVoucher(string giftvouchercouponcode)
         {
             //trim
-            if (giftvouchercouponcode != null)
-                giftvouchercouponcode = giftvouchercouponcode.Trim();
+            giftvouchercouponcode = giftvouchercouponcode?.Trim();
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 

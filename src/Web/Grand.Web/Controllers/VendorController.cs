@@ -378,7 +378,7 @@ namespace Grand.Web.Controllers
                 return Content("");
 
             var vendor = await _vendorService.GetVendorById(model.VendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
+            if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
 
             //validate CAPTCHA

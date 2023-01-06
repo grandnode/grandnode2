@@ -237,7 +237,7 @@ namespace Grand.Web.Controllers
                 });
             }
             var attribute = product.ProductAttributeMappings.Where(x => x.Id == attributeId).FirstOrDefault();
-            if (attribute == null || attribute.AttributeControlTypeId != AttributeControlType.FileUpload)
+            if (attribute is not { AttributeControlTypeId: AttributeControlType.FileUpload })
             {
                 return Json(new
                 {
@@ -510,7 +510,7 @@ namespace Grand.Web.Controllers
             [FromServices] IProductReviewService productReviewService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !product.AllowCustomerReviews)
+            if (product is not { Published: true } || !product.AllowCustomerReviews)
                 return RedirectToRoute("HomePage");
 
             //validate CAPTCHA
@@ -683,7 +683,7 @@ namespace Grand.Web.Controllers
             [FromServices] IGroupService groupService)
         {
             var product = await _productService.GetProductById(model.ProductId);
-            if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+            if (product is not { Published: true } || !_catalogSettings.EmailAFriendEnabled)
                 return Content("");
 
             //validate CAPTCHA
@@ -741,7 +741,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model, bool captchaValid)
         {
             var product = await _productService.GetProductById(model.Id);
-            if (product == null || !product.Published || !_catalogSettings.AskQuestionOnProduct)
+            if (product is not { Published: true } || !_catalogSettings.AskQuestionOnProduct)
                 return Json(new
                 {
                     success = false,

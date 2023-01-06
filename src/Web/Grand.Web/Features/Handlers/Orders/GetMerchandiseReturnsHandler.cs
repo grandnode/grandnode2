@@ -49,7 +49,7 @@ namespace Grand.Web.Features.Handlers.Orders
             else
                 query.CustomerId = request.Customer.Id;
 
-            var merchandiseReturns = await _mediator.Send(query);
+            var merchandiseReturns = await _mediator.Send(query, cancellationToken);
 
             foreach (var merchandiseReturn in merchandiseReturns)
             {
@@ -57,7 +57,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 double total = 0;
                 foreach (var rrItem in merchandiseReturn.MerchandiseReturnItems)
                 {
-                    var orderItem = order.OrderItems.Where(x => x.Id == rrItem.OrderItemId).First();
+                    var orderItem = order.OrderItems.First(x => x.Id == rrItem.OrderItemId);
 
                     if (order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
                     {

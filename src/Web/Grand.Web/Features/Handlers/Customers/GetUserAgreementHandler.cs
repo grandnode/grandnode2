@@ -25,7 +25,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 return null;
 
             var product = await _productService.GetProductById(orderItem.ProductId);
-            if (product == null || !product.HasUserAgreement)
+            if (product is not { HasUserAgreement: true })
                 return null;
 
             var model = new UserAgreementModel {

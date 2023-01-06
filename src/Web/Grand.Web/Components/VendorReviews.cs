@@ -47,7 +47,7 @@ namespace Grand.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(string vendorId)
         {
             var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
+            if (vendor is not { Active: true } || !vendor.AllowCustomerReviews)
                 return Content("");
 
             var model = await _mediator.Send(new GetVendorReviews { Vendor = vendor });

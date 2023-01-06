@@ -35,7 +35,7 @@ namespace Grand.Web.Features.Handlers.Pages
                 await _pageService.GetPageBySystemName(request.SystemName, _workContext.CurrentStore.Id) :
                 await _pageService.GetPageById(request.PageId);
 
-            if (page == null || !page.Published)
+            if (page is not { Published: true })
                 return null;
 
             if ((page.StartDateUtc.HasValue && page.StartDateUtc > DateTime.UtcNow) || (page.EndDateUtc.HasValue && page.EndDateUtc < DateTime.UtcNow))

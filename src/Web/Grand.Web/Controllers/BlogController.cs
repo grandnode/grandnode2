@@ -131,7 +131,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var blogPost = await _blogService.GetBlogPostById(blogPostId);
-            if (blogPost == null || !blogPost.AllowComments)
+            if (blogPost is not { AllowComments: true })
                 return RedirectToRoute("HomePage");
 
             if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_blogSettings.AllowNotRegisteredUsersToLeaveComments)

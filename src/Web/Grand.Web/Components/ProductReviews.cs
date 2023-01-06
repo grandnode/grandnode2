@@ -38,7 +38,7 @@ namespace Grand.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !product.AllowCustomerReviews)
+            if (product is not { Published: true } || !product.AllowCustomerReviews)
                 return Content("");
 
             var model = await _mediator.Send(new GetProductReviews {

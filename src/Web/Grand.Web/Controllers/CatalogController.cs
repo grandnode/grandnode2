@@ -340,7 +340,7 @@ namespace Grand.Web.Controllers
             [FromServices] CaptchaSettings captchaSettings)
         {
             var vendor = await _vendorService.GetVendorById(model.VendorId);
-            if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
+            if (vendor is not { Active: true } || !vendor.AllowCustomerReviews)
                 return Content("");
 
             //validate CAPTCHA
