@@ -69,14 +69,8 @@ namespace Grand.Web.Controllers
             }
         }
         protected virtual bool IsPostBeingDone {
-            get {
-                if (HttpContext.Items["grand.IsPOSTBeingDone"] == null)
-                    return false;
-                return Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
-            }
-            set {
-                HttpContext.Items["grand.IsPOSTBeingDone"] = value;
-            }
+            get => HttpContext.Items["grand.IsPOSTBeingDone"] != null && Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
+            set => HttpContext.Items["grand.IsPOSTBeingDone"] = value;
         }
 
 

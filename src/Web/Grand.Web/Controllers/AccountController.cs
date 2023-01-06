@@ -999,7 +999,7 @@ namespace Grand.Web.Controllers
                 case CustomerLoginResults.Successful:
                 {
                     //delete account 
-                    await _mediator.Send(new DeleteAccountCommand { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString(), });
+                    await _mediator.Send(new DeleteAccountCommand { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
 
                     //standard logout 
                     await _authenticationService.SignOut();

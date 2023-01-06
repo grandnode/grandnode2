@@ -35,7 +35,7 @@ namespace Grand.Web.Controllers
             //this action method gets called via an ajax request
             if (string.IsNullOrEmpty(countryId))
             {
-                return Json(new List<StateProvinceModel> { new StateProvinceModel { id = "", name = _translationService.GetResource("Address.SelectState") } });
+                return Json(new List<StateProvinceModel> { new() { id = "", name = _translationService.GetResource("Address.SelectState") } });
             }
             var model = await _mediator.Send(new GetStatesProvince { CountryId = countryId, AddSelectStateItem = addSelectStateItem });
             return Json(model);

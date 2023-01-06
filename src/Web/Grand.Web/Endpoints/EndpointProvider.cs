@@ -451,12 +451,6 @@ namespace Grand.Web.Endpoints
 
         private void RegisterCmsRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
         {
-
-            //widgets
-            endpointRouteBuilder.MapControllerRoute("WidgetsByZone",
-                            $"{pattern}widgetsbyzone/",
-                            new { controller = "Widget", action = "WidgetsByZone" });
-
             //knowledgebase
             endpointRouteBuilder.MapControllerRoute("Knowledgebase",
                             pattern + "knowledgebase",

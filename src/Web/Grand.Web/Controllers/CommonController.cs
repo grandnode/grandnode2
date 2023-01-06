@@ -257,7 +257,7 @@ namespace Grand.Web.Controllers
             {
                 if (commonSettings.AllowToSelectStore)
                 {
-                    var selectedstore = storeService.GetAll().FirstOrDefault(x => x.Shortcut.ToLowerInvariant() == shortcut.ToLowerInvariant());
+                    var selectedstore = storeService.GetAll().FirstOrDefault(x => string.Equals(x.Shortcut, shortcut, StringComparison.InvariantCultureIgnoreCase));
                     if (selectedstore != null)
                     {
                         await _storeHelper.SetStoreCookie(selectedstore.Id);
