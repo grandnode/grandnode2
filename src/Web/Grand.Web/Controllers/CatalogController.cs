@@ -520,7 +520,7 @@ namespace Grand.Web.Controllers
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
-                IsSearchTermSpecified = isSearchTermSpecified.HasValue ? isSearchTermSpecified.Value : false,
+                IsSearchTermSpecified = isSearchTermSpecified ?? false,
                 Language = _workContext.WorkingLanguage,
                 Model = model,
                 Store = _workContext.CurrentStore

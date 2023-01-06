@@ -44,7 +44,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (referenceUnit == null)
                 return null;
 
-            request.ProductPrice = request.ProductPrice.HasValue ? request.ProductPrice.Value : request.Product.Price;
+            request.ProductPrice ??= request.Product.Price;
 
             var basePrice = request.ProductPrice.Value /
                             //do not round. otherwise, it can cause issues

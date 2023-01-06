@@ -111,8 +111,7 @@ namespace Grand.Web.Features.Handlers.Products
                 _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
 
             //out of stock subscription
-            if ((request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes
-                 || request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock) &&
+            if (request.Product.ManageInventoryMethodId is ManageInventoryMethod.ManageStockByAttributes or ManageInventoryMethod.ManageStock &&
                 request.Product.BackorderModeId == BackorderMode.NoBackorders &&
                 request.Product.AllowOutOfStockSubscriptions)
             {

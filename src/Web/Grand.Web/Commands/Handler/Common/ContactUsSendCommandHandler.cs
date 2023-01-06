@@ -233,8 +233,7 @@ namespace Grand.Web.Commands.Handler.Common
                 if (ca.ValidationMinLength.HasValue)
                 {
 
-                    if (ca.AttributeControlType == AttributeControlType.TextBox ||
-                        ca.AttributeControlType == AttributeControlType.MultilineTextbox)
+                    if (ca.AttributeControlType is AttributeControlType.TextBox or AttributeControlType.MultilineTextbox)
                     {
                         var conditionMet = await _contactAttributeParser.IsConditionMet(ca, customAttributes);
                         if (ca.IsRequired && ((conditionMet.HasValue && conditionMet.Value) || !conditionMet.HasValue))

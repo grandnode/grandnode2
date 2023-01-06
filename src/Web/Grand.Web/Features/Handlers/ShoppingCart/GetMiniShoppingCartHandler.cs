@@ -124,8 +124,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
                 Customer = request.Customer,
                 Cart = cart.Where
-                (x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart ||
-                      x.ShoppingCartTypeId == ShoppingCartType.Auctions).ToList()
+                (x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
             });
 
             model.DisplayCheckoutButton = !_orderSettings.TermsOfServiceOnShoppingCartPage &&

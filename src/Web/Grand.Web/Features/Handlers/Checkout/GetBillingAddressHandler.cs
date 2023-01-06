@@ -32,7 +32,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             var model = new CheckoutBillingAddressModel();
             //existing addresses
             var addresses = new List<Address>();
-            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType == AddressType.Any || x.AddressType == AddressType.Billing))
+            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType is AddressType.Any or AddressType.Billing))
             {
                 if (string.IsNullOrEmpty(item.CountryId))
                 {

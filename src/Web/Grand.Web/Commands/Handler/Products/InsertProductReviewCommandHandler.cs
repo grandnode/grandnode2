@@ -41,7 +41,7 @@ namespace Grand.Web.Commands.Handler.Products
         {
             //save review
             var rating = request.Model.AddProductReview.Rating;
-            if (rating < 1 || rating > 5)
+            if (rating is < 1 or > 5)
                 rating = _catalogSettings.DefaultProductRatingValue;
             var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
 

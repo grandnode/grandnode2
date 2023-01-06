@@ -189,8 +189,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             #region Out of stock subscriptions
 
-            if ((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock
-                 || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
+            if (product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes &&
                 product.BackorderModeId == BackorderMode.NoBackorders &&
                 product.AllowOutOfStockSubscriptions &&
                 _stockQuantityService.GetTotalStockQuantity(product,
@@ -770,7 +769,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             //quantity
-            model.EnteredQuantity = updatecartitem != null ? updatecartitem.Quantity : product.OrderMinimumQuantity;
+            model.EnteredQuantity = updatecartitem?.Quantity ?? product.OrderMinimumQuantity;
             model.MeasureUnit = !string.IsNullOrEmpty(product.UnitId)
                 ? (await _measureService.GetMeasureUnitById(product.UnitId)).Name
                 : string.Empty;

@@ -35,7 +35,7 @@ namespace Grand.Web.Commands.Handler.Vendors
         {
             //save review
             var rating = request.Model.AddVendorReview.Rating;
-            if (rating < 1 || rating > 5)
+            if (rating is < 1 or > 5)
                 rating = _vendorSettings.DefaultVendorRatingValue;
             var isApproved = !_vendorSettings.VendorReviewsMustBeApproved;
 

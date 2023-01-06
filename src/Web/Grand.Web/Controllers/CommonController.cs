@@ -90,10 +90,10 @@ namespace Grand.Web.Controllers
             var language = (await _languageService.GetAllLanguages())
                 .FirstOrDefault(urlLanguage => urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 
-            return language != null ? language.Published : false;
+            return language?.Published ?? false;
         }
 
-        private string AddLanguageSeo(string url, Language language)
+        private static string AddLanguageSeo(string url, Language language)
         {
             if (language == null)
                 throw new ArgumentNullException(nameof(language));

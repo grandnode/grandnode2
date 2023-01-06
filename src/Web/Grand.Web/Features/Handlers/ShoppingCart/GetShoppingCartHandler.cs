@@ -148,7 +148,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             model.ShowCheckoutAsGuestButton = model.IsGuest && _orderSettings.AnonymousCheckoutAllowed;
             var checkoutAttributes = request.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, request.Store.Id);
             model.CheckoutAttributeInfo = await _checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, request.Customer);
-            if (!request.Cart.Where(x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || x.ShoppingCartTypeId == ShoppingCartType.Auctions).ToList().Any())
+            if (!request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList().Any())
             {
                 model.MinOrderSubtotalWarning = _translationService.GetResource("Checkout.MinOrderOneProduct");
             }
@@ -156,7 +156,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
                     Customer = request.Customer,
-                    Cart = request.Cart.Where(x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || x.ShoppingCartTypeId == ShoppingCartType.Auctions).ToList()
+                    Cart = request.Cart.Where(x => x.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions).ToList()
                 });
                 if (!minOrderSubtotalAmountOk)
                 {

@@ -157,7 +157,7 @@ namespace Grand.Web.Controllers
                 var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, cartType, product.Id, warehouseId);
 
                 //if we already have the same product in the cart, then use the total quantity to validate
-                var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
+                var quantityToValidate = shoppingCartItem?.Quantity + quantity ?? quantity;
                 var addToCartWarnings = await _shoppingCartValidator
                   .GetShoppingCartItemWarnings(customer, new ShoppingCartItem {
                       ShoppingCartTypeId = cartType,
@@ -803,11 +803,9 @@ namespace Grand.Web.Controllers
             }
 
             //product reservation
-            var parameter = cart.Parameter;
-            var duration = cart.Duration;
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                if (product.IntervalUnitId == IntervalUnit.Hour || product.IntervalUnitId == IntervalUnit.Minute)
+                if (product.IntervalUnitId is IntervalUnit.Hour or IntervalUnit.Minute)
                 {
                     if (string.IsNullOrEmpty(model.Reservation))
                     {
@@ -827,9 +825,8 @@ namespace Grand.Web.Controllers
                             message = "No reservation found"
                         });
                     }
-                    duration = reservation.Duration;
+
                     rentalStartDate = reservation.Date;
-                    parameter = reservation.Parameter;
                 }
                 else if (product.IntervalUnitId == IntervalUnit.Day)
                 {

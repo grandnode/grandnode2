@@ -90,9 +90,7 @@ namespace Grand.Web.Features.Handlers.Products
                 await _permissionService.Authorize(StandardPermission.EnableShoppingCart, _workContext.CurrentCustomer);
             var enableWishlist =
                 await _permissionService.Authorize(StandardPermission.EnableWishlist, _workContext.CurrentCustomer);
-            var pictureSize = request.ProductThumbPictureSize.HasValue
-                ? request.ProductThumbPictureSize.Value
-                : _mediaSettings.ProductThumbPictureSize;
+            var pictureSize = request.ProductThumbPictureSize ?? _mediaSettings.ProductThumbPictureSize;
             var priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
             var res = new Dictionary<string, string> {

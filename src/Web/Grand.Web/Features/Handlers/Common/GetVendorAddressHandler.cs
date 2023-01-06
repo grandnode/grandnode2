@@ -40,13 +40,13 @@ namespace Grand.Web.Features.Handlers.Common
                 Country country = null;
                 if (!string.IsNullOrEmpty(request.Address.CountryId))
                     country = await _countryService.GetCountryById(request.Address.CountryId);
-                model.CountryName = country != null ? country.GetTranslation(x => x.Name, request.Language.Id) : null;
+                model.CountryName = country?.GetTranslation(x => x.Name, request.Language.Id);
 
                 model.StateProvinceId = request.Address.StateProvinceId;
                 StateProvince state = null;
                 if (!string.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
                     state = country.StateProvinces.FirstOrDefault(x => x.Id == request.Address.StateProvinceId);
-                model.StateProvinceName = state != null ? state.GetTranslation(x => x.Name, request.Language.Id) : null;
+                model.StateProvinceName = state?.GetTranslation(x => x.Name, request.Language.Id);
 
                 model.City = request.Address.City;
                 model.Address1 = request.Address.Address1;

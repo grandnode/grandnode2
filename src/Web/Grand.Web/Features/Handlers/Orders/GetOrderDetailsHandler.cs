@@ -135,7 +135,7 @@ namespace Grand.Web.Features.Handlers.Orders
             if (_orderSettings.UserCanCancelUnpaidOrder)
             {
                 if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending && request.Order.PaymentStatusId == PaymentStatus.Pending
-                    && (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired || request.Order.ShippingStatusId == ShippingStatus.Pending))
+                    && request.Order.ShippingStatusId is ShippingStatus.ShippingNotRequired or ShippingStatus.Pending)
                     model.UserCanCancelUnpaidOrder = true;
             }
 
