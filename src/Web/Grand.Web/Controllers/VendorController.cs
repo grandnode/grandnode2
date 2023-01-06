@@ -148,7 +148,6 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
-            var pictureId = string.Empty;
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
@@ -173,9 +172,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-
                 var description = FormatText.ConvertText(model.Description);
-                var address = new Address();
                 //disabled by default
                 var vendor = new Vendor {
                     Name = model.Name,
@@ -273,7 +270,6 @@ namespace Grand.Web.Controllers
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 
-            var pictureId = string.Empty;
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 

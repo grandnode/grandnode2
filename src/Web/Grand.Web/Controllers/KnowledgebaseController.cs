@@ -88,7 +88,6 @@ namespace Grand.Web.Controllers
 
             var model = new KnowledgebaseHomePageModel();
             var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
-            var allCategories = _knowledgebaseService.GetPublicKnowledgebaseCategories();
             articles.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
                 Name = x.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
                 Id = x.Id,

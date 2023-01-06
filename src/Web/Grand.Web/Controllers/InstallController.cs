@@ -117,8 +117,6 @@ namespace Grand.Web.Controllers
             if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
-            var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
-
             var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
             return View(installed ? new InstallModel { Installed = true } : PrepareModel(null));
         }

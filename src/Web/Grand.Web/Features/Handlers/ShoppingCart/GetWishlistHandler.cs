@@ -149,7 +149,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var productprice = await _taxService.GetProductPrice(product, (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                    var taxRate = productprice.taxRate;
                     cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice);
                 }
                 //subtotal, discount
@@ -162,9 +161,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     //sub total
                     var subtotal = await _pricingService.GetSubTotal(sci, product);
                     var shoppingCartItemDiscountBase = subtotal.discountAmount;
-                    List<ApplyDiscount> scDiscounts = subtotal.appliedDiscounts;
                     var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal);
-                    var taxRate = productprices.taxRate;
                     cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice);
 
                     //display an applied discount amount

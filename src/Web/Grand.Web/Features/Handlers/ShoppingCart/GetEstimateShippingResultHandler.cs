@@ -75,7 +75,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
                         //calculate discounted and taxed rate
                         var total = await _orderTotalCalculationService.AdjustShippingRate(shippingOption.Rate, request.Cart);
-                        List<ApplyDiscount> appliedDiscounts = total.appliedDiscounts;
                         var shippingTotal = total.shippingRate;
 
                         var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;

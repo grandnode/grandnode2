@@ -61,7 +61,6 @@ namespace Grand.Web.Features.Handlers.Catalog
             var customer = request.Customer;
             var storeId = request.Store.Id;
             var languageId = request.Language.Id;
-            var currency = request.Currency;
 
             if (request.Command is { OrderBy: null } && request.Category.DefaultSort >= 0)
                 request.Command.OrderBy = request.Category.DefaultSort;

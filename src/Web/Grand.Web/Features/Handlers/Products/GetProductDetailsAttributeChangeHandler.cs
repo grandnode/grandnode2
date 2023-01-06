@@ -98,8 +98,6 @@ namespace Grand.Web.Features.Handlers.Products
                     rentalStartDate, rentalEndDate,
                     true);
 
-                var discountAmount = unitprice.discountAmount;
-                List<ApplyDiscount> scDiscounts = unitprice.appliedDiscounts;
                 var finalPrice = unitprice.unitprice;
                 var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
                 var finalPriceWithDiscount = productprice.productprice;

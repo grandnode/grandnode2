@@ -199,7 +199,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 {
                     var productprices = await _taxService.GetProductPrice(product,
                         (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                    var taxRate = productprices.taxRate;
                     cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice);
                 }
 

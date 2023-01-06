@@ -175,8 +175,6 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
             }
 
-            IPagedList<Product> products = new PagedList<Product>(new List<Product>(), 0, 1);
-
             if (!request.IsSearchTermSpecified) return request.Model;
             
             if (searchTerms.Length < _catalogSettings.ProductSearchTermMinimumLength)

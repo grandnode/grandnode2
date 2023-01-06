@@ -607,7 +607,6 @@ namespace Grand.Web.Controllers
             [FromServices] IGroupService groupService,
             [FromServices] IProductReviewService productReviewService)
         {
-            var product = await _productService.GetProductById(productId);
             var productReview = await productReviewService.GetProductReviewById(productReviewId);
             if (productReview == null)
                 throw new ArgumentException("No product review found with the specified id");

@@ -114,21 +114,9 @@ namespace Grand.Web.Features.Handlers.Orders
                 var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems)
                     .Where(x => x.OrderItemId == orderItem.Id).Sum(x => x.Quantity);
 
-                var query = new GetMerchandiseReturnQuery {
-                    StoreId = request.Store.Id,
-                };
-
                 var merchandiseReturns =
                     await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
-                var qtyReturn = 0;
-
-                foreach (var rr in merchandiseReturns)
-                {
-                    foreach (var rrItem in rr.MerchandiseReturnItems)
-                    {
-                        qtyReturn += rrItem.Quantity;
-                    }
-                }
+                var qtyReturn = merchandiseReturns.Sum(rr => rr.MerchandiseReturnItems.Sum(rrItem => rrItem.Quantity));
 
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
                 if (product.NotReturnable) continue;
