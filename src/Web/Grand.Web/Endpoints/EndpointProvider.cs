@@ -113,7 +113,7 @@ namespace Grand.Web.Endpoints
                             pattern + "account/checkusernameavailability",
                             new { controller = "Account", action = "CheckUsernameAvailability" });
 
-            //passwordrecovery
+            //password recovery
             endpointRouteBuilder.MapControllerRoute("PasswordRecovery",
                             pattern + "passwordrecovery",
                             new { controller = "Account", action = "PasswordRecovery" });
@@ -451,7 +451,7 @@ namespace Grand.Web.Endpoints
 
         private void RegisterCmsRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
         {
-            //knowledgebase
+            //knowledge base
             endpointRouteBuilder.MapControllerRoute("Knowledgebase",
                             pattern + "knowledgebase",
                             new { controller = "Knowledgebase", action = "List" });

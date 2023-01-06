@@ -594,12 +594,11 @@ namespace Grand.Web.Controllers
                     throw new Exception("Shipping is not required");
 
                 //Pick up in store?
-                //var pickupInstore = false;
+                //var pickup in store = false;
                 if (_shippingSettings.AllowPickUpInStore)
                 {
                     if (model.PickUpInStore)
                     {
-                        //pickupInstore = true;
                         //customer decided to pick up in store
                         //no shipping address selected
                         _workContext.CurrentCustomer.ShippingAddress = null;
@@ -776,7 +775,7 @@ namespace Grand.Web.Controllers
                     throw new Exception("Shipping is not required");
 
                 //parse selected method 
-                //model.TryGetValue("shippingoption", out var shipping);
+                //model.TryGetValue("shipping option", out var shipping);
                 if (string.IsNullOrEmpty(model.ShippingOption))
                     throw new Exception("Selected shipping method can't be parsed");
                 

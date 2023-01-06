@@ -433,7 +433,7 @@ namespace Grand.Web.Controllers
                 //disabled
                 return Json(new { stored = false });
 
-            //save consentcookies
+            //save consent cookies
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "", _workContext.CurrentStore.Id);
             var dictionary = new Dictionary<string, bool>();
             var consentCookies = cookiePreference.GetConsentCookies();

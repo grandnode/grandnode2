@@ -172,8 +172,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             foreach (var couponCode in discountCouponCodes)
             {
                 var discount = await _discountService.GetDiscountByCouponCode(couponCode);
-                if (discount != null &&
-                    discount.RequiresCouponCode &&
+                if (discount is { RequiresCouponCode: true } &&
                     (await _discountService.ValidateDiscount(discount, request.Customer, request.Currency)).IsValid)
                 {
                     model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {
@@ -418,7 +417,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     if (appliedDiscounts != null && appliedDiscounts.Any())
                     {
                         var discount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault().DiscountId);
-                        if (discount != null && discount.MaximumDiscountedQuantity.HasValue)
+                        if (discount is { MaximumDiscountedQuantity: { } })
                             cartItemModel.DiscountedQty = discount.MaximumDiscountedQuantity.Value;
 
                         appliedDiscounts.ForEach(x => cartItemModel.Discounts.Add(x.DiscountId));

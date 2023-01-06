@@ -102,7 +102,7 @@ namespace Grand.Web.Controllers
             var allowedQuantities = product.ParseAllowedQuantities();
             if (cartType == ShoppingCartType.ShoppingCart && allowedQuantities.Length > 0)
             {
-                //cannot be added to the cart (requires a customer to select a quantity from dropdownlist)
+                //cannot be added to the cart (requires a customer to select a quantity from drop down list)
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),

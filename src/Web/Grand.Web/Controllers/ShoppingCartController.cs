@@ -547,7 +547,7 @@ namespace Grand.Web.Controllers
                 discountcouponcode = discountcouponcode.ToUpper();
                 //we find even hidden records here. this way we can display a user-friendly message if it's expired
                 var discount = await _discountService.GetDiscountByCouponCode(discountcouponcode, true);
-                if (discount != null && discount.RequiresCouponCode)
+                if (discount is { RequiresCouponCode: true })
                 {
                     var coupons = _workContext.CurrentCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
                     var existsAndUsed = false;

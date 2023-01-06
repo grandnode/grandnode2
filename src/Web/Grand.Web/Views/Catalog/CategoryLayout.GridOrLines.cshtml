@@ -15,7 +15,7 @@
     }
 }
 
-@* Rednering category breadcrumbs*@
+@* Rendering category breadcrumbs*@
 @section Breadcrumb
     {
     @if (Model.DisplayCategoryBreadcrumb)
@@ -169,7 +169,7 @@
             </div>
         </div>
     }
-    @*Rendering rccently viewed products section*@
+    @*Rendering recently viewed products section*@
 
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
     

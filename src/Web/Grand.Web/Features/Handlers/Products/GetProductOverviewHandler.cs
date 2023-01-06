@@ -149,14 +149,16 @@ namespace Grand.Web.Features.Handlers.Products
             //specs
             if (request.PrepareSpecificationAttributes && product.ProductSpecificationAttributes.Any())
             {
-                model.SpecificationAttributeModels = await _mediator.Send(new GetProductSpecification { Language = _workContext.WorkingLanguage, Product = product });
+                model.SpecificationAttributeModels = await _mediator.Send(new GetProductSpecification
+                    { Language = _workContext.WorkingLanguage, Product = product });
             }
 
             //attributes
             model.ProductAttributeModels = await PrepareAttributesModel(product);
 
             //reviews
-            model.ReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview { Product = product, Language = _workContext.WorkingLanguage, Store = _workContext.CurrentStore });
+            model.ReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview
+                { Product = product, Language = _workContext.WorkingLanguage, Store = _workContext.CurrentStore });
 
             return model;
         }
@@ -266,7 +268,7 @@ namespace Grand.Web.Features.Handlers.Products
                                     minPossiblePrice = tmpPrice;
                                 }
 
-                                if (minPriceProduct != null && !minPriceProduct.EnteredPrice)
+                                if (minPriceProduct is { EnteredPrice: false })
                                 {
                                     if (minPriceProduct.CallForPrice)
                                     {
@@ -286,7 +288,7 @@ namespace Grand.Web.Features.Handlers.Products
                                                 _workContext.WorkingLanguage, priceIncludesTax));
                                         priceModel.PriceValue = finalPrice;
 
-                                        //PAngV baseprice (used in Germany)
+                                        //PAngV base price (used in Germany)
                                         if (product.BasepriceEnabled)
                                             priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
                                                 Currency = _workContext.WorkingCurrency, Product = product,
@@ -458,7 +460,7 @@ namespace Grand.Web.Features.Handlers.Products
                                         _priceFormatter.FormatReservationProductPeriod(product, priceModel.Price);
                                 }
 
-                                //PAngV baseprice (used in Germany)
+                                //PAngV base price (used in Germany)
                                 if (product.BasepriceEnabled)
                                     priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
                                         Currency = _workContext.WorkingCurrency, Product = product,
@@ -523,21 +525,17 @@ namespace Grand.Web.Features.Handlers.Products
                 return pictureModel;
             }
 
-            ;
-
             //prepare picture model
-            result.Add(await PreparePictureModel(product.ProductPictures.OrderBy(x => x.DisplayOrder)
-                .FirstOrDefault()));
+            result.Add(await PreparePictureModel(product.ProductPictures.MinBy(x => x.DisplayOrder)));
 
             //prepare second picture model
-            if (_catalogSettings.SecondPictureOnCatalogPages)
-            {
-                var secondPicture = product.ProductPictures.OrderBy(x => x.DisplayOrder).Skip(1).Take(1)
-                    .FirstOrDefault();
-                if (secondPicture != null)
-                    result.Add(await PreparePictureModel(secondPicture));
-            }
+            if (!_catalogSettings.SecondPictureOnCatalogPages) return result;
 
+            var secondPicture = product.ProductPictures.OrderBy(x => x.DisplayOrder).Skip(1).Take(1)
+                .FirstOrDefault();
+            if (secondPicture != null)
+                result.Add(await PreparePictureModel(secondPicture));
+            
             return result;
 
             #endregion

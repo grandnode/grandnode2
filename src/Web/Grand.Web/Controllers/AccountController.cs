@@ -429,7 +429,7 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
-            if (ModelState.IsValid && ModelState.ErrorCount == 0)
+            if (ModelState is { IsValid: true, ErrorCount: 0 })
             {
                 if (_customerSettings.UsernamesEnabled && model.Username != null)
                 {
@@ -546,8 +546,7 @@ namespace Grand.Web.Controllers
             if (!_customerSettings.UsernamesEnabled || string.IsNullOrWhiteSpace(username))
                 return Json(new { Available = usernameAvailable, Text = statusText });
             
-            if (_workContext.CurrentCustomer != null &&
-                _workContext.CurrentCustomer.Username != null &&
+            if (_workContext.CurrentCustomer is { Username: { } } &&
                 _workContext.CurrentCustomer.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
                 statusText = _translationService.GetResource("Account.CheckUsernameAvailability.CurrentUsername");
@@ -783,7 +782,7 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", error);
             }
 
-            if (ModelState.IsValid && ModelState.ErrorCount == 0)
+            if (ModelState is { IsValid: true, ErrorCount: 0 })
             {
                 var address = model.Address.ToEntity(_workContext.CurrentCustomer, addressSettings);
                 address.Attributes = customAttributes;
@@ -907,7 +906,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
-            var model = await _mediator.Send(new GetUserAgreement { OrderItemId = orderItemId }); ;
+            var model = await _mediator.Send(new GetUserAgreement { OrderItemId = orderItemId }); 
             if (model == null)
                 return RedirectToRoute("HomePage");
 
@@ -1004,7 +1003,7 @@ namespace Grand.Web.Controllers
                     //standard logout 
                     await _authenticationService.SignOut();
 
-                    //Show successfull message 
+                    //Show success full message 
                     Success(_translationService.GetResource("Account.Delete.Success"));
 
                     return RedirectToRoute("HomePage");

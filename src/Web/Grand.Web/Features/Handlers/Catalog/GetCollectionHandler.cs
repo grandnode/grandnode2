@@ -42,7 +42,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             var model = request.Collection.ToModel(request.Language);
 
-            if (request.Command != null && request.Command.OrderBy == null && request.Collection.DefaultSort >= 0)
+            if (request.Command is { OrderBy: null } && request.Collection.DefaultSort >= 0)
                 request.Command.OrderBy = request.Collection.DefaultSort;
 
             //view/sorting/page size
@@ -53,7 +53,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = request.Collection.AllowCustomersToSelectPageSize,
                 PageSizeOptions = request.Collection.PageSizeOptions,
                 PageSize = request.Collection.PageSize
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             //featured products
@@ -68,17 +68,17 @@ namespace Grand.Web.Features.Handlers.Catalog
                     request.Store.Id);
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
                 {
-                    var featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CollectionId = request.Collection.Id,
                         Customer = request.Customer,
                         StoreId = request.Store.Id,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                     return featuredProducts.Any();
                 });
-                if (hasFeaturedProductsCache.Value && featuredProducts == null)
+                if (hasFeaturedProductsCache.HasValue && hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the collection has featured products
                     featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
@@ -88,7 +88,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         StoreId = request.Store.Id,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
@@ -99,7 +99,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             }
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+                (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
             var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
@@ -124,7 +124,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

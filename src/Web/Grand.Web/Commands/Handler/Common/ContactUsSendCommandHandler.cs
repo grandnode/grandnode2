@@ -347,7 +347,7 @@ namespace Grand.Web.Commands.Handler.Common
                         {
                             if (selectedContactAttributes != null && selectedContactAttributes.Any())
                             {
-                                var enteredText = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList(); ;
+                                var enteredText = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList(); 
                                 if (enteredText.Any())
                                     attributeModel.DefaultValue = enteredText[0];
                             }

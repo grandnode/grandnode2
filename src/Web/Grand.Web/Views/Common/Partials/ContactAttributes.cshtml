@@ -9,7 +9,7 @@
     <div class="form-group contact-attributes">
         @foreach (var attribute in Model)
         {
-            var controlId = $"contact_attribute_{attribute.Id}";;
+            var controlId = $"contact_attribute_{attribute.Id}";
             var controlName = $"attributes[{attribute.Id}]";
             var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
         <div id="@($"contact_attribute_label_{attribute.Id}")" class="col-12 px-0">

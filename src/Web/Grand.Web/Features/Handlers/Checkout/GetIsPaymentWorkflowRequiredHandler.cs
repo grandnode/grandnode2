@@ -20,7 +20,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             var result = true;
             //check whether order total equals zero
             var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: request.UseLoyaltyPoints)).shoppingCartTotal;
-            if (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0 && !_paymentSettings.ShowPaymentIfCartIsZero)
+            if (shoppingCartTotalBase is 0 && !_paymentSettings.ShowPaymentIfCartIsZero)
                 result = false;
             return result;
         }

@@ -115,7 +115,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var pictureUrl = "";
                 if (_catalogSettings.ShowProductImagesInSearchAutoComplete)
                 {
-                    var picture = item.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
+                    var picture = item.ProductPictures.MinBy(x => x.DisplayOrder);
                     if (picture != null)
                         pictureUrl = await _pictureService.GetPictureUrl(picture.PictureId, _mediaSettings.AutoCompleteSearchThumbPictureSize);
                 }

@@ -35,7 +35,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             var model = request.Brand.ToModel(request.Language);
 
-            if (request.Command != null && request.Command.OrderBy == null && request.Brand.DefaultSort >= 0)
+            if (request.Command is { OrderBy: null } && request.Brand.DefaultSort >= 0)
                 request.Command.OrderBy = request.Brand.DefaultSort;
 
             //view/sorting/page size
@@ -46,11 +46,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = request.Brand.AllowCustomersToSelectPageSize,
                 PageSizeOptions = request.Brand.PageSizeOptions,
                 PageSize = request.Brand.PageSize
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+                (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
             var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
@@ -63,19 +63,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            });
+            }, cancellationToken);
 
             model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

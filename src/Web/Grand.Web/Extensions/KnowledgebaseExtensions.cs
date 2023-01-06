@@ -12,7 +12,7 @@ namespace Grand.Web.Extensions
         /// Get category breadcrumb 
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="knowledgebaseService">Knowledgebase Service</param>
+        /// <param name="knowledgebaseService">Knowledge base Service</param>
         /// <param name="aclService">ACL service</param>
         /// <param name="workContext">WorkContext</param>
         /// <param name="showHidden">A value indicating whether to load hidden records</param>

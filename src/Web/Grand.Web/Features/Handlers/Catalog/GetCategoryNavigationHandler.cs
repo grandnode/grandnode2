@@ -30,7 +30,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 //product details page
                 var productCategories = (await _productService.GetProductById(request.CurrentProductId)).ProductCategories;
                 if (productCategories.Any())
-                    activeCategoryId = productCategories.OrderBy(x => x.DisplayOrder).FirstOrDefault().CategoryId;
+                    activeCategoryId = productCategories.MinBy(x => x.DisplayOrder).CategoryId;
             }
             var cachedModel = await _mediator.Send(new GetCategorySimple {
                 Customer = request.Customer,

@@ -28,7 +28,7 @@
             }
         </div>
     }
-    @if (Model.ProductBundleModels.Where(x => x.ProductAttributes.Any()).Any())
+    @if (Model.ProductBundleModels.Any(x => x.ProductAttributes.Any()))
     {
         <template id="product-attributes-bundle" asp-header="true">
             <div>

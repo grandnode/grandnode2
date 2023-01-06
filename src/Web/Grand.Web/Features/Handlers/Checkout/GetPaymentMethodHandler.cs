@@ -61,14 +61,14 @@ namespace Grand.Web.Features.Handlers.Checkout
                     model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
                     model.LoyaltyPointsBalance = loyaltyPointsBalance;
                     var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: true)).shoppingCartTotal;
-                    model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0;
+                    model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
                 }
             }
 
             //filter by country
             var paymentMethods = (await _paymentService
                 .LoadActivePaymentMethods(request.Customer, request.Store.Id, request.FilterByCountryId))
-                .Where(pm => pm.PaymentMethodType == PaymentMethodType.Standard || pm.PaymentMethodType == PaymentMethodType.Redirection).ToList();
+                .Where(pm => pm.PaymentMethodType is PaymentMethodType.Standard or PaymentMethodType.Redirection).ToList();
             var availablepaymentMethods = new List<IPaymentProvider>();
             foreach (var pm in paymentMethods)
             {

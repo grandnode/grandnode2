@@ -63,7 +63,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             var languageId = request.Language.Id;
             var currency = request.Currency;
 
-            if (request.Command != null && request.Command.OrderBy == null && request.Category.DefaultSort >= 0)
+            if (request.Command is { OrderBy: null } && request.Category.DefaultSort >= 0)
                 request.Command.OrderBy = request.Category.DefaultSort;
 
             //view/sorting/page size
@@ -74,7 +74,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = request.Category.AllowCustomersToSelectPageSize,
                 PageSizeOptions = request.Category.PageSizeOptions,
                 PageSize = request.Category.PageSize
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             //price ranges
@@ -130,7 +130,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 };
 
                 subCategories.Add(subCatModel);
-            };
+            }
 
             model.SubCategories = subCategories;
 
@@ -151,11 +151,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                         StoreId = storeId,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                     return featuredProducts.Any();
                 });
 
-                if (hasFeaturedProductsCache.Value && featuredProducts == null)
+                if (hasFeaturedProductsCache.HasValue && hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the category has featured products
                     featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
@@ -165,13 +165,13 @@ namespace Grand.Web.Features.Handlers.Catalog
                         StoreId = storeId,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
                     model.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         Products = featuredProducts,
-                    })).ToList();
+                    }, cancellationToken)).ToList();
                 }
             }
 
@@ -180,11 +180,11 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (_catalogSettings.ShowProductsFromSubcategories)
             {
                 //include subcategories
-                categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.Category.Id, Customer = request.Customer, Store = request.Store }));
+                categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.Category.Id, Customer = request.Customer, Store = request.Store }, cancellationToken));
             }
             //products
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(
-                _httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+                _httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
             var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 CategoryIds = categoryIds,
@@ -196,7 +196,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            });
+            }, cancellationToken);
 
             model.Products = (await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,

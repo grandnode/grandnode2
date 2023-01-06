@@ -2,9 +2,9 @@
 
 @if (Model.Category.IncludeInMenu)
 {
-    <li class="@(Model.Category.SubCategories.Count() == 0 ? "category": "category -hasSubmenu" )">
+    <li class="@(!Model.Category.SubCategories.Any() ? "category": "category -hasSubmenu")">
 
-        @if (Model.Category.SubCategories.Count() == 0)
+        @if (Model.Category.SubCategories.Count == 0)
         {
             <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))

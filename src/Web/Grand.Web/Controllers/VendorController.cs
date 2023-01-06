@@ -205,7 +205,7 @@ namespace Grand.Web.Controllers
                 await _vendorService.UpdateVendor(vendor);
 
                 //associate to the current customer
-                //but a store owner will have to manually acivate this vendor
+                //but a store owner will have to manually activate this vendor
                 //if he wants to grant access to admin area
                 _workContext.CurrentCustomer.VendorId = vendor.Id;
                 await _customerService.UpdateCustomerField(_workContext.CurrentCustomer.Id, x => x.VendorId, _workContext.CurrentCustomer.VendorId);
@@ -301,7 +301,7 @@ namespace Grand.Web.Controllers
             if (prevPicture == null)
                 vendor.PictureId = "";
 
-            if (ModelState.IsValid && ModelState.ErrorCount == 0)
+            if (ModelState is { IsValid: true, ErrorCount: 0 })
             {
                 var description = FormatText.ConvertText(model.Description);
 

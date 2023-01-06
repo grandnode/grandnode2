@@ -130,7 +130,7 @@ namespace Grand.Web.Features.Handlers.Common
                     Title = blogpost.GetTranslation(x => x.Title, request.Language.Id),
                 }).ToList();
 
-                //knowledgebase
+                //knowledge base
                 var knowledgebasearticles = (await _knowledgebaseService.GetPublicKnowledgebaseArticles()).ToList();
                 model.KnowledgebaseArticles = knowledgebasearticles.Select(knowledgebasearticle => new KnowledgebaseItemModel
                 {
