@@ -46,13 +46,9 @@ namespace Grand.Web.Features.Handlers.Catalog
 
             var activeOptions = Enum.GetValues(typeof(ProductSortingEnum)).Cast<int>()
                 .Except(_catalogSettings.ProductSortingEnumDisabled)
-                .Select((idOption) =>
-                {
-                    return new KeyValuePair<int, int>(idOption, _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out var order) ? order : idOption);
-                })
+                .Select(idOption => new KeyValuePair<int, int>(idOption, _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out var order) ? order : idOption))
                 .OrderBy(x => x.Value);
-            if (request.Command.OrderBy == null)
-                request.Command.OrderBy = allDisabled ? 0 : activeOptions.First().Key;
+            request.Command.OrderBy ??= allDisabled ? 0 : activeOptions.First().Key;
 
             if (request.PagingFilteringModel.AllowProductSorting)
             {
@@ -79,22 +75,21 @@ namespace Grand.Web.Features.Handlers.Catalog
                 ? request.Command.ViewMode
                 : _catalogSettings.DefaultViewMode;
             request.PagingFilteringModel.ViewMode = viewMode;
-            if (request.PagingFilteringModel.AllowProductViewModeChanging)
-            {
-                var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
-                //grid
-                request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
-                    Text = _translationService.GetResource("Catalog.ViewMode.Grid"),
-                    Value = CommonExtensions.ModifyQueryString(currentPageUrl, "viewmode", "grid"),
-                    Selected = viewMode == "grid"
-                });
-                //list
-                request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
-                    Text = _translationService.GetResource("Catalog.ViewMode.List"),
-                    Value = CommonExtensions.ModifyQueryString(currentPageUrl, "viewmode", "list"),
-                    Selected = viewMode == "list"
-                });
-            }
+            if (!request.PagingFilteringModel.AllowProductViewModeChanging) return;
+            
+            var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
+            //grid
+            request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
+                Text = _translationService.GetResource("Catalog.ViewMode.Grid"),
+                Value = CommonExtensions.ModifyQueryString(currentPageUrl, "viewmode", "grid"),
+                Selected = viewMode == "grid"
+            });
+            //list
+            request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
+                Text = _translationService.GetResource("Catalog.ViewMode.List"),
+                Value = CommonExtensions.ModifyQueryString(currentPageUrl, "viewmode", "list"),
+                Selected = viewMode == "list"
+            });
         }
         private void PreparePageSizeOptions(GetViewSortSizeOptions request)
         {

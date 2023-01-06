@@ -226,17 +226,15 @@ namespace Grand.Web.Controllers
             foreach (var subscription in list)
             {
                 var product = await _productService.GetProductById(subscription.ProductId);
-                if (product != null)
-                {
-                    var subscriptionModel = new CustomerOutOfStockSubscriptionsModel.OutOfStockSubscriptionModel {
-                        Id = subscription.Id,
-                        ProductId = product.Id,
-                        ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                        AttributeDescription = !subscription.Attributes.Any() ? "" : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
-                        SeName = product.GetSeName(_workContext.WorkingLanguage.Id),
-                    };
-                    model.Subscriptions.Add(subscriptionModel);
-                }
+                if (product == null) continue;
+                var subscriptionModel = new CustomerOutOfStockSubscriptionsModel.OutOfStockSubscriptionModel {
+                    Id = subscription.Id,
+                    ProductId = product.Id,
+                    ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                    AttributeDescription = !subscription.Attributes.Any() ? "" : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
+                    SeName = product.GetSeName(_workContext.WorkingLanguage.Id),
+                };
+                model.Subscriptions.Add(subscriptionModel);
             }
             model.PagerModel.LoadPagedList(list);
 

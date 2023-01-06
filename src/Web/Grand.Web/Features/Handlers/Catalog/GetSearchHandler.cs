@@ -177,112 +177,110 @@ namespace Grand.Web.Features.Handlers.Catalog
 
             IPagedList<Product> products = new PagedList<Product>(new List<Product>(), 0, 1);
 
-            if (request.IsSearchTermSpecified)
+            if (!request.IsSearchTermSpecified) return request.Model;
+            
+            if (searchTerms.Length < _catalogSettings.ProductSearchTermMinimumLength)
             {
-                if (searchTerms.Length < _catalogSettings.ProductSearchTermMinimumLength)
+                request.Model.Warning = string.Format(_translationService.GetResource("Search.SearchTermMinimumLengthIsNCharacters"), _catalogSettings.ProductSearchTermMinimumLength);
+            }
+            else
+            {
+                var categoryIds = new List<string>();
+                var collectionId = "";
+                double? minPriceConverted = null;
+                double? maxPriceConverted = null;
+                var searchInDescriptions = false;
+                var vendorId = "";
+                if (request.Model.adv)
                 {
-                    request.Model.Warning = string.Format(_translationService.GetResource("Search.SearchTermMinimumLengthIsNCharacters"), _catalogSettings.ProductSearchTermMinimumLength);
+                    //advanced search
+                    var categoryId = request.Model.cid;
+                    if (!string.IsNullOrEmpty(categoryId))
+                    {
+                        categoryIds.Add(categoryId);
+                        //include subcategories
+                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
+                    }
+                    collectionId = request.Model.mid;
+
+                    //min price
+                    if (!string.IsNullOrEmpty(request.Model.pf))
+                    {
+                        double minPrice;
+                        if (double.TryParse(request.Model.pf, out minPrice))
+                            minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
+                    }
+                    //max price
+                    if (!string.IsNullOrEmpty(request.Model.pt))
+                    {
+                        double maxPrice;
+                        if (double.TryParse(request.Model.pt, out maxPrice))
+                            maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
+                    }
+
+                    searchInDescriptions = request.Model.sid;
+                    if (request.Model.asv)
+                        vendorId = request.Model.vid;
+                }
+
+                var searchInProductTags = searchInDescriptions;
+
+                IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
+                    (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+
+                //products
+                var searchproducts = await _mediator.Send(new GetSearchProductsQuery() {
+                    LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
+                    CategoryIds = categoryIds,
+                    CollectionId = collectionId,
+                    Customer = request.Customer,
+                    StoreId = request.Store.Id,
+                    VisibleIndividuallyOnly = true,
+                    PriceMin = minPriceConverted,
+                    PriceMax = maxPriceConverted,
+                    Keywords = searchTerms,
+                    SearchDescriptions = searchInDescriptions,
+                    SearchSku = searchInDescriptions,
+                    SearchProductTags = searchInProductTags,
+                    FilteredSpecs = alreadyFilteredSpecOptionIds,
+                    LanguageId = request.Language.Id,
+                    OrderBy = (ProductSortingEnum)request.Command.OrderBy,
+                    PageIndex = request.Command.PageNumber - 1,
+                    PageSize = request.Command.PageSize,
+                    VendorId = vendorId
+                });
+
+                request.Model.Products = (await _mediator.Send(new GetProductOverview() {
+                    Products = searchproducts.products,
+                    PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
+                })).ToList();
+
+                request.Model.PagingFilteringContext.LoadPagedList(searchproducts.products);
+
+                //specs
+                await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
+                    searchproducts.filterableSpecificationAttributeOptionIds,
+                    _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+
+                request.Model.NoResults = !request.Model.Products.Any();
+
+                //search term statistics
+                if (string.IsNullOrEmpty(searchTerms)) return request.Model;
+                    
+                var searchTerm = await _searchTermService.GetSearchTermByKeyword(searchTerms, request.Store.Id);
+                if (searchTerm != null)
+                {
+                    searchTerm.Count++;
+                    await _searchTermService.UpdateSearchTerm(searchTerm);
                 }
                 else
                 {
-                    var categoryIds = new List<string>();
-                    var collectionId = "";
-                    double? minPriceConverted = null;
-                    double? maxPriceConverted = null;
-                    var searchInDescriptions = false;
-                    var vendorId = "";
-                    if (request.Model.adv)
-                    {
-                        //advanced search
-                        var categoryId = request.Model.cid;
-                        if (!string.IsNullOrEmpty(categoryId))
-                        {
-                            categoryIds.Add(categoryId);
-                            //include subcategories
-                            categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
-                        }
-                        collectionId = request.Model.mid;
-
-                        //min price
-                        if (!string.IsNullOrEmpty(request.Model.pf))
-                        {
-                            double minPrice;
-                            if (double.TryParse(request.Model.pf, out minPrice))
-                                minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
-                        }
-                        //max price
-                        if (!string.IsNullOrEmpty(request.Model.pt))
-                        {
-                            double maxPrice;
-                            if (double.TryParse(request.Model.pt, out maxPrice))
-                                maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
-                        }
-
-                        searchInDescriptions = request.Model.sid;
-                        if (request.Model.asv)
-                            vendorId = request.Model.vid;
-                    }
-
-                    var searchInProductTags = searchInDescriptions;
-
-                    IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                        (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
-
-                    //products
-                    var searchproducts = await _mediator.Send(new GetSearchProductsQuery() {
-                        LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
-                        CategoryIds = categoryIds,
-                        CollectionId = collectionId,
-                        Customer = request.Customer,
+                    searchTerm = new SearchTerm {
+                        Keyword = searchTerms,
                         StoreId = request.Store.Id,
-                        VisibleIndividuallyOnly = true,
-                        PriceMin = minPriceConverted,
-                        PriceMax = maxPriceConverted,
-                        Keywords = searchTerms,
-                        SearchDescriptions = searchInDescriptions,
-                        SearchSku = searchInDescriptions,
-                        SearchProductTags = searchInProductTags,
-                        FilteredSpecs = alreadyFilteredSpecOptionIds,
-                        LanguageId = request.Language.Id,
-                        OrderBy = (ProductSortingEnum)request.Command.OrderBy,
-                        PageIndex = request.Command.PageNumber - 1,
-                        PageSize = request.Command.PageSize,
-                        VendorId = vendorId
-                    });
-
-                    request.Model.Products = (await _mediator.Send(new GetProductOverview() {
-                        Products = searchproducts.products,
-                        PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-                    })).ToList();
-
-                    request.Model.PagingFilteringContext.LoadPagedList(searchproducts.products);
-
-                    //specs
-                    await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
-                        searchproducts.filterableSpecificationAttributeOptionIds,
-                        _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
-
-                    request.Model.NoResults = !request.Model.Products.Any();
-
-                    //search term statistics
-                    if (!string.IsNullOrEmpty(searchTerms))
-                    {
-                        var searchTerm = await _searchTermService.GetSearchTermByKeyword(searchTerms, request.Store.Id);
-                        if (searchTerm != null)
-                        {
-                            searchTerm.Count++;
-                            await _searchTermService.UpdateSearchTerm(searchTerm);
-                        }
-                        else
-                        {
-                            searchTerm = new SearchTerm {
-                                Keyword = searchTerms,
-                                StoreId = request.Store.Id,
-                                Count = 1
-                            };
-                            await _searchTermService.InsertSearchTerm(searchTerm);
-                        }
-                    }
+                        Count = 1
+                    };
+                    await _searchTermService.InsertSearchTerm(searchTerm);
                 }
             }
 

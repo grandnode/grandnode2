@@ -33,34 +33,33 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var model = new EstimateShippingModel {
                 Enabled = request.Cart.Any() && request.Cart.RequiresShipping() && _shippingSettings.EstimateShippingEnabled
             };
-            if (model.Enabled)
-            {
-                //countries
-                var defaultEstimateCountryId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.CountryId : model.CountryId;
-                if (string.IsNullOrEmpty(defaultEstimateCountryId))
-                    defaultEstimateCountryId = request.Store.DefaultCountryId;
+            if (!model.Enabled) return model;
+            
+            //countries
+            var defaultEstimateCountryId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.CountryId : model.CountryId;
+            if (string.IsNullOrEmpty(defaultEstimateCountryId))
+                defaultEstimateCountryId = request.Store.DefaultCountryId;
 
-                model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
-                foreach (var c in await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id))
-                    model.AvailableCountries.Add(new SelectListItem {
-                        Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == defaultEstimateCountryId
+            model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
+            foreach (var c in await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id))
+                model.AvailableCountries.Add(new SelectListItem {
+                    Text = c.GetTranslation(x => x.Name, request.Language.Id),
+                    Value = c.Id.ToString(),
+                    Selected = c.Id == defaultEstimateCountryId
+                });
+            //states
+            var defaultEstimateStateId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.StateProvinceId : model.StateProvinceId;
+            var states = !string.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
+            if (states.Any())
+                foreach (var s in states)
+                    model.AvailableStates.Add(new SelectListItem {
+                        Text = s.GetTranslation(x => x.Name, request.Language.Id),
+                        Value = s.Id.ToString(),
+                        Selected = s.Id == defaultEstimateStateId
                     });
-                //states
-                var defaultEstimateStateId = request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null ? request.Customer.ShippingAddress.StateProvinceId : model.StateProvinceId;
-                var states = !string.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
-                if (states.Any())
-                    foreach (var s in states)
-                        model.AvailableStates.Add(new SelectListItem {
-                            Text = s.GetTranslation(x => x.Name, request.Language.Id),
-                            Value = s.Id.ToString(),
-                            Selected = s.Id == defaultEstimateStateId
-                        });
 
-                if (request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null)
-                    model.ZipPostalCode = request.Customer.ShippingAddress.ZipPostalCode;
-            }
+            if (request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null)
+                model.ZipPostalCode = request.Customer.ShippingAddress.ZipPostalCode;
             return model;
         }
     }

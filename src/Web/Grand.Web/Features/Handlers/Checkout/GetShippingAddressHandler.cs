@@ -127,7 +127,7 @@ namespace Grand.Web.Features.Handlers.Checkout
         {
             //existing addresses
             var addresses = new List<Address>();
-            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType == AddressType.Any || x.AddressType == AddressType.Shipping))
+            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType is AddressType.Any or AddressType.Shipping))
             {
                 if (string.IsNullOrEmpty(item.CountryId))
                 {
@@ -138,7 +138,6 @@ namespace Grand.Web.Features.Handlers.Checkout
                 if (country == null || (country.AllowsShipping && _aclService.Authorize(country, request.Store.Id)))
                 {
                     addresses.Add(item);
-                    continue;
                 }
             }
             foreach (var address in addresses)

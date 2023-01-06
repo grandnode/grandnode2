@@ -34,13 +34,11 @@ namespace Grand.Web.Commands.Handler.Common
             foreach (var attribute in attributes)
             {
                 var conditionMet = await _contactAttributeParser.IsConditionMet(attribute, customAttributes);
-                if (conditionMet.HasValue)
-                {
-                    if (conditionMet.Value)
-                        enabledAttributeIds.Add(attribute.Id);
-                    else
-                        disabledAttributeIds.Add(attribute.Id);
-                }
+                if (!conditionMet.HasValue) continue;
+                if (conditionMet.Value)
+                    enabledAttributeIds.Add(attribute.Id);
+                else
+                    disabledAttributeIds.Add(attribute.Id);
             }
 
             return (enabledAttributeIds, disabledAttributeIds);

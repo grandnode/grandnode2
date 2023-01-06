@@ -43,7 +43,6 @@ namespace Grand.Web.Features.Handlers.Checkout
                 if (country == null || (country.AllowsBilling && _aclService.Authorize(country, request.Store.Id)))
                 {
                     addresses.Add(item);
-                    continue;
                 }
             }
 
@@ -55,7 +54,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     Model = null,
                     Address = address,
                     ExcludeProperties = false,
-                });
+                }, cancellationToken);
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -73,7 +72,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 LoadCountries = () => countries,
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes
-            });
+            }, cancellationToken);
             model.BillingNewAddress.HideAddressType = true;
             model.BillingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Billing : (int)AddressType.Any;
 

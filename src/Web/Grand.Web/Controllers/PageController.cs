@@ -90,20 +90,17 @@ namespace Grand.Web.Controllers
 
             var page = await _mediator.Send(new GetPageBlock() { PageId = id, Password = password });
 
-            if (page != null &&
-                //password protected?
-                page.IsPasswordProtected)
+            if (page is not { IsPasswordProtected: true })
+                return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });
+            if (page.Password != null && page.Password.Equals(password))
             {
-                if (page.Password != null && page.Password.Equals(password))
-                {
-                    authResult = true;
-                    title = page.Title;
-                    body = page.Body;
-                }
-                else
-                {
-                    error = _translationService.GetResource("Page.WrongPassword");
-                }
+                authResult = true;
+                title = page.Title;
+                body = page.Body;
+            }
+            else
+            {
+                error = _translationService.GetResource("Page.WrongPassword");
             }
             return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });
         }

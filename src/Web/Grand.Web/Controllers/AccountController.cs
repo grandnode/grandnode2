@@ -295,23 +295,21 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var customer = await _customerService.GetCustomerByEmail(model.Email);
+            if (customer is { Active: true, Deleted: false })
             {
-                var customer = await _customerService.GetCustomerByEmail(model.Email);
-                if (customer != null && customer.Active && !customer.Deleted)
-                {
-                    await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
+                await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
 
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
-                    model.Send = true;
-                }
-                else
-                {
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
-                }
-
-                return View(model);
+                model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
+                model.Send = true;
             }
+            else
+            {
+                model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
+            }
+
             return View(model);
         }
 
@@ -352,24 +350,22 @@ namespace Grand.Web.Controllers
                 return View(model);
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
+                false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
+            if (response.Success)
             {
-                var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
-                    false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
-                if (response.Success)
-                {
-                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
+                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
-                    model.DisablePasswordChanging = true;
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
-                }
-                else
-                {
-                    model.Result = response.Errors.FirstOrDefault();
-                }
-
-                return View(model);
+                model.DisablePasswordChanging = true;
+                model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
             }
+            else
+            {
+                model.Result = response.Errors.FirstOrDefault();
+            }
+
             return View(model);
         }
 
@@ -549,23 +545,21 @@ namespace Grand.Web.Controllers
             var usernameAvailable = false;
             var statusText = _translationService.GetResource("Account.CheckUsernameAvailability.NotAvailable");
 
-            if (_customerSettings.UsernamesEnabled && !string.IsNullOrWhiteSpace(username))
+            if (!_customerSettings.UsernamesEnabled || string.IsNullOrWhiteSpace(username))
+                return Json(new { Available = usernameAvailable, Text = statusText });
+            
+            if (_workContext.CurrentCustomer != null &&
+                _workContext.CurrentCustomer.Username != null &&
+                _workContext.CurrentCustomer.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
-                if (_workContext.CurrentCustomer != null &&
-                    _workContext.CurrentCustomer.Username != null &&
-                    _workContext.CurrentCustomer.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
-                {
-                    statusText = _translationService.GetResource("Account.CheckUsernameAvailability.CurrentUsername");
-                }
-                else
-                {
-                    var customer = await _customerService.GetCustomerByUsername(username);
-                    if (customer == null)
-                    {
-                        statusText = _translationService.GetResource("Account.CheckUsernameAvailability.Available");
-                        usernameAvailable = true;
-                    }
-                }
+                statusText = _translationService.GetResource("Account.CheckUsernameAvailability.CurrentUsername");
+            }
+            else
+            {
+                var customer = await _customerService.GetCustomerByUsername(username);
+                if (customer != null) return Json(new { Available = usernameAvailable, Text = statusText });
+                statusText = _translationService.GetResource("Account.CheckUsernameAvailability.Available");
+                usernameAvailable = true;
             }
 
             return Json(new { Available = usernameAvailable, Text = statusText });
@@ -736,11 +730,12 @@ namespace Grand.Web.Controllers
 
             //find address (ensure that it belongs to the current customer)
             var address = customer.Addresses.FirstOrDefault(a => a.Id == addressId);
-            if (address != null)
-            {
-                customer.RemoveAddress(address);
-                await _customerService.DeleteAddress(address, customer.Id);
-            }
+            if (address == null)
+                return Json(new {
+                    redirect = Url.RouteUrl("CustomerAddresses"),
+                });
+            customer.RemoveAddress(address);
+            await _customerService.DeleteAddress(address, customer.Id);
 
             return Json(new
             {
@@ -948,24 +943,23 @@ namespace Grand.Web.Controllers
 
             var customer = _workContext.CurrentCustomer;
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var changePasswordRequest = new ChangePasswordRequest(customer.Email,
+                true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
+            var changePasswordResult = await _customerManagerService.ChangePassword(changePasswordRequest);
+            if (changePasswordResult.Success)
             {
-                var changePasswordRequest = new ChangePasswordRequest(customer.Email,
-                    true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-                var changePasswordResult = await _customerManagerService.ChangePassword(changePasswordRequest);
-                if (changePasswordResult.Success)
-                {
-                    //sign in
-                    await _authenticationService.SignIn(customer, true);
+                //sign in
+                await _authenticationService.SignIn(customer, true);
 
-                    model.Result = _translationService.GetResource("Account.ChangePassword.Success");
-                    return View(model);
-                }
-
-                //errors
-                foreach (var error in changePasswordResult.Errors)
-                    ModelState.AddModelError("", error);
+                model.Result = _translationService.GetResource("Account.ChangePassword.Success");
+                return View(model);
             }
+
+            //errors
+            foreach (var error in changePasswordResult.Errors)
+                ModelState.AddModelError("", error);
 
             //If we got this far, something failed, redisplay form
             return View(model);
@@ -998,45 +992,44 @@ namespace Grand.Web.Controllers
             if (!_customerSettings.AllowUsersToDeleteAccount)
                 return RedirectToRoute("CustomerInfo");
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var loginResult = await _customerManagerService.LoginCustomer(_customerSettings.UsernamesEnabled ? _workContext.CurrentCustomer.Username : _workContext.CurrentCustomer.Email, model.Password);
+
+            switch (loginResult)
             {
-                var loginResult = await _customerManagerService.LoginCustomer(_customerSettings.UsernamesEnabled ? _workContext.CurrentCustomer.Username : _workContext.CurrentCustomer.Email, model.Password);
-
-                switch (loginResult)
+                case CustomerLoginResults.Successful:
                 {
-                    case CustomerLoginResults.Successful:
-                        {
-                            //delete account 
-                            await _mediator.Send(new DeleteAccountCommand() { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString(), });
+                    //delete account 
+                    await _mediator.Send(new DeleteAccountCommand() { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString(), });
 
-                            //standard logout 
-                            await _authenticationService.SignOut();
+                    //standard logout 
+                    await _authenticationService.SignOut();
 
-                            //Show successfull message 
-                            Success(_translationService.GetResource("Account.Delete.Success"));
+                    //Show successfull message 
+                    Success(_translationService.GetResource("Account.Delete.Success"));
 
-                            return RedirectToRoute("HomePage");
-                        }
-                    case CustomerLoginResults.CustomerNotExist:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
-                        break;
-                    case CustomerLoginResults.Deleted:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.Deleted"));
-                        break;
-                    case CustomerLoginResults.NotActive:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
-                        break;
-                    case CustomerLoginResults.NotRegistered:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
-                        break;
-                    case CustomerLoginResults.LockedOut:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
-                        break;
-                    case CustomerLoginResults.WrongPassword:
-                    default:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials"));
-                        break;
+                    return RedirectToRoute("HomePage");
                 }
+                case CustomerLoginResults.CustomerNotExist:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
+                    break;
+                case CustomerLoginResults.Deleted:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.Deleted"));
+                    break;
+                case CustomerLoginResults.NotActive:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
+                    break;
+                case CustomerLoginResults.NotRegistered:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                    break;
+                case CustomerLoginResults.LockedOut:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
+                    break;
+                case CustomerLoginResults.WrongPassword:
+                default:
+                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials"));
+                    break;
             }
 
             //If we got this far, something failed, redisplay form
@@ -1295,23 +1288,22 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var result = await _mediator.Send(new SubAccountAddCommand() {
+                Customer = _workContext.CurrentCustomer,
+                Model = model,
+                Store = _workContext.CurrentStore
+            });
+
+            if (result.Success)
             {
-                var result = await _mediator.Send(new SubAccountAddCommand() {
-                    Customer = _workContext.CurrentCustomer,
-                    Model = model,
-                    Store = _workContext.CurrentStore
-                });
-
-                if (result.Success)
-                {
-                    return RedirectToRoute("CustomerSubAccounts");
-                }
-
-                //errors
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error);
+                return RedirectToRoute("CustomerSubAccounts");
             }
+
+            //errors
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error);
 
             //If we got this far, something failed, redisplay form
             return View(model);
@@ -1340,22 +1332,21 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            
+            var result = await _mediator.Send(new SubAccountEditCommand() {
+                CurrentCustomer = _workContext.CurrentCustomer,
+                Model = model,
+                Store = _workContext.CurrentStore
+            });
+
+            if (result.success)
             {
-                var result = await _mediator.Send(new SubAccountEditCommand() {
-                    CurrentCustomer = _workContext.CurrentCustomer,
-                    Model = model,
-                    Store = _workContext.CurrentStore
-                });
-
-                if (result.success)
-                {
-                    return RedirectToRoute("CustomerSubAccounts");
-                }
-
-                //errors
-                ModelState.AddModelError("", result.error);
+                return RedirectToRoute("CustomerSubAccounts");
             }
+
+            //errors
+            ModelState.AddModelError("", result.error);
 
             //If we got this far, something failed, redisplay form
             return View(model);
@@ -1372,25 +1363,30 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             //find address (ensure that it belongs to the current customer)
-            if (ModelState.IsValid)
-            {
-                var result = await _mediator.Send(new SubAccountDeleteCommand() {
-                    CurrentCustomer = _workContext.CurrentCustomer,
-                    CustomerId = id,
+            if (!ModelState.IsValid)
+                return Json(new {
+                    redirect = Url.RouteUrl("CustomerSubAccounts"),
+                    success = false,
+                    error = string.Join("; ", ModelState.Values
+                        .SelectMany(x => x.Errors)
+                        .Select(x => x.ErrorMessage))
                 });
+            var result = await _mediator.Send(new SubAccountDeleteCommand() {
+                CurrentCustomer = _workContext.CurrentCustomer,
+                CustomerId = id,
+            });
 
-                if (result.success)
+            if (result.success)
+            {
+                return Json(new
                 {
-                    return Json(new
-                    {
-                        redirect = Url.RouteUrl("CustomerSubAccounts"),
-                        success = true,
-                    });
-                }
-
-                //errors
-                ModelState.AddModelError("", result.error);
+                    redirect = Url.RouteUrl("CustomerSubAccounts"),
+                    success = true,
+                });
             }
+
+            //errors
+            ModelState.AddModelError("", result.error);
             return Json(new
             {
                 redirect = Url.RouteUrl("CustomerSubAccounts"),

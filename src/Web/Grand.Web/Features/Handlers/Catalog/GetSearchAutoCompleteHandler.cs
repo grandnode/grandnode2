@@ -138,101 +138,86 @@ namespace Grand.Web.Features.Handlers.Catalog
                     PriceWithDiscount = price.PriceWithDiscount,
                     Url = $"{storeurl}/{item.SeName}"
                 });
-                foreach (var category in item.ProductCategories)
-                {
-                    categories.Add(category.CategoryId);
-                }
+                categories.AddRange(item.ProductCategories.Select(category => category.CategoryId));
                 brands.Add(item.BrandId);
             }
 
             foreach (var item in brands.Distinct())
             {
                 var brand = await _brandService.GetBrandById(item);
-                if (brand != null && brand.Published)
-                {
-                    var allow = true;
-                    if (!CommonHelper.IgnoreAcl)
-                        if (!_aclService.Authorize(brand, _workContext.CurrentCustomer))
-                            allow = false;
-                    if (!CommonHelper.IgnoreStoreLimitations)
-                        if (!_aclService.Authorize(brand, storeId))
-                            allow = false;
-                    if (allow)
-                    {
-                        var desc = "";
-                        if (_catalogSettings.SearchByDescription)
-                            desc = "&sid=true";
-                        model.Add(new SearchAutoCompleteModel() {
-                            SearchType = "Brand",
-                            Label = brand.GetTranslation(x => x.Name, request.Language.Id),
-                            Desc = "",
-                            PictureUrl = "",
-                            Url = $"{storeurl}/search?q={request.Term}&adv=true&brand={item}{desc}"
-                        });
-                    }
-                }
+                if (brand is not { Published: true }) continue;
+                var allow = true;
+                if (!CommonHelper.IgnoreAcl)
+                    if (!_aclService.Authorize(brand, _workContext.CurrentCustomer))
+                        allow = false;
+                if (!CommonHelper.IgnoreStoreLimitations)
+                    if (!_aclService.Authorize(brand, storeId))
+                        allow = false;
+                if (!allow) continue;
+                    
+                var desc = "";
+                if (_catalogSettings.SearchByDescription)
+                    desc = "&sid=true";
+                model.Add(new SearchAutoCompleteModel() {
+                    SearchType = "Brand",
+                    Label = brand.GetTranslation(x => x.Name, request.Language.Id),
+                    Desc = "",
+                    PictureUrl = "",
+                    Url = $"{storeurl}/search?q={request.Term}&adv=true&brand={item}{desc}"
+                });
             }
             foreach (var item in categories.Distinct())
             {
                 var category = await _categoryService.GetCategoryById(item);
-                if (category != null && category.Published)
-                {
-                    var allow = true;
-                    if (!CommonHelper.IgnoreAcl)
-                        if (!_aclService.Authorize(category, _workContext.CurrentCustomer))
-                            allow = false;
-                    if (!CommonHelper.IgnoreStoreLimitations)
-                        if (!_aclService.Authorize(category, storeId))
-                            allow = false;
-                    if (allow)
-                    {
-                        var desc = "";
-                        if (_catalogSettings.SearchByDescription)
-                            desc = "&sid=true";
-                        model.Add(new SearchAutoCompleteModel() {
-                            SearchType = "Category",
-                            Label = category.GetTranslation(x => x.Name, request.Language.Id),
-                            Desc = "",
-                            PictureUrl = "",
-                            Url = $"{storeurl}/search?q={request.Term}&adv=true&cid={item}{desc}"
-                        });
-                    }
-                }
+                if (category is not { Published: true }) continue;
+                var allow = true;
+                if (!CommonHelper.IgnoreAcl)
+                    if (!_aclService.Authorize(category, _workContext.CurrentCustomer))
+                        allow = false;
+                if (!CommonHelper.IgnoreStoreLimitations)
+                    if (!_aclService.Authorize(category, storeId))
+                        allow = false;
+                if (!allow) continue;
+                var desc = "";
+                if (_catalogSettings.SearchByDescription)
+                    desc = "&sid=true";
+                model.Add(new SearchAutoCompleteModel() {
+                    SearchType = "Category",
+                    Label = category.GetTranslation(x => x.Name, request.Language.Id),
+                    Desc = "",
+                    PictureUrl = "",
+                    Url = $"{storeurl}/search?q={request.Term}&adv=true&cid={item}{desc}"
+                });
             }
 
             if (_blogSettings.ShowBlogPostsInSearchAutoComplete)
             {
                 var posts = await _blogService.GetAllBlogPosts(storeId: storeId, pageSize: productNumber, blogPostName: request.Term);
-                foreach (var item in posts)
-                {
-                    model.Add(new SearchAutoCompleteModel() {
-                        SearchType = "Blog",
-                        Label = item.GetTranslation(x => x.Title, request.Language.Id),
-                        Desc = "",
-                        PictureUrl = "",
-                        Url = $"{storeurl}/{item.SeName}"
-                    });
-                }
+                model.AddRange(posts.Select(item => new SearchAutoCompleteModel() {
+                    SearchType = "Blog",
+                    Label = item.GetTranslation(x => x.Title, request.Language.Id),
+                    Desc = "",
+                    PictureUrl = "",
+                    Url = $"{storeurl}/{item.SeName}"
+                }));
             }
             //search term statistics
-            if (!string.IsNullOrEmpty(request.Term) && _catalogSettings.SaveSearchAutoComplete)
+            if (string.IsNullOrEmpty(request.Term) || !_catalogSettings.SaveSearchAutoComplete) return model;
+            
+            var searchTerm = await _searchTermService.GetSearchTermByKeyword(request.Term, request.Store.Id);
+            if (searchTerm != null)
             {
-                var searchTerm = await _searchTermService.GetSearchTermByKeyword(request.Term, request.Store.Id);
-                if (searchTerm != null)
-                {
-                    searchTerm.Count++;
-                    await _searchTermService.UpdateSearchTerm(searchTerm);
-                }
-                else
-                {
-                    searchTerm = new SearchTerm {
-                        Keyword = request.Term,
-                        StoreId = storeId,
-                        Count = 1
-                    };
-                    await _searchTermService.InsertSearchTerm(searchTerm);
-                }
-
+                searchTerm.Count++;
+                await _searchTermService.UpdateSearchTerm(searchTerm);
+            }
+            else
+            {
+                searchTerm = new SearchTerm {
+                    Keyword = request.Term,
+                    StoreId = storeId,
+                    Count = 1
+                };
+                await _searchTermService.InsertSearchTerm(searchTerm);
             }
             return model;
         }

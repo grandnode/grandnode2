@@ -104,7 +104,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     paymentMethodToSelect.Selected = true;
             }
             //if no option has been selected, do it for the first one
-            if (model.PaymentMethods.FirstOrDefault(so => so.Selected) == null)
+            if (model.PaymentMethods.FirstOrDefault(so => so.Selected) != null) return model;
             {
                 var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
                 if (paymentMethodToSelect != null)

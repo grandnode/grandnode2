@@ -34,10 +34,9 @@ namespace Grand.Web.Features.Handlers.Customers
                     continue;
                 }
                 var country = await _countryService.GetCountryById(item.CountryId);
-                if (country != null || _aclService.Authorize(country, request.Store.Id))
+                if (country == null || _aclService.Authorize(country, request.Store.Id))
                 {
                     addresses.Add(item);
-                    continue;
                 }
             }
 
@@ -51,7 +50,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     Address = address,
                     ExcludeProperties = false,
                     LoadCountries = () => countries
-                });
+                }, cancellationToken);
                 model.Addresses.Add(addressModel);
             }
 

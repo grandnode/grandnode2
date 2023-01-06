@@ -759,28 +759,26 @@ namespace Grand.Web.Features.Handlers.Products
             var model = new ProductDetailsModel.GiftVoucherModel {
                 IsGiftVoucher = product.IsGiftVoucher
             };
-            if (model.IsGiftVoucher)
+            if (!model.IsGiftVoucher) return model;
+            
+            model.GiftVoucherType = product.GiftVoucherTypeId;
+
+            if (updatecartitem == null)
             {
-                model.GiftVoucherType = product.GiftVoucherTypeId;
+                model.SenderName = _workContext.CurrentCustomer.GetFullName();
+                model.SenderEmail = _workContext.CurrentCustomer.Email;
+            }
+            else
+            {
+                GiftVoucherExtensions.GetGiftVoucherAttribute(updatecartitem.Attributes,
+                    out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
+                    out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var giftVoucherMessage);
 
-                if (updatecartitem == null)
-                {
-                    model.SenderName = _workContext.CurrentCustomer.GetFullName();
-                    model.SenderEmail = _workContext.CurrentCustomer.Email;
-                }
-                else
-                {
-                    string giftVoucherRecipientName, giftVoucherRecipientEmail, giftVoucherSenderName, giftVoucherSenderEmail, giftVoucherMessage;
-                    GiftVoucherExtensions.GetGiftVoucherAttribute(updatecartitem.Attributes,
-                        out giftVoucherRecipientName, out giftVoucherRecipientEmail,
-                        out giftVoucherSenderName, out giftVoucherSenderEmail, out giftVoucherMessage);
-
-                    model.RecipientName = giftVoucherRecipientName;
-                    model.RecipientEmail = giftVoucherRecipientEmail;
-                    model.SenderName = giftVoucherSenderName;
-                    model.SenderEmail = giftVoucherSenderEmail;
-                    model.Message = giftVoucherMessage;
-                }
+                model.RecipientName = giftVoucherRecipientName;
+                model.RecipientEmail = giftVoucherRecipientEmail;
+                model.SenderName = giftVoucherSenderName;
+                model.SenderEmail = giftVoucherSenderEmail;
+                model.Message = giftVoucherMessage;
             }
             return model;
         }
@@ -854,7 +852,6 @@ namespace Grand.Web.Features.Handlers.Products
                         {
                             var attributeValuePriceAdjustment = await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                             var productprice = await _taxService.GetProductPrice(product, attributeValuePriceAdjustment);
-                            var taxRate = productprice.taxRate;
                             if (productprice.productprice > 0)
                                 valueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(productprice.productprice, false);
                             else if (productprice.productprice < 0)
@@ -963,8 +960,7 @@ namespace Grand.Web.Features.Handlers.Products
                                 if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                                 {
                                     var downloadGuidStr = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
-                                    Guid downloadGuid;
-                                    Guid.TryParse(downloadGuidStr, out downloadGuid);
+                                    Guid.TryParse(downloadGuidStr, out var downloadGuid);
                                     var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                                     if (download != null)
                                         attributeModel.DefaultValue = download.DownloadGuid.ToString();
@@ -1026,7 +1022,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                     if (reservations.Any())
                     {
-                        var first = reservations.Where(x => x.Date >= DateTime.UtcNow).OrderBy(x => x.Date).FirstOrDefault();
+                        var first = reservations.Where(x => x.Date >= DateTime.UtcNow).MinBy(x => x.Date);
                         model.StartDate = first?.Date ?? DateTime.UtcNow;
                     }
                     var list = reservations.GroupBy(x => x.Parameter).ToList().Select(x => x.Key);
@@ -1076,13 +1072,11 @@ namespace Grand.Web.Features.Handlers.Products
                     if (displayPrices)
                     {
                         var productprice = await _taxService.GetProductPrice(p1, (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer, _workContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
-                        var taxRateBundle = productprice.taxRate;
-                        var finalPriceWithDiscountBase = productprice.productprice;
                         bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
                         bundleProduct.PriceValue = productprice.productprice;
                     }
 
-                    var productPicture = p1.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
+                    var productPicture = p1.ProductPictures.MinBy(x => x.DisplayOrder);
                     if (productPicture == null)
                         productPicture = new ProductPicture();
 

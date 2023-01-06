@@ -21,11 +21,15 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> SubscribeNewsletter(string email, bool subscribe)
         {
             var model = await _mediator.Send(new SubscribeNewsletterCommand() { Email = email, Subscribe = subscribe });
-            if (model.NewsletterCategory != null)
-            {
-                model.ShowCategories = true;
-                model.ResultCategory = await this.RenderPartialViewToString("NewsletterCategory", model.NewsletterCategory, true);
-            }
+            if (model.NewsletterCategory == null)
+                return Json(new {
+                    model.Success,
+                    model.Result,
+                    Showcategories = model.ShowCategories,
+                    model.ResultCategory,
+                });
+            model.ShowCategories = true;
+            model.ResultCategory = await this.RenderPartialViewToString("NewsletterCategory", model.NewsletterCategory, true);
             return Json(new
             {
                 model.Success,

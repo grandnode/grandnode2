@@ -59,18 +59,13 @@ namespace Grand.Web.Validators.Customer
                     //does selected country has states?
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
-                    if (country != null && country.StateProvinces.Any())
+                    if (country == null || !country.StateProvinces.Any()) return false;
+                    //if yes, then ensure that state is selected
+                    if (string.IsNullOrEmpty(y))
                     {
-                        //if yes, then ensure that state is selected
-                        if (string.IsNullOrEmpty(y))
-                        {
-                            return false;
-                        }
-                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
-                            return true;
+                        return false;
                     }
-                    return false;
-
+                    return country.StateProvinces.FirstOrDefault(s => s.Id == y) != null;
                 }).WithMessage(translationService.GetResource("Account.Fields.StateProvince.Required"));
             }
             if (customerSettings.DateOfBirthEnabled && customerSettings.DateOfBirthRequired)

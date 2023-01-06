@@ -135,13 +135,12 @@ namespace Grand.Web.Controllers
             foreach (var attribute in attributes)
             {
                 var conditionMet = await checkoutAttributeParser.IsConditionMet(attribute, checkoutAttributes);
-                if (conditionMet.HasValue)
-                {
-                    if (conditionMet.Value)
-                        enabledAttributeIds.Add(attribute.Id);
-                    else
-                        disabledAttributeIds.Add(attribute.Id);
-                }
+                if (!conditionMet.HasValue) continue;
+                
+                if (conditionMet.Value)
+                    enabledAttributeIds.Add(attribute.Id);
+                else
+                    disabledAttributeIds.Add(attribute.Id);
             }
             var orderTotals = await _mediator.Send(new GetOrderTotals() {
                 Cart = cart,
@@ -723,12 +722,11 @@ namespace Grand.Web.Controllers
                 foreach (var item in coupons)
                 {
                     var dd = await _discountService.GetDiscountByCouponCode(item);
-                    if (dd.Id == discount.Id)
-                    {
-                        //remove coupon
-                        var result = _workContext.CurrentCustomer.RemoveCouponCode(SystemCustomerFieldNames.DiscountCoupons, item);
-                        await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, result);
-                    }
+                    if (dd.Id != discount.Id) continue;
+                    
+                    //remove coupon
+                    var result = _workContext.CurrentCustomer.RemoveCouponCode(SystemCustomerFieldNames.DiscountCoupons, item);
+                    await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, result);
                 }
             }
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());

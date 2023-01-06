@@ -46,31 +46,29 @@ namespace Grand.Web.Extensions
                     foreach (var attributeValue in attributeValues)
                     {
                         var attributePicture = await pictureService.GetPictureById(attributeValue.PictureId);
-                        if (attributePicture != null)
-                        {
-                            picture = attributePicture;
-                            break;
-                        }
+                        if (attributePicture == null) continue;
+                        picture = attributePicture;
+                        break;
                     }
                 }
             }
             if (picture == null)
             {
-                var pp = product.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
+                var pp = product.ProductPictures.MinBy(x => x.DisplayOrder);
                 if (pp != null)
                     picture = await pictureService.GetPictureById(pp.PictureId);
             }
 
-            if (picture == null && !product.VisibleIndividually && !string.IsNullOrEmpty(product.ParentGroupedProductId))
-            {
-                var parentProduct = await productService.GetProductById(product.ParentGroupedProductId);
-                if (parentProduct != null)
-                    if (parentProduct.ProductPictures.Any())
-                    {
-                        picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault().PictureId);
+            if (picture != null || product.VisibleIndividually || string.IsNullOrEmpty(product.ParentGroupedProductId))
+                return picture;
+            
+            var parentProduct = await productService.GetProductById(product.ParentGroupedProductId);
+            if (parentProduct != null)
+                if (parentProduct.ProductPictures.Any())
+                {
+                    picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault().PictureId);
 
-                    }
-            }
+                }
 
             return picture;
         }

@@ -59,22 +59,14 @@ namespace Grand.Web.Controllers
         {
             HttpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out var language);
 
-            if (string.IsNullOrEmpty(language))
-            {
-                //find by current browser culture
-                if (HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages))
-                {
-                    var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
-                    if (!string.IsNullOrEmpty(userLanguage))
-                    {
-                        return userLanguage;
-                    }
-                }
-            }
-
-            return language;
+            if (!string.IsNullOrEmpty(language)) return language;
+            //find by current browser culture
+            if (!HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages)) return language;
+            var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
+            return !string.IsNullOrEmpty(userLanguage) ? userLanguage : language;
         }
-        protected InstallModel PrepareModel(InstallModel model)
+
+        private InstallModel PrepareModel(InstallModel model)
         {
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
 

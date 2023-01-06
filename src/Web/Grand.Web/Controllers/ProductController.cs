@@ -758,45 +758,39 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            if (ModelState.IsValid)
-            {
-                var productaskqestionmodel = new ProductAskQuestionModel() {
-                    Email = model.AskQuestionEmail,
-                    FullName = model.AskQuestionFullName,
-                    Phone = model.AskQuestionPhone,
-                    Message = model.AskQuestionMessage
-                };
-
-                // email
-                await _mediator.Send(new SendProductAskQuestionMessageCommand() {
-                    Customer = _workContext.CurrentCustomer,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore,
-                    Model = productaskqestionmodel,
-                    Product = product,
-                    RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
+            if (!ModelState.IsValid)
+                
+                return Json(new {
+                    success = false,
+                    message = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage))
                 });
+            var productaskqestionmodel = new ProductAskQuestionModel() {
+                Email = model.AskQuestionEmail,
+                FullName = model.AskQuestionFullName,
+                Phone = model.AskQuestionPhone,
+                Message = model.AskQuestionMessage
+            };
 
-                //activity log
-                _ = _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
-                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
-                //return Json
-                return Json(new
-                {
-                    success = true,
-                    message = _translationService.GetResource("Products.AskQuestion.SuccessfullySent")
-                });
-
-            }
-
-            // If we got this far, something failed, redisplay form
-            return Json(new
-            {
-                success = false,
-                message = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage))
+            // email
+            await _mediator.Send(new SendProductAskQuestionMessageCommand() {
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                Model = productaskqestionmodel,
+                Product = product,
+                RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             });
 
+            //activity log
+            _ = _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
+            //return Json
+            return Json(new
+            {
+                success = true,
+                message = _translationService.GetResource("Products.AskQuestion.SuccessfullySent")
+            });
         }
 
         #endregion

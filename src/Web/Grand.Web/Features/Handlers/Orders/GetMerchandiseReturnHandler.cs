@@ -42,7 +42,7 @@ namespace Grand.Web.Features.Handlers.Orders
             IVendorService vendorService,
             IMediator mediator,
             OrderSettings orderSettings
-            )
+        )
         {
             _workContext = workContext;
             _merchandiseReturnService = merchandiseReturnService;
@@ -56,7 +56,8 @@ namespace Grand.Web.Features.Handlers.Orders
             _orderSettings = orderSettings;
         }
 
-        public async Task<MerchandiseReturnModel> Handle(GetMerchandiseReturn request, CancellationToken cancellationToken)
+        public async Task<MerchandiseReturnModel> Handle(GetMerchandiseReturn request,
+            CancellationToken cancellationToken)
         {
             var model = new MerchandiseReturnModel {
                 OrderId = request.Order.Id,
@@ -86,8 +87,7 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var reasons = new List<MerchandiseReturnModel.MerchandiseReturnReasonModel>();
             foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons())
-                reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel()
-                {
+                reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel() {
                     Id = rrr.Id,
                     Name = rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
                 });
@@ -98,8 +98,7 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var actions = new List<MerchandiseReturnModel.MerchandiseReturnActionModel>();
             foreach (var rra in await _merchandiseReturnService.GetAllMerchandiseReturnActions())
-                actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel()
-                {
+                actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel() {
                     Id = rra.Id,
                     Name = rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
                 });
@@ -112,14 +111,15 @@ namespace Grand.Web.Features.Handlers.Orders
 
             foreach (var orderItem in request.Order.OrderItems)
             {
-                var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems).Where(x => x.OrderItemId == orderItem.Id).Sum(x => x.Quantity);
+                var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems)
+                    .Where(x => x.OrderItemId == orderItem.Id).Sum(x => x.Quantity);
 
-                var query = new GetMerchandiseReturnQuery()
-                {
+                var query = new GetMerchandiseReturnQuery() {
                     StoreId = request.Store.Id,
                 };
 
-                var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
+                var merchandiseReturns =
+                    await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
                 var qtyReturn = 0;
 
                 foreach (var rr in merchandiseReturns)
@@ -131,35 +131,37 @@ namespace Grand.Web.Features.Handlers.Orders
                 }
 
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
-                if (!product.NotReturnable)
+                if (product.NotReturnable) continue;
+
+
+                var orderItemModel = new MerchandiseReturnModel.OrderItemModel {
+                    Id = orderItem.Id,
+                    ProductId = orderItem.ProductId,
+                    ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                    ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id),
+                    AttributeInfo = orderItem.AttributeDescription,
+                    VendorId = orderItem.VendorId,
+                    VendorName = string.IsNullOrEmpty(orderItem.VendorId)
+                        ? ""
+                        : (await _vendorService.GetVendorById(orderItem.VendorId))?.Name,
+                    Quantity = qtyDelivery - qtyReturn,
+                };
+                if (orderItemModel.Quantity > 0)
+                    model.Items.Add(orderItemModel);
+                //unit price
+                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
                 {
-                    var orderItemModel = new MerchandiseReturnModel.OrderItemModel
-                    {
-                        Id = orderItem.Id,
-                        ProductId = orderItem.ProductId,
-                        ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                        ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id),
-                        AttributeInfo = orderItem.AttributeDescription,
-                        VendorId = orderItem.VendorId,
-                        VendorName = string.IsNullOrEmpty(orderItem.VendorId) ? "" : (await _vendorService.GetVendorById(orderItem.VendorId))?.Name,
-                        Quantity = qtyDelivery - qtyReturn,
-                    };
-                    if (orderItemModel.Quantity > 0)
-                        model.Items.Add(orderItemModel);
-                    //unit price
-                    if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                    {
-                        //including tax
-                        orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax, request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, true);
-                    }
-                    else
-                    {
-                        //excluding tax
-                        orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax, request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, false);
-                    }
+                    //including tax
+                    orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax,
+                        request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, true);
+                }
+                else
+                {
+                    //excluding tax
+                    orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax,
+                        request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, false);
                 }
             }
-
         }
 
         private async Task PreparePickupAddress(GetMerchandiseReturn request, MerchandiseReturnModel model)
@@ -173,18 +175,16 @@ namespace Grand.Web.Features.Handlers.Orders
                     addresses.Add(item);
                     continue;
                 }
+
                 var country = await _countryService.GetCountryById(item.CountryId);
-                if (country == null || (country.AllowsShipping && _aclService.Authorize(country, request.Store.Id)))
-                {
-                    addresses.Add(item);
-                    continue;
-                }
+                if (country != null &&
+                    (!country.AllowsShipping || !_aclService.Authorize(country, request.Store.Id))) continue;
+                addresses.Add(item);
             }
 
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel()
-                {
+                var addressModel = await _mediator.Send(new GetAddressModel() {
                     Language = request.Language,
                     Store = request.Store,
                     Address = address,
@@ -195,8 +195,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
             //new address
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.MerchandiseReturnNewAddress = await _mediator.Send(new GetAddressModel()
-            {
+            model.MerchandiseReturnNewAddress = await _mediator.Send(new GetAddressModel() {
                 Language = request.Language,
                 Store = request.Store,
                 Address = null,

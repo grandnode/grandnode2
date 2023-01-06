@@ -294,27 +294,25 @@ namespace Grand.Web.Controllers
                 _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(
                     SystemCustomerFieldNames.SelectedPickupPoint, _workContext.CurrentStore.Id);
 
-            if ((_shippingSettings.SkipShippingMethodSelectionIfOnlyOne &&
-                 shippingMethodModel.ShippingMethods.Count == 1) ||
-                (_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
-            {
-                if (!(_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                        SystemCustomerFieldNames.SelectedShippingOption,
-                        shippingMethodModel.ShippingMethods.First().ShippingOption,
-                        _workContext.CurrentStore.Id);
+            if ((!_shippingSettings.SkipShippingMethodSelectionIfOnlyOne ||
+                 shippingMethodModel.ShippingMethods.Count != 1) &&
+                (!_shippingSettings.AllowPickUpInStore || string.IsNullOrEmpty(selectedPickupPoint)))
+                return Json(new {
+                    update_section = new UpdateSectionJsonModel {
+                        name = "shipping-method",
+                        model = shippingMethodModel
+                    },
+                    goto_section = "shipping_method"
+                });
+            if (!(_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.SelectedShippingOption,
+                    shippingMethodModel.ShippingMethods.First().ShippingOption,
+                    _workContext.CurrentStore.Id);
 
-                //load next step
-                return await LoadStepAfterShippingMethod(cart);
-            }
+            //load next step
+            return await LoadStepAfterShippingMethod(cart);
 
-            return Json(new {
-                update_section = new UpdateSectionJsonModel {
-                    name = "shipping-method",
-                    model = shippingMethodModel
-                },
-                goto_section = "shipping_method"
-            });
         }
 
         [NonAction]
@@ -345,35 +343,33 @@ namespace Grand.Web.Controllers
                     Store = _workContext.CurrentStore
                 });
 
-                if (_paymentSettings.SkipPaymentIfOnlyOne &&
-                    paymentMethodModel.PaymentMethods.Count == 1 && !paymentMethodModel.DisplayLoyaltyPoints)
-                {
-                    //if we have only one payment method and loyalty points are disabled or the current customer doesn't have any loyalty points
-                    //so customer doesn't have to choose a payment method
+                if (!_paymentSettings.SkipPaymentIfOnlyOne ||
+                    paymentMethodModel.PaymentMethods.Count != 1 || paymentMethodModel.DisplayLoyaltyPoints)
+                    return Json(new {
+                        update_section = new UpdateSectionJsonModel {
+                            name = "payment-method",
+                            model = paymentMethodModel
+                        },
+                        goto_section = "payment_method"
+                    });
+                //if we have only one payment method and loyalty points are disabled or the current customer doesn't have any loyalty points
+                //so customer doesn't have to choose a payment method
 
-                    var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                        SystemCustomerFieldNames.SelectedPaymentMethod,
-                        selectedPaymentMethodSystemName, _workContext.CurrentStore.Id);
+                var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.SelectedPaymentMethod,
+                    selectedPaymentMethodSystemName, _workContext.CurrentStore.Id);
 
-                    var paymentMethodInst =
-                        _paymentService.LoadPaymentMethodBySystemName(selectedPaymentMethodSystemName);
-                    if (paymentMethodInst == null ||
-                        !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
-                        !paymentMethodInst.IsAuthenticateStore(_workContext.CurrentStore))
-                        throw new Exception("Selected payment method can't be parsed");
+                var paymentMethodInst =
+                    _paymentService.LoadPaymentMethodBySystemName(selectedPaymentMethodSystemName);
+                if (paymentMethodInst == null ||
+                    !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
+                    !paymentMethodInst.IsAuthenticateStore(_workContext.CurrentStore))
+                    throw new Exception("Selected payment method can't be parsed");
 
-                    return await LoadStepAfterPaymentMethod(paymentMethodInst, cart);
-                }
+                return await LoadStepAfterPaymentMethod(paymentMethodInst, cart);
 
                 //customer have to choose a payment method
-                return Json(new {
-                    update_section = new UpdateSectionJsonModel {
-                        name = "payment-method",
-                        model = paymentMethodModel
-                    },
-                    goto_section = "payment_method"
-                });
             }
 
             //payment is not required

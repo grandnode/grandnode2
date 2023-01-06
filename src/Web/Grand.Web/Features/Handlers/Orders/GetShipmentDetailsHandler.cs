@@ -95,7 +95,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
             foreach (var shipmentItem in request.Shipment.ShipmentItems)
             {
-                var orderItem = request.Order.OrderItems.Where(x => x.Id == shipmentItem.OrderItemId).FirstOrDefault();
+                var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                 if (orderItem == null)
                     continue;
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
@@ -159,16 +159,13 @@ namespace Grand.Web.Features.Handlers.Orders
             }
             else
             {
-                if (order.PickupPoint != null)
+                if (order.PickupPoint is { Address: { } })
                 {
-                    if (order.PickupPoint.Address != null)
-                    {
-                        model.PickupAddress = await _mediator.Send(new GetAddressModel() {
-                            Language = request.Language,
-                            Address = order.PickupPoint.Address,
-                            ExcludeProperties = false,
-                        });
-                    }
+                    model.PickupAddress = await _mediator.Send(new GetAddressModel() {
+                        Language = request.Language,
+                        Address = order.PickupPoint.Address,
+                        ExcludeProperties = false,
+                    });
                 }
             }
             return model;

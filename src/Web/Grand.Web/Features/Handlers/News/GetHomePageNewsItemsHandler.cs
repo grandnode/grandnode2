@@ -70,18 +70,17 @@ namespace Grand.Web.Features.Handlers.News
                 CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc)
             };
             //prepare picture model
-            if (!string.IsNullOrEmpty(newsItem.PictureId))
+            if (string.IsNullOrEmpty(newsItem.PictureId)) return model;
+            
+            var pictureSize = _mediaSettings.NewsListThumbPictureSize;
+            model.PictureModel = new PictureModel
             {
-                var pictureSize = _mediaSettings.NewsListThumbPictureSize;
-                model.PictureModel = new PictureModel
-                {
-                    Id = newsItem.PictureId,
-                    FullSizeImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId),
-                    ImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId, pictureSize),
-                    Title = string.Format(_translationService.GetResource("Media.News.ImageLinkTitleFormat"), newsItem.Title),
-                    AlternateText = string.Format(_translationService.GetResource("Media.News.ImageAlternateTextFormat"), newsItem.Title)
-                };
-            }
+                Id = newsItem.PictureId,
+                FullSizeImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId),
+                ImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId, pictureSize),
+                Title = string.Format(_translationService.GetResource("Media.News.ImageLinkTitleFormat"), newsItem.Title),
+                AlternateText = string.Format(_translationService.GetResource("Media.News.ImageAlternateTextFormat"), newsItem.Title)
+            };
             return model;
         }
     }

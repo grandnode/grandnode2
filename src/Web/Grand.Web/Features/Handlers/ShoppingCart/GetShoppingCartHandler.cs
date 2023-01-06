@@ -230,15 +230,13 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         attributeModel.Values.Add(attributeValueModel);
 
                         //display price if allowed
-                        if (await _permissionService.Authorize(StandardPermission.DisplayPrices))
-                        {
-                            var priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
-                            var priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
-                            if (priceAdjustmentBase > 0)
-                                attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment);
-                            else if (priceAdjustmentBase < 0)
-                                attributeValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment);
-                        }
+                        if (!await _permissionService.Authorize(StandardPermission.DisplayPrices)) continue;
+                        var priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
+                        var priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
+                        if (priceAdjustmentBase > 0)
+                            attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment);
+                        else if (priceAdjustmentBase < 0)
+                            attributeValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment);
                     }
                 }
                 //set already selected attributes

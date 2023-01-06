@@ -98,7 +98,6 @@ namespace Grand.Web.Features.Handlers.Products
                 var finalPrice = unitprice.unitprice;
                 var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
                 var finalPriceWithDiscount = productprice.productprice;
-                var taxRate = productprice.taxRate;
                 model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
             }
             //stock
@@ -134,44 +133,39 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             //conditional attributes
-            if (request.Product.ProductAttributeMappings.Where(x=>x.ConditionAttribute.Any()).Any())
+            if (request.Product.ProductAttributeMappings.Any(x => x.ConditionAttribute.Any()))
             {
                 var attributes = request.Product.ProductAttributeMappings;
                 foreach (var attribute in attributes)
                 {
                     var conditionMet = request.Product.IsConditionMet(attribute, customAttributes);
-                    if (conditionMet.HasValue)
-                    {
-                        if (conditionMet.Value)
-                            model.EnabledAttributeMappingIds.Add(attribute.Id);
-                        else
-                            model.DisabledAttributeMappingids.Add(attribute.Id);
-                    }
+                    if (!conditionMet.HasValue) continue;
+                    if (conditionMet.Value)
+                        model.EnabledAttributeMappingIds.Add(attribute.Id);
+                    else
+                        model.DisabledAttributeMappingids.Add(attribute.Id);
                 }
             }
             //picture. used when we want to override a default product picture when some attribute is selected
-            if (request.LoadPicture)
+            if (!request.LoadPicture) return model;
+            
+            //first, try to get product attribute combination picture
+            var pictureId = request.Product.FindProductAttributeCombination(customAttributes)?.PictureId;
+            if (string.IsNullOrEmpty(pictureId))
             {
-
-                //first, try to get product attribute combination picture
-                var pictureId = request.Product.FindProductAttributeCombination(customAttributes)?.PictureId;
-                if (string.IsNullOrEmpty(pictureId))
-                {
-                    pictureId = request.Product.ParseProductAttributeValues(customAttributes)
-                        .FirstOrDefault(attributeValue => !string.IsNullOrEmpty(attributeValue.PictureId))?.PictureId ?? "";
-                }
-
-                if (!string.IsNullOrEmpty(pictureId))
-                {
-                    var pictureModel = new PictureModel {
-                        Id = pictureId,
-                        FullSizeImageUrl = await _pictureService.GetPictureUrl(pictureId),
-                        ImageUrl = await _pictureService.GetPictureUrl(pictureId, _mediaSettings.ProductDetailsPictureSize)
-                    };
-                    model.PictureFullSizeUrl = pictureModel.FullSizeImageUrl;
-                    model.PictureDefaultSizeUrl = pictureModel.ImageUrl;
-                }
+                pictureId = request.Product.ParseProductAttributeValues(customAttributes)
+                    .FirstOrDefault(attributeValue => !string.IsNullOrEmpty(attributeValue.PictureId))?.PictureId ?? "";
             }
+
+            if (string.IsNullOrEmpty(pictureId)) return model;
+                
+            var pictureModel = new PictureModel {
+                Id = pictureId,
+                FullSizeImageUrl = await _pictureService.GetPictureUrl(pictureId),
+                ImageUrl = await _pictureService.GetPictureUrl(pictureId, _mediaSettings.ProductDetailsPictureSize)
+            };
+            model.PictureFullSizeUrl = pictureModel.FullSizeImageUrl;
+            model.PictureDefaultSizeUrl = pictureModel.ImageUrl;
             return model;
         }
 
@@ -209,10 +203,10 @@ namespace Grand.Web.Features.Handlers.Products
                 {
                     var x = combinationsStockAvailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
                     var available = x.Select(x => x.Value).Distinct().ToList();
-                    available.ForEach((x) =>
+                    available.ForEach(z =>
                     {
-                        if (model.Contains(x))
-                            model.Remove(x);
+                        if (model.Contains(z))
+                            model.Remove(z);
                     });
                 }
 

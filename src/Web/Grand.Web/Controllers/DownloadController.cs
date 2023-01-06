@@ -146,23 +146,20 @@ namespace Grand.Web.Controllers
                 foreach (var bundle in product.BundleProducts)
                 {
                     var p1 = await _productService.GetProductById(bundle.ProductId);
-                    if (p1 != null && p1.IsDownload)
+                    if (p1 is not { IsDownload: true }) continue;
+                    
+                    var d1 = await _downloadService.GetDownloadById(p1.DownloadId);
+                    if (d1 is not { UseDownloadUrl: false }) continue;
+                    fileName = (!string.IsNullOrWhiteSpace(d1.Filename) ? d1.Filename : p1.Id.ToString()) + d1.Extension;
+                    if (Infrastructure.OperatingSystem.IsWindows())
                     {
-                        var d1 = await _downloadService.GetDownloadById(p1.DownloadId);
-                        if (d1 != null && !d1.UseDownloadUrl)
-                        {
-                            fileName = (!string.IsNullOrWhiteSpace(d1.Filename) ? d1.Filename : p1.Id.ToString()) + d1.Extension;
-                            if (Infrastructure.OperatingSystem.IsWindows())
-                            {
-                                await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, d1.DownloadBinary);
-                                ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
-                            }
-                            else
-                            {
-                                await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, d1.DownloadBinary);
-                                ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
-                            }
-                        }
+                        await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, d1.DownloadBinary);
+                        ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
+                    }
+                    else
+                    {
+                        await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, d1.DownloadBinary);
+                        ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
                     }
                 }
             }

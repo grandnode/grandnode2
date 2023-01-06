@@ -86,7 +86,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     }
                 }
                 //if no option has been selected, do it for the first one
-                if (model.ShippingMethods.FirstOrDefault(so => so.Selected) == null)
+                if (model.ShippingMethods.FirstOrDefault(so => so.Selected) != null) return model;
                 {
                     var shippingOptionToSelect = model.ShippingMethods.FirstOrDefault();
                     if (shippingOptionToSelect != null)

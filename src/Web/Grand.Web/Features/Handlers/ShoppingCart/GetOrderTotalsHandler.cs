@@ -54,23 +54,22 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 IsEditable = request.IsEditable
             };
 
-            if (request.Cart.Any())
-            {
-                //subtotal
-                await PrepareSubtotal(model, request);
+            if (!request.Cart.Any()) return model;
+            
+            //subtotal
+            await PrepareSubtotal(model, request);
 
-                //shipping info
-                await PrepareShippingInfo(model, request);
+            //shipping info
+            await PrepareShippingInfo(model, request);
 
-                //payment method fee
-                await PreparePayment(model, request);
+            //payment method fee
+            await PreparePayment(model, request);
 
-                //tax
-                await PrepareTax(model, request);
+            //tax
+            await PrepareTax(model, request);
 
-                //total
-                await PrepareTotal(model, request);
-            }
+            //total
+            await PrepareTotal(model, request);
             return model;
         }
 
