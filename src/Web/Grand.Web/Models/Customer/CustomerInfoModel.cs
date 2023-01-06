@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerInfoModel : BaseModel
+    public class CustomerInfoModel : BaseModel
     {
         public CustomerInfoModel()
         {

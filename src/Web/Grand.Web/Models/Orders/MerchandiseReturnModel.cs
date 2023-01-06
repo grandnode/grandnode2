@@ -4,7 +4,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class MerchandiseReturnModel : BaseModel
+    public class MerchandiseReturnModel : BaseModel
     {
         public MerchandiseReturnModel()
         {

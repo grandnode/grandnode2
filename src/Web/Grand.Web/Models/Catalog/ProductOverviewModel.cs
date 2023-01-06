@@ -6,7 +6,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductOverviewModel : BaseEntityModel
+    public class ProductOverviewModel : BaseEntityModel
     {
         public ProductOverviewModel()
         {

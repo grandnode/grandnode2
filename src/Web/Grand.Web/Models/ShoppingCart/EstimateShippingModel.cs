@@ -25,7 +25,7 @@ namespace Grand.Web.Models.ShoppingCart
         public IList<SelectListItem> AvailableStates { get; set; }
     }
 
-    public partial class EstimateShippingResultModel : BaseModel
+    public class EstimateShippingResultModel : BaseModel
     {
         public EstimateShippingResultModel()
         {

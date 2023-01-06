@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class WishlistModel : BaseModel
+    public class WishlistModel : BaseModel
     {
         public WishlistModel()
         {

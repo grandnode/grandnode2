@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class CustomerLoyaltyPointsModel : BaseModel
+    public class CustomerLoyaltyPointsModel : BaseModel
     {
         public CustomerLoyaltyPointsModel()
         {

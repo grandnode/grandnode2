@@ -236,7 +236,7 @@ namespace Grand.Web.Controllers
                     downloadGuid = Guid.Empty,
                 });
             }
-            var attribute = product.ProductAttributeMappings.Where(x => x.Id == attributeId).FirstOrDefault();
+            var attribute = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attributeId);
             if (attribute is not { AttributeControlTypeId: AttributeControlType.FileUpload })
             {
                 return Json(new

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class ContactUsModel : BaseModel
+    public class ContactUsModel : BaseModel
     {
         public ContactUsModel()
         {

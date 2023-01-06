@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class ShoppingCartModel : BaseModel
+    public class ShoppingCartModel : BaseModel
     {
         public ShoppingCartModel()
         {

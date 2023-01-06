@@ -628,8 +628,8 @@ namespace Grand.Web.Features.Handlers.Products
                     ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
                         _mediaSettings.ProductDetailsPictureSize),
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
-                    Style = picture?.Style,
-                    ExtraField = picture?.ExtraField,
+                    Style = picture.Style,
+                    ExtraField = picture.ExtraField,
                     //"title" attribute
                     Title =
                         !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute,
@@ -822,7 +822,7 @@ namespace Grand.Web.Features.Handlers.Products
                 await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice,
                     _workContext.WorkingCurrency);
 
-            model.CustomerEnteredPrice = updatecartitem != null && updatecartitem.EnteredPrice.HasValue
+            model.CustomerEnteredPrice = updatecartitem is { EnteredPrice: { } }
                 ? updatecartitem.EnteredPrice.Value
                 : minimumCustomerEnteredPrice;
             model.CustomerEnteredPriceRange = string.Format(

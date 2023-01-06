@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class ShipmentDetailsModel : BaseEntityModel
+    public class ShipmentDetailsModel : BaseEntityModel
     {
         public ShipmentDetailsModel()
         {

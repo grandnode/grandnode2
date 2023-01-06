@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class MiniWishlistModel : BaseModel
+    public class MiniWishlistModel : BaseModel
     {
         public MiniWishlistModel()
         {

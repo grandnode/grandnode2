@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CustomerOutOfStockSubscriptionsModel
+    public class CustomerOutOfStockSubscriptionsModel
     {
         public CustomerOutOfStockSubscriptionsModel()
         {

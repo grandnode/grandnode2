@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class OrderTotalsModel : BaseModel
+    public class OrderTotalsModel : BaseModel
     {
         public OrderTotalsModel()
         {

@@ -4,7 +4,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class OrderDetailsModel : BaseEntityModel
+    public class OrderDetailsModel : BaseEntityModel
     {
         public OrderDetailsModel()
         {

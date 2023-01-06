@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductDetailsModel : BaseEntityModel
+    public class ProductDetailsModel : BaseEntityModel
     {
         public ProductDetailsModel()
         {

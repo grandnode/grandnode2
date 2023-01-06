@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerDownloadableProductsModel : BaseModel
+    public class CustomerDownloadableProductsModel : BaseModel
     {
         public CustomerDownloadableProductsModel()
         {

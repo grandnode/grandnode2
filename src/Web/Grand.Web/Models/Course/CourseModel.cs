@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Course
 {
-    public partial class CourseModel : BaseEntityModel
+    public class CourseModel : BaseEntityModel
     {
         public CourseModel()
         {

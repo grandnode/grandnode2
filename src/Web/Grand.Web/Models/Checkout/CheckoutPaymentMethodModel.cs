@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutPaymentMethodModel : BaseModel
+    public class CheckoutPaymentMethodModel : BaseModel
     {
         public CheckoutPaymentMethodModel()
         {

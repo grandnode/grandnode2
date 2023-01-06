@@ -37,9 +37,9 @@ namespace Grand.Web.Features.Handlers.Products
                         {
                             m.SpecificationAttributeId = item.SpecificationAttributeId;
                             m.SpecificationAttributeName = specificationAttribute.GetTranslation(x => x.Name, request.Language.Id);
-                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault() != null ? specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().ColorSquaresRgb : "";
+                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId) != null ? specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId)!.ColorSquaresRgb : "";
                             m.UserFields = specificationAttribute.UserFields;
-                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().GetTranslation(x => x.Name, request.Language.Id));
+                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId).GetTranslation(x => x.Name, request.Language.Id));
                         }
                         break;
                     case SpecificationAttributeType.CustomText:

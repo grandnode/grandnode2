@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutShippingMethodModel : BaseModel
+    public class CheckoutShippingMethodModel : BaseModel
     {
         public CheckoutShippingMethodModel()
         {

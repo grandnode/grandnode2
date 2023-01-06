@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class CustomerMerchandiseReturnsModel : BaseModel
+    public class CustomerMerchandiseReturnsModel : BaseModel
     {
         public CustomerMerchandiseReturnsModel()
         {
