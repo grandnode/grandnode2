@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductEmailAFriendModel : BaseModel
+    public class ProductEmailAFriendModel : BaseModel
     {
         public string ProductId { get; set; }
 

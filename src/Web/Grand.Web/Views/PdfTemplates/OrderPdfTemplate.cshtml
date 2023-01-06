@@ -1,13 +1,20 @@
-﻿@model (IList<Order>, string)
-@inject Grand.Business.Core.Interfaces.Catalog.Products.IProductService _productService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _countryService
-@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService _storeService
-@inject Grand.Business.Core.Interfaces.Storage.IPictureService _pictureService
+﻿@using Grand.Business.Core.Interfaces.Catalog.Products
+@using Grand.Business.Core.Interfaces.Checkout.GiftVouchers
+@using Grand.Business.Core.Interfaces.Checkout.Payments
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Localization
+@using Grand.Business.Core.Interfaces.Common.Stores
+@using Grand.Business.Core.Interfaces.Storage
+@model (IList<Order>, string)
+@inject IProductService _productService
+@inject ICountryService _countryService
+@inject IStoreService _storeService
+@inject IPictureService _pictureService
 @inject PdfSettings _pdfSettings
-@inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
-@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
+@inject ITranslationService _translationService
+@inject IPaymentService _paymentService
+@inject ICurrencyService _currencyService
+@inject IGiftVoucherService _giftVoucherService
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);
     var logoExists = logoPicture != null;

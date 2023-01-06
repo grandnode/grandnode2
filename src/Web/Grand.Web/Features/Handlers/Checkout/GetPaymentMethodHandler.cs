@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;

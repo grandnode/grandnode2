@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Common
 {
-    public partial class FooterModel : BaseModel
+    public class FooterModel : BaseModel
     {
         public FooterModel()
         {

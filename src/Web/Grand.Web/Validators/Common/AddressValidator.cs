@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Domain.Common;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Common;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Common;
 
 namespace Grand.Web.Validators.Common

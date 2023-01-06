@@ -18,6 +18,6 @@ namespace Grand.Web.Features.Models.ShoppingCart
         public TaxDisplayType TaxDisplayType { get; set; }
         public IList<ShoppingCartItem> Cart { get; set; }
         public bool IsEditable { get; set; } = true;
-        public bool ValidateCheckoutAttributes { get; set; } = false;
+        public bool ValidateCheckoutAttributes { get; set; }
     }
 }

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;

@@ -17,7 +17,7 @@ namespace Grand.Web.Models.Checkout
         public IList<string> Warnings { get; set; }
         public OrderReviewDataModel OrderReviewData { get; set; }
 
-        public partial class OrderReviewDataModel : BaseModel
+        public class OrderReviewDataModel : BaseModel
         {
             public OrderReviewDataModel()
             {

@@ -27,7 +27,7 @@ namespace Grand.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(string systemName)
         {
-            var model = await _mediator.Send(new GetPageBlock() { SystemName = systemName });
+            var model = await _mediator.Send(new GetPageBlock { SystemName = systemName });
             if (model == null)
                 return Content("");
 

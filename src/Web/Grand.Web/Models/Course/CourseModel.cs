@@ -23,13 +23,13 @@ namespace Grand.Web.Models.Course
         public IList<Lesson> Lessons { get; set; }
         public bool Approved { get; set; }
 
-        public partial class Subject : BaseEntityModel
+        public class Subject : BaseEntityModel
         {
             public string Name { get; set; }
             public int DisplayOrder { get; set; }
         }
 
-        public partial class Lesson : BaseEntityModel
+        public class Lesson : BaseEntityModel
         {
             public string SubjectId { get; set; }
             public string Name { get; set; }

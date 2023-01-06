@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 

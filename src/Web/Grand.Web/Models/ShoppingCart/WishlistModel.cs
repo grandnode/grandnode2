@@ -32,7 +32,7 @@ namespace Grand.Web.Models.ShoppingCart
         
 		#region Nested Classes
 
-        public partial class ShoppingCartItemModel : BaseEntityModel
+        public class ShoppingCartItemModel : BaseEntityModel
         {
             public ShoppingCartItemModel()
             {

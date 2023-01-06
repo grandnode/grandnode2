@@ -1,9 +1,8 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -14,13 +13,13 @@ using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -122,7 +121,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 (await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, !requiresShipping))
                 .Any();
 
-            var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() {
+            var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
                 Customer = request.Customer,
                 Cart = cart.Where
                 (x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart ||
@@ -222,8 +221,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel {
                 Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.MiniCartThumbPictureSize,
-                    true),
+                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.MiniCartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"),
                     product.Name),
                 AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"),

@@ -21,7 +21,7 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(string currentCategoryId, string currentProductId)
         {
-            var model = await _mediator.Send(new GetCategoryNavigation() {
+            var model = await _mediator.Send(new GetCategoryNavigation {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,

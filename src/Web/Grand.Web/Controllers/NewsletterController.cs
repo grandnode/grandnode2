@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class NewsletterController : BasePublicController
+    public class NewsletterController : BasePublicController
     {
         private readonly IMediator _mediator;
 
@@ -20,7 +20,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> SubscribeNewsletter(string email, bool subscribe)
         {
-            var model = await _mediator.Send(new SubscribeNewsletterCommand() { Email = email, Subscribe = subscribe });
+            var model = await _mediator.Send(new SubscribeNewsletterCommand { Email = email, Subscribe = subscribe });
             if (model.NewsletterCategory == null)
                 return Json(new {
                     model.Success,
@@ -42,7 +42,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> SaveCategories(NewsletterCategoryModel model)
         {
-            var result = await _mediator.Send(new SubscriptionCategoryCommand() { Model = model});
+            var result = await _mediator.Send(new SubscriptionCategoryCommand { Model = model});
             return Json(new
             {
                 Success = result.success,
@@ -53,7 +53,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {
-            var model = await _mediator.Send(new SubscriptionActivationCommand() { Active = active, Token = token });
+            var model = await _mediator.Send(new SubscriptionActivationCommand { Active = active, Token = token });
             if (model == null)
                 return RedirectToRoute("HomePage");
 

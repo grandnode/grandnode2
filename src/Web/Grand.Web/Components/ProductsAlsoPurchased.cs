@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.System.Reports;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Domain.Catalog;
 using Grand.Web.Common.Components;
-using Grand.Web.Features.Models.Products;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,8 +64,7 @@ namespace Grand.Web.Components
                 return Content("");
 
             //prepare model
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 ProductThumbPictureSize = productThumbPictureSize,

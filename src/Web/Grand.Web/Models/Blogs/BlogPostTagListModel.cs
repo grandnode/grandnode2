@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogPostTagListModel : BaseModel
+    public class BlogPostTagListModel : BaseModel
     {
         public BlogPostTagListModel()
         {

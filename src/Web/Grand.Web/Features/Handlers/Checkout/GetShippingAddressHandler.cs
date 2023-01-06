@@ -70,7 +70,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             //new address
             model.ShippingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.ShippingNewAddress = await _mediator.Send(new GetAddressModel() {
+            model.ShippingNewAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Store = request.Store,
                 Model = model.ShippingNewAddress,
@@ -95,7 +95,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             {
                 foreach (var pickupPoint in pickupPoints)
                 {
-                    var pickupPointModel = new CheckoutPickupPointModel() {
+                    var pickupPointModel = new CheckoutPickupPointModel {
                         Id = pickupPoint.Id,
                         Name = pickupPoint.Name,
                         Description = pickupPoint.Description,
@@ -142,7 +142,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             }
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,

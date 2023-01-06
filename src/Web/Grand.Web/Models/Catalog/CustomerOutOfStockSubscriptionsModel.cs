@@ -16,7 +16,7 @@ namespace Grand.Web.Models.Catalog
 
         #region Nested classes
 
-        public partial class OutOfStockSubscriptionModel : BaseEntityModel
+        public class OutOfStockSubscriptionModel : BaseEntityModel
         {
             public string ProductId { get; set; }
             public string ProductName { get; set; }

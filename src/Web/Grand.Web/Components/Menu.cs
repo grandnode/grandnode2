@@ -29,8 +29,7 @@ namespace Grand.Web.ViewComponents
             if (!await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation, _workContext.CurrentCustomer))
                 return Content("");
 
-            var model = await _mediator.Send(new GetMenu()
-            {
+            var model = await _mediator.Send(new GetMenu {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore

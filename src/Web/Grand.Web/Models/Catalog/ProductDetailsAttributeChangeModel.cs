@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductDetailsAttributeChangeModel : BaseEntityModel
+    public class ProductDetailsAttributeChangeModel : BaseEntityModel
     {
         public ProductDetailsAttributeChangeModel()
         {

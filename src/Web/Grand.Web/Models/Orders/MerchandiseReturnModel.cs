@@ -47,7 +47,7 @@ namespace Grand.Web.Models.Orders
 
         #region Nested classes
 
-        public partial class OrderItemModel : BaseEntityModel
+        public class OrderItemModel : BaseEntityModel
         {
             public string ProductId { get; set; }
 
@@ -71,11 +71,11 @@ namespace Grand.Web.Models.Orders
             public string MerchandiseReturnActionId { get; set; }
         }
 
-        public partial class MerchandiseReturnReasonModel : BaseEntityModel
+        public class MerchandiseReturnReasonModel : BaseEntityModel
         {
             public string Name { get; set; }
         }
-        public partial class MerchandiseReturnActionModel : BaseEntityModel
+        public class MerchandiseReturnActionModel : BaseEntityModel
         {
             public string Name { get; set; }
         }

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;

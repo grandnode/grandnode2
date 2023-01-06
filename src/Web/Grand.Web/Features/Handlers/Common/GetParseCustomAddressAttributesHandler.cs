@@ -66,7 +66,7 @@ namespace Grand.Web.Features.Handlers.Common
                                 .ToList())
                             {
                                 customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
-                                            attribute, selectedAttributeId.ToString()).ToList();
+                                            attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
@@ -76,7 +76,7 @@ namespace Grand.Web.Features.Handlers.Common
                             var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

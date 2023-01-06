@@ -57,7 +57,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //availability dates
             products = products.Where(p => p.IsAvailable()).ToList();
 
-            (await _mediator.Send(new GetProductOverview() {
+            (await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = true,
                 Products = products,
                 ProductThumbPictureSize = request.PictureProductThumbSize

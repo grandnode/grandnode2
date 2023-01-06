@@ -1,25 +1,25 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+using System.Diagnostics;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -121,7 +121,7 @@ namespace Grand.Web.Features.Handlers.Products
                     pictureSize, priceIncludesTax, res));
             }
 
-            var result = await Task.WhenAll<ProductOverviewModel>(tasks);
+            var result = await Task.WhenAll(tasks);
             return result;
         }
 
@@ -149,16 +149,14 @@ namespace Grand.Web.Features.Handlers.Products
             //specs
             if (request.PrepareSpecificationAttributes && product.ProductSpecificationAttributes.Any())
             {
-                model.SpecificationAttributeModels = await _mediator.Send(new GetProductSpecification()
-                    { Language = _workContext.WorkingLanguage, Product = product });
+                model.SpecificationAttributeModels = await _mediator.Send(new GetProductSpecification { Language = _workContext.WorkingLanguage, Product = product });
             }
 
             //attributes
             model.ProductAttributeModels = await PrepareAttributesModel(product);
 
             //reviews
-            model.ReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview()
-                { Product = product, Language = _workContext.WorkingLanguage, Store = _workContext.CurrentStore });
+            model.ReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview { Product = product, Language = _workContext.WorkingLanguage, Store = _workContext.CurrentStore });
 
             return model;
         }
@@ -290,7 +288,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                                         //PAngV baseprice (used in Germany)
                                         if (product.BasepriceEnabled)
-                                            priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice() {
+                                            priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
                                                 Currency = _workContext.WorkingCurrency, Product = product,
                                                 ProductPrice = finalPrice
                                             });
@@ -462,7 +460,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                                 //PAngV baseprice (used in Germany)
                                 if (product.BasepriceEnabled)
-                                    priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice() {
+                                    priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
                                         Currency = _workContext.WorkingCurrency, Product = product,
                                         ProductPrice = finalPrice
                                     });
@@ -554,7 +552,7 @@ namespace Grand.Web.Features.Handlers.Products
             foreach (var attribute in product.ProductAttributeMappings.Where(x => x.ShowOnCatalogPage)
                          .OrderBy(x => x.DisplayOrder))
             {
-                var pa = await _mediator.Send(new GetProductAttribute() { Id = attribute.ProductAttributeId });
+                var pa = await _mediator.Send(new GetProductAttribute { Id = attribute.ProductAttributeId });
                 if (pa == null) continue;
 
                 var productAttributeModel = new ProductOverviewModel.ProductAttributeModel {

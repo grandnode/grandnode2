@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class SearchModel : BaseModel
+    public class SearchModel : BaseModel
     {
         public SearchModel()
         {

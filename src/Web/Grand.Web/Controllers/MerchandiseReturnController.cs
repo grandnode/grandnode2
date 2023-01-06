@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class MerchandiseReturnController : BasePublicController
+    public class MerchandiseReturnController : BasePublicController
     {
         #region Fields
 
@@ -64,8 +64,7 @@ namespace Grand.Web.Controllers
         {
             var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
             var countries = await countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            addressModel = await _mediator.Send(new GetAddressModel()
-            {
+            addressModel = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Customer = _workContext.CurrentCustomer,
@@ -87,7 +86,7 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.MerchandiseReturnNewAddress.SelectedAttributes });
+                var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.MerchandiseReturnNewAddress.SelectedAttributes });
                 var addressAttributeParser = HttpContext.RequestServices.GetRequiredService<IAddressAttributeParser>();
                 var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
                 foreach (var error in customAttributeWarnings)
@@ -112,8 +111,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetMerchandiseReturns()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturns {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage
@@ -128,11 +126,10 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }))
+            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetMerchandiseReturn()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturn {
                 Order = order,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -149,7 +146,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }))
+            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
                 return RedirectToRoute("HomePage");
 
             if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate && _orderSettings.MerchandiseReturns_PickupDateRequired && model.PickupDate == null)
@@ -161,8 +158,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState is { IsValid: false })
             {
-                var returnModel = await _mediator.Send(new GetMerchandiseReturn()
-                {
+                var returnModel = await _mediator.Send(new GetMerchandiseReturn {
                     Order = order,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore
@@ -180,7 +176,7 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand() { Address = address, Model = model, Order = order });
+                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand { Address = address, Model = model, Order = order });
                 if (result.rr.ReturnNumber > 0)
                 {
                     model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"), result.rr.ReturnNumber, Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.rr.Id }));
@@ -189,8 +185,7 @@ namespace Grand.Web.Controllers
                     return View(result.model);
                 }
 
-                var returnModel = await _mediator.Send(new GetMerchandiseReturn()
-                {
+                var returnModel = await _mediator.Send(new GetMerchandiseReturn {
                     Order = order,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore
@@ -218,8 +213,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetMerchandiseReturnDetails()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturnDetails {
                 Order = order,
                 Language = _workContext.WorkingLanguage,
                 MerchandiseReturn = rr,

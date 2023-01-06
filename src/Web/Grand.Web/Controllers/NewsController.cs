@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class NewsController : BasePublicController
+    public class NewsController : BasePublicController
     {
         #region Fields
 
@@ -66,7 +66,7 @@ namespace Grand.Web.Controllers
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetNewsItemList() { Command = command });
+            var model = await _mediator.Send(new GetNewsItemList { Command = command });
             return View(model);
         }
         public virtual async Task<IActionResult> NewsItem(string newsItemId)
@@ -83,7 +83,7 @@ namespace Grand.Web.Controllers
                 !_aclService.Authorize(newsItem, _workContext.CurrentStore.Id))
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetNewsItem() { NewsItem = newsItem });
+            var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
 
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManageNews))
@@ -121,7 +121,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new InsertNewsCommentCommand() { NewsItem = newsItem, Model = model });
+                await _mediator.Send(new InsertNewsCommentCommand { NewsItem = newsItem, Model = model });
 
                 //notification
                 await _mediator.Publish(new NewsCommentEvent(newsItem, model.AddNewComment));
@@ -136,7 +136,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("NewsItem", new { SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id) });
             }
 
-            model = await _mediator.Send(new GetNewsItem() { NewsItem = newsItem });
+            model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
             return View("NewsItem", model);
         }
         #endregion

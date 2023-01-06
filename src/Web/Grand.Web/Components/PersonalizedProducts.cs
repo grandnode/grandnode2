@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Queries.Catalog;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using MediatR;
@@ -39,13 +39,12 @@ namespace Grand.Web.Components
             if (!_catalogSettings.PersonalizedProductsEnabled || _catalogSettings.PersonalizedProductsNumber == 0)
                 return Content("");
 
-            var products = await _mediator.Send(new GetPersonalizedProductsQuery() { CustomerId = _workContext.CurrentCustomer.Id, ProductsNumber = _catalogSettings.PersonalizedProductsNumber });
+            var products = await _mediator.Send(new GetPersonalizedProductsQuery { CustomerId = _workContext.CurrentCustomer.Id, ProductsNumber = _catalogSettings.PersonalizedProductsNumber });
 
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 ProductThumbPictureSize = productThumbPictureSize,

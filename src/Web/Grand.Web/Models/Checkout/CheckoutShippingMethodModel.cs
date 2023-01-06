@@ -19,7 +19,7 @@ namespace Grand.Web.Models.Checkout
 
         #region Nested classes
 
-        public partial class ShippingMethodModel : BaseModel
+        public class ShippingMethodModel : BaseModel
         {
             public string ShippingRateProviderSystemName { get; set; }
             public string Name { get; set; }

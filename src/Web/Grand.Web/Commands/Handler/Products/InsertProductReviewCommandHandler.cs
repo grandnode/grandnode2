@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
@@ -46,8 +46,7 @@ namespace Grand.Web.Commands.Handler.Products
             var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
 
             var confirmPurchased =
-                (await _mediator.Send(new GetOrderQuery()
-                {
+                (await _mediator.Send(new GetOrderQuery {
                     CustomerId = request.Customer.Id,
                     StoreId = request.Store.Id,
                     ProductId = request.Product.Id,
@@ -78,7 +77,7 @@ namespace Grand.Web.Commands.Handler.Products
             }
 
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = request.Product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = request.Product });
 
             //notify store owner
             if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)

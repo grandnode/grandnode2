@@ -87,7 +87,7 @@ namespace Grand.Web.Commands.Handler.Common
                                      .ToList())
                         {
                             customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
-                                attribute, selectedAttributeId.ToString()).ToList();
+                                attribute, selectedAttributeId).ToList();
                         }
                     }
                         break;
@@ -136,8 +136,6 @@ namespace Grand.Web.Commands.Handler.Common
                                 attribute, download.DownloadGuid.ToString()).ToList();
                         }
                     }
-                        break;
-                    default:
                         break;
                 }
             }

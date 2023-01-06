@@ -1,13 +1,13 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Customers;
 using Grand.Business.Core.Utilities.Customers;
-using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
@@ -178,7 +178,7 @@ namespace Grand.Web.Controllers
 
             if (_customerSettings.TwoFactorAuthenticationType != TwoFactorAuthenticationType.AppVerification)
             {
-                await _mediator.Send(new GetTwoFactorAuthentication() {
+                await _mediator.Send(new GetTwoFactorAuthentication {
                     Customer = customer,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
@@ -300,7 +300,7 @@ namespace Grand.Web.Controllers
             var customer = await _customerService.GetCustomerByEmail(model.Email);
             if (customer is { Active: true, Deleted: false })
             {
-                await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
+                await _mediator.Send(new PasswordRecoverySendCommand { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
 
                 model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
                 model.Send = true;
@@ -320,7 +320,7 @@ namespace Grand.Web.Controllers
             if (customer == null)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetPasswordRecoveryConfirm() { Customer = customer, Token = token });
+            var model = await _mediator.Send(new GetPasswordRecoveryConfirm { Customer = customer, Token = token });
 
             return View(model);
         }
@@ -387,7 +387,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
             }
 
-            var model = await _mediator.Send(new GetRegister() {
+            var model = await _mediator.Send(new GetRegister {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = false,
                 Language = _workContext.WorkingLanguage,
@@ -416,7 +416,7 @@ namespace Grand.Web.Controllers
             }
 
             //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { SelectedAttributes = model.SelectedAttributes });
+            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes { SelectedAttributes = model.SelectedAttributes });
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings)
             {
@@ -443,7 +443,7 @@ namespace Grand.Web.Controllers
                 var registrationResult = await _customerManagerService.RegisterCustomer(registrationRequest);
                 if (registrationResult.Success)
                 {
-                    await _mediator.Send(new CustomerRegisteredCommand() {
+                    await _mediator.Send(new CustomerRegisteredCommand {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
                         Model = model,
@@ -497,7 +497,7 @@ namespace Grand.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetRegister() {
+            model = await _mediator.Send(new GetRegister {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = true,
                 Language = _workContext.WorkingLanguage,
@@ -526,8 +526,6 @@ namespace Grand.Web.Controllers
                     break;
                 case UserRegistrationType.EmailValidation:
                     resultText = _translationService.GetResource("Account.Register.Result.EmailValidation");
-                    break;
-                default:
                     break;
             }
             var model = new RegisterResultModel {
@@ -604,7 +602,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetInfo() {
+            var model = await _mediator.Send(new GetInfo {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = false,
                 Language = _workContext.WorkingLanguage,
@@ -622,7 +620,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { SelectedAttributes = model.SelectedAttributes, CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList() });
+            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes { SelectedAttributes = model.SelectedAttributes, CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList() });
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
 
             foreach (var error in customerAttributeWarnings)
@@ -634,7 +632,7 @@ namespace Grand.Web.Controllers
             {
                 if (ModelState is { IsValid: true, ErrorCount: 0 })
                 {
-                    await _mediator.Send(new UpdateCustomerInfoCommand() {
+                    await _mediator.Send(new UpdateCustomerInfoCommand {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
                         Model = model,
@@ -650,7 +648,7 @@ namespace Grand.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetInfo() {
+            model = await _mediator.Send(new GetInfo {
                 Model = model,
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = true,
@@ -711,7 +709,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetAddressList() {
+            var model = await _mediator.Send(new GetAddressList {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -751,7 +749,7 @@ namespace Grand.Web.Controllers
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             var model = new CustomerAddressEditModel {
-                Address = await _mediator.Send(new GetAddressModel() {
+                Address = await _mediator.Send(new GetAddressModel {
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
                     Model = null,
@@ -778,7 +776,7 @@ namespace Grand.Web.Controllers
             var customer = _workContext.CurrentCustomer;
 
             //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.Address.SelectedAttributes });
+            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.Address.SelectedAttributes });
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
@@ -798,7 +796,7 @@ namespace Grand.Web.Controllers
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             //If we got this far, something failed, redisplay form
-            model.Address = await _mediator.Send(new GetAddressModel() {
+            model.Address = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -825,7 +823,7 @@ namespace Grand.Web.Controllers
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             var model = new CustomerAddressEditModel();
-            model.Address = await _mediator.Send(new GetAddressModel() {
+            model.Address = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -855,7 +853,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("CustomerAddresses");
 
             //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.Address.SelectedAttributes });
+            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.Address.SelectedAttributes });
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
@@ -877,7 +875,7 @@ namespace Grand.Web.Controllers
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             //If we got this far, something failed, redisplay form
-            model.Address = await _mediator.Send(new GetAddressModel() {
+            model.Address = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -903,13 +901,13 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideDownloadableProductsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetDownloadableProducts() { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetDownloadableProducts { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage });
             return View(model);
         }
 
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
-            var model = await _mediator.Send(new GetUserAgreement() { OrderItemId = orderItemId }); ;
+            var model = await _mediator.Send(new GetUserAgreement { OrderItemId = orderItemId }); ;
             if (model == null)
                 return RedirectToRoute("HomePage");
 
@@ -927,7 +925,7 @@ namespace Grand.Web.Controllers
 
             var model = new ChangePasswordModel();
 
-            var passwordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery() { Customer = _workContext.CurrentCustomer });
+            var passwordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery { Customer = _workContext.CurrentCustomer });
             if (passwordIsExpired)
                 ModelState.AddModelError(string.Empty, _translationService.GetResource("Account.ChangePassword.PasswordIsExpired"));
 
@@ -1001,7 +999,7 @@ namespace Grand.Web.Controllers
                 case CustomerLoginResults.Successful:
                 {
                     //delete account 
-                    await _mediator.Send(new DeleteAccountCommand() { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString(), });
+                    await _mediator.Send(new DeleteAccountCommand { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString(), });
 
                     //standard logout 
                     await _authenticationService.SignOut();
@@ -1048,7 +1046,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideAuctionsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetAuctions() { Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetAuctions { Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage });
 
             return View(model);
         }
@@ -1065,7 +1063,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideNotesTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetNotes() { Customer = _workContext.CurrentCustomer });
+            var model = await _mediator.Send(new GetNotes { Customer = _workContext.CurrentCustomer });
 
             return View(model);
         }
@@ -1082,7 +1080,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideDocumentsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetDocuments() {
+            var model = await _mediator.Send(new GetDocuments {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Command = command
@@ -1103,7 +1101,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideReviewsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetReviews() { Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetReviews { Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage });
 
             return View(model);
         }
@@ -1123,7 +1121,7 @@ namespace Grand.Web.Controllers
             if (_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetTwoFactorAuthentication() {
+            var model = await _mediator.Send(new GetTwoFactorAuthentication {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -1177,13 +1175,13 @@ namespace Grand.Web.Controllers
             if (!_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
                 return RedirectToRoute("CustomerInfo");
 
-            _ = await _mediator.Send(new GetTwoFactorAuthentication() {
+            _ = await _mediator.Send(new GetTwoFactorAuthentication {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
             });
 
-            var model = new CustomerInfoModel.TwoFactorAuthorizationModel() {
+            var model = new CustomerInfoModel.TwoFactorAuthorizationModel {
                 TwoFactorAuthenticationType = _customerSettings.TwoFactorAuthenticationType
             };
             return View(model);
@@ -1239,7 +1237,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideCoursesTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetCourses() { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore });
+            var model = await _mediator.Send(new GetCourses { Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore });
 
             return View(model);
         }
@@ -1259,7 +1257,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideSubAccountsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetSubAccounts() { Customer = _workContext.CurrentCustomer });
+            var model = await _mediator.Send(new GetSubAccounts { Customer = _workContext.CurrentCustomer });
 
             return View(model);
         }
@@ -1272,7 +1270,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = new SubAccountModel() {
+            var model = new SubAccountModel {
                 Active = true,
             };
             return View(model);
@@ -1290,7 +1288,7 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
             
-            var result = await _mediator.Send(new SubAccountAddCommand() {
+            var result = await _mediator.Send(new SubAccountAddCommand {
                 Customer = _workContext.CurrentCustomer,
                 Model = model,
                 Store = _workContext.CurrentStore
@@ -1317,7 +1315,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetSubAccount() { CustomerId = id, CurrentCustomer = _workContext.CurrentCustomer });
+            var model = await _mediator.Send(new GetSubAccount { CustomerId = id, CurrentCustomer = _workContext.CurrentCustomer });
 
             return View(model);
         }
@@ -1334,7 +1332,7 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
             
-            var result = await _mediator.Send(new SubAccountEditCommand() {
+            var result = await _mediator.Send(new SubAccountEditCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
                 Model = model,
                 Store = _workContext.CurrentStore
@@ -1371,7 +1369,7 @@ namespace Grand.Web.Controllers
                         .SelectMany(x => x.Errors)
                         .Select(x => x.ErrorMessage))
                 });
-            var result = await _mediator.Send(new SubAccountDeleteCommand() {
+            var result = await _mediator.Send(new SubAccountDeleteCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
                 CustomerId = id,
             });

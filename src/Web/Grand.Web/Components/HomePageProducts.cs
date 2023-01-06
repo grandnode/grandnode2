@@ -3,8 +3,8 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
-using Grand.Web.Features.Models.Products;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,8 +51,7 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,

@@ -1,7 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -25,12 +26,11 @@ using Grand.Web.Models.Checkout;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class CheckoutController : BasePublicController
+    public class CheckoutController : BasePublicController
     {
         #region Fields
 
@@ -144,7 +144,7 @@ namespace Grand.Web.Controllers
                 filterByCountryId = _workContext.CurrentCustomer.BillingAddress.CountryId;
             }
 
-            var paymentMethodModel = await _mediator.Send(new GetPaymentMethod() {
+            var paymentMethodModel = await _mediator.Send(new GetPaymentMethod {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -281,7 +281,7 @@ namespace Grand.Web.Controllers
         [NonAction]
         protected async Task<JsonResult> LoadStepAfterBillingAddress(IList<ShoppingCartItem> cart)
         {
-            var shippingMethodModel = await _mediator.Send(new GetShippingMethod() {
+            var shippingMethodModel = await _mediator.Send(new GetShippingMethod {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -320,8 +320,7 @@ namespace Grand.Web.Controllers
         {
             //Check whether payment workflow is required
             //we ignore loyalty points during cart total calculation
-            var isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired()
-                { Cart = cart, UseLoyaltyPoints = false });
+            var isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired { Cart = cart, UseLoyaltyPoints = false });
             if (isPaymentWorkflowRequired)
             {
                 //filter by country
@@ -334,7 +333,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //payment is required
-                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod() {
+                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod {
                     Cart = cart,
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
@@ -376,7 +375,7 @@ namespace Grand.Web.Controllers
             await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
 
-            var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() {
+            var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                 Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
@@ -406,7 +405,7 @@ namespace Grand.Web.Controllers
                 (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection
                  && _paymentSettings.SkipPaymentInfo))
             {
-                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() {
+                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                     Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore
                 });
@@ -420,7 +419,7 @@ namespace Grand.Web.Controllers
             }
 
             //return payment info page
-            var paymenInfoModel = await _mediator.Send(new GetPaymentInfo() { PaymentMethod = paymentMethod });
+            var paymenInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
             return Json(new {
                 update_section = new UpdateSectionJsonModel {
                     name = "payment-info",
@@ -456,7 +455,7 @@ namespace Grand.Web.Controllers
             var requiresShipping = cart.RequiresShipping();
             var model = new CheckoutModel {
                 ShippingRequired = requiresShipping,
-                BillingAddress = await _mediator.Send(new GetBillingAddress() {
+                BillingAddress = await _mediator.Send(new GetBillingAddress {
                     Cart = cart,
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
@@ -464,7 +463,7 @@ namespace Grand.Web.Controllers
                     Store = _workContext.CurrentStore,
                     PrePopulateNewAddressWithCustomerFields = true
                 }),
-                ShippingAddress = await _mediator.Send(new GetShippingAddress() {
+                ShippingAddress = await _mediator.Send(new GetShippingAddress {
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
                     Language = _workContext.WorkingLanguage,
@@ -504,7 +503,7 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //custom address attributes
-                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
+                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
                     var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
                     foreach (var error in customAttributeWarnings)
                     {
@@ -514,7 +513,7 @@ namespace Grand.Web.Controllers
                     if (!ModelState.IsValid)
                     {
                         //model is not valid. redisplay the form with errors
-                        var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
+                        var billingAddressModel = await _mediator.Send(new GetBillingAddress {
                             Cart = cart,
                             Currency = _workContext.WorkingCurrency,
                             Customer = _workContext.CurrentCustomer,
@@ -667,8 +666,7 @@ namespace Grand.Web.Controllers
                     else
                     {
                         //custom address attributes
-                        var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes()
-                            { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
+                        var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
                         var customAttributeWarnings =
                             await _addressAttributeParser.GetAttributeWarnings(customAttributes);
                         foreach (var error in customAttributeWarnings)
@@ -679,7 +677,7 @@ namespace Grand.Web.Controllers
                         if (!ModelState.IsValid)
                         {
                             //model is not valid. redisplay the form with errors
-                            var shippingAddressModel = await _mediator.Send(new GetShippingAddress() {
+                            var shippingAddressModel = await _mediator.Send(new GetShippingAddress {
                                 Currency = _workContext.WorkingCurrency,
                                 Customer = _workContext.CurrentCustomer,
                                 Language = _workContext.WorkingLanguage,
@@ -742,7 +740,7 @@ namespace Grand.Web.Controllers
                     return await LoadStepAfterBillingAddress(cart);
                 }
 
-                var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
+                var billingAddressModel = await _mediator.Send(new GetBillingAddress {
                     Cart = cart,
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
@@ -875,14 +873,14 @@ namespace Grand.Web.Controllers
 
                 //Check whether payment workflow is required
                 var isPaymentWorkflowRequired =
-                    await _mediator.Send(new GetIsPaymentWorkflowRequired() { Cart = cart });
+                    await _mediator.Send(new GetIsPaymentWorkflowRequired { Cart = cart });
                 if (!isPaymentWorkflowRequired)
                 {
                     //payment is not required
                     await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
 
-                    var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() {
+                    var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                         Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
                         Store = _workContext.CurrentStore
                     });
@@ -956,7 +954,7 @@ namespace Grand.Web.Controllers
                             _workContext.CurrentStore.Id);
                     }
 
-                    var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() {
+                    var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                         Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
                         Store = _workContext.CurrentStore
                     });
@@ -970,7 +968,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //If we got this far, something failed, redisplay form
-                var paymenInfoModel = await _mediator.Send(new GetPaymentInfo() { PaymentMethod = paymentMethod });
+                var paymenInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "payment-info",
@@ -995,7 +993,7 @@ namespace Grand.Web.Controllers
                 await CartValidate(cart);
 
                 //prevent 2 orders being placed within an X seconds time frame
-                if (!await _mediator.Send(new GetMinOrderPlaceIntervalValid() {
+                if (!await _mediator.Send(new GetMinOrderPlaceIntervalValid {
                         Customer = _workContext.CurrentCustomer,
                         Store = _workContext.CurrentStore
                     }))
@@ -1034,7 +1032,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //error
-                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() {
+                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                     Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore
                 });

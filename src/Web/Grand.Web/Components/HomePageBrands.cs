@@ -21,7 +21,7 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetHomepageBrands() {
+            var model = await _mediator.Send(new GetHomepageBrands {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore

@@ -124,7 +124,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel {
                 Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.MiniCartThumbPictureSize, true),
+                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.MiniCartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), product.Name),
                 AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name),
             };

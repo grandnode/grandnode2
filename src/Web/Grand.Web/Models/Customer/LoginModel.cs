@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class LoginModel : BaseModel
+    public class LoginModel : BaseModel
     {
         public bool CheckoutAsGuest { get; set; }
 

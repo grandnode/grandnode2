@@ -32,8 +32,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (productCategories.Any())
                     activeCategoryId = productCategories.OrderBy(x => x.DisplayOrder).FirstOrDefault().CategoryId;
             }
-            var cachedModel = await _mediator.Send(new GetCategorySimple()
-            {
+            var cachedModel = await _mediator.Send(new GetCategorySimple {
                 Customer = request.Customer,
                 Language = request.Language,
                 Store = request.Store,

@@ -1,5 +1,4 @@
 ﻿@model ProductDetailsModel
-@using System.Text;
 
 <div id="product-attributes"></div>
 @{
@@ -37,8 +36,6 @@
                         attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(e){{{2}();}},false);\n", controlId, attributeValue.Id, attributeChangeHandlerFuncName);
                     }
                 }
-                break;
-            default:
                 break;
         }
     }

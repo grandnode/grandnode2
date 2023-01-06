@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutBillingAddressModel : BaseModel
+    public class CheckoutBillingAddressModel : BaseModel
     {
         public CheckoutBillingAddressModel()
         {

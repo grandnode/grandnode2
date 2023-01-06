@@ -1,6 +1,6 @@
-﻿using Grand.Domain.Courses;
+﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
+using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -34,7 +34,7 @@ namespace Grand.Web.Features.Handlers.Customers
             foreach (var item in courses)
             {
                 var level = await _courseLevelService.GetById(item.LevelId);
-                model.CourseList.Add(new CoursesModel.Course() {
+                model.CourseList.Add(new CoursesModel.Course {
                     Id = item.Id,
                     Name = item.Name,
                     SeName = item.SeName,

@@ -127,7 +127,7 @@ namespace Grand.Web.Commands.Handler.Common
                                 .ToList())
                             {
                                 customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
-                                            attribute, selectedAttributeId.ToString()).ToList();
+                                            attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
@@ -137,7 +137,7 @@ namespace Grand.Web.Commands.Handler.Common
                             var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -172,8 +172,6 @@ namespace Grand.Web.Commands.Handler.Common
                                            attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
             }
@@ -387,8 +385,6 @@ namespace Grand.Web.Commands.Handler.Common
                                     attributeModel.DefaultValue = download.DownloadGuid.ToString();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
 

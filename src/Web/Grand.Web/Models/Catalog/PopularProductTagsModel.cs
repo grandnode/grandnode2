@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class PopularProductTagsModel : BaseModel
+    public class PopularProductTagsModel : BaseModel
     {
         public PopularProductTagsModel()
         {

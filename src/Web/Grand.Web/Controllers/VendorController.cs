@@ -26,7 +26,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
-    public partial class VendorController : BasePublicController
+    public class VendorController : BasePublicController
     {
         #region Fields
 
@@ -118,7 +118,7 @@ namespace Grand.Web.Controllers
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 ExcludeProperties = false,
@@ -186,7 +186,7 @@ namespace Grand.Web.Controllers
                     PageSizeOptions = _vendorSettings.DefaultVendorPageSizeOptions,
                     AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview,
                 };
-                model.Address.ToEntity(vendor.Address, true);
+                model.Address.ToEntity(vendor.Address);
                 if (vendorPictureBinary != null && !string.IsNullOrEmpty(contentType))
                 {
                     var picture = await _pictureService.InsertPicture(vendorPictureBinary, contentType, null, reference: Reference.Vendor, objectId: vendor.Id);
@@ -225,7 +225,7 @@ namespace Grand.Web.Controllers
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 Model = model.Address,
@@ -253,7 +253,7 @@ namespace Grand.Web.Controllers
             model.UserFields = vendor.UserFields;
             model.PictureUrl = await _pictureService.GetPictureUrl(vendor.PictureId);
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = vendor.Address,
                 ExcludeProperties = false,
@@ -320,7 +320,7 @@ namespace Grand.Web.Controllers
 
                 //update picture seo file name
                 await UpdatePictureSeoNames(vendor);
-                model.Address.ToEntity(vendor.Address, true);
+                model.Address.ToEntity(vendor.Address);
 
                 await _vendorService.UpdateVendor(vendor);
 
@@ -331,7 +331,7 @@ namespace Grand.Web.Controllers
                 return RedirectToAction("Info");
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Model = model.Address,
                 Address = vendor.Address,
@@ -391,7 +391,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model = await _mediator.Send(new ContactVendorSendCommand() { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
+                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
                 return Json(model);
             }
 

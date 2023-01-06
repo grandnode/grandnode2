@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CourseController : BasePublicController
+    public class CourseController : BasePublicController
     {
         private readonly IPermissionService _permissionService;
         private readonly IAclService _aclService;
@@ -69,7 +69,7 @@ namespace Grand.Web.Controllers
                 return false;
 
             //Check whether the current user purchased the course
-            if (!await _mediator.Send(new GetCheckOrder() { Course = course, Customer = customer })
+            if (!await _mediator.Send(new GetCheckOrder { Course = course, Customer = customer })
                 && !await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 return false;
 
@@ -105,7 +105,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
 
             //model
-            var model = await _mediator.Send(new GetCourse() {
+            var model = await _mediator.Send(new GetCourse {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage
@@ -138,7 +138,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
 
             //model
-            var model = await _mediator.Send(new GetLesson() {
+            var model = await _mediator.Send(new GetLesson {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -173,7 +173,7 @@ namespace Grand.Web.Controllers
             if (download.DownloadBinary == null)
                 return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
             var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
@@ -208,7 +208,7 @@ namespace Grand.Web.Controllers
             if (download.DownloadBinary == null)
                 return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
             var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "video/mp4";
@@ -232,7 +232,7 @@ namespace Grand.Web.Controllers
             if (!await CheckPermission(course, customer))
                 return Json(new { result = false });
 
-            await _mediator.Send(new CourseLessonApprovedCommand() { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
+            await _mediator.Send(new CourseLessonApprovedCommand { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
 
             return Json(new { result = true });
         }

@@ -18,7 +18,7 @@ namespace Grand.Web.Models.ShoppingCart
 
         #region Nested Classes
 
-        public partial class WishlistItemModel : BaseEntityModel
+        public class WishlistItemModel : BaseEntityModel
         {
             public WishlistItemModel()
             {

@@ -50,7 +50,7 @@ namespace Grand.Web.Components
             if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
                 return Content("");
 
-            var model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
+            var model = await _mediator.Send(new GetVendorReviews { Vendor = vendor });
 
             //only registered users can leave reviews
             if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_vendorSettings.AllowAnonymousUsersToReviewVendor)

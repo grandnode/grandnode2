@@ -44,7 +44,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             foreach (var c in await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id))
                 model.AvailableCountries.Add(new SelectListItem {
                     Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                    Value = c.Id.ToString(),
+                    Value = c.Id,
                     Selected = c.Id == defaultEstimateCountryId
                 });
             //states
@@ -54,7 +54,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 foreach (var s in states)
                     model.AvailableStates.Add(new SelectListItem {
                         Text = s.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = s.Id.ToString(),
+                        Value = s.Id,
                         Selected = s.Id == defaultEstimateStateId
                     });
 

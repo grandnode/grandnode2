@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using Grand.Domain.Customers;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Models.Customer;
+using Grand.Domain.Customers;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Models.Customer;
 
 namespace Grand.Web.Validators.Customer
 {

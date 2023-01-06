@@ -5,9 +5,9 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
@@ -66,8 +66,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
                     UserFields = vendor.UserFields,
                     //prepare vendor address
-                    Address = await _mediator.Send(new GetVendorAddress()
-                    {
+                    Address = await _mediator.Send(new GetVendorAddress {
                         Language = request.Language,
                         Address = vendor.Address,
                         ExcludeProperties = false,

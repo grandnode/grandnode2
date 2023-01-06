@@ -12,6 +12,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Web.Extensions;
@@ -87,7 +88,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc),
                 OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name,
                 IsReOrderAllowed = _orderSettings.IsReOrderAllowed,
-                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = request.Order }),
+                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = request.Order }),
                 PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending,
                 ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote
             };
@@ -96,7 +97,7 @@ namespace Grand.Web.Features.Handlers.Orders
             await PrepareShippingInfo(request, model);
 
             //billing info
-            model.BillingAddress = await _mediator.Send(new GetAddressModel() {
+            model.BillingAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Model = null,
                 Address = request.Order.BillingAddress,
@@ -133,7 +134,7 @@ namespace Grand.Web.Features.Handlers.Orders
             //allow cancel order
             if (_orderSettings.UserCanCancelUnpaidOrder)
             {
-                if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending && request.Order.PaymentStatusId == Domain.Payments.PaymentStatus.Pending
+                if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending && request.Order.PaymentStatusId == PaymentStatus.Pending
                     && (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired || request.Order.ShippingStatusId == ShippingStatus.Pending))
                     model.UserCanCancelUnpaidOrder = true;
             }
@@ -153,7 +154,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 model.PickUpInStore = request.Order.PickUpInStore;
                 if (!request.Order.PickUpInStore)
                 {
-                    model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
+                    model.ShippingAddress = await _mediator.Send(new GetAddressModel {
                         Language = request.Language,
                         Model = null,
                         Address = request.Order.ShippingAddress,
@@ -166,7 +167,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     {
                         if (request.Order.PickupPoint.Address != null)
                         {
-                            model.PickupAddress = await _mediator.Send(new GetAddressModel() {
+                            model.PickupAddress = await _mediator.Send(new GetAddressModel {
                                 Language = request.Language,
                                 Address = request.Order.PickupPoint.Address,
                                 ExcludeProperties = false,

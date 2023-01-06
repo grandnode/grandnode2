@@ -46,7 +46,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Command.OrderBy = request.Collection.DefaultSort;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
@@ -68,7 +68,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     request.Store.Id);
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
                 {
-                    var featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    var featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CollectionId = request.Collection.Id,
                         Customer = request.Customer,
@@ -81,7 +81,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the collection has featured products
-                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CollectionId = request.Collection.Id,
                         Customer = request.Customer,
@@ -92,7 +92,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
-                    model.FeaturedProducts = (await _mediator.Send(new GetProductOverview() {
+                    model.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         Products = featuredProducts,
                     })).ToList();
                 }
@@ -101,7 +101,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
                 (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
-            var products = await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 CollectionId = request.Collection.Id,
                 Customer = request.Customer,
@@ -114,7 +114,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 PageSize = request.Command.PageSize
             }, cancellationToken);
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
             }, cancellationToken)).ToList();

@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -63,7 +63,7 @@ namespace Grand.Web.Features.Handlers.Products
         {
             var model = new ProductDetailsAttributeChangeModel();
 
-            var customAttributes = await _mediator.Send(new GetParseProductAttributes() { Product = request.Product, Model = request.Model }, cancellationToken);
+            var customAttributes = await _mediator.Send(new GetParseProductAttributes { Product = request.Product, Model = request.Model }, cancellationToken);
 
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
                request.Model.WarehouseId :
@@ -193,7 +193,7 @@ namespace Grand.Web.Features.Handlers.Products
                 {
                     var x = combinationsStockUnavailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
                     var notAvailable = x.Select(x => x.Value).Distinct().ToList();
-                    notAvailable.ForEach((x) =>
+                    notAvailable.ForEach(x =>
                     {
                         if (!model.Contains(x))
                             model.Add(x);
@@ -248,7 +248,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
             if (customAttributes.Any())
             {
-                customAttributes.ToList().ForEach((x) =>
+                customAttributes.ToList().ForEach(x =>
                 {
                     if (model.Contains(x.Value))
                         model.Remove(x.Value);

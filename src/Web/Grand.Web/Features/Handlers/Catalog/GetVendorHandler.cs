@@ -1,7 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
@@ -15,7 +16,6 @@ using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -70,7 +70,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
                 RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage),
                 UserFields = request.Vendor.UserFields,
-                Address = await _mediator.Send(new GetVendorAddress() {
+                Address = await _mediator.Send(new GetVendorAddress {
                     Language = request.Language,
                     Address = request.Vendor.Address,
                     ExcludeProperties = false,
@@ -88,7 +88,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PictureModel = pictureModel;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
@@ -102,7 +102,7 @@ namespace Grand.Web.Features.Handlers.Catalog
               (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
             //products
-            var products = await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 Customer = request.Customer,
                 VendorId = request.Vendor.Id,
@@ -114,7 +114,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 PageSize = request.Command.PageSize
             });
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
             })).ToList();

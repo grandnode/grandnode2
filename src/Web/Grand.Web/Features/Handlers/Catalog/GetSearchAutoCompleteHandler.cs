@@ -1,13 +1,14 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -18,7 +19,6 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -87,11 +87,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (_catalogSettings.ShowProductsFromSubcategoriesInSearchBox)
                 {
                     //include subcategories
-                    categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = request.CategoryId, Customer = request.Customer, Store = request.Store }));
+                    categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.CategoryId, Customer = request.Customer, Store = request.Store }));
                 }
             }
 
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = (await _mediator.Send(new GetSearchProductsQuery {
                 Customer = request.Customer,
                 StoreId = storeId,
                 Keywords = request.Term,
@@ -119,7 +119,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     if (picture != null)
                         pictureUrl = await _pictureService.GetPictureUrl(picture.PictureId, _mediaSettings.AutoCompleteSearchThumbPictureSize);
                 }
-                var rating = await _mediator.Send(new GetProductReviewOverview() {
+                var rating = await _mediator.Send(new GetProductReviewOverview {
                     Language = request.Language,
                     Product = item,
                     Store = request.Store
@@ -127,7 +127,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
                 var price = displayPrices ? await PreparePrice(item, request) : (Price: string.Empty, PriceWithDiscount: string.Empty);
 
-                model.Add(new SearchAutoCompleteModel() {
+                model.Add(new SearchAutoCompleteModel {
                     SearchType = "Product",
                     Label = item.GetTranslation(x => x.Name, request.Language.Id) ?? "",
                     Desc = item.GetTranslation(x => x.ShortDescription, request.Language.Id) ?? "",
@@ -158,7 +158,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var desc = "";
                 if (_catalogSettings.SearchByDescription)
                     desc = "&sid=true";
-                model.Add(new SearchAutoCompleteModel() {
+                model.Add(new SearchAutoCompleteModel {
                     SearchType = "Brand",
                     Label = brand.GetTranslation(x => x.Name, request.Language.Id),
                     Desc = "",
@@ -181,7 +181,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var desc = "";
                 if (_catalogSettings.SearchByDescription)
                     desc = "&sid=true";
-                model.Add(new SearchAutoCompleteModel() {
+                model.Add(new SearchAutoCompleteModel {
                     SearchType = "Category",
                     Label = category.GetTranslation(x => x.Name, request.Language.Id),
                     Desc = "",
@@ -193,7 +193,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (_blogSettings.ShowBlogPostsInSearchAutoComplete)
             {
                 var posts = await _blogService.GetAllBlogPosts(storeId: storeId, pageSize: productNumber, blogPostName: request.Term);
-                model.AddRange(posts.Select(item => new SearchAutoCompleteModel() {
+                model.AddRange(posts.Select(item => new SearchAutoCompleteModel {
                     SearchType = "Blog",
                     Label = item.GetTranslation(x => x.Title, request.Language.Id),
                     Desc = "",

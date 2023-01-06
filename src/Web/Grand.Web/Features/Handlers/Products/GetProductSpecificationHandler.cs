@@ -1,10 +1,10 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using System.Net;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -50,8 +50,6 @@ namespace Grand.Web.Features.Handlers.Products
                         break;
                     case SpecificationAttributeType.Hyperlink:
                         m.ValueRaw = string.Format("<a href='{0}' target='_blank'>{0}</a>", item.CustomValue);
-                        break;
-                    default:
                         break;
                 }
                 spa.Add(m);

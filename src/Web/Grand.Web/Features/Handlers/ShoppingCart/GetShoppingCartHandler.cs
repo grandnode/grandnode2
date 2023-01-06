@@ -1,24 +1,26 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
@@ -26,8 +28,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Grand.Business.Core.Utilities.Checkout;
-using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -154,7 +154,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             }
             else
             {
-                var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() {
+                var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand {
                     Customer = request.Customer,
                     Cart = request.Cart.Where(x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || x.ShoppingCartTypeId == ShoppingCartType.Auctions).ToList()
                 });
@@ -176,7 +176,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     discount.RequiresCouponCode &&
                     (await _discountService.ValidateDiscount(discount, request.Customer, request.Currency)).IsValid)
                 {
-                    model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel() {
+                    model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {
                         Id = discount.Id,
                         CouponCode = couponCode
                     });
@@ -296,8 +296,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             }
                         }
                         break;
-                    default:
-                        break;
                 }
 
                 model.CheckoutAttributes.Add(attributeModel);
@@ -393,7 +391,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 if (sci.ShoppingCartTypeId == ShoppingCartType.Auctions)
                 {
                     cartItemModel.DisableRemoval = true;
-                    cartItemModel.AuctionInfo = _translationService.GetResource("ShoppingCart.auctionwonon") + " " + _dateTimeService.ConvertToUserTime(product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc).ToString();
+                    cartItemModel.AuctionInfo = _translationService.GetResource("ShoppingCart.auctionwonon") + " " + _dateTimeService.ConvertToUserTime(product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);
                 }
 
                 //unit prices
@@ -405,7 +403,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 }
                 else
                 {
-                    var unitprices = await _pricingService.GetUnitPrice(sci, product, true);
+                    var unitprices = await _pricingService.GetUnitPrice(sci, product);
                     var discountAmount = unitprices.discountAmount;
                     List<ApplyDiscount> appliedDiscounts = unitprices.appliedDiscounts;
                     var productprices = await _taxService.GetProductPrice(product, unitprices.unitprice);
@@ -426,7 +424,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         appliedDiscounts.ForEach(x => cartItemModel.Discounts.Add(x.DiscountId));
                     }
                     //sub total
-                    var subtotal = await _pricingService.GetSubTotal(sci, product, true);
+                    var subtotal = await _pricingService.GetSubTotal(sci, product);
                     var shoppingCartItemDiscountBase = subtotal.discountAmount;
                     List<ApplyDiscount> scDiscounts = subtotal.appliedDiscounts;
                     var shoppingCartItemSubTotalWithDiscount = (await _taxService.GetProductPrice(product, subtotal.subTotal)).productprice;
@@ -466,7 +464,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel {
                 Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize, true),
+                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), product.Name),
                 AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name),
             };

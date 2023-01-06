@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure;
 using Grand.Domain.Localization;
 using Grand.Domain.News;
+using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
 using MediatR;
 

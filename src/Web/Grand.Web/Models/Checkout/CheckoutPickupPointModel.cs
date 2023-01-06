@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutPickupPointModel : BaseModel
+    public class CheckoutPickupPointModel : BaseModel
     {
         public string Id { get; set; }
 

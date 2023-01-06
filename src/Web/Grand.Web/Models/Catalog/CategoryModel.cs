@@ -33,7 +33,7 @@ namespace Grand.Web.Models.Catalog
         public IList<ProductOverviewModel> FeaturedProducts { get; set; }
         public IList<ProductOverviewModel> Products { get; set; }        
 		#region Nested Classes
-        public partial class SubCategoryModel : BaseEntityModel
+        public class SubCategoryModel : BaseEntityModel
         {
             public SubCategoryModel()
             {

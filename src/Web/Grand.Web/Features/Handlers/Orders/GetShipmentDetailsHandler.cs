@@ -151,7 +151,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.PickUpInStore = order.PickUpInStore;
             if (!order.PickUpInStore)
             {
-                model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
+                model.ShippingAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = order.ShippingAddress,
                     ExcludeProperties = false,
@@ -161,7 +161,7 @@ namespace Grand.Web.Features.Handlers.Orders
             {
                 if (order.PickupPoint is { Address: { } })
                 {
-                    model.PickupAddress = await _mediator.Send(new GetAddressModel() {
+                    model.PickupAddress = await _mediator.Send(new GetAddressModel {
                         Language = request.Language,
                         Address = order.PickupPoint.Address,
                         ExcludeProperties = false,

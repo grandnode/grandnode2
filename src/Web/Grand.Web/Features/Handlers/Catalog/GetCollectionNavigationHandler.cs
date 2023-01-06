@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Core.Extensions;
-using Grand.Infrastructure.Caching;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Web.Features.Models.Catalog;
+using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 

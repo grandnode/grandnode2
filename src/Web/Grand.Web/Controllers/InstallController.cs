@@ -1,8 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
+﻿using Grand.Business.Core.Commands.System.Security;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Commands.System.Security;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
+using Grand.Domain.Logging;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;
@@ -18,7 +19,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Grand.Web.Controllers
 {
-    public partial class InstallController : Controller
+    public class InstallController : Controller
     {
         #region Fields
 
@@ -120,7 +121,7 @@ namespace Grand.Web.Controllers
 
             var installed = await _cacheBase.GetAsync("Installed", async () => { return await Task.FromResult(false); });
             if (installed)
-                return View(new InstallModel() { Installed = true });
+                return View(new InstallModel { Installed = true });
 
             return View(PrepareModel(null));
         }
@@ -248,14 +249,14 @@ namespace Grand.Web.Controllers
                         catch (Exception ex)
                         {
                             var _logger = _serviceProvider.GetRequiredService<ILogger>();
-                            await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
+                            await _logger.InsertLog(LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
                                 ex.Message + " " + ex.InnerException?.Message);
                         }
                     }
 
                     //register default permissions
                     var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
-                    await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = permissionProvider });
+                    await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
 
                     //install migration process - install only header
                     var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
@@ -263,7 +264,7 @@ namespace Grand.Web.Controllers
 
                     //restart application
                     await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
-                    return View(new InstallModel() { Installed = true });
+                    return View(new InstallModel { Installed = true });
                 }
                 catch (Exception exception)
                 {

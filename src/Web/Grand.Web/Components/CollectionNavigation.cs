@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Catalog;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Grand.Web.ViewComponents
             if (_catalogSettings.CollectionsBlockItemsToDisplay == 0)
                 return Content("");
 
-            var model = await _mediator.Send(new GetCollectionNavigation() {
+            var model = await _mediator.Send(new GetCollectionNavigation {
                 CurrentCollectionId = currentCollectionId,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,

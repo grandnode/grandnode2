@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class AddressModel : BaseEntityModel
+    public class AddressModel : BaseEntityModel
     {
         public AddressModel()
         {

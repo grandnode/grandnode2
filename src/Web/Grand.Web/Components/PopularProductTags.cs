@@ -19,7 +19,7 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetPopularProductTags() {
+            var model = await _mediator.Send(new GetPopularProductTags {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });

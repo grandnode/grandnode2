@@ -1,16 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure.Caching;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
-using Grand.Web.Features.Models.Catalog;
+using Grand.Infrastructure.Caching;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -113,7 +113,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     var categoryIds = new List<string> { category.Id };
                     //include subcategories
                     if (_catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
-                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { Customer = request.Customer, Store = request.Store, ParentCategoryId = category.Id }));
+                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { Customer = request.Customer, Store = request.Store, ParentCategoryId = category.Id }));
                     categoryModel.NumberOfProducts = _productService.GetCategoryProductNumber(request.Customer, categoryIds, request.Store.Id, CommonHelper.IgnoreAcl, CommonHelper.IgnoreStoreLimitations);
                 }
                 if (loadSubCategories)

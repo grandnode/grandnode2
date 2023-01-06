@@ -6,10 +6,12 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Page;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
@@ -20,7 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class OrderController : BasePublicController
+    public class OrderController : BasePublicController
     {
         #region Fields
 
@@ -88,7 +90,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetCustomerOrderList() {
+            var model = await _mediator.Send(new GetCustomerOrderList {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -104,7 +106,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetOrderDetails() { Order = order, Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetOrderDetails { Order = order, Language = _workContext.WorkingLanguage });
 
             return View(model);
         }
@@ -116,7 +118,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetOrderDetails() { Order = order, Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetOrderDetails { Order = order, Language = _workContext.WorkingLanguage });
             model.PrintMode = true;
 
             return View("Details", model);
@@ -127,14 +129,14 @@ namespace Grand.Web.Controllers
         {
             var order = await _orderService.GetOrderById(orderId);
             if (!await order.Access(_workContext.CurrentCustomer, _groupService)
-                || order.PaymentStatusId != Domain.Payments.PaymentStatus.Pending
+                || order.PaymentStatusId != PaymentStatus.Pending
                 || (order.ShippingStatusId != ShippingStatus.ShippingNotRequired && order.ShippingStatusId != ShippingStatus.Pending)
                 || order.OrderStatusId != (int)OrderStatusSystem.Pending
                 || !_orderSettings.UserCanCancelUnpaidOrder)
 
                 return Challenge();
 
-            await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true, NotifyStoreOwner = true });
+            await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true, NotifyStoreOwner = true });
 
             return RedirectToRoute("OrderDetails", new { orderId });
         }
@@ -173,12 +175,12 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            await _mediator.Send(new InsertOrderNoteCommand() { Order = order, OrderNote = model, Language = _workContext.WorkingLanguage });
+            await _mediator.Send(new InsertOrderNoteCommand { Order = order, OrderNote = model, Language = _workContext.WorkingLanguage });
 
             //notification
             await _mediator.Publish(new OrderNoteEvent(order, model));
 
-            Notification(Common.Page.NotifyType.Success, _translationService.GetResource("OrderNote.Added"), true);
+            Notification(NotifyType.Success, _translationService.GetResource("OrderNote.Added"), true);
             return RedirectToRoute("OrderDetails", new { orderId = model.OrderId });
         }
 
@@ -189,9 +191,9 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var warnings = await _mediator.Send(new ReOrderCommand() { Order = order });
+            var warnings = await _mediator.Send(new ReOrderCommand { Order = order });
             if (warnings.Any())
-                Notification(Common.Page.NotifyType.Error, string.Join(",", warnings), true);
+                Notification(NotifyType.Error, string.Join(",", warnings), true);
 
             return RedirectToRoute("ShoppingCart");
         }
@@ -234,7 +236,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetShipmentDetails() {
+            var model = await _mediator.Send(new GetShipmentDetails {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Order = order,
@@ -253,7 +255,7 @@ namespace Grand.Web.Controllers
             if (!loyaltyPointsSettings.Enabled)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetCustomerLoyaltyPoints() {
+            var model = await _mediator.Send(new GetCustomerLoyaltyPoints {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Currency = _workContext.WorkingCurrency

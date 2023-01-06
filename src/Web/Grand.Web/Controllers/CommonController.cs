@@ -4,9 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
-using Grand.Web.Common.Themes;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -18,6 +15,11 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Common;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Themes;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -25,12 +27,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CommonController : BasePublicController
+    public class CommonController : BasePublicController
     {
         #region Fields
 
@@ -339,7 +339,7 @@ namespace Grand.Web.Controllers
                 if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
                     return RedirectToRoute("StoreClosed");
             }
-            var model = await _mediator.Send(new ContactUsCommand() {
+            var model = await _mediator.Send(new ContactUsCommand {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -372,7 +372,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new ContactUsSendCommand() {
+                var result = await _mediator.Send(new ContactUsSendCommand {
                     CaptchaValid = captchaValid,
                     Model = model,
                     Store = _workContext.CurrentStore,
@@ -395,7 +395,7 @@ namespace Grand.Web.Controllers
                     return View(model);
                 }
             }
-            var model1 = await _mediator.Send(new ContactUsCommand() {
+            var model1 = await _mediator.Send(new ContactUsCommand {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -412,7 +412,7 @@ namespace Grand.Web.Controllers
             if (!commonSettings.SitemapEnabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetSitemap() {
+            var model = await _mediator.Send(new GetSitemap {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -442,7 +442,7 @@ namespace Grand.Web.Controllers
                 dictionary.Add(item.SystemName, accept);
             }
             if (dictionary.Any())
-                await userFieldService.SaveField<Dictionary<string, bool>>(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
+                await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
 
             //save setting - CookieAccepted
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted, true, _workContext.CurrentStore.Id);
@@ -459,7 +459,7 @@ namespace Grand.Web.Controllers
                 //disabled
                 return Json(new { html = "" });
 
-            var model = await _mediator.Send(new GetPrivacyPreference() {
+            var model = await _mediator.Send(new GetPrivacyPreference {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
             });
@@ -500,7 +500,7 @@ namespace Grand.Web.Controllers
                     dictionary.Add(item.SystemName, selectedConsentCookies.Contains(item.SystemName));
             }
 
-            await userFieldService.SaveField<Dictionary<string, bool>>(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
+            await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
 
             return Json(new { success = true });
         }
@@ -510,7 +510,7 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> RobotsTextFile()
         {
-            var sb = await _mediator.Send(new GetRobotsTextFile() { StoreId = _workContext.CurrentStore.Id });
+            var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
 
@@ -528,7 +528,7 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         public virtual async Task<IActionResult> ContactAttributeChange(ContactAttributeChangeModel model)
         {
-            var result = await _mediator.Send(new ContactAttributeChangeCommand() {
+            var result = await _mediator.Send(new ContactAttributeChangeCommand {
                 Attributes = model.Attributes,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
@@ -651,7 +651,7 @@ namespace Grand.Web.Controllers
             if (!customerSettings.GeoEnabled)
                 return Content("");
 
-            await _mediator.Send(new CurrentPositionCommand() { Customer = _workContext.CurrentCustomer, Model = model });
+            await _mediator.Send(new CurrentPositionCommand { Customer = _workContext.CurrentCustomer, Model = model });
 
             return Content("");
         }

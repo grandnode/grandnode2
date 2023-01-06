@@ -83,7 +83,7 @@ namespace Grand.Web.Features.Handlers.Common
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -98,7 +98,7 @@ namespace Grand.Web.Features.Handlers.Common
                     {
                         model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, request.Language.Id),
-                            Value = s.Id.ToString(),
+                            Value = s.Id,
                             Selected = s.Id == model.StateProvinceId
                         });
                     }

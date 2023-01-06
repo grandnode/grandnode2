@@ -23,7 +23,7 @@ using System.Globalization;
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class ActionCartController : BasePublicController
+    public class ActionCartController : BasePublicController
     {
         #region Fields
 
@@ -159,12 +159,12 @@ namespace Grand.Web.Controllers
                 //if we already have the same product in the cart, then use the total quantity to validate
                 var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
                 var addToCartWarnings = await _shoppingCartValidator
-                  .GetShoppingCartItemWarnings(customer, new ShoppingCartItem() {
+                  .GetShoppingCartItemWarnings(customer, new ShoppingCartItem {
                       ShoppingCartTypeId = cartType,
                       StoreId = _workContext.CurrentStore.Id,
                       WarehouseId = warehouseId,
                       Quantity = quantityToValidate
-                  }, product, new ShoppingCartValidatorOptions() {
+                  }, product, new ShoppingCartValidatorOptions {
                       GetRequiredProductWarnings = false
                   });
 
@@ -185,7 +185,7 @@ namespace Grand.Web.Controllers
                 storeId: _workContext.CurrentStore.Id,
                 warehouseId: warehouseId,
                 quantity: quantity,
-                validator: new ShoppingCartValidatorOptions() {
+                validator: new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false,
                     GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
                     GetAttributesWarnings = cartType != ShoppingCartType.Wishlist,
@@ -201,7 +201,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart {
                 Product = product,
                 Customer = customer,
                 ShoppingCartItem = addToCart.shoppingCartItem,
@@ -274,7 +274,7 @@ namespace Grand.Web.Controllers
                             (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
                                 .Sum(x => x.Quantity));
 
-                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {
+                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart {
                             Customer = _workContext.CurrentCustomer,
                             Currency = _workContext.WorkingCurrency,
                             Language = _workContext.WorkingLanguage,
@@ -370,7 +370,7 @@ namespace Grand.Web.Controllers
             }
             
             //product and gift voucher attributes
-            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
+            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
 
             //rental attributes
             DateTime? rentalStartDate = null;
@@ -442,7 +442,7 @@ namespace Grand.Web.Controllers
                 productId, cartType, _workContext.CurrentStore.Id, warehouseId,
                 attributes, customerEnteredPriceConverted,
                 rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
-                new ShoppingCartValidatorOptions() {
+                new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false,
                     GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
                 });
@@ -462,7 +462,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart {
                 Product = product,
                 Customer = _workContext.CurrentCustomer,
                 ShoppingCartItem = shoppingCartItem,
@@ -542,7 +542,7 @@ namespace Grand.Web.Controllers
                             (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
                                 .Sum(x => x.Quantity));
 
-                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {
+                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart {
                             Customer = _workContext.CurrentCustomer,
                             Currency = _workContext.WorkingCurrency,
                             Language = _workContext.WorkingLanguage,
@@ -646,7 +646,7 @@ namespace Grand.Web.Controllers
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.AddToBid"), product.Name);
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart {
                 Product = product,
                 Customer = customer,
                 Quantity = 1,
@@ -711,7 +711,7 @@ namespace Grand.Web.Controllers
             }
 
             //prepare the model
-            var model = await _mediator.Send(new GetProductDetailsPage() {
+            var model = await _mediator.Send(new GetProductDetailsPage {
                 Store = _workContext.CurrentStore,
                 Product = product,
                 UpdateCartItem = cart
@@ -792,7 +792,7 @@ namespace Grand.Web.Controllers
             #endregion
 
             //product and gift voucher attributes
-            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
+            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
 
             //rental attributes
             DateTime? rentalStartDate = cart.RentalStartDateUtc;
@@ -853,7 +853,7 @@ namespace Grand.Web.Controllers
             //update existing item
             addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
                 cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
-                rentalStartDate, rentalEndDate, model.EnteredQuantity, true));
+                rentalStartDate, rentalEndDate, model.EnteredQuantity));
 
             if (addToCartWarnings.Any())
             {

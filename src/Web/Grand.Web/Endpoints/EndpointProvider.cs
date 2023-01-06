@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Endpoints
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {

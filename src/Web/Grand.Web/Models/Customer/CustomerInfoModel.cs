@@ -143,7 +143,7 @@ namespace Grand.Web.Models.Customer
 
         #region Nested classes
 
-        public partial class AssociatedExternalAuthModel : BaseEntityModel
+        public class AssociatedExternalAuthModel : BaseEntityModel
         {
             public string Email { get; set; }
             public string ExternalIdentifier { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Infrastructure;
 using Grand.Domain.Orders;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
@@ -25,8 +25,7 @@ namespace Grand.Web.ViewComponents
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart);
 
-            var model = await _mediator.Send(new GetEstimateShipping()
-            {
+            var model = await _mediator.Send(new GetEstimateShipping {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,

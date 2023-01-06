@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Infrastructure;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -53,8 +53,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 ShowPickupDate = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate,
                 PickupDate = request.MerchandiseReturn.PickupDate,
                 UserFields = request.MerchandiseReturn.UserFields,
-                PickupAddress = await _mediator.Send(new GetAddressModel()
-                {
+                PickupAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = request.MerchandiseReturn.PickupAddress,
                     ExcludeProperties = false,

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
@@ -55,7 +56,7 @@ namespace Grand.Web.Commands.Handler.Common
                     AttributeControlType = attribute.AttributeControlType,
                     DefaultValue = request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value ?? attribute.DefaultValue
                 };
-                if (attribute.AttributeControlType == Domain.Catalog.AttributeControlType.Datepicker)
+                if (attribute.AttributeControlType == AttributeControlType.Datepicker)
                 {
                     int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_day")?.Value, out var selectedDay);
                     int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_month")?.Value,out var selectedMonth);

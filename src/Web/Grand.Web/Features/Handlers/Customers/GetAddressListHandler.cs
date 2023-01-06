@@ -1,10 +1,10 @@
-﻿using Grand.Domain.Common;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Common;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
-using Grand.Business.Core.Interfaces.Common.Security;
 
 namespace Grand.Web.Features.Handlers.Customers
 {
@@ -43,7 +43,7 @@ namespace Grand.Web.Features.Handlers.Customers
             foreach (var address in addresses)
             {
                 var countries = await _countryService.GetAllCountries(request.Language.Id, request.Store.Id);
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,

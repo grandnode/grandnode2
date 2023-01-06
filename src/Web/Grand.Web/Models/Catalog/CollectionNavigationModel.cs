@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CollectionNavigationModel : BaseModel
+    public class CollectionNavigationModel : BaseModel
     {
         public CollectionNavigationModel()
         {
@@ -14,7 +14,7 @@ namespace Grand.Web.Models.Catalog
         public int TotalCollections { get; set; }
     }
 
-    public partial class CollectionBriefInfoModel : BaseEntityModel
+    public class CollectionBriefInfoModel : BaseEntityModel
     {
         public string Name { get; set; }
         public string SeName { get; set; }

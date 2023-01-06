@@ -572,11 +572,11 @@
                     <h3 class="card-header">@Loc["Account.TwoFactorAuth"]</h3>
                     @if (Model.Is2faEnabled)
                     {
-                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Disable"], "DisableTwoFactorAuthenticator", "Account", new object { }, new { @class = "btn btn-info login-button" })
+                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Disable"], "DisableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
                     }
                     else
                     {
-                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Enable"], "EnableTwoFactorAuthenticator", "Account", new object { }, new { @class = "btn btn-info login-button" })
+                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Enable"], "EnableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
                     }
                 </div>
             }

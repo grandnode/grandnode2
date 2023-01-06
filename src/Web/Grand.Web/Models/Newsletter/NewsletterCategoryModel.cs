@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Newsletter
 {
-    public partial class NewsletterCategoryModel : BaseModel
+    public class NewsletterCategoryModel : BaseModel
     {
         public NewsletterCategoryModel()
         {

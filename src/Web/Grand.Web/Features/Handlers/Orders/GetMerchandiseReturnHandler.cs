@@ -1,12 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
@@ -87,7 +87,7 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var reasons = new List<MerchandiseReturnModel.MerchandiseReturnReasonModel>();
             foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons())
-                reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel() {
+                reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel {
                     Id = rrr.Id,
                     Name = rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
                 });
@@ -98,7 +98,7 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var actions = new List<MerchandiseReturnModel.MerchandiseReturnActionModel>();
             foreach (var rra in await _merchandiseReturnService.GetAllMerchandiseReturnActions())
-                actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel() {
+                actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel {
                     Id = rra.Id,
                     Name = rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
                 });
@@ -114,7 +114,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems)
                     .Where(x => x.OrderItemId == orderItem.Id).Sum(x => x.Quantity);
 
-                var query = new GetMerchandiseReturnQuery() {
+                var query = new GetMerchandiseReturnQuery {
                     StoreId = request.Store.Id,
                 };
 
@@ -184,7 +184,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Address = address,
@@ -195,7 +195,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
             //new address
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.MerchandiseReturnNewAddress = await _mediator.Send(new GetAddressModel() {
+            model.MerchandiseReturnNewAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Store = request.Store,
                 Address = null,

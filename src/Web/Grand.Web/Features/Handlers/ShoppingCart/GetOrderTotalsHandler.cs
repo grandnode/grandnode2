@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -204,7 +204,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     : 0;
                 var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax.Value;
                 if (earnLoyaltyPoints > 0)
-                    model.WillEarnLoyaltyPoints = await _mediator.Send(new CalculateLoyaltyPointsCommand() { Customer = request.Customer, Amount = await _currencyService.ConvertToPrimaryStoreCurrency(earnLoyaltyPoints, request.Currency) });
+                    model.WillEarnLoyaltyPoints = await _mediator.Send(new CalculateLoyaltyPointsCommand { Customer = request.Customer, Amount = await _currencyService.ConvertToPrimaryStoreCurrency(earnLoyaltyPoints, request.Currency) });
             }
         }
 

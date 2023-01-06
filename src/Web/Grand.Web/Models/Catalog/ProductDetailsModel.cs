@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Utilities.Catalog;
-using Grand.Infrastructure.ModelBinding;
-using Grand.Infrastructure.Models;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -103,7 +103,7 @@ namespace Grand.Web.Models.Catalog
         public bool RenderCaptcha { get; set; }
 
         #region Nested Classes
-        public partial class ProductBreadcrumbModel : BaseModel
+        public class ProductBreadcrumbModel : BaseModel
         {
             public ProductBreadcrumbModel()
             {
@@ -117,7 +117,7 @@ namespace Grand.Web.Models.Catalog
             public IList<CategorySimpleModel> CategoryBreadcrumb { get; set; }
         }
 
-        public partial class AddToCartModel : BaseModel
+        public class AddToCartModel : BaseModel
         {
             public AddToCartModel()
             {
@@ -150,7 +150,7 @@ namespace Grand.Web.Models.Catalog
             public ShoppingCartType? UpdateShoppingCartItemType { get; set; }
         }
 
-        public partial class ProductPriceModel : BaseModel
+        public class ProductPriceModel : BaseModel
         {
             public ProductPriceModel()
             {
@@ -187,7 +187,7 @@ namespace Grand.Web.Models.Catalog
             public TierPrice PreferredTierPrice { get; set; }
         }
 
-        public partial class GiftVoucherModel : BaseModel
+        public class GiftVoucherModel : BaseModel
         {
             public bool IsGiftVoucher { get; set; }
 
@@ -205,14 +205,14 @@ namespace Grand.Web.Models.Catalog
             public GiftVoucherType GiftVoucherType { get; set; }
         }
 
-        public partial class TierPriceModel : BaseModel
+        public class TierPriceModel : BaseModel
         {
             public string Price { get; set; }
 
             public int Quantity { get; set; }
         }
 
-        public partial class ProductAttributeModel : BaseEntityModel
+        public class ProductAttributeModel : BaseEntityModel
         {
             public ProductAttributeModel()
             {
@@ -256,7 +256,7 @@ namespace Grand.Web.Models.Catalog
             public IList<ProductAttributeValueModel> Values { get; set; }
         }
 
-        public partial class ProductAttributeValueModel : BaseEntityModel
+        public class ProductAttributeValueModel : BaseEntityModel
         {
             public ProductAttributeValueModel()
             {
@@ -275,7 +275,7 @@ namespace Grand.Web.Models.Catalog
             public PictureModel PictureModel { get; set; }
         }
 
-        public partial class ProductBundleModel : BaseModel
+        public class ProductBundleModel : BaseModel
         {
             public ProductBundleModel()
             {
@@ -296,7 +296,7 @@ namespace Grand.Web.Models.Catalog
             public IList<ProductAttributeModel> ProductAttributes { get; set; }
         }
 
-        public partial class ProductWarehouseModel : BaseModel
+        public class ProductWarehouseModel : BaseModel
         {
             public bool Use { get; set; }
             public string WarehouseId { get; set; }

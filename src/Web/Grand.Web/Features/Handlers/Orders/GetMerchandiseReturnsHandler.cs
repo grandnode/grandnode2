@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -40,8 +40,7 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var model = new CustomerMerchandiseReturnsModel();
 
-            var query = new GetMerchandiseReturnQuery()
-            {
+            var query = new GetMerchandiseReturnQuery {
                 StoreId = request.Store.Id,
             };
 

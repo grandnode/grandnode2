@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Vendors;
+﻿using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Catalog;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Grand.Web.ViewComponents
             if (_vendorSettings.VendorsBlockItemsToDisplay == 0)
                 return Content("");
 
-            var model = await _mediator.Send(new GetVendorNavigation() {
+            var model = await _mediator.Send(new GetVendorNavigation {
                 Language = _workContext.WorkingLanguage
             });
 

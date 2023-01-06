@@ -2,9 +2,10 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -15,11 +16,10 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
-    public partial class WishlistController : BasePublicController
+    public class WishlistController : BasePublicController
     {
         #region Fields
 
@@ -71,7 +71,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetMiniWishlist() {
+            var model = await _mediator.Send(new GetMiniWishlist {
                 Cart = cart.ToList(),
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -99,7 +99,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetWishlist() {
+            var model = await _mediator.Send(new GetWishlist {
                 Cart = cart.ToList(),
                 Customer = customer,
                 Language = _workContext.WorkingLanguage,
@@ -143,7 +143,7 @@ namespace Grand.Web.Controllers
             var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
                 cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
                 cart.RentalStartDateUtc, cart.RentalEndDateUtc,
-                quantity, true);
+                quantity);
             warnings.AddRange(currSciWarnings);
 
             return Json(new
@@ -181,8 +181,8 @@ namespace Grand.Web.Controllers
                        itemCart.ProductId, ShoppingCartType.ShoppingCart,
                        _workContext.CurrentStore.Id, itemCart.WarehouseId,
                        itemCart.Attributes, itemCart.EnteredPrice,
-                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
-                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
+                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity,
+                       validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings;
 
             if (warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });

@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.PushNotifications;
+﻿using Grand.Domain.PushNotifications;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.PushNotifications;
 using Microsoft.AspNetCore.Mvc;

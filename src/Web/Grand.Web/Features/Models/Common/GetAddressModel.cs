@@ -5,6 +5,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
 using MediatR;
+
 namespace Grand.Web.Features.Models.Common
 {
     public class GetAddressModel : IRequest<AddressModel>

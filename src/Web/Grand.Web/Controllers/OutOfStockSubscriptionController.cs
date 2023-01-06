@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class OutOfStockSubscriptionController : BasePublicController
+    public class OutOfStockSubscriptionController : BasePublicController
     {
         #region Fields
 
@@ -154,7 +154,7 @@ namespace Grand.Web.Controllers
                 product.BackorderModeId == BackorderMode.NoBackorders &&
                 product.AllowOutOfStockSubscriptions)
             {
-                var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Model = model });
+                var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
                 var subscription = await _outOfStockSubscriptionService
                     .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
 

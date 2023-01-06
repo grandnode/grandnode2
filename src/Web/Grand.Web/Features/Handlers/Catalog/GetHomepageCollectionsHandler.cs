@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure.Caching;
 using Grand.Domain.Media;
+using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;

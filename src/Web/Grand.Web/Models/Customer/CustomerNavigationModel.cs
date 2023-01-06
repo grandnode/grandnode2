@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerNavigationModel : BaseModel
+    public class CustomerNavigationModel : BaseModel
     {
         public bool HideInfo { get; set; }
         public bool HideAddresses { get; set; }

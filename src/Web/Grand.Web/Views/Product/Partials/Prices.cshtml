@@ -1,4 +1,5 @@
-﻿@model ProductDetailsModel.ProductPriceModel
+﻿@using System.Globalization
+@model ProductDetailsModel.ProductPriceModel
 @inject IWorkContext workContext
 
 <div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
@@ -94,7 +95,7 @@
                 <span class="your-price price-value-@(Model.ProductId)">
                     <strong class="actual-price">@Html.Raw(Model.PriceWithDiscount)</strong>
                 </span>
-                <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" class="your-price price-value-@(Model.ProductId)" />
+                <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", CultureInfo.InvariantCulture)" class="your-price price-value-@(Model.ProductId)" />
             </div>
         }
         if (!string.IsNullOrEmpty(Model.BasePricePAngV))
@@ -109,7 +110,7 @@
         }
         @if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
         {
-            <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+            <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", CultureInfo.InvariantCulture)" />
         }
     }
 </div>

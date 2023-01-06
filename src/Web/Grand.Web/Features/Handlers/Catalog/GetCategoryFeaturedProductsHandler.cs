@@ -1,20 +1,20 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure.Caching;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
+using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -91,7 +91,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
                 {
-                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CategoryIds = new List<string> { item.Id },
                         Customer = request.Customer,
@@ -105,7 +105,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the category has featured products
-                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CategoryIds = new List<string> { item.Id },
                         Customer = request.Customer,
@@ -116,7 +116,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
-                    item.FeaturedProducts = (await _mediator.Send(new GetProductOverview() {
+                    item.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                         Products = featuredProducts,
                     })).ToList();

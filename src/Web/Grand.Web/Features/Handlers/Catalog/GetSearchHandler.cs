@@ -1,11 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -20,7 +21,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -84,7 +84,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Model.adv = true;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Model.PagingFilteringContext,
                 Language = request.Language,
@@ -134,7 +134,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 foreach (var c in categories)
                 {
                     request.Model.AvailableCategories.Add(new SelectListItem {
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Text = c.Breadcrumb,
                         Selected = request.Model.cid == c.Id
                     });
@@ -150,7 +150,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 });
                 foreach (var m in collections)
                     request.Model.AvailableCollections.Add(new SelectListItem {
-                        Value = m.Id.ToString(),
+                        Value = m.Id,
                         Text = m.GetTranslation(x => x.Name, request.Language.Id),
                         Selected = request.Model.mid == m.Id
                     });
@@ -168,7 +168,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     });
                     foreach (var vendor in vendors)
                         request.Model.AvailableVendors.Add(new SelectListItem {
-                            Value = vendor.Id.ToString(),
+                            Value = vendor.Id,
                             Text = vendor.GetTranslation(x => x.Name, request.Language.Id),
                             Selected = request.Model.vid == vendor.Id
                         });
@@ -199,7 +199,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     {
                         categoryIds.Add(categoryId);
                         //include subcategories
-                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
+                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
                     }
                     collectionId = request.Model.mid;
 
@@ -229,7 +229,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
                 //products
-                var searchproducts = await _mediator.Send(new GetSearchProductsQuery() {
+                var searchproducts = await _mediator.Send(new GetSearchProductsQuery {
                     LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                     CategoryIds = categoryIds,
                     CollectionId = collectionId,
@@ -250,7 +250,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     VendorId = vendorId
                 });
 
-                request.Model.Products = (await _mediator.Send(new GetProductOverview() {
+                request.Model.Products = (await _mediator.Send(new GetProductOverview {
                     Products = searchproducts.products,
                     PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
                 })).ToList();

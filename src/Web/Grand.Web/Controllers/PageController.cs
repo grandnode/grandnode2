@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class PageController : BasePublicController
+    public class PageController : BasePublicController
     {
         #region Fields
 
@@ -43,7 +43,7 @@ namespace Grand.Web.Controllers
             if (string.IsNullOrEmpty(pageId))
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetPageBlock() { PageId = pageId });
+            var model = await _mediator.Send(new GetPageBlock { PageId = pageId });
             if (model == null)
                 return RedirectToRoute("HomePage");
 
@@ -54,7 +54,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             //layout
-            var layoutViewPath = await _mediator.Send(new GetPageLayoutViewPath() { LayoutId = model.PageLayoutId });
+            var layoutViewPath = await _mediator.Send(new GetPageLayoutViewPath { LayoutId = model.PageLayoutId });
 
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManagePages))
@@ -65,12 +65,12 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> PageDetailsPopup(string systemName)
         {
-            var model = await _mediator.Send(new GetPageBlock() { SystemName = systemName });
+            var model = await _mediator.Send(new GetPageBlock { SystemName = systemName });
             if (model == null)
                 return RedirectToRoute("HomePage");
 
             //template
-            var layoutViewPath = await _mediator.Send(new GetPageLayoutViewPath() { LayoutId = model.PageLayoutId });
+            var layoutViewPath = await _mediator.Send(new GetPageLayoutViewPath { LayoutId = model.PageLayoutId });
 
             ViewBag.IsPopup = true;
             return View(layoutViewPath, model);
@@ -88,7 +88,7 @@ namespace Grand.Web.Controllers
             var body = string.Empty;
             var error = string.Empty;
 
-            var page = await _mediator.Send(new GetPageBlock() { PageId = id, Password = password });
+            var page = await _mediator.Send(new GetPageBlock { PageId = id, Password = password });
 
             if (page is not { IsPasswordProtected: true })
                 return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });

@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
@@ -14,10 +15,9 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
+using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Web.Extensions;
-using Grand.Business.Core.Interfaces.Cms;
 
 namespace Grand.Web.Controllers
 {

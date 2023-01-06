@@ -1,6 +1,8 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -8,11 +10,9 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -21,19 +21,20 @@ using Grand.Domain.Orders;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -256,7 +257,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             #region Product specifications
 
-            model.ProductSpecifications = await _mediator.Send(new GetProductSpecification() {
+            model.ProductSpecifications = await _mediator.Send(new GetProductSpecification {
                 Language = _workContext.WorkingLanguage,
                 Product = product
             });
@@ -265,7 +266,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             #region Product review overview
 
-            model.ProductReviewOverview = await _mediator.Send(new GetProductReviewOverview() {
+            model.ProductReviewOverview = await _mediator.Send(new GetProductReviewOverview {
                 Product = product,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -539,7 +540,7 @@ namespace Grand.Web.Features.Handlers.Products
                     var tag = await _productTagService.GetProductTagByName(item);
                     if (tag != null)
                     {
-                        tags.Add(new ProductTagModel() {
+                        tags.Add(new ProductTagModel {
                             Id = tag.Id,
                             Name = tag.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
                             SeName = tag.SeName,
@@ -656,7 +657,7 @@ namespace Grand.Web.Features.Handlers.Products
                         model.PriceValue = finalPriceWithDiscount;
 
                         if (product.BasepriceEnabled)
-                            model.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice() { Currency = _workContext.WorkingCurrency, Product = product, ProductPrice = finalPriceWithDiscount });
+                            model.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice { Currency = _workContext.WorkingCurrency, Product = product, ProductPrice = finalPriceWithDiscount });
 
                         //currency code
                         model.CurrencyCode = _workContext.WorkingCurrency.CurrencyCode;
@@ -834,7 +835,7 @@ namespace Grand.Web.Features.Handlers.Products
                             && product.ProductAttributeCombinations.Any()
                             && product.ProductAttributeMappings.Count == 1)
                         {
-                            var customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(null, attribute, attributeValue.Id);
+                            var customattributes = ProductExtensions.AddProductAttribute(null, attribute, attributeValue.Id);
                             stockAvailability = _stockQuantityService.FormatStockMessage(product, string.Empty, customattributes);
                         }
                         var valueModel = new ProductDetailsModel.ProductAttributeValueModel {
@@ -930,7 +931,7 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                                 {
-                                    var enteredText = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
+                                    var enteredText = ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
                                     if (enteredText.Any())
                                         attributeModel.DefaultValue = enteredText[0];
                                 }
@@ -939,7 +940,7 @@ namespace Grand.Web.Features.Handlers.Products
                         case AttributeControlType.Datepicker:
                             {
                                 //keep in mind my that the code below works only in the current culture
-                                var selectedDateStr = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
+                                var selectedDateStr = ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
                                 if (selectedDateStr.Any())
                                 {
                                     DateTime selectedDate;
@@ -959,15 +960,13 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                                 {
-                                    var downloadGuidStr = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
+                                    var downloadGuidStr = ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
                                     Guid.TryParse(downloadGuidStr, out var downloadGuid);
                                     var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                                     if (download != null)
                                         attributeModel.DefaultValue = download.DownloadGuid.ToString();
                                 }
                             }
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -1058,7 +1057,7 @@ namespace Grand.Web.Features.Handlers.Products
                 var p1 = await _productService.GetProductById(bundle.ProductId);
                 if (p1 != null && p1.Published && p1.IsAvailable())
                 {
-                    var bundleProduct = new ProductDetailsModel.ProductBundleModel() {
+                    var bundleProduct = new ProductDetailsModel.ProductBundleModel {
                         ProductId = p1.Id,
                         Name = p1.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                         ShortDescription = p1.GetTranslation(x => x.ShortDescription, _workContext.WorkingLanguage.Id),

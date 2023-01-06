@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.News
 {
-    public partial class NewsCommentModel : BaseEntityModel
+    public class NewsCommentModel : BaseEntityModel
     {
         public string CustomerId { get; set; }
 

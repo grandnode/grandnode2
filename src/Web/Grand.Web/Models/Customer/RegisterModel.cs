@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class RegisterModel : BaseModel
+    public class RegisterModel : BaseModel
     {
         public RegisterModel()
         {

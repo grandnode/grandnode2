@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CompareProductsModel : BaseEntityModel
+    public class CompareProductsModel : BaseEntityModel
     {
         public CompareProductsModel()
         {

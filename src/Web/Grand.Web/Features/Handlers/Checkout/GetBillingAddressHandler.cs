@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.Checkout
 
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,
@@ -62,7 +62,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             model.BillingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForBilling(request.Language.Id, request.Store.Id);
 
-            model.BillingNewAddress = await _mediator.Send(new GetAddressModel() {
+            model.BillingNewAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Store = request.Store,
                 Model = model.BillingNewAddress,

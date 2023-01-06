@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Events.Customers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 

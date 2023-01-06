@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogPagingFilteringModel : BasePageableModel
+    public class BlogPagingFilteringModel : BasePageableModel
     {
         #region Methods
 

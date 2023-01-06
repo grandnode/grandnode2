@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;

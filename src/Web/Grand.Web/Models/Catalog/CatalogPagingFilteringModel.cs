@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Models;
@@ -57,7 +57,7 @@ namespace Grand.Web.Models.Catalog
 
         #region Nested classes
 
-        public partial class SpecificationFilterModel : BaseModel
+        public class SpecificationFilterModel : BaseModel
         {
             #region Ctor
 
@@ -191,7 +191,7 @@ namespace Grand.Web.Models.Catalog
                     .Concat(new List<string> { x.SpecificationAttributeOptionSeName });
 
                     var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered.ToList()));
-                    return new SpecificationFilterItem() {
+                    return new SpecificationFilterItem {
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeSeName = x.SpecificationAttributeSeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
@@ -213,7 +213,7 @@ namespace Grand.Web.Models.Catalog
             #endregion
         }
 
-        public partial class SpecificationFilterItem : BaseModel
+        public class SpecificationFilterItem : BaseModel
         {
             public string SpecificationAttributeName { get; set; }
             public string SpecificationAttributeSeName { get; set; }
