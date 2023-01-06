@@ -161,14 +161,14 @@ namespace Grand.Web.Controllers
                 });
 
             var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
-            var subscription = await _outOfStockSubscriptionService
+            var subscriptionAttributes = await _outOfStockSubscriptionService
                 .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
 
-            if (subscription != null)
+            if (subscriptionAttributes != null)
             {
                 //subscription already exists
                 //unsubscribe
-                await _outOfStockSubscriptionService.DeleteSubscription(subscription);
+                await _outOfStockSubscriptionService.DeleteSubscription(subscriptionAttributes);
                 return Json(new {
                     subscribe = false,
                     buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
@@ -176,7 +176,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            subscription = new OutOfStockSubscription {
+            subscriptionAttributes = new OutOfStockSubscription {
                 CustomerId = customer.Id,
                 ProductId = product.Id,
                 Attributes = attributes,
@@ -188,7 +188,7 @@ namespace Grand.Web.Controllers
                 CreatedOnUtc = DateTime.UtcNow
             };
 
-            await _outOfStockSubscriptionService.InsertSubscription(subscription);
+            await _outOfStockSubscriptionService.InsertSubscription(subscriptionAttributes);
             return Json(new {
                 subscribe = true,
                 buttontext = _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"),
