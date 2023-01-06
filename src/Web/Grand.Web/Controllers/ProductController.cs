@@ -106,7 +106,7 @@ namespace Grand.Web.Controllers
                 return InvokeHttp404();
 
             //availability dates
-            if (!product.IsAvailable() && !(product.ProductTypeId == ProductType.Auction))
+            if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
                 return InvokeHttp404();
 
             //visible individually?
@@ -371,7 +371,7 @@ namespace Grand.Web.Controllers
                 });
 
             //availability dates
-            if (!product.IsAvailable() && !(product.ProductTypeId == ProductType.Auction))
+            if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
                 return Json(new
                 {
                     success = false,

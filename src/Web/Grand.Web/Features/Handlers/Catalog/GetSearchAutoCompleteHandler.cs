@@ -224,8 +224,6 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         private async Task<(string Price, string PriceWithDiscount)> PreparePrice(Product product, GetSearchAutoComplete request)
         {
-            string price, priceWithDiscount;
-
             var finalPriceWithoutDiscount =
                 (await _taxService.GetProductPrice(product,
                     (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: false)).finalPrice)).productprice;
@@ -233,8 +231,8 @@ namespace Grand.Web.Features.Handlers.Catalog
             var appliedPrice = await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: true);
             var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
 
-            price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
-            priceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+            var price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
+            var priceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
 
             return (price, priceWithDiscount);
         }

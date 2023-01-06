@@ -61,15 +61,11 @@ namespace Grand.Web.Features.Handlers.Catalog
             var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
                 request.Language.Id, 
                 request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
-            var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () =>
-            {
-                //categories
-                return await PrepareCategorySimpleModels(
-                    language: request.Language,
-                    store: request.Store,
-                    customer: request.Customer,
-                    allCategories: await _categoryService.GetMenuCategories());
-            });
+            var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () => await PrepareCategorySimpleModels(
+                language: request.Language,
+                store: request.Store,
+                customer: request.Customer,
+                allCategories: await _categoryService.GetMenuCategories()));
 
             //top menu pages
             var now = DateTime.UtcNow;

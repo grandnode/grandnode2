@@ -65,7 +65,7 @@ namespace Grand.Web.Features.Handlers.Courses
                     Approved = approved
                 });
             }
-            model.Approved = !model.Lessons.Any(x => !x.Approved);
+            model.Approved = model.Lessons.All(x => x.Approved);
             return model;
         }
     }

@@ -119,14 +119,11 @@ namespace Grand.Web.Controllers
 
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
 
-            var installed = await _cacheBase.GetAsync("Installed", async () => { return await Task.FromResult(false); });
-            if (installed)
-                return View(new InstallModel { Installed = true });
-
-            return View(PrepareModel(null));
+            var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
+            return View(installed ? new InstallModel { Installed = true } : PrepareModel(null));
         }
 
-        protected string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
+        private string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
         {
             var connectionString = "";
 

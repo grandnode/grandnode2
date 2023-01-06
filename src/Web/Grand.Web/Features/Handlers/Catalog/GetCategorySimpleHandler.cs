@@ -66,7 +66,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     if (parentCategories.Any())
                     {
                         categories.AddRange(parentCategories);
-                        var parent = await _categoryService.GetCategoryById(parentCategories.FirstOrDefault().ParentCategoryId);
+                        var parent = await _categoryService.GetCategoryById(parentCategories.FirstOrDefault()!.ParentCategoryId);
                         if (parent != null)
                             await PrepareCategories(parent.ParentCategoryId);
                     }
