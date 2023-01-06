@@ -58,7 +58,7 @@
                 double ratingValue = 0;
                 if (Model.ReviewOverviewModel.TotalReviews != 0)
                 {
-                    ratingValue = Convert.ToDouble(Model.ReviewOverviewModel.RatingSum * (double)100 / Model.ReviewOverviewModel.TotalReviews / (double)100);
+                    ratingValue = Convert.ToDouble(Model.ReviewOverviewModel.RatingSum * (double)100 / Model.ReviewOverviewModel.TotalReviews / 100);
                 }
                 <template>
                     <div class="rating">

@@ -107,17 +107,17 @@ namespace Grand.Web.Features.Handlers.Catalog
                 Customer = request.Customer,
                 StoreId = request.Store.Id,
                 VisibleIndividuallyOnly = true,
-                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false,
                 FilteredSpecs = alreadyFilteredSpecOptionIds,
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            });
+            }, cancellationToken);
 
             model.Products = (await _mediator.Send(new GetProductOverview() {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 

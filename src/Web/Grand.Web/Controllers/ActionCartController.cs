@@ -307,7 +307,7 @@ namespace Grand.Web.Controllers
             }
 
             //you can't add reservation product to wishlist
-            if (product.ProductTypeId == ProductType.Reservation && (ShoppingCartType)shoppingCartTypeId == ShoppingCartType.Wishlist)
+            if (product.ProductTypeId == ProductType.Reservation && shoppingCartTypeId == ShoppingCartType.Wishlist)
             {
                 return Json(new
                 {
@@ -317,7 +317,7 @@ namespace Grand.Web.Controllers
             }
 
             //you can't add auction product to wishlist
-            if (product.ProductTypeId == ProductType.Auction && (ShoppingCartType)shoppingCartTypeId == ShoppingCartType.Wishlist)
+            if (product.ProductTypeId == ProductType.Auction && shoppingCartTypeId == ShoppingCartType.Wishlist)
             {
                 return Json(new
                 {
