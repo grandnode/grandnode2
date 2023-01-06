@@ -19,7 +19,8 @@ using MediatR;
 
 namespace Grand.Web.Features.Handlers.Products
 {
-    public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProductDetailsAttributeChange, ProductDetailsAttributeChangeModel>
+    public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProductDetailsAttributeChange,
+        ProductDetailsAttributeChangeModel>
     {
         private readonly IMediator _mediator;
         private readonly IStockQuantityService _stockQuantityService;
@@ -59,16 +60,19 @@ namespace Grand.Web.Features.Handlers.Products
             _mediaSettings = mediaSettings;
         }
 
-        public async Task<ProductDetailsAttributeChangeModel> Handle(GetProductDetailsAttributeChange request, CancellationToken cancellationToken)
+        public async Task<ProductDetailsAttributeChangeModel> Handle(GetProductDetailsAttributeChange request,
+            CancellationToken cancellationToken)
         {
             var model = new ProductDetailsAttributeChangeModel();
 
-            var customAttributes = await _mediator.Send(new GetParseProductAttributes { Product = request.Product, Model = request.Model }, cancellationToken);
+            var customAttributes =
+                await _mediator.Send(new GetParseProductAttributes { Product = request.Product, Model = request.Model },
+                    cancellationToken);
 
-            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-               request.Model.WarehouseId :
-               request.Product.UseMultipleWarehouses ? request.Store.DefaultWarehouseId :
-               string.IsNullOrEmpty(request.Store.DefaultWarehouseId) ? request.Product.WarehouseId : request.Store.DefaultWarehouseId;
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? request.Model.WarehouseId :
+                request.Product.UseMultipleWarehouses ? request.Store.DefaultWarehouseId :
+                string.IsNullOrEmpty(request.Store.DefaultWarehouseId) ? request.Product.WarehouseId :
+                request.Store.DefaultWarehouseId;
 
             //rental attributes
             DateTime? rentalStartDate = null;
@@ -82,7 +86,8 @@ namespace Grand.Web.Features.Handlers.Products
             model.Mpn = request.Product.FormatMpn(customAttributes);
             model.Gtin = request.Product.FormatGtin(customAttributes);
 
-            if (await _permissionService.Authorize(StandardPermission.DisplayPrices) && !request.Product.EnteredPrice && request.Product.ProductTypeId != ProductType.Auction)
+            if (await _permissionService.Authorize(StandardPermission.DisplayPrices) && !request.Product.EnteredPrice &&
+                request.Product.ProductTypeId != ProductType.Auction)
             {
                 //we do not calculate price of "customer enters price" option is enabled
                 var unitprice = await _pricingService.GetUnitPrice(request.Product,
@@ -100,19 +105,22 @@ namespace Grand.Web.Features.Handlers.Products
                 var finalPriceWithDiscount = productprice.productprice;
                 model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
             }
+
             //stock
-            model.StockAvailability = _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
+            model.StockAvailability =
+                _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
 
             //out of stock subscription
             if ((request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes
-                || request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock) &&
+                 || request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock) &&
                 request.Product.BackorderModeId == BackorderMode.NoBackorders &&
                 request.Product.AllowOutOfStockSubscriptions)
             {
                 var combination = request.Product.FindProductAttributeCombination(customAttributes);
 
                 if (combination != null)
-                    if (_stockQuantityService.GetTotalStockQuantityForCombination(request.Product, combination, warehouseId: warehouseId) <= 0)
+                    if (_stockQuantityService.GetTotalStockQuantityForCombination(request.Product, combination,
+                            warehouseId: warehouseId) <= 0)
                         model.DisplayOutOfStockSubscription = true;
 
                 if (request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
@@ -122,11 +130,14 @@ namespace Grand.Web.Features.Handlers.Products
                 }
 
                 var subscription = await _outOfStockSubscriptionService
-                   .FindSubscription(request.Customer.Id,
-                    request.Product.Id, customAttributes, request.Store.Id, warehouseId);
+                    .FindSubscription(request.Customer.Id,
+                        request.Product.Id, customAttributes, request.Store.Id, warehouseId);
 
-                model.ButtonTextOutOfStockSubscription = _translationService.GetResource(subscription != null ? "OutOfStockSubscriptions.DeleteNotifyWhenAvailable" : "OutOfStockSubscriptions.NotifyMeWhenAvailable");
+                model.ButtonTextOutOfStockSubscription = _translationService.GetResource(subscription != null
+                    ? "OutOfStockSubscriptions.DeleteNotifyWhenAvailable"
+                    : "OutOfStockSubscriptions.NotifyMeWhenAvailable");
             }
+
             if (request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
                 model.NotAvailableAttributeMappingids = PrepareNotAvailableAttributeMapping(request, customAttributes);
@@ -146,9 +157,10 @@ namespace Grand.Web.Features.Handlers.Products
                         model.DisabledAttributeMappingids.Add(attribute.Id);
                 }
             }
+
             //picture. used when we want to override a default product picture when some attribute is selected
             if (!request.LoadPicture) return model;
-            
+
             //first, try to get product attribute combination picture
             var pictureId = request.Product.FindProductAttributeCombination(customAttributes)?.PictureId;
             if (string.IsNullOrEmpty(pictureId))
@@ -158,7 +170,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             if (string.IsNullOrEmpty(pictureId)) return model;
-                
+
             var pictureModel = new PictureModel {
                 Id = pictureId,
                 FullSizeImageUrl = await _pictureService.GetPictureUrl(pictureId),
@@ -169,7 +181,8 @@ namespace Grand.Web.Features.Handlers.Products
             return model;
         }
 
-        private List<string> PrepareNotAvailableAttributeMapping(GetProductDetailsAttributeChange request, IList<CustomAttribute> customAttributes)
+        private List<string> PrepareNotAvailableAttributeMapping(GetProductDetailsAttributeChange request,
+            IList<CustomAttribute> customAttributes)
         {
             var model = new List<string>();
 
@@ -178,20 +191,23 @@ namespace Grand.Web.Features.Handlers.Products
             {
                 //find all combinations with attributes
                 var combinations = request.Product.ProductAttributeCombinations
-                    .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value)).ToList();
+                    .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value))
+                    .ToList();
 
                 //limit to without existing combination
                 combinations = combinations.Where(x => x.Id != combination?.Id).ToList();
                 //where the stock is unavailable
-                var combinationsStockUnavailable = combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
-                
+                var combinationsStockUnavailable =
+                    combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
+
                 //where the stock is available
                 var combinationsStockAvailable = combinations
                     .Where(x => x.StockQuantity - x.ReservedQuantity > 0).ToList();
 
                 if (combinationsStockUnavailable.Count > 0)
                 {
-                    var x = combinationsStockUnavailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                    var x = combinationsStockUnavailable.SelectMany(x => x.Attributes)
+                        .Where(x => x.Value != customAttribute.Value);
                     var notAvailable = x.Select(x => x.Value).Distinct().ToList();
                     notAvailable.ForEach(x =>
                     {
@@ -199,17 +215,16 @@ namespace Grand.Web.Features.Handlers.Products
                             model.Add(x);
                     });
                 }
-                if (combinationsStockAvailable.Count > 0)
-                {
-                    var x = combinationsStockAvailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
-                    var available = x.Select(x => x.Value).Distinct().ToList();
-                    available.ForEach(z =>
+
+                if (combinationsStockAvailable.Count <= 0) continue;
+                
+                combinationsStockAvailable.SelectMany(x => x.Attributes)
+                    .Where(x => x.Value != customAttribute.Value).Select(x => x.Value).Distinct().ToList().ForEach(z =>
                     {
                         if (model.Contains(z))
                             model.Remove(z);
                     });
-                }
-
+                
                 // another way to list available combinations                 
                 /*
                 var combinations = request.Product.ProductAttributeCombinations.ToList();
@@ -246,6 +261,7 @@ namespace Grand.Web.Features.Handlers.Products
                 }
                 */
             }
+
             if (customAttributes.Any())
             {
                 customAttributes.ToList().ForEach(x =>
@@ -270,6 +286,5 @@ namespace Grand.Web.Features.Handlers.Products
 
             return model;
         }
-
     }
 }

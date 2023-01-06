@@ -53,19 +53,19 @@
                             addressLine.Append(point.Name);
                             if (!string.IsNullOrEmpty(point.Address.City))
                             {
-                                addressLine.AppendFormat(", {0}", point.Address.City);
+                                addressLine.Append($", {point.Address.City}");
                             }
                             if (!string.IsNullOrEmpty(point.Address.ZipPostalCode))
                             {
-                                addressLine.AppendFormat(", {0}", point.Address.ZipPostalCode);
+                                addressLine.Append($", {point.Address.ZipPostalCode}");
                             }
                             if (!string.IsNullOrEmpty(point.Address.Address1))
                             {
-                                addressLine.AppendFormat(", {0}", point.Address.Address1);
+                                addressLine.Append($", {point.Address.Address1}");
                             }
                             if (!string.IsNullOrEmpty(point.PickupFee))
                             {
-                                addressLine.AppendFormat(", {0}", point.PickupFee);
+                                addressLine.Append($", {point.PickupFee}");
                             }
                             <option value="@point.Id">@(addressLine)</option>
                         }

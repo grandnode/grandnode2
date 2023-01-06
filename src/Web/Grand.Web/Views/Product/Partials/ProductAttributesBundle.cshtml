@@ -15,7 +15,7 @@
         {
             case AttributeControlType.DropdownList:
                 {
-                    attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}').addEventListener('change', function (){{{1}();}});\n", controlId, attributeChangeHandlerFuncName);
+                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change', function (){{{attributeChangeHandlerFuncName}();}});\n");
                 }
                 break;
             case AttributeControlType.RadioList:
@@ -24,7 +24,7 @@
                 {
                     foreach (var attributeValue in attribute.Values)
                     {
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(e){{{2}();}},false);\n", controlId, attributeValue.Id, attributeChangeHandlerFuncName);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                     }
                 }
                 break;
@@ -33,7 +33,7 @@
                 {
                     foreach (var attributeValue in attribute.Values)
                     {
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(e){{{2}();}},false);\n", controlId, attributeValue.Id, attributeChangeHandlerFuncName);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                     }
                 }
                 break;

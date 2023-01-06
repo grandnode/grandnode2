@@ -488,17 +488,15 @@ namespace Grand.Web.Features.Handlers.Products
 
         private async Task<BrandBriefInfoModel> PrepareBrandBriefInfoModel(Product product)
         {
-            if (!string.IsNullOrEmpty(product.BrandId))
+            if (string.IsNullOrEmpty(product.BrandId)) return null;
+            var brand = await _brandService.GetBrandById(product.BrandId);
+            if (brand is { Published: true })
             {
-                var brand = await _brandService.GetBrandById(product.BrandId);
-                if (brand is { Published: true })
-                {
-                    return new BrandBriefInfoModel {
-                        Id = brand.Id,
-                        Name = brand.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                        SeName = brand.GetSeName(_workContext.WorkingLanguage.Id),
-                    };
-                }
+                return new BrandBriefInfoModel {
+                    Id = brand.Id,
+                    Name = brand.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                    SeName = brand.GetSeName(_workContext.WorkingLanguage.Id),
+                };
             }
 
             return null;
@@ -506,17 +504,15 @@ namespace Grand.Web.Features.Handlers.Products
 
         private async Task<VendorBriefInfoModel> PrepareVendorBriefInfoModel(Product product)
         {
-            if (!string.IsNullOrEmpty(product.VendorId))
+            if (string.IsNullOrEmpty(product.VendorId)) return null;
+            var vendor = await _vendorService.GetVendorById(product.VendorId);
+            if (vendor is { Deleted: false, Active: true })
             {
-                var vendor = await _vendorService.GetVendorById(product.VendorId);
-                if (vendor is { Deleted: false, Active: true })
-                {
-                    return new VendorBriefInfoModel {
-                        Id = vendor.Id,
-                        Name = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                        SeName = vendor.GetSeName(_workContext.WorkingLanguage.Id),
-                    };
-                }
+                return new VendorBriefInfoModel {
+                    Id = vendor.Id,
+                    Name = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                    SeName = vendor.GetSeName(_workContext.WorkingLanguage.Id),
+                };
             }
 
             return null;
@@ -624,37 +620,36 @@ namespace Grand.Web.Features.Handlers.Products
             foreach (var productPicture in product.ProductPictures.OrderBy(x => x.DisplayOrder))
             {
                 picture = await _pictureService.GetPictureById(productPicture.PictureId);
-                if (picture != null)
-                {
-                    var pictureModel = new PictureModel {
-                        Id = productPicture.PictureId,
-                        ThumbImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
-                            _mediaSettings.ProductThumbPictureSizeOnProductDetailsPage),
-                        ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
-                            _mediaSettings.ProductDetailsPictureSize),
-                        FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
-                        Style = picture?.Style,
-                        ExtraField = picture?.ExtraField,
-                        //"title" attribute
-                        Title =
-                            !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute,
-                                _workContext.WorkingLanguage.Id))
-                                ? picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)
-                                : string.Format(
-                                    _translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"),
-                                    name),
-                        //"alt" attribute
-                        AlternateText =
-                            !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute,
-                                _workContext.WorkingLanguage.Id))
-                                ? picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)
-                                : string.Format(
-                                    _translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"),
-                                    name)
-                    };
+                if (picture == null) continue;
 
-                    pictureModels.Add(pictureModel);
-                }
+                var pictureModel = new PictureModel {
+                    Id = productPicture.PictureId,
+                    ThumbImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
+                        _mediaSettings.ProductThumbPictureSizeOnProductDetailsPage),
+                    ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
+                        _mediaSettings.ProductDetailsPictureSize),
+                    FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
+                    Style = picture?.Style,
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title =
+                        !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute,
+                            _workContext.WorkingLanguage.Id))
+                            ? picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)
+                            : string.Format(
+                                _translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"),
+                                name),
+                    //"alt" attribute
+                    AlternateText =
+                        !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute,
+                            _workContext.WorkingLanguage.Id))
+                            ? picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)
+                            : string.Format(
+                                _translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"),
+                                name)
+                };
+
+                pictureModels.Add(pictureModel);
             }
 
             return (defaultPictureModel, pictureModels);
@@ -734,22 +729,20 @@ namespace Grand.Web.Features.Handlers.Products
                             model.ReservationPrice = _priceFormatter.FormatReservationProductPeriod(product, priceStr);
                         }
 
+                        if (product.ProductTypeId != ProductType.Auction) return model;
                         //auction
-                        if (product.ProductTypeId == ProductType.Auction)
-                        {
-                            model.IsAuction = true;
-                            var highestBid =
-                                await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid,
-                                    _workContext.WorkingCurrency);
-                            model.HighestBid = _priceFormatter.FormatPrice(highestBid);
-                            model.HighestBidValue = highestBid;
-                            model.DisableBuyButton = product.DisableBuyButton;
-                            var startPrice =
-                                await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice,
-                                    _workContext.WorkingCurrency);
-                            model.StartPrice = _priceFormatter.FormatPrice(startPrice);
-                            model.StartPriceValue = startPrice;
-                        }
+                        model.IsAuction = true;
+                        var highestBid =
+                            await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid,
+                                _workContext.WorkingCurrency);
+                        model.HighestBid = _priceFormatter.FormatPrice(highestBid);
+                        model.HighestBidValue = highestBid;
+                        model.DisableBuyButton = product.DisableBuyButton;
+                        var startPrice =
+                            await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice,
+                                _workContext.WorkingCurrency);
+                        model.StartPrice = _priceFormatter.FormatPrice(startPrice);
+                        model.StartPriceValue = startPrice;
                     }
                 }
             }
@@ -822,23 +815,21 @@ namespace Grand.Web.Features.Handlers.Products
 
             //customer entered price
             model.EnteredPrice = product.EnteredPrice;
-            if (model.EnteredPrice)
-            {
-                var minimumCustomerEnteredPrice =
-                    await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice,
-                        _workContext.WorkingCurrency);
-                var maximumCustomerEnteredPrice =
-                    await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice,
-                        _workContext.WorkingCurrency);
+            if (!model.EnteredPrice) return model;
+            var minimumCustomerEnteredPrice =
+                await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice,
+                    _workContext.WorkingCurrency);
+            var maximumCustomerEnteredPrice =
+                await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice,
+                    _workContext.WorkingCurrency);
 
-                model.CustomerEnteredPrice = updatecartitem != null && updatecartitem.EnteredPrice.HasValue
-                    ? updatecartitem.EnteredPrice.Value
-                    : minimumCustomerEnteredPrice;
-                model.CustomerEnteredPriceRange = string.Format(
-                    _translationService.GetResource("Products.EnterProductPrice.Range"),
-                    _priceFormatter.FormatPrice(minimumCustomerEnteredPrice, false),
-                    _priceFormatter.FormatPrice(maximumCustomerEnteredPrice, false));
-            }
+            model.CustomerEnteredPrice = updatecartitem != null && updatecartitem.EnteredPrice.HasValue
+                ? updatecartitem.EnteredPrice.Value
+                : minimumCustomerEnteredPrice;
+            model.CustomerEnteredPriceRange = string.Format(
+                _translationService.GetResource("Products.EnterProductPrice.Range"),
+                _priceFormatter.FormatPrice(minimumCustomerEnteredPrice, false),
+                _priceFormatter.FormatPrice(maximumCustomerEnteredPrice, false));
 
             return model;
         }
@@ -980,22 +971,20 @@ namespace Grand.Web.Features.Handlers.Products
                             valueModel.ImageSquaresPictureModel = pm;
                         }
 
-                        //picture of a product attribute value
-                        if (!string.IsNullOrEmpty(attributeValue.PictureId))
-                        {
-                            var pm = new PictureModel();
-                            if (attributeValue.PictureId != null)
-                            {
-                                pm = new PictureModel {
-                                    Id = attributeValue.PictureId,
-                                    FullSizeImageUrl = await _pictureService.GetPictureUrl(attributeValue.PictureId),
-                                    ImageUrl = await _pictureService.GetPictureUrl(attributeValue.PictureId,
-                                        defaultPictureSize)
-                                };
-                            }
+                        if (string.IsNullOrEmpty(attributeValue.PictureId)) continue;
 
-                            valueModel.PictureModel = pm;
+                        //picture of a product attribute value
+                        var pAttributeModel = new PictureModel();
+                        if (attributeValue.PictureId != null)
+                        {
+                            pAttributeModel = new PictureModel {
+                                Id = attributeValue.PictureId,
+                                FullSizeImageUrl = await _pictureService.GetPictureUrl(attributeValue.PictureId),
+                                ImageUrl = await _pictureService.GetPictureUrl(attributeValue.PictureId,
+                                    defaultPictureSize)
+                            };
                         }
+                        valueModel.PictureModel = pAttributeModel;
                     }
                 }
 
@@ -1169,61 +1158,58 @@ namespace Grand.Web.Features.Handlers.Products
             foreach (var bundle in product.BundleProducts.OrderBy(x => x.DisplayOrder))
             {
                 var p1 = await _productService.GetProductById(bundle.ProductId);
-                if (p1 != null && p1.Published && p1.IsAvailable())
+                if (p1 is not { Published: true } || !p1.IsAvailable()) continue;
+
+                var bundleProduct = new ProductDetailsModel.ProductBundleModel {
+                    ProductId = p1.Id,
+                    Name = p1.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                    ShortDescription = p1.GetTranslation(x => x.ShortDescription, _workContext.WorkingLanguage.Id),
+                    SeName = p1.GetSeName(_workContext.WorkingLanguage.Id),
+                    Sku = p1.Sku,
+                    Mpn = p1.Mpn,
+                    Gtin = p1.Gtin,
+                    Quantity = bundle.Quantity,
+                    UserFields = p1.UserFields
+                };
+                if (displayPrices)
                 {
-                    var bundleProduct = new ProductDetailsModel.ProductBundleModel {
-                        ProductId = p1.Id,
-                        Name = p1.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                        ShortDescription = p1.GetTranslation(x => x.ShortDescription, _workContext.WorkingLanguage.Id),
-                        SeName = p1.GetSeName(_workContext.WorkingLanguage.Id),
-                        Sku = p1.Sku,
-                        Mpn = p1.Mpn,
-                        Gtin = p1.Gtin,
-                        Quantity = bundle.Quantity,
-                        UserFields = p1.UserFields
-                    };
-                    if (displayPrices)
-                    {
-                        var productprice = await _taxService.GetProductPrice(p1,
-                            (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer,
-                                _workContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
-                        bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
-                        bundleProduct.PriceValue = productprice.productprice;
-                    }
-
-                    var productPicture = p1.ProductPictures.MinBy(x => x.DisplayOrder);
-                    if (productPicture == null)
-                        productPicture = new ProductPicture();
-
-                    var picture = await _pictureService.GetPictureById(productPicture.PictureId);
-
-                    var pictureModel = new PictureModel {
-                        Id = productPicture.PictureId,
-                        ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
-                            _mediaSettings.ProductBundlePictureSize),
-                        FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
-                        Style = picture?.Style,
-                        ExtraField = picture?.ExtraField,
-                        //"title" attribute
-                        Title = picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)
-                            ? picture.TitleAttribute
-                            : string.Format(
-                                _translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), p1.Name),
-                        //"alt" attribute
-                        AlternateText = picture != null && !string.IsNullOrEmpty(picture.AltAttribute)
-                            ? picture.AltAttribute
-                            : string.Format(
-                                _translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"),
-                                p1.Name)
-                    };
-
-                    bundleProduct.DefaultPictureModel = pictureModel;
-
-                    bundleProduct.ProductAttributes = await PrepareProductAttributeModel(p1,
-                        _mediaSettings.ProductBundlePictureSize, updateCartItem);
-
-                    model.Add(bundleProduct);
+                    var productprice = await _taxService.GetProductPrice(p1,
+                        (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer,
+                            _workContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
+                    bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
+                    bundleProduct.PriceValue = productprice.productprice;
                 }
+
+                var productPicture = p1.ProductPictures.MinBy(x => x.DisplayOrder) ?? new ProductPicture();
+
+                var picture = await _pictureService.GetPictureById(productPicture.PictureId);
+
+                var pictureModel = new PictureModel {
+                    Id = productPicture.PictureId,
+                    ImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId,
+                        _mediaSettings.ProductBundlePictureSize),
+                    FullSizeImageUrl = await _pictureService.GetPictureUrl(productPicture.PictureId),
+                    Style = picture?.Style,
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)
+                        ? picture.TitleAttribute
+                        : string.Format(
+                            _translationService.GetResource("Media.Product.ImageLinkTitleFormat.Details"), p1.Name),
+                    //"alt" attribute
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.AltAttribute)
+                        ? picture.AltAttribute
+                        : string.Format(
+                            _translationService.GetResource("Media.Product.ImageAlternateTextFormat.Details"),
+                            p1.Name)
+                };
+
+                bundleProduct.DefaultPictureModel = pictureModel;
+
+                bundleProduct.ProductAttributes = await PrepareProductAttributeModel(p1,
+                    _mediaSettings.ProductBundlePictureSize, updateCartItem);
+
+                model.Add(bundleProduct);
             }
 
             return model;

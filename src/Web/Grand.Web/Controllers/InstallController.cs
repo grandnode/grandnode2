@@ -210,69 +210,67 @@ namespace Grand.Web.Controllers
 
             await CheckConnectionString(locService, connectionString, model);
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(PrepareModel(model));
+            try
             {
-                try
+                //save settings
+                var settings = new DataSettings {
+                    ConnectionString = connectionString,
+                    DbProvider = model.DataProvider
+                };
+
+                await DataSettingsManager.SaveSettings(settings);
+                DataSettingsManager.LoadSettings(reloadSettings: true);
+
+                var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
+                await installationService.InstallData(
+                    HttpContext.Request.Scheme, HttpContext.Request.Host,
+                    model.AdminEmail, model.AdminPassword, model.Collation,
+                    model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
+
+                //reset cache
+                DataSettingsManager.ResetCache();
+
+                PluginManager.ClearPlugins();
+
+                var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
+
+                foreach (var pluginInfo in pluginsInfo)
                 {
-                    //save settings
-                    var settings = new DataSettings {
-                        ConnectionString = connectionString,
-                        DbProvider = model.DataProvider
-                    };
-
-                    await DataSettingsManager.SaveSettings(settings);
-                    DataSettingsManager.LoadSettings(reloadSettings: true);
-
-                    var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
-                    await installationService.InstallData(
-                        HttpContext.Request.Scheme, HttpContext.Request.Host,
-                        model.AdminEmail, model.AdminPassword, model.Collation,
-                        model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
-
-                    //reset cache
-                    DataSettingsManager.ResetCache();
-
-                    PluginManager.ClearPlugins();
-
-                    var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
-
-                    foreach (var pluginInfo in pluginsInfo)
+                    try
                     {
-                        try
-                        {
-                            var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
-                            await plugin.Install();
-                        }
-                        catch (Exception ex)
-                        {
-                            var _logger = _serviceProvider.GetRequiredService<ILogger>();
-                            await _logger.InsertLog(LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
-                                ex.Message + " " + ex.InnerException?.Message);
-                        }
+                        var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                        await plugin.Install();
                     }
-
-                    //register default permissions
-                    var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
-                    await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
-
-                    //install migration process - install only header
-                    var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
-                    migrationProcess.InstallApplication();
-
-                    //restart application
-                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
-                    return View(new InstallModel { Installed = true });
+                    catch (Exception ex)
+                    {
+                        var _logger = _serviceProvider.GetRequiredService<ILogger>();
+                        await _logger.InsertLog(LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
+                            ex.Message + " " + ex.InnerException?.Message);
+                    }
                 }
-                catch (Exception exception)
-                {
-                    //reset cache
-                    DataSettingsManager.ResetCache();
-                    await _cacheBase.Clear();
 
-                    System.IO.File.Delete(CommonPath.SettingsPath);
+                //register default permissions
+                var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+                await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
 
-                    ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
-                }
+                //install migration process - install only header
+                var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
+                migrationProcess.InstallApplication();
+
+                //restart application
+                await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
+                return View(new InstallModel { Installed = true });
+            }
+            catch (Exception exception)
+            {
+                //reset cache
+                DataSettingsManager.ResetCache();
+                await _cacheBase.Clear();
+
+                System.IO.File.Delete(CommonPath.SettingsPath);
+
+                ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
             }
             return View(PrepareModel(model));
         }

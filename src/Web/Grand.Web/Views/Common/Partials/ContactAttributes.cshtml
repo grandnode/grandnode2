@@ -43,7 +43,7 @@
                                 <option selected="@attributeValue.IsPreSelected" value="@(attributeValue.Id)">@attributeName</option>
                             }
                         </select>
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}').addEventListener('change',function(){{contactAttributeChange();}});\n", controlId);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change',function(){{contactAttributeChange();}});\n");
                     }
                     break;
                 case AttributeControlType.RadioList:
@@ -65,7 +65,7 @@
 
                                     </fieldset>
                                 </li>
-                                attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
                     }
@@ -85,7 +85,7 @@
                                             <span class="custom-control-description" for="@(controlId)_@(attributeValue.Id)">@attributeName</span>
                                         </label>
                                     </li>
-                                    attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                                 }
                             </ul>
                         </fieldset>
@@ -193,7 +193,7 @@
                                         </span>
                                     </label>
                                 </li>
-                                attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
                         <script asp-location="Footer">

@@ -64,12 +64,12 @@ namespace Grand.Web.Extensions
                 return picture;
             
             var parentProduct = await productService.GetProductById(product.ParentGroupedProductId);
-            if (parentProduct != null)
-                if (parentProduct.ProductPictures.Any())
-                {
-                    picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault().PictureId);
+            if (parentProduct == null) return null;
+            if (parentProduct.ProductPictures.Any())
+            {
+                picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault()!.PictureId);
 
-                }
+            }
 
             return picture;
         }

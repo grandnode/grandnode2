@@ -75,18 +75,23 @@ namespace Grand.Web.Controllers
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock)
                 return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
 
-            warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-               string.IsNullOrEmpty(warehouseId) ? "" : warehouseId :
-               string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
+            warehouseId = _shoppingCartSettings.AllowToSelectWarehouse
+                ?
+                string.IsNullOrEmpty(warehouseId) ? "" : warehouseId
+                :
+                string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId)
+                    ? product.WarehouseId
+                    : _workContext.CurrentStore.DefaultWarehouseId;
 
             var subscription = await _outOfStockSubscriptionService
-                   .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id,
-                   warehouseId);
+                .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id,
+                    warehouseId);
 
             if (subscription != null)
             {
                 return Content(_translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"));
             }
+
             return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
         }
 
@@ -98,14 +103,13 @@ namespace Grand.Web.Controllers
                 throw new ArgumentException("No product found with the specified id");
 
             var customer = _workContext.CurrentCustomer;
-            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-                model.WarehouseId :
-                 product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-                 string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId;
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId :
+                product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
+                string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
+                _workContext.CurrentStore.DefaultWarehouseId;
 
             if (!await _groupService.IsRegistered(customer))
-                return Json(new
-                {
+                return Json(new {
                     subscribe = false,
                     buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
                     resource = _translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered")
@@ -123,13 +127,11 @@ namespace Grand.Web.Controllers
                     //subscription already exists
                     //unsubscribe
                     await _outOfStockSubscriptionService.DeleteSubscription(subscription);
-                    return Json(new
-                    {
+                    return Json(new {
                         subscribe = false,
                         buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
                         resource = _translationService.GetResource("OutOfStockSubscriptions.Unsubscribed")
                     });
-
                 }
 
                 //subscription does not exist
@@ -142,62 +144,55 @@ namespace Grand.Web.Controllers
                     CreatedOnUtc = DateTime.UtcNow
                 };
                 await _outOfStockSubscriptionService.InsertSubscription(subscription);
-                return Json(new
-                {
+                return Json(new {
                     subscribe = true,
                     buttontext = _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"),
                     resource = _translationService.GetResource("OutOfStockSubscriptions.Subscribed")
                 });
             }
 
-            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
-                product.BackorderModeId == BackorderMode.NoBackorders &&
-                product.AllowOutOfStockSubscriptions)
+            if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes ||
+                product.BackorderModeId != BackorderMode.NoBackorders ||
+                !product.AllowOutOfStockSubscriptions)
+                return Json(new {
+                    subscribe = false,
+                    buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
+                    resource = _translationService.GetResource("OutOfStockSubscriptions.NotAllowed")
+                });
+
+            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
+            var subscription = await _outOfStockSubscriptionService
+                .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
+
+            if (subscription != null)
             {
-                var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
-                var subscription = await _outOfStockSubscriptionService
-                    .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
-
-                if (subscription != null)
-                {
-                    //subscription already exists
-                    //unsubscribe
-                    await _outOfStockSubscriptionService.DeleteSubscription(subscription);
-                    return Json(new
-                    {
-                        subscribe = false,
-                        buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
-                        resource = _translationService.GetResource("OutOfStockSubscriptions.Unsubscribed")
-                    });
-                }
-
-                //subscription does not exist
-                //subscribe
-
-                subscription = new OutOfStockSubscription {
-                    CustomerId = customer.Id,
-                    ProductId = product.Id,
-                    Attributes = attributes,
-                    AttributeInfo = !attributes.Any() ? "" : await _productAttributeFormatter.FormatAttributes(product, attributes),
-                    StoreId = _workContext.CurrentStore.Id,
-                    WarehouseId = warehouseId,
-                    CreatedOnUtc = DateTime.UtcNow
-                };
-
-                await _outOfStockSubscriptionService.InsertSubscription(subscription);
-                return Json(new
-                {
-                    subscribe = true,
-                    buttontext = _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"),
-                    resource = _translationService.GetResource("OutOfStockSubscriptions.Subscribed")
+                //subscription already exists
+                //unsubscribe
+                await _outOfStockSubscriptionService.DeleteSubscription(subscription);
+                return Json(new {
+                    subscribe = false,
+                    buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
+                    resource = _translationService.GetResource("OutOfStockSubscriptions.Unsubscribed")
                 });
             }
 
-            return Json(new
-            {
-                subscribe = false,
-                buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
-                resource = _translationService.GetResource("OutOfStockSubscriptions.NotAllowed")
+            subscription = new OutOfStockSubscription {
+                CustomerId = customer.Id,
+                ProductId = product.Id,
+                Attributes = attributes,
+                AttributeInfo = !attributes.Any()
+                    ? ""
+                    : await _productAttributeFormatter.FormatAttributes(product, attributes),
+                StoreId = _workContext.CurrentStore.Id,
+                WarehouseId = warehouseId,
+                CreatedOnUtc = DateTime.UtcNow
+            };
+
+            await _outOfStockSubscriptionService.InsertSubscription(subscription);
+            return Json(new {
+                subscribe = true,
+                buttontext = _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"),
+                resource = _translationService.GetResource("OutOfStockSubscriptions.Subscribed")
             });
         }
 
@@ -215,6 +210,7 @@ namespace Grand.Web.Controllers
             {
                 pageIndex = pageNumber.Value - 1;
             }
+
             var pageSize = 10;
 
             var customer = _workContext.CurrentCustomer;
@@ -231,15 +227,19 @@ namespace Grand.Web.Controllers
                     Id = subscription.Id,
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                    AttributeDescription = !subscription.Attributes.Any() ? "" : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
+                    AttributeDescription = !subscription.Attributes.Any()
+                        ? ""
+                        : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
                     SeName = product.GetSeName(_workContext.WorkingLanguage.Id),
                 };
                 model.Subscriptions.Add(subscriptionModel);
             }
+
             model.PagerModel.LoadPagedList(list);
 
             return View(model);
         }
+
         [HttpPost, ActionName("CustomerSubscriptions")]
         public virtual async Task<IActionResult> CustomerSubscriptions(string[] subscriptions)
         {
@@ -250,9 +250,8 @@ namespace Grand.Web.Controllers
                 {
                     await _outOfStockSubscriptionService.DeleteSubscription(subscription);
                 }
-                
             }
-            
+
             return RedirectToRoute("CustomerOutOfStockSubscriptions");
         }
 

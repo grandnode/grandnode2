@@ -50,20 +50,18 @@ namespace Grand.Web.Features.Handlers.Catalog
                 .OrderBy(x => x.Value);
             request.Command.OrderBy ??= allDisabled ? 0 : activeOptions.First().Key;
 
-            if (request.PagingFilteringModel.AllowProductSorting)
+            if (!request.PagingFilteringModel.AllowProductSorting) return;
+            foreach (var option in activeOptions)
             {
-                foreach (var option in activeOptions)
-                {
-                    var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
-                    var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", option.Key.ToString());
+                var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
+                var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", option.Key.ToString());
 
-                    var sortValue = ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
-                    request.PagingFilteringModel.AvailableSortOptions.Add(new SelectListItem {
-                        Text = sortValue,
-                        Value = sortUrl,
-                        Selected = option.Key == request.Command.OrderBy
-                    });
-                }
+                var sortValue = ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
+                request.PagingFilteringModel.AvailableSortOptions.Add(new SelectListItem {
+                    Text = sortValue,
+                    Value = sortUrl,
+                    Selected = option.Key == request.Command.OrderBy
+                });
             }
         }
         private void PrepareViewModes(GetViewSortSizeOptions request)
