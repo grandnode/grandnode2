@@ -6,7 +6,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
 
-namespace Grand.Web.Features.Handlers.Newsletter
+namespace Grand.Web.Features.Handlers.Orders
 {
     public class GetCustomerLoyaltyPointsHandler : IRequestHandler<GetCustomerLoyaltyPoints, CustomerLoyaltyPointsModel>
     {

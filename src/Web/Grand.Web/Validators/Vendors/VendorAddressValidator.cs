@@ -5,7 +5,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Vendors;
 
-namespace Grand.Web.Validators.Common
+namespace Grand.Web.Validators.Vendors
 {
     public class VendorAddressValidator : BaseGrandValidator<VendorAddressModel>
     {
