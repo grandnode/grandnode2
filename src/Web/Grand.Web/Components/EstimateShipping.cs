@@ -6,7 +6,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class EstimateShippingViewComponent : BaseViewComponent
     {

@@ -7,7 +7,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class WidgetViewComponent : BaseViewComponent
     {
