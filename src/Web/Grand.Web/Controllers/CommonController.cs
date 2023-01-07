@@ -522,7 +522,10 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
-        public virtual IActionResult StoreClosed() => View();
+        public virtual IActionResult StoreClosed()
+        {
+            return View();
+        }
 
         [HttpPost]
         [DenySystemAccount]
