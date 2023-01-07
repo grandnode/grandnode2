@@ -52,7 +52,7 @@ namespace Grand.Web.Commands.Handler.Products
                     ProductId = request.Product.Id,
                     Os = (int)OrderStatusSystem.Complete,
                     PageSize = 1
-                })).Any();
+                }, cancellationToken)).Any();
 
             var productReview = new ProductReview
             {
@@ -77,7 +77,7 @@ namespace Grand.Web.Commands.Handler.Products
             }
 
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = request.Product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = request.Product }, cancellationToken);
 
             //notify store owner
             if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)

@@ -69,7 +69,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Language = request.Language,
                     Address = request.Vendor.Address,
                     ExcludeProperties = false,
-                })
+                }, cancellationToken)
             };
 
             //prepare picture model
@@ -90,11 +90,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = request.Vendor.AllowCustomersToSelectPageSize,
                 PageSize = request.Vendor.PageSize,
                 PageSizeOptions = request.Vendor.PageSizeOptions
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-              (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+              (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
             //products
             var products = await _mediator.Send(new GetSearchProductsQuery {
@@ -107,19 +107,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            });
+            }, cancellationToken);
 
             model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

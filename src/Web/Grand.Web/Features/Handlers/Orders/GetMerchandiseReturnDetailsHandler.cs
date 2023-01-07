@@ -57,7 +57,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     Language = request.Language,
                     Address = request.MerchandiseReturn.PickupAddress,
                     ExcludeProperties = false,
-                })
+                }, cancellationToken)
             };
 
             foreach (var item in request.MerchandiseReturn.MerchandiseReturnItems)

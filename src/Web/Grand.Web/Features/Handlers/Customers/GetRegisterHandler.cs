@@ -114,7 +114,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 Customer = request.Customer,
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
-            });
+            }, cancellationToken);
             foreach (var item in customAttributes.Where(x=>!x.IsReadOnly))
             {
                 model.CustomerAttributes.Add(item);

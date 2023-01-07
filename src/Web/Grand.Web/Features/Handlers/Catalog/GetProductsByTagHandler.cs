@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = _catalogSettings.ProductsByTagAllowCustomersToSelectPageSize,
                 PageSize = _catalogSettings.ProductsByTagPageSize,
                 PageSizeOptions = _catalogSettings.ProductsByTagPageSizeOptions
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             //products
@@ -49,12 +49,12 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            })).products;
+            }, cancellationToken)).products;
 
             model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products);
 

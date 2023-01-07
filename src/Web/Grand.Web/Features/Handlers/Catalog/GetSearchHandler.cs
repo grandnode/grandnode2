@@ -193,15 +193,14 @@ namespace Grand.Web.Features.Handlers.Catalog
                     {
                         categoryIds.Add(categoryId);
                         //include subcategories
-                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
+                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }, cancellationToken));
                     }
                     collectionId = request.Model.mid;
 
                     //min price
                     if (!string.IsNullOrEmpty(request.Model.pf))
                     {
-                        double minPrice;
-                        if (double.TryParse(request.Model.pf, out minPrice))
+                        if (double.TryParse(request.Model.pf, out var minPrice))
                             minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
                     }
                     //max price
@@ -242,12 +241,12 @@ namespace Grand.Web.Features.Handlers.Catalog
                     PageIndex = request.Command.PageNumber - 1,
                     PageSize = request.Command.PageSize,
                     VendorId = vendorId
-                });
+                }, cancellationToken);
 
                 request.Model.Products = (await _mediator.Send(new GetProductOverview {
                     Products = searchproducts.products,
                     PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-                })).ToList();
+                }, cancellationToken)).ToList();
 
                 request.Model.PagingFilteringContext.LoadPagedList(searchproducts.products);
 

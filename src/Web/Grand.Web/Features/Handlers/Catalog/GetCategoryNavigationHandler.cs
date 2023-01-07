@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 Language = request.Language,
                 Store = request.Store,
                 CurrentCategoryId = request.CurrentCategoryId
-            });
+            }, cancellationToken);
 
             var model = new CategoryNavigationModel
             {

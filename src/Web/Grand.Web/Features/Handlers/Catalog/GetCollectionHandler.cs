@@ -94,7 +94,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     model.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         Products = featuredProducts,
-                    })).ToList();
+                    }, cancellationToken)).ToList();
                 }
             }
 

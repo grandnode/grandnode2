@@ -87,7 +87,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (_catalogSettings.ShowProductsFromSubcategoriesInSearchBox)
                 {
                     //include subcategories
-                    categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.CategoryId, Customer = request.Customer, Store = request.Store }));
+                    categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.CategoryId, Customer = request.Customer, Store = request.Store }, cancellationToken));
                 }
             }
 
@@ -101,7 +101,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 LanguageId = request.Language.Id,
                 VisibleIndividuallyOnly = true,
                 PageSize = productNumber
-            })).products;
+            }, cancellationToken)).products;
 
             var categories = new List<string>();
             var brands = new List<string>();
@@ -123,7 +123,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Language = request.Language,
                     Product = item,
                     Store = request.Store
-                });
+                }, cancellationToken);
 
                 var price = displayPrices ? await PreparePrice(item, request) : (Price: string.Empty, PriceWithDiscount: string.Empty);
 

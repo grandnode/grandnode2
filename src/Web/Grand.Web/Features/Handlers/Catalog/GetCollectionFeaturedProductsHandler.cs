@@ -101,11 +101,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                         StoreId = request.Store.Id,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                     return featuredProducts.Any();
                 });
 
-                if (hasFeaturedProductsCache.Value && featuredProducts == null)
+                if (hasFeaturedProductsCache.HasValue && hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the collection has featured products
                     featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
@@ -115,13 +115,13 @@ namespace Grand.Web.Features.Handlers.Catalog
                         StoreId = request.Store.Id,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
                     item.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         Products = featuredProducts,
-                    })).ToList();
+                    }, cancellationToken)).ToList();
                 }
             }
             return model;

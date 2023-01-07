@@ -80,7 +80,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 PrePopulateWithCustomerFields = request.PrePopulateNewAddressWithCustomerFields,
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes,
-            });
+            }, cancellationToken);
             model.ShippingNewAddress.HideAddressType = true;
             model.ShippingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
 

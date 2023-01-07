@@ -88,7 +88,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc),
                 OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name,
                 IsReOrderAllowed = _orderSettings.IsReOrderAllowed,
-                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = request.Order }),
+                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = request.Order }, cancellationToken),
                 PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending,
                 ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote
             };
@@ -102,7 +102,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 Model = null,
                 Address = request.Order.BillingAddress,
                 ExcludeProperties = false,
-            });
+            }, cancellationToken);
 
             //VAT number
             model.VatNumber = request.Order.VatNumber;
