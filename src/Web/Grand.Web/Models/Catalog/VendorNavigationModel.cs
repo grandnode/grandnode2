@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class VendorNavigationModel : BaseModel
+    public class VendorNavigationModel : BaseModel
     {
         public VendorNavigationModel()
         {
@@ -14,7 +14,7 @@ namespace Grand.Web.Models.Catalog
         public int TotalVendors { get; set; }
     }
 
-    public partial class VendorBriefInfoModel : BaseEntityModel
+    public class VendorBriefInfoModel : BaseEntityModel
     {
         public string Name { get; set; }
 

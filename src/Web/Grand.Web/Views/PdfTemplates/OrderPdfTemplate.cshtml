@@ -152,6 +152,7 @@
                         var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
                         <b>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</b><br/>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })
+
                     }
                 </td>
                 <td class="line">

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class AddressAttributeModel : BaseEntityModel
+    public class AddressAttributeModel : BaseEntityModel
     {
         public AddressAttributeModel()
         {
@@ -24,7 +24,7 @@ namespace Grand.Web.Models.Common
         public IList<AddressAttributeValueModel> Values { get; set; }
     }
 
-    public partial class AddressAttributeValueModel : BaseEntityModel
+    public class AddressAttributeValueModel : BaseEntityModel
     {
         public string Name { get; set; }
 

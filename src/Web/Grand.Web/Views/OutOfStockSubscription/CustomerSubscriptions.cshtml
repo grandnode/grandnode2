@@ -1,6 +1,4 @@
 ﻿@model CustomerOutOfStockSubscriptionsModel
-@using Grand.Web.Models.Catalog
-@using Grand.Web.Models.Customer
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -51,7 +49,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for (int i = 0; i < Model.Subscriptions.Count; i++)
+                            @for (var i = 0; i < Model.Subscriptions.Count; i++)
                             {
                                 var item = Model.Subscriptions[i];
                                 <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
@@ -63,7 +61,7 @@
                                         </label>
                                     </td>
                                     <td class="product">
-                                        @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
+                                        @Html.RouteLink(item.ProductName, "Product", new { item.SeName })
                                         @if (!string.IsNullOrEmpty(item.AttributeDescription))
                                         {
                                             <br />

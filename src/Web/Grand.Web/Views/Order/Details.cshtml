@@ -5,14 +5,7 @@
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
-    if (!Model.PrintMode)
-    {
-        Layout = "_SingleColumn";
-    }
-    else
-    {
-        Layout = "_Print";
-    }
+    Layout = !Model.PrintMode ? "_SingleColumn" : "_Print";
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.OrderDetails"]);
@@ -43,8 +36,10 @@
             {
                 <a @@click="$bvModal.show('ModalAddOrderNote')" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
 
-                var notemodel = new AddOrderNoteModel();
-                notemodel.OrderId = Model.Id;
+                var notemodel = new AddOrderNoteModel
+                {
+                    OrderId = Model.Id
+                };
 
                 <partial name="Partials/AddOrderNote" model="@notemodel"/>
             }
@@ -118,13 +113,13 @@
                                     @Loc["Order.Fax"]: @Model.BillingAddress.FaxNumber
                                 </li>
                             }
-                            @if (Model.BillingAddress.CompanyEnabled && !String.IsNullOrEmpty(Model.BillingAddress.Company))
+                            @if (Model.BillingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.Company))
                             {
                                 <li class="company">
                                     @Model.BillingAddress.Company
                                 </li>
                             }
-                            @if (Model.BillingAddress.VatNumberEnabled && !String.IsNullOrEmpty(Model.BillingAddress.VatNumber))
+                            @if (Model.BillingAddress.VatNumberEnabled && !string.IsNullOrEmpty(Model.BillingAddress.VatNumber))
                             {
                                 <li class="company">
                                     @Model.BillingAddress.VatNumber
@@ -136,7 +131,7 @@
                                     @Model.BillingAddress.Address1
                                 </li>
                             }
-                            @if (Model.BillingAddress.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.BillingAddress.Address2))
+                            @if (Model.BillingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.BillingAddress.Address2))
                             {
                                 <li class="address2">
                                     @Model.BillingAddress.Address2
@@ -165,13 +160,13 @@
                                     }
                                 </li>
                             }
-                            @if (Model.BillingAddress.CountryEnabled && !String.IsNullOrEmpty(Model.BillingAddress.CountryName))
+                            @if (Model.BillingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.BillingAddress.CountryName))
                             {
                                 <li class="country">
                                     @Model.BillingAddress.CountryName
                                 </li>
                             }
-                            @if (!String.IsNullOrEmpty(Model.VatNumber))
+                            @if (!string.IsNullOrEmpty(Model.VatNumber))
                             {
                                 <li class="vat">
                                     <span class="label">
@@ -182,13 +177,13 @@
                                     </span>
                                 </li>
                             }
-                            @if (!String.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
+                            @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
                             {
                                 <li class="custom-attributes-view">
                                     @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
                                 </li>
                             }
-                            @if (!String.IsNullOrEmpty(Model.PaymentMethod))
+                            @if (!string.IsNullOrEmpty(Model.PaymentMethod))
                             {
                                 <li class="title">
                                     <h5 class="generalMarginSupporter generalTitle">@Loc["Order.Payment"]</h5>
@@ -268,7 +263,7 @@
                                             @Loc["Order.Fax"]: @Model.ShippingAddress.FaxNumber
                                         </li>
                                     }
-                                    if (Model.ShippingAddress.CompanyEnabled && !String.IsNullOrEmpty(Model.ShippingAddress.Company))
+                                    if (Model.ShippingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.Company))
                                     {
                                         <li class="company">
                                             @Model.ShippingAddress.Company
@@ -280,7 +275,7 @@
                                             @Model.ShippingAddress.Address1
                                         </li>
                                     }
-                                    if (Model.ShippingAddress.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.ShippingAddress.Address2))
+                                    if (Model.ShippingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.ShippingAddress.Address2))
                                     {
                                         <li class="address2">
                                             @Model.ShippingAddress.Address2
@@ -309,13 +304,13 @@
                                             }
                                         </li>
                                     }
-                                    if (Model.ShippingAddress.CountryEnabled && !String.IsNullOrEmpty(Model.ShippingAddress.CountryName))
+                                    if (Model.ShippingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.CountryName))
                                     {
                                         <li class="country">
                                             @Model.ShippingAddress.CountryName
                                         </li>
                                     }
-                                    if (!String.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
+                                    if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
                                     {
                                         <li class="custom-attributes-view">
                                             @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
@@ -439,11 +434,11 @@
                                                             {
                                                                 <div class="rental-info">@Html.Raw(item.RentalInfo)</div>
                                                             }
-                                                            @if (!String.IsNullOrEmpty(item.DownloadId))
+                                                            @if (!string.IsNullOrEmpty(item.DownloadId))
                                                             {
                                                                 <div class="download"><a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.Download"]</a></div>
                                                             }
-                                                            @if (!String.IsNullOrEmpty(item.LicenseId))
+                                                            @if (!string.IsNullOrEmpty(item.LicenseId))
                                                             {
                                                                 <div class="download license">
                                                                     <a href="@Url.RouteUrl("GetLicense", new {orderItemId = item.OrderItemGuid})">@Loc["DownloadableProducts.Fields.DownloadLicense"]</a>
@@ -603,7 +598,7 @@
                                     </table>
                                 </div>
                                 <div class="d-inline-flex w-100 justify-content-between flex-wrap">
-                                    @if (!String.IsNullOrEmpty(Model.CheckoutAttributeInfo))
+                                    @if (!string.IsNullOrEmpty(Model.CheckoutAttributeInfo))
                                     {
                                         <div class="selected-checkout-attributes">
                                             @Html.Raw(Model.CheckoutAttributeInfo)

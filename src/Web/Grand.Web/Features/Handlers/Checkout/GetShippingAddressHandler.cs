@@ -55,10 +55,11 @@ namespace Grand.Web.Features.Handlers.Checkout
 
         public async Task<CheckoutShippingAddressModel> Handle(GetShippingAddress request, CancellationToken cancellationToken)
         {
-            var model = new CheckoutShippingAddressModel();
-            model.BillToTheSameAddress = true;
-            //allow pickup in store?
-            model.AllowPickUpInStore = _shippingSettings.AllowPickUpInStore;
+            var model = new CheckoutShippingAddressModel {
+                BillToTheSameAddress = true,
+                //allow pickup in store?
+                AllowPickUpInStore = _shippingSettings.AllowPickUpInStore
+            };
             if (model.AllowPickUpInStore)
             {
                 await PreparePickupPoints(model, request);
@@ -69,7 +70,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             //new address
             model.ShippingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.ShippingNewAddress = await _mediator.Send(new GetAddressModel() {
+            model.ShippingNewAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Store = request.Store,
                 Model = model.ShippingNewAddress,
@@ -78,8 +79,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                 LoadCountries = () => countries,
                 PrePopulateWithCustomerFields = request.PrePopulateNewAddressWithCustomerFields,
                 Customer = request.Customer,
-                OverrideAttributes = request.OverrideAttributes,
-            });
+                OverrideAttributes = request.OverrideAttributes
+            }, cancellationToken);
             model.ShippingNewAddress.HideAddressType = true;
             model.ShippingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
 
@@ -94,11 +95,11 @@ namespace Grand.Web.Features.Handlers.Checkout
             {
                 foreach (var pickupPoint in pickupPoints)
                 {
-                    var pickupPointModel = new CheckoutPickupPointModel() {
+                    var pickupPointModel = new CheckoutPickupPointModel {
                         Id = pickupPoint.Id,
                         Name = pickupPoint.Name,
                         Description = pickupPoint.Description,
-                        Address = pickupPoint.Address,
+                        Address = pickupPoint.Address
                     };
                     if (pickupPoint.PickupFee > 0)
                     {
@@ -126,7 +127,7 @@ namespace Grand.Web.Features.Handlers.Checkout
         {
             //existing addresses
             var addresses = new List<Address>();
-            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType == AddressType.Any || x.AddressType == AddressType.Shipping))
+            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType is AddressType.Any or AddressType.Shipping))
             {
                 if (string.IsNullOrEmpty(item.CountryId))
                 {
@@ -137,17 +138,16 @@ namespace Grand.Web.Features.Handlers.Checkout
                 if (country == null || (country.AllowsShipping && _aclService.Authorize(country, request.Store.Id)))
                 {
                     addresses.Add(item);
-                    continue;
                 }
             }
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,
                     Address = address,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
                 model.ExistingAddresses.Add(addressModel);
             }

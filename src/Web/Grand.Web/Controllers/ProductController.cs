@@ -1,19 +1,20 @@
 ﻿using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Products;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
@@ -22,11 +23,10 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
-    public partial class ProductController : BasePublicController
+    public class ProductController : BasePublicController
     {
         #region Fields
 
@@ -106,7 +106,7 @@ namespace Grand.Web.Controllers
                 return InvokeHttp404();
 
             //availability dates
-            if (!product.IsAvailable() && !(product.ProductTypeId == ProductType.Auction))
+            if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
                 return InvokeHttp404();
 
             //visible individually?
@@ -114,14 +114,11 @@ namespace Grand.Web.Controllers
             {
                 //is this one an associated products?
                 var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
-                if (parentGroupedProduct == null)
-                    return RedirectToRoute("HomePage");
-
-                return RedirectToRoute("Product", new { SeName = parentGroupedProduct.GetSeName(_workContext.WorkingLanguage.Id) });
+                return parentGroupedProduct == null ? RedirectToRoute("HomePage") : RedirectToRoute("Product", new { SeName = parentGroupedProduct.GetSeName(_workContext.WorkingLanguage.Id) });
             }
             //update existing shopping cart item?
             ShoppingCartItem updatecartitem = null;
-            if (_shoppingCartSettings.AllowCartItemEditing && !String.IsNullOrEmpty(updatecartitemid))
+            if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
             {
                 var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id);
 
@@ -139,7 +136,7 @@ namespace Grand.Web.Controllers
             }
 
             //prepare the model
-            var model = await _mediator.Send(new GetProductDetailsPage() {
+            var model = await _mediator.Send(new GetProductDetailsPage {
                 Store = _workContext.CurrentStore,
                 Product = product,
                 IsAssociatedProduct = false,
@@ -147,7 +144,7 @@ namespace Grand.Web.Controllers
             });
 
             //product layout
-            var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath() { ProductLayoutId = product.ProductLayoutId });
+            var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath { ProductLayoutId = product.ProductLayoutId });
 
             //save as recently viewed
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
@@ -181,13 +178,13 @@ namespace Grand.Web.Controllers
             if (product == null)
                 return new JsonResult("");
 
-            var modelProduct = await _mediator.Send(new GetProductDetailsAttributeChange() {
+            var modelProduct = await _mediator.Send(new GetProductDetailsAttributeChange {
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Model = model, 
                 LoadPicture = loadPicture,
-                Product = product,
+                Product = product
             });
 
             return Json(new
@@ -203,7 +200,7 @@ namespace Grand.Web.Controllers
                 disabledattributemappingids = modelProduct.DisabledAttributeMappingids.ToArray(),
                 notAvailableAttributeMappingids = modelProduct.NotAvailableAttributeMappingids.ToArray(),
                 pictureFullSizeUrl = modelProduct.PictureFullSizeUrl,
-                pictureDefaultSizeUrl = modelProduct.PictureDefaultSizeUrl,
+                pictureDefaultSizeUrl = modelProduct.PictureDefaultSizeUrl
             });
         }
 
@@ -233,16 +230,16 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
-            var attribute = product.ProductAttributeMappings.Where(x => x.Id == attributeId).FirstOrDefault();
-            if (attribute == null || attribute.AttributeControlTypeId != AttributeControlType.FileUpload)
+            var attribute = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attributeId);
+            if (attribute is not { AttributeControlTypeId: AttributeControlType.FileUpload })
             {
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var form = await HttpContext.Request.ReadFormAsync();
@@ -253,12 +250,12 @@ namespace Grand.Web.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var fileBinary = httpPostedFile.GetDownloadBits();
 
-            var qqFileNameParameter = "qqfilename";
+            const string qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
             if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();
@@ -268,7 +265,7 @@ namespace Grand.Web.Controllers
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
@@ -282,7 +279,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -298,7 +295,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -323,7 +320,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.FileUploaded"),
                 downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid,
+                downloadGuid = download.DownloadGuid
             });
         }
 
@@ -371,7 +368,7 @@ namespace Grand.Web.Controllers
                 });
 
             //availability dates
-            if (!product.IsAvailable() && !(product.ProductTypeId == ProductType.Auction))
+            if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
                 return Json(new
                 {
                     success = false,
@@ -387,17 +384,17 @@ namespace Grand.Web.Controllers
                 {
                     return Json(new
                     {
-                        redirect = Url.RouteUrl("HomePage"),
+                        redirect = Url.RouteUrl("HomePage")
                     });
                 }
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
             //prepare the model
-            var model = await _mediator.Send(new GetProductDetailsPage() {
+            var model = await _mediator.Send(new GetProductDetailsPage {
                 Store = _workContext.CurrentStore,
                 Product = product,
                 IsAssociatedProduct = false,
@@ -405,7 +402,7 @@ namespace Grand.Web.Controllers
             });
 
             //product layout
-            var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath() { ProductLayoutId = product.ProductLayoutId });
+            var productLayoutViewPath = await _mediator.Send(new GetProductLayoutViewPath { ProductLayoutId = product.ProductLayoutId });
 
             //save as recently viewed
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
@@ -438,8 +435,8 @@ namespace Grand.Web.Controllers
             var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_workContext.CurrentCustomer.Id, _catalogSettings.RecentlyViewedProductsNumber);
 
             //prepare model
-            var model = await _mediator.Send(new GetProductOverview() {
-                Products = products,
+            var model = await _mediator.Send(new GetProductOverview {
+                Products = products
             });
 
             return View(model);
@@ -456,7 +453,7 @@ namespace Grand.Web.Controllers
             //load products
             var products = await _productService.GetProductsByIds(productIds);
 
-            var model = await _mediator.Send(new GetProductOverview() {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
@@ -486,9 +483,9 @@ namespace Grand.Web.Controllers
 
 
             //prepare model
-            var model = await _mediator.Send(new GetProductOverview() {
+            var model = await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
-                Products = products,
+                Products = products
             });
 
             return View(model);
@@ -510,7 +507,7 @@ namespace Grand.Web.Controllers
             [FromServices] IProductReviewService productReviewService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !product.AllowCustomerReviews)
+            if (product is not { Published: true } || !product.AllowCustomerReviews)
                 return RedirectToRoute("HomePage");
 
             //validate CAPTCHA
@@ -539,7 +536,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var productReview = await _mediator.Send(new InsertProductReviewCommand() {
+                var productReview = await _mediator.Send(new InsertProductReviewCommand {
                     Customer = _workContext.CurrentCustomer,
                     Store = _workContext.CurrentStore,
                     Model = model,
@@ -557,7 +554,7 @@ namespace Grand.Web.Controllers
                 if (productReview.IsApproved)
                     await _mediator.Publish(new ProductReviewApprovedEvent(productReview));
 
-                model = await _mediator.Send(new GetProductReviews() {
+                model = await _mediator.Send(new GetProductReviews {
                     Customer = _workContext.CurrentCustomer,
                     Language = _workContext.WorkingLanguage,
                     Product = product,
@@ -574,7 +571,7 @@ namespace Grand.Web.Controllers
                 else
                 {
                     model.AddProductReview.Result = _translationService.GetResource("Reviews.SuccessfullyAdded");
-                    model.ProductReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview() {
+                    model.ProductReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview {
                         Product = product,
                         Language = _workContext.WorkingLanguage,
                         Store = _workContext.CurrentStore
@@ -584,7 +581,7 @@ namespace Grand.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            var newmodel = await _mediator.Send(new GetProductReviews() {
+            var newmodel = await _mediator.Send(new GetProductReviews {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Product = product,
@@ -607,7 +604,6 @@ namespace Grand.Web.Controllers
             [FromServices] IGroupService groupService,
             [FromServices] IProductReviewService productReviewService)
         {
-            var product = await _productService.GetProductById(productId);
             var productReview = await productReviewService.GetProductReviewById(productReviewId);
             if (productReview == null)
                 throw new ArgumentException("No product review found with the specified id");
@@ -647,7 +643,7 @@ namespace Grand.Web.Controllers
                 prh = new ProductReviewHelpfulness {
                     ProductReviewId = productReview.Id,
                     CustomerId = _workContext.CurrentCustomer.Id,
-                    WasHelpful = washelpful,
+                    WasHelpful = washelpful
                 };
                 productReview.ProductReviewHelpfulnessEntries.Add(prh);
                 await productReviewService.UpdateProductReview(productReview);
@@ -683,7 +679,7 @@ namespace Grand.Web.Controllers
             [FromServices] IGroupService groupService)
         {
             var product = await _productService.GetProductById(model.ProductId);
-            if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+            if (product is not { Published: true } || !_catalogSettings.EmailAFriendEnabled)
                 return Content("");
 
             //validate CAPTCHA
@@ -701,12 +697,12 @@ namespace Grand.Web.Controllers
             if (ModelState.IsValid)
             {
                 //email
-                await _mediator.Send(new SendProductEmailAFriendMessageCommand() {
+                await _mediator.Send(new SendProductEmailAFriendMessageCommand {
                     Customer = _workContext.CurrentCustomer,
                     Product = product,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
-                    Model = model,
+                    Model = model
                 });
 
                 model.ProductId = product.Id;
@@ -741,7 +737,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model, bool captchaValid)
         {
             var product = await _productService.GetProductById(model.Id);
-            if (product == null || !product.Published || !_catalogSettings.AskQuestionOnProduct)
+            if (product is not { Published: true } || !_catalogSettings.AskQuestionOnProduct)
                 return Json(new
                 {
                     success = false,
@@ -758,45 +754,39 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            if (ModelState.IsValid)
-            {
-                var productaskqestionmodel = new ProductAskQuestionModel() {
-                    Email = model.AskQuestionEmail,
-                    FullName = model.AskQuestionFullName,
-                    Phone = model.AskQuestionPhone,
-                    Message = model.AskQuestionMessage
-                };
-
-                // email
-                await _mediator.Send(new SendProductAskQuestionMessageCommand() {
-                    Customer = _workContext.CurrentCustomer,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore,
-                    Model = productaskqestionmodel,
-                    Product = product,
-                    RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
+            if (!ModelState.IsValid)
+                
+                return Json(new {
+                    success = false,
+                    message = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage))
                 });
+            var productaskqestionmodel = new ProductAskQuestionModel {
+                Email = model.AskQuestionEmail,
+                FullName = model.AskQuestionFullName,
+                Phone = model.AskQuestionPhone,
+                Message = model.AskQuestionMessage
+            };
 
-                //activity log
-                _ = _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
-                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
-                //return Json
-                return Json(new
-                {
-                    success = true,
-                    message = _translationService.GetResource("Products.AskQuestion.SuccessfullySent")
-                });
-
-            }
-
-            // If we got this far, something failed, redisplay form
-            return Json(new
-            {
-                success = false,
-                message = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage))
+            // email
+            await _mediator.Send(new SendProductAskQuestionMessageCommand {
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                Model = productaskqestionmodel,
+                Product = product,
+                RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             });
 
+            //activity log
+            _ = _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
+            //return Json
+            return Json(new
+            {
+                success = true,
+                message = _translationService.GetResource("Products.AskQuestion.SuccessfullySent")
+            });
         }
 
         #endregion
@@ -808,7 +798,7 @@ namespace Grand.Web.Controllers
             if (!_catalogSettings.CompareProductsEnabled)
                 return Content("");
 
-            var model = await _mediator.Send(new GetCompareProducts() { PictureProductThumbSize = mediaSettings.MiniCartThumbPictureSize });
+            var model = await _mediator.Send(new GetCompareProducts { PictureProductThumbSize = mediaSettings.MiniCartThumbPictureSize });
 
             return View(model);
 
@@ -820,7 +810,7 @@ namespace Grand.Web.Controllers
             if (!_catalogSettings.CompareProductsEnabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetCompareProducts() { PictureProductThumbSize = mediaSettings.CartThumbPictureSize });
+            var model = await _mediator.Send(new GetCompareProducts { PictureProductThumbSize = mediaSettings.CartThumbPictureSize });
 
             return View(model);
         }

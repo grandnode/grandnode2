@@ -34,13 +34,11 @@ namespace Grand.Web.Commands.Handler.Common
             foreach (var attribute in attributes)
             {
                 var conditionMet = await _contactAttributeParser.IsConditionMet(attribute, customAttributes);
-                if (conditionMet.HasValue)
-                {
-                    if (conditionMet.Value)
-                        enabledAttributeIds.Add(attribute.Id);
-                    else
-                        disabledAttributeIds.Add(attribute.Id);
-                }
+                if (!conditionMet.HasValue) continue;
+                if (conditionMet.Value)
+                    enabledAttributeIds.Add(attribute.Id);
+                else
+                    disabledAttributeIds.Add(attribute.Id);
             }
 
             return (enabledAttributeIds, disabledAttributeIds);
@@ -89,7 +87,7 @@ namespace Grand.Web.Commands.Handler.Common
                                      .ToList())
                         {
                             customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
-                                attribute, selectedAttributeId.ToString()).ToList();
+                                attribute, selectedAttributeId).ToList();
                         }
                     }
                         break;
@@ -113,7 +111,7 @@ namespace Grand.Web.Commands.Handler.Common
                         DateTime? selectedDate = null;
                         try
                         {
-                            selectedDate = new DateTime(Int32.Parse(year), Int32.Parse(month), Int32.Parse(date));
+                            selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(date));
                         }
                         catch
                         {
@@ -138,8 +136,6 @@ namespace Grand.Web.Commands.Handler.Common
                                 attribute, download.DownloadGuid.ToString()).ToList();
                         }
                     }
-                        break;
-                    default:
                         break;
                 }
             }

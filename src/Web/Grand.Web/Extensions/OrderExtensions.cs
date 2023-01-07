@@ -15,11 +15,8 @@ namespace Grand.Web.Extensions
             if (await groupService.IsOwner(customer) && (customer.Id == order.CustomerId || customer.Id == order.OwnerId))
                 return true;
 
-            //subaccount
-            if (!await groupService.IsOwner(customer) && customer.Id == order.CustomerId)
-                return true;
-
-            return false;
+            //sub account
+            return !await groupService.IsOwner(customer) && customer.Id == order.CustomerId;
         }
         public static async Task<bool> Access(this MerchandiseReturn merchandiseReturn, Customer customer, IGroupService groupService)
         {
@@ -30,11 +27,8 @@ namespace Grand.Web.Extensions
             if (await groupService.IsOwner(customer) && (customer.Id == merchandiseReturn.CustomerId || customer.Id == merchandiseReturn.OwnerId))
                 return true;
 
-            //subaccount
-            if (!await groupService.IsOwner(customer) && customer.Id == merchandiseReturn.CustomerId)
-                return true;
-
-            return false;
+            //sub account
+            return !await groupService.IsOwner(customer) && customer.Id == merchandiseReturn.CustomerId;
         }
     }
 }

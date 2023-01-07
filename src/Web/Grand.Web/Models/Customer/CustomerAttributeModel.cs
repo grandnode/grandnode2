@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerAttributeModel : BaseEntityModel
+    public class CustomerAttributeModel : BaseEntityModel
     {
         public CustomerAttributeModel()
         {
@@ -26,7 +26,7 @@ namespace Grand.Web.Models.Customer
 
     }
 
-    public partial class CustomerAttributeValueModel : BaseEntityModel
+    public class CustomerAttributeValueModel : BaseEntityModel
     {
         public string Name { get; set; }
 

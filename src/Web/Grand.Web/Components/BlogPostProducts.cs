@@ -49,8 +49,7 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,

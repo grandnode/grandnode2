@@ -1,9 +1,5 @@
 ﻿@model SubAccountModel
-@inject Grand.Domain.Customers.CustomerSettings customerSettings
-@{
-    var edit_email = !string.IsNullOrEmpty(Model.Id) && !customerSettings.AllowUsersToChangeEmail;
-    var validPassword = string.IsNullOrEmpty(Model.Id) ? "'required|min:Password'" : "";
-}
+
 <input asp-for="Id" type="hidden" />
 <div class="edit-subaccount row">
     <div class="form-group col-sm-12 col-md-6">

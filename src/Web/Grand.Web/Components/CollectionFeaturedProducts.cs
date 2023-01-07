@@ -29,15 +29,13 @@ namespace Grand.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetCollectionFeaturedProducts() {
+            var model = await _mediator.Send(new GetCollectionFeaturedProducts {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
 
-            if (!model.Any())
-                return Content("");
-            return View(model);
+            return !model.Any() ? Content("") : View(model);
         }
 
         #endregion

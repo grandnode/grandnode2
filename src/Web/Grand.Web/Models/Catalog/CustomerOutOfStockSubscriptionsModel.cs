@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CustomerOutOfStockSubscriptionsModel
+    public class CustomerOutOfStockSubscriptionsModel
     {
         public CustomerOutOfStockSubscriptionsModel()
         {
@@ -16,7 +16,7 @@ namespace Grand.Web.Models.Catalog
 
         #region Nested classes
 
-        public partial class OutOfStockSubscriptionModel : BaseEntityModel
+        public class OutOfStockSubscriptionModel : BaseEntityModel
         {
             public string ProductId { get; set; }
             public string ProductName { get; set; }

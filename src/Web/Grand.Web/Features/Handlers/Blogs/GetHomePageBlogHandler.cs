@@ -1,14 +1,14 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
 using Grand.Domain.Blogs;
 using Grand.Domain.Media;
-using Grand.Web.Features.Models.Blogs;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;
 using MediatR;
@@ -86,11 +86,11 @@ namespace Grand.Web.Features.Handlers.Blogs
                             ExtraField = picture?.ExtraField
                         };
                         //"title" attribute
-                        pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                        pictureModel.Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
                             picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
                             string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), post.Title);
                         //"alt" attribute
-                        pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                        pictureModel.AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
                             picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
                             string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title);
 

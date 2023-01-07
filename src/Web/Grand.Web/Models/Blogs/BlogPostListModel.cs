@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogPostListModel : BaseModel
+    public class BlogPostListModel : BaseModel
     {
         public BlogPostListModel()
         {

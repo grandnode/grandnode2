@@ -78,15 +78,15 @@ namespace Grand.Web.Features.Handlers.Common
                 model.VatNumber = address.VatNumber;
                 model.CountryId = address.CountryId;
                 Country country = null;
-                if (!String.IsNullOrEmpty(address.CountryId))
+                if (!string.IsNullOrEmpty(address.CountryId))
                     country = await _countryService.GetCountryById(address.CountryId);
-                model.CountryName = country != null ? country.GetTranslation(x => x.Name, language.Id) : null;
+                model.CountryName = country?.GetTranslation(x => x.Name, language?.Id);
 
                 model.StateProvinceId = address.StateProvinceId;
                 StateProvince state = null;
-                if (!String.IsNullOrEmpty(address.StateProvinceId) && country != null)
+                if (!string.IsNullOrEmpty(address.StateProvinceId) && country != null)
                     state = country.StateProvinces.FirstOrDefault(x => x.Id == address.StateProvinceId);
-                model.StateProvinceName = state != null ? state.GetTranslation(x => x.Name, language.Id) : null;
+                model.StateProvinceName = state?.GetTranslation(x => x.Name, language?.Id);
 
                 model.City = address.City;
                 model.Address1 = address.Address1;
@@ -126,8 +126,8 @@ namespace Grand.Web.Features.Handlers.Common
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, language.Id),
-                        Value = c.Id.ToString(),
-                        Selected = !string.IsNullOrEmpty(model.CountryId) ? c.Id == model.CountryId : (c.Id == store.DefaultCountryId)
+                        Value = c.Id,
+                        Selected = !string.IsNullOrEmpty(model.CountryId) ? c.Id == model.CountryId : c.Id == store.DefaultCountryId
                     });
                 }
 
@@ -142,8 +142,8 @@ namespace Grand.Web.Features.Handlers.Common
                     {
                         model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, language.Id),
-                            Value = s.Id.ToString(),
-                            Selected = (s.Id == model.StateProvinceId)
+                            Value = s.Id,
+                            Selected = s.Id == model.StateProvinceId
                         });
                     }
                 }
@@ -188,7 +188,7 @@ namespace Grand.Web.Features.Handlers.Common
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, language.Id),
                     IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlType,
+                    AttributeControlType = attribute.AttributeControlType
                 };
 
                 if (attribute.ShouldHaveValues())
@@ -207,7 +207,7 @@ namespace Grand.Web.Features.Handlers.Common
                 }
 
                 //set already selected attributes
-                var selectedAddressAttributes = overrideAttributes ?? (address?.Attributes);
+                var selectedAddressAttributes = overrideAttributes ?? address?.Attributes;
 
                 switch (attribute.AttributeControlType)
                 {

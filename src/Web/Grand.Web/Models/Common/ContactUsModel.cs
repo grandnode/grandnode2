@@ -1,14 +1,14 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using Grand.Domain.Common;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class ContactUsModel : BaseModel
+    public class ContactUsModel : BaseModel
     {
         public ContactUsModel()
         {
@@ -42,7 +42,7 @@ namespace Grand.Web.Models.Common
         public IList<CustomAttribute> ContactAttribute { get; set; }
         public IList<ContactAttributeModel> ContactAttributes { get; set; }
 
-        public partial class ContactAttributeModel : BaseEntityModel
+        public class ContactAttributeModel : BaseEntityModel
         {
             public ContactAttributeModel()
             {
@@ -81,7 +81,7 @@ namespace Grand.Web.Models.Common
             public IList<ContactAttributeValueModel> Values { get; set; }
         }
 
-        public partial class ContactAttributeValueModel : BaseEntityModel
+        public class ContactAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
 

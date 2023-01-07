@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class WishlistModel : BaseModel
+    public class WishlistModel : BaseModel
     {
         public WishlistModel()
         {
@@ -32,7 +32,7 @@ namespace Grand.Web.Models.ShoppingCart
         
 		#region Nested Classes
 
-        public partial class ShoppingCartItemModel : BaseEntityModel
+        public class ShoppingCartItemModel : BaseEntityModel
         {
             public ShoppingCartItemModel()
             {

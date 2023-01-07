@@ -1,10 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
-using Grand.Web.Features.Models.Products;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,6 @@ namespace Grand.Web.Components
         private readonly IProductService _productService;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
-        private readonly IWorkContext _workContext;
         private readonly CatalogSettings _catalogSettings;
 
         #endregion
@@ -27,13 +25,11 @@ namespace Grand.Web.Components
             IProductService productService,
             IMediator mediator,
             ICacheBase cacheBase,
-            IWorkContext workContext,
             CatalogSettings catalogSettings)
         {
             _productService = productService;
             _mediator = mediator;
             _cacheBase = cacheBase;
-            _workContext = workContext;
             _catalogSettings = catalogSettings;
         }
 
@@ -51,13 +47,12 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products,
+                Products = products
             });
 
             return View(model);

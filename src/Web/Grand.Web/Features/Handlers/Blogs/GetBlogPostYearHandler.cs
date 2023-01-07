@@ -31,48 +31,44 @@ namespace Grand.Web.Features.Handlers.Blogs
                 var model = new List<BlogPostYearModel>();
 
                 var blogPosts = await _blogService.GetAllBlogPosts(_workContext.CurrentStore.Id);
-                if (blogPosts.Any())
+                if (!blogPosts.Any()) return model;
+                var months = new SortedDictionary<DateTime, int>();
+
+                var blogPost = blogPosts[^1];
+                var first = blogPost.StartDateUtc ?? blogPost.CreatedOnUtc;
+                while (DateTime.SpecifyKind(first, DateTimeKind.Utc) <= DateTime.UtcNow.AddMonths(1))
                 {
-                    var months = new SortedDictionary<DateTime, int>();
-
-                    var blogPost = blogPosts[blogPosts.Count - 1];
-                    var first = blogPost.StartDateUtc ?? blogPost.CreatedOnUtc;
-                    while (DateTime.SpecifyKind(first, DateTimeKind.Utc) <= DateTime.UtcNow.AddMonths(1))
+                    var list = blogPosts.GetPostsByDate(new DateTime(first.Year, first.Month, 1), new DateTime(first.Year, first.Month, 1).AddMonths(1).AddSeconds(-1));
+                    if (list.Any())
                     {
-                        var list = blogPosts.GetPostsByDate(new DateTime(first.Year, first.Month, 1), new DateTime(first.Year, first.Month, 1).AddMonths(1).AddSeconds(-1));
-                        if (list.Any())
-                        {
-                            var date = new DateTime(first.Year, first.Month, 1);
-                            months.Add(date, list.Count);
-                        }
-
-                        first = first.AddMonths(1);
+                        var date = new DateTime(first.Year, first.Month, 1);
+                        months.Add(date, list.Count);
                     }
 
+                    first = first.AddMonths(1);
+                }
 
-                    int current = 0;
-                    foreach (var kvp in months)
-                    {
-                        var date = kvp.Key;
-                        var blogPostCount = kvp.Value;
-                        if (current == 0)
-                            current = date.Year;
 
-                        if (date.Year > current || !model.Any())
-                        {
-                            var yearModel = new BlogPostYearModel {
-                                Year = date.Year
-                            };
-                            model.Insert(0, yearModel);
-                        }
-
-                        model.First().Months.Insert(0, new BlogPostMonthModel {
-                            Month = date.Month,
-                            BlogPostCount = blogPostCount
-                        });
-
+                var current = 0;
+                foreach (var (date, blogPostCount) in months)
+                {
+                    if (current == 0)
                         current = date.Year;
+
+                    if (date.Year > current || !model.Any())
+                    {
+                        var yearModel = new BlogPostYearModel {
+                            Year = date.Year
+                        };
+                        model.Insert(0, yearModel);
                     }
+
+                    model.First().Months.Insert(0, new BlogPostMonthModel {
+                        Month = date.Month,
+                        BlogPostCount = blogPostCount
+                    });
+
+                    current = date.Year;
                 }
                 return model;
             });

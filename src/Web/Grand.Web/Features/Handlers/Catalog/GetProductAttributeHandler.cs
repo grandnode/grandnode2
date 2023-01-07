@@ -17,7 +17,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         public async Task<ProductAttribute> Handle(GetProductAttribute request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.Id))
-                throw new ArgumentNullException("Id");
+                throw new ArgumentNullException(nameof(request.Id));
 
             return await _productAttributeService.GetProductAttributeById(request.Id);
         }

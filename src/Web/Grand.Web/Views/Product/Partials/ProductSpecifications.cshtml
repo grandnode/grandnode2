@@ -21,13 +21,10 @@
                         </div>
                     </td>
                     <td class="border-bottom border-top-0">
-                        @{
-                            var groupList2 = item.ToList();
-                        }
                         <div class="spec-value d-inline-flex w-100">
                             @foreach (var spec in groupList)
                             {
-                                @if (String.IsNullOrEmpty(spec.ColorSquaresRgb))
+                                @if (string.IsNullOrEmpty(spec.ColorSquaresRgb))
                                 {
                                     <div class="mb-2 mr-2">
                                         @Html.Raw(spec.ValueRaw)

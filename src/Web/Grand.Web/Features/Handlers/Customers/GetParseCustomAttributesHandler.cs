@@ -1,6 +1,6 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Web.Features.Models.Customers;
 using MediatR;
 
@@ -51,7 +51,7 @@ namespace Grand.Web.Features.Handlers.Customers
                             {
                                 foreach (var item in cblAttributes.Split(','))
                                 {
-                                    if (!String.IsNullOrEmpty(item))
+                                    if (!string.IsNullOrEmpty(item))
                                         customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }
@@ -79,7 +79,7 @@ namespace Grand.Web.Features.Handlers.Customers
                             var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

@@ -48,10 +48,11 @@ namespace Grand.Web.Features.Handlers.Orders
             if (request.Shipment == null)
                 throw new ArgumentNullException(nameof(request.Shipment));
 
-            var model = new ShipmentDetailsModel();
+            var model = new ShipmentDetailsModel {
+                Id = request.Shipment.Id,
+                ShipmentNumber = request.Shipment.ShipmentNumber
+            };
 
-            model.Id = request.Shipment.Id;
-            model.ShipmentNumber = request.Shipment.ShipmentNumber;
             if (request.Shipment.ShippedDateUtc.HasValue)
                 model.ShippedDate = _dateTimeService.ConvertToUserTime(request.Shipment.ShippedDateUtc.Value, DateTimeKind.Utc);
             if (request.Shipment.DeliveryDateUtc.HasValue)
@@ -76,10 +77,12 @@ namespace Grand.Web.Features.Handlers.Orders
                             {
                                 foreach (var shipmentEvent in shipmentEvents)
                                 {
-                                    var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel();
-                                    shipmentStatusEventModel.Date = shipmentEvent.Date;
-                                    shipmentStatusEventModel.EventName = shipmentEvent.EventName;
-                                    shipmentStatusEventModel.Location = shipmentEvent.Location;
+                                    var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel
+                                        {
+                                            Date = shipmentEvent.Date,
+                                            EventName = shipmentEvent.EventName,
+                                            Location = shipmentEvent.Location
+                                        };
                                     model.ShipmentStatusEvents.Add(shipmentStatusEventModel);
                                 }
                             }
@@ -92,7 +95,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
             foreach (var shipmentItem in request.Shipment.ShipmentItems)
             {
-                var orderItem = request.Order.OrderItems.Where(x => x.Id == shipmentItem.OrderItemId).FirstOrDefault();
+                var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                 if (orderItem == null)
                     continue;
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
@@ -104,7 +107,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     ProductSeName = product.GetSeName(request.Language.Id),
                     AttributeInfo = orderItem.AttributeDescription,
                     QuantityOrdered = orderItem.Quantity,
-                    QuantityShipped = shipmentItem.Quantity,
+                    QuantityShipped = shipmentItem.Quantity
                 };
 
                 model.Items.Add(shipmentItemModel);
@@ -148,24 +151,21 @@ namespace Grand.Web.Features.Handlers.Orders
             model.PickUpInStore = order.PickUpInStore;
             if (!order.PickUpInStore)
             {
-                model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
+                model.ShippingAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = order.ShippingAddress,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
             }
             else
             {
-                if (order.PickupPoint != null)
+                if (order.PickupPoint is { Address: { } })
                 {
-                    if (order.PickupPoint.Address != null)
-                    {
-                        model.PickupAddress = await _mediator.Send(new GetAddressModel() {
-                            Language = request.Language,
-                            Address = order.PickupPoint.Address,
-                            ExcludeProperties = false,
-                        });
-                    }
+                    model.PickupAddress = await _mediator.Send(new GetAddressModel {
+                        Language = request.Language,
+                        Address = order.PickupPoint.Address,
+                        ExcludeProperties = false
+                    });
                 }
             }
             return model;

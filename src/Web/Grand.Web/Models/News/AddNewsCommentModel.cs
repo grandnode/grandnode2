@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.News
 {
-    public partial class AddNewsCommentModel : BaseModel
+    public class AddNewsCommentModel : BaseModel
     {
         [GrandResourceDisplayName("News.Comments.CommentTitle")]
         public string CommentTitle { get; set; }

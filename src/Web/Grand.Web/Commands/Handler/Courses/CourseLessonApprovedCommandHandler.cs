@@ -1,5 +1,5 @@
-﻿using Grand.Domain.Courses;
-using Grand.Business.Core.Interfaces.Marketing.Courses;
+﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
+using Grand.Domain.Courses;
 using Grand.Web.Commands.Models.Courses;
 using MediatR;
 
@@ -19,7 +19,7 @@ namespace Grand.Web.Commands.Handler.Courses
             var action = await _courseActionService.GetCourseAction(request.Customer.Id, request.Lesson.Id);
             if (action == null)
             {
-                await _courseActionService.InsertAsync(new CourseAction() {
+                await _courseActionService.InsertAsync(new CourseAction {
                     CustomerId = request.Customer.Id,
                     CourseId = request.Course.Id,
                     LessonId = request.Lesson.Id,

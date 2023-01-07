@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class SearchBoxModel : BaseModel
+    public class SearchBoxModel : BaseModel
     {
         public SearchBoxModel()
         {

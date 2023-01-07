@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Common
 {
-    public partial class PagerModel : BasePageableModel
+    public class PagerModel : BasePageableModel
     {
 
     }

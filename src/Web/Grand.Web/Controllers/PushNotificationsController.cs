@@ -43,27 +43,25 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                if (value == "Permission denied")
-                {
-                    var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_workContext.CurrentCustomer.Id);
+                if (value != "Permission denied") return new JsonResult("");
+                var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_workContext.CurrentCustomer.Id);
 
-                    if (toUpdate == null)
+                if (toUpdate == null)
+                {
+                    await _pushNotificationsService.InsertPushReceiver(new PushRegistration
                     {
-                        await _pushNotificationsService.InsertPushReceiver(new PushRegistration
-                        {
-                            CustomerId = _workContext.CurrentCustomer.Id,
-                            Token = "[DENIED]",
-                            RegisteredOn = DateTime.UtcNow,
-                            Allowed = false
-                        });
-                    }
-                    else
-                    {
-                        toUpdate.Token = "[DENIED]";
-                        toUpdate.RegisteredOn = DateTime.UtcNow;
-                        toUpdate.Allowed = false;
-                        await _pushNotificationsService.UpdatePushReceiver(toUpdate);
-                    }
+                        CustomerId = _workContext.CurrentCustomer.Id,
+                        Token = "[DENIED]",
+                        RegisteredOn = DateTime.UtcNow,
+                        Allowed = false
+                    });
+                }
+                else
+                {
+                    toUpdate.Token = "[DENIED]";
+                    toUpdate.RegisteredOn = DateTime.UtcNow;
+                    toUpdate.Allowed = false;
+                    await _pushNotificationsService.UpdatePushReceiver(toUpdate);
                 }
             }
 

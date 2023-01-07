@@ -1,10 +1,10 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class GetCoordinateViewComponent : BaseViewComponent
     {

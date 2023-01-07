@@ -19,10 +19,10 @@
                 {
                     count++;
                     <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
-                        <a href="@Url.RouteUrl("Category", new { SeName = category.SeName })" target="_self">
+                        <a href="@Url.RouteUrl("Category", new { category.SeName })" target="_self">
                             <span itemprop="name">@category.Name</span>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new { SeName = category.SeName })">
+                                  id="@Url.RouteUrl("Category", new { category.SeName })">
                             </span>
                             <meta itemprop="position" content="@count" />
                         </a>

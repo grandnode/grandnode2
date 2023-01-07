@@ -48,7 +48,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 TermsOfServiceOnOrderConfirmPage = _orderSettings.TermsOfServiceOnOrderConfirmPage
             };
             //min order amount validation
-            var minOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand() { Customer = request.Customer, Cart = request.Cart }, cancellationToken);
+            var minOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand { Customer = request.Customer, Cart = request.Cart }, cancellationToken);
             if (!minOrderTotalAmountOk)
             {
                 model.MinOrderTotalWarning = string.Format(_translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
@@ -64,10 +64,10 @@ namespace Grand.Web.Features.Handlers.Checkout
             //billing info
             var billingAddress = request.Customer.BillingAddress;
             if (billingAddress != null)
-                model.OrderReviewData.BillingAddress = await _mediator.Send(new GetAddressModel() {
+                model.OrderReviewData.BillingAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = billingAddress,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
             //shipping info
             if (request.Cart.RequiresShipping())
@@ -82,15 +82,15 @@ namespace Grand.Web.Features.Handlers.Checkout
                 {
                     var shippingAddress = request.Customer.ShippingAddress;
                     if (shippingAddress != null)
-                        model.OrderReviewData.ShippingAddress = await _mediator.Send(new GetAddressModel() {
+                        model.OrderReviewData.ShippingAddress = await _mediator.Send(new GetAddressModel {
                             Language = request.Language,
                             Address = shippingAddress,
-                            ExcludeProperties = false,
+                            ExcludeProperties = false
                         });
                 }
                 else
                 {
-                    var pickup = await _mediator.Send(new GetPickupPointById() { Id = pickupPoint });
+                    var pickup = await _mediator.Send(new GetPickupPointById { Id = pickupPoint });
                     if (pickup != null)
                     {
                         var country = await _countryService.GetCountryById(pickup.Address.CountryId);

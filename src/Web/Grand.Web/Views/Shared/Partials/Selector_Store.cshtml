@@ -1,6 +1,7 @@
-﻿@inject CommonSettings commonSettings
-@using Grand.Business.Core.Extensions
-@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService storeService
+﻿@using Grand.Business.Core.Extensions
+@using Grand.Business.Core.Interfaces.Common.Stores
+@inject CommonSettings commonSettings
+@inject IStoreService storeService
 @inject IWorkContext workContext
 @{
     if (commonSettings.AllowToSelectStore)

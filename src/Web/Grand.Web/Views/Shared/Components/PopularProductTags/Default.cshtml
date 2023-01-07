@@ -5,7 +5,7 @@
     <div class="btn-toolbar btn-group-sm">
         @foreach (var item in Model.Tags)
         {
-            <a class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { SeName = item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">@item.Name</a>
+            <a class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">@item.Name</a>
         }
         @if (Model.TotalTags > Model.Tags.Count)
         {

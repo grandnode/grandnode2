@@ -12,7 +12,7 @@ namespace Grand.Web.Extensions
         /// Get category breadcrumb 
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="knowledgebaseService">Knowledgebase Service</param>
+        /// <param name="knowledgebaseService">Knowledge base Service</param>
         /// <param name="aclService">ACL service</param>
         /// <param name="workContext">WorkContext</param>
         /// <param name="showHidden">A value indicating whether to load hidden records</param>
@@ -61,15 +61,15 @@ namespace Grand.Web.Extensions
             IList<KnowledgebaseCategory> allCategories,
             string separator = ">>", string languageId = "")
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             var breadcrumb = GetCategoryBreadCrumb(category, allCategories);
-            for (int i = 0; i <= breadcrumb.Count - 1; i++)
+            for (var i = 0; i <= breadcrumb.Count - 1; i++)
             {
                 var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
-                result = String.IsNullOrEmpty(result)
+                result = string.IsNullOrEmpty(result)
                     ? categoryName
-                    : string.Format("{0} {1} {2}", result, separator, categoryName);
+                    : $"{result} {separator} {categoryName}";
             }
 
             return result;

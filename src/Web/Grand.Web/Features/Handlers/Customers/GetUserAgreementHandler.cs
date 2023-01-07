@@ -25,12 +25,13 @@ namespace Grand.Web.Features.Handlers.Customers
                 return null;
 
             var product = await _productService.GetProductById(orderItem.ProductId);
-            if (product == null || !product.HasUserAgreement)
+            if (product is not { HasUserAgreement: true })
                 return null;
 
-            var model = new UserAgreementModel();
-            model.UserAgreementText = product.UserAgreementText;
-            model.OrderItemGuid = request.OrderItemId;
+            var model = new UserAgreementModel {
+                UserAgreementText = product.UserAgreementText,
+                OrderItemGuid = request.OrderItemId
+            };
             return model;
 
         }

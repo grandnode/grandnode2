@@ -1,8 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Infrastructure;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -11,11 +10,12 @@ using Grand.Domain.News;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class FooterViewComponent : BaseViewComponent
     {

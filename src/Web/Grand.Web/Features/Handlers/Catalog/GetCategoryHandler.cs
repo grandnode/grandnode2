@@ -1,8 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -17,7 +18,6 @@ using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -61,20 +61,19 @@ namespace Grand.Web.Features.Handlers.Catalog
             var customer = request.Customer;
             var storeId = request.Store.Id;
             var languageId = request.Language.Id;
-            var currency = request.Currency;
 
-            if (request.Command != null && request.Command.OrderBy == null && request.Category.DefaultSort >= 0)
+            if (request.Command is { OrderBy: null } && request.Category.DefaultSort >= 0)
                 request.Command.OrderBy = request.Category.DefaultSort;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
                 AllowCustomersToSelectPageSize = request.Category.AllowCustomersToSelectPageSize,
                 PageSizeOptions = request.Category.PageSizeOptions,
                 PageSize = request.Category.PageSize
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             //price ranges
@@ -83,7 +82,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 model.DisplayCategoryBreadcrumb = true;
 
-                string breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
+                var breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
                     request.Category.Id,
                     string.Join(",", customer.GetCustomerGroupIds()),
                     storeId,
@@ -118,19 +117,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
                     Style = picture?.Style,
-                    ExtraField = picture?.ExtraField
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(z => z.TitleAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(z => z.TitleAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name),
+                    //"alt" attribute
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(z => z.AltAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(z => z.AltAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name)
                 };
-                //"title" attribute
-                subCatModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name);
-                //"alt" attribute
-                subCatModel.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name);
 
                 subCategories.Add(subCatModel);
-            };
+            }
 
             model.SubCategories = subCategories;
 
@@ -139,77 +138,76 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 //We cache a value indicating whether we have featured products
                 IPagedList<Product> featuredProducts = null;
-                string cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
+                var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
                     string.Join(",", customer.GetCustomerGroupIds()), storeId);
 
                 var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
                 {
-                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CategoryIds = new List<string> { request.Category.Id },
                         Customer = request.Customer,
                         StoreId = storeId,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                     return featuredProducts.Any();
                 });
 
-                if (hasFeaturedProductsCache.Value && featuredProducts == null)
+                if (hasFeaturedProductsCache.HasValue && hasFeaturedProductsCache.Value && featuredProducts == null)
                 {
                     //cache indicates that the category has featured products
-                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery() {
+                    featuredProducts = (await _mediator.Send(new GetSearchProductsQuery {
                         PageSize = _catalogSettings.LimitOfFeaturedProducts,
                         CategoryIds = new List<string> { request.Category.Id },
                         Customer = request.Customer,
                         StoreId = storeId,
                         VisibleIndividuallyOnly = true,
                         FeaturedProducts = true
-                    })).products;
+                    }, cancellationToken)).products;
                 }
                 if (featuredProducts != null && featuredProducts.Any())
                 {
-                    model.FeaturedProducts = (await _mediator.Send(new GetProductOverview() {
-                        Products = featuredProducts,
-                    })).ToList();
+                    model.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
+                        Products = featuredProducts
+                    }, cancellationToken)).ToList();
                 }
             }
 
 
-            var categoryIds = new List<string>();
-            categoryIds.Add(request.Category.Id);
+            var categoryIds = new List<string> { request.Category.Id };
             if (_catalogSettings.ShowProductsFromSubcategories)
             {
                 //include subcategories
-                categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = request.Category.Id, Customer = request.Customer, Store = request.Store }));
+                categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = request.Category.Id, Customer = request.Customer, Store = request.Store }, cancellationToken));
             }
             //products
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(
-                _httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+                _httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
+            var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 CategoryIds = categoryIds,
                 Customer = request.Customer,
                 StoreId = storeId,
                 VisibleIndividuallyOnly = true,
-                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false,
                 FilteredSpecs = alreadyFilteredSpecOptionIds,
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            }));
+            }, cancellationToken);
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
-                Products = products.products,
-            })).ToList();
+                Products = products.products
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

@@ -82,7 +82,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                                 .ToList())
                             {
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                                            attribute, selectedAttributeId.ToString()).ToList();
+                                            attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
@@ -93,7 +93,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                             var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -110,8 +110,6 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                                            attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
             }

@@ -1,7 +1,7 @@
-﻿@model IList<Grand.Web.Models.Customer.CustomerAttributeModel>
+﻿@model IList<CustomerAttributeModel>
 @foreach (var attribute in Model)
 {
-    var controlId = string.Format("customer_attribute_{0}", attribute.Id);
+    var controlId = $"customer_attribute_{attribute.Id}";
     var controlName = $"attributes[{attribute.Id}]";
     var textPrompt = attribute.Name;
 

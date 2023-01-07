@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Infrastructure;
 using Grand.Domain.Orders;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class EstimateShippingViewComponent : BaseViewComponent
     {
@@ -25,18 +25,14 @@ namespace Grand.Web.ViewComponents
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart);
 
-            var model = await _mediator.Send(new GetEstimateShipping()
-            {
+            var model = await _mediator.Send(new GetEstimateShipping {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
-            if (!model.Enabled)
-                return Content("");
-
-            return View(model);
+            return !model.Enabled ? Content("") : View(model);
         }
 
     }

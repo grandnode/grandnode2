@@ -11,12 +11,12 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(productsByTagUrl);
     }
 }
 <div class="page product-tag-page">
-    <h1 class="generalTitle h2">@String.Format(Loc["Products.Tags.ProductsTaggedWith"], Model.TagName)</h1>
+    <h1 class="generalTitle h2">@string.Format(Loc["Products.Tags.ProductsTaggedWith"], Model.TagName)</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_top", additionalData = Model.Id })
     <div id="catalog-products">
         <partial name="Partials/Selectors" />

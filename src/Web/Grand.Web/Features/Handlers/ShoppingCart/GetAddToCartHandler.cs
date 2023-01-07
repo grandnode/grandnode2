@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
@@ -10,11 +9,11 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -111,7 +110,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
-                    double taxRate = productprices.taxRate;
                     model.Price = !request.CustomerEnteredPrice.HasValue ? _priceFormatter.FormatPrice(productprices.productprice) : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
                     model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                     model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
@@ -150,8 +148,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
-                List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-                double subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
                 model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
                 model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
                 if (shoppingCartSubTotal.discountAmount > 0)
@@ -177,9 +173,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             return new PictureModel
             {
                 Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.AddToCartThumbPictureSize, true),
+                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.AddToCartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), request.Product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), request.Product.Name),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), request.Product.Name)
             };
         }
     }

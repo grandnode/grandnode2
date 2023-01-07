@@ -26,7 +26,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
-    public partial class VendorController : BasePublicController
+    public class VendorController : BasePublicController
     {
         #region Fields
 
@@ -105,7 +105,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             var model = new ApplyVendorModel();
-            if (!String.IsNullOrEmpty(_workContext.CurrentCustomer.VendorId))
+            if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.VendorId))
             {
                 //already applied for vendor account
                 model.DisableFormInput = true;
@@ -118,13 +118,13 @@ namespace Grand.Web.Controllers
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 ExcludeProperties = false,
                 PrePopulateWithCustomerFields = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);
@@ -148,8 +148,7 @@ namespace Grand.Web.Controllers
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
-            string pictureId = string.Empty;
-            string contentType = string.Empty;
+            var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
             if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
@@ -173,9 +172,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-
                 var description = FormatText.ConvertText(model.Description);
-                var address = new Address();
                 //disabled by default
                 var vendor = new Vendor {
                     Name = model.Name,
@@ -184,9 +181,9 @@ namespace Grand.Web.Controllers
                     PageSize = 6,
                     AllowCustomersToSelectPageSize = true,
                     PageSizeOptions = _vendorSettings.DefaultVendorPageSizeOptions,
-                    AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview,
+                    AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview
                 };
-                model.Address.ToEntity(vendor.Address, true);
+                model.Address.ToEntity(vendor.Address);
                 if (vendorPictureBinary != null && !string.IsNullOrEmpty(contentType))
                 {
                     var picture = await _pictureService.InsertPicture(vendorPictureBinary, contentType, null, reference: Reference.Vendor, objectId: vendor.Id);
@@ -205,7 +202,7 @@ namespace Grand.Web.Controllers
                 await _vendorService.UpdateVendor(vendor);
 
                 //associate to the current customer
-                //but a store owner will have to manually acivate this vendor
+                //but a store owner will have to manually activate this vendor
                 //if he wants to grant access to admin area
                 _workContext.CurrentCustomer.VendorId = vendor.Id;
                 await _customerService.UpdateCustomerField(_workContext.CurrentCustomer.Id, x => x.VendorId, _workContext.CurrentCustomer.VendorId);
@@ -225,14 +222,14 @@ namespace Grand.Web.Controllers
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 Model = model.Address,
                 ExcludeProperties = false,
                 PrePopulateWithCustomerFields = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
             return View(model);
         }
@@ -253,11 +250,11 @@ namespace Grand.Web.Controllers
             model.UserFields = vendor.UserFields;
             model.PictureUrl = await _pictureService.GetPictureUrl(vendor.PictureId);
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Address = vendor.Address,
                 ExcludeProperties = false,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);
@@ -273,8 +270,7 @@ namespace Grand.Web.Controllers
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 
-            string pictureId = string.Empty;
-            string contentType = string.Empty;
+            var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
             if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
@@ -301,7 +297,7 @@ namespace Grand.Web.Controllers
             if (prevPicture == null)
                 vendor.PictureId = "";
 
-            if (ModelState.IsValid && ModelState.ErrorCount == 0)
+            if (ModelState is { IsValid: true, ErrorCount: 0 })
             {
                 var description = FormatText.ConvertText(model.Description);
 
@@ -320,7 +316,7 @@ namespace Grand.Web.Controllers
 
                 //update picture seo file name
                 await UpdatePictureSeoNames(vendor);
-                model.Address.ToEntity(vendor.Address, true);
+                model.Address.ToEntity(vendor.Address);
 
                 await _vendorService.UpdateVendor(vendor);
 
@@ -331,12 +327,12 @@ namespace Grand.Web.Controllers
                 return RedirectToAction("Info");
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress() {
+            model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
                 Model = model.Address,
                 Address = vendor.Address,
                 ExcludeProperties = false,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);
@@ -378,7 +374,7 @@ namespace Grand.Web.Controllers
                 return Content("");
 
             var vendor = await _vendorService.GetVendorById(model.VendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
+            if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
 
             //validate CAPTCHA
@@ -391,7 +387,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model = await _mediator.Send(new ContactVendorSendCommand() { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
+                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
                 return Json(model);
             }
 

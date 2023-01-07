@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -52,8 +52,8 @@ namespace Grand.Web.Features.Handlers.Checkout
             //loyalty points
             if (_loyaltyPointsSettings.Enabled)
             {
-                int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
-                double loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
+                var loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
+                var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
                 if (loyaltyPointsAmount > 0 &&
                     _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
@@ -61,14 +61,14 @@ namespace Grand.Web.Features.Handlers.Checkout
                     model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
                     model.LoyaltyPointsBalance = loyaltyPointsBalance;
                     var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: true)).shoppingCartTotal;
-                    model.LoyaltyPointsEnoughToPayForOrder = (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0);
+                    model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
                 }
             }
 
             //filter by country
             var paymentMethods = (await _paymentService
                 .LoadActivePaymentMethods(request.Customer, request.Store.Id, request.FilterByCountryId))
-                .Where(pm => pm.PaymentMethodType == PaymentMethodType.Standard || pm.PaymentMethodType == PaymentMethodType.Redirection).ToList();
+                .Where(pm => pm.PaymentMethodType is PaymentMethodType.Standard or PaymentMethodType.Redirection).ToList();
             var availablepaymentMethods = new List<IPaymentProvider>();
             foreach (var pm in paymentMethods)
             {
@@ -86,8 +86,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                     LogoUrl = pm.LogoURL
                 };
                 //payment method additional fee
-                double paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-                double rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
+                var paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
+                var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
                 if (rate > 0)
                     pmModel.Fee = _priceFormatter.FormatPaymentMethodAdditionalFee(rate);
 
@@ -104,7 +104,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     paymentMethodToSelect.Selected = true;
             }
             //if no option has been selected, do it for the first one
-            if (model.PaymentMethods.FirstOrDefault(so => so.Selected) == null)
+            if (model.PaymentMethods.FirstOrDefault(so => so.Selected) != null) return model;
             {
                 var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
                 if (paymentMethodToSelect != null)

@@ -5,6 +5,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
 using MediatR;
+
 namespace Grand.Web.Features.Models.Common
 {
     public class GetAddressModel : IRequest<AddressModel>
@@ -12,9 +13,9 @@ namespace Grand.Web.Features.Models.Common
         public AddressModel Model { get; set; }
         public Address Address { get; set; }
         public bool ExcludeProperties { get; set; }
-        public Func<IList<Country>> LoadCountries { get; set; } = null;
-        public bool PrePopulateWithCustomerFields { get; set; } = false;
-        public Customer Customer { get; set; } = null;
+        public Func<IList<Country>> LoadCountries { get; set; }
+        public bool PrePopulateWithCustomerFields { get; set; }
+        public Customer Customer { get; set; }
         public Language Language { get; set; }
         public Store Store { get; set; }
         public IList<CustomAttribute> OverrideAttributes { get; set; }

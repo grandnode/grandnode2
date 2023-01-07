@@ -1,4 +1,4 @@
-﻿@model Grand.Web.Models.Catalog.SearchModel
+﻿@model SearchModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -134,7 +134,7 @@
                 <partial name="Partials/Pagination" />
             </template>
         </div>
-        @if (!String.IsNullOrEmpty(Model.Warning))
+        @if (!string.IsNullOrEmpty(Model.Warning))
         {
             <div class="warning alert alert-danger my-3">
                 @Model.Warning

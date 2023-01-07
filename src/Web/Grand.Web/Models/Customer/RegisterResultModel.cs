@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class RegisterResultModel : BaseModel
+    public class RegisterResultModel : BaseModel
     {
         public string Result { get; set; }
     }

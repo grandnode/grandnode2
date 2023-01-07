@@ -1,10 +1,10 @@
-﻿using Grand.Domain.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
-using Grand.Domain.Orders;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -90,7 +90,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -107,8 +107,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                                         attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
             }

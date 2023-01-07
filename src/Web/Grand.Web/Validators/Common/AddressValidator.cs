@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Grand.Domain.Common;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Common;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Common;
 
 namespace Grand.Web.Validators.Common
@@ -39,21 +39,17 @@ namespace Grand.Web.Validators.Common
             }
             if (addressSettings.CountryEnabled && addressSettings.StateProvinceEnabled)
             {
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
-                    if (country != null && country.StateProvinces.Any())
+                    if (country == null || !country.StateProvinces.Any()) return false;
+                    //if yes, then ensure that state is selected
+                    if (string.IsNullOrEmpty(y))
                     {
-                        //if yes, then ensure that state is selected
-                        if (String.IsNullOrEmpty(y))
-                        {
-                            return false;
-                        }
-                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
-                            return true;
+                        return false;
                     }
-                    return false;
+                    return country.StateProvinces.FirstOrDefault(s => s.Id == y) != null;
                 }).WithMessage(translationService.GetResource("Address.Fields.StateProvince.Required"));
             }
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)

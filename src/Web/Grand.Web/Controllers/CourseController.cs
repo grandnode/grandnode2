@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -12,11 +12,10 @@ using Grand.Web.Commands.Models.Courses;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CourseController : BasePublicController
+    public class CourseController : BasePublicController
     {
         private readonly IPermissionService _permissionService;
         private readonly IAclService _aclService;
@@ -70,19 +69,14 @@ namespace Grand.Web.Controllers
                 return false;
 
             //Check whether the current user purchased the course
-            if (!await _mediator.Send(new GetCheckOrder() { Course = course, Customer = customer })
+            if (!await _mediator.Send(new GetCheckOrder { Course = course, Customer = customer })
                 && !await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 return false;
 
             //ACL (access control list)
-            if (!_aclService.Authorize(course, customer))
-                return false;
-
-            //Store access
-            if (!_aclService.Authorize(course, _workContext.CurrentStore.Id))
-                return false;
-
-            return true;
+            return _aclService.Authorize(course, customer) &&
+                   //Store access
+                   _aclService.Authorize(course, _workContext.CurrentStore.Id);
         }
 
         public virtual async Task<IActionResult> Details(string courseId)
@@ -106,7 +100,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
 
             //model
-            var model = await _mediator.Send(new GetCourse() {
+            var model = await _mediator.Send(new GetCourse {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage
@@ -139,7 +133,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
 
             //model
-            var model = await _mediator.Send(new GetLesson() {
+            var model = await _mediator.Send(new GetLesson {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -172,10 +166,10 @@ namespace Grand.Web.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) {
@@ -207,10 +201,10 @@ namespace Grand.Web.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "video/mp4";
             return new FileContentResult(download.DownloadBinary, contentType) {
@@ -233,7 +227,7 @@ namespace Grand.Web.Controllers
             if (!await CheckPermission(course, customer))
                 return Json(new { result = false });
 
-            await _mediator.Send(new CourseLessonApprovedCommand() { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
+            await _mediator.Send(new CourseLessonApprovedCommand { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
 
             return Json(new { result = true });
         }

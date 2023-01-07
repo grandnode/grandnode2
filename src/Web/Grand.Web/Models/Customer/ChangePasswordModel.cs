@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class ChangePasswordModel : BaseModel
+    public class ChangePasswordModel : BaseModel
     {
         [DataType(DataType.Password)]
         [GrandResourceDisplayName("Account.ChangePassword.Fields.OldPassword")]

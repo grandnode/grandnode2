@@ -49,12 +49,13 @@ namespace Grand.Web.Commands.Handler.Customers
 
         protected async Task<Customer> PrepareCustomer(SubAccountAddCommand request)
         {
-            var customer = new Customer();
-            customer.OwnerId = request.Customer.Id;
-            customer.CustomerGuid = Guid.NewGuid();
-            customer.StoreId = request.Store.Id;
-            customer.CreatedOnUtc = DateTime.UtcNow;
-            customer.LastActivityDateUtc = DateTime.UtcNow;
+            var customer = new Customer {
+                OwnerId = request.Customer.Id,
+                CustomerGuid = Guid.NewGuid(),
+                StoreId = request.Store.Id,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
+            };
 
             await _customerService.InsertCustomer(customer);
             return customer;

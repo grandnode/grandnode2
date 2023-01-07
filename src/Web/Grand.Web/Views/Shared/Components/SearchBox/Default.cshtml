@@ -1,5 +1,6 @@
-﻿@model SearchBoxModel
-@inject Grand.Domain.Blogs.BlogSettings blogSettings
+﻿@using Grand.Domain.Blogs
+@model SearchBoxModel
+@inject BlogSettings blogSettings
 @inject IWorkContext workContext
 @{
     var lang = workContext.WorkingLanguage.LanguageCulture;

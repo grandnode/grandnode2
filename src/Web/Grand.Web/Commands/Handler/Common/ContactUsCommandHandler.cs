@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
@@ -29,7 +30,7 @@ namespace Grand.Web.Commands.Handler.Common
         {
             var model = request.Model ?? new ContactUsModel {
                 Email = request.Customer.Email,
-                FullName = request.Customer.GetFullName(),
+                FullName = request.Customer.GetFullName()
             };
 
             model.SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm;
@@ -55,7 +56,7 @@ namespace Grand.Web.Commands.Handler.Common
                     AttributeControlType = attribute.AttributeControlType,
                     DefaultValue = request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value ?? attribute.DefaultValue
                 };
-                if (attribute.AttributeControlType == Domain.Catalog.AttributeControlType.Datepicker)
+                if (attribute.AttributeControlType == AttributeControlType.Datepicker)
                 {
                     int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_day")?.Value, out var selectedDay);
                     int.TryParse(request.Model?.Attributes.FirstOrDefault(x => x.Key == attribute.Id+ "_month")?.Value,out var selectedMonth);
@@ -90,8 +91,8 @@ namespace Grand.Web.Commands.Handler.Common
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,
-                            IsPreSelected = string.IsNullOrEmpty(preSelected) ? attributeValue.IsPreSelected : (preSelected.Contains(attributeValue.Id)),
-                            DisplayOrder = attributeValue.DisplayOrder,
+                            IsPreSelected = string.IsNullOrEmpty(preSelected) ? attributeValue.IsPreSelected : preSelected.Contains(attributeValue.Id),
+                            DisplayOrder = attributeValue.DisplayOrder
                         };
                         attributeModel.Values.Add(attributeValueModel);
                     }

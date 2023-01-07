@@ -8,7 +8,7 @@
 }
 <div class="page return-request-page">
     <h1 class="text-center generalTitle h2">@string.Format(Loc["MerchandiseReturns.Title"], Model.OrderNumber)</h1>
-    @if (!String.IsNullOrEmpty(Model.Result))
+    @if (!string.IsNullOrEmpty(Model.Result))
     {
         <div class="result alert alert-info">
             @Html.Raw(Model.Result)
@@ -16,7 +16,7 @@
     }
     else
     {
-        @if (!String.IsNullOrEmpty(Model.Error))
+        @if (!string.IsNullOrEmpty(Model.Error))
         {
             <div class="result alert alert-danger">
                 @Model.Error
@@ -57,11 +57,11 @@
                                             <td>
                                                 <div class="product">
                                                     <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
-                                                    @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                                     {
                                                         <a id="attributes-btn" class="btn btn-sm btn-outline-info" v-b-tooltip.html.right.hover title="@Html.Raw(item.AttributeInfo)">Attributes</a>
                                                     }
-                                                    @if (!String.IsNullOrEmpty(item.VendorName))
+                                                    @if (!string.IsNullOrEmpty(item.VendorName))
                                                     {
                                                         <div class="vendor">
                                                             @item.VendorName
@@ -79,7 +79,7 @@
                                                                 v-bind:class="[classes , 'custom-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
                                                                 ref="quantity@(item.Id)"
                                                                 asp-for="@Model.Items[j].Quantity">
-                                                            @for (int i = 0; i <= item.Quantity; i++)
+                                                            @for (var i = 0; i <= item.Quantity; i++)
                                                             {
                                                                 <option value="@(i)">@(i)</option>
                                                             }
@@ -138,23 +138,23 @@
                                                     var addressLine = "";
                                                     addressLine += address.FirstName;
                                                     addressLine += " " + address.LastName;
-                                                    if (address.StreetAddressEnabled && !String.IsNullOrEmpty(address.Address1))
+                                                    if (address.StreetAddressEnabled && !string.IsNullOrEmpty(address.Address1))
                                                     {
                                                         addressLine += ", " + address.Address1;
                                                     }
-                                                    if (address.CityEnabled && !String.IsNullOrEmpty(address.City))
+                                                    if (address.CityEnabled && !string.IsNullOrEmpty(address.City))
                                                     {
                                                         addressLine += ", " + address.City;
                                                     }
-                                                    if (address.StateProvinceEnabled && !String.IsNullOrEmpty(address.StateProvinceName))
+                                                    if (address.StateProvinceEnabled && !string.IsNullOrEmpty(address.StateProvinceName))
                                                     {
                                                         addressLine += ", " + address.StateProvinceName;
                                                     }
-                                                    if (address.ZipPostalCodeEnabled && !String.IsNullOrEmpty(address.ZipPostalCode))
+                                                    if (address.ZipPostalCodeEnabled && !string.IsNullOrEmpty(address.ZipPostalCode))
                                                     {
                                                         addressLine += " " + address.ZipPostalCode;
                                                     }
-                                                    if (address.CountryEnabled && !String.IsNullOrWhiteSpace(address.CountryName))
+                                                    if (address.CountryEnabled && !string.IsNullOrWhiteSpace(address.CountryName))
                                                     {
                                                         addressLine += ", " + address.CountryName;
                                                     }
@@ -169,8 +169,13 @@
                                     <div class="section new-pickup-address" id="pickup-new-address-form" ref="visible">
                                         <div class="enter-address">
                                             @{
-                                                var dataDictAddress = new ViewDataDictionary(ViewData);
-                                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "MerchandiseReturnNewAddress";
+                                                var dataDictAddress = new ViewDataDictionary(ViewData)
+                                                {
+                                                    TemplateInfo =
+                                                    {
+                                                        HtmlFieldPrefix = "MerchandiseReturnNewAddress"
+                                                    }
+                                                };
                                                 <partial name="Partials/CreateOrUpdateAddress" model="Model.MerchandiseReturnNewAddress" view-data="dataDictAddress" />
                                             }
                                         </div>

@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class MenuModel : BaseModel
+    public class MenuModel : BaseModel
     {
         public MenuModel()
         {

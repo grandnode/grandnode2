@@ -12,7 +12,8 @@ namespace Grand.Web.Extensions
         /// Get product picture (for shopping cart and order details pages)
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="attributes">Atributes </param>
+        /// <param name="attributes">Attributes</param>
+        /// <param name="productService">Product service</param>
         /// <param name="pictureService">Picture service</param>
         /// <returns>Picture</returns>
         public static async Task<Picture> GetProductPicture(this Product product, IList<CustomAttribute> attributes,
@@ -46,30 +47,28 @@ namespace Grand.Web.Extensions
                     foreach (var attributeValue in attributeValues)
                     {
                         var attributePicture = await pictureService.GetPictureById(attributeValue.PictureId);
-                        if (attributePicture != null)
-                        {
-                            picture = attributePicture;
-                            break;
-                        }
+                        if (attributePicture == null) continue;
+                        picture = attributePicture;
+                        break;
                     }
                 }
             }
             if (picture == null)
             {
-                var pp = product.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
+                var pp = product.ProductPictures.MinBy(x => x.DisplayOrder);
                 if (pp != null)
                     picture = await pictureService.GetPictureById(pp.PictureId);
             }
 
-            if (picture == null && !product.VisibleIndividually && !string.IsNullOrEmpty(product.ParentGroupedProductId))
+            if (picture != null || product.VisibleIndividually || string.IsNullOrEmpty(product.ParentGroupedProductId))
+                return picture;
+            
+            var parentProduct = await productService.GetProductById(product.ParentGroupedProductId);
+            if (parentProduct == null) return null;
+            if (parentProduct.ProductPictures.Any())
             {
-                var parentProduct = await productService.GetProductById(product.ParentGroupedProductId);
-                if (parentProduct != null)
-                    if (parentProduct.ProductPictures.Any())
-                    {
-                        picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault().PictureId);
+                picture = await pictureService.GetPictureById(parentProduct.ProductPictures.FirstOrDefault()!.PictureId);
 
-                    }
             }
 
             return picture;

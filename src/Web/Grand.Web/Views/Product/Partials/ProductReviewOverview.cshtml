@@ -1,10 +1,10 @@
-﻿@model ProductReviewOverviewModel
-@using System.Globalization
+﻿@using System.Globalization
+@model ProductReviewOverviewModel
 @{
-    int ratingPercent = 0;
+    var ratingPercent = 0;
     if (Model.TotalReviews != 0)
     {
-        ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
+        ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
 <div class="product-reviews-overview d-inline-flex align-items-center flex-wrap" @if (Model.TotalReviews > 0)
@@ -29,7 +29,7 @@
             </template>
             @{ 
                 @* rendering microdata info*@
-                double value = ratingPercent / (double)20;
+                var value = ratingPercent / (double)20;
                 <span itemprop="ratingValue" class="d-none">(@value.ToString("0.0", new CultureInfo("en-US")))</span>
                 <span itemprop="reviewCount" class="d-none">@Model.TotalReviews</span>
             }

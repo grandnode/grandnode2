@@ -5,8 +5,6 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
 
-    //register URL with return URL (if specified)
-    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
 }
 <div class="page login-page">
     <h1 class="generalTitle h2 text-center">@Loc["Login.TwoFactorAuth.EnterCode"]</h1>

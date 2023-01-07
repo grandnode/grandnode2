@@ -1,4 +1,5 @@
-﻿@inject Grand.Business.Core.Interfaces.Common.Localization.ILanguageService languageService
+﻿@using Grand.Business.Core.Interfaces.Common.Localization
+@inject ILanguageService languageService
 @inject IWorkContext workContext
 @{
     var availableLanguages = (await languageService.GetAllLanguages(storeId: workContext.CurrentStore.Id))

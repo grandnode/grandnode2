@@ -1,16 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure.Caching;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
+using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CollectionModel>> Handle(GetCollectionAll request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.COLLECTION_ALL_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.COLLECTION_ALL_MODEL_KEY,
                 request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
@@ -60,16 +60,16 @@ namespace Grand.Web.Features.Handlers.Catalog
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(collection.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(collection.PictureId, _mediaSettings.CollectionThumbPictureSize),
                     Style = picture?.Style,
-                    ExtraField = picture?.ExtraField
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), modelcollection.Name),
+                    //"alt" attribute
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), modelcollection.Name)
                 };
-                //"title" attribute
-                modelcollection.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), modelcollection.Name);
-                //"alt" attribute
-                modelcollection.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), modelcollection.Name);
 
                 model.Add(modelcollection);
             }

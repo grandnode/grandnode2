@@ -12,6 +12,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Web.Extensions;
@@ -80,28 +81,28 @@ namespace Grand.Web.Features.Handlers.Orders
 
         public async Task<OrderDetailsModel> Handle(GetOrderDetails request, CancellationToken cancellationToken)
         {
-            var model = new OrderDetailsModel();
-
-            model.Id = request.Order.Id;
-            model.OrderNumber = request.Order.OrderNumber;
-            model.OrderCode = request.Order.Code;
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc);
-            model.OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name;
-            model.IsReOrderAllowed = _orderSettings.IsReOrderAllowed;
-            model.IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = request.Order });
-            model.PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending;
-            model.ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote;
+            var model = new OrderDetailsModel {
+                Id = request.Order.Id,
+                OrderNumber = request.Order.OrderNumber,
+                OrderCode = request.Order.Code,
+                CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc),
+                OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name,
+                IsReOrderAllowed = _orderSettings.IsReOrderAllowed,
+                IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = request.Order }, cancellationToken),
+                PdfInvoiceDisabled = _pdfSettings.DisablePdfInvoicesForPendingOrders && request.Order.OrderStatusId == (int)OrderStatusSystem.Pending,
+                ShowAddOrderNote = _orderSettings.AllowCustomerToAddOrderNote
+            };
 
             //shipping info
             await PrepareShippingInfo(request, model);
 
             //billing info
-            model.BillingAddress = await _mediator.Send(new GetAddressModel() {
+            model.BillingAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Model = null,
                 Address = request.Order.BillingAddress,
-                ExcludeProperties = false,
-            });
+                ExcludeProperties = false
+            }, cancellationToken);
 
             //VAT number
             model.VatNumber = request.Order.VatNumber;
@@ -133,8 +134,8 @@ namespace Grand.Web.Features.Handlers.Orders
             //allow cancel order
             if (_orderSettings.UserCanCancelUnpaidOrder)
             {
-                if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending && request.Order.PaymentStatusId == Domain.Payments.PaymentStatus.Pending
-                    && (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired || request.Order.ShippingStatusId == ShippingStatus.Pending))
+                if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending && request.Order.PaymentStatusId == PaymentStatus.Pending
+                    && request.Order.ShippingStatusId is ShippingStatus.ShippingNotRequired or ShippingStatus.Pending)
                     model.UserCanCancelUnpaidOrder = true;
             }
 
@@ -153,25 +154,22 @@ namespace Grand.Web.Features.Handlers.Orders
                 model.PickUpInStore = request.Order.PickUpInStore;
                 if (!request.Order.PickUpInStore)
                 {
-                    model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
+                    model.ShippingAddress = await _mediator.Send(new GetAddressModel {
                         Language = request.Language,
                         Model = null,
                         Address = request.Order.ShippingAddress,
-                        ExcludeProperties = false,
+                        ExcludeProperties = false
                     });
                 }
                 else
                 {
-                    if (request.Order.PickupPoint != null)
+                    if (request.Order.PickupPoint?.Address != null)
                     {
-                        if (request.Order.PickupPoint.Address != null)
-                        {
-                            model.PickupAddress = await _mediator.Send(new GetAddressModel() {
-                                Language = request.Language,
-                                Address = request.Order.PickupPoint.Address,
-                                ExcludeProperties = false,
-                            });
-                        }
+                        model.PickupAddress = await _mediator.Send(new GetAddressModel {
+                            Language = request.Language,
+                            Address = request.Order.PickupPoint.Address,
+                            ExcludeProperties = false
+                        });
                     }
                 }
                 model.ShippingMethod = request.Order.ShippingMethod;
@@ -183,7 +181,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     var shipmentModel = new OrderDetailsModel.ShipmentBriefModel {
                         Id = shipment.Id,
                         ShipmentNumber = shipment.ShipmentNumber,
-                        TrackingNumber = shipment.TrackingNumber,
+                        TrackingNumber = shipment.TrackingNumber
                     };
                     if (shipment.ShippedDateUtc.HasValue)
                         shipmentModel.ShippedDate = _dateTimeService.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc);
@@ -201,7 +199,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
             model.PaymentMethodStatus = request.Order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id);
             var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(request.Order.OrderGuid);
-            model.CanRePostProcessPayment = paymentTransaction != null ? await _paymentService.CanRePostRedirectPayment(paymentTransaction) : false;
+            model.CanRePostProcessPayment = paymentTransaction != null && await _paymentService.CanRePostRedirectPayment(paymentTransaction);
         }
 
         private async Task PrepareOrderTotal(GetOrderDetails request, OrderDetailsModel model)
@@ -255,8 +253,8 @@ namespace Grand.Web.Features.Handlers.Orders
 
         private async Task PrepareTax(GetOrderDetails request, OrderDetailsModel model)
         {
-            bool displayTax = true;
-            bool displayTaxRates = true;
+            var displayTax = true;
+            var displayTaxRates = true;
             if (_taxSettings.HideTaxInOrderSummary && request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;
@@ -280,7 +278,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     {
                         model.TaxRates.Add(new OrderDetailsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Percent),
-                            Value = await _priceFormatter.FormatPrice(tr.Amount, request.Order.CustomerCurrencyCode, false, request.Language),
+                            Value = await _priceFormatter.FormatPrice(tr.Amount, request.Order.CustomerCurrencyCode, false, request.Language)
                         });
                     }
                 }
@@ -304,7 +302,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
                 model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher {
                     CouponCode = giftVoucher.Code,
-                    Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, request.Order.CustomerCurrencyCode, false, request.Language),
+                    Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, request.Order.CustomerCurrencyCode, false, request.Language)
                 });
             }
 
@@ -352,7 +350,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = product.SeName,
                     Quantity = orderItem.Quantity,
-                    AttributeInfo = orderItem.AttributeDescription,
+                    AttributeInfo = orderItem.AttributeDescription
                 };
                 //prepare picture
                 orderItemModel.Picture = await PrepareOrderItemPicture(product, orderItem.Attributes, orderItemModel.ProductName);
@@ -407,7 +405,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, 80),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), productName),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), productName),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), productName)
             };
         }
     }

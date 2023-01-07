@@ -4,14 +4,14 @@
 @{
     Layout = "_TwoColumns";
 
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var collectionUrl = Url.RouteUrl("Brand", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var collectionUrl = Url.RouteUrl("Brand", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
 }
@@ -20,7 +20,7 @@
     <h1 class="generalTitle h2">@Model.Name</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_top", additionalData = Model.Id })
     @*Rendering description section*@
-    @if (!String.IsNullOrWhiteSpace(Model.Description))
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
         <div class="card collection-description">
             <div class="card-body">
@@ -67,7 +67,7 @@
     </div>
 
     @*Rendering bottom description section*@
-    @if (!String.IsNullOrWhiteSpace(Model.BottomDescription))
+    @if (!string.IsNullOrWhiteSpace(Model.BottomDescription))
     {
         <div class="card brand-description">
             <div class="card-body">

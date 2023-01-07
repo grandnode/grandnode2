@@ -1,22 +1,20 @@
 ﻿@model ProductDetailsModel
-@using System.Text;
 
 <div id="product-attributes"></div>
 @{
     //dynamic update support
-    var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
     var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
-    var fileLink = @Url.RouteUrl("UploadFileProductAttribute");
+    var fileLink = Url.RouteUrl("UploadFileProductAttribute");
     //generate change event script
     foreach (var attribute in Model.ProductAttributes)
     {
-        string controlId = $"product_attribute_{attribute.Id}";
+        var controlId = $"product_attribute_{attribute.Id}";
         switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:
                 {
-                    attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}').addEventListener('change', function (){{{1}();}});\n", controlId, attributeChangeHandlerFuncName);
+                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change', function (){{{attributeChangeHandlerFuncName}();}});\n");
                 }
                 break;
             case AttributeControlType.RadioList:
@@ -25,7 +23,7 @@
                 {
                     foreach (var attributeValue in attribute.Values)
                     {
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(e){{{2}();}},false);\n", controlId, attributeValue.Id, attributeChangeHandlerFuncName);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                     }
                 }
                 break;
@@ -34,11 +32,9 @@
                 {
                     foreach (var attributeValue in attribute.Values)
                     {
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(e){{{2}();}},false);\n", controlId, attributeValue.Id, attributeChangeHandlerFuncName);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                     }
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -227,7 +223,7 @@
                     var form = document.getElementById('@($"product-details-form-{Model.Id}")');
                     var data = new FormData(form);
                     axios({
-                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = attributesHaveAssociatedPictures }))',
+                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = true }))',
                         data: data,
                         method: 'post',
                         params: { product: '@Model.Id' },

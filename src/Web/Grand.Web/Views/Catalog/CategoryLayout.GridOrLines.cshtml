@@ -4,18 +4,18 @@
 @{
     Layout = "_TwoColumns";
 
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var categoryUrl = Url.RouteUrl("Category", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(categoryUrl);
     }
 }
 
-@* Rednering category breadcrumbs*@
+@* Rendering category breadcrumbs*@
 @section Breadcrumb
     {
     @if (Model.DisplayCategoryBreadcrumb)
@@ -44,7 +44,7 @@
                         <a>
                             <strong class="current-item" itemprop="name">@cat.Name</strong>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                                  id="@Url.RouteUrl("Category", new { cat.SeName})">
                             </span>
                             <meta itemprop="position" content="@count" />
                         </a>
@@ -53,10 +53,10 @@
                 else
                 {
                     <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
-                        <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                        <a href="@Url.RouteUrl("Category", new { cat.SeName })" title="@cat.Name" itemprop="item">
                             <span itemprop="name">@cat.Name</span>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new { SeName = cat.SeName })">
+                                  id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
                             <meta itemprop="position" content="@count" />
                         </a>
@@ -73,7 +73,7 @@
     <h1 class="generalTitle h2">@Model.Name</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_top", additionalData = Model.Id })
     @*Rendering category description*@
-    @if (!String.IsNullOrWhiteSpace(Model.Description))
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
         <div class="card mb-2">
             <div class="card-body">
@@ -90,7 +90,7 @@
                 @foreach (var item in Model.SubCategories)
                 {
                     <div class="col-md-4 col-6 mb-2">
-                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                        <a href="@Url.RouteUrl("Category", new { item.SeName })" title="@item.PictureModel.Title">
                             <div class="card mb-2">
                                 <article>
                                     <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">
@@ -161,7 +161,7 @@
         </template>
     </div>
     @*Rendering bottom description*@
-    @if (!String.IsNullOrWhiteSpace(Model.BottomDescription))
+    @if (!string.IsNullOrWhiteSpace(Model.BottomDescription))
     {
         <div class="card">
             <div class="card-body">
@@ -169,7 +169,7 @@
             </div>
         </div>
     }
-    @*Rendering rccently viewed products section*@
+    @*Rendering recently viewed products section*@
 
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
     

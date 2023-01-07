@@ -1,12 +1,15 @@
-﻿@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService  groupService
+﻿@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@inject IGroupService  groupService
 @inject IWorkContext workContext
 @inject IPageHeadBuilder pagebuilder
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@inject IPermissionService permissionService
 @{
-    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
     var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
-    var isAdminAccess = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.AccessAdminPanel);
+    var isAdminAccess = await permissionService.Authorize(StandardPermission.AccessAdminPanel);
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })

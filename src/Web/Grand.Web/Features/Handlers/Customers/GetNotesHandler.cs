@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -20,17 +20,19 @@ namespace Grand.Web.Features.Handlers.Customers
 
         public async Task<CustomerNotesModel> Handle(GetNotes request, CancellationToken cancellationToken)
         {
-            var model = new CustomerNotesModel();
-            model.CustomerId = request.Customer.Id;
+            var model = new CustomerNotesModel {
+                CustomerId = request.Customer.Id
+            };
             var notes = await _customerNoteService.GetCustomerNotes(request.Customer.Id, true);
             foreach (var item in notes)
             {
-                var mm = new CustomerNote();
-                mm.NoteId = item.Id;
-                mm.CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc);
-                mm.Note = item.Note;
-                mm.Title = item.Title;
-                mm.DownloadId = item.DownloadId;
+                var mm = new CustomerNote {
+                    NoteId = item.Id,
+                    CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc),
+                    Note = item.Note,
+                    Title = item.Title,
+                    DownloadId = item.DownloadId
+                };
                 model.CustomerNoteList.Add(mm);
             }
             return model;

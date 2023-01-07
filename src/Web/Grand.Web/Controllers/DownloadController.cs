@@ -13,11 +13,12 @@ using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
+using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class DownloadController : BasePublicController
+    public class DownloadController : BasePublicController
     {
         private readonly IDownloadService _downloadService;
         private readonly IProductService _productService;
@@ -63,8 +64,8 @@ namespace Grand.Web.Controllers
             if (download.DownloadBinary == null)
                 return Content("Download data is not available any more.");
 
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -124,53 +125,46 @@ namespace Grand.Web.Controllers
             if (product.ProductTypeId != ProductType.BundledProduct)
             {
                 //return result
-                string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id.ToString();
-                string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+                var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id;
+                var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
                 return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
             }
-            else
+
+            using var memoryStream = new MemoryStream();
+            using (var ziparchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
-                using (var memoryStream = new MemoryStream())
+                var fileName = (!string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id) + download.Extension;
+                if (OperatingSystem.IsWindows())
                 {
-                    using (var ziparchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, download.DownloadBinary);
+                    ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
+                }
+                else
+                {
+                    await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, download.DownloadBinary);
+                    ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
+                }
+                foreach (var bundle in product.BundleProducts)
+                {
+                    var p1 = await _productService.GetProductById(bundle.ProductId);
+                    if (p1 is not { IsDownload: true }) continue;
+                    
+                    var d1 = await _downloadService.GetDownloadById(p1.DownloadId);
+                    if (d1 is not { UseDownloadUrl: false }) continue;
+                    fileName = (!string.IsNullOrWhiteSpace(d1.Filename) ? d1.Filename : p1.Id) + d1.Extension;
+                    if (OperatingSystem.IsWindows())
                     {
-                        string fileName = (!String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id.ToString()) + download.Extension;
-                        if (Grand.Infrastructure.OperatingSystem.IsWindows())
-                        {
-                            System.IO.File.WriteAllBytes(@"App_Data\Download\" + fileName, download.DownloadBinary);
-                            ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
-                        }
-                        else
-                        {
-                            System.IO.File.WriteAllBytes(@"App_Data/Download/" + fileName, download.DownloadBinary);
-                            ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
-                        }
-                        foreach (var bundle in product.BundleProducts)
-                        {
-                            var p1 = await _productService.GetProductById(bundle.ProductId);
-                            if (p1 != null && p1.IsDownload)
-                            {
-                                var d1 = await _downloadService.GetDownloadById(p1.DownloadId);
-                                if (d1 != null && !d1.UseDownloadUrl)
-                                {
-                                    fileName = (!String.IsNullOrWhiteSpace(d1.Filename) ? d1.Filename : p1.Id.ToString()) + d1.Extension;
-                                    if (Grand.Infrastructure.OperatingSystem.IsWindows())
-                                    {
-                                        System.IO.File.WriteAllBytes(@"App_Data\Download\" + fileName, d1.DownloadBinary);
-                                        ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
-                                    }
-                                    else
-                                    {
-                                        System.IO.File.WriteAllBytes(@"App_Data/Download/" + fileName, d1.DownloadBinary);
-                                        ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
-                                    }
-                                }
-                            }
-                        }
+                        await System.IO.File.WriteAllBytesAsync(@"App_Data\Download\" + fileName, d1.DownloadBinary);
+                        ziparchive.CreateEntryFromFile(@"App_Data\Download\" + fileName, fileName);
                     }
-                    return File(memoryStream.ToArray(), "application/zip", $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "")}.zip");
+                    else
+                    {
+                        await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, d1.DownloadBinary);
+                        ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
+                    }
                 }
             }
+            return File(memoryStream.ToArray(), "application/zip", $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "")}.zip");
         }
 
         public virtual async Task<IActionResult> GetLicense(Guid orderItemId)
@@ -190,7 +184,7 @@ namespace Grand.Web.Controllers
                     return Challenge();
             }
 
-            var download = await _downloadService.GetDownloadById(!String.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "");
+            var download = await _downloadService.GetDownloadById(!string.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "");
             if (download == null)
                 return Content("Download is not available any more.");
 
@@ -202,8 +196,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : product.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -221,8 +215,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : downloadId.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : downloadId.ToString();
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -251,8 +245,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : orderNote.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : orderNote.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -286,8 +280,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : shipmentNote.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : shipmentNote.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -316,8 +310,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : customerNote.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : customerNote.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -346,8 +340,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : merchandiseReturnNote.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : merchandiseReturnNote.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
 
@@ -358,7 +352,7 @@ namespace Grand.Web.Controllers
                 return Content("Download is not available.");
 
             var document = await documentService.GetById(documentId);
-            if (document == null || !document.Published)
+            if (document is not { Published: true })
                 return InvokeHttp404();
 
             if (_workContext.CurrentCustomer == null || document.CustomerId != _workContext.CurrentCustomer.Id)
@@ -376,8 +370,8 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //return result
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : document.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : document.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType) ? download.ContentType : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) { FileDownloadName = fileName + download.Extension };
         }
     }

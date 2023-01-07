@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.PushNotifications;
+﻿using Grand.Domain.PushNotifications;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.PushNotifications;
 using Microsoft.AspNetCore.Mvc;
@@ -31,15 +31,13 @@ namespace Grand.Web.Components
                 DatabaseUrl = _pushNotificationsSettings.DatabaseUrl,
                 AppId = _pushNotificationsSettings.AppId
             };
-            if (_pushNotificationsSettings.Enabled)
-            {
-                if (!_pushNotificationsSettings.AllowGuestNotifications && string.IsNullOrEmpty(_workContext.CurrentCustomer.Email))
-                    return Content("");
+            if (!_pushNotificationsSettings.Enabled) return Content("");
+            
+            if (!_pushNotificationsSettings.AllowGuestNotifications && string.IsNullOrEmpty(_workContext.CurrentCustomer.Email))
+                return Content("");
 
-                return View(model);
-            }
+            return View(model);
 
-            return Content("");
         }
     }
 }

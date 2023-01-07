@@ -1,10 +1,10 @@
-﻿@model Grand.Web.Models.Knowledgebase.KnowledgebaseCategoryModel
+﻿@model KnowledgebaseCategoryModel
 
 <ul class="sublist">
     @if (Model.IsCurrent)
     {
         <li class="active last">
-            <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = Model.SeName })"><strong>@Model.Name</strong></a>
+            <a href="@Url.RouteUrl("KnowledgebaseCategory", new { Model.SeName })"><strong>@Model.Name</strong></a>
             @foreach (var category in Model.Children)
             {
                 <partial name="Partials/KnowledgebaseCategoryLine.Navigation" model="category" />
@@ -14,7 +14,7 @@
     else
     {
         <li class="inactive">
-            <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = Model.SeName })">@Model.Name</a>
+            <a href="@Url.RouteUrl("KnowledgebaseCategory", new { Model.SeName })">@Model.Name</a>
         </li>
     }
 </ul>

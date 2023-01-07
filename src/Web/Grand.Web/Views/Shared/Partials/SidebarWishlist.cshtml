@@ -17,7 +17,7 @@
             <li>
                 <b-sidebar id="sidebar-wishlist" backdrop @if (!supportRtl) { <text>right</text> }>
                     <template v-slot:title v-if="wishindicator > 0">
-                        @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], string.Format("<a href=\"{0}\">{1}</a>", Url.RouteUrl("Wishlist"), string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}"))))
+                        @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
                     </template>
                     <template v-slot:title v-else>
                         @Loc["Wishlist.Mini.NoItems"]

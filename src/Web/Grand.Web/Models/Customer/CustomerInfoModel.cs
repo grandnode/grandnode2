@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerInfoModel : BaseModel
+    public class CustomerInfoModel : BaseModel
     {
         public CustomerInfoModel()
         {
@@ -143,7 +143,7 @@ namespace Grand.Web.Models.Customer
 
         #region Nested classes
 
-        public partial class AssociatedExternalAuthModel : BaseEntityModel
+        public class AssociatedExternalAuthModel : BaseEntityModel
         {
             public string Email { get; set; }
             public string ExternalIdentifier { get; set; }

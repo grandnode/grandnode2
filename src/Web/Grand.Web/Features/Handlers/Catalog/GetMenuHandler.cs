@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -10,10 +10,9 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
-using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 
@@ -61,15 +60,9 @@ namespace Grand.Web.Features.Handlers.Catalog
             var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
                 request.Language.Id, 
                 request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
-            var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () =>
-            {
-                //categories
-                return await PrepareCategorySimpleModels(
-                    language: request.Language,
-                    store: request.Store,
-                    customer: request.Customer,
-                    allCategories: await _categoryService.GetMenuCategories());
-            });
+            var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () => await PrepareCategorySimpleModels(
+                language: request.Language,
+                allCategories: await _categoryService.GetMenuCategories()));
 
             //top menu pages
             var now = DateTime.UtcNow;
@@ -82,7 +75,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     SeName = t.GetSeName(request.Language.Id)
                 }).ToList();
 
-            string brandCacheKey = string.Format(CacheKeyConst.BRAND_NAVIGATION_MENU,
+            var brandCacheKey = string.Format(CacheKeyConst.BRAND_NAVIGATION_MENU,
                 request.Language.Id, request.Store.Id);
 
             var cachedBrandModel = await _cacheBase.GetAsync(brandCacheKey, async () =>
@@ -98,7 +91,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     .ToList()
                 );
 
-            string collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MENU,
+            var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MENU,
                 request.Language.Id, request.Store.Id);
 
             var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>
@@ -134,10 +127,12 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         }
 
-        private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(Language language, Store store, Customer customer, string rootCategoryId = "",
-           bool loadSubCategories = true, IList<Category> allCategories = null)
+        private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(Language language, 
+            IEnumerable<Category> allCategories, string rootCategoryId = "",
+            bool loadSubCategories = true)
         {
             var result = new List<CategorySimpleModel>();
+            if (allCategories == null) return result;
             var categories = allCategories.Where(c => c.ParentCategoryId == rootCategoryId).OrderBy(x => x.DisplayOrder).ToList();
             foreach (var category in categories)
             {
@@ -156,7 +151,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 };
                 if (loadSubCategories)
                 {
-                    var subCategories = await PrepareCategorySimpleModels(language, store, customer, category.Id, loadSubCategories, allCategories);
+                    var subCategories = await PrepareCategorySimpleModels(language, allCategories, category.Id, true);
                     categoryModel.SubCategories.AddRange(subCategories);
                 }
                 result.Add(categoryModel);

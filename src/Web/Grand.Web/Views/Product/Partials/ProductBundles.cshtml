@@ -10,23 +10,25 @@
                     </div>
                 </div>
                 <div class="col-md-9 col-8">
-                    <h6 class="card-title">@item.Quantity x <a href="@Url.RouteUrl("Product", new { SeName = item.SeName })"> @item.Name </a>(@item.Price)</h6>
+                    <h6 class="card-title">@item.Quantity x <a href="@Url.RouteUrl("Product", new { item.SeName })"> @item.Name </a>(@item.Price)</h6>
                     <p class="card-text small">@Html.Raw(item.ShortDescription)</p>
                 </div>
             </div>
             @if (item.ProductAttributes.Any())
             {
-                var dataDictAttributes = new ViewDataDictionary(ViewData);
-                dataDictAttributes.Add("BundleProductId", Model.Id);
-                dataDictAttributes.Add("ProductId", item.ProductId);
-                dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", item.ProductId);
+                var dataDictAttributes = new ViewDataDictionary(ViewData)
+                {
+                    { "BundleProductId", Model.Id },
+                    { "ProductId", item.ProductId }
+                };
+                dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{item.ProductId}";
                 <div class="col-12 pt-1">
                     <partial name="Partials/ProductAttributesBundle" model="item.ProductAttributes" view-data="dataDictAttributes" />
                 </div>
             }
         </div>
     }
-    @if (Model.ProductBundleModels.Where(x => x.ProductAttributes.Any()).Any())
+    @if (Model.ProductBundleModels.Any(x => x.ProductAttributes.Any()))
     {
         <template id="product-attributes-bundle" asp-header="true">
             <div>

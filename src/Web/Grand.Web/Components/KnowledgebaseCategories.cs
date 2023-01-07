@@ -1,12 +1,12 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Knowledgebase;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Cms;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class KnowledgebaseCategories : BaseViewComponent
     {
@@ -30,21 +30,19 @@ namespace Grand.Web.ViewComponents
 
             foreach (var category in categories)
             {
-                if (string.IsNullOrEmpty(category.ParentCategoryId))
+                if (!string.IsNullOrEmpty(category.ParentCategoryId)) continue;
+                var newNode = new KnowledgebaseCategoryModel
                 {
-                    var newNode = new KnowledgebaseCategoryModel
-                    {
-                        Id = category.Id,
-                        Name = category.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
-                        Children = new List<KnowledgebaseCategoryModel>(),
-                        IsCurrent = model.CurrentCategoryId == category.Id,
-                        SeName = category.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id)
-                    };
+                    Id = category.Id,
+                    Name = category.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
+                    Children = new List<KnowledgebaseCategoryModel>(),
+                    IsCurrent = model.CurrentCategoryId == category.Id,
+                    SeName = category.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id)
+                };
 
-                    FillChildNodes(newNode, categories, model.CurrentCategoryId);
+                FillChildNodes(newNode, categories, model.CurrentCategoryId);
 
-                    model.Categories.Add(newNode);
-                }
+                model.Categories.Add(newNode);
             }
 
             return View(model);
@@ -78,11 +76,9 @@ namespace Grand.Web.ViewComponents
 
         public void MarkParentsAsCurrent(KnowledgebaseCategoryModel node)
         {
-            if (node.Parent != null)
-            {
-                node.Parent.IsCurrent = true;
-                MarkParentsAsCurrent(node.Parent);
-            }
+            if (node.Parent == null) return;
+            node.Parent.IsCurrent = true;
+            MarkParentsAsCurrent(node.Parent);
         }
     }
 }

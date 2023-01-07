@@ -1,4 +1,5 @@
-﻿@inject Grand.Infrastructure.Configuration.PerformanceConfig config
+﻿@using Grand.Infrastructure.Configuration
+@inject PerformanceConfig config
 <!DOCTYPE html>
 <html use-lang="true">
 <head>
@@ -8,7 +9,7 @@
     <meta-keywords>
     <meta name="generator" content="grandnode">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    @RenderSection("meta", required: false)    
+    @await RenderSectionAsync("meta", required: false)
     <head-custom>
     <partial name="Partials/Head" />
     <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
@@ -21,7 +22,7 @@
     }
     <resources asp-type="HeadLink" />
     <resources asp-type="HeadScript" />
-    @RenderSection("head", required: false)    
+    @await RenderSectionAsync("head", required: false)
 </head>
 <body>
 
@@ -40,7 +41,7 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
             @if (IsSectionDefined("Breadcrumb"))
             {
-                @RenderSection("Breadcrumb")
+                @await RenderSectionAsync("Breadcrumb")
             }
             @RenderBody()
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })

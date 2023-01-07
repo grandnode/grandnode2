@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure;
 using Grand.Domain.Localization;
 using Grand.Domain.News;
+using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
 using MediatR;
 
@@ -41,7 +41,7 @@ namespace Grand.Web.Commands.Handler.News
                 StoreId = _workContext.CurrentStore.Id,
                 CommentTitle = request.Model.AddNewComment.CommentTitle,
                 CommentText = request.Model.AddNewComment.CommentText,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             request.NewsItem.NewsComments.Add(comment);
 

@@ -32,7 +32,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             var model = new CheckoutBillingAddressModel();
             //existing addresses
             var addresses = new List<Address>();
-            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType == AddressType.Any || x.AddressType == AddressType.Billing))
+            foreach (var item in request.Customer.Addresses.Where(x => x.AddressType is AddressType.Any or AddressType.Billing))
             {
                 if (string.IsNullOrEmpty(item.CountryId))
                 {
@@ -43,19 +43,18 @@ namespace Grand.Web.Features.Handlers.Checkout
                 if (country == null || (country.AllowsBilling && _aclService.Authorize(country, request.Store.Id)))
                 {
                     addresses.Add(item);
-                    continue;
                 }
             }
 
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel() {
+                var addressModel = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,
                     Address = address,
-                    ExcludeProperties = false,
-                });
+                    ExcludeProperties = false
+                }, cancellationToken);
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -63,7 +62,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             model.BillingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForBilling(request.Language.Id, request.Store.Id);
 
-            model.BillingNewAddress = await _mediator.Send(new GetAddressModel() {
+            model.BillingNewAddress = await _mediator.Send(new GetAddressModel {
                 Language = request.Language,
                 Store = request.Store,
                 Model = model.BillingNewAddress,
@@ -73,7 +72,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 LoadCountries = () => countries,
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes
-            });
+            }, cancellationToken);
             model.BillingNewAddress.HideAddressType = true;
             model.BillingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Billing : (int)AddressType.Any;
 

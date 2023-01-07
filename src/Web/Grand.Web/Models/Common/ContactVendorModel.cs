@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class ContactVendorModel : BaseModel
+    public class ContactVendorModel : BaseModel
     {
         public string VendorId { get; set; }
         public string VendorName { get; set; }

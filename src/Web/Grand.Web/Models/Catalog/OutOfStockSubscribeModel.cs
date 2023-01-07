@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class OutOfStockSubscribeModel : BaseModel
+    public class OutOfStockSubscribeModel : BaseModel
     {
         public string ProductId { get; set; }
         public string ProductName { get; set; }

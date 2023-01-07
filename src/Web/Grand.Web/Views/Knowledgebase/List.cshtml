@@ -15,14 +15,14 @@
         @foreach (var cat in Model.CategoryBreadcrumb)
         {
             <li class="breadcrumb-item">
-                <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = cat.SeName })" title="@cat.Name">@cat.Name</a>
+                <a href="@Url.RouteUrl("KnowledgebaseCategory", new { cat.SeName })" title="@cat.Name">@cat.Name</a>
             </li>
         }
     </ol>
 }
 
 @section left {
-    @await Component.InvokeAsync("KnowledgebaseCategories", @Model)
+    @await Component.InvokeAsync("KnowledgebaseCategories", Model)
 }
 
 <div class="page">
@@ -63,7 +63,7 @@
         </form>
 
         @await Component.InvokeAsync("PageBlock", new { systemName = "KnowledgebaseHomePage" })
-        @await Component.InvokeAsync("KnowledgebaseHomepageArticles", @Model)
+        @await Component.InvokeAsync("KnowledgebaseHomepageArticles", Model)
     }
     else
     {
@@ -77,12 +77,12 @@
             var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
             if (canonicalUrlsEnabled)
             {
-                var categoryUrl = Url.RouteUrl("ArticlesByCategory", new { SeName = Model.CurrentCategorySeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+                var categoryUrl = Url.RouteUrl("ArticlesByCategory", new { SeName = Model.CurrentCategorySeName }, Url.ActionContext.HttpContext.Request.Scheme);
                 pagebuilder.AddCanonicalUrlParts(categoryUrl);
             }
         }
 
-        @Html.Raw(@Model.CurrentCategoryDescription)
+        @Html.Raw(Model.CurrentCategoryDescription)
 
         @if (Model.Items.Any())
         {
@@ -91,8 +91,8 @@
                 {
                     if (item.IsArticle)
                     {
-                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = item.SeName })">
-                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(@item.FormattedBreadcrumbs))
+                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { item.SeName })">
+                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs
                             }
@@ -104,8 +104,8 @@
                     }
                     else
                     {
-                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = item.SeName })">
-                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(@item.FormattedBreadcrumbs))
+                        <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseCategory", new { item.SeName })">
+                            @if (!string.IsNullOrEmpty(Model.SearchKeyword) && !string.IsNullOrEmpty(item.FormattedBreadcrumbs))
                             {
                                 @item.FormattedBreadcrumbs
                             }

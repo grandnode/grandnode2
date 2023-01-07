@@ -7,11 +7,11 @@
             {
                 <div class="col-xl-@order.Bm_Xl col-lg-@order.Bm_Lg col-md-@order.Bm_Md col-sm-@order.Bm_Sm col-@order.Bm_Col">
                     <div class="card picture-card mb-2">
-                        <a href="@Url.RouteUrl("Brand", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                        <a href="@Url.RouteUrl("Brand", new { item.SeName })" title="@item.PictureModel.Title">
                             <b-card-img-lazy src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-card-img-lazy>
                         </a>
                         <h4 class="title">
-                            <a href="@Url.RouteUrl("Brand", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                            <a href="@Url.RouteUrl("Brand", new { item.SeName })" title="@item.PictureModel.Title">
                                 @item.Name
                             </a>
                         </h4>

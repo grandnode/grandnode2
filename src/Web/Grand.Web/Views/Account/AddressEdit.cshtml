@@ -1,5 +1,4 @@
 ﻿@model CustomerAddressEditModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -18,8 +17,13 @@
             <h1 class="h2 generalTitle">@Loc["Account.CustomerAddresses.Edit"]</h1>
             <div asp-validation-summary="All" class="message-error"></div>
             @{
-                var dataDictAddress = new ViewDataDictionary(ViewData);
-                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+                var dataDictAddress = new ViewDataDictionary(ViewData)
+                {
+                    TemplateInfo =
+                    {
+                        HtmlFieldPrefix = "Address"
+                    }
+                };
                 <partial name="Partials/CreateOrUpdateAddress" model="Model.Address" view-data="dataDictAddress" />
             }
             <vc:widget widget-zone="customer-address-edit-form" additional-data="@Model"></vc:widget>

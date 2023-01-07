@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Endpoints
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
@@ -113,7 +113,7 @@ namespace Grand.Web.Endpoints
                             pattern + "account/checkusernameavailability",
                             new { controller = "Account", action = "CheckUsernameAvailability" });
 
-            //passwordrecovery
+            //password recovery
             endpointRouteBuilder.MapControllerRoute("PasswordRecovery",
                             pattern + "passwordrecovery",
                             new { controller = "Account", action = "PasswordRecovery" });
@@ -451,13 +451,7 @@ namespace Grand.Web.Endpoints
 
         private void RegisterCmsRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
         {
-
-            //widgets
-            endpointRouteBuilder.MapControllerRoute("WidgetsByZone",
-                            $"{pattern}widgetsbyzone/",
-                            new { controller = "Widget", action = "WidgetsByZone" });
-
-            //knowledgebase
+            //knowledge base
             endpointRouteBuilder.MapControllerRoute("Knowledgebase",
                             pattern + "knowledgebase",
                             new { controller = "Knowledgebase", action = "List" });
