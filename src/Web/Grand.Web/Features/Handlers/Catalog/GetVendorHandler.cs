@@ -6,7 +6,6 @@ using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
@@ -26,8 +25,6 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly ITranslationService _translationService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ICacheBase _cacheBase;
-
         private readonly VendorSettings _vendorSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -41,7 +38,6 @@ namespace Grand.Web.Features.Handlers.Catalog
             MediaSettings mediaSettings,
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
-            ICacheBase cacheBase,
             CatalogSettings catalogSettings,
             CaptchaSettings captchaSettings)
         {
@@ -52,7 +48,6 @@ namespace Grand.Web.Features.Handlers.Catalog
             _mediaSettings = mediaSettings;
             _specificationAttributeService = specificationAttributeService;
             _httpContextAccessor = httpContextAccessor;
-            _cacheBase = cacheBase;
             _catalogSettings = catalogSettings;
             _captchaSettings = captchaSettings;
         }

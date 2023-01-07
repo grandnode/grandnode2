@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
 using Grand.Web.Events.Cache;
@@ -17,7 +16,6 @@ namespace Grand.Web.Components
         private readonly IProductService _productService;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
-        private readonly IWorkContext _workContext;
         private readonly CatalogSettings _catalogSettings;
 
         #endregion
@@ -27,13 +25,11 @@ namespace Grand.Web.Components
             IProductService productService,
             IMediator mediator,
             ICacheBase cacheBase,
-            IWorkContext workContext,
             CatalogSettings catalogSettings)
         {
             _productService = productService;
             _mediator = mediator;
             _cacheBase = cacheBase;
-            _workContext = workContext;
             _catalogSettings = catalogSettings;
         }
 

@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
@@ -17,7 +16,6 @@ namespace Grand.Web.Components
         private readonly IGroupService _groupService;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
-        private readonly ITranslationService _translationService;
         private readonly VendorSettings _vendorSettings;
 
         #endregion
@@ -29,14 +27,12 @@ namespace Grand.Web.Components
             IGroupService groupService,
             IWorkContext workContext,
             IMediator mediator,
-            ITranslationService translationService,
             VendorSettings vendorSettings)
         {
             _vendorService = vendorService;
             _groupService = groupService;
             _workContext = workContext;
             _mediator = mediator;
-            _translationService = translationService;
             _vendorSettings = vendorSettings;
         }
 

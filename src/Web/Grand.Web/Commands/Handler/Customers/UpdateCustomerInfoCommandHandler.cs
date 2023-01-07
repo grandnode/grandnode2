@@ -20,7 +20,6 @@ namespace Grand.Web.Commands.Handler.Customers
         private readonly IVatService _checkVatService;
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly ICustomerService _customerService;
-        private readonly IMediator _mediator;
 
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -32,7 +31,6 @@ namespace Grand.Web.Commands.Handler.Customers
             IVatService checkVatService,
             INewsLetterSubscriptionService newsLetterSubscriptionService,
             ICustomerService customerService,
-            IMediator mediator,
             CustomerSettings customerSettings,
             TaxSettings taxSettings)
         {
@@ -42,7 +40,6 @@ namespace Grand.Web.Commands.Handler.Customers
             _checkVatService = checkVatService;
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
             _customerService = customerService;
-            _mediator = mediator;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
         }

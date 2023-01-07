@@ -15,7 +15,6 @@ namespace Grand.Web.Controllers
 
         private readonly ITranslationService _translationService;
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
 
         #endregion
@@ -25,12 +24,10 @@ namespace Grand.Web.Controllers
         public PageController(
             ITranslationService translationService,
             IPermissionService permissionService,
-            IWorkContext workContext,
             IMediator mediator)
         {
             _translationService = translationService;
             _permissionService = permissionService;
-            _workContext = workContext;
             _mediator = mediator;
         }
 
