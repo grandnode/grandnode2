@@ -309,7 +309,7 @@ namespace Grand.Web.Controllers
                 Vendor = vendor,
                 Language = _workContext.WorkingLanguage,
                 Customer = _workContext.CurrentCustomer,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
             //review
             model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);

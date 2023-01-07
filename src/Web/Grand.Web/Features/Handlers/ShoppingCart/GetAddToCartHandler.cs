@@ -175,7 +175,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.AddToCartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), request.Product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), request.Product.Name),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), request.Product.Name)
             };
         }
     }

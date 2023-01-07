@@ -40,7 +40,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             var model = new CompareProductsModel {
                 IncludeShortDescriptionInCompareProducts = _catalogSettings.IncludeShortDescriptionInCompareProducts,
-                IncludeFullDescriptionInCompareProducts = _catalogSettings.IncludeFullDescriptionInCompareProducts,
+                IncludeFullDescriptionInCompareProducts = _catalogSettings.IncludeFullDescriptionInCompareProducts
             };
 
             var products = new List<Product>();

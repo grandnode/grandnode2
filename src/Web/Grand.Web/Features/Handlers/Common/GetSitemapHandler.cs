@@ -102,7 +102,7 @@ namespace Grand.Web.Features.Handlers.Common
                         Name = product.GetTranslation(x => x.Name, request.Language.Id),
                         ShortDescription = product.GetTranslation(x => x.ShortDescription, request.Language.Id),
                         FullDescription = product.GetTranslation(x => x.FullDescription, request.Language.Id),
-                        SeName = product.GetSeName(request.Language.Id),
+                        SeName = product.GetSeName(request.Language.Id)
                     }).ToList();
                 }
 
@@ -117,7 +117,7 @@ namespace Grand.Web.Features.Handlers.Common
                     SystemName = page.GetTranslation(x => x.SystemName, request.Language.Id),
                     IncludeInSitemap = page.IncludeInSitemap,
                     IsPasswordProtected = page.IsPasswordProtected,
-                    Title = page.GetTranslation(x => x.Title, request.Language.Id),
+                    Title = page.GetTranslation(x => x.Title, request.Language.Id)
                 }).ToList();
 
                 //blog posts
@@ -127,7 +127,7 @@ namespace Grand.Web.Features.Handlers.Common
                 {
                     Id = blogpost.Id,
                     SeName = blogpost.GetSeName(request.Language.Id),
-                    Title = blogpost.GetTranslation(x => x.Title, request.Language.Id),
+                    Title = blogpost.GetTranslation(x => x.Title, request.Language.Id)
                 }).ToList();
 
                 //knowledge base

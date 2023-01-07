@@ -74,7 +74,7 @@ namespace Grand.Web.Controllers
             model ??= new InstallModel {
                 AdminEmail = "admin@yourstore.com",
                 InstallSampleData = false,
-                DatabaseConnectionString = "",
+                DatabaseConnectionString = ""
             };
 
             model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
@@ -96,7 +96,7 @@ namespace Grand.Web.Controllers
                 model.AvailableLanguages.Add(new SelectListItem {
                     Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
                     Text = lang.Name,
-                    Selected = selected,
+                    Selected = selected
                 });
             }
             //prepare collation list
@@ -105,7 +105,7 @@ namespace Grand.Web.Controllers
                 model.AvailableCollation.Add(new SelectListItem {
                     Value = col.Value,
                     Text = col.Name,
-                    Selected = locService.GetCurrentLanguage().Code == col.Value,
+                    Selected = locService.GetCurrentLanguage().Code == col.Value
                 });
             }
 

@@ -494,7 +494,7 @@ namespace Grand.Web.Features.Handlers.Products
                 return new BrandBriefInfoModel {
                     Id = brand.Id,
                     Name = brand.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                    SeName = brand.GetSeName(_workContext.WorkingLanguage.Id),
+                    SeName = brand.GetSeName(_workContext.WorkingLanguage.Id)
                 };
             }
 
@@ -510,7 +510,7 @@ namespace Grand.Web.Features.Handlers.Products
                 return new VendorBriefInfoModel {
                     Id = vendor.Id,
                     Name = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                    SeName = vendor.GetSeName(_workContext.WorkingLanguage.Id),
+                    SeName = vendor.GetSeName(_workContext.WorkingLanguage.Id)
                 };
             }
 
@@ -928,7 +928,7 @@ namespace Grand.Web.Features.Handlers.Products
                             Name = attributeValue.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                             IsPreSelected = preselected,
-                            StockAvailability = stockAvailability,
+                            StockAvailability = stockAvailability
                         };
                         attributeModel.Values.Add(valueModel);
 

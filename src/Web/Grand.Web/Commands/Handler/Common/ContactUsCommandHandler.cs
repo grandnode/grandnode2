@@ -30,7 +30,7 @@ namespace Grand.Web.Commands.Handler.Common
         {
             var model = request.Model ?? new ContactUsModel {
                 Email = request.Customer.Email,
-                FullName = request.Customer.GetFullName(),
+                FullName = request.Customer.GetFullName()
             };
 
             model.SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm;
@@ -92,7 +92,7 @@ namespace Grand.Web.Commands.Handler.Common
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,
                             IsPreSelected = string.IsNullOrEmpty(preSelected) ? attributeValue.IsPreSelected : preSelected.Contains(attributeValue.Id),
-                            DisplayOrder = attributeValue.DisplayOrder,
+                            DisplayOrder = attributeValue.DisplayOrder
                         };
                         attributeModel.Values.Add(attributeValueModel);
                     }

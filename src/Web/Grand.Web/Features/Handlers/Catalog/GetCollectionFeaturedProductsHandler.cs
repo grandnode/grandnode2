@@ -120,7 +120,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (featuredProducts != null && featuredProducts.Any())
                 {
                     item.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
-                        Products = featuredProducts,
+                        Products = featuredProducts
                     }, cancellationToken)).ToList();
                 }
             }

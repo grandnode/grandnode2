@@ -169,7 +169,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 if (featuredProducts != null && featuredProducts.Any())
                 {
                     model.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
-                        Products = featuredProducts,
+                        Products = featuredProducts
                     }, cancellationToken)).ToList();
                 }
             }
@@ -199,7 +199,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
             model.Products = (await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
-                Products = products.products,
+                Products = products.products
             }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);

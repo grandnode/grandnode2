@@ -396,7 +396,7 @@ namespace Grand.Web.Controllers
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
-                Model = model,
+                Model = model
             });
 
             return View(model1);
@@ -464,7 +464,7 @@ namespace Grand.Web.Controllers
             return Json(new
             {
                 html = await this.RenderPartialViewToString("PrivacyPreference", model, true),
-                model,
+                model
             });
         }
 
@@ -552,7 +552,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var form = await HttpContext.Request.ReadFormAsync();
@@ -563,7 +563,7 @@ namespace Grand.Web.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 
@@ -593,7 +593,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -610,7 +610,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -636,7 +636,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.FileUploaded"),
                 downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid,
+                downloadGuid = download.DownloadGuid
             });
         }
 

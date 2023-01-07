@@ -77,7 +77,7 @@ namespace Grand.Web.Controllers
             {
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -87,7 +87,7 @@ namespace Grand.Web.Controllers
                 //we cannot add to the cart such products from category pages
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -96,7 +96,7 @@ namespace Grand.Web.Controllers
                 //cannot be added to the cart (requires a customer to enter price)
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
             var allowedQuantities = product.ParseAllowedQuantities();
@@ -105,7 +105,7 @@ namespace Grand.Web.Controllers
                 //cannot be added to the cart (requires a customer to select a quantity from drop down list)
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -114,7 +114,7 @@ namespace Grand.Web.Controllers
                 //product has some attributes
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -173,7 +173,7 @@ namespace Grand.Web.Controllers
                     //cannot be added to the cart
                     return Json(new
                     {
-                        redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                        redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                     });
                 }
             }
@@ -197,7 +197,7 @@ namespace Grand.Web.Controllers
                 //cannot be added to the cart
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -210,7 +210,7 @@ namespace Grand.Web.Controllers
                 Currency = _workContext.WorkingCurrency,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage,
-                TaxDisplayType = _workContext.TaxDisplayType,
+                TaxDisplayType = _workContext.TaxDisplayType
             });
 
             //added to the cart/wishlist
@@ -228,7 +228,7 @@ namespace Grand.Web.Controllers
                             //redirect to the wishlist page
                             return Json(new
                             {
-                                redirect = Url.RouteUrl("Wishlist"),
+                                redirect = Url.RouteUrl("Wishlist")
                             });
                         }
 
@@ -258,7 +258,7 @@ namespace Grand.Web.Controllers
                             //redirect to the shopping cart page
                             return Json(new
                             {
-                                redirect = Url.RouteUrl("ShoppingCart"),
+                                redirect = Url.RouteUrl("ShoppingCart")
                             });
                         }
 
@@ -355,7 +355,7 @@ namespace Grand.Web.Controllers
             {
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("HomePage"),
+                    redirect = Url.RouteUrl("HomePage")
                 });
             }
 
@@ -444,7 +444,7 @@ namespace Grand.Web.Controllers
                 rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
                 new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false,
-                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
+                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist
                 });
 
             addToCartWarnings.AddRange(warnings);
@@ -496,7 +496,7 @@ namespace Grand.Web.Controllers
                             //redirect to the wishlist page
                             return Json(new
                             {
-                                redirect = Url.RouteUrl("Wishlist"),
+                                redirect = Url.RouteUrl("Wishlist")
                             });
                         }
 
@@ -526,7 +526,7 @@ namespace Grand.Web.Controllers
                             //redirect to the shopping cart page
                             return Json(new
                             {
-                                redirect = Url.RouteUrl("ShoppingCart"),
+                                redirect = Url.RouteUrl("ShoppingCart")
                             });
                         }
 
@@ -654,7 +654,7 @@ namespace Grand.Web.Controllers
                 Currency = _workContext.WorkingCurrency,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage,
-                TaxDisplayType = _workContext.TaxDisplayType,
+                TaxDisplayType = _workContext.TaxDisplayType
             });
 
             return Json(new
@@ -701,12 +701,12 @@ namespace Grand.Web.Controllers
                 {
                     return Json(new
                     {
-                        redirect = Url.RouteUrl("HomePage"),
+                        redirect = Url.RouteUrl("HomePage")
                     });
                 }
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -719,7 +719,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                success = true, model,
+                success = true, model
             });
         }
 
@@ -739,7 +739,7 @@ namespace Grand.Web.Controllers
             {
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("HomePage"),
+                    redirect = Url.RouteUrl("HomePage")
                 });
             }
 

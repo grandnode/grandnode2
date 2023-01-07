@@ -58,7 +58,7 @@ namespace Grand.Web.Commands.Handler.Orders
                 MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
-                PickupAddress = request.Address,
+                PickupAddress = request.Address
             };
 
             if (request.Model.PickupDate.HasValue)

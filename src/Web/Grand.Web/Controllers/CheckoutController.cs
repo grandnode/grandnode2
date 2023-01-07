@@ -257,7 +257,7 @@ namespace Grand.Web.Controllers
             var model = new CheckoutCompletedModel {
                 OrderId = order.Id,
                 OrderNumber = order.OrderNumber,
-                OrderCode = order.Code,
+                OrderCode = order.Code
             };
 
             return View(model);
@@ -676,7 +676,7 @@ namespace Grand.Web.Controllers
                                 Language = _workContext.WorkingLanguage,
                                 Store = _workContext.CurrentStore,
                                 SelectedCountryId = model.ShippingNewAddress.CountryId,
-                                OverrideAttributes = customAttributes,
+                                OverrideAttributes = customAttributes
                             });
 
                             shippingAddressModel.NewAddressPreselected = true;
@@ -739,7 +739,7 @@ namespace Grand.Web.Controllers
                     Customer = _workContext.CurrentCustomer,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
-                    SelectedCountryId = model.ShippingNewAddress.CountryId,
+                    SelectedCountryId = model.ShippingNewAddress.CountryId
                 });
                 if (!billingAddressModel.ExistingAddresses.Any())
                     billingAddressModel.NewAddressPreselected = true;
@@ -1015,7 +1015,7 @@ namespace Grand.Web.Controllers
                         //redirect
                         return Json(new {
                             redirect =
-                                $"{storeLocation}/checkout/CompleteRedirectionPayment?paymentTransactionId={placeOrderResult.PaymentTransaction.Id}",
+                                $"{storeLocation}/checkout/CompleteRedirectionPayment?paymentTransactionId={placeOrderResult.PaymentTransaction.Id}"
                         });
                     }
 

@@ -123,7 +123,7 @@ namespace Grand.Web.Features.Handlers.Blogs
                 CustomerId = blogComment.CustomerId,
                 CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                 CommentText = blogComment.CommentText,
-                CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc)
             };
             return model;
         }

@@ -91,7 +91,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 ShowProductImages = _shoppingCartSettings.ShowImagesInsidebarCart,
                 DisplayShoppingCartButton = true,
                 CurrentCustomerIsGuest = await _groupService.IsGuest(request.Customer),
-                AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed,
+                AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed
             };
 
             if (!request.Customer.ShoppingCartItems.Any()) return model;
@@ -223,7 +223,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"),
                     product.Name),
                 AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"),
-                    product.Name),
+                    product.Name)
             };
         }
     }

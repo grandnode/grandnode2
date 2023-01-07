@@ -51,7 +51,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var address = new Address {
                 CountryId = request.CountryId,
                 StateProvinceId = request.StateProvinceId,
-                ZipPostalCode = request.ZipPostalCode,
+                ZipPostalCode = request.ZipPostalCode
             };
             GetShippingOptionResponse getShippingOptionResponse = await _shippingService
                 .GetShippingOptions(request.Customer, request.Cart, address, "", request.Store);
@@ -68,7 +68,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     {
                         var soModel = new EstimateShippingResultModel.ShippingOptionModel {
                             Name = shippingOption.Name,
-                            Description = shippingOption.Description,
+                            Description = shippingOption.Description
 
                         };
 
@@ -88,7 +88,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         if (pickupPoints.Count <= 0) return model;
                         var soModel = new EstimateShippingResultModel.ShippingOptionModel {
                             Name = _translationService.GetResource("Checkout.PickUpInStore"),
-                            Description = _translationService.GetResource("Checkout.PickUpInStore.Description"),
+                            Description = _translationService.GetResource("Checkout.PickUpInStore.Description")
                         };
 
                         var shippingTotal = pickupPoints.Max(x => x.PickupFee);

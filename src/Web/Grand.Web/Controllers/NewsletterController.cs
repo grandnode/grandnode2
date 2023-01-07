@@ -26,7 +26,7 @@ namespace Grand.Web.Controllers
                     model.Success,
                     model.Result,
                     Showcategories = model.ShowCategories,
-                    model.ResultCategory,
+                    model.ResultCategory
                 });
             model.ShowCategories = true;
             model.ResultCategory = await this.RenderPartialViewToString("NewsletterCategory", model.NewsletterCategory, true);
@@ -35,7 +35,7 @@ namespace Grand.Web.Controllers
                 model.Success,
                 model.Result,
                 Showcategories = model.ShowCategories,
-                model.ResultCategory,
+                model.ResultCategory
             });
         }
 

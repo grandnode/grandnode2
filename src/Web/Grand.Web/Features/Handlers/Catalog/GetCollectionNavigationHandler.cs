@@ -47,7 +47,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         Name = collection.GetTranslation(x => x.Name, request.Language.Id),
                         Icon = collection.Icon,
                         SeName = collection.GetSeName(request.Language.Id),
-                        IsActive = currentCollection != null && currentCollection.Id == collection.Id,
+                        IsActive = currentCollection != null && currentCollection.Id == collection.Id
                     };
                     model.Collections.Add(modelMan);
                 }

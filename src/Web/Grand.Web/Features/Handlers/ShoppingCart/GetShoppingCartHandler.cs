@@ -224,7 +224,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,
-                            IsPreSelected = attributeValue.IsPreSelected,
+                            IsPreSelected = attributeValue.IsPreSelected
                         };
                         attributeModel.Values.Add(attributeValueModel);
 
@@ -461,7 +461,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name)
             };
         }
 

@@ -305,7 +305,7 @@ namespace Grand.Web.Commands.Handler.Common
                             Name = attributeValue.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,
                             IsPreSelected = attributeValue.IsPreSelected,
-                            DisplayOrder = attributeValue.DisplayOrder,
+                            DisplayOrder = attributeValue.DisplayOrder
                         };
                         attributeModel.Values.Add(attributeValueModel);
                     }

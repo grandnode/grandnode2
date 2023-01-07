@@ -83,7 +83,7 @@ namespace Grand.Web.Features.Handlers.News
                     CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                     CommentTitle = nc.CommentTitle,
                     CommentText = nc.CommentText,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc),
+                    CreatedOn = _dateTimeService.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 model.Comments.Add(commentModel);
             }

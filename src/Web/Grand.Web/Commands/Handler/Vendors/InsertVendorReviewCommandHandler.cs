@@ -49,7 +49,7 @@ namespace Grand.Web.Commands.Handler.Vendors
                 HelpfulYesTotal = 0,
                 HelpfulNoTotal = 0,
                 IsApproved = isApproved,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _vendorService.InsertVendorReview(vendorReview);
 

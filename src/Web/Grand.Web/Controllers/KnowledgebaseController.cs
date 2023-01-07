@@ -214,7 +214,7 @@ namespace Grand.Web.Controllers
                     CustomerId = ac.CustomerId,
                     CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                     CommentText = ac.CommentText,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(ac.CreatedOnUtc, DateTimeKind.Utc),
+                    CreatedOn = _dateTimeService.ConvertToUserTime(ac.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 model.Comments.Add(commentModel);
             }
@@ -285,7 +285,7 @@ namespace Grand.Web.Controllers
                     CustomerId = customer.Id,
                     CommentText = model.AddNewComment.CommentText,
                     CreatedOnUtc = DateTime.UtcNow,
-                    ArticleTitle = article.Name,
+                    ArticleTitle = article.Name
                 };
                 await _knowledgebaseService.InsertArticleComment(comment);
 

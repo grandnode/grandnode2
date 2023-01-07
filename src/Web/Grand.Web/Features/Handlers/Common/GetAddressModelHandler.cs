@@ -188,7 +188,7 @@ namespace Grand.Web.Features.Handlers.Common
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, language.Id),
                     IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlType,
+                    AttributeControlType = attribute.AttributeControlType
                 };
 
                 if (attribute.ShouldHaveValues())

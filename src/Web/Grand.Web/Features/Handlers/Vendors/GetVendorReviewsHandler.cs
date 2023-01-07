@@ -71,9 +71,9 @@ namespace Grand.Web.Features.Handlers.Vendors
                         VendorId = request.Vendor.Id,
                         VendorReviewId = pr.Id,
                         HelpfulYesTotal = pr.HelpfulYesTotal,
-                        HelpfulNoTotal = pr.HelpfulNoTotal,
+                        HelpfulNoTotal = pr.HelpfulNoTotal
                     },
-                    WrittenOnStr = _dateTimeService.ConvertToUserTime(pr.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
+                    WrittenOnStr = _dateTimeService.ConvertToUserTime(pr.CreatedOnUtc, DateTimeKind.Utc).ToString("g")
                 });
             }
 

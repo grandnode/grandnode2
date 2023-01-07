@@ -38,7 +38,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     {
                         Id = vendor.Id,
                         Name = vendor.GetTranslation(x => x.Name, request.Language.Id),
-                        SeName = vendor.GetSeName(request.Language.Id),
+                        SeName = vendor.GetSeName(request.Language.Id)
                     });
                 }
                 return model;

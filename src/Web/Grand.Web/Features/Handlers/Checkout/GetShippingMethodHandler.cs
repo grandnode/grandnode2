@@ -57,7 +57,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                         Name = shippingOption.Name,
                         Description = shippingOption.Description,
                         ShippingRateProviderSystemName = shippingOption.ShippingRateProviderSystemName,
-                        ShippingOption = shippingOption,
+                        ShippingOption = shippingOption
                     };
 
                     //adjust rate

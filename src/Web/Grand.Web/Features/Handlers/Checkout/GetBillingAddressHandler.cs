@@ -53,7 +53,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     Store = request.Store,
                     Model = null,
                     Address = address,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 }, cancellationToken);
                 model.ExistingAddresses.Add(addressModel);
             }

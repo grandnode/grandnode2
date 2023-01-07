@@ -216,7 +216,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetMerchandiseReturnDetails {
                 Order = order,
                 Language = _workContext.WorkingLanguage,
-                MerchandiseReturn = rr,
+                MerchandiseReturn = rr
             });
 
             return View(model);

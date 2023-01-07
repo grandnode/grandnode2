@@ -123,7 +123,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 Id = x.Id,
                 Description = x.GetTranslation(y => y.Description, request.Language.Id),
                 Name = x.GetTranslation(y => y.Name, request.Language.Id),
-                Selected = newsletter != null && newsletter.Categories.Contains(x.Id),
+                Selected = newsletter != null && newsletter.Categories.Contains(x.Id)
             }));
         }
 

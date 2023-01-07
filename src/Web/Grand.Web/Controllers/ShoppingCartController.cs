@@ -158,7 +158,7 @@ namespace Grand.Web.Controllers
                 enabledattributeids = enabledAttributeIds.ToArray(),
                 disabledattributeids = disabledAttributeIds.ToArray(),
                 model = orderTotals,
-                checkoutattributeinfo = await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _workContext.CurrentCustomer),
+                checkoutattributeinfo = await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _workContext.CurrentCustomer)
             });
         }
 
@@ -173,7 +173,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 
@@ -185,7 +185,7 @@ namespace Grand.Web.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 
@@ -215,7 +215,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -231,7 +231,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -256,7 +256,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.FileUploaded"),
                 downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid,
+                downloadGuid = download.DownloadGuid
             });
         }
 
@@ -321,7 +321,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    warnings = "No permission",
+                    warnings = "No permission"
                 });
 
             var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes()))
@@ -331,7 +331,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    warnings = "Shopping cart item not found",
+                    warnings = "Shopping cart item not found"
                 });
             }
             if (quantity <= 0)
@@ -339,7 +339,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    warnings = "Wrong quantity",
+                    warnings = "Wrong quantity"
                 });
             }
 
@@ -417,7 +417,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), miniShoppingCartmodel.TotalProducts),
-                    sidebarshoppingcartmodel = miniShoppingCartmodel,
+                    sidebarshoppingcartmodel = miniShoppingCartmodel
                 });
             }
 
@@ -435,7 +435,7 @@ namespace Grand.Web.Controllers
             {
                 totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), miniShoppingCartmodel.TotalProducts),
                 sidebarshoppingcartmodel = miniShoppingCartmodel,
-                model = shoppingcartmodel,
+                model = shoppingcartmodel
             });
         }
 

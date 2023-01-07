@@ -67,7 +67,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 model.OrderReviewData.BillingAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = billingAddress,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
             //shipping info
             if (request.Cart.RequiresShipping())
@@ -85,7 +85,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                         model.OrderReviewData.ShippingAddress = await _mediator.Send(new GetAddressModel {
                             Language = request.Language,
                             Address = shippingAddress,
-                            ExcludeProperties = false,
+                            ExcludeProperties = false
                         });
                 }
                 else

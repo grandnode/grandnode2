@@ -101,7 +101,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 Language = request.Language,
                 Model = null,
                 Address = request.Order.BillingAddress,
-                ExcludeProperties = false,
+                ExcludeProperties = false
             }, cancellationToken);
 
             //VAT number
@@ -158,7 +158,7 @@ namespace Grand.Web.Features.Handlers.Orders
                         Language = request.Language,
                         Model = null,
                         Address = request.Order.ShippingAddress,
-                        ExcludeProperties = false,
+                        ExcludeProperties = false
                     });
                 }
                 else
@@ -168,7 +168,7 @@ namespace Grand.Web.Features.Handlers.Orders
                         model.PickupAddress = await _mediator.Send(new GetAddressModel {
                             Language = request.Language,
                             Address = request.Order.PickupPoint.Address,
-                            ExcludeProperties = false,
+                            ExcludeProperties = false
                         });
                     }
                 }
@@ -181,7 +181,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     var shipmentModel = new OrderDetailsModel.ShipmentBriefModel {
                         Id = shipment.Id,
                         ShipmentNumber = shipment.ShipmentNumber,
-                        TrackingNumber = shipment.TrackingNumber,
+                        TrackingNumber = shipment.TrackingNumber
                     };
                     if (shipment.ShippedDateUtc.HasValue)
                         shipmentModel.ShippedDate = _dateTimeService.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc);
@@ -278,7 +278,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     {
                         model.TaxRates.Add(new OrderDetailsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Percent),
-                            Value = await _priceFormatter.FormatPrice(tr.Amount, request.Order.CustomerCurrencyCode, false, request.Language),
+                            Value = await _priceFormatter.FormatPrice(tr.Amount, request.Order.CustomerCurrencyCode, false, request.Language)
                         });
                     }
                 }
@@ -302,7 +302,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
                 model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher {
                     CouponCode = giftVoucher.Code,
-                    Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, request.Order.CustomerCurrencyCode, false, request.Language),
+                    Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, request.Order.CustomerCurrencyCode, false, request.Language)
                 });
             }
 
@@ -350,7 +350,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = product.SeName,
                     Quantity = orderItem.Quantity,
-                    AttributeInfo = orderItem.AttributeDescription,
+                    AttributeInfo = orderItem.AttributeDescription
                 };
                 //prepare picture
                 orderItemModel.Picture = await PrepareOrderItemPicture(product, orderItem.Attributes, orderItemModel.ProductName);
@@ -405,7 +405,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, 80),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), productName),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), productName),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), productName)
             };
         }
     }

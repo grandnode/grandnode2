@@ -107,7 +107,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     ProductSeName = product.GetSeName(request.Language.Id),
                     AttributeInfo = orderItem.AttributeDescription,
                     QuantityOrdered = orderItem.Quantity,
-                    QuantityShipped = shipmentItem.Quantity,
+                    QuantityShipped = shipmentItem.Quantity
                 };
 
                 model.Items.Add(shipmentItemModel);
@@ -154,7 +154,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 model.ShippingAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = order.ShippingAddress,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
             }
             else
@@ -164,7 +164,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     model.PickupAddress = await _mediator.Send(new GetAddressModel {
                         Language = request.Language,
                         Address = order.PickupPoint.Address,
-                        ExcludeProperties = false,
+                        ExcludeProperties = false
                     });
                 }
             }

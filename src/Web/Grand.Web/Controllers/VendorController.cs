@@ -124,7 +124,7 @@ namespace Grand.Web.Controllers
                 ExcludeProperties = false,
                 PrePopulateWithCustomerFields = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);
@@ -181,7 +181,7 @@ namespace Grand.Web.Controllers
                     PageSize = 6,
                     AllowCustomersToSelectPageSize = true,
                     PageSizeOptions = _vendorSettings.DefaultVendorPageSizeOptions,
-                    AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview,
+                    AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview
                 };
                 model.Address.ToEntity(vendor.Address);
                 if (vendorPictureBinary != null && !string.IsNullOrEmpty(contentType))
@@ -229,7 +229,7 @@ namespace Grand.Web.Controllers
                 ExcludeProperties = false,
                 PrePopulateWithCustomerFields = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
             return View(model);
         }
@@ -254,7 +254,7 @@ namespace Grand.Web.Controllers
                 Language = _workContext.WorkingLanguage,
                 Address = vendor.Address,
                 ExcludeProperties = false,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);
@@ -332,7 +332,7 @@ namespace Grand.Web.Controllers
                 Model = model.Address,
                 Address = vendor.Address,
                 ExcludeProperties = false,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);

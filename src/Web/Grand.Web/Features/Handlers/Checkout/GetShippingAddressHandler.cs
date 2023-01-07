@@ -79,7 +79,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 LoadCountries = () => countries,
                 PrePopulateWithCustomerFields = request.PrePopulateNewAddressWithCustomerFields,
                 Customer = request.Customer,
-                OverrideAttributes = request.OverrideAttributes,
+                OverrideAttributes = request.OverrideAttributes
             }, cancellationToken);
             model.ShippingNewAddress.HideAddressType = true;
             model.ShippingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
@@ -99,7 +99,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                         Id = pickupPoint.Id,
                         Name = pickupPoint.Name,
                         Description = pickupPoint.Description,
-                        Address = pickupPoint.Address,
+                        Address = pickupPoint.Address
                     };
                     if (pickupPoint.PickupFee > 0)
                     {
@@ -147,7 +147,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     Store = request.Store,
                     Model = null,
                     Address = address,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
                 model.ExistingAddresses.Add(addressModel);
             }

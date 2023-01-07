@@ -41,7 +41,7 @@ namespace Grand.Web.Features.Handlers.Orders
             var model = new CustomerMerchandiseReturnsModel();
 
             var query = new GetMerchandiseReturnQuery {
-                StoreId = request.Store.Id,
+                StoreId = request.Store.Id
             };
 
             if (await _groupService.IsOwner(request.Customer))

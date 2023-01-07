@@ -131,7 +131,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     VendorName = string.IsNullOrEmpty(orderItem.VendorId)
                         ? ""
                         : (await _vendorService.GetVendorById(orderItem.VendorId))?.Name,
-                    Quantity = qtyDelivery - qtyReturn,
+                    Quantity = qtyDelivery - qtyReturn
                 };
                 if (orderItemModel.Quantity > 0)
                     model.Items.Add(orderItemModel);
@@ -175,7 +175,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     Language = request.Language,
                     Store = request.Store,
                     Address = address,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 });
                 model.ExistingAddresses.Add(addressModel);
             }
@@ -189,7 +189,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 ExcludeProperties = false,
                 LoadCountries = () => countries,
                 PrePopulateWithCustomerFields = true,
-                Customer = _workContext.CurrentCustomer,
+                Customer = _workContext.CurrentCustomer
             });
         }
     }

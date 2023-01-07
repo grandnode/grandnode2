@@ -184,7 +184,7 @@ namespace Grand.Web.Controllers
                 Store = _workContext.CurrentStore,
                 Model = model, 
                 LoadPicture = loadPicture,
-                Product = product,
+                Product = product
             });
 
             return Json(new
@@ -200,7 +200,7 @@ namespace Grand.Web.Controllers
                 disabledattributemappingids = modelProduct.DisabledAttributeMappingids.ToArray(),
                 notAvailableAttributeMappingids = modelProduct.NotAvailableAttributeMappingids.ToArray(),
                 pictureFullSizeUrl = modelProduct.PictureFullSizeUrl,
-                pictureDefaultSizeUrl = modelProduct.PictureDefaultSizeUrl,
+                pictureDefaultSizeUrl = modelProduct.PictureDefaultSizeUrl
             });
         }
 
@@ -230,7 +230,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var attribute = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attributeId);
@@ -239,7 +239,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var form = await HttpContext.Request.ReadFormAsync();
@@ -250,7 +250,7 @@ namespace Grand.Web.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var fileBinary = httpPostedFile.GetDownloadBits();
@@ -279,7 +279,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -295,7 +295,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -320,7 +320,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.FileUploaded"),
                 downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid,
+                downloadGuid = download.DownloadGuid
             });
         }
 
@@ -384,12 +384,12 @@ namespace Grand.Web.Controllers
                 {
                     return Json(new
                     {
-                        redirect = Url.RouteUrl("HomePage"),
+                        redirect = Url.RouteUrl("HomePage")
                     });
                 }
                 return Json(new
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) })
                 });
             }
 
@@ -436,7 +436,7 @@ namespace Grand.Web.Controllers
 
             //prepare model
             var model = await _mediator.Send(new GetProductOverview {
-                Products = products,
+                Products = products
             });
 
             return View(model);
@@ -485,7 +485,7 @@ namespace Grand.Web.Controllers
             //prepare model
             var model = await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
-                Products = products,
+                Products = products
             });
 
             return View(model);
@@ -643,7 +643,7 @@ namespace Grand.Web.Controllers
                 prh = new ProductReviewHelpfulness {
                     ProductReviewId = productReview.Id,
                     CustomerId = _workContext.CurrentCustomer.Id,
-                    WasHelpful = washelpful,
+                    WasHelpful = washelpful
                 };
                 productReview.ProductReviewHelpfulnessEntries.Add(prh);
                 await productReviewService.UpdateProductReview(productReview);
@@ -702,7 +702,7 @@ namespace Grand.Web.Controllers
                     Product = product,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
-                    Model = model,
+                    Model = model
                 });
 
                 model.ProductId = product.Id;

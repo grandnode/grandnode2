@@ -118,7 +118,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     item.FeaturedProducts = (await _mediator.Send(new GetProductOverview {
                         PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
-                        Products = featuredProducts,
+                        Products = featuredProducts
                     }, cancellationToken)).ToList();
                 }
             }

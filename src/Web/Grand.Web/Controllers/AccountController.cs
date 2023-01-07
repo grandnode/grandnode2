@@ -181,7 +181,7 @@ namespace Grand.Web.Controllers
                 await _mediator.Send(new GetTwoFactorAuthentication {
                     Customer = customer,
                     Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore,
+                    Store = _workContext.CurrentStore
                 });
             }
 
@@ -605,7 +605,7 @@ namespace Grand.Web.Controllers
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = false,
                 Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
             return View(model);
         }
@@ -674,14 +674,14 @@ namespace Grand.Web.Controllers
             {
                 return Json(new
                 {
-                    redirect = Url.Action("Info"),
+                    redirect = Url.Action("Info")
                 });
             }
             await openAuthenticationService.DeleteExternalAuthentication(ear);
 
             return Json(new
             {
-                redirect = Url.Action("Info"),
+                redirect = Url.Action("Info")
             });
         }
 
@@ -729,14 +729,14 @@ namespace Grand.Web.Controllers
             var address = customer.Addresses.FirstOrDefault(a => a.Id == addressId);
             if (address == null)
                 return Json(new {
-                    redirect = Url.RouteUrl("CustomerAddresses"),
+                    redirect = Url.RouteUrl("CustomerAddresses")
                 });
             customer.RemoveAddress(address);
             await _customerService.DeleteAddress(address, customer.Id);
 
             return Json(new
             {
-                redirect = Url.RouteUrl("CustomerAddresses"),
+                redirect = Url.RouteUrl("CustomerAddresses")
             });
 
         }
@@ -1120,7 +1120,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetTwoFactorAuthentication {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
             return View(model);
         }
@@ -1174,7 +1174,7 @@ namespace Grand.Web.Controllers
             _ = await _mediator.Send(new GetTwoFactorAuthentication {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
 
             var model = new CustomerInfoModel.TwoFactorAuthorizationModel {
@@ -1267,7 +1267,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             var model = new SubAccountModel {
-                Active = true,
+                Active = true
             };
             return View(model);
         }
@@ -1367,7 +1367,7 @@ namespace Grand.Web.Controllers
                 });
             var result = await _mediator.Send(new SubAccountDeleteCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
-                CustomerId = id,
+                CustomerId = id
             });
 
             if (result.success)
@@ -1375,7 +1375,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     redirect = Url.RouteUrl("CustomerSubAccounts"),
-                    success = true,
+                    success = true
                 });
             }
 

@@ -51,7 +51,7 @@ namespace Grand.Web.Components
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products,
+                Products = products
             });
 
             return View(model);

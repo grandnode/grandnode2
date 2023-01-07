@@ -59,7 +59,7 @@ namespace Grand.Web.Components
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                 ProductThumbPictureSize = productThumbPictureSize,
                 Products = products,
-                ForceRedirectionAfterAddingToCart = true,
+                ForceRedirectionAfterAddingToCart = true
             });
 
             return View(model);

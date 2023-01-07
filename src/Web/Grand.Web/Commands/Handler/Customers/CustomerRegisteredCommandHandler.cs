@@ -172,7 +172,7 @@ namespace Grand.Web.Commands.Handler.Customers
                 ZipPostalCode = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ZipPostalCode),
                 PhoneNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Phone),
                 FaxNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax),
-                CreatedOnUtc = request.Customer.CreatedOnUtc,
+                CreatedOnUtc = request.Customer.CreatedOnUtc
             };
 
             if (await IsAddressValid(defaultAddress))

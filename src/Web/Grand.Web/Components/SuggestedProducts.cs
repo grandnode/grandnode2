@@ -52,7 +52,7 @@ namespace Grand.Web.Components
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products,
+                Products = products
             });
 
             return View(model);

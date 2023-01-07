@@ -81,7 +81,7 @@ namespace Grand.Web.Components
 
             var model = await _mediator.Send(new GetProductOverview {
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products.Take(_catalogSettings.NumberOfBestsellersOnHomepage),
+                Products = products.Take(_catalogSettings.NumberOfBestsellersOnHomepage)
             });
 
             return View(model);

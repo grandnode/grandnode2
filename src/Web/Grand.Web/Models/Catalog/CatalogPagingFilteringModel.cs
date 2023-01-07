@@ -141,7 +141,7 @@ namespace Grand.Web.Models.Catalog
                             SpecificationAttributeOptionName = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).GetTranslation(x => x.Name, langId),
                             SpecificationAttributeOptionSeName = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).SeName,
                             SpecificationAttributeOptionDisplayOrder = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).DisplayOrder,
-                            SpecificationAttributeOptionColorRgb = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).ColorSquaresRgb,
+                            SpecificationAttributeOptionColorRgb = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).ColorSquaresRgb
                         });
                     }
                 }

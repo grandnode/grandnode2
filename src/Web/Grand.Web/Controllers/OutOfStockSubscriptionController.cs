@@ -226,7 +226,7 @@ namespace Grand.Web.Controllers
                     AttributeDescription = !subscription.Attributes.Any()
                         ? ""
                         : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
-                    SeName = product.GetSeName(_workContext.WorkingLanguage.Id),
+                    SeName = product.GetSeName(_workContext.WorkingLanguage.Id)
                 };
                 model.Subscriptions.Add(subscriptionModel);
             }

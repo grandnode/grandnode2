@@ -56,7 +56,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 PickupAddress = await _mediator.Send(new GetAddressModel {
                     Language = request.Language,
                     Address = request.MerchandiseReturn.PickupAddress,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 }, cancellationToken)
             };
 

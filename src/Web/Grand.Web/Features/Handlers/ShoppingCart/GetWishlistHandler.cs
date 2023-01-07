@@ -79,7 +79,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled,
                 IsEditable = request.IsEditable,
-                DisplayAddToCart = await _permissionService.Authorize(StandardPermission.EnableShoppingCart),
+                DisplayAddToCart = await _permissionService.Authorize(StandardPermission.EnableShoppingCart)
             };
 
             if (!request.Cart.Any())
@@ -202,7 +202,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name)
             };
         }
 

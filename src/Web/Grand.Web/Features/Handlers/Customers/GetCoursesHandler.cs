@@ -40,7 +40,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     SeName = item.SeName,
                     ShortDescription = item.ShortDescription,
                     Level = level?.Name,
-                    Approved = await IsApprovedCourse(item, request.Customer),
+                    Approved = await IsApprovedCourse(item, request.Customer)
                 });
             }
             return model;

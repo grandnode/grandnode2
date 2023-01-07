@@ -68,7 +68,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 Address = await _mediator.Send(new GetVendorAddress {
                     Language = request.Language,
                     Address = request.Vendor.Address,
-                    ExcludeProperties = false,
+                    ExcludeProperties = false
                 }, cancellationToken)
             };
 

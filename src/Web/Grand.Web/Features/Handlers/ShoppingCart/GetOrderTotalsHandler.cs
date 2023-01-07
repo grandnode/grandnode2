@@ -148,7 +148,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     {
                         model.TaxRates.Add(new OrderTotalsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Key),
-                            Value = _priceFormatter.FormatPrice(tr.Value, false),
+                            Value = _priceFormatter.FormatPrice(tr.Value, false)
                         });
                     }
                 }

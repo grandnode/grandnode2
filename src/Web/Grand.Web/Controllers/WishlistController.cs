@@ -76,7 +76,7 @@ namespace Grand.Web.Controllers
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Currency = _workContext.WorkingCurrency,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
 
             return Json(model);
@@ -126,7 +126,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    warnings = "Shopping cart item not found",
+                    warnings = "Shopping cart item not found"
                 });
             }
             if (quantity <= 0)
@@ -134,7 +134,7 @@ namespace Grand.Web.Controllers
                 return Json(new
                 {
                     success = false,
-                    warnings = "Wrong quantity ",
+                    warnings = "Wrong quantity "
                 });
             }
 
@@ -150,7 +150,7 @@ namespace Grand.Web.Controllers
             {
                 success = !warnings.Any(),
                 warnings = string.Join(", ", warnings),
-                totalproducts = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity),
+                totalproducts = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity)
             });
 
         }

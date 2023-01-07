@@ -69,7 +69,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Address = await _mediator.Send(new GetVendorAddress {
                         Language = request.Language,
                         Address = vendor.Address,
-                        ExcludeProperties = false,
+                        ExcludeProperties = false
                     })
                 };
 
