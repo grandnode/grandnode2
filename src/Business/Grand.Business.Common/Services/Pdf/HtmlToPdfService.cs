@@ -5,7 +5,6 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Grand.Business.Common.Services.Pdf
 {
@@ -30,8 +29,9 @@ namespace Grand.Business.Common.Services.Pdf
             _downloadRepository = downloadRepository;
             _storeFilesContext = storeFilesContext;
         }
-       
-        public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "")
+
+        public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
+            string vendorId = "")
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -39,12 +39,11 @@ namespace Grand.Business.Common.Services.Pdf
             if (orders == null)
                 throw new ArgumentNullException(nameof(orders));
 
-            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate, new(orders, vendorId));
+            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate,
+                new(orders, vendorId));
             TextReader sr = new StringReader(html);
-            using (var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent))
-            {
-                doc.SaveAsPDF(stream);
-            };
+            using var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent);
+            doc.SaveAsPDF(stream);
         }
 
         public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
@@ -57,15 +56,15 @@ namespace Grand.Business.Common.Services.Pdf
             var dir = CommonPath.WebMapPath("assets/files/exportimport");
             if (dir == null)
                 throw new ArgumentNullException(nameof(dir));
-            
+
             if (!System.IO.Directory.Exists(dir))
             {
                 System.IO.Directory.CreateDirectory(dir);
             }
+
             var filePath = Path.Combine(dir, fileName);
             await using var fileStream = new FileStream(filePath, FileMode.Create);
-            var orders = new List<Order>
-            {
+            var orders = new List<Order> {
                 order
             };
             await PrintOrdersToPdf(fileStream, orders, languageId, vendorId);
@@ -85,8 +84,9 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentException($"Cannot load language. ID={languageId}");
 
             var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(ShipmentsTemplate, shipments);
-           /* var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
-            pdf.Save(stream);*/
+            TextReader sr = new StringReader(html);
+            using var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent);
+            doc.SaveAsPDF(stream);
         }
 
         public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")
@@ -96,8 +96,7 @@ namespace Grand.Business.Common.Services.Pdf
 
             var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}";
             using MemoryStream ms = new MemoryStream();
-            var orders = new List<Order>
-            {
+            var orders = new List<Order> {
                 order
             };
             await PrintOrdersToPdf(ms, orders, languageId, vendorId);
@@ -114,5 +113,4 @@ namespace Grand.Business.Common.Services.Pdf
             return download.Id;
         }
     }
-
 }

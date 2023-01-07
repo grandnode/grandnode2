@@ -36,18 +36,17 @@
 
 
         /* https://www.w3schools.com/html/html_table_borders.asp */
-      table.CodeTable,
+      table.CodeTable {
+              width: 100%;  
+      }
+      .CodeTable .line {border-bottom:1px solid #EEE; border-top: 1px solid #EEE; border-left: 1px solid #FFFFFF; border-right: 1px solid #FFFFFF;}
       table.CodeTable th,
       table.CodeTable td {
         /* width: 100%; */
-        width: 400px;
-        margin-right: 0px;
-        margin-left: auto;
-        /* border: 1px solid black; */
+        /*border: 0px solid black;*/
         border: none;
         border-collapse: collapse;
       }
-      
       .Header {
         background-color: grey;
         color: white;
@@ -77,7 +76,7 @@
       table.Table th {
         padding-top: 5px;
         padding-bottom: 5px;
-        border-bottom: 1px solid black; ;
+        border-bottom: 1px solid black; 
       }
       table.Table th.first,
       table.Table td.first {
@@ -123,7 +122,7 @@
         {
             <div>@Html.Raw(_pdfSettings.InvoiceHeaderText)</div>
         }
-        <h2>@store.CompanyName</h2>
+        <h4>@store.CompanyName</h4>
         if (logoExists)
         {
             var url = await _pictureService.GetPictureUrl(logoPicture, 0, false, store.SslEnabled ? store.SecureUrl : store.Url);
@@ -131,10 +130,10 @@
                 <img src="@url" title="logo" alt="logo"/>
             </div>
         }
-        <h6>@(string.Format(_translationService.GetResource("PDFInvoice.Order#", order.CustomerLanguageId), order.OrderNumber))</h6>
+        <h6>@(string.Format(_translationService.GetResource("PDFInvoice.Order#", order.CustomerLanguageId), order.OrderNumber)) (@order.CreatedOnUtc)</h6>
         <table class="CodeTable">
             <tr>
-                <td class="leftalign">
+                <td class="line">
                     @if (order.BillingAddress != null)
                     {
                         <b>@(_translationService.GetResource("PDFInvoice.BillingInformation", order.CustomerLanguageId))</b>
@@ -151,11 +150,11 @@
                         <br/>
                         var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
                         var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
-                        @(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))<br/>
+                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</b><br/>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })
                     }
                 </td>
-                <td class="leftalign">
+                <td class="line">
                     @if (order.ShippingAddress != null)
                     {
                         <b>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</b>
@@ -170,7 +169,7 @@
                         @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
                         @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
                         <br/>
-                        @(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))<br/>
+                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</b><br/>
                     }
                 </td>
             </tr>
