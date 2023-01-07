@@ -6,8 +6,8 @@
     var addtowishlistlink = "";
     var quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
 
-    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
-    var quantity = 1;
+    const int shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
+    const int quantity = 1;
     if (!Model.ShowQty)
     {
         addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity });
@@ -18,7 +18,6 @@
         addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
         addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
     }
-    var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
@@ -141,9 +140,6 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @{
-                                        var groupList2 = item.ToList();
-                                    }
                                     <div class="spec-value">
                                         @foreach (var spec in groupList)
                                         {

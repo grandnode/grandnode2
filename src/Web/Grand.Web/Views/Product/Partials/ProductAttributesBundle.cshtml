@@ -4,7 +4,7 @@
     var attributeChangeScriptsBuilder = new StringBuilder();
     var bundleProductId = ViewData["BundleProductId"]?.ToString();
     var productId = ViewData["ProductId"]?.ToString();
-    var format = "attribute_change_handler_{0}";
+    const string format = "attribute_change_handler_{0}";
     var attributeChangeHandlerFuncName = string.Format(format, productId);
     //generate change event script
     foreach (var attribute in Model)

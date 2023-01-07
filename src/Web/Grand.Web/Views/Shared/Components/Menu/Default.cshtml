@@ -142,9 +142,3 @@
     }
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_menu_after" })
-
-@{
-    var rootCategoriesResponsive = Model.Categories.ToList();
-    //name it "Categories" if we have only categories. Otherwise, "Menu"
-    var responsiveMenuTitle = rootCategoriesResponsive.Any() && Model.Pages.Any() ? Loc["Categories"] : Loc["Menu"];
-}

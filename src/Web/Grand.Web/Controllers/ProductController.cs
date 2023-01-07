@@ -255,7 +255,7 @@ namespace Grand.Web.Controllers
             }
             var fileBinary = httpPostedFile.GetDownloadBits();
 
-            var qqFileNameParameter = "qqfilename";
+            const string qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
             if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();

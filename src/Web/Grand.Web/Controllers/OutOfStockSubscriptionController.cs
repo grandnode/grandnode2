@@ -207,7 +207,7 @@ namespace Grand.Web.Controllers
                 pageIndex = pageNumber.Value - 1;
             }
 
-            var pageSize = 10;
+            const int pageSize = 10;
 
             var customer = _workContext.CurrentCustomer;
             var list = await _outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId(customer.Id,

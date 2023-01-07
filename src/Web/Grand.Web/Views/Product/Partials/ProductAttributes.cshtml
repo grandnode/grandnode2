@@ -3,7 +3,6 @@
 <div id="product-attributes"></div>
 @{
     //dynamic update support
-    var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
     var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
     var fileLink = Url.RouteUrl("UploadFileProductAttribute");
@@ -224,7 +223,7 @@
                     var form = document.getElementById('@($"product-details-form-{Model.Id}")');
                     var data = new FormData(form);
                     axios({
-                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = attributesHaveAssociatedPictures }))',
+                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = true }))',
                         data: data,
                         method: 'post',
                         params: { product: '@Model.Id' },
