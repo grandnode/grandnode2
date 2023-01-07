@@ -16,9 +16,7 @@ namespace Grand.Web.Features.Handlers.Pages
 
         public async Task<string> Handle(GetPageLayoutViewPath request, CancellationToken cancellationToken)
         {
-            var layout = await _pageLayoutService.GetPageLayoutById(request.LayoutId);
-            if (layout == null)
-                layout = (await _pageLayoutService.GetAllPageLayouts()).FirstOrDefault();
+            var layout = await _pageLayoutService.GetPageLayoutById(request.LayoutId) ?? (await _pageLayoutService.GetAllPageLayouts()).FirstOrDefault();
             if (layout == null)
                 throw new Exception("No default layout could be loaded");
             return layout.ViewPath;

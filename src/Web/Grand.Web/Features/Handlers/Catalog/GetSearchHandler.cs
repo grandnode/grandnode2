@@ -69,12 +69,9 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<SearchModel> Handle(GetSearch request, CancellationToken cancellationToken)
         {
-            if (request.Model == null)
-                request.Model = new SearchModel();
+            request.Model ??= new SearchModel();
 
-            var searchTerms = request.Model.q;
-            if (searchTerms == null)
-                searchTerms = "";
+            var searchTerms = request.Model.q ?? "";
             searchTerms = searchTerms.Trim();
 
             if (request.Model.Box)
@@ -90,7 +87,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 AllowCustomersToSelectPageSize = _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
                 PageSizeOptions = _catalogSettings.SearchPagePageSizeOptions,
                 PageSize = _catalogSettings.SearchPageProductsPerPage
-            });
+            }, cancellationToken);
             request.Model.PagingFilteringContext = options.pagingFilteringModel;
             request.Command = options.command;
 

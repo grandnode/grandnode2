@@ -583,9 +583,7 @@ namespace Grand.Web.Features.Handlers.Products
         private async Task<(PictureModel defaultPictureModel, List<PictureModel> pictureModels)>
             PrepareProductPictureModel(Product product, int defaultPictureSize, bool isAssociatedProduct, string name)
         {
-            var defaultPicture = product.ProductPictures.MinBy(x => x.DisplayOrder);
-            if (defaultPicture == null)
-                defaultPicture = new ProductPicture();
+            var defaultPicture = product.ProductPictures.MinBy(x => x.DisplayOrder) ?? new ProductPicture();
 
             var picture = await _pictureService.GetPictureById(defaultPicture.PictureId);
 
