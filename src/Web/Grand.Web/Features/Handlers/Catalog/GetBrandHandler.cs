@@ -35,47 +35,47 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             var model = request.Brand.ToModel(request.Language);
 
-            if (request.Command != null && request.Command.OrderBy == null && request.Brand.DefaultSort >= 0)
+            if (request.Command is { OrderBy: null } && request.Brand.DefaultSort >= 0)
                 request.Command.OrderBy = request.Brand.DefaultSort;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
                 AllowCustomersToSelectPageSize = request.Brand.AllowCustomersToSelectPageSize,
                 PageSizeOptions = request.Brand.PageSizeOptions,
                 PageSize = request.Brand.PageSize
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+                (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 BrandId = request.Brand.Id,
                 Customer = request.Customer,
                 StoreId = request.Store.Id,
                 VisibleIndividuallyOnly = true,
-                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false,
                 FilteredSpecs = alreadyFilteredSpecOptionIds,
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            }));
+            }, cancellationToken);
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

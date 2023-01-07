@@ -1,22 +1,18 @@
-﻿@using System.Globalization
-@using Grand.Business.Core.Extensions
-
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService currencyService
+﻿@using Grand.Business.Core.Extensions
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using System.Globalization
+@inject ICurrencyService currencyService
 @inject IWorkContext workContext
 
 @{
     var availableCurrencies = (await currencyService.GetAllCurrencies(storeId: workContext.CurrentStore.Id))
     .Select(x =>
     {
-//currency char
-var currencySymbol = "";
-        if (!string.IsNullOrEmpty(x.DisplayLocale))
-            currencySymbol = new RegionInfo(x.DisplayLocale).CurrencySymbol;
-        else
-            currencySymbol = x.CurrencyCode;
+        //currency char
+        var currencySymbol = !string.IsNullOrEmpty(x.DisplayLocale) ? new RegionInfo(x.DisplayLocale).CurrencySymbol : x.CurrencyCode;
 
-//model
-var currencyModel = new CurrencyModel
+        //model
+        var currencyModel = new CurrencyModel
         {
             Id = x.Id,
             Name = x.GetTranslation(y => y.Name, workContext.WorkingLanguage.Id),
@@ -31,7 +27,7 @@ var currencyModel = new CurrencyModel
         var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
         var currencies = availableCurrencies.Select(x => new
         {
-            Name = x.Name,
+            x.Name,
             Text = x.CurrencyCode,
             Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
             Selected = x.Id.Equals(workContext.WorkingCurrency.Id)

@@ -1,8 +1,9 @@
-﻿using Grand.Domain.Common;
-using Grand.Infrastructure.Validators;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Common;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Checkout;
+using Grand.Web.Models.Common;
 using Grand.Web.Validators.Common;
 
 namespace Grand.Web.Validators.Customer
@@ -11,7 +12,7 @@ namespace Grand.Web.Validators.Customer
     {
         public CheckoutBillingAddressValidator(
             IEnumerable<IValidatorConsumer<CheckoutBillingAddressModel>> validators,
-            IEnumerable<IValidatorConsumer<Models.Common.AddressModel>> addressValidators,
+            IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
             ITranslationService translationService,
             ICountryService countryService,
             AddressSettings addressSettings)

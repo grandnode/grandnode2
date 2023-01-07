@@ -1,10 +1,10 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using System.Net;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -37,9 +37,9 @@ namespace Grand.Web.Features.Handlers.Products
                         {
                             m.SpecificationAttributeId = item.SpecificationAttributeId;
                             m.SpecificationAttributeName = specificationAttribute.GetTranslation(x => x.Name, request.Language.Id);
-                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault() != null ? specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().ColorSquaresRgb : "";
+                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId) != null ? specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId)!.ColorSquaresRgb : "";
                             m.UserFields = specificationAttribute.UserFields;
-                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().GetTranslation(x => x.Name, request.Language.Id));
+                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId).GetTranslation(x => x.Name, request.Language.Id));
                         }
                         break;
                     case SpecificationAttributeType.CustomText:
@@ -50,8 +50,6 @@ namespace Grand.Web.Features.Handlers.Products
                         break;
                     case SpecificationAttributeType.Hyperlink:
                         m.ValueRaw = string.Format("<a href='{0}' target='_blank'>{0}</a>", item.CustomValue);
-                        break;
-                    default:
                         break;
                 }
                 spa.Add(m);

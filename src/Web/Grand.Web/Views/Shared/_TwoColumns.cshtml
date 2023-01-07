@@ -2,7 +2,7 @@
     Layout = "_Layout";
 
     //current category ID
-    string currentCategoryId = "";
+    var currentCategoryId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.OrdinalIgnoreCase))
     {
@@ -11,7 +11,7 @@
 
 
     //current collection ID
-    string currentCollectionId = "";
+    var currentCollectionId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("collection", StringComparison.OrdinalIgnoreCase))
     {
@@ -19,7 +19,7 @@
     }
 
     //current brand ID
-    string currentBrandId = "";
+    var currentBrandId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("brand", StringComparison.OrdinalIgnoreCase))
     {
@@ -27,7 +27,7 @@
     }
 
     //current product ID
-    string currentProductId = "";
+    var currentProductId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.OrdinalIgnoreCase))
     {
@@ -37,14 +37,14 @@
 @if (IsSectionDefined("Breadcrumb"))
 {
     @section Breadcrumb {
-        @RenderSection("Breadcrumb")
+        @await RenderSectionAsync("Breadcrumb")
     }
 }
 @section meta {
-    @RenderSection("meta", required: false)
+    @await RenderSectionAsync("meta", required: false)
 }
 @section head {
-    @RenderSection("head", required: false)
+    @await RenderSectionAsync("head", required: false)
 }
 @if (!string.IsNullOrEmpty(currentCategoryId))
 {
@@ -72,19 +72,19 @@
     <div class="col-lg-3 col-md-12 generalLeftSide order-1">
         @if (IsSectionDefined("left"))
         {
-            @RenderSection("left")
+            @await RenderSectionAsync("left")
         }
         else
         {
             if (IsSectionDefined("filters"))
             {
-                @RenderSection("filters")
+                @await RenderSectionAsync("filters")
             }
 
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
-            @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })
+            @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId, currentProductId })
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
-            @await Component.InvokeAsync("CollectionNavigation", new { currentCollectionId = currentCollectionId })
+            @await Component.InvokeAsync("CollectionNavigation", new { currentCollectionId })
             @await Component.InvokeAsync("VendorNavigation")
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
         }

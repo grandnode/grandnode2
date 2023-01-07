@@ -2,11 +2,11 @@
 
 @if (Model.Category.IncludeInMenu)
 {
-    <li class="@(Model.Category.SubCategories.Count() == 0 ? "category": "category -hasSubmenu" )">
+    <li class="@(!Model.Category.SubCategories.Any() ? "category": "category -hasSubmenu")">
 
-        @if (Model.Category.SubCategories.Count() == 0)
+        @if (Model.Category.SubCategories.Count == 0)
         {
-            <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+            <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))
                 {
                     <b-icon class="category-icon" icon="@Model.Category.Icon"></b-icon>
@@ -50,7 +50,7 @@
                             <span>@Loc["Mobile.Categories.Back"]</span>
                         </li>
                         <li class="sub-cat-name-container">
-                            <a class="bg-info" href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+                            <a class="bg-info" href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
                                 <span>@Loc["Mobile.Category.Show"] @Model.Category.Name</span>
                             </a>
                         </li>
@@ -76,7 +76,7 @@
                         <span>@Loc["Mobile.Categories.Back"]</span>
                     </li>
                     <li class="sub-cat-name-container">
-                        <a class="bg-info" href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+                        <a class="bg-info" href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
                             <span>@Loc["Mobile.Category.Show"] @Model.Category.Name</span>
                         </a>
                     </li>

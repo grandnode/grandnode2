@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerAddressEditModel : BaseModel
+    public class CustomerAddressEditModel : BaseModel
     {
         public CustomerAddressEditModel()
         {

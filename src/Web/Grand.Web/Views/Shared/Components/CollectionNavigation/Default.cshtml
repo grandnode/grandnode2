@@ -7,7 +7,7 @@
             @foreach (var collection in Model.Collections)
             {
                 <li class="@(collection.IsActive ? "active" : "inactive")">
-                    <a href="@Url.RouteUrl("Collection", new { SeName = collection.SeName })">
+                    <a href="@Url.RouteUrl("Collection", new { collection.SeName })">
                         @if (!string.IsNullOrEmpty(collection.Icon))
                         {
                             <span class="category-icon @collection.Icon"></span>

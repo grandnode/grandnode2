@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -87,9 +87,9 @@ namespace Grand.Web.Features.Handlers.Orders
                     OrderStatus = status?.Name,
                     PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
                     ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
-                    IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order })
+                    IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
+                    OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, request.Language)
                 };
-                orderModel.OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, request.Language);
 
                 model.Orders.Add(orderModel);
             }

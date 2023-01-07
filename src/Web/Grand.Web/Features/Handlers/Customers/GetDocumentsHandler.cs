@@ -5,6 +5,7 @@ using Grand.Domain.Documents;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
+using Document = Grand.Web.Models.Customer.Document;
 
 namespace Grand.Web.Features.Handlers.Customers
 {
@@ -41,7 +42,7 @@ namespace Grand.Web.Features.Handlers.Customers
             model.PagingContext.LoadPagedList(documents);
             foreach (var item in documents.Where(x => x.Published).OrderBy(x => x.DisplayOrder))
             {
-                var doc = new Grand.Web.Models.Customer.Document
+                var doc = new Document
                 {
                     Id = item.Id,
                     Amount = item.TotalAmount,

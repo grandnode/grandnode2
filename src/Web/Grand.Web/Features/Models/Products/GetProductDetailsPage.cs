@@ -10,7 +10,7 @@ namespace Grand.Web.Features.Models.Products
     {
         public Store Store { get; set; }
         public Product Product { get; set; }
-        public ShoppingCartItem UpdateCartItem { get; set; } = null;
-        public bool IsAssociatedProduct { get; set; } = false;
+        public ShoppingCartItem UpdateCartItem { get; set; }
+        public bool IsAssociatedProduct { get; set; }
     }
 }

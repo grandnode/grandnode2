@@ -1,13 +1,20 @@
-﻿@model (IList<Order>, string)
-@inject Grand.Business.Core.Interfaces.Catalog.Products.IProductService _productService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _countryService
-@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService _storeService
-@inject Grand.Business.Core.Interfaces.Storage.IPictureService _pictureService
+﻿@using Grand.Business.Core.Interfaces.Catalog.Products
+@using Grand.Business.Core.Interfaces.Checkout.GiftVouchers
+@using Grand.Business.Core.Interfaces.Checkout.Payments
+@using Grand.Business.Core.Interfaces.Common.Directory
+@using Grand.Business.Core.Interfaces.Common.Localization
+@using Grand.Business.Core.Interfaces.Common.Stores
+@using Grand.Business.Core.Interfaces.Storage
+@model (IList<Order>, string)
+@inject IProductService _productService
+@inject ICountryService _countryService
+@inject IStoreService _storeService
+@inject IPictureService _pictureService
 @inject PdfSettings _pdfSettings
-@inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
-@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
+@inject ITranslationService _translationService
+@inject IPaymentService _paymentService
+@inject ICurrencyService _currencyService
+@inject IGiftVoucherService _giftVoucherService
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);
     var logoExists = logoPicture != null;
@@ -57,7 +64,7 @@
         var store = await _storeService.GetStoreById(order.StoreId);
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceHeaderText))
         {
-            <div>  @Html.Raw(@_pdfSettings.InvoiceHeaderText)</div>
+            <div>  @Html.Raw(_pdfSettings.InvoiceHeaderText)</div>
         }
         <h2>@store.CompanyName</h2>
         if (logoExists)
@@ -84,10 +91,10 @@
                             <li>@((await _countryService.GetCountryById(order.BillingAddress.CountryId))?.Name)</li>
                             @{
                                 var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
-                                string paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
+                                var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
                             }
                             <li>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</li>
-                            @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = @order.Id })
+                            @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })
                         </ul>
                     }
                 </td>
@@ -180,7 +187,7 @@
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceFooterText))
         {
             <footer class="footer">
-                 @Html.Raw(@_pdfSettings.InvoiceFooterText)
+                 @Html.Raw(_pdfSettings.InvoiceFooterText)
             </footer>
         }
         if (Model.Item1.Count - 1 > i)

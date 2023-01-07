@@ -2,7 +2,7 @@
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_SingleColumn";
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : $"{Model.CourseName} - {Model.Name}");
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : $"{Model.CourseName} - {Model.Name}");
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 }
@@ -35,7 +35,7 @@
                                     document.getElementById("btnApprove").addEventListener('click', function (event) {
                                         if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
                                             axios({
-                                                url: '@Url.Action("Approved", "Course", new { Id = Model.Id })',
+                                                url: '@Url.Action("Approved", "Course", new { Model.Id })',
                                                 method: 'post',
                                             }).then(function (response) {
                                                 if (response) {
@@ -57,7 +57,7 @@
                         {
                             <a class="btn btn-secondary" id="btnDownloadFile" href="@Url.Action("DownloadFile", "Course", new { id = Model.Id  })">@Loc["Course.DownloadLesson"]</a>
                         }
-                        @if (!String.IsNullOrWhiteSpace(Model.ShortDescription))
+                        @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
                         {
                             <p>
                                 @Html.Raw(Model.ShortDescription)

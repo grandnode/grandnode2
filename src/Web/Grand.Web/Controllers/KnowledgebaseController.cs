@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
@@ -14,10 +15,9 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
+using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Web.Extensions;
-using Grand.Business.Core.Interfaces.Cms;
 
 namespace Grand.Web.Controllers
 {
@@ -88,7 +88,6 @@ namespace Grand.Web.Controllers
 
             var model = new KnowledgebaseHomePageModel();
             var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
-            var allCategories = _knowledgebaseService.GetPublicKnowledgebaseCategories();
             articles.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
                 Name = x.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
                 Id = x.Id,
@@ -110,7 +109,7 @@ namespace Grand.Web.Controllers
             model.CurrentCategoryName = category.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id);
             model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id);
 
-            string breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
+            var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
             string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()), _workContext.CurrentStore.Id, _workContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
                 (await category.GetCategoryBreadCrumb(_knowledgebaseService, _aclService, _workContext))
@@ -215,7 +214,7 @@ namespace Grand.Web.Controllers
                     CustomerId = ac.CustomerId,
                     CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                     CommentText = ac.CommentText,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(ac.CreatedOnUtc, DateTimeKind.Utc),
+                    CreatedOn = _dateTimeService.ConvertToUserTime(ac.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 model.Comments.Add(commentModel);
             }
@@ -234,7 +233,7 @@ namespace Grand.Web.Controllers
             var category = await _knowledgebaseService.GetKnowledgebaseCategory(article.ParentCategoryId);
             if (category != null)
             {
-                string breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
+                var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
                 article.ParentCategoryId,
                 string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id,
@@ -264,7 +263,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(articleId);
-            if (article == null || !article.AllowComments)
+            if (article is not { AllowComments: true })
                 return RedirectToRoute("HomePage");
 
             if (await groupService.IsGuest(workContext.CurrentCustomer) && !_knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
@@ -286,7 +285,7 @@ namespace Grand.Web.Controllers
                     CustomerId = customer.Id,
                     CommentText = model.AddNewComment.CommentText,
                     CreatedOnUtc = DateTime.UtcNow,
-                    ArticleTitle = article.Name,
+                    ArticleTitle = article.Name
                 };
                 await _knowledgebaseService.InsertArticleComment(comment);
 

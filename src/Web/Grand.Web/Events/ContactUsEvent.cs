@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Web.Models.Common;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Events
 {

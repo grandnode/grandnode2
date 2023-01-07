@@ -2,7 +2,7 @@
 @functions{
     public bool BreadCrumbContainsCurrentCategoryId(CategorySimpleModel category)
     {
-        if (String.IsNullOrEmpty(Model.CurrentCategoryId))
+        if (string.IsNullOrEmpty(Model.CurrentCategoryId))
             return false;
 
         if (category.Id == Model.CurrentCategoryId)
@@ -20,16 +20,16 @@
     }
 }
 @{
-    bool active = Model.Category.Id == Model.CurrentCategoryId || Model.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
-    bool last = Model.Category.Id == Model.CurrentCategoryId;
-    string liClass = active ? "active" : "inactive";
+    var active = Model.Category.Id == Model.CurrentCategoryId || Model.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
+    var last = Model.Category.Id == Model.CurrentCategoryId;
+    var liClass = active ? "active" : "inactive";
     if (last)
     {
         liClass += " last";
     }
 }
 <li class="@liClass">
-    <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+    <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
         @if (!string.IsNullOrEmpty(Model.Category.Icon))
         {
             <span class="category-icon @Model.Category.Icon"></span>

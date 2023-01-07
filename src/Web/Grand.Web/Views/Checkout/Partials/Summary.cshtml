@@ -1,8 +1,4 @@
-﻿@{
-
-    var modelExists = Model != null;
-}
-<div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
+﻿<div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_summary_content_before" })
     <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
         <template v-if="vmorder.OrderReviewData && vmorder.Confirm">

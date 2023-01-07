@@ -1,4 +1,5 @@
-﻿@model ProductDetailsModel
+﻿@using System.Globalization
+@model ProductDetailsModel
 <div class="row">
     <div class="form-group col-12">
         @if (Model.EndTime.HasValue)
@@ -23,7 +24,7 @@
             {
                 <div class="d-inline-flex flex-wrap justify-content-center">
                     <label class="ended-label mb-0">@Loc["ShoppingCart.Auctionends"]:</label>
-                    <div class="count-date">@Model.EndTimeLocalTime.Value.ToString()</div>
+                    <div class="count-date">@Model.EndTimeLocalTime!.Value.ToString()</div>
                 </div>
             }
         </div>
@@ -31,7 +32,7 @@
         @if (Model.EndTime > DateTime.UtcNow)
         {
             <div class="btn-group w-100 mt-3">
-                <input name="HighestBidValue" type="number" class="form-control" value="@(Model.HighestBidValue > 0 ? (Model.HighestBidValue + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) : (Model.StartPrice + 1).ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                <input name="HighestBidValue" type="number" class="form-control" value="@(Model.HighestBidValue > 0 ? (Model.HighestBidValue + 1).ToString(CultureInfo.InvariantCulture) : (Model.StartPrice + 1).ToString(CultureInfo.InvariantCulture))" />
                 <button id="bid-button-@Model.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" data-productid="@Model.Id" onclick="AxiosCart.addbid('@Url.RouteUrl("AddBid", new { productId = Model.Id })', '#product-details-form'); return false;">
                     <b-icon icon="hammer" class="mx-1"></b-icon><span>@Loc["ShoppingCart.Bid"]</span>
                 </button>

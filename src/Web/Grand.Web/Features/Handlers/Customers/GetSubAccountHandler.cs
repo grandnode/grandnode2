@@ -25,8 +25,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var subaccount = await _customerService.GetCustomerById(customerId: request.CustomerId);
             if (subaccount != null && subaccount.OwnerId == request.CurrentCustomer.Id)
             {
-                model = new SubAccountModel()
-                {
+                model = new SubAccountModel {
                     Id = subaccount.Id,
                     Email = subaccount.Email,
                     Active = subaccount.Active,

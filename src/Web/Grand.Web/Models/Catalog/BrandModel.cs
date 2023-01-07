@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class BrandModel : BaseEntityModel
+    public class BrandModel : BaseEntityModel
     {
         public BrandModel()
         {
@@ -25,7 +25,7 @@ namespace Grand.Web.Models.Catalog
         public IList<ProductOverviewModel> Products { get; set; }
     }
 
-    public partial class BrandBriefInfoModel : BaseEntityModel
+    public class BrandBriefInfoModel : BaseEntityModel
     {
         public string Name { get; set; }
 

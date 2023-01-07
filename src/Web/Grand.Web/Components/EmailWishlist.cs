@@ -8,7 +8,7 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.ShoppingCart;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class EmailWishlistViewComponent : BaseViewComponent
     {

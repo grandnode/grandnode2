@@ -31,7 +31,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     Name = attribute.GetTranslation(x => x.Name, request.Language.Id),
                     IsRequired = attribute.IsRequired,
                     IsReadOnly = attribute.IsReadOnly,
-                    AttributeControlType = attribute.AttributeControlTypeId,
+                    AttributeControlType = attribute.AttributeControlTypeId
                 };
 
                 if (attribute.ShouldHaveValues())

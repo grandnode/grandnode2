@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class SearchBoxViewComponent : BaseViewComponent
     {
@@ -21,7 +21,7 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetSearchBox() {
+            var model = await _mediator.Send(new GetSearchBox {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage

@@ -1,14 +1,18 @@
-﻿@inject IWorkContext workContext
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
-@inject Grand.Business.Core.Interfaces.Checkout.Orders.IShoppingCartService shoppingCartService
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@using Grand.Business.Core.Interfaces.Checkout.Orders
+@inject IWorkContext workContext
+@inject IPermissionService permissionService
+@inject IShoppingCartService shoppingCartService
 @inject ShoppingCartSettings shoppingCartSettings
 @inject CatalogSettings catalogSettings
-@using Grand.Business.Core.Utilities.Common.Security
 @{
 
-    var shoppingCartTypes = new List<ShoppingCartType>();
-    shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-    shoppingCartTypes.Add(ShoppingCartType.Auctions);
+    var shoppingCartTypes = new List<ShoppingCartType>
+    {
+        ShoppingCartType.ShoppingCart,
+        ShoppingCartType.Auctions
+    };
     if (shoppingCartSettings.AllowOnHoldCart)
         shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 

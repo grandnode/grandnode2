@@ -44,13 +44,13 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (referenceUnit == null)
                 return null;
 
-            request.ProductPrice = request.ProductPrice.HasValue ? request.ProductPrice.Value : request.Product.Price;
+            request.ProductPrice ??= request.Product.Price;
 
-            double basePrice = request.ProductPrice.Value /
-                //do not round. otherwise, it can cause issues
-                await _measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
-                referenceAmount;
-            string basePriceStr = _priceFormatter.FormatPrice(basePrice, false);
+            var basePrice = request.ProductPrice.Value /
+                            //do not round. otherwise, it can cause issues
+                            await _measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
+                            referenceAmount;
+            var basePriceStr = _priceFormatter.FormatPrice(basePrice, false);
 
             var result = string.Format(_translationService.GetResource("Products.BasePrice"),
                 basePriceStr, referenceAmount.ToString("G29"), referenceUnit.Name);

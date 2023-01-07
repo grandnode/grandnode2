@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label asp-for="PictureUrl" class="col-form-label">@Loc["Account.VendorInfo.Picture"]:</label>
                     <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
-                    @if (!String.IsNullOrEmpty(Model.PictureUrl))
+                    @if (!string.IsNullOrEmpty(Model.PictureUrl))
                     {
                         <div class="vendor-picture mt-3">
                             <img src="@(Model.PictureUrl)" alt="picture" style="width:100px; display:block" />
@@ -50,8 +50,13 @@
                     }
                 </div>
                 @{
-                    var dataDictAddress = new ViewDataDictionary(ViewData);
-                    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+                    var dataDictAddress = new ViewDataDictionary(ViewData)
+                    {
+                        TemplateInfo =
+                        {
+                            HtmlFieldPrefix = "Address"
+                        }
+                    };
                     <partial name="Partials/CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
                 }
             </div>

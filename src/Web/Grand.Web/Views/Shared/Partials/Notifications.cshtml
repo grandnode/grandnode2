@@ -1,26 +1,26 @@
-﻿@using System.Text.Encodings.Web;
+﻿@using System.Text.Encodings.Web
 @{
 
     //success messages
     var successMessages = new List<string>();
-    if (TempData[string.Format("Grand.notifications.{0}", NotifyType.Success)] != null)
+    if (TempData[$"Grand.notifications.{NotifyType.Success}"] != null)
     {
-        successMessages.AddRange(TempData[string.Format("Grand.notifications.{0}", NotifyType.Success)] as IList<string>);
+        successMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>);
     }
-    if (ViewData[string.Format("Grand.notifications.{0}", NotifyType.Success)] != null)
+    if (ViewData[$"Grand.notifications.{NotifyType.Success}"] != null)
     {
-        successMessages.AddRange(ViewData[string.Format("Grand.notifications.{0}", NotifyType.Success)] as IList<string>);
+        successMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>);
     }
 
     //error messages
     var errorMessages = new List<string>();
-    if (TempData[string.Format("Grand.notifications.{0}", NotifyType.Error)] != null)
+    if (TempData[$"Grand.notifications.{NotifyType.Error}"] != null)
     {
-        errorMessages.AddRange(TempData[string.Format("Grand.notifications.{0}", NotifyType.Error)] as IList<string>);
+        errorMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>);
     }
-    if (ViewData[string.Format("Grand.notifications.{0}", NotifyType.Error)] != null)
+    if (ViewData[$"Grand.notifications.{NotifyType.Error}"] != null)
     {
-        errorMessages.AddRange(ViewData[string.Format("Grand.notifications.{0}", NotifyType.Error)] as IList<string>);
+        errorMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>);
     }
 }
 @foreach (var message in successMessages)

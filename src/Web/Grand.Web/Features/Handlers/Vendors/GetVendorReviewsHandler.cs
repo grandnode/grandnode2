@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Vendors;
@@ -71,9 +71,9 @@ namespace Grand.Web.Features.Handlers.Vendors
                         VendorId = request.Vendor.Id,
                         VendorReviewId = pr.Id,
                         HelpfulYesTotal = pr.HelpfulYesTotal,
-                        HelpfulNoTotal = pr.HelpfulNoTotal,
+                        HelpfulNoTotal = pr.HelpfulNoTotal
                     },
-                    WrittenOnStr = _dateTimeService.ConvertToUserTime(pr.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
+                    WrittenOnStr = _dateTimeService.ConvertToUserTime(pr.CreatedOnUtc, DateTimeKind.Utc).ToString("g")
                 });
             }
 

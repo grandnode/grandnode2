@@ -1,7 +1,7 @@
-﻿@model IList<Grand.Web.Models.Common.ContactUsModel.ContactAttributeModel>
-@using Grand.Domain.Media;
-@using System.Text;
-@inject Grand.Business.Core.Interfaces.Storage.IDownloadService downloadService
+﻿@using Grand.Business.Core.Interfaces.Storage
+@using Grand.Domain.Media
+@model IList<ContactUsModel.ContactAttributeModel>
+@inject IDownloadService downloadService
 
 @if (Model.Any())
 {
@@ -9,7 +9,7 @@
     <div class="form-group contact-attributes">
         @foreach (var attribute in Model)
         {
-            var controlId = $"contact_attribute_{attribute.Id}";;
+            var controlId = $"contact_attribute_{attribute.Id}";
             var controlName = $"attributes[{attribute.Id}]";
             var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
         <div id="@($"contact_attribute_label_{attribute.Id}")" class="col-12 px-0">
@@ -43,7 +43,7 @@
                                 <option selected="@attributeValue.IsPreSelected" value="@(attributeValue.Id)">@attributeName</option>
                             }
                         </select>
-                        attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}').addEventListener('change',function(){{contactAttributeChange();}});\n", controlId);
+                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change',function(){{contactAttributeChange();}});\n");
                     }
                     break;
                 case AttributeControlType.RadioList:
@@ -65,7 +65,7 @@
 
                                     </fieldset>
                                 </li>
-                                attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
                     }
@@ -85,7 +85,7 @@
                                             <span class="custom-control-description" for="@(controlId)_@(attributeValue.Id)">@attributeName</span>
                                         </label>
                                     </li>
-                                    attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                                 }
                             </ul>
                         </fieldset>
@@ -104,9 +104,9 @@
                                               control-year="@($"attributes[{attribute.Id}_year]")"
                                               begin-year="@(DateTime.Now.Year)"
                                               end-year="@(DateTime.Now.Year+1)"
-                                              selected-day="(attribute.SelectedDay.HasValue ? attribute.SelectedDay.Value : 0)"
-                                              selected-month="(attribute.SelectedMonth.HasValue ? attribute.SelectedMonth.Value : 0)"
-                                              selected-year="(attribute.SelectedYear.HasValue ? attribute.SelectedYear.Value : 0)"
+                                              selected-day="attribute.SelectedDay ?? 0"
+                                              selected-month="attribute.SelectedMonth ?? 0"
+                                              selected-year="attribute.SelectedYear ?? 0"
                                               PartialViewName="Partials/DatePickerDropDowns"
                                               class="input-group" />
                     }
@@ -114,7 +114,7 @@
                 case AttributeControlType.FileUpload:
                     {
                         Download download = null;
-                        if (!String.IsNullOrEmpty(attribute.DefaultValue))
+                        if (!string.IsNullOrEmpty(attribute.DefaultValue))
                         {
                             download = await downloadService.GetDownloadByGuid(new Guid(attribute.DefaultValue));
                         }
@@ -185,7 +185,7 @@
                             @foreach (var attributeValue in attribute.Values)
                             {
                                 var attributeName = attributeValue.Name;
-                                <li class="mr-1 p-0" @(attributeValue.IsPreSelected ? @Html.Raw(" class=\"selected-value border border-primary\"") : null)>
+                                <li class="mr-1 p-0" @(attributeValue.IsPreSelected ? Html.Raw(" class=\"selected-value border border-primary\"") : null)>
                                     <label for="@(controlId)_@(attributeValue.Id)" class="mb-0">
                                         <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlName)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" />
                                         <span class="color-container" title="@attributeName">
@@ -193,7 +193,7 @@
                                         </span>
                                     </label>
                                 </li>
-                                attributeChangeScriptsBuilder.AppendFormat("document.querySelector('#{0}_{1}').addEventListener('click',function(){{contactAttributeChange();}});\n", controlId, attributeValue.Id);
+                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
                         <script asp-location="Footer">

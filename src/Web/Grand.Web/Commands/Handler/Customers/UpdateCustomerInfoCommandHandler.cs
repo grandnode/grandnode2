@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
@@ -20,7 +20,6 @@ namespace Grand.Web.Commands.Handler.Customers
         private readonly IVatService _checkVatService;
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly ICustomerService _customerService;
-        private readonly IMediator _mediator;
 
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -32,7 +31,6 @@ namespace Grand.Web.Commands.Handler.Customers
             IVatService checkVatService,
             INewsLetterSubscriptionService newsLetterSubscriptionService,
             ICustomerService customerService,
-            IMediator mediator,
             CustomerSettings customerSettings,
             TaxSettings taxSettings)
         {
@@ -42,7 +40,6 @@ namespace Grand.Web.Commands.Handler.Customers
             _checkVatService = checkVatService;
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
             _customerService = customerService;
-            _mediator = mediator;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
         }
@@ -103,7 +100,7 @@ namespace Grand.Web.Commands.Handler.Customers
 
             if (prevVatNumber != request.Model.VatNumber)
             {
-                var vat = (await _checkVatService.GetVatNumberStatus(request.Model.VatNumber));
+                var vat = await _checkVatService.GetVatNumberStatus(request.Model.VatNumber);
                 await _userFieldService.SaveField(request.Customer,
                         SystemCustomerFieldNames.VatNumberStatusId,
                         (int)vat.status);

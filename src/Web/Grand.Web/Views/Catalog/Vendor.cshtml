@@ -3,14 +3,14 @@
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var vendorUrl = Url.RouteUrl("Vendor", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var vendorUrl = Url.RouteUrl("Vendor", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(vendorUrl);
     }
 }
@@ -41,7 +41,7 @@
             <div class="row">
                 <div class="col-12">
                     <b-tabs class="mt-3" content-class="mt-3" align="center">
-                        @if (!String.IsNullOrEmpty(Model.Description))
+                        @if (!string.IsNullOrEmpty(Model.Description))
                         {
                             <b-tab id="description-tab" title="@Loc["vendor.Description"]" active>
                                 <article class="text-xs-center generalMarginSupporter vendor-description" v-html="catalog.Model.Description"></article>
@@ -51,21 +51,21 @@
                         {
                             <b-tab id="address-tab" title="@Loc["Vendor.Address"]">
                                 <ul class="info px-0 mb-0">
-                                    @if (Model.Address.CompanyEnabled && !String.IsNullOrEmpty(Model.Address.Company))
+                                    @if (Model.Address.CompanyEnabled && !string.IsNullOrEmpty(Model.Address.Company))
                                     {
                                         <li class="company">
                                             <label class="col-form-label">@Loc["Address.Fields.Company"]:</label>
                                             @Model.Address.Company
                                         </li>
                                     }
-                                    @if (Model.Address.StreetAddressEnabled && !String.IsNullOrEmpty(Model.Address.Address1))
+                                    @if (Model.Address.StreetAddressEnabled && !string.IsNullOrEmpty(Model.Address.Address1))
                                     {
                                         <li class="address1">
                                             <label class="col-form-label w-100">@Loc["Address.Fields.Address1"]:</label>
                                             @Model.Address.Address1
                                         </li>
                                     }
-                                    @if (Model.Address.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.Address.Address2))
+                                    @if (Model.Address.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.Address.Address2))
                                     {
                                         <li class="address2">
                                             <label class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
@@ -75,7 +75,7 @@
                                     @if (Model.Address.CityEnabled || Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
                                     {
                                         var cityStateZip = "";
-                                        if (Model.Address.CityEnabled && !String.IsNullOrEmpty(Model.Address.City))
+                                        if (Model.Address.CityEnabled && !string.IsNullOrEmpty(Model.Address.City))
                                         {
                                             cityStateZip = Model.Address.City;
                                             if (Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
@@ -85,7 +85,7 @@
                                         }
                                         if (Model.Address.StateProvinceEnabled)
                                         {
-                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
@@ -93,33 +93,33 @@
                                         }
                                         if (Model.Address.ZipPostalCodeEnabled)
                                         {
-                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
                                             cityStateZip += Model.Address.ZipPostalCode;
                                         }
-                                        if (!String.IsNullOrEmpty(cityStateZip))
+                                        if (!string.IsNullOrEmpty(cityStateZip))
                                         {
                                             <li class="city-state-zip">
                                                 @cityStateZip
                                             </li>
                                         }
                                     }
-                                    @if (Model.Address.CountryEnabled && !String.IsNullOrEmpty(Model.Address.CountryName))
+                                    @if (Model.Address.CountryEnabled && !string.IsNullOrEmpty(Model.Address.CountryName))
                                     {
                                         <li class="country">
                                             @Model.Address.CountryName
                                         </li>
                                     }
-                                    @if (Model.Address.PhoneEnabled && !String.IsNullOrEmpty(Model.Address.PhoneNumber))
+                                    @if (Model.Address.PhoneEnabled && !string.IsNullOrEmpty(Model.Address.PhoneNumber))
                                     {
                                         <li class="phone">
                                             <label class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
                                             @Model.Address.PhoneNumber
                                         </li>
                                     }
-                                    @if (Model.Address.FaxEnabled && !String.IsNullOrEmpty(Model.Address.FaxNumber))
+                                    @if (Model.Address.FaxEnabled && !string.IsNullOrEmpty(Model.Address.FaxNumber))
                                     {
                                         <li class="fax">
                                             <label class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>

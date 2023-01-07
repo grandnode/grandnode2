@@ -1,10 +1,10 @@
-﻿@model VendorReviewOverviewModel
-@using System.Globalization
+﻿@using System.Globalization
+@model VendorReviewOverviewModel
 @{
-    int ratingPercent = 0;
+    var ratingPercent = 0;
     if (Model.TotalReviews != 0)
     {
-        ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
+        ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
 @if (Model.AllowCustomerReviews)
@@ -14,7 +14,7 @@
             double ratingValue = 0;
             if (Model.TotalReviews != 0)
             {
-                ratingValue = Convert.ToDouble(((Model.RatingSum * (double)100) / Model.TotalReviews) / (double)100);
+                ratingValue = Convert.ToDouble(Model.RatingSum * (double)100 / Model.TotalReviews / 100);
             }
         }
         <div class="rating">
@@ -27,7 +27,7 @@
                     </b-button>
                 </div>
                 @{
-                    double ratingValuee = ratingPercent / (double)20;
+                    var ratingValuee = ratingPercent / (double)20;
                 }
                 <span itemprop="reviewCount" style="display: none;">(@ratingValuee.ToString("0.0", new CultureInfo("en-US")))</span>
             </template>

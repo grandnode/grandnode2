@@ -4,7 +4,7 @@ using Grand.Web.Models.Vendors;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class VendorModel : BaseEntityModel
+    public class VendorModel : BaseEntityModel
     {
         public VendorModel()
         {

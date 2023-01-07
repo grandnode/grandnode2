@@ -1,16 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -37,7 +37,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<BrandModel>> Handle(GetBrandAll request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.BRAND_ALL_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.BRAND_ALL_MODEL_KEY,
                 request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
@@ -60,16 +60,16 @@ namespace Grand.Web.Features.Handlers.Catalog
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(brand.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(brand.PictureId, _mediaSettings.BrandThumbPictureSize),
                     Style = picture?.Style,
-                    ExtraField = picture?.ExtraField
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Brand.ImageLinkTitleFormat"), brand.Name),
+                    //"alt" attribute
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id)) ?
+                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Brand.ImageAlternateTextFormat"), brand.Name)
                 };
-                //"title" attribute
-                modelBrand.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Brand.ImageLinkTitleFormat"), brand.Name);
-                //"alt" attribute
-                modelBrand.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
-                    picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                    string.Format(_translationService.GetResource("Media.Brand.ImageAlternateTextFormat"), brand.Name);
 
                 model.Add(modelBrand);
             }

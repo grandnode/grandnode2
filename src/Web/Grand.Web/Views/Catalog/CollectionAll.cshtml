@@ -1,5 +1,4 @@
 ﻿@model IList<CollectionModel>
-@using Grand.Web.Models.Catalog
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -14,7 +13,7 @@
             @foreach (var item in Model)
             {
                 <div class="col-md-4 col-6 mb-2">
-                    <a class="mb-2" href="@Url.RouteUrl("Collection", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                    <a class="mb-2" href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
                         <div class="card">
                             <article>
                                 <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">

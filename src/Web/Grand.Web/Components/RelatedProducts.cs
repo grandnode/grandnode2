@@ -39,7 +39,7 @@ namespace Grand.Web.Components
             //load products
             var products = await _productService.GetProductsByIds(productIds);
 
-            var model = await _mediator.Send(new GetProductOverview() {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,

@@ -1,6 +1,7 @@
-﻿@inject StoreInformationSettings storeInformation
+﻿@using Grand.Business.Core.Interfaces.Storage
+@inject StoreInformationSettings storeInformation
 @inject IWorkContext workContext
-@inject Grand.Business.Core.Interfaces.Storage.IPictureService pictureService
+@inject IPictureService pictureService
 @{ 
     var urlLogo = await pictureService.GetPictureUrl(storeInformation.LogoPictureId);
 }

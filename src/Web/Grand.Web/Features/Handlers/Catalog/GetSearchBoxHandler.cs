@@ -45,7 +45,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     availableCategories.Add(new SelectListItem { Text = _translationService.GetResource("Common.All"), Value = "" });
                     foreach (var s in searchbocategories)
-                        availableCategories.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString() });
+                        availableCategories.Add(new SelectListItem { Text = s.Name, Value = s.Id });
                 }
 
                 var model = new SearchBoxModel {

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
@@ -58,7 +58,7 @@ namespace Grand.Web.Commands.Handler.Orders
                 MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
-                PickupAddress = request.Address,
+                PickupAddress = request.Address
             };
 
             if (request.Model.PickupDate.HasValue)

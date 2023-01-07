@@ -29,18 +29,19 @@ namespace Grand.Web.Features.Handlers.Customers
 
         public async Task<CustomerNavigationModel> Handle(GetNavigation request, CancellationToken cancellationToken)
         {
-            var model = new CustomerNavigationModel();
-            model.HideLoyaltyPoints = !_loyaltyPointsSettings.Enabled;
-            model.HideDeleteAccount = !_customerSettings.AllowUsersToDeleteAccount;
-            model.HideMerchandiseReturns = !_orderSettings.MerchandiseReturnsEnabled;
-            model.HideDownloadableProducts = _customerSettings.HideDownloadableProductsTab;
-            model.HideOutOfStockSubscriptions = _customerSettings.HideOutOfStockSubscriptionsTab;
-            model.HideAuctions = _customerSettings.HideAuctionsTab;
-            model.HideNotes = _customerSettings.HideNotesTab;
-            model.HideDocuments = _customerSettings.HideDocumentsTab;
-            model.HideReviews = _customerSettings.HideReviewsTab;
-            model.HideCourses = _customerSettings.HideCoursesTab;
-            model.HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId);
+            var model = new CustomerNavigationModel {
+                HideLoyaltyPoints = !_loyaltyPointsSettings.Enabled,
+                HideDeleteAccount = !_customerSettings.AllowUsersToDeleteAccount,
+                HideMerchandiseReturns = !_orderSettings.MerchandiseReturnsEnabled,
+                HideDownloadableProducts = _customerSettings.HideDownloadableProductsTab,
+                HideOutOfStockSubscriptions = _customerSettings.HideOutOfStockSubscriptionsTab,
+                HideAuctions = _customerSettings.HideAuctionsTab,
+                HideNotes = _customerSettings.HideNotesTab,
+                HideDocuments = _customerSettings.HideDocumentsTab,
+                HideReviews = _customerSettings.HideReviewsTab,
+                HideCourses = _customerSettings.HideCoursesTab,
+                HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId)
+            };
             if (_vendorSettings.AllowVendorsToEditInfo && request.Vendor != null)
             {
                 model.ShowVendorInfo = true;

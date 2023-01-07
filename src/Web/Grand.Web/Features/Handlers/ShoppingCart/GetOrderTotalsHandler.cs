@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -50,26 +50,26 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         public async Task<OrderTotalsModel> Handle(GetOrderTotals request, CancellationToken cancellationToken)
         {
-            var model = new OrderTotalsModel();
-            model.IsEditable = request.IsEditable;
+            var model = new OrderTotalsModel {
+                IsEditable = request.IsEditable
+            };
 
-            if (request.Cart.Any())
-            {
-                //subtotal
-                await PrepareSubtotal(model, request);
+            if (!request.Cart.Any()) return model;
+            
+            //subtotal
+            await PrepareSubtotal(model, request);
 
-                //shipping info
-                await PrepareShippingInfo(model, request);
+            //shipping info
+            await PrepareShippingInfo(model, request);
 
-                //payment method fee
-                await PreparePayment(model, request);
+            //payment method fee
+            await PreparePayment(model, request);
 
-                //tax
-                await PrepareTax(model, request);
+            //tax
+            await PrepareTax(model, request);
 
-                //total
-                await PrepareTotal(model, request);
-            }
+            //total
+            await PrepareTotal(model, request);
             return model;
         }
 
@@ -148,7 +148,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     {
                         model.TaxRates.Add(new OrderTotalsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Key),
-                            Value = _priceFormatter.FormatPrice(tr.Value, false),
+                            Value = _priceFormatter.FormatPrice(tr.Value, false)
                         });
                     }
                 }
@@ -204,7 +204,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     : 0;
                 var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax.Value;
                 if (earnLoyaltyPoints > 0)
-                    model.WillEarnLoyaltyPoints = await _mediator.Send(new CalculateLoyaltyPointsCommand() { Customer = request.Customer, Amount = await _currencyService.ConvertToPrimaryStoreCurrency(earnLoyaltyPoints, request.Currency) });
+                    model.WillEarnLoyaltyPoints = await _mediator.Send(new CalculateLoyaltyPointsCommand { Customer = request.Customer, Amount = await _currencyService.ConvertToPrimaryStoreCurrency(earnLoyaltyPoints, request.Currency) });
             }
         }
 
@@ -213,8 +213,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var gcModel = new OrderTotalsModel.GiftVoucher {
                 Id = appliedGiftVoucher.GiftVoucher.Id,
                 CouponCode = appliedGiftVoucher.GiftVoucher.Code,
+                Amount = _priceFormatter.FormatPrice(-appliedGiftVoucher.AmountCanBeUsed, false)
             };
-            gcModel.Amount = _priceFormatter.FormatPrice(-appliedGiftVoucher.AmountCanBeUsed, false);
 
             var remainingAmountBase = appliedGiftVoucher.GiftVoucher.GetGiftVoucherRemainingAmount() - appliedGiftVoucher.AmountCanBeUsed;
             gcModel.Remaining = _priceFormatter.FormatPrice(remainingAmountBase, false);

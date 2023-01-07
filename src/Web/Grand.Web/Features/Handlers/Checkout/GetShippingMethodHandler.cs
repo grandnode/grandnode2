@@ -57,14 +57,14 @@ namespace Grand.Web.Features.Handlers.Checkout
                         Name = shippingOption.Name,
                         Description = shippingOption.Description,
                         ShippingRateProviderSystemName = shippingOption.ShippingRateProviderSystemName,
-                        ShippingOption = shippingOption,
+                        ShippingOption = shippingOption
                     };
 
                     //adjust rate
                     var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
                         shippingOption.Rate, request.Cart)).shippingRate;
 
-                    double rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                    var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
                     soModel.Fee = _priceFormatter.FormatShippingPrice(rateBase);
 
                     model.ShippingMethods.Add(soModel);
@@ -76,9 +76,9 @@ namespace Grand.Web.Features.Handlers.Checkout
                 {
                     var shippingOptionToSelect = model.ShippingMethods.ToList()
                         .Find(so =>
-                           !String.IsNullOrEmpty(so.Name) &&
+                           !string.IsNullOrEmpty(so.Name) &&
                            so.Name.Equals(selectedShippingOption.Name, StringComparison.OrdinalIgnoreCase) &&
-                           !String.IsNullOrEmpty(so.ShippingRateProviderSystemName) &&
+                           !string.IsNullOrEmpty(so.ShippingRateProviderSystemName) &&
                            so.ShippingRateProviderSystemName.Equals(selectedShippingOption.ShippingRateProviderSystemName, StringComparison.OrdinalIgnoreCase));
                     if (shippingOptionToSelect != null)
                     {
@@ -86,7 +86,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     }
                 }
                 //if no option has been selected, do it for the first one
-                if (model.ShippingMethods.FirstOrDefault(so => so.Selected) == null)
+                if (model.ShippingMethods.FirstOrDefault(so => so.Selected) != null) return model;
                 {
                     var shippingOptionToSelect = model.ShippingMethods.FirstOrDefault();
                     if (shippingOptionToSelect != null)

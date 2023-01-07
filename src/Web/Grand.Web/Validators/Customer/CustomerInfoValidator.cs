@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using Grand.Domain.Customers;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Models.Customer;
+using Grand.Domain.Customers;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Models.Customer;
 
 namespace Grand.Web.Validators.Customer
 {
@@ -45,45 +45,34 @@ namespace Grand.Web.Validators.Customer
                 customerSettings.StateProvinceEnabled &&
                 customerSettings.StateProvinceRequired)
             {
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
-                    if (country != null && country.StateProvinces.Any())
+                    if (country == null || !country.StateProvinces.Any()) return false;
+                    //if yes, then ensure that state is selected
+                    if (string.IsNullOrEmpty(y))
                     {
-                        //if yes, then ensure that state is selected
-                        if (string.IsNullOrEmpty(y))
-                        {
-                            return false;
-                        }
-                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
-                            return true;
+                        return false;
                     }
-                    return false;
-
+                    return country.StateProvinces.FirstOrDefault(s => s.Id == y) != null;
                 }).WithMessage(translationService.GetResource("Account.Fields.StateProvince.Required"));
             }
             if (customerSettings.DateOfBirthEnabled && customerSettings.DateOfBirthRequired)
             {
-                RuleFor(x => x.DateOfBirthDay).Must((x, context) =>
+                RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
-                    if (!dateOfBirth.HasValue)
-                        return false;
-
-                    return true;
+                    return dateOfBirth.HasValue;
                 }).WithMessage(translationService.GetResource("Account.Fields.DateOfBirth.Required"));
 
                 //minimum age
-                RuleFor(x => x.DateOfBirthDay).Must((x, context) =>
+                RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
-                    if (dateOfBirth.HasValue && customerSettings.DateOfBirthMinimumAge.HasValue &&
-                        CommonHelper.GetDifferenceInYears(dateOfBirth.Value, DateTime.Today) <
-                        customerSettings.DateOfBirthMinimumAge.Value)
-                        return false;
-
-                    return true;
+                    return !dateOfBirth.HasValue || !customerSettings.DateOfBirthMinimumAge.HasValue ||
+                           CommonHelper.GetDifferenceInYears(dateOfBirth.Value, DateTime.Today) >=
+                           customerSettings.DateOfBirthMinimumAge.Value;
                 }).WithMessage(string.Format(translationService.GetResource("Account.Fields.DateOfBirth.MinimumAge"), customerSettings.DateOfBirthMinimumAge));
             }
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)

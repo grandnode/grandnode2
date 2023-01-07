@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class CustomerMerchandiseReturnsModel : BaseModel
+    public class CustomerMerchandiseReturnsModel : BaseModel
     {
         public CustomerMerchandiseReturnsModel()
         {
@@ -12,7 +12,7 @@ namespace Grand.Web.Models.Orders
         public IList<MerchandiseReturnModel> Items { get; set; }
 
         #region Nested classes
-        public partial class MerchandiseReturnModel : BaseEntityModel
+        public class MerchandiseReturnModel : BaseEntityModel
         {
             public int ReturnNumber { get; set; }
             public string MerchandiseReturnStatus { get; set; }

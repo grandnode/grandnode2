@@ -1,11 +1,10 @@
 ﻿@model BlogPostModel
-@using Grand.Web.Models.Blogs;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
 
     //title
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 }
@@ -47,10 +46,10 @@
     {
         <div class="tags generalMarginSupporter">
             <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
-            @for (int i = 0; i < Model.Tags.Count; i++)
+            @for (var i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
-                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
+                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new { tag})">@tag</a>
             }
         </div>
     }
@@ -65,7 +64,7 @@
                 @{
                     var result = TempData["Grand.blog.addcomment.result"] as string;
                 }
-                @if (!String.IsNullOrEmpty(result))
+                @if (!string.IsNullOrEmpty(result))
                 {
                     <div class="result alert alert-info">@result</div>
                 }

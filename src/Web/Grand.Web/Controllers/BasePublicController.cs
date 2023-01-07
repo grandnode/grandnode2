@@ -8,22 +8,18 @@ namespace Grand.Web.Controllers
     [ClosedStore]
     [Language]
     [Affiliate]
-    public abstract partial class BasePublicController : BaseController
+    public abstract class BasePublicController : BaseController
     {
-        protected virtual IActionResult InvokeHttp404()
+        protected IActionResult InvokeHttp404()
         {
             Response.StatusCode = 404;
             return new EmptyResult();
         }
 
-        protected bool IsJsonResponseView()
+        private bool IsJsonResponseView()
         {
             var viewJson = Request?.Headers["X-Response-View"];
-            if (viewJson?.Equals("Json") ?? false)
-            {
-                return true;
-            }
-            return false;
+            return viewJson?.Equals("Json") ?? false;
         }
 
         public new IActionResult View(object model)
@@ -44,10 +40,7 @@ namespace Grand.Web.Controllers
 
         public override RedirectToRouteResult RedirectToRoute(string routeName)
         {
-            if (IsJsonResponseView())
-                return RedirectToRoute("Route", new { routeName });
-
-            return base.RedirectToRoute(routeName);
+            return IsJsonResponseView() ? RedirectToRoute("Route", new { routeName }) : base.RedirectToRoute(routeName);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Common
 {
-    public partial class LanguageModel : BaseEntityModel
+    public class LanguageModel : BaseEntityModel
     {
         public string Name { get; set; }
         public bool Rtl { get; set; }

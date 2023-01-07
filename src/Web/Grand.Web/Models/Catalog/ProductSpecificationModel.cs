@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductSpecificationModel : BaseModel
+    public class ProductSpecificationModel : BaseModel
     {
         public string SpecificationAttributeId { get; set; }
 

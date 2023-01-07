@@ -1,10 +1,10 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Components
 {
@@ -39,7 +39,7 @@ namespace Grand.Web.Components
             if (!_catalogSettings.NewProductsOnHomePage)
                 return Content("");
 
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = (await _mediator.Send(new GetSearchProductsQuery {
                 Customer = _workContext.CurrentCustomer,
                 StoreId = _workContext.CurrentStore.Id,
                 VisibleIndividuallyOnly = true,
@@ -51,12 +51,12 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview() {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products,
+                Products = products
             });
 
             return View(model);

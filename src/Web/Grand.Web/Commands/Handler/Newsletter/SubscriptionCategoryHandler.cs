@@ -17,8 +17,8 @@ namespace Grand.Web.Commands.Handler.Newsletter
         public async Task<(string message, bool success)> Handle(SubscriptionCategoryCommand request,
             CancellationToken cancellationToken)
         {
-            bool success = false;
-            string message = string.Empty;
+            var success = false;
+            var message = string.Empty;
 
             var newsletterEmailId = request.Model.NewsletterEmailId;
             if (!string.IsNullOrEmpty(newsletterEmailId))

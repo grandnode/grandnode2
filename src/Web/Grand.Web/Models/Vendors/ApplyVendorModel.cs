@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Vendors
 {
-    public partial class ApplyVendorModel : BaseModel
+    public class ApplyVendorModel : BaseModel
     {
 
         public ApplyVendorModel()

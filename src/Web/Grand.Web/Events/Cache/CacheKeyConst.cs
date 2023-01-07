@@ -165,7 +165,7 @@ namespace Grand.Web.Events.Cache
         public const string CATEGORY_BREADCRUMB_KEY = "Grand.category.breadcrumb-{0}-{1}-{2}-{3}.pres";
 
         /// <summary>
-        /// Key for caching of knowledgebase category breadcrumb
+        /// Key for caching of knowledge base category breadcrumb
         /// </summary>
         /// <remarks>
         /// {0} : category id

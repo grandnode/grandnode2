@@ -1,6 +1,6 @@
-﻿using Grand.Domain.Courses;
+﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
+using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -27,19 +27,20 @@ namespace Grand.Web.Features.Handlers.Customers
 
         public async Task<CoursesModel> Handle(GetCourses request, CancellationToken cancellationToken)
         {
-            var model = new CoursesModel();
-            model.CustomerId = request.Customer.Id;
+            var model = new CoursesModel {
+                CustomerId = request.Customer.Id
+            };
             var courses = await _courseService.GetByCustomer(request.Customer, request.Store.Id);
             foreach (var item in courses)
             {
                 var level = await _courseLevelService.GetById(item.LevelId);
-                model.CourseList.Add(new CoursesModel.Course() {
+                model.CourseList.Add(new CoursesModel.Course {
                     Id = item.Id,
                     Name = item.Name,
                     SeName = item.SeName,
                     ShortDescription = item.ShortDescription,
                     Level = level?.Name,
-                    Approved = await IsApprovedCourse(item, request.Customer),
+                    Approved = await IsApprovedCourse(item, request.Customer)
                 });
             }
             return model;

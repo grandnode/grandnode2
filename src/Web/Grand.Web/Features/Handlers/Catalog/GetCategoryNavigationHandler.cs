@@ -19,7 +19,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         public async Task<CategoryNavigationModel> Handle(GetCategoryNavigation request, CancellationToken cancellationToken)
         {
             //get active category
-            string activeCategoryId = "";
+            var activeCategoryId = "";
             if (!string.IsNullOrEmpty(request.CurrentCategoryId))
             {
                 //category details page
@@ -30,15 +30,14 @@ namespace Grand.Web.Features.Handlers.Catalog
                 //product details page
                 var productCategories = (await _productService.GetProductById(request.CurrentProductId)).ProductCategories;
                 if (productCategories.Any())
-                    activeCategoryId = productCategories.OrderBy(x => x.DisplayOrder).FirstOrDefault().CategoryId;
+                    activeCategoryId = productCategories.MinBy(x => x.DisplayOrder).CategoryId;
             }
-            var cachedModel = await _mediator.Send(new GetCategorySimple()
-            {
+            var cachedModel = await _mediator.Send(new GetCategorySimple {
                 Customer = request.Customer,
                 Language = request.Language,
                 Store = request.Store,
                 CurrentCategoryId = request.CurrentCategoryId
-            });
+            }, cancellationToken);
 
             var model = new CategoryNavigationModel
             {

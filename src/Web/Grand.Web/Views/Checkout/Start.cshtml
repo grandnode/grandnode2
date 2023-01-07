@@ -20,18 +20,18 @@
                 }
 @{
     //step numbers
-    int shippingAddressStepNumber = 1;
-                int billingAddressStepNumber = 2;
-                int shippingMethodStepNumber = 3;
-                int paymentMethodStepNumber = 4;
-                int paymentInfoStepNumber = 5;
-                int confirmOrderStepNumber = 6;
+    var shippingAddressStepNumber = 1;
+                var billingAddressStepNumber = 2;
+                var shippingMethodStepNumber = 3;
+                var paymentMethodStepNumber = 4;
+                var paymentInfoStepNumber = 5;
+                var confirmOrderStepNumber = 6;
     if (!Model.ShippingRequired)
     {
         billingAddressStepNumber = 1;
-        paymentMethodStepNumber = paymentMethodStepNumber - 2;
-        paymentInfoStepNumber = paymentInfoStepNumber - 2;
-        confirmOrderStepNumber = confirmOrderStepNumber - 2;
+        paymentMethodStepNumber -= 2;
+        paymentInfoStepNumber -= 2;
+        confirmOrderStepNumber -= 2;
     }
 
         }
@@ -81,6 +81,7 @@
                                                 </div>
                                                 <input type="submit" ref="shippingSubmit" id="opc-shipping-submit" class="d-none" />
                                             </form>
+                                        </validation-observer>
                                         <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
                                             <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]" @if (Model.ShippingAddress.ExistingAddresses.Any()) { <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', vm.$refs.shippingSelect.value === '')"</text> } else { <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', true)"</text> } value="@Loc["Common.Continue"]" />
                                             <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
@@ -149,11 +150,8 @@
                                         </div>
                                     </form>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
-                                        @if (paymentMethodStepNumber > 1)
-                                        {
-                                            <a class="btn btn-secondary" href="#" id="back-payment_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        }
-                                        <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled(event)" value="@Loc["Common.Continue"]" />
+                                        <a class="btn btn-secondary" href="#" id="back-payment_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                        <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled(event)" value="@Loc["Common.Continue"]"/>
                                         <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
                                 </div>
@@ -169,10 +167,7 @@
                                         </div>
                                     </form>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="payment-info-buttons-container">
-                                        @if (!Model.HasSinglePaymentMethod || paymentMethodStepNumber > 1)
-                                        {
-                                            <a class="btn btn-secondary" href="#" id="back-payment_info" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                        }
+                                        <a class="btn btn-secondary" href="#" id="back-payment_info" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
                                         <input type="button" class="btn btn-info payment-info-next-step-button" @@click="vmorder.saveStep('vPaymentInfo', null, false)" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="payment-info-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>

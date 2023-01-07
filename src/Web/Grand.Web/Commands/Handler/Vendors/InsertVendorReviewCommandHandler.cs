@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure;
 using Grand.Domain.Localization;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Vendors;
 using MediatR;
 
@@ -34,10 +34,10 @@ namespace Grand.Web.Commands.Handler.Vendors
         public async Task<VendorReview> Handle(InsertVendorReviewCommand request, CancellationToken cancellationToken)
         {
             //save review
-            int rating = request.Model.AddVendorReview.Rating;
-            if (rating < 1 || rating > 5)
+            var rating = request.Model.AddVendorReview.Rating;
+            if (rating is < 1 or > 5)
                 rating = _vendorSettings.DefaultVendorRatingValue;
-            bool isApproved = !_vendorSettings.VendorReviewsMustBeApproved;
+            var isApproved = !_vendorSettings.VendorReviewsMustBeApproved;
 
             var vendorReview = new VendorReview
             {
@@ -49,7 +49,7 @@ namespace Grand.Web.Commands.Handler.Vendors
                 HelpfulYesTotal = 0,
                 HelpfulNoTotal = 0,
                 IsApproved = isApproved,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _vendorService.InsertVendorReview(vendorReview);
 

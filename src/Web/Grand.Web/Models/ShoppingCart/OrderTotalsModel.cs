@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class OrderTotalsModel : BaseModel
+    public class OrderTotalsModel : BaseModel
     {
         public OrderTotalsModel()
         {
@@ -48,13 +48,13 @@ namespace Grand.Web.Models.ShoppingCart
 
         #region Nested classes
 
-        public partial class TaxRate: BaseModel
+        public class TaxRate: BaseModel
         {
             public string Rate { get; set; }
             public string Value { get; set; }
         }
 
-        public partial class GiftVoucher : BaseEntityModel
+        public class GiftVoucher : BaseEntityModel
         {
             public string CouponCode { get; set; }
             public string Amount { get; set; }

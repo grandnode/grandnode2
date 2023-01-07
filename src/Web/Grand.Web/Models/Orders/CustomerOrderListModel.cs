@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class CustomerOrderListModel : BaseModel
+    public class CustomerOrderListModel : BaseModel
     {
         public CustomerOrderListModel()
         {
@@ -14,7 +14,7 @@ namespace Grand.Web.Models.Orders
 
         #region Nested classes
 
-        public partial class OrderDetailsModel : BaseEntityModel
+        public class OrderDetailsModel : BaseEntityModel
         {
             public string OrderTotal { get; set; }
             public bool IsMerchandiseReturnAllowed { get; set; }

@@ -2,17 +2,18 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
@@ -20,8 +21,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Grand.Business.Core.Utilities.Checkout;
-using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -80,7 +79,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled,
                 IsEditable = request.IsEditable,
-                DisplayAddToCart = await _permissionService.Authorize(StandardPermission.EnableShoppingCart),
+                DisplayAddToCart = await _permissionService.Authorize(StandardPermission.EnableShoppingCart)
             };
 
             if (!request.Cart.Any())
@@ -119,9 +118,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     ProductUrl = _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = sename }),
                     Quantity = sci.Quantity,
                     AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes),
+                    AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually
                 };
-
-                cartItemModel.AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually; 
 
                 //allowed quantities
                 var allowedQuantities = product.ParseAllowedQuantities();
@@ -150,7 +148,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var productprice = await _taxService.GetProductPrice(product, (await _pricingService.GetUnitPrice(sci, product)).unitprice);
-                    double taxRate = productprice.taxRate;
                     cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprice.productprice);
                 }
                 //subtotal, discount
@@ -161,11 +158,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     //sub total
-                    var subtotal = await _pricingService.GetSubTotal(sci, product, true);
-                    double shoppingCartItemDiscountBase = subtotal.discountAmount;
-                    List<ApplyDiscount> scDiscounts = subtotal.appliedDiscounts;
+                    var subtotal = await _pricingService.GetSubTotal(sci, product);
+                    var shoppingCartItemDiscountBase = subtotal.discountAmount;
                     var productprices = await _taxService.GetProductPrice(product, subtotal.subTotal);
-                    double taxRate = productprices.taxRate;
                     cartItemModel.SubTotal = _priceFormatter.FormatPrice(productprices.productprice);
 
                     //display an applied discount amount
@@ -205,9 +200,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             return new PictureModel
             {
                 Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize, true),
+                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name),
+                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), product.Name)
             };
         }
 

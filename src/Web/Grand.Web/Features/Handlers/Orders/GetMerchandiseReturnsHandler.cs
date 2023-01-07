@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -40,9 +40,8 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             var model = new CustomerMerchandiseReturnsModel();
 
-            var query = new GetMerchandiseReturnQuery()
-            {
-                StoreId = request.Store.Id,
+            var query = new GetMerchandiseReturnQuery {
+                StoreId = request.Store.Id
             };
 
             if (await _groupService.IsOwner(request.Customer))
@@ -50,7 +49,7 @@ namespace Grand.Web.Features.Handlers.Orders
             else
                 query.CustomerId = request.Customer.Id;
 
-            var merchandiseReturns = await _mediator.Send(query);
+            var merchandiseReturns = await _mediator.Send(query, cancellationToken);
 
             foreach (var merchandiseReturn in merchandiseReturns)
             {
@@ -58,7 +57,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 double total = 0;
                 foreach (var rrItem in merchandiseReturn.MerchandiseReturnItems)
                 {
-                    var orderItem = order.OrderItems.Where(x => x.Id == rrItem.OrderItemId).First();
+                    var orderItem = order.OrderItems.First(x => x.Id == rrItem.OrderItemId);
 
                     if (order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
                     {

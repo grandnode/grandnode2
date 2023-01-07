@@ -1,6 +1,6 @@
 ﻿@model ProductDetailsModel
 <div class="availability generalMarginSupporter">
-    @if (!String.IsNullOrWhiteSpace(Model.StockAvailability))
+    @if (!string.IsNullOrWhiteSpace(Model.StockAvailability))
     {
         <div class="stock">
             <span class="label">@Loc["Products.Availability"]:</span>

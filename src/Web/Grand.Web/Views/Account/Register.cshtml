@@ -146,9 +146,9 @@
                                                       control-year="@Html.IdFor(x => x.DateOfBirthYear)"
                                                       begin-year="@(DateTime.Now.Year - 100)"
                                                       end-year="DateTime.Now.Year"
-                                                      selected-day="Model.DateOfBirthDay.HasValue ? Model.DateOfBirthDay.Value : 0"
-                                                      selected-month="Model.DateOfBirthMonth.HasValue ? Model.DateOfBirthMonth.Value : 0"
-                                                      selected-year="Model.DateOfBirthYear.HasValue ? Model.DateOfBirthYear.Value : 0"
+                                                      selected-day="Model.DateOfBirthDay ?? 0"
+                                                      selected-month="Model.DateOfBirthMonth ?? 0"
+                                                      selected-year="Model.DateOfBirthYear ?? 0"
                                                       PartialViewName="Partials/DatePickerDropDowns"
                                                       class="col-12 input-group px-0" />
                             </div>
@@ -544,9 +544,8 @@
                                         {
                                             <text>customer_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
                                             break;
-                                        } else {
-                                            <text>customer_attribute_</text> @item.Id <text>: '',</text>
-                                        }
+                                        } 
+                                        <text>customer_attribute_</text> @item.Id <text>: '',</text>
                                     }
                                 }
                                 break;

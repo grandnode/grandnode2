@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutModel : BaseModel
+    public class CheckoutModel : BaseModel
     {
         public bool ShippingRequired { get; set; }
         public CheckoutBillingAddressModel BillingAddress { get; set; }

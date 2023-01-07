@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
@@ -71,11 +71,11 @@ namespace Grand.Web.Features.Handlers.Customers
             await PrepareExternalAuth(model, request);
 
             //custom customer attributes
-            var customAttributes = await _mediator.Send(new GetCustomAttributes() {
+            var customAttributes = await _mediator.Send(new GetCustomAttributes {
                 Customer = request.Customer,
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
-            });
+            }, cancellationToken);
             foreach (var attribute in customAttributes)
                 model.CustomerAttributes.Add(attribute);
 
@@ -116,14 +116,14 @@ namespace Grand.Web.Features.Handlers.Customers
             //if (newsletter == null)
             //    newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByCustomerId(request.Customer.Id);
 
-            model.Newsletter = newsletter != null && newsletter.Active;
+            model.Newsletter = newsletter is { Active: true };
 
             var categories = (await _newsletterCategoryService.GetAllNewsletterCategory()).ToList();
-            categories.ForEach(x => model.NewsletterCategories.Add(new NewsletterSimpleCategory() {
+            categories.ForEach(x => model.NewsletterCategories.Add(new NewsletterSimpleCategory {
                 Id = x.Id,
                 Description = x.GetTranslation(y => y.Description, request.Language.Id),
                 Name = x.GetTranslation(y => y.Name, request.Language.Id),
-                Selected = newsletter == null ? false : newsletter.Categories.Contains(x.Id),
+                Selected = newsletter != null && newsletter.Categories.Contains(x.Id)
             }));
         }
 
@@ -137,7 +137,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -150,7 +150,7 @@ namespace Grand.Web.Features.Handlers.Customers
 
                     foreach (var s in states)
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id, Selected = s.Id == model.StateProvinceId });
                     }
                 }
             }
