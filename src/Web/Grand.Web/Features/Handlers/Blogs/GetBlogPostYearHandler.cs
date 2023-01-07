@@ -50,10 +50,8 @@ namespace Grand.Web.Features.Handlers.Blogs
 
 
                 var current = 0;
-                foreach (var kvp in months)
+                foreach (var (date, blogPostCount) in months)
                 {
-                    var date = kvp.Key;
-                    var blogPostCount = kvp.Value;
                     if (current == 0)
                         current = date.Year;
 
