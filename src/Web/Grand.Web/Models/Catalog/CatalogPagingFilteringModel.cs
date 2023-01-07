@@ -187,7 +187,7 @@ namespace Grand.Web.Models.Catalog
                 NotFilteredItems = allFilters.Except(alreadyFilteredOptions).Select(x =>
                 {
                     //filter URL
-                    var alreadyFiltered = alreadyFilteredOptions.Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId).Select(x => x.SpecificationAttributeOptionSeName)
+                    var alreadyFiltered = alreadyFilteredOptions.Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId).Select(s => s.SpecificationAttributeOptionSeName)
                     .Concat(new List<string> { x.SpecificationAttributeOptionSeName });
 
                     var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered.ToList()));

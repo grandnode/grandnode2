@@ -204,11 +204,11 @@ namespace Grand.Web.Features.Handlers.Products
                 {
                     var x = combinationsStockUnavailable.SelectMany(x => x.Attributes)
                         .Where(x => x.Value != customAttribute.Value);
-                    var notAvailable = x.Select(x => x.Value).Distinct().ToList();
-                    notAvailable.ForEach(x =>
+                    var notAvailable = x.Select(z => z.Value).Distinct().ToList();
+                    notAvailable.ForEach(z =>
                     {
-                        if (!model.Contains(x))
-                            model.Add(x);
+                        if (!model.Contains(z))
+                            model.Add(z);
                     });
                 }
 
