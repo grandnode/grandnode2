@@ -32,10 +32,7 @@ namespace Grand.Web.ViewComponents
                 Language = _workContext.WorkingLanguage
             });
 
-            if (!model.Vendors.Any())
-                return Content("");
-
-            return View(model);
+            return !model.Vendors.Any() ? Content("") : View(model);
         }
     }
 }

@@ -907,10 +907,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
             var model = await _mediator.Send(new GetUserAgreement { OrderItemId = orderItemId }); 
-            if (model == null)
-                return RedirectToRoute("HomePage");
-
-            return View(model);
+            return model == null ? RedirectToRoute("HomePage") : View(model);
         }
 
         #endregion

@@ -32,10 +32,7 @@ namespace Grand.Web.ViewComponents
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
-            if (!model.Enabled)
-                return Content("");
-
-            return View(model);
+            return !model.Enabled ? Content("") : View(model);
         }
 
     }

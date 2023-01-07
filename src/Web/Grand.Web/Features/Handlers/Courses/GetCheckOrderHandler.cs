@@ -20,10 +20,7 @@ namespace Grand.Web.Features.Handlers.Courses
                 return true;
 
             var orders = await _orderService.SearchOrders(customerId: request.Customer.Id, productId: request.Course.ProductId, ps: PaymentStatus.Paid);
-            if (orders.TotalCount > 0)
-                return true;
-
-            return false;
+            return orders.TotalCount > 0;
         }
     }
 }

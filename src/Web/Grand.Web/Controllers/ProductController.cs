@@ -114,10 +114,7 @@ namespace Grand.Web.Controllers
             {
                 //is this one an associated products?
                 var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
-                if (parentGroupedProduct == null)
-                    return RedirectToRoute("HomePage");
-
-                return RedirectToRoute("Product", new { SeName = parentGroupedProduct.GetSeName(_workContext.WorkingLanguage.Id) });
+                return parentGroupedProduct == null ? RedirectToRoute("HomePage") : RedirectToRoute("Product", new { SeName = parentGroupedProduct.GetSeName(_workContext.WorkingLanguage.Id) });
             }
             //update existing shopping cart item?
             ShoppingCartItem updatecartitem = null;

@@ -54,10 +54,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {
             var model = await _mediator.Send(new SubscriptionActivationCommand { Active = active, Token = token });
-            if (model == null)
-                return RedirectToRoute("HomePage");
-
-            return View(model);
+            return model == null ? RedirectToRoute("HomePage") : View(model);
         }
     }
 }

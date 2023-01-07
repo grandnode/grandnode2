@@ -73,22 +73,16 @@ namespace Grand.Web.Validators.Customer
                 RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
-                    if (!dateOfBirth.HasValue)
-                        return false;
-
-                    return true;
+                    return dateOfBirth.HasValue;
                 }).WithMessage(translationService.GetResource("Account.Fields.DateOfBirth.Required"));
 
                 //minimum age
                 RuleFor(x => x.DateOfBirthDay).Must((x, _) =>
                 {
                     var dateOfBirth = x.ParseDateOfBirth();
-                    if (dateOfBirth.HasValue && customerSettings.DateOfBirthMinimumAge.HasValue &&
-                        CommonHelper.GetDifferenceInYears(dateOfBirth.Value, DateTime.Today) <
-                        customerSettings.DateOfBirthMinimumAge.Value)
-                        return false;
-
-                    return true;
+                    return !dateOfBirth.HasValue || !customerSettings.DateOfBirthMinimumAge.HasValue ||
+                           CommonHelper.GetDifferenceInYears(dateOfBirth.Value, DateTime.Today) >=
+                           customerSettings.DateOfBirthMinimumAge.Value;
                 }).WithMessage(string.Format(translationService.GetResource("Account.Fields.DateOfBirth.MinimumAge"), customerSettings.DateOfBirthMinimumAge));
             }
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)

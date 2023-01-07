@@ -37,9 +37,7 @@ namespace Grand.Web.Components
                 Store = _workContext.CurrentStore
             });
 
-            if (!model.Any())
-                return Content("");
-            return View(model);
+            return !model.Any() ? Content("") : View(model);
         }
 
         #endregion

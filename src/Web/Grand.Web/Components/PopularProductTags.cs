@@ -23,11 +23,7 @@ namespace Grand.Web.ViewComponents
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
-            if (!model.Tags.Any())
-                return Content("");
-
-            return View(model);
-
+            return !model.Tags.Any() ? Content("") : View(model);
         }
     }
 }

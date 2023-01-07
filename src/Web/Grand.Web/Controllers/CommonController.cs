@@ -206,10 +206,7 @@ namespace Grand.Web.Controllers
 
             url = Flurl.Url.EncodeIllegalCharacters(url);
 
-            if (permanentRedirect)
-                return RedirectPermanent(url);
-
-            return Redirect(url);
+            return permanentRedirect ? RedirectPermanent(url) : Redirect(url);
         }
 
         [DenySystemAccount]

@@ -87,12 +87,8 @@ namespace Grand.Web.Controllers
                 .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id,
                     warehouseId);
 
-            if (subscription != null)
-            {
-                return Content(_translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable"));
-            }
-
-            return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
+            return Content(subscription != null ? _translationService.GetResource("OutOfStockSubscriptions.DeleteNotifyWhenAvailable") : 
+                _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
         }
 
         [HttpPost, ActionName("SubscribePopup")]

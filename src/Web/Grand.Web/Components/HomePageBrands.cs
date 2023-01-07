@@ -27,10 +27,7 @@ namespace Grand.Web.ViewComponents
                 Store = _workContext.CurrentStore
             });
 
-            if (!model.Any())
-                return Content("");
-
-            return View(model);
+            return !model.Any() ? Content("") : View(model);
         }
     }
 }

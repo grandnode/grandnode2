@@ -42,11 +42,7 @@ namespace Grand.Web.Features.Handlers.Pages
                 return null;
 
             //ACL (access control list)
-            if (!_aclService.Authorize(page, _workContext.CurrentCustomer))
-                return null;
-
-            return page.ToModel(_workContext.WorkingLanguage, _dateTimeService, request.Password);
-
+            return !_aclService.Authorize(page, _workContext.CurrentCustomer) ? null : page.ToModel(_workContext.WorkingLanguage, _dateTimeService, request.Password);
         }
     }
 }

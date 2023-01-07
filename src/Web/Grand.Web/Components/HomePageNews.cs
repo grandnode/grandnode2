@@ -23,10 +23,7 @@ namespace Grand.Web.ViewComponents
                 return Content("");
 
             var model = await _mediator.Send(new GetHomePageNewsItems());
-            if (!model.NewsItems.Any())
-                return Content("");
-
-            return View(model);
+            return !model.NewsItems.Any() ? Content("") : View(model);
         }
     }
 }
