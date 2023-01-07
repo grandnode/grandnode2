@@ -120,7 +120,7 @@ namespace Grand.Web.Models.Catalog
             }
 
             public virtual async Task PrepareSpecsFilters(IList<string> alreadyFilteredSpecOptionIds,
-                IList<string> filterableSpecificationAttributeOptionIds,
+                IEnumerable<string> filterableSpecificationAttributeOptionIds,
                 ISpecificationAttributeService specificationAttributeService,
                 string url, string langId)
             {
@@ -139,9 +139,9 @@ namespace Grand.Web.Models.Catalog
                             SpecificationAttributeDisplayOrder = sa.DisplayOrder,
                             SpecificationAttributeOptionId = sao,
                             SpecificationAttributeOptionName = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).GetTranslation(x => x.Name, langId),
-                            SpecificationAttributeOptionSeName = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).SeName,
-                            SpecificationAttributeOptionDisplayOrder = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).DisplayOrder,
-                            SpecificationAttributeOptionColorRgb = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao).ColorSquaresRgb
+                            SpecificationAttributeOptionSeName = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.SeName,
+                            SpecificationAttributeOptionDisplayOrder = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.DisplayOrder,
+                            SpecificationAttributeOptionColorRgb = sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.ColorSquaresRgb
                         });
                     }
                 }

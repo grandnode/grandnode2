@@ -201,7 +201,7 @@ namespace Grand.Web.Features.Handlers.Products
         }
 
         private async Task<ProductOverviewModel.ProductPriceModel> PreparePriceModel(Product product,
-            Dictionary<string, string> res,
+            IReadOnlyDictionary<string, string> res,
             bool forceRedirectionAfterAddingToCart, bool enableShoppingCart, bool displayPrices, bool enableWishlist,
             bool priceIncludesTax)
         {
@@ -485,7 +485,7 @@ namespace Grand.Web.Features.Handlers.Products
         }
 
         private async Task<IList<PictureModel>> PreparePictureModel(Product product, string name,
-            Dictionary<string, string> res, int pictureSize)
+            IReadOnlyDictionary<string, string> res, int pictureSize)
         {
             #region Prepare product picture
 
@@ -496,8 +496,7 @@ namespace Grand.Web.Features.Handlers.Products
                 var picture =
                     productpicture != null ? await _pictureService.GetPictureById(productpicture.PictureId) : null;
 
-                if (productpicture == null)
-                    productpicture = new ProductPicture();
+                productpicture ??= new ProductPicture();
 
                 var pictureModel = new PictureModel {
                     Id = productpicture.PictureId,

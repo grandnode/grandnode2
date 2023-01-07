@@ -235,12 +235,9 @@ namespace Grand.Web.Controllers
                 order = await _orderService.GetOrderById(orderId);
             }
 
-            if (order == null)
-            {
-                order = (await _orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
-                        customerId: _workContext.CurrentCustomer.Id, pageSize: 1))
-                    .FirstOrDefault();
-            }
+            order ??= (await _orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
+                    customerId: _workContext.CurrentCustomer.Id, pageSize: 1))
+                .FirstOrDefault();
 
             if (order == null || order.Deleted || _workContext.CurrentCustomer.Id != order.CustomerId)
             {

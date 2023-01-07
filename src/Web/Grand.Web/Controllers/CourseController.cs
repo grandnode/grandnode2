@@ -74,11 +74,9 @@ namespace Grand.Web.Controllers
                 return false;
 
             //ACL (access control list)
-            if (!_aclService.Authorize(course, customer))
-                return false;
-
-            //Store access
-            return _aclService.Authorize(course, _workContext.CurrentStore.Id);
+            return _aclService.Authorize(course, customer) &&
+                   //Store access
+                   _aclService.Authorize(course, _workContext.CurrentStore.Id);
         }
 
         public virtual async Task<IActionResult> Details(string courseId)

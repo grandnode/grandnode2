@@ -10,7 +10,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
-using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
@@ -63,8 +62,6 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
             var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () => await PrepareCategorySimpleModels(
                 language: request.Language,
-                store: request.Store,
-                customer: request.Customer,
                 allCategories: await _categoryService.GetMenuCategories()));
 
             //top menu pages
@@ -130,10 +127,12 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         }
 
-        private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(Language language, Store store, Customer customer, string rootCategoryId = "",
-           bool loadSubCategories = true, IList<Category> allCategories = null)
+        private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(Language language, 
+            IEnumerable<Category> allCategories, string rootCategoryId = "",
+            bool loadSubCategories = true)
         {
             var result = new List<CategorySimpleModel>();
+            if (allCategories == null) return result;
             var categories = allCategories.Where(c => c.ParentCategoryId == rootCategoryId).OrderBy(x => x.DisplayOrder).ToList();
             foreach (var category in categories)
             {
@@ -152,7 +151,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 };
                 if (loadSubCategories)
                 {
-                    var subCategories = await PrepareCategorySimpleModels(language, store, customer, category.Id, loadSubCategories, allCategories);
+                    var subCategories = await PrepareCategorySimpleModels(language, allCategories, category.Id, true);
                     categoryModel.SubCategories.AddRange(subCategories);
                 }
                 result.Add(categoryModel);

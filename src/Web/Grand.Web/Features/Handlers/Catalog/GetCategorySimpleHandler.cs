@@ -81,15 +81,16 @@ namespace Grand.Web.Features.Handlers.Catalog
                 else
                     await PrepareCategories("");
 
-                return await PrepareCategorySimpleModels(request, "", true, categories.ToList());
+                return await PrepareCategorySimpleModels(request, "", categories, true);
             });
         }
 
         private async Task<List<CategorySimpleModel>> PrepareCategorySimpleModels(GetCategorySimple request, string rootCategoryId,
-            bool loadSubCategories = true, List<Category> allCategories = null)
+            IEnumerable<Category> allCategories, bool loadSubCategories = true)
         {
             var result = new List<CategorySimpleModel>();
-
+            if (allCategories == null) return result;
+            
             var categories = allCategories.Where(c => c.ParentCategoryId == rootCategoryId).ToList();
             foreach (var category in categories)
             {
@@ -118,7 +119,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
                 if (loadSubCategories)
                 {
-                    var subCategories = await PrepareCategorySimpleModels(request, category.Id, loadSubCategories, allCategories);
+                    var subCategories = await PrepareCategorySimpleModels(request, category.Id, allCategories);
                     categoryModel.SubCategories.AddRange(subCategories);
                 }
                 result.Add(categoryModel);
