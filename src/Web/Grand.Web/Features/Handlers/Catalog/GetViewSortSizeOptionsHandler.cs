@@ -75,7 +75,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             request.PagingFilteringModel.ViewMode = viewMode;
             if (!request.PagingFilteringModel.AllowProductViewModeChanging) return;
             
-            var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
+            var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
             //grid
             request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
                 Text = _translationService.GetResource("Catalog.ViewMode.Grid"),
@@ -105,8 +105,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     // get the first page size entry to use as the default (category page load) or if customer enters invalid value via query string
                     if (request.Command.PageSize <= 0 || !pageSizes.Contains(request.Command.PageSize.ToString()))
                     {
-                        int temp;
-                        if (int.TryParse(pageSizes.FirstOrDefault(), out temp))
+                        if (int.TryParse(pageSizes.FirstOrDefault(), out var temp))
                         {
                             if (temp > 0)
                             {
@@ -115,12 +114,11 @@ namespace Grand.Web.Features.Handlers.Catalog
                         }
                     }
 
-                    var currentPageUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
+                    var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
                     var pageUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "pagenumber", null);
                     foreach (var pageSize in pageSizes)
                     {
-                        int temp;
-                        if (!int.TryParse(pageSize, out temp))
+                        if (!int.TryParse(pageSize, out var temp))
                         {
                             continue;
                         }
@@ -143,7 +141,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
                         if (request.Command.PageSize <= 0)
                         {
-                            request.Command.PageSize = int.Parse(request.PagingFilteringModel.PageSizeOptions.FirstOrDefault().Text);
+                            request.Command.PageSize = int.Parse(request.PagingFilteringModel.PageSizeOptions.FirstOrDefault()!.Text);
                         }
                     }
                 }

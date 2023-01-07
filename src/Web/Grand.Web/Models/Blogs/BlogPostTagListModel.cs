@@ -14,8 +14,7 @@ namespace Grand.Web.Models.Blogs
             var itemWeights = new List<double>();
             foreach (var tag in Tags)
                 itemWeights.Add(tag.BlogPostCount);
-            double mean;
-            var stdDev = StdDev(itemWeights, out mean);
+            var stdDev = StdDev(itemWeights, out var mean);
 
             return GetFontSize(blogPostTag.BlogPostCount, mean, stdDev);
         }

@@ -206,8 +206,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     //max price
                     if (!string.IsNullOrEmpty(request.Model.pt))
                     {
-                        double maxPrice;
-                        if (double.TryParse(request.Model.pt, out maxPrice))
+                        if (double.TryParse(request.Model.pt, out var maxPrice))
                             maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
                     }
 

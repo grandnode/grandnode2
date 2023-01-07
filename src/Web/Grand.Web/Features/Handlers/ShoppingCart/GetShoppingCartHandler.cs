@@ -287,8 +287,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
                             {
                                 var downloadGuidStr = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).FirstOrDefault();
-                                Guid downloadGuid;
-                                Guid.TryParse(downloadGuidStr, out downloadGuid);
+                                Guid.TryParse(downloadGuidStr, out var downloadGuid);
                                 var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                                 if (download != null)
                                     attributeModel.DefaultValue = download.DownloadGuid.ToString();

@@ -65,8 +65,7 @@ namespace Grand.Web.Models.Catalog
             var itemWeights = new List<double>();
             foreach (var tag in Tags)
                 itemWeights.Add(tag.ProductCount);
-            double mean;
-            var stdDev = StdDev(itemWeights, out mean);
+            var stdDev = StdDev(itemWeights, out var mean);
 
             return GetFontSize(productTag.ProductCount, mean, stdDev);
         }

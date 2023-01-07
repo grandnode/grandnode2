@@ -1036,9 +1036,8 @@ namespace Grand.Web.Features.Handlers.Products
                                 ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
                             if (selectedDateStr.Any())
                             {
-                                DateTime selectedDate;
                                 if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture,
-                                        DateTimeStyles.None, out selectedDate))
+                                        DateTimeStyles.None, out var selectedDate))
                                 {
                                     //successfully parsed
                                     attributeModel.SelectedDay = selectedDate.Day;

@@ -360,9 +360,8 @@ namespace Grand.Web.Commands.Handler.Common
                                 var selectedDateStr = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
                                 if (selectedDateStr.Any())
                                 {
-                                    DateTime selectedDate;
                                     if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture,
-                                                           DateTimeStyles.None, out selectedDate))
+                                            DateTimeStyles.None, out var selectedDate))
                                     {
                                         //successfully parsed
                                         attributeModel.SelectedDay = selectedDate.Day;
