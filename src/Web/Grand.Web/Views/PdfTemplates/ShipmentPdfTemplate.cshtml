@@ -1,113 +1,124 @@
-﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
-@using Grand.Business.Core.Interfaces.Checkout.Payments
-@using Grand.Business.Core.Interfaces.Checkout.Shipping
-@using Grand.Business.Core.Interfaces.Common.Configuration
+@using Grand.Business.Core.Interfaces.Checkout.Orders
 @using Grand.Business.Core.Interfaces.Common.Directory
 @using Grand.Business.Core.Interfaces.Common.Localization
-@using Grand.Business.Core.Interfaces.Common.Stores
-@using Grand.Business.Core.Interfaces.Storage
 @using Grand.Business.Core.Interfaces.Catalog.Products
-@using Grand.Business.Core.Interfaces.Checkout.GiftVouchers
 @model IList<Grand.Domain.Shipping.Shipment>
 @inject IOrderService _orderService
-@inject IShipmentService _shipmentService
-@inject ICountryService _cournyService
 @inject IProductService _productService
 @inject ICountryService _countryService
-@inject ISettingService _settingService
-@inject IStoreService _storeService
 @inject IWorkContext _workContext
-@inject IPictureService _pictureService
-@inject PdfSettings _pdfSettings
 @inject ITranslationService _translationService
-@inject IPaymentService _paymentService
-@inject ICurrencyService _currencyService
-@inject IGiftVoucherService _giftVoucherService
 
 @{
     var companyName = _workContext.CurrentStore.CompanyName;
     var limitbyVendor = _workContext.CurrentVendor != null;
 }
-
-
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
     <style>
 
-
-        .orderItems {
-            width: 100%;
-            border: 1px solid black;
-        }
-
-            .orderItems tr th {
-                background-color: #f5f5f5;
-                text-align: left;
-                padding: 0 5px 0 5px;
-            }
-
-            .orderItems tr,
-            .orderItems tr td,
-            .orderItems tr th {
-                border: 1px solid black;
-                padding: 0 5px 0 5px;
-            }
-
         .summary {
-            margin-top: 20px;
-        }
+                    padding-top:20px;
+                }
+                
+          table.CodeTable th,
+          table.CodeTable td {
+            /* width: 100%; */
+            width: 400px;
+            margin-right: 0px;
+            margin-left: auto;
+            white-space: nowrap;
+            /* border: 1px solid black; */
+            border: none;
+            border-collapse: collapse;
+          }
+          .Header {
+            background-color: grey;
+            color: white;
+            padding: 5px;
+          }
+    
+          table.Table {
+            width: 100%;
+          }
+          table.Table,
+          table.Table th,
+          table.Table td {
+            white-space: nowrap;
+            text-align: left;
+            /* border: 1px solid black; */
+            border-collapse: collapse;
+          }
+          table.Table th,
+          table.Table td {
+            padding-top: 12px;
+            padding-bottom: 3px;
+            padding-left: 8px;
+            padding-right: 8px;
+            text-align: right;
+          }
+          table.Table th {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid black; ;
+          }
 
-        .right {
-            float: right;
-        }
-    </style>
+          table.Table tfoot {
+            padding-top: 4px;
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+          }
+          table.Table tfoot tr,
+          table.Table tfoot td {
+            padding-top: 4px;
+            padding-bottom: 4px;
+          }
+    
+        </style>
 </head>
 <body>
+    <main style="padding:10pt; font-size:12px">
     @for (var i = 0; i < Model.Count; i++)
     {
         var order = await _orderService.GetOrderById(Model[i].OrderId);
         var shipment = Model[i];
         <div>
-            <h2>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Shipment", order.CustomerLanguageId), shipment.ShipmentNumber))</h2>
+            <h4>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Shipment", order.CustomerLanguageId), shipment.ShipmentNumber))</h4>
             <div>@companyName</div>
         </div>
         @if (order.ShippingAddress != null)
         {
             <div>
-                <h3>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</h3>
-                <ul style="list-style-type:none">
+                <h6>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</h6>
                     @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
                     {
-                        <li>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Company", order.CustomerLanguageId), order.ShippingAddress.Company))</li>
+                        @(string.Format(_translationService.GetResource("PDFPackagingSlip.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br/>
                     }
-                    <li>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))</li>
-                    <li>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))</li>
-                    <li>@(string.Format(_translationService.GetResource("PDFPackagingSlip.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))</li>
-                    <li>@(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)</li>
-                    <li>@((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)</li>
-                </ul>
+                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br/>
+                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br/>
+                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br/>
+                    @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
+                    @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
             </div>
         }
-        <div style="display:block; clear:both;"></div>
-        <h5>@(string.Format(_translationService.GetResource("PDFPackagingSlip.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</h5>
+        <div><strong>@(string.Format(_translationService.GetResource("PDFPackagingSlip.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</strong></div>
         <div class="summary">
-            <h3>@(_translationService.GetResource("PDFInvoice.Product(s)", order.CustomerLanguageId))</h3>
+            @(_translationService.GetResource("PDFInvoice.Product(s)", order.CustomerLanguageId))
         </div>
-        <table class="orderItems">
+        <table class="Table">
             <tr>
-                <th>@(_translationService.GetResource("PDFPackagingSlip.ProductName", order.CustomerLanguageId))</th>
-                <th>@(_translationService.GetResource("PDFPackagingSlip.SKU", order.CustomerLanguageId))</th>
-                <th>@(_translationService.GetResource("PDFPackagingSlip.QTY", order.CustomerLanguageId))</th>
+                <td class="Header" colspan="2">@(_translationService.GetResource("PDFPackagingSlip.ProductName", order.CustomerLanguageId))</td>
+                <td class="Header">@(_translationService.GetResource("PDFPackagingSlip.SKU", order.CustomerLanguageId))</td>
+                <td class="Header">@(_translationService.GetResource("PDFPackagingSlip.QTY", order.CustomerLanguageId))</td>
             </tr>
             @foreach (var item in shipment.ShipmentItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
                 if (orderItem != null && (orderItem.VendorId == _workContext.CurrentVendor?.Id || !limitbyVendor))
                 {
                     <tr>
-                        <td>
+                        <td colspan="2">
                             @((await _productService.GetProductByIdIncludeArch(item.ProductId)).Name)
                             @if (!string.IsNullOrEmpty(orderItem.AttributeDescription))
                             {
@@ -122,12 +133,7 @@
                 }
             }
         </table>
-
-        if (Model.Count - 1 > i)
-        {
-
-            <div style="display:block; clear:both; page-break-after:always;"></div>
-        }
     }
+    </main>
 </body>
 </html>
