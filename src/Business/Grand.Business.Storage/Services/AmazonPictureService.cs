@@ -147,6 +147,9 @@ namespace Grand.Business.Storage.Services
         /// <returns>Local picture thumb path</returns>
         protected override async Task<string> GetThumbPhysicalPath(string thumbFileName)
         {
+            if (!await GeneratedThumbExists(thumbFileName))
+                return null;
+            
             if (string.IsNullOrEmpty(_distributionDomainName))
             {
                 return await Task.FromResult($"https://{_bucketName}.s3.amazonAws.com/{thumbFileName}");
@@ -154,6 +157,25 @@ namespace Grand.Business.Storage.Services
             return await Task.FromResult($"https://{_distributionDomainName}/{thumbFileName}");
         }
 
+        /// <summary>
+        /// Get a value indicating whether some file (thumb) already exists
+        /// </summary>
+        /// <param name="thumbFileName">Thumb file name</param>
+        /// <returns>Result</returns>
+        private Task<bool> GeneratedThumbExists(string thumbFileName)
+        {
+            try
+            {
+                var getObjectResponse = _s3Client.GetObjectAsync(_bucketName, thumbFileName).GetAwaiter().GetResult();
+                EnsureValidResponse(getObjectResponse, HttpStatusCode.OK);
+
+                return Task.FromResult(getObjectResponse.BucketName == _bucketName || getObjectResponse.Key == thumbFileName);
+            }
+            catch
+            {
+                return Task.FromResult(false);
+            }
+        }
         /// <summary>
         /// Get picture (thumb) URL 
         /// </summary>
