@@ -54,6 +54,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.Cookie = new CookieBuilder {
                     Name = $"{config.CookiePrefix}Antiforgery"
                 };
+                options.HeaderName = "X-CSRF-TOKEN";
                 if (DataSettingsManager.DatabaseIsInstalled())
                 {
                     //whether to allow the use of anti-forgery cookies from SSL protected page on the other store pages which are not
