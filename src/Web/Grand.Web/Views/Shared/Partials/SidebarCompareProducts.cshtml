@@ -30,7 +30,7 @@
                                         <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong></div>
                                     </div>
                                     <div>
-                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">
+                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("SidebarCompareProducts")'); ">
                                             <b-icon icon="trash" variant="danger"></b-icon>
                                         </a>
                                     </div>

@@ -799,9 +799,7 @@ namespace Grand.Web.Controllers
                 return Content("");
 
             var model = await _mediator.Send(new GetCompareProducts { PictureProductThumbSize = mediaSettings.MiniCartThumbPictureSize });
-
-            return View(model);
-
+            return Json(model);
         }
 
 

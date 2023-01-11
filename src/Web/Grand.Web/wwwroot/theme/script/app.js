@@ -270,8 +270,7 @@ var vm = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => (
@@ -309,8 +308,7 @@ var vm = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => {
@@ -318,14 +316,15 @@ var vm = new Vue({
                 this.compareproducts = response.data
             })
         },
-        removeFromCompareList: function (id) {
-            if (id !== undefined) {
+        removeFromCompareList: function (product, index) {
+            if (product !== undefined) {
                 const compareList = AxiosCart.getCookie('Grand.CompareProduct');
-                const newCompareList = compareList.replace(id, '');
-
+                const newCompareList = compareList.replace(product.Id, '');
                 AxiosCart.setCookie('Grand.CompareProduct', newCompareList);
+                vm.compareproducts.Products.splice(index, 1);
             } else {
                 AxiosCart.setCookie('Grand.CompareProduct', '');
+                vm.compareproducts.Products.splice(0);
             }
             this.updateCompareProductsQty();
         },
