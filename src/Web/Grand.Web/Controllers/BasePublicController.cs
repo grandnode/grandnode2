@@ -18,8 +18,14 @@ namespace Grand.Web.Controllers
 
         private bool IsJsonResponseView()
         {
-            var viewJson = Request?.Headers["X-Response-View"];
-            return viewJson?.Equals("Json") ?? false;
+            if (Request.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
+                return Request.Headers.Accept.ToString()
+                    .Equals("application/json", StringComparison.InvariantCultureIgnoreCase);
+
+            if (Request.Method.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
+                return Request.ContentType?.Contains("application/json") ?? false;
+            
+            return false;
         }
 
         public new IActionResult View(object model)

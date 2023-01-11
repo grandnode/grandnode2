@@ -39,8 +39,7 @@
                     data: null,
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json'
                     }
                 }).then(response => {
                     this.cart = response.data;
@@ -53,8 +52,7 @@
                     data: null,
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json'
                     }
                 }).then(response => {
                     this.totals = response.data;
@@ -117,8 +115,7 @@
                     baseURL: '@Url.RouteUrl("ShoppingCart")',
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json',                        
                     },
                 }).then(function (response) {
                     vmorder.cart = response.data;

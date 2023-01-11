@@ -775,8 +775,7 @@ var vmorder = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => {
@@ -790,8 +789,7 @@ var vmorder = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => {

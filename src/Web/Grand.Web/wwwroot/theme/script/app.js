@@ -497,8 +497,7 @@ var vm = new Vue({
                 params: { "productId": id },
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 }
             }).then(function (response) {
                 vm.RelatedProducts = response.data;
@@ -514,8 +513,7 @@ var vm = new Vue({
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 }
             }).then(function (response) {
                 if (response.data.stockAvailability) {
