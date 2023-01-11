@@ -23,6 +23,7 @@ namespace Grand.Web.Models.Catalog
         }
         public string ProductId { get; set; }
 
+        public bool CaptchaValid { get; set; }
         public string ProductName { get; set; }
 
         public string ProductSeName { get; set; }

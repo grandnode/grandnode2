@@ -499,19 +499,17 @@ namespace Grand.Web.Controllers
         [ValidateCaptcha]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ProductReviews(
-            string productId,
             ProductReviewsModel model,
-            bool captchaValid,
             [FromServices] IGroupService groupService,
             [FromServices] IOrderService orderService,
             [FromServices] IProductReviewService productReviewService)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(model.ProductId);
             if (product is not { Published: true } || !product.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage && !captchaValid)
+            if (_captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage && !model.CaptchaValid)
             {
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
@@ -522,13 +520,13 @@ namespace Grand.Web.Controllers
             }
 
             if (_catalogSettings.ProductReviewPossibleOnlyAfterPurchasing &&
-                    !(await orderService.SearchOrders(customerId: _workContext.CurrentCustomer.Id, productId: productId, os: (int)OrderStatusSystem.Complete)).Any())
+                    !(await orderService.SearchOrders(customerId: _workContext.CurrentCustomer.Id, productId: model.ProductId, os: (int)OrderStatusSystem.Complete)).Any())
                 ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyAfterPurchasing"));
 
             if (_catalogSettings.ProductReviewPossibleOnlyOnce)
             {
                 var reviews = await productReviewService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id,
-                                                                              productId: productId,
+                                                                              productId: model.ProductId,
                                                                               pageSize: 1);
                 if (reviews.Any())
                     ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyOnce"));
@@ -577,7 +575,7 @@ namespace Grand.Web.Controllers
                         Store = _workContext.CurrentStore
                     });
                 }
-                return View(model);
+                return Json(model);
             }
 
             //If we got this far, something failed, redisplay form
@@ -594,7 +592,7 @@ namespace Grand.Web.Controllers
             newmodel.AddProductReview.Title = model.AddProductReview.Title;
             newmodel.AddProductReview.Result = string.Join(",", ModelState.Values.SelectMany(m => m.Errors).Select(e => e.ErrorMessage).ToList());
 
-            return View(newmodel);
+            return Json(newmodel);
         }
 
         [HttpPost]
