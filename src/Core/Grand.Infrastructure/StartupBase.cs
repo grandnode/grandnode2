@@ -2,6 +2,7 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -100,9 +102,10 @@ namespace Grand.Infrastructure
                 .AddClasses(classes => classes.AssignableTo(typeof(IValidatorConsumer<>)))
                 .AsImplementedInterfaces().WithScopedLifetime());
         }
-        
-        
-        private static T StartupConfig<T>(this IServiceCollection services, IConfiguration configuration) where T : class, new()
+
+
+        private static T StartupConfig<T>(this IServiceCollection services, IConfiguration configuration)
+            where T : class, new()
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -157,7 +160,8 @@ namespace Grand.Infrastructure
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <param name="typeSearcher"></param>
-        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, ITypeSearcher typeSearcher)
+        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration,
+            ITypeSearcher typeSearcher)
         {
             var config = new RabbitConfig();
             configuration.GetSection("Rabbit").Bind(config);
@@ -169,7 +173,8 @@ namespace Grand.Infrastructure
 
                 if (config.RabbitCachePubSubEnabled)
                 {
-                    x.AddConsumer<CacheMessageEventConsumer>().Endpoint(t => t.Name = config.RabbitCacheReceiveEndpoint);
+                    x.AddConsumer<CacheMessageEventConsumer>()
+                        .Endpoint(t => t.Name = config.RabbitCacheReceiveEndpoint);
                 }
 
                 x.UsingRabbitMq((context, cfg) =>
@@ -220,7 +225,8 @@ namespace Grand.Infrastructure
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
             CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
-            CommonHelper.CookieAuthExpires = securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
+            CommonHelper.CookieAuthExpires =
+                securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
 
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
@@ -229,6 +235,13 @@ namespace Grand.Infrastructure
             var mvcCoreBuilder = services.AddMvcCore(options =>
             {
                 options.Filters.AddService<FluentValidationFilter>();
+                var frontConfig = new FrontendAPIConfig();
+                configuration.GetSection("FrontendAPI").Bind(frontConfig);
+                if (frontConfig.JsonContentType)
+                {
+                    options.UseJsonBodyModelBinderProviderInsteadOf<DictionaryModelBinderProvider>();
+                    options.UseJsonBodyModelBinderProviderInsteadOf<ComplexObjectModelBinderProvider>();
+                }
             });
 
             return mvcCoreBuilder;
@@ -238,7 +251,6 @@ namespace Grand.Infrastructure
 
 
         #region Methods
-
 
         /// <summary>
         /// Add and configure services
@@ -278,7 +290,7 @@ namespace Grand.Infrastructure
 
             //Register type validator consumer
             RegisterValidatorConsumer(services, typeSearcher);
-            
+
             //add mediator
             AddMediator(services, typeSearcher);
 
@@ -305,7 +317,8 @@ namespace Grand.Infrastructure
         /// </summary>
         /// <param name="application">Builder for configuring an application's request pipeline</param>
         /// <param name="webHostEnvironment">WebHostEnvironment</param>
-        public static void ConfigureRequestPipeline(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+        public static void ConfigureRequestPipeline(IApplicationBuilder application,
+            IWebHostEnvironment webHostEnvironment)
         {
             //find startup configurations provided by other assemblies
             var typeSearcher = new TypeSearcher();
@@ -337,6 +350,5 @@ namespace Grand.Infrastructure
         }
 
         #endregion
-
     }
 }

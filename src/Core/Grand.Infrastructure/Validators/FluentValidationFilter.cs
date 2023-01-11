@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Infrastructure.Validators
@@ -46,7 +47,16 @@ namespace Grand.Infrastructure.Validators
                 {
                     var contextValidator = new ValidationContext<object>(model);
                     var result = await validator.ValidateAsync(contextValidator);
-                    if (!result.IsValid) result.AddToModelState(context.ModelState, "");
+                    if (!result.IsValid)
+                    {
+                        result.AddToModelState(context.ModelState, "");
+                        var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
+                        if (hasJsonData)
+                        {
+                            context.Result = new BadRequestObjectResult(context.ModelState);
+                            return;
+                        }
+                    }
                 }
             }
 
