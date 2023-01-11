@@ -134,7 +134,6 @@ else
                     data: bodyFormData,
                     headers: {
                         "Content-Type": "multipart/form-data",
-                        'X-Response-View': 'Json'
                     },
                 }).then(function (response) {
                     vendorreviews.Model = response.data;
