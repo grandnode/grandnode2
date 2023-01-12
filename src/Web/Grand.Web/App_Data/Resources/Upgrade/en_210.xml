@@ -9,4 +9,7 @@
 	<Resource Name="ShoppingCart.AlreadyReservation" Area="Front">
 		<Value>You have are already reserved this resource</Value>
 	</Resource>
+	<Resource Name="vendor.reviews.empty" Area="Front">
+		<Value>There are no reviews yet</Value>
+	</Resource>
 </Language>

@@ -15911,6 +15911,9 @@
 	<Resource Name="Vendor.Reviews" Area="Front">
 		<Value>Reviews</Value>
 	</Resource>
+	<Resource Name="vendor.reviews.empty" Area="Front">
+		<Value>There are no reviews yet</Value>
+	</Resource>
 	<Resource Name="VendorReviews.Helpfulness.OnlyRegistered" Area="Front">
 		<Value>Only registered customers can set review helpfulness.</Value>
 	</Resource>
