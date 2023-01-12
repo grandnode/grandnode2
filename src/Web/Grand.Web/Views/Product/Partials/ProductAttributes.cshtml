@@ -229,7 +229,10 @@
                         params: { product: '@Model.Id' },
                     }).then(function (response) {
                         if (response.data.price) {
-                            document.querySelector('.price-value-@Model.Id').innerText = response.data.price;
+                            if (document.querySelector('.price-value-@Model.Id .actual-price'))
+                                document.querySelector('.price-value-@Model.Id .actual-price').innerText = response.data.price;
+                            else
+                                document.querySelector('.price-value-@Model.Id').innerText = response.data.price;
                         }
                         if (response.data.sku) {
                             if(document.querySelector('#sku-@Model.Id'))

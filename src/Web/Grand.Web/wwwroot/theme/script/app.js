@@ -396,7 +396,10 @@ var vm = new Vue({
                 } else {
                     if (response.data.price) {
                         if (vm.PopupQuickViewVueModal.ProductType == 0) {
-                            vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
+                            if(vm.PopupQuickViewVueModal.ProductPrice.PriceWithDiscount!=null)
+                                vm.PopupQuickViewVueModal.ProductPrice.PriceWithDiscount = response.data.price;
+                            else
+                                vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
                         } else {
                             vm.PopupQuickViewVueModal.AssociatedProducts.find(x => x.Id === pId).ProductPrice.Price = response.data.price;
                         }
