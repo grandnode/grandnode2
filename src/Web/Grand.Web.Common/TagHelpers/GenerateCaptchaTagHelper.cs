@@ -44,7 +44,7 @@ namespace Grand.Web.Common.TagHelpers
             var captchaControl = new GoogleRecaptchaControl(_captchaSettings.ReCaptchaVersion)
             {
                 Theme = _captchaSettings.ReCaptchaTheme,
-                Id = "g-recaptcha-response-value-" + Guid.NewGuid().ToString("N"),
+                Id = "g-recaptcha-response-value",
                 PublicKey = _captchaSettings.ReCaptchaPublicKey,
                 Language = _captchaSettings.ReCaptchaLanguage
             };

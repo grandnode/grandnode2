@@ -97,22 +97,11 @@ namespace Grand.Web.Controllers
         //available even when navigation is not allowed
         [PublicStore(true)]
         [ClosedStore(true)]
-        [ValidateCaptcha]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> Login(LoginModel model, string returnUrl, bool captchaValid)
+        public virtual async Task<IActionResult> Login(LoginModel model, string returnUrl)
         {
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
             if (ModelState.IsValid)
             {
-                if (_customerSettings.UsernamesEnabled && model.Username != null)
-                {
-                    model.Username = model.Username.Trim();
-                }
                 var loginResult = await _customerManagerService.LoginCustomer(_customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
                 switch (loginResult)
                 {
