@@ -87,21 +87,7 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password)
         {
             var customer = _customerSettings.UsernamesEnabled ? await _customerService.GetCustomerByUsername(usernameOrEmail) : await _customerService.GetCustomerByEmail(usernameOrEmail);
-
-            if (customer == null)
-                return CustomerLoginResults.CustomerNotExist;
-            if (customer.Deleted)
-                return CustomerLoginResults.Deleted;
-            if (!customer.Active)
-                return CustomerLoginResults.NotActive;
-            if (!await _groupService.IsRegistered(customer))
-                return CustomerLoginResults.NotRegistered;
-
-            if (customer.CannotLoginUntilDateUtc.HasValue && customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
-                return CustomerLoginResults.LockedOut;
-
-            if (string.IsNullOrEmpty(password))
-                return CustomerLoginResults.WrongPassword;
+            
             var pwd = customer.PasswordFormatId switch {
                 PasswordFormat.Clear => password,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
@@ -110,20 +96,7 @@ namespace Grand.Business.Customers.Services
             };
             var isValid = pwd == customer.Password;
             if (!isValid)
-            {
-                //wrong password
-                customer.FailedLoginAttempts++;
-                if (_customerSettings.FailedPasswordAllowedAttempts > 0 &&
-                    customer.FailedLoginAttempts >= _customerSettings.FailedPasswordAllowedAttempts)
-                {
-                    //lock out
-                    customer.CannotLoginUntilDateUtc = DateTime.UtcNow.AddMinutes(_customerSettings.FailedPasswordLockoutMinutes);
-                    //reset the counter
-                    customer.FailedLoginAttempts = 0;
-                }
-                await _customerService.UpdateCustomerLastLoginDate(customer);
                 return CustomerLoginResults.WrongPassword;
-            }
 
             //2fa required
             if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && _customerSettings.TwoFactorAuthenticationEnabled)

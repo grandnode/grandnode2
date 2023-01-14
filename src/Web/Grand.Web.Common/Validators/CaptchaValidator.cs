@@ -5,7 +5,7 @@ using Grand.Web.Common.Security.Captcha;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace Grand.Web.Validators.Common;
+namespace Grand.Web.Common.Validators;
 
 public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
 {
