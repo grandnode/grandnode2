@@ -128,12 +128,7 @@ namespace Grand.Business.Customers.Services
             //2fa required
             if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && _customerSettings.TwoFactorAuthenticationEnabled)
                 return CustomerLoginResults.RequiresTwoFactor;
-
-            //save last login date
-            customer.FailedLoginAttempts = 0;
-            customer.CannotLoginUntilDateUtc = null;
-            customer.LastLoginDateUtc = DateTime.UtcNow;
-            await _customerService.UpdateCustomerLastLoginDate(customer);
+            
             return CustomerLoginResults.Successful;
         }
 
