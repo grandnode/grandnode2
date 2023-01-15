@@ -1,4 +1,4 @@
-﻿@model SubAccountModel
+﻿@model SubAccountEditModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -15,7 +15,7 @@
         <div class="page account-page subaccount-edit-page pl-lg-3 mb-3 pt-lg-0 pt-3">
             <h1 class="generalTitle h2">@Loc["Account.SubAccount.Edit"]</h1>
             <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger"></div>
-            <partial name="Partials/CreateOrUpdateSubAccount" model="Model" />
+            <partial name="Partials/EditSubAccount" model="Model" />
             <div class="buttons generalMarginSupporter">
                 <input type="submit" class="btn btn-info save-subaccount-button" value="@Loc["Common.Save"]" />
             </div>

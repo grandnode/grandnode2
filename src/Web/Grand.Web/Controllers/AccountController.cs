@@ -313,8 +313,8 @@ namespace Grand.Web.Controllers
 
             var customer = await _customerService.GetCustomerByEmail(model.Email);
 
-            _ = await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
-                false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
+            await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
+                _customerSettings.DefaultPasswordFormat, model.NewPassword));
 
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
@@ -913,12 +913,13 @@ namespace Grand.Web.Controllers
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
-            
+
             if (!ModelState.IsValid) return View(model);
 
             var changePasswordRequest = new ChangePasswordRequest(_workContext.CurrentCustomer.Email,
-                true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-            _ = await _customerManagerService.ChangePassword(changePasswordRequest);
+                _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
+
+            await _customerManagerService.ChangePassword(changePasswordRequest);
 
             //sign in
             await _authenticationService.SignIn(_workContext.CurrentCustomer, true);
@@ -1262,7 +1263,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = new SubAccountModel {
+            var model = new SubAccountCreateModel {
                 Active = true
             };
             return View(model);
@@ -1270,7 +1271,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> SubAccountAdd(SubAccountModel model)
+        public virtual async Task<IActionResult> SubAccountAdd(SubAccountCreateModel model)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
@@ -1315,7 +1316,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> SubAccountEdit(SubAccountModel model)
+        public virtual async Task<IActionResult> SubAccountEdit(SubAccountEditModel model)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
@@ -1325,22 +1326,13 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            var result = await _mediator.Send(new SubAccountEditCommand {
+            _ = await _mediator.Send(new SubAccountEditCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
-                Model = model,
+                EditModel = model,
                 Store = _workContext.CurrentStore
             });
-
-            if (result.success)
-            {
-                return RedirectToRoute("CustomerSubAccounts");
-            }
-
-            //errors
-            ModelState.AddModelError("", result.error);
-
-            //If we got this far, something failed, redisplay form
-            return View(model);
+            
+            return RedirectToRoute("CustomerSubAccounts");
         }
 
         [HttpPost]
@@ -1352,16 +1344,7 @@ namespace Grand.Web.Controllers
 
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
-
-            //find address (ensure that it belongs to the current customer)
-            if (!ModelState.IsValid)
-                return Json(new {
-                    redirect = Url.RouteUrl("CustomerSubAccounts"),
-                    success = false,
-                    error = string.Join("; ", ModelState.Values
-                        .SelectMany(x => x.Errors)
-                        .Select(x => x.ErrorMessage))
-                });
+            
             var result = await _mediator.Send(new SubAccountDeleteCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
                 CustomerId = id

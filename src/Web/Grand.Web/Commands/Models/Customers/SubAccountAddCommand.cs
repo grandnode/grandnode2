@@ -10,6 +10,6 @@ namespace Grand.Web.Commands.Models.Customers
     {
         public Customer Customer { get; set; }
         public Store Store { get; set; }
-        public SubAccountModel Model { get; set; }
+        public SubAccountCreateModel Model { get; set; }
     }
 }

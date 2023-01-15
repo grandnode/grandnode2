@@ -1,5 +1,5 @@
-﻿@model SubAccountModel
-
+﻿@model SubAccountEditModel
+@inject CustomerSettings customerSettings 
 <input asp-for="Id" type="hidden" />
 <div class="edit-subaccount row">
     <div class="form-group col-sm-12 col-md-6">
@@ -24,15 +24,14 @@
         <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
             <span class="required">*</span>
-            <input asp-for="Email" v-model="createorupdatesubaccount.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+            <input asp-for="Email" v-model="createorupdatesubaccount.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" asp-readonly=@(!customerSettings.AllowUsersToChangeEmail)/>
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="Email"></span>
         </validation-provider>
     </div>
     <div class="form-group col-sm-12">
-        <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
+        <validation-provider tag="div" name="Password" v-slot="{ errors, classes }">
             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-            <span class="required">*</span>
             <input asp-for="Password" v-model="createorupdatesubaccount.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="Password"></span>

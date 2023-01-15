@@ -5,10 +5,10 @@ using MediatR;
 
 namespace Grand.Web.Commands.Models.Customers
 {
-    public class SubAccountEditCommand : IRequest<(bool success, string error)>
+    public class SubAccountEditCommand : IRequest<bool>
     {
         public Customer CurrentCustomer { get; set; }
         public Store Store { get; set; }
-        public SubAccountModel Model { get; set; }
+        public SubAccountEditModel EditModel { get; set; }
     }
 }

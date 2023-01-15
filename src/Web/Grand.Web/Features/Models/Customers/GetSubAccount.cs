@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Grand.Web.Features.Models.Customers
 {
-    public class GetSubAccount : IRequest<SubAccountModel>
+    public class GetSubAccount : IRequest<SubAccountEditModel>
     {
         public Customer CurrentCustomer { get; set; }
         public string CustomerId { get; set; }

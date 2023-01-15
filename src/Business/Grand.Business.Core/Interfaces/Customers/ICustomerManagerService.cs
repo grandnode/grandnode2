@@ -37,8 +37,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Change password
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        Task<ChangePasswordResult> ChangePassword(ChangePasswordRequest request);
+        Task ChangePassword(ChangePasswordRequest request);
 
         /// <summary>
         /// Sets a user email

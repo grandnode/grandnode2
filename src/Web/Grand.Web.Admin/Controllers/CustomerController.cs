@@ -270,13 +270,8 @@ namespace Grand.Web.Admin.Controllers
                 //password
                 if (!string.IsNullOrWhiteSpace(model.Password))
                 {
-                    var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
-                    var changePassResult = await _customerManagerService.ChangePassword(changePassRequest);
-                    if (!changePassResult.Success)
-                    {
-                        foreach (var changePassError in changePassResult.Errors)
-                            Error(changePassError);
-                    }
+                    var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat, model.Password);
+                    await _customerManagerService.ChangePassword(changePassRequest);
                 }
                 if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(model.VendorId))
                 {
@@ -368,13 +363,8 @@ namespace Grand.Web.Admin.Controllers
                     //change password
                     if (!string.IsNullOrWhiteSpace(model.Password))
                     {
-                        var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
-                        var changePassResult = await _customerManagerService.ChangePassword(changePassRequest);
-                        if (!changePassResult.Success)
-                        {
-                            foreach (var changePassError in changePassResult.Errors)
-                                Error(changePassError);
-                        }
+                        var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat, model.Password);
+                        await _customerManagerService.ChangePassword(changePassRequest);
                     }
                     if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(model.VendorId))
                     {

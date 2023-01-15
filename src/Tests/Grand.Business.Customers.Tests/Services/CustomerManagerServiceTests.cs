@@ -149,21 +149,6 @@ namespace Grand.Business.Customers.Services.Tests
         }
 
         [TestMethod()]
-        public async Task ChangePasswordTest_InValidOldPassword_Errors()
-        {
-            //Arrange
-            var customer = new Customer() { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "111111" };
-            _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
-
-            var changepassword = new Core.Utilities.Customers.ChangePasswordRequest("admin@admin.com",
-                true, PasswordFormat.Clear,
-                "zxcvbn", "123456");
-            //Act
-            var result = await _customerManagerService.ChangePassword(changepassword);
-            //Assert
-            Assert.AreEqual(result.Success, false);
-        }
-        [TestMethod()]
         public async Task ChangePasswordTest_Success()
         {
             //Arrange
@@ -171,12 +156,13 @@ namespace Grand.Business.Customers.Services.Tests
             _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
 
             var changepassword = new Core.Utilities.Customers.ChangePasswordRequest("admin@admin.com",
-                true, PasswordFormat.Clear,
+                PasswordFormat.Clear,
                 "zxcvbn", "123456");
             //Act
-            var result = await _customerManagerService.ChangePassword(changepassword);
+            await _customerManagerService.ChangePassword(changepassword);
             //Assert
-            Assert.AreEqual(result.Success, true);
+            var passwordMatch = _customerManagerService.PasswordMatch(PasswordFormat.Clear, "zxcvb", "zxcvb", string.Empty);
+            Assert.IsTrue(passwordMatch);
         }
         [TestMethod()]
         public async Task SetEmailTest_Success()

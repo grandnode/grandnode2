@@ -223,64 +223,15 @@ namespace Grand.Business.Customers.Services
         /// Change password
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        public virtual async Task<ChangePasswordResult> ChangePassword(ChangePasswordRequest request)
+        public virtual async Task ChangePassword(ChangePasswordRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var result = new ChangePasswordResult();
-            /*
-            if (string.IsNullOrWhiteSpace(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
-                return result;
-            }
-            if (string.IsNullOrWhiteSpace(request.NewPassword))
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
-                return result;
-            }
-
             var customer = await _customerService.GetCustomerByEmail(request.Email);
             if (customer == null)
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));
-                return result;
-            }
-            */
-            var customer = await _customerService.GetCustomerByEmail(request.Email);
-            /*if (request.ValidOldPassword)
-            {
-                var oldPwd = customer.PasswordFormatId switch {
-                    PasswordFormat.Encrypted => _encryptionService.EncryptText(request.OldPassword,
-                        customer.PasswordSalt),
-                    PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.OldPassword,
-                        customer.PasswordSalt, _customerSettings.HashedPasswordFormat),
-                    _ => request.OldPassword
-                };
-
-                if (oldPwd != customer.Password)
-                {
-                    result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.OldPasswordDoesntMatch"));
-                    return result;
-                }
-            }*/
-
-            //check for duplicates
-            /*if (_customerSettings.UnduplicatedPasswordsNumber > 0)
-            {
-                //get some of previous passwords
-                var previousPasswords = await _customerHistoryPasswordService.GetPasswords(customer.Id, passwordsToReturn: _customerSettings.UnduplicatedPasswordsNumber);
-
-                var newPasswordMatchesWithPrevious = previousPasswords.Any(password => PasswordMatch(password, request));
-                if (newPasswordMatchesWithPrevious)
-                {
-                    result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordMatchesWithPrevious"));
-                    return result;
-                }
-            }*/
-
+                throw new ArgumentNullException(nameof(customer));
+            
             switch (request.PasswordFormat)
             {
                 case PasswordFormat.Clear:
@@ -312,8 +263,6 @@ namespace Grand.Business.Customers.Services
 
             //create new login token
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
-
-            return result;
         }
 
         /// <summary>
