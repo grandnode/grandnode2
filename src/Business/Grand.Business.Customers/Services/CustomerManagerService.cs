@@ -66,15 +66,15 @@ namespace Grand.Business.Customers.Services
 
         #region Methods
 
-        private bool PasswordMatch(CustomerHistoryPassword customerPassword, ChangePasswordRequest request)
+        public virtual bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword, string passwordSalt)
         {
-            var newPwd = request.PasswordFormat switch {
-                PasswordFormat.Clear => request.NewPassword,
-                PasswordFormat.Encrypted => _encryptionService.EncryptText(request.NewPassword, customerPassword.PasswordSalt),
-                PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.NewPassword, customerPassword.PasswordSalt, _customerSettings.HashedPasswordFormat),
+            var newPwd = passwordFormat switch {
+                PasswordFormat.Clear => newPassword,
+                PasswordFormat.Encrypted => _encryptionService.EncryptText(newPassword, passwordSalt),
+                PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(newPassword, passwordSalt, _customerSettings.HashedPasswordFormat),
                 _ => throw new Exception("PasswordFormat not supported")
             };
-            return customerPassword.Password.Equals(newPwd);
+            return oldPassword.Equals(newPwd);
         }
 
 
@@ -230,6 +230,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(request));
 
             var result = new ChangePasswordResult();
+            /*
             if (string.IsNullOrWhiteSpace(request.Email))
             {
                 result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
@@ -247,8 +248,9 @@ namespace Grand.Business.Customers.Services
                 result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));
                 return result;
             }
-
-            if (request.ValidOldPassword)
+            */
+            var customer = await _customerService.GetCustomerByEmail(request.Email);
+            /*if (request.ValidOldPassword)
             {
                 var oldPwd = customer.PasswordFormatId switch {
                     PasswordFormat.Encrypted => _encryptionService.EncryptText(request.OldPassword,
@@ -263,10 +265,10 @@ namespace Grand.Business.Customers.Services
                     result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.OldPasswordDoesntMatch"));
                     return result;
                 }
-            }
+            }*/
 
             //check for duplicates
-            if (_customerSettings.UnduplicatedPasswordsNumber > 0)
+            /*if (_customerSettings.UnduplicatedPasswordsNumber > 0)
             {
                 //get some of previous passwords
                 var previousPasswords = await _customerHistoryPasswordService.GetPasswords(customer.Id, passwordsToReturn: _customerSettings.UnduplicatedPasswordsNumber);
@@ -277,7 +279,7 @@ namespace Grand.Business.Customers.Services
                     result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordMatchesWithPrevious"));
                     return result;
                 }
-            }
+            }*/
 
             switch (request.PasswordFormat)
             {

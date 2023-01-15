@@ -24,6 +24,16 @@ namespace Grand.Business.Core.Interfaces.Customers
         Task<RegistrationResult> RegisterCustomer(RegistrationRequest request);
 
         /// <summary>
+        /// Password match
+        /// </summary>
+        /// <param name="passwordFormat"></param>
+        /// <param name="oldPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <param name="passwordSalt"></param>
+        /// <returns></returns>
+        bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword, string passwordSalt);
+        
+        /// <summary>
         /// Change password
         /// </summary>
         /// <param name="request">Request</param>

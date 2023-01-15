@@ -16,5 +16,8 @@ namespace Grand.Web.Models.Customer
 
         public bool DisablePasswordChanging { get; set; }
         public string Result { get; set; }
+
+        public string Token { get; set; }
+        public string Email { get; set; }
     }
 }
