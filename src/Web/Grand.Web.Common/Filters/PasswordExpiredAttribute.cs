@@ -68,7 +68,7 @@ namespace Grand.Web.Common.Filters
                     return;
 
                 //don't validate on ChangePassword page and store closed
-                if (!(controllerName.Equals("Customer", StringComparison.OrdinalIgnoreCase) &&
+                if (!(controllerName.Equals("Account", StringComparison.OrdinalIgnoreCase) &&
                       actionName.Equals("ChangePassword", StringComparison.OrdinalIgnoreCase))
                     &&
                     !(controllerName.Equals("Common", StringComparison.OrdinalIgnoreCase) &&
