@@ -899,13 +899,10 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = new ChangePasswordModel();
-
-            var passwordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery
-                { Customer = _workContext.CurrentCustomer });
-            if (passwordIsExpired)
-                ModelState.AddModelError(string.Empty,
-                    _translationService.GetResource("Account.ChangePassword.PasswordIsExpired"));
+            var model = new ChangePasswordModel {
+                PasswordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery
+                    { Customer = _workContext.CurrentCustomer })
+            };
 
             return View(model);
         }
@@ -916,28 +913,17 @@ namespace Grand.Web.Controllers
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
-
-            var customer = _workContext.CurrentCustomer;
-
+            
             if (!ModelState.IsValid) return View(model);
 
-            var changePasswordRequest = new ChangePasswordRequest(customer.Email,
+            var changePasswordRequest = new ChangePasswordRequest(_workContext.CurrentCustomer.Email,
                 true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-            var changePasswordResult = await _customerManagerService.ChangePassword(changePasswordRequest);
-            if (changePasswordResult.Success)
-            {
-                //sign in
-                await _authenticationService.SignIn(customer, true);
+            _ = await _customerManagerService.ChangePassword(changePasswordRequest);
 
-                model.Result = _translationService.GetResource("Account.ChangePassword.Success");
-                return View(model);
-            }
+            //sign in
+            await _authenticationService.SignIn(_workContext.CurrentCustomer, true);
 
-            //errors
-            foreach (var error in changePasswordResult.Errors)
-                ModelState.AddModelError("", error);
-
-            //If we got this far, something failed, redisplay form
+            model.Result = _translationService.GetResource("Account.ChangePassword.Success");
             return View(model);
         }
 
