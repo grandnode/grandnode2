@@ -134,12 +134,10 @@ namespace Grand.Business.Authentication.Services
                 approved);
 
             //whether registration request has been completed successfully
-            var registrationResult = await _customerManagerService.RegisterCustomer(registrationRequest);
-            if (!registrationResult.Success)
-                return Error(registrationResult.Errors);
-
+            await _customerManagerService.RegisterCustomer(registrationRequest);
+            
             //allow to save other customer values by consuming this event
-            await _mediator.Publish(new RegisteredByExternalMethod(_workContext.CurrentCustomer, parameters, registrationResult));
+            await _mediator.Publish(new RegisteredByExternalMethod(_workContext.CurrentCustomer, parameters));
 
             //raise customer registered event
             await _mediator.Publish(new CustomerRegisteredEvent(_workContext.CurrentCustomer));

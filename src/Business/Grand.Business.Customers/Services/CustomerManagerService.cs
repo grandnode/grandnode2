@@ -110,67 +110,17 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="request">Request</param>
         /// <returns>Result</returns>
-        public virtual async Task<RegistrationResult> RegisterCustomer(RegistrationRequest request)
+        public virtual async Task RegisterCustomer(RegistrationRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             if (request.Customer == null)
                 throw new ArgumentException("Can't load current customer");
-
-            var result = new RegistrationResult();
-
-            if (await _groupService.IsRegistered(request.Customer))
-            {
-                result.AddError("Current customer is already registered");
-                return result;
-            }
-            if (string.IsNullOrEmpty(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.EmailIsNotProvided"));
-                return result;
-            }
-            if (!CommonHelper.IsValidEmail(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Common.WrongEmail"));
-                return result;
-            }
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.PasswordIsNotProvided"));
-                return result;
-            }
-            if (_customerSettings.UsernamesEnabled)
-            {
-                if (string.IsNullOrEmpty(request.Username))
-                {
-                    result.AddError(_translationService.GetResource("Account.Register.Errors.UsernameIsNotProvided"));
-                    return result;
-                }
-            }
-
-            //validate unique user
-            if (await _customerService.GetCustomerByEmail(request.Email) != null)
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.EmailAlreadyExists"));
-                return result;
-            }
-            if (_customerSettings.UsernamesEnabled)
-            {
-                if (await _customerService.GetCustomerByUsername(request.Username) != null)
-                {
-                    result.AddError(_translationService.GetResource("Account.Register.Errors.UsernameAlreadyExists"));
-                    return result;
-                }
-            }
-
+            
             //event notification
-            await _mediator.CustomerRegistrationEvent(result, request);
-
-            //return if exist errors
-            if (result.Errors.Any())
-                return result;
-
+            await _mediator.CustomerRegistrationEvent(request);
+            
             request.Customer.Username = request.Username;
             request.Customer.Email = request.Email;
             request.Customer.PasswordFormatId = request.PasswordFormat;
@@ -193,7 +143,6 @@ namespace Grand.Business.Customers.Services
                 default:
                     break;
             }
-
             await _customerHistoryPasswordService.InsertCustomerPassword(request.Customer);
 
             request.Customer.Active = request.IsApproved;
@@ -212,11 +161,9 @@ namespace Grand.Business.Customers.Services
                 request.Customer.Groups.Remove(guestGroup.Id);
                 await _customerService.DeleteCustomerGroupInCustomer(guestGroup, request.Customer.Id);
             }
-
             request.Customer.PasswordChangeDateUtc = DateTime.UtcNow;
             await _customerService.UpdateCustomer(request.Customer);
 
-            return result;
         }
 
         /// <summary>

@@ -353,12 +353,10 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
         [AutoValidateAntiforgeryToken]
         //available even when navigation is not allowed
         [PublicStore(true)]
-        public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl, bool captchaValid,
-            [FromServices] ICustomerAttributeParser customerAttributeParser)
+        public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl)
         {
             //check whether registration is allowed
             if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -368,21 +366,6 @@ namespace Grand.Web.Controllers
             if (await _groupService.IsRegistered(_workContext.CurrentCustomer))
             {
                 return RedirectToRoute("HomePage");
-            }
-
-            //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
-                { SelectedAttributes = model.SelectedAttributes });
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
-            foreach (var error in customerAttributeWarnings)
-            {
-                ModelState.AddModelError("", error);
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnRegistrationPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
             }
 
             if (ModelState is { IsValid: true, ErrorCount: 0 })
@@ -396,68 +379,65 @@ namespace Grand.Web.Controllers
                 var registrationRequest = new RegistrationRequest(_workContext.CurrentCustomer, model.Email,
                     _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password,
                     _customerSettings.DefaultPasswordFormat, _workContext.CurrentStore.Id, isApproved);
-                var registrationResult = await _customerManagerService.RegisterCustomer(registrationRequest);
-                if (registrationResult.Success)
+                await _customerManagerService.RegisterCustomer(registrationRequest);
+
+                var customerAttributes = await _mediator.Send(new GetParseCustomAttributes
+                    { SelectedAttributes = model.SelectedAttributes });
+
+                await _mediator.Send(new CustomerRegisteredCommand {
+                    Customer = _workContext.CurrentCustomer,
+                    CustomerAttributes = customerAttributes,
+                    Model = model,
+                    Store = _workContext.CurrentStore
+                });
+
+                //login customer now
+                if (isApproved)
+                    await _authenticationService.SignIn(_workContext.CurrentCustomer, true);
+
+                //raise event       
+                await _mediator.Publish(new CustomerRegisteredEvent(_workContext.CurrentCustomer));
+
+                switch (_customerSettings.UserRegistrationType)
                 {
-                    await _mediator.Send(new CustomerRegisteredCommand {
-                        Customer = _workContext.CurrentCustomer,
-                        CustomerAttributes = customerAttributes,
-                        Model = model,
-                        Store = _workContext.CurrentStore
-                    });
-
-                    //login customer now
-                    if (isApproved)
-                        await _authenticationService.SignIn(_workContext.CurrentCustomer, true);
-
-                    //raise event       
-                    await _mediator.Publish(new CustomerRegisteredEvent(_workContext.CurrentCustomer));
-
-                    switch (_customerSettings.UserRegistrationType)
+                    case UserRegistrationType.EmailValidation:
                     {
-                        case UserRegistrationType.EmailValidation:
-                        {
-                            //email validation message
-                            await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                                SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
-                            await _messageProviderService.SendCustomerEmailValidationMessage(
-                                _workContext.CurrentCustomer, _workContext.CurrentStore,
-                                _workContext.WorkingLanguage.Id);
+                        //email validation message
+                        await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                            SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
+                        await _messageProviderService.SendCustomerEmailValidationMessage(
+                            _workContext.CurrentCustomer, _workContext.CurrentStore,
+                            _workContext.WorkingLanguage.Id);
 
-                            //result
-                            return RedirectToRoute("RegisterResult",
-                                new { resultId = (int)UserRegistrationType.EmailValidation });
-                        }
-                        case UserRegistrationType.AdminApproval:
-                        {
-                            return RedirectToRoute("RegisterResult",
-                                new { resultId = (int)UserRegistrationType.AdminApproval });
-                        }
-                        case UserRegistrationType.Standard:
-                        {
-                            //send customer welcome message
-                            await _messageProviderService.SendCustomerWelcomeMessage(_workContext.CurrentCustomer,
-                                _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
+                        //result
+                        return RedirectToRoute("RegisterResult",
+                            new { resultId = (int)UserRegistrationType.EmailValidation });
+                    }
+                    case UserRegistrationType.AdminApproval:
+                    {
+                        return RedirectToRoute("RegisterResult",
+                            new { resultId = (int)UserRegistrationType.AdminApproval });
+                    }
+                    case UserRegistrationType.Standard:
+                    {
+                        //send customer welcome message
+                        await _messageProviderService.SendCustomerWelcomeMessage(_workContext.CurrentCustomer,
+                            _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
-                            var redirectUrl = Url.RouteUrl("RegisterResult",
-                                new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
-                            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                            {
-                                redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
-                            }
-
-                            return Redirect(redirectUrl);
-                        }
-                        default:
+                        var redirectUrl = Url.RouteUrl("RegisterResult",
+                            new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
+                        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         {
-                            return RedirectToRoute("HomePage");
+                            redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
                         }
+
+                        return Redirect(redirectUrl);
+                    }
+                    default:
+                    {
+                        return RedirectToRoute("HomePage");
                     }
                 }
-
-                //errors
-                foreach (var error in registrationResult.Errors)
-                    ModelState.AddModelError("", error);
             }
 
             //If we got this far, something failed, redisplay form
@@ -467,7 +447,8 @@ namespace Grand.Web.Controllers
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model,
-                OverrideCustomCustomerAttributes = customerAttributes
+                OverrideCustomCustomerAttributes = await _mediator.Send(new GetParseCustomAttributes
+                    { SelectedAttributes = model.SelectedAttributes })
             });
 
             return View(model);
@@ -1287,17 +1268,7 @@ namespace Grand.Web.Controllers
                 Store = _workContext.CurrentStore
             });
 
-            if (result.Success)
-            {
-                return RedirectToRoute("CustomerSubAccounts");
-            }
-
-            //errors
-            foreach (var error in result.Errors)
-                ModelState.AddModelError("", error);
-
-            //If we got this far, something failed, redisplay form
-            return View(model);
+            return RedirectToRoute("CustomerSubAccounts");
         }
 
         public virtual async Task<IActionResult> SubAccountEdit(string id)
@@ -1331,7 +1302,7 @@ namespace Grand.Web.Controllers
                 EditModel = model,
                 Store = _workContext.CurrentStore
             });
-            
+
             return RedirectToRoute("CustomerSubAccounts");
         }
 
@@ -1344,7 +1315,7 @@ namespace Grand.Web.Controllers
 
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
-            
+
             var result = await _mediator.Send(new SubAccountDeleteCommand {
                 CurrentCustomer = _workContext.CurrentCustomer,
                 CustomerId = id

@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
+using Grand.Web.Models.Common;
 using Grand.Web.Models.Newsletter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -133,7 +134,8 @@ namespace Grand.Web.Models.Customer
         public bool DisplayVatNumber { get; set; }
         
         public bool DisplayCaptcha { get; set; }
-
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> SelectedAttributes { get; set; }
         

@@ -20,8 +20,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Register customer
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        Task<RegistrationResult> RegisterCustomer(RegistrationRequest request);
+        Task RegisterCustomer(RegistrationRequest request);
 
         /// <summary>
         /// Password match
