@@ -39,28 +39,41 @@ namespace Grand.Infrastructure.Validators
                 return;
             }
 
-            if (context.ActionArguments.TryGetValue("model", out var model))
+            foreach (var argument in context.ActionArguments.Where(x => !IsSimpleType(x.Value.GetType())))
             {
-                Type genericType = typeof(IValidator<>).MakeGenericType(model!.GetType());
+                Type genericType = typeof(IValidator<>).MakeGenericType(argument.Value!.GetType());
                 var validator = (IValidator)_serviceProvider.GetService(genericType);
-                if (validator is not null)
-                {
-                    var contextValidator = new ValidationContext<object>(model);
-                    var result = await validator.ValidateAsync(contextValidator);
-                    if (!result.IsValid)
-                    {
-                        result.AddToModelState(context.ModelState, "");
-                        var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
-                        if (hasJsonData)
-                        {
-                            context.Result = new BadRequestObjectResult(context.ModelState);
-                            return;
-                        }
-                    }
-                }
+                if (validator is null) continue;
+                var contextValidator = new ValidationContext<object>(argument.Value);
+                var result = await validator.ValidateAsync(contextValidator);
+                if (result.IsValid) continue;
+                
+                result.AddToModelState(context.ModelState, "");
+                var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
+                if (!hasJsonData) continue;
+                context.Result = new BadRequestObjectResult(context.ModelState);
+                return;
             }
 
             await next();
+        }
+        
+        private static bool IsSimpleType(Type type)
+        {
+            return
+                type.IsPrimitive ||
+                new Type[] {
+                    typeof(string),
+                    typeof(decimal),
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(TimeSpan),
+                    typeof(Guid)
+                }.Contains(type) ||
+                type.IsEnum ||
+                Convert.GetTypeCode(type) != TypeCode.Object ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]))
+                ;
         }
 
         #endregion
