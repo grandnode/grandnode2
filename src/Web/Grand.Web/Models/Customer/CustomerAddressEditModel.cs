@@ -10,5 +10,6 @@ namespace Grand.Web.Models.Customer
             Address = new AddressModel();
         }
         public AddressModel Address { get; set; }
+        public string AddressId { get; set; }
     }
 }

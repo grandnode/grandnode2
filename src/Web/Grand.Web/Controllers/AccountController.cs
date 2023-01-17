@@ -777,7 +777,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, string addressId,
+        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model,
             [FromServices] AddressSettings addressSettings,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
@@ -786,7 +786,7 @@ namespace Grand.Web.Controllers
 
             var customer = _workContext.CurrentCustomer;
             //find address (ensure that it belongs to the current customer)
-            var address = customer.Addresses.FirstOrDefault(a => a.Id == addressId);
+            var address = customer.Addresses.FirstOrDefault(a => a.Id == model.AddressId);
             if (address == null)
                 //address is not found
                 return RedirectToRoute("CustomerAddresses");
@@ -923,57 +923,20 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            var loginResult = await _customerManagerService.LoginCustomer(
-                _customerSettings.UsernamesEnabled
-                    ? _workContext.CurrentCustomer.Username
-                    : _workContext.CurrentCustomer.Email, model.Password);
+            //delete account 
+            await _mediator.Send(new DeleteAccountCommand {
+                Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore,
+                IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
+            });
 
-            switch (loginResult)
-            {
-                case CustomerLoginResults.Successful:
-                {
-                    //delete account 
-                    await _mediator.Send(new DeleteAccountCommand {
-                        Customer = _workContext.CurrentCustomer, Store = _workContext.CurrentStore,
-                        IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
-                    });
+            //standard logout 
+            await _authenticationService.SignOut();
 
-                    //standard logout 
-                    await _authenticationService.SignOut();
+            //Show success full message 
+            Success(_translationService.GetResource("Account.Delete.Success"));
 
-                    //Show success full message 
-                    Success(_translationService.GetResource("Account.Delete.Success"));
+            return RedirectToRoute("HomePage");
 
-                    return RedirectToRoute("HomePage");
-                }
-                case CustomerLoginResults.CustomerNotExist:
-                    ModelState.AddModelError("",
-                        _translationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
-                    break;
-                case CustomerLoginResults.Deleted:
-                    ModelState.AddModelError("",
-                        _translationService.GetResource("Account.Login.WrongCredentials.Deleted"));
-                    break;
-                case CustomerLoginResults.NotActive:
-                    ModelState.AddModelError("",
-                        _translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
-                    break;
-                case CustomerLoginResults.NotRegistered:
-                    ModelState.AddModelError("",
-                        _translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
-                    break;
-                case CustomerLoginResults.LockedOut:
-                    ModelState.AddModelError("",
-                        _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
-                    break;
-                case CustomerLoginResults.WrongPassword:
-                default:
-                    ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials"));
-                    break;
-            }
-
-            //If we got this far, something failed, redisplay form
-            return View(model);
         }
 
         #endregion
