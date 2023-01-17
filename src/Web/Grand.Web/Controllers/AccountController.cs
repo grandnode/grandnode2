@@ -561,41 +561,24 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> Info(CustomerInfoModel model,
-            [FromServices] ICustomerAttributeParser customerAttributeParser)
+        public virtual async Task<IActionResult> Info(CustomerInfoModel model)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes {
-                SelectedAttributes = model.SelectedAttributes,
-                CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList()
-            });
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
-
-            foreach (var error in customerAttributeWarnings)
+            if (ModelState.IsValid)
             {
-                ModelState.AddModelError("", error);
-            }
-
-            try
-            {
-                if (ModelState is { IsValid: true, ErrorCount: 0 })
-                {
-                    await _mediator.Send(new UpdateCustomerInfoCommand {
-                        Customer = _workContext.CurrentCustomer,
-                        CustomerAttributes = customerAttributes,
-                        Model = model,
-                        OriginalCustomerIfImpersonated = _workContext.OriginalCustomerIfImpersonated,
-                        Store = _workContext.CurrentStore
-                    });
-                    return RedirectToRoute("CustomerInfo");
-                }
-            }
-            catch (Exception exc)
-            {
-                ModelState.AddModelError("", exc.Message);
+                await _mediator.Send(new UpdateCustomerInfoCommand {
+                    Customer = _workContext.CurrentCustomer,
+                    CustomerAttributes = await _mediator.Send(new GetParseCustomAttributes {
+                        SelectedAttributes = model.SelectedAttributes,
+                        CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList()
+                    }),
+                    Model = model,
+                    OriginalCustomerIfImpersonated = _workContext.OriginalCustomerIfImpersonated,
+                    Store = _workContext.CurrentStore
+                });
+                return RedirectToRoute("CustomerInfo");
             }
 
             //If we got this far, something failed, redisplay form
@@ -605,7 +588,10 @@ namespace Grand.Web.Controllers
                 ExcludeProperties = true,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
-                OverrideCustomCustomerAttributes = customerAttributes
+                OverrideCustomCustomerAttributes = await _mediator.Send(new GetParseCustomAttributes {
+                    SelectedAttributes = model.SelectedAttributes,
+                    CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList()
+                })
             });
 
             return View(model);
@@ -637,7 +623,6 @@ namespace Grand.Web.Controllers
             });
         }
 
-        //TODO
         public virtual async Task<IActionResult> Export()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
