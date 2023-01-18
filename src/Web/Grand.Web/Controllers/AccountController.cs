@@ -204,7 +204,7 @@ namespace Grand.Web.Controllers
             return View();
         }
 
-        internal async Task<IActionResult> SignInAction(Customer customer, bool createPersistentCookie = false,
+        private async Task<IActionResult> SignInAction(Customer customer, bool createPersistentCookie = false,
             string returnUrl = null)
         {
             //raise event       
@@ -304,11 +304,7 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                model.DisablePasswordChanging = false;
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
             var customer = await _customerService.GetCustomerByEmail(model.Email);
 
@@ -367,7 +363,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
             }
 
-            if (ModelState is { IsValid: true })
+            if (ModelState.IsValid)
             {
                 if (_customerSettings.UsernamesEnabled && model.Username != null)
                 {
@@ -490,7 +486,7 @@ namespace Grand.Web.Controllers
             var statusText = _translationService.GetResource("Account.CheckUsernameAvailability.NotAvailable");
 
             if (!_customerSettings.UsernamesEnabled || string.IsNullOrWhiteSpace(username))
-                return Json(new { Available = usernameAvailable, Text = statusText });
+                return Json(new { Available = false, Text = statusText });
 
             if (_workContext.CurrentCustomer is { Username: { } } &&
                 _workContext.CurrentCustomer.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
@@ -500,7 +496,7 @@ namespace Grand.Web.Controllers
             else
             {
                 var customer = await _customerService.GetCustomerByUsername(username);
-                if (customer != null) return Json(new { Available = usernameAvailable, Text = statusText });
+                if (customer != null) return Json(new { Available = false, Text = statusText });
                 statusText = _translationService.GetResource("Account.CheckUsernameAvailability.Available");
                 usernameAvailable = true;
             }
@@ -516,12 +512,12 @@ namespace Grand.Web.Controllers
             if (customer == null)
                 return RedirectToRoute("HomePage");
 
-            var cToken =
+            var activationToken =
                 await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.AccountActivationToken);
-            if (string.IsNullOrEmpty(cToken))
+            if (string.IsNullOrEmpty(activationToken))
                 return RedirectToRoute("HomePage");
 
-            if (!cToken.Equals(token, StringComparison.OrdinalIgnoreCase))
+            if (!activationToken.Equals(token, StringComparison.OrdinalIgnoreCase))
                 return RedirectToRoute("HomePage");
 
             //activate user account
@@ -707,7 +703,7 @@ namespace Grand.Web.Controllers
 
             var customer = _workContext.CurrentCustomer;
 
-            if (ModelState is { IsValid: true })
+            if (ModelState.IsValid)
             {
                 var address = model.Address.ToEntity(_workContext.CurrentCustomer, addressSettings);
                 address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
@@ -780,7 +776,7 @@ namespace Grand.Web.Controllers
                 //address is not found
                 return RedirectToRoute("CustomerAddresses");
             
-            if (ModelState is { IsValid: true })
+            if (ModelState.IsValid)
             {
                 address = model.Address.ToEntity(address, _workContext.CurrentCustomer, addressSettings);
                 address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
