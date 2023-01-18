@@ -249,7 +249,6 @@ namespace Grand.Infrastructure
 
         #endregion
 
-
         #region Methods
 
         /// <summary>

@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
@@ -46,7 +45,6 @@ namespace Grand.Web.Controllers
         private readonly IPaymentTransactionService _paymentTransactionService;
         private readonly ILogger _logger;
         private readonly IOrderService _orderService;
-        private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
         private readonly IProductService _productService;
@@ -74,7 +72,6 @@ namespace Grand.Web.Controllers
             IPaymentTransactionService paymentTransactionService,
             ILogger logger,
             IOrderService orderService,
-            IAddressAttributeParser addressAttributeParser,
             ICustomerActivityService customerActivityService,
             IMediator mediator,
             IProductService productService,
@@ -97,7 +94,6 @@ namespace Grand.Web.Controllers
             _paymentTransactionService = paymentTransactionService;
             _logger = logger;
             _orderService = orderService;
-            _addressAttributeParser = addressAttributeParser;
             _customerActivityService = customerActivityService;
             _mediator = mediator;
             _productService = productService;
@@ -493,14 +489,6 @@ namespace Grand.Web.Controllers
                 }
                 else
                 {
-                    //custom address attributes
-                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
-                    var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
-                    foreach (var error in customAttributeWarnings)
-                    {
-                        ModelState.AddModelError("", error);
-                    }
-
                     if (!ModelState.IsValid)
                     {
                         //model is not valid. redisplay the form with errors
@@ -511,7 +499,7 @@ namespace Grand.Web.Controllers
                             Language = _workContext.WorkingLanguage,
                             Store = _workContext.CurrentStore,
                             SelectedCountryId = model.BillingNewAddress.CountryId,
-                            OverrideAttributes = customAttributes
+                            OverrideAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.BillingNewAddress.SelectedAttributes })
                         });
 
                         billingAddressModel.NewAddressPreselected = true;
@@ -543,7 +531,7 @@ namespace Grand.Web.Controllers
                                 ? model.BillingNewAddress.ToEntity()
                                 : model.BillingNewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
 
-                        address.Attributes = customAttributes;
+                        address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
                         address.CreatedOnUtc = DateTime.UtcNow;
                         address.AddressType =
                             _addressSettings.AddressTypeEnabled ? AddressType.Billing : AddressType.Any;
@@ -655,15 +643,6 @@ namespace Grand.Web.Controllers
                     }
                     else
                     {
-                        //custom address attributes
-                        var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
-                        var customAttributeWarnings =
-                            await _addressAttributeParser.GetAttributeWarnings(customAttributes);
-                        foreach (var error in customAttributeWarnings)
-                        {
-                            ModelState.AddModelError("", error);
-                        }
-
                         if (!ModelState.IsValid)
                         {
                             //model is not valid. redisplay the form with errors
@@ -673,7 +652,7 @@ namespace Grand.Web.Controllers
                                 Language = _workContext.WorkingLanguage,
                                 Store = _workContext.CurrentStore,
                                 SelectedCountryId = model.ShippingNewAddress.CountryId,
-                                OverrideAttributes = customAttributes
+                                OverrideAttributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes })
                             });
 
                             shippingAddressModel.NewAddressPreselected = true;
@@ -704,7 +683,7 @@ namespace Grand.Web.Controllers
                                     ? model.ShippingNewAddress.ToEntity()
                                     : model.ShippingNewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
 
-                            address.Attributes = customAttributes;
+                            address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
                             address.CreatedOnUtc = DateTime.UtcNow;
                             address.AddressType = _addressSettings.AddressTypeEnabled
                                 ? model.BillToTheSameAddress ? AddressType.Any : AddressType.Shipping

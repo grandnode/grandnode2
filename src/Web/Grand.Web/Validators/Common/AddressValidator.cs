@@ -1,9 +1,12 @@
 ﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
+using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
+using MediatR;
 
 namespace Grand.Web.Validators.Common
 {
@@ -11,6 +14,7 @@ namespace Grand.Web.Validators.Common
     {
         public AddressValidator(
             IEnumerable<IValidatorConsumer<AddressModel>> validators,
+            IMediator mediator, IAddressAttributeParser addressAttributeParser,
             ITranslationService translationService,
             ICountryService countryService,
             AddressSettings addressSettings)
@@ -84,6 +88,16 @@ namespace Grand.Web.Validators.Common
             {
                 RuleFor(x => x.FaxNumber).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Fax.Required"));
             }
+            RuleFor(x => x).CustomAsync(async (x, context, _) =>
+            {
+                var customAttributes = await mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = x.SelectedAttributes });
+                var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
+                foreach (var error in customAttributeWarnings)
+                {
+                    context.AddFailure(error);
+                }
+            });
         }
     }
 }

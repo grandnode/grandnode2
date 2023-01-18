@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -368,7 +367,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
             }
 
-            if (ModelState is { IsValid: true, ErrorCount: 0 })
+            if (ModelState is { IsValid: true })
             {
                 if (_customerSettings.UsernamesEnabled && model.Username != null)
                 {
@@ -599,8 +598,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> RemoveExternalAssociation(string id,
-            [FromServices] IExternalAuthenticationService openAuthenticationService)
+        public virtual async Task<IActionResult> RemoveExternalAssociation(string id, [FromServices] IExternalAuthenticationService openAuthenticationService)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
@@ -702,27 +700,18 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model,
-            [FromServices] AddressSettings addressSettings,
-            [FromServices] IAddressAttributeParser addressAttributeParser)
+            [FromServices] AddressSettings addressSettings)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
             var customer = _workContext.CurrentCustomer;
 
-            //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
-                { SelectedAttributes = model.Address.SelectedAttributes });
-            var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                ModelState.AddModelError("", error);
-            }
-
-            if (ModelState is { IsValid: true, ErrorCount: 0 })
+            if (ModelState is { IsValid: true })
             {
                 var address = model.Address.ToEntity(_workContext.CurrentCustomer, addressSettings);
-                address.Attributes = customAttributes;
+                address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = model.Address.SelectedAttributes });;
                 address.CreatedOnUtc = DateTime.UtcNow;
                 customer.Addresses.Add(address);
 
@@ -731,8 +720,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("CustomerAddresses");
             }
 
-            var countries =
-                await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
+            var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             //If we got this far, something failed, redisplay form
             model.Address = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
@@ -741,7 +729,9 @@ namespace Grand.Web.Controllers
                 Address = null,
                 ExcludeProperties = true,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries
+                LoadCountries = () => countries,
+                OverrideAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = model.Address.SelectedAttributes })
             });
 
             return View(model);
@@ -769,7 +759,7 @@ namespace Grand.Web.Controllers
                 Address = address,
                 ExcludeProperties = false,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries
+                LoadCountries = () => countries,
             });
 
             return View(model);
@@ -778,32 +768,23 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model,
-            [FromServices] AddressSettings addressSettings,
-            [FromServices] IAddressAttributeParser addressAttributeParser)
+            [FromServices] AddressSettings addressSettings)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
             var customer = _workContext.CurrentCustomer;
             //find address (ensure that it belongs to the current customer)
-            var address = customer.Addresses.FirstOrDefault(a => a.Id == model.AddressId);
+            var address = customer.Addresses.FirstOrDefault(a => a.Id == model.Address.Id);
             if (address == null)
                 //address is not found
                 return RedirectToRoute("CustomerAddresses");
-
-            //custom address attributes
-            var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
-                { SelectedAttributes = model.Address.SelectedAttributes });
-            var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                ModelState.AddModelError("", error);
-            }
-
-            if (ModelState is { IsValid: true, ErrorCount: 0 })
+            
+            if (ModelState is { IsValid: true })
             {
                 address = model.Address.ToEntity(address, _workContext.CurrentCustomer, addressSettings);
-                address.Attributes = customAttributes;
+                address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = model.Address.SelectedAttributes });;
                 await _customerService.UpdateAddress(address, customer.Id);
 
                 if (customer.BillingAddress?.Id == address.Id)
@@ -825,7 +806,8 @@ namespace Grand.Web.Controllers
                 ExcludeProperties = true,
                 Customer = _workContext.CurrentCustomer,
                 LoadCountries = () => countries,
-                OverrideAttributes = customAttributes
+                OverrideAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = model.Address.SelectedAttributes })
             });
 
             return View(model);
