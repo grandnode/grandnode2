@@ -48,20 +48,20 @@ namespace Grand.Web.Validators.Customer
                         break;
                     case { Deleted: true }:
                         context.AddFailure(
-                            translationService.GetResource("Account.ChangePassword.Errors.CustomerDeleted"));
+                            translationService.GetResource("Account.ChangePassword.Errors.Deleted"));
                         break;
                     case { Active: false }:
                         context.AddFailure(
-                            translationService.GetResource("Account.ChangePassword.Errors.Customer.CustomerNotActive"));
+                            translationService.GetResource("Account.ChangePassword.Errors.NotActive"));
                         break;
                     case { CannotLoginUntilDateUtc: { } } when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
                         context.AddFailure(
-                            translationService.GetResource("Account.ChangePassword.Errors.Customer.CustomerLockedOut"));
+                            translationService.GetResource("Account.ChangePassword.Errors.LockedOut"));
                         break;
                     case { } when !await groupService.IsRegistered(customer):
                         context.AddFailure(
                             translationService.GetResource(
-                                "Account.ChangePassword.Errors.Customer.CustomerNotRegistered"));
+                                "Account.ChangePassword.Errors.NotRegistered"));
                         break;
                 }
 

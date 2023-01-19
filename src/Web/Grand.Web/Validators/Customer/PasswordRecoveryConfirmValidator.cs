@@ -72,7 +72,7 @@ namespace Grand.Web.Validators.Customer
                         x.NewPassword, password.PasswordSalt));
                     if (newPasswordMatchesWithPrevious)
                     {
-                        context.AddFailure(translationService.GetResource("Account.ChangePassword.PasswordMatchesWithPrevious"));
+                        context.AddFailure(translationService.GetResource("Account.PasswordRecovery.PasswordMatchesWithPrevious"));
                     }
                 }
             });

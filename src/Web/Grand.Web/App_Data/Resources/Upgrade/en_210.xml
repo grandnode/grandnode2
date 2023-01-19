@@ -12,4 +12,34 @@
 	<Resource Name="vendor.reviews.empty" Area="Front">
 		<Value>There are no reviews yet</Value>
 	</Resource>
+	<Resource Name="Account.PasswordRecovery.Deleted" Area="Front">
+		<Value>Account is deleted</Value>
+	</Resource>
+	<Resource Name="Account.PasswordRecovery.LockedOut" Area="Front">
+		<Value>Account is locked out</Value>
+	</Resource>
+	<Resource Name="Account.PasswordRecovery.NotActive" Area="Front">
+		<Value>Account is not active</Value>
+	</Resource>
+	<Resource Name="Account.PasswordRecovery.CustomerNotExist" Area="Front">
+		<Value>No customer account found</Value>
+	</Resource>
+	<Resource Name="Account.PasswordRecovery.NotRegistered" Area="Front">
+		<Value>Account is not registered</Value>
+	</Resource>
+	<Resource Name="Account.PasswordRecovery.PasswordMatchesWithPrevious" Area="Front">
+		<Value>You entered the password that is the same as one of the last passwords you used. Please create a new password.</Value>
+	</Resource>
+	<Resource Name="Account.ChangePassword.Errors.Deleted" Area="Front">
+		<Value>Account is deleted</Value>
+	</Resource>
+	<Resource Name="Account.ChangePassword.Errors.LockedOut" Area="Front">
+		<Value>Account is locked out</Value>
+	</Resource>
+	<Resource Name="Account.ChangePassword.Errors.NotActive" Area="Front">
+		<Value>Account is not active</Value>
+	</Resource>
+	<Resource Name="Account.ChangePassword.Errors.NotRegistered" Area="Front">
+		<Value>Account is not registered</Value>
+	</Resource>
 </Language>
