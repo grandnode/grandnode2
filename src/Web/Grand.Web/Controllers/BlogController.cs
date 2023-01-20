@@ -55,6 +55,7 @@ namespace Grand.Web.Controllers
 
         #region Methods
 
+        [HttpGet]
         public virtual async Task<IActionResult> List(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -63,6 +64,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByTag(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -71,6 +73,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByMonth(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -79,6 +82,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByCategory(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -87,6 +91,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByKeyword(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -95,6 +100,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogPost(string blogPostId,
             [FromServices] IAclService aclService,
             [FromServices] IPermissionService permissionService)
@@ -123,27 +129,18 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> BlogCommentAdd(string blogPostId, BlogPostModel model, bool captchaValid)
+        public virtual async Task<IActionResult> BlogPost(BlogPostModel model,
+            [FromServices] IAclService aclService)
         {
-            if (!_blogSettings.Enabled)
+            var blogPost = await _blogService.GetBlogPostById(model.BlogPostId);
+            if (blogPost == null ||
+                (blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
+                (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow))
                 return RedirectToRoute("HomePage");
-
-            var blogPost = await _blogService.GetBlogPostById(blogPostId);
-            if (blogPost is not { AllowComments: true })
-                return RedirectToRoute("HomePage");
-
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_blogSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Blog.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnBlogCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
+            
+            if (!aclService.Authorize(blogPost, _workContext.CurrentStore.Id))
+                return InvokeHttp404();
 
             if (ModelState.IsValid)
             {
@@ -156,10 +153,10 @@ namespace Grand.Web.Controllers
                 TempData["Grand.blog.addcomment.result"] = _translationService.GetResource("Blog.Comments.SuccessfullyAdded");
                 return RedirectToRoute("BlogPost", new { SeName = blogPost.GetSeName(_workContext.WorkingLanguage.Id) });
             }
-
+            
             //If we got this far, something failed, redisplay form
             model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
-            return View("BlogPost", model);
+            return View(model);
         }
         #endregion
     }
