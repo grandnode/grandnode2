@@ -156,7 +156,7 @@ namespace Grand.Web.Controllers
                     resource = _translationService.GetResource("OutOfStockSubscriptions.NotAllowed")
                 });
 
-            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
+            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Attributes = model.Attributes });
             var subscriptionAttributes = await _outOfStockSubscriptionService
                 .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
 

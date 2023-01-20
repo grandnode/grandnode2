@@ -65,7 +65,7 @@ namespace Grand.Web.Features.Handlers.Products
             var model = new ProductDetailsAttributeChangeModel();
 
             var customAttributes =
-                await _mediator.Send(new GetParseProductAttributes { Product = request.Product, Model = request.Model },
+                await _mediator.Send(new GetParseProductAttributes { Product = request.Product, Attributes = request.Model.Attributes },
                     cancellationToken);
 
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? request.Model.WarehouseId :
@@ -78,7 +78,7 @@ namespace Grand.Web.Features.Handlers.Products
             DateTime? rentalEndDate = null;
             if (request.Product.ProductTypeId == ProductType.Reservation)
             {
-                request.Product.ParseReservationDates(request.Model, out rentalStartDate, out rentalEndDate);
+                request.Product.ParseReservationDates(request.Model.ReservationDatepickerFrom, request.Model.ReservationDatepickerTo, out rentalStartDate, out rentalEndDate);
             }
 
             model.Sku = request.Product.FormatSku(customAttributes);
