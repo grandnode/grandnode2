@@ -18,7 +18,8 @@ namespace Grand.Web.Models.Catalog
         public string Warning { get; set; }
 
         public bool NoResults { get; set; }
-
+        
+        public string SearchCategoryId { get; set; }
         /// <summary>
         /// Query string
         /// </summary>

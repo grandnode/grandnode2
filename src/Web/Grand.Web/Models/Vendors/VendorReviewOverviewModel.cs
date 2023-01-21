@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Vendors
 {
@@ -30,6 +31,7 @@ namespace Grand.Web.Models.Vendors
         public IList<VendorReviewModel> Items { get; set; }
         public AddVendorReviewModel AddVendorReview { get; set; }
         public VendorReviewOverviewModel VendorReviewOverview { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 
     public class VendorReviewModel : BaseEntityModel
