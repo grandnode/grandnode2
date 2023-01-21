@@ -181,6 +181,161 @@ namespace Grand.Web.Controllers
 
         #endregion
 
+        #region Private methods
+
+        
+        private async Task CartValidate(IList<ShoppingCartItem> cart)
+        {
+            if (!cart.Any())
+                throw new Exception("Your cart is empty");
+
+            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
+                throw new Exception("Anonymous checkout is not allowed");
+        }
+
+        [NonAction]
+        private async Task<JsonResult> LoadStepAfterBillingAddress(IList<ShoppingCartItem> cart)
+        {
+            var shippingMethodModel = await _mediator.Send(new GetShippingMethod {
+                Cart = cart,
+                Currency = _workContext.WorkingCurrency,
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                ShippingAddress = _workContext.CurrentCustomer.ShippingAddress,
+                Store = _workContext.CurrentStore
+            });
+
+            var selectedPickupPoint =
+                _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(
+                    SystemCustomerFieldNames.SelectedPickupPoint, _workContext.CurrentStore.Id);
+
+            if ((!_shippingSettings.SkipShippingMethodSelectionIfOnlyOne ||
+                 shippingMethodModel.ShippingMethods.Count != 1) &&
+                (!_shippingSettings.AllowPickUpInStore || string.IsNullOrEmpty(selectedPickupPoint)))
+                return Json(new {
+                    update_section = new UpdateSectionJsonModel {
+                        name = "shipping-method",
+                        model = shippingMethodModel
+                    },
+                    goto_section = "shipping_method"
+                });
+            if (!(_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.SelectedShippingOption,
+                    shippingMethodModel.ShippingMethods.First().ShippingOption,
+                    _workContext.CurrentStore.Id);
+
+            //load next step
+            return await LoadStepAfterShippingMethod(cart);
+
+        }
+
+        [NonAction]
+        private async Task<JsonResult> LoadStepAfterShippingMethod(IList<ShoppingCartItem> cart)
+        {
+            //Check whether payment workflow is required
+            //we ignore loyalty points during cart total calculation
+            var isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired { Cart = cart, UseLoyaltyPoints = false });
+            if (isPaymentWorkflowRequired)
+            {
+                //filter by country
+                var filterByCountryId = "";
+                if (_addressSettings.CountryEnabled &&
+                    _workContext.CurrentCustomer.BillingAddress != null &&
+                    !string.IsNullOrEmpty(_workContext.CurrentCustomer.BillingAddress.CountryId))
+                {
+                    filterByCountryId = _workContext.CurrentCustomer.BillingAddress.CountryId;
+                }
+
+                //payment is required
+                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod {
+                    Cart = cart,
+                    Currency = _workContext.WorkingCurrency,
+                    Customer = _workContext.CurrentCustomer,
+                    FilterByCountryId = filterByCountryId,
+                    Language = _workContext.WorkingLanguage,
+                    Store = _workContext.CurrentStore
+                });
+
+                if (!_paymentSettings.SkipPaymentIfOnlyOne ||
+                    paymentMethodModel.PaymentMethods.Count != 1 || paymentMethodModel.DisplayLoyaltyPoints)
+                    return Json(new {
+                        update_section = new UpdateSectionJsonModel {
+                            name = "payment-method",
+                            model = paymentMethodModel
+                        },
+                        goto_section = "payment_method"
+                    });
+                //if we have only one payment method and loyalty points are disabled or the current customer doesn't have any loyalty points
+                //so customer doesn't have to choose a payment method
+
+                var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.SelectedPaymentMethod,
+                    selectedPaymentMethodSystemName, _workContext.CurrentStore.Id);
+
+                var paymentMethodInst =
+                    _paymentService.LoadPaymentMethodBySystemName(selectedPaymentMethodSystemName);
+                if (paymentMethodInst == null ||
+                    !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
+                    !paymentMethodInst.IsAuthenticateStore(_workContext.CurrentStore))
+                    throw new Exception("Selected payment method can't be parsed");
+
+                return await LoadStepAfterPaymentMethod(paymentMethodInst, cart);
+
+                //customer have to choose a payment method
+            }
+
+            //payment is not required
+            await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
+                SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
+
+            var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
+                Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore
+            });
+            return Json(new {
+                update_section = new UpdateSectionJsonModel {
+                    name = "confirm-order",
+                    model = confirmOrderModel
+                },
+                goto_section = "confirm_order"
+            });
+        }
+
+        [NonAction]
+        private async Task<JsonResult> LoadStepAfterPaymentMethod(IPaymentProvider paymentMethod,
+            IList<ShoppingCartItem> cart)
+        {
+            if (await paymentMethod.SkipPaymentInfo() ||
+                (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection
+                 && _paymentSettings.SkipPaymentInfo))
+            {
+                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
+                    Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
+                    Store = _workContext.CurrentStore
+                });
+                return Json(new {
+                    update_section = new UpdateSectionJsonModel {
+                        name = "confirm-order",
+                        model = confirmOrderModel
+                    },
+                    goto_section = "confirm_order"
+                });
+            }
+
+            //return payment info page
+            var paymenInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
+            return Json(new {
+                update_section = new UpdateSectionJsonModel {
+                    name = "payment-info",
+                    model = paymenInfoModel
+                },
+                goto_section = "payment_info"
+            });
+        }
+
+        #endregion
         public virtual async Task<IActionResult> Index()
         {
             var customer = _workContext.CurrentCustomer;
@@ -256,125 +411,6 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-        private async Task CartValidate(IList<ShoppingCartItem> cart)
-        {
-            if (!cart.Any())
-                throw new Exception("Your cart is empty");
-
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
-                throw new Exception("Anonymous checkout is not allowed");
-        }
-
-        [NonAction]
-        protected async Task<JsonResult> LoadStepAfterBillingAddress(IList<ShoppingCartItem> cart)
-        {
-            var shippingMethodModel = await _mediator.Send(new GetShippingMethod {
-                Cart = cart,
-                Currency = _workContext.WorkingCurrency,
-                Customer = _workContext.CurrentCustomer,
-                Language = _workContext.WorkingLanguage,
-                ShippingAddress = _workContext.CurrentCustomer.ShippingAddress,
-                Store = _workContext.CurrentStore
-            });
-
-            var selectedPickupPoint =
-                _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(
-                    SystemCustomerFieldNames.SelectedPickupPoint, _workContext.CurrentStore.Id);
-
-            if ((!_shippingSettings.SkipShippingMethodSelectionIfOnlyOne ||
-                 shippingMethodModel.ShippingMethods.Count != 1) &&
-                (!_shippingSettings.AllowPickUpInStore || string.IsNullOrEmpty(selectedPickupPoint)))
-                return Json(new {
-                    update_section = new UpdateSectionJsonModel {
-                        name = "shipping-method",
-                        model = shippingMethodModel
-                    },
-                    goto_section = "shipping_method"
-                });
-            if (!(_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                    SystemCustomerFieldNames.SelectedShippingOption,
-                    shippingMethodModel.ShippingMethods.First().ShippingOption,
-                    _workContext.CurrentStore.Id);
-
-            //load next step
-            return await LoadStepAfterShippingMethod(cart);
-
-        }
-
-        [NonAction]
-        protected async Task<JsonResult> LoadStepAfterShippingMethod(IList<ShoppingCartItem> cart)
-        {
-            //Check whether payment workflow is required
-            //we ignore loyalty points during cart total calculation
-            var isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired { Cart = cart, UseLoyaltyPoints = false });
-            if (isPaymentWorkflowRequired)
-            {
-                //filter by country
-                var filterByCountryId = "";
-                if (_addressSettings.CountryEnabled &&
-                    _workContext.CurrentCustomer.BillingAddress != null &&
-                    !string.IsNullOrEmpty(_workContext.CurrentCustomer.BillingAddress.CountryId))
-                {
-                    filterByCountryId = _workContext.CurrentCustomer.BillingAddress.CountryId;
-                }
-
-                //payment is required
-                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod {
-                    Cart = cart,
-                    Currency = _workContext.WorkingCurrency,
-                    Customer = _workContext.CurrentCustomer,
-                    FilterByCountryId = filterByCountryId,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore
-                });
-
-                if (!_paymentSettings.SkipPaymentIfOnlyOne ||
-                    paymentMethodModel.PaymentMethods.Count != 1 || paymentMethodModel.DisplayLoyaltyPoints)
-                    return Json(new {
-                        update_section = new UpdateSectionJsonModel {
-                            name = "payment-method",
-                            model = paymentMethodModel
-                        },
-                        goto_section = "payment_method"
-                    });
-                //if we have only one payment method and loyalty points are disabled or the current customer doesn't have any loyalty points
-                //so customer doesn't have to choose a payment method
-
-                var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                    SystemCustomerFieldNames.SelectedPaymentMethod,
-                    selectedPaymentMethodSystemName, _workContext.CurrentStore.Id);
-
-                var paymentMethodInst =
-                    _paymentService.LoadPaymentMethodBySystemName(selectedPaymentMethodSystemName);
-                if (paymentMethodInst == null ||
-                    !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
-                    !paymentMethodInst.IsAuthenticateStore(_workContext.CurrentStore))
-                    throw new Exception("Selected payment method can't be parsed");
-
-                return await LoadStepAfterPaymentMethod(paymentMethodInst, cart);
-
-                //customer have to choose a payment method
-            }
-
-            //payment is not required
-            await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
-                SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
-
-            var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
-            });
-            return Json(new {
-                update_section = new UpdateSectionJsonModel {
-                    name = "confirm-order",
-                    model = confirmOrderModel
-                },
-                goto_section = "confirm_order"
-            });
-        }
-
         public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
         {
             var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
@@ -382,38 +418,6 @@ namespace Grand.Web.Controllers
                 return Content("");
 
             return RedirectToRoute(routeName, new { shippingOption });
-        }
-
-        [NonAction]
-        protected async Task<JsonResult> LoadStepAfterPaymentMethod(IPaymentProvider paymentMethod,
-            IList<ShoppingCartItem> cart)
-        {
-            if (await paymentMethod.SkipPaymentInfo() ||
-                (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection
-                 && _paymentSettings.SkipPaymentInfo))
-            {
-                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                    Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore
-                });
-                return Json(new {
-                    update_section = new UpdateSectionJsonModel {
-                        name = "confirm-order",
-                        model = confirmOrderModel
-                    },
-                    goto_section = "confirm_order"
-                });
-            }
-
-            //return payment info page
-            var paymenInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
-            return Json(new {
-                update_section = new UpdateSectionJsonModel {
-                    name = "payment-info",
-                    model = paymenInfoModel
-                },
-                goto_section = "payment_info"
-            });
         }
 
         public virtual async Task<IActionResult> Start()
@@ -466,7 +470,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [HttpPost]
         public virtual async Task<IActionResult> SaveBilling(
             [FromServices] AddressSettings addressSettings,
             CheckoutBillingAddressModel model)
@@ -563,7 +567,7 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-
+        [HttpPost]
         public virtual async Task<IActionResult> SaveShipping(
             [FromServices] AddressSettings addressSettings,
             CheckoutShippingAddressModel model)
@@ -734,7 +738,8 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-
+        
+        [HttpPost]
         public virtual async Task<IActionResult> SaveShippingMethod(CheckoutShippingMethodModel model)
         {
             try
@@ -818,7 +823,7 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-
+        [HttpPost]
         public virtual async Task<IActionResult> SavePaymentMethod(CheckoutPaymentMethodModel model)
         {
             try
