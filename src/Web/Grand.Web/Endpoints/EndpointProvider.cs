@@ -326,7 +326,7 @@ namespace Grand.Web.Endpoints
             //contact us
             endpointRouteBuilder.MapControllerRoute("ContactUs",
                             pattern + "contactus",
-                            new { controller = "Common", action = "ContactUs" });
+                            new { controller = "Contact", action = "ContactUs" });
 
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
@@ -367,7 +367,7 @@ namespace Grand.Web.Endpoints
             // contact attributes with "upload file" type
             endpointRouteBuilder.MapControllerRoute("UploadFileContactAttribute",
                             pattern + "uploadfilecontactattribute/{attributeId}",
-                            new { controller = "Common", action = "UploadFileContactAttribute" });
+                            new { controller = "Contact", action = "UploadFileContactAttribute" });
 
             //CurrentPosition Save
             endpointRouteBuilder.MapControllerRoute("CurrentPosition",
