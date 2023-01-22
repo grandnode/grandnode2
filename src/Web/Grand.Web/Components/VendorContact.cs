@@ -6,7 +6,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Security.Captcha;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Vendors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components

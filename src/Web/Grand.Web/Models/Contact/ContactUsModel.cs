@@ -4,9 +4,10 @@ using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
+using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Models.Common
+namespace Grand.Web.Models.Contact
 {
     public class ContactUsModel : BaseModel
     {
@@ -34,6 +35,7 @@ namespace Grand.Web.Models.Common
         public string Result { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> Attributes { get; set; }

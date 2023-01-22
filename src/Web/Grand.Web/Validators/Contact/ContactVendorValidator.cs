@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Vendors;
 
-namespace Grand.Web.Validators.Common
+namespace Grand.Web.Validators.Contact
 {
     public class ContactVendorValidator : BaseGrandValidator<ContactVendorModel>
     {

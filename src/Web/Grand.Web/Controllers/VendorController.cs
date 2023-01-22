@@ -17,7 +17,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -387,7 +386,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
+                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() });
                 return Json(model);
             }
 

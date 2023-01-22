@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Models.Common
+namespace Grand.Web.Models.Vendors
 {
     public class ContactVendorModel : BaseModel
     {

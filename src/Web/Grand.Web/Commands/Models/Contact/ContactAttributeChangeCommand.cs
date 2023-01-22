@@ -3,7 +3,7 @@ using Grand.Domain.Stores;
 using Grand.Web.Common.Models;
 using MediatR;
 
-namespace Grand.Web.Commands.Models.Common
+namespace Grand.Web.Commands.Models.Contact
 {
     public class ContactAttributeChangeCommand : IRequest<(IList<string> enabledAttributeIds, IList<string> disabledAttributeIds)>
     {

@@ -4,12 +4,12 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
-using Grand.Web.Commands.Models.Common;
+using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Security.Captcha;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Contact;
 using MediatR;
 
-namespace Grand.Web.Commands.Handler.Common
+namespace Grand.Web.Commands.Handler.Contact
 {
     public class ContactUsCommandHandler : IRequestHandler<ContactUsCommand, ContactUsModel>
     {

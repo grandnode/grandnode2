@@ -12953,6 +12953,9 @@
 	<Resource Name="ContactUs.Enquiry.Required" Area="Front">
 		<Value>Enter enquiry</Value>
 	</Resource>
+	<Resource Name="ContactUs.FileUploaded" Area="Front">
+		<Value>Your file successfully uploaded!</Value>
+	</Resource>
 	<Resource Name="ContactUs.FullName" Area="Front">
 		<Value>Your name</Value>
 	</Resource>
@@ -12961,6 +12964,9 @@
 	</Resource>
 	<Resource Name="ContactUs.FullName.Required" Area="Front">
 		<Value>Enter your name</Value>
+	</Resource>
+	<Resource Name="ContactUs.MaximumUploadedFileSize" Area="Front">
+		<Value>Maximum file size is {0} KB</Value>
 	</Resource>
 	<Resource Name="ContactUs.SelectAttribute" Area="Front">
 		<Value>Please select: {0}</Value>
@@ -12976,6 +12982,9 @@
 	</Resource>
 	<Resource Name="ContactUs.TextboxMinimumLength" Area="Front">
 		<Value>{0} : minimum length is {1} chars</Value>
+	</Resource>
+	<Resource Name="ContactUs.ValidationFileAllowed" Area="Front">
+		<Value>This file extension does not allow to upload</Value>
 	</Resource>
 	<Resource Name="ContactUs.YourEnquiryHasBeenSent" Area="Front">
 		<Value>Your enquiry has been successfully sent to the store owner.</Value>

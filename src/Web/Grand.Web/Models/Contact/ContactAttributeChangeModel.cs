@@ -2,7 +2,7 @@
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Models.Common;
+namespace Grand.Web.Models.Contact;
 public class ContactAttributeChangeModel
 {
     public ContactAttributeChangeModel()

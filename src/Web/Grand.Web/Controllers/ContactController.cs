@@ -6,24 +6,22 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using Grand.Web.Commands.Models.Common;
+using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Controllers;
 using Grand.Web.Events;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Contact;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-public class ContactController: BasePublicController
+public class ContactController : BasePublicController
 {
     #region Fields
 
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
     private readonly IMediator _mediator;
-    private readonly CaptchaSettings _captchaSettings;
 
     #endregion
 
@@ -32,13 +30,11 @@ public class ContactController: BasePublicController
     public ContactController(
         ITranslationService translationService,
         IWorkContext workContext,
-        IMediator mediator,
-        CaptchaSettings captchaSettings)
+        IMediator mediator)
     {
         _translationService = translationService;
         _workContext = workContext;
         _mediator = mediator;
-        _captchaSettings = captchaSettings;
     }
 
     #endregion
@@ -64,63 +60,43 @@ public class ContactController: BasePublicController
         return View(model);
     }
 
-    [HttpPost, ActionName("ContactUs")]
+    [HttpPost]
     [AutoValidateAntiforgeryToken]
-    [ValidateCaptcha]
     [ClosedStore(true)]
     [DenySystemAccount]
-    public virtual async Task<IActionResult> ContactUsSend(
+    public virtual async Task<IActionResult> ContactUs(
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IPageService pageService,
-        ContactUsModel model, bool captchaValid)
+        ContactUsModel model)
     {
         if (storeInformationSettings.StoreClosed)
         {
-            var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-            if (closestorepage is not { AccessibleWhenStoreClosed: true })
+            var closeStorePage = await pageService.GetPageBySystemName("ContactUs");
+            if (closeStorePage is not { AccessibleWhenStoreClosed: true })
                 return RedirectToRoute("StoreClosed");
-        }
-
-        //validate CAPTCHA
-        if (_captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage && !captchaValid)
-        {
-            ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
         }
 
         if (ModelState.IsValid)
         {
             var result = await _mediator.Send(new ContactUsSendCommand {
-                CaptchaValid = captchaValid,
                 Model = model,
-                Store = _workContext.CurrentStore,
                 IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
             });
+            
+            //notification
+            await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result));
 
-            if (result.errors.Any())
-            {
-                foreach (var item in result.errors)
-                {
-                    ModelState.AddModelError("", item);
-                }
-            }
-            else
-            {
-                //notification
-                await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model));
-
-                model = result.model;
-                return View(model);
-            }
+            return View(result);
         }
 
-        var model1 = await _mediator.Send(new ContactUsCommand {
+        var modelReturn = await _mediator.Send(new ContactUsCommand {
             Customer = _workContext.CurrentCustomer,
             Language = _workContext.WorkingLanguage,
             Store = _workContext.CurrentStore,
             Model = model
         });
 
-        return View(model1);
+        return View(modelReturn);
     }
 
     [HttpPost]
@@ -188,7 +164,7 @@ public class ContactController: BasePublicController
             {
                 return Json(new {
                     success = false,
-                    message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
+                    message = _translationService.GetResource("ContactUs.ValidationFileAllowed"),
                     downloadGuid = Guid.Empty
                 });
             }
@@ -204,7 +180,7 @@ public class ContactController: BasePublicController
                 //otherwise some browsers will pop-up a "Save As" dialog.
                 return Json(new {
                     success = false,
-                    message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"),
+                    message = string.Format(_translationService.GetResource("ContactUs.MaximumUploadedFileSize"),
                         attribute.ValidationFileMaximumSize.Value),
                     downloadGuid = Guid.Empty
                 });

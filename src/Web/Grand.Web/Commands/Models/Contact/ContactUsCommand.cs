@@ -1,10 +1,10 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Contact;
 using MediatR;
 
-namespace Grand.Web.Commands.Models.Common
+namespace Grand.Web.Commands.Models.Contact
 {
     public class ContactUsCommand : IRequest<ContactUsModel>
     {

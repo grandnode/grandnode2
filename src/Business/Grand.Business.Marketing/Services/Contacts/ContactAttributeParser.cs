@@ -22,7 +22,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         public ContactAttributeParser(
             IContactAttributeService contactAttributeService,
             IWorkContext workContext
-            )
+        )
         {
             _contactAttributeService = contactAttributeService;
             _workContext = workContext;
@@ -33,7 +33,8 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// </summary>
         /// <param name="customAttributes">Attributes</param>
         /// <returns>Selected contact attributes</returns>
-        public virtual async Task<IList<ContactAttribute>> ParseContactAttributes(IList<CustomAttribute> customAttributes)
+        public virtual async Task<IList<ContactAttribute>> ParseContactAttributes(
+            IList<CustomAttribute> customAttributes)
         {
             var result = new List<ContactAttribute>();
             if (customAttributes == null || !customAttributes.Any())
@@ -47,6 +48,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                     result.Add(attribute);
                 }
             }
+
             return result;
         }
 
@@ -55,7 +57,8 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// </summary>
         /// <param name="customAttributes">Attributes</param>
         /// <returns>Contact attribute values</returns>
-        public virtual async Task<IList<ContactAttributeValue>> ParseContactAttributeValues(IList<CustomAttribute> customAttributes)
+        public virtual async Task<IList<ContactAttributeValue>> ParseContactAttributeValues(
+            IList<CustomAttribute> customAttributes)
         {
             var values = new List<ContactAttributeValue>();
             if (customAttributes == null || !customAttributes.Any())
@@ -68,10 +71,17 @@ namespace Grand.Business.Marketing.Services.Contacts
                     continue;
 
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value);
-                values.AddRange(from valueStr in valuesStr where !string.IsNullOrEmpty(valueStr) select attribute.ContactAttributeValues.FirstOrDefault(x => x.Id == valueStr) into value where value != null select value);
+                values.AddRange(from valueStr in valuesStr
+                    where !string.IsNullOrEmpty(valueStr)
+                    select attribute.ContactAttributeValues.FirstOrDefault(x => x.Id == valueStr)
+                    into value
+                    where value != null
+                    select value);
             }
+
             return values;
         }
+
         /// <summary>
         /// Adds an attribute
         /// </summary>
@@ -79,12 +89,12 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="ca">Contact attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
-        public virtual IList<CustomAttribute> AddContactAttribute(IList<CustomAttribute> customAttributes, ContactAttribute ca, string value)
+        public virtual IList<CustomAttribute> AddContactAttribute(IList<CustomAttribute> customAttributes,
+            ContactAttribute ca, string value)
         {
             customAttributes ??= new List<CustomAttribute>();
             customAttributes.Add(new CustomAttribute() { Key = ca.Id, Value = value });
             return customAttributes;
-
         }
 
         /// <summary>
@@ -93,7 +103,8 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="attribute">Contact attribute</param>
         /// <param name="customAttributes">Selected attributes</param>
         /// <returns>Result</returns>
-        public virtual async Task<bool?> IsConditionMet(ContactAttribute attribute, IList<CustomAttribute> customAttributes)
+        public virtual async Task<bool?> IsConditionMet(ContactAttribute attribute,
+            IList<CustomAttribute> customAttributes)
         {
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
@@ -110,7 +121,8 @@ namespace Grand.Business.Marketing.Services.Contacts
             if (dependOnAttribute == null)
                 return true;
 
-            var valuesThatShouldBeSelected = conditionAttribute.Where(x => x.Key == dependOnAttribute.Id).Select(x => x.Value)
+            var valuesThatShouldBeSelected = conditionAttribute.Where(x => x.Key == dependOnAttribute.Id)
+                .Select(x => x.Value)
                 //a workaround here:
                 //ConditionAttribute can contain "empty" values (nothing is selected)
                 //but in other cases (like below) we do not store empty values
@@ -118,7 +130,8 @@ namespace Grand.Business.Marketing.Services.Contacts
                 .Where(x => !string.IsNullOrEmpty(x))
                 .ToList();
 
-            var selectedValues = customAttributes.Where(x => x.Key == dependOnAttribute.Id).Select(x => x.Value).ToList();
+            var selectedValues = customAttributes.Where(x => x.Key == dependOnAttribute.Id).Select(x => x.Value)
+                .ToList();
             if (valuesThatShouldBeSelected.Count != selectedValues.Count)
                 return false;
 
@@ -142,7 +155,8 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="customAttributes">Attributes</param>
         /// <param name="attribute">Contact attribute</param>
         /// <returns>Updated result</returns>
-        public virtual IList<CustomAttribute> RemoveContactAttribute(IList<CustomAttribute> customAttributes, ContactAttribute attribute)
+        public virtual IList<CustomAttribute> RemoveContactAttribute(IList<CustomAttribute> customAttributes,
+            ContactAttribute attribute)
         {
             return customAttributes.Where(x => x.Key != attribute.Id).ToList();
         }
@@ -205,6 +219,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                                     attributeText =
                                         $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
                                 }
+
                                 formattedAttribute = $"{attributeName}: {attributeText}";
                             }
                         }
@@ -225,6 +240,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                             formattedAttribute =
                                 $"{attribute.GetTranslation(a => a.Name, language.Id)}: {attributeValue.GetTranslation(a => a.Name, language.Id)}";
                         }
+
                         //encode (if required)
                         if (htmlEncode)
                             formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -236,7 +252,109 @@ namespace Grand.Business.Marketing.Services.Contacts
                     result.Append(formattedAttribute);
                 }
             }
+
             return result.ToString();
+        }
+
+        public async Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model)
+        {
+            var customAttributes = new List<CustomAttribute>();
+            var contactAttributes = await _contactAttributeService.GetAllContactAttributes();
+            foreach (var attribute in contactAttributes)
+            {
+                switch (attribute.AttributeControlType)
+                {
+                    case AttributeControlType.DropdownList:
+                    case AttributeControlType.RadioList:
+                    case AttributeControlType.ColorSquares:
+                    case AttributeControlType.ImageSquares:
+                    {
+                        var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            customAttributes = AddContactAttribute(customAttributes,
+                                attribute, ctrlAttributes).ToList();
+                        }
+                    }
+                        break;
+                    case AttributeControlType.Checkboxes:
+                    {
+                        var cblAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+
+                        if (!string.IsNullOrEmpty(cblAttributes))
+                        {
+                            foreach (var item in cblAttributes.Split(','))
+                            {
+                                customAttributes = AddContactAttribute(customAttributes, attribute, item).ToList();
+                            }
+                        }
+                    }
+                        break;
+                    case AttributeControlType.ReadonlyCheckboxes:
+                    {
+                        //load read-only (already server-side selected) values
+                        var attributeValues = attribute.ContactAttributeValues;
+                        foreach (var selectedAttributeId in attributeValues
+                                     .Where(v => v.IsPreSelected)
+                                     .Select(v => v.Id)
+                                     .ToList())
+                        {
+                            customAttributes = AddContactAttribute(customAttributes,
+                                attribute, selectedAttributeId).ToList();
+                        }
+                    }
+                        break;
+                    case AttributeControlType.TextBox:
+                    case AttributeControlType.MultilineTextbox:
+                    {
+                        var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            var enteredText = ctrlAttributes.Trim();
+                            customAttributes = AddContactAttribute(customAttributes,
+                                attribute, enteredText).ToList();
+                        }
+                    }
+                        break;
+                    case AttributeControlType.Datepicker:
+                    {
+                        var date = model.FirstOrDefault(x => x.Key == attribute.Id + "_day")?.Value;
+                        var month = model.FirstOrDefault(x => x.Key == attribute.Id + "_month")?.Value;
+                        var year = model.FirstOrDefault(x => x.Key == attribute.Id + "_year")?.Value;
+                        DateTime? selectedDate = null;
+                        try
+                        {
+                            selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(date));
+                        }
+                        catch { }
+
+                        if (selectedDate.HasValue)
+                        {
+                            customAttributes = AddContactAttribute(customAttributes,
+                                attribute, selectedDate.Value.ToString("D")).ToList();
+                        }
+                    }
+                        break;
+                    case AttributeControlType.FileUpload:
+                    {
+                        var guid = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (Guid.TryParse(guid, out Guid downloadGuid))
+                            customAttributes = AddContactAttribute(customAttributes,
+                                attribute, downloadGuid.ToString()).ToList();
+                    }
+                        break;
+                }
+            }
+
+            //validate conditional attributes (if specified)
+            foreach (var attribute in contactAttributes)
+            {
+                var conditionMet = await IsConditionMet(attribute, customAttributes);
+                if (conditionMet.HasValue && !conditionMet.Value)
+                    customAttributes = RemoveContactAttribute(customAttributes, attribute).ToList();
+            }
+
+            return customAttributes;
         }
     }
 }

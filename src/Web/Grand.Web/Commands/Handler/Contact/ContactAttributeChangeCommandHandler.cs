@@ -2,10 +2,10 @@
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Web.Commands.Models.Common;
+using Grand.Web.Commands.Models.Contact;
 using MediatR;
 
-namespace Grand.Web.Commands.Handler.Common
+namespace Grand.Web.Commands.Handler.Contact
 {
     public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttributeChangeCommand, (IList<string>
         enabledAttributeIds, IList<string> disabledAttributeIds)>
