@@ -107,7 +107,7 @@ namespace Grand.Web.Controllers
             if (download.UseDownloadUrl)
             {
                 //increase download
-                order.OrderItems.FirstOrDefault(x => x.Id == orderItem.Id).DownloadCount++;
+                order.OrderItems.FirstOrDefault(x => x.Id == orderItem.Id)!.DownloadCount++;
                 await _orderService.UpdateOrder(order);
 
                 //return result
@@ -119,7 +119,7 @@ namespace Grand.Web.Controllers
                 return Content("Download data is not available any more.");
 
             //increase download
-            order.OrderItems.FirstOrDefault(x => x.Id == orderItem.Id).DownloadCount++;
+            order.OrderItems.FirstOrDefault(x => x.Id == orderItem.Id)!.DownloadCount++;
             await _orderService.UpdateOrder(order);
 
             if (product.ProductTypeId != ProductType.BundledProduct)
