@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Knowledgebase
 {
@@ -11,7 +12,7 @@ namespace Grand.Web.Models.Knowledgebase
             Comments = new List<KnowledgebaseArticleCommentModel>();
             AddNewComment = new AddKnowledgebaseArticleCommentModel();
         }
-
+        public string ArticleId { get; set; }
         public string Name { get; set; }
 
         public string Content { get; set; }
@@ -27,7 +28,9 @@ namespace Grand.Web.Models.Knowledgebase
         public string MetaTitle { get; set; }
 
         public bool AllowComments { get; set; }
-
+        
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        
         public IList<KnowledgebaseArticleModel> RelatedArticles { get; set; }
 
         public List<KnowledgebaseCategoryModel> CategoryBreadcrumb { get; set; }

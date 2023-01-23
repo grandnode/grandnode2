@@ -252,30 +252,16 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ArticleCommentAdd(string articleId, KnowledgebaseArticleModel model, bool captchaValid,
-               [FromServices] IWorkContext workContext,
-               [FromServices] IGroupService groupService,
+        public virtual async Task<IActionResult> ArticleCommentAdd(KnowledgebaseArticleModel model,
                [FromServices] ICustomerService customerService)
         {
             if (!_knowledgebaseSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(articleId);
+            var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(model.ArticleId);
             if (article is not { AllowComments: true })
                 return RedirectToRoute("HomePage");
-
-            if (await groupService.IsGuest(workContext.CurrentCustomer) && !_knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Knowledgebase.Article.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnArticleCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
 
             if (ModelState.IsValid)
             {
