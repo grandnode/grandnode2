@@ -183,7 +183,6 @@ namespace Grand.Web.Controllers
 
         #region Private methods
 
-        
         private async Task CartValidate(IList<ShoppingCartItem> cart)
         {
             if (!cart.Any())
@@ -373,53 +372,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("Checkout");
         }
-
-        public virtual async Task<IActionResult> Completed(string orderId)
-        {
-            //validation
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
-                return Challenge();
-
-            Order order = null;
-            if (!string.IsNullOrEmpty(orderId))
-            {
-                order = await _orderService.GetOrderById(orderId);
-            }
-
-            order ??= (await _orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
-                    customerId: _workContext.CurrentCustomer.Id, pageSize: 1))
-                .FirstOrDefault();
-
-            if (order == null || order.Deleted || _workContext.CurrentCustomer.Id != order.CustomerId)
-            {
-                return RedirectToRoute("HomePage");
-            }
-
-            //disable "order completed" page?
-            if (_orderSettings.DisableOrderCompletedPage)
-            {
-                return RedirectToRoute("OrderDetails", new { orderId = order.Id });
-            }
-
-            //model
-            var model = new CheckoutCompletedModel {
-                OrderId = order.Id,
-                OrderNumber = order.OrderNumber,
-                OrderCode = order.Code
-            };
-
-            return View(model);
-        }
-
-        public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
-        {
-            var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
-            if (string.IsNullOrEmpty(routeName))
-                return Content("");
-
-            return RedirectToRoute(routeName, new { shippingOption });
-        }
-
+        
         public virtual async Task<IActionResult> Start()
         {
             //validation
@@ -823,6 +776,16 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
+        
+        public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
+        {
+            var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
+            if (string.IsNullOrEmpty(routeName))
+                return Content("");
+
+            return RedirectToRoute(routeName, new { shippingOption });
+        }
+
         [HttpPost]
         public virtual async Task<IActionResult> SavePaymentMethod(CheckoutPaymentMethodModel model)
         {
@@ -897,6 +860,7 @@ namespace Grand.Web.Controllers
             }
         }
 
+        [HttpPost]
         public virtual async Task<IActionResult> SavePaymentInfo(IDictionary<string, string> model)
         {
             try
@@ -956,7 +920,44 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
+        
+        public virtual async Task<IActionResult> Completed(string orderId)
+        {
+            //validation
+            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
+                return Challenge();
 
+            Order order = null;
+            if (!string.IsNullOrEmpty(orderId))
+            {
+                order = await _orderService.GetOrderById(orderId);
+            }
+
+            order ??= (await _orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
+                    customerId: _workContext.CurrentCustomer.Id, pageSize: 1))
+                .FirstOrDefault();
+
+            if (order == null || order.Deleted || _workContext.CurrentCustomer.Id != order.CustomerId)
+            {
+                return RedirectToRoute("HomePage");
+            }
+
+            //disable "order completed" page?
+            if (_orderSettings.DisableOrderCompletedPage)
+            {
+                return RedirectToRoute("OrderDetails", new { orderId = order.Id });
+            }
+
+            //model
+            var model = new CheckoutCompletedModel {
+                OrderId = order.Id,
+                OrderNumber = order.OrderNumber,
+                OrderCode = order.Code
+            };
+
+            return View(model);
+        }
+        
         public virtual async Task<IActionResult> ConfirmOrder()
         {
             try
@@ -971,7 +972,9 @@ namespace Grand.Web.Controllers
                         Customer = _workContext.CurrentCustomer,
                         Store = _workContext.CurrentStore
                     }))
-                    throw new Exception(_translationService.GetResource("Checkout.MinOrderPlacementInterval"));
+                    return Json(new {
+                        error = 1, message = _translationService.GetResource("Checkout.MinOrderPlacementInterval")
+                    });
 
                 var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
                 if (placeOrderResult.Success)
