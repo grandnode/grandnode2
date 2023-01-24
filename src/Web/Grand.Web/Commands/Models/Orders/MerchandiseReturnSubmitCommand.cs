@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Grand.Web.Commands.Models.Orders
 {
-    public class MerchandiseReturnSubmitCommand : IRequest<(MerchandiseReturnModel model, MerchandiseReturn rr)>
+    public class MerchandiseReturnSubmitCommand : IRequest<MerchandiseReturn>
     {
         public MerchandiseReturnModel Model { get; set; }
         public Order Order { get; set; }

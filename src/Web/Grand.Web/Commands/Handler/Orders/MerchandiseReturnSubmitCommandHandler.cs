@@ -13,14 +13,12 @@ using MediatR;
 
 namespace Grand.Web.Commands.Handler.Orders
 {
-    public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<MerchandiseReturnSubmitCommand, (
-        MerchandiseReturnModel model, MerchandiseReturn rr)>
+    public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<MerchandiseReturnSubmitCommand, MerchandiseReturn>
     {
         private readonly IWorkContext _workContext;
         private readonly IProductService _productService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly IMessageProviderService _messageProviderService;
-        private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
         private readonly LanguageSettings _languageSettings;
 
@@ -29,7 +27,6 @@ namespace Grand.Web.Commands.Handler.Orders
             IProductService productService,
             IMerchandiseReturnService merchandiseReturnService,
             IMessageProviderService messageProviderService,
-            ITranslationService translationService,
             IGroupService groupService,
             LanguageSettings languageSettings)
         {
@@ -37,12 +34,11 @@ namespace Grand.Web.Commands.Handler.Orders
             _productService = productService;
             _merchandiseReturnService = merchandiseReturnService;
             _messageProviderService = messageProviderService;
-            _translationService = translationService;
             _groupService = groupService;
             _languageSettings = languageSettings;
         }
 
-        public async Task<(MerchandiseReturnModel model, MerchandiseReturn rr)> Handle(
+        public async Task<MerchandiseReturn> Handle(
             MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
         {
             var rr = new MerchandiseReturn {
@@ -63,7 +59,7 @@ namespace Grand.Web.Commands.Handler.Orders
 
             if (request.Model.PickupDate.HasValue)
                 rr.PickupDate = request.Model.PickupDate.Value;
-            var vendors = new List<string>();
+
             foreach (var orderItem in request.Order.OrderItems)
             {
                 var product = await _productService.GetProductById(orderItem.ProductId);
@@ -88,32 +84,18 @@ namespace Grand.Web.Commands.Handler.Orders
                     OrderItemId = orderItem.Id
                 });
                 rr.VendorId = orderItem.VendorId;
-                vendors.Add(orderItem.VendorId);
             }
 
-            if (vendors.Distinct().Count() > 1)
-            {
-                request.Model.Error = _translationService.GetResource("MerchandiseReturns.MultiVendorsItems");
-                return (request.Model, rr);
-            }
+            await _merchandiseReturnService.InsertMerchandiseReturn(rr);
 
-            if (rr.MerchandiseReturnItems.Any())
-            {
-                await _merchandiseReturnService.InsertMerchandiseReturn(rr);
+            //notify store owner here (email)
+            await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
+                _languageSettings.DefaultAdminLanguageId);
+            //notify customer
+            await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
+                request.Order.CustomerLanguageId);
 
-                //notify store owner here (email)
-                await _messageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
-                    _languageSettings.DefaultAdminLanguageId);
-                //notify customer
-                await _messageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
-                    request.Order.CustomerLanguageId);
-            }
-            else
-            {
-                request.Model.Error = _translationService.GetResource("MerchandiseReturns.NoItemsSubmitted");
-            }
-
-            return (request.Model, rr);
+            return rr;
         }
     }
 }
