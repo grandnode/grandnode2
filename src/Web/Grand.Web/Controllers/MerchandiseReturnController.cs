@@ -77,7 +77,7 @@ namespace Grand.Web.Controllers
             });
         }
 
-        protected async Task<Address> PrepareAddress(MerchandiseReturnModel model)
+        private async Task<Address> PrepareAddress(MerchandiseReturnModel model)
         {
             var address = new Address();
             if (!_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress) return address;
