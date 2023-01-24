@@ -4,7 +4,7 @@ using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Vendors;
 
-namespace Grand.Web.Validators.Contact
+namespace Grand.Web.Validators.Vendors
 {
     public class ContactVendorValidator : BaseGrandValidator<ContactVendorModel>
     {
