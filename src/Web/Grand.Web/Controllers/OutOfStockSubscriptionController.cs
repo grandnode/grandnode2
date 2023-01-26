@@ -91,7 +91,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
         }
 
-        [HttpPost, ActionName("SubscribePopup")]
+        [HttpPost]
         public virtual async Task<IActionResult> SubscribePopup(ProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
@@ -236,7 +236,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-        [HttpPost, ActionName("CustomerSubscriptions")]
+        [HttpPost]
         public virtual async Task<IActionResult> CustomerSubscriptions(string[] subscriptions)
         {
             foreach (var id in subscriptions)
