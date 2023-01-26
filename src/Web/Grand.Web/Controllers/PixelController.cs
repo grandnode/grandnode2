@@ -11,7 +11,6 @@ namespace Grand.Web.Controllers
     public class PixelController : BaseController
     {
         public virtual async Task<IActionResult> QueuedEmail(
-            [FromServices] IWorkContext workContext,
             [FromServices] IQueuedEmailService queuedEmailService,
             string emailId)
         {
