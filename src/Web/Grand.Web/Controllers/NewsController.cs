@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -9,7 +8,6 @@ using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
@@ -30,7 +28,6 @@ namespace Grand.Web.Controllers
         private readonly IPermissionService _permissionService;
         private readonly IMediator _mediator;
         private readonly NewsSettings _newsSettings;
-        private readonly CaptchaSettings _captchaSettings;
 
         #endregion
 
@@ -43,8 +40,7 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             IPermissionService permissionService,
             IMediator mediator,
-            NewsSettings newsSettings,
-            CaptchaSettings captchaSettings)
+            NewsSettings newsSettings)
         {
             _newsService = newsService;
             _workContext = workContext;
@@ -54,7 +50,6 @@ namespace Grand.Web.Controllers
             _permissionService = permissionService;
             _mediator = mediator;
             _newsSettings = newsSettings;
-            _captchaSettings = captchaSettings;
         }
 
         #endregion
@@ -93,30 +88,15 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> NewsCommentAdd(string newsItemId,
-            NewsItemModel model, bool captchaValid,
-            [FromServices] IGroupService groupService
-            )
+        public virtual async Task<IActionResult> NewsCommentAdd(NewsItemModel model)
         {
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var newsItem = await _newsService.GetNewsById(newsItemId);
+            var newsItem = await _newsService.GetNewsById(model.NewsItemId);
             if (newsItem is not { Published: true } || !newsItem.AllowComments)
                 return RedirectToRoute("HomePage");
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            if (await groupService.IsGuest(_workContext.CurrentCustomer) && !_newsSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("News.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
 
             if (ModelState.IsValid)
             {
