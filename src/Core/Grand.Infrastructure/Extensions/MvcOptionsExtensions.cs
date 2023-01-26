@@ -10,16 +10,9 @@ public static class MvcOptionsExtensions
     {
         var replacedModelBinderProvider = mvcOptions.ModelBinderProviders.OfType<T>().FirstOrDefault();
         if (replacedModelBinderProvider == null) return;
-        var pos = 0;
-        for (var i = 0; i < mvcOptions.ModelBinderProviders.Count; i++)
-        {
-            if (mvcOptions.ModelBinderProviders[i] is T)
-            {
-                pos = i;
-            }
-        }
+        var index = mvcOptions.ModelBinderProviders.IndexOf(replacedModelBinderProvider);
         var customProvider = new JsonBodyModelBinderProvider(replacedModelBinderProvider);
         mvcOptions.ModelBinderProviders.Remove(replacedModelBinderProvider);
-        mvcOptions.ModelBinderProviders.Insert(pos, customProvider);
+        mvcOptions.ModelBinderProviders.Insert(index, customProvider);
     }
 }
