@@ -38,8 +38,8 @@ namespace Grand.Infrastructure.Validators
                 await next();
                 return;
             }
-
-            foreach (var argument in context.ActionArguments.Where(x => !IsSimpleType(x.Value.GetType())))
+            
+            foreach (var argument in context.ActionArguments.Where(x => !IsSimpleType(x.Value?.GetType())))
             {
                 Type genericType = typeof(IValidator<>).MakeGenericType(argument.Value!.GetType());
                 var validator = (IValidator)_serviceProvider.GetService(genericType);
@@ -58,8 +58,11 @@ namespace Grand.Infrastructure.Validators
             await next();
         }
         
-        private static bool IsSimpleType(Type type)
+        private static bool IsSimpleType(Type? type)
         {
+            if (type == null)
+                return true;
+            
             return
                 type.IsPrimitive ||
                 new Type[] {
