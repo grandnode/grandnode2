@@ -11,7 +11,6 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
-using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Products;
 using Grand.Web.Common.Extensions;
