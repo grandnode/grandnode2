@@ -155,7 +155,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             //picture. used when we want to override a default product picture when some attribute is selected
-            if (!request.LoadPicture) return model;
+            if (!request.Model.LoadPicture) return model;
 
             //first, try to get product attribute combination picture
             var pictureId = request.Product.FindProductAttributeCombination(customAttributes)?.PictureId;

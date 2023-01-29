@@ -296,7 +296,7 @@ namespace Grand.Web.Endpoints
 
             //product email a friend
             endpointRouteBuilder.MapControllerRoute("ProductEmailAFriend",
-                            pattern + "productemailafriend/{productId?}",
+                            pattern + "productemailafriend",
                             new { controller = "Product", action = "ProductEmailAFriend" });
             
             //product ask question on product page
@@ -306,7 +306,7 @@ namespace Grand.Web.Endpoints
 
             //reviews
             endpointRouteBuilder.MapControllerRoute("ProductReviews",
-                            pattern + "productreviews/{productId}",
+                            pattern + "productreviews",
                             new { controller = "Product", action = "ProductReviews" });
 
             //set review helpfulness (AJAX link)

@@ -40,7 +40,6 @@ namespace Grand.Web.Controllers
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
         private readonly CatalogSettings _catalogSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CaptchaSettings _captchaSettings;
 
         #endregion
@@ -58,7 +57,6 @@ namespace Grand.Web.Controllers
             ICustomerActivityService customerActivityService,
             IMediator mediator,
             CatalogSettings catalogSettings,
-            ShoppingCartSettings shoppingCartSettings,
             CaptchaSettings captchaSettings
         )
         {
@@ -72,7 +70,6 @@ namespace Grand.Web.Controllers
             _customerActivityService = customerActivityService;
             _mediator = mediator;
             _catalogSettings = catalogSettings;
-            _shoppingCartSettings = shoppingCartSettings;
             _captchaSettings = captchaSettings;
         }
 
@@ -80,7 +77,7 @@ namespace Grand.Web.Controllers
 
         #region Product details page
 
-        public virtual async Task<IActionResult> ProductDetails(string productId, string updatecartitemid = "")
+        public virtual async Task<IActionResult> ProductDetails(string productId)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -116,31 +113,12 @@ namespace Grand.Web.Controllers
                 var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
                 return parentGroupedProduct == null ? RedirectToRoute("HomePage") : RedirectToRoute("Product", new { SeName = parentGroupedProduct.GetSeName(_workContext.WorkingLanguage.Id) });
             }
-            //update existing shopping cart item?
-            ShoppingCartItem updatecartitem = null;
-            if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
-            {
-                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id);
-
-                updatecartitem = cart.FirstOrDefault(x => x.Id == updatecartitemid);
-                //not found?
-                if (updatecartitem == null)
-                {
-                    return RedirectToRoute("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) });
-                }
-                //is it this product?
-                if (product.Id != updatecartitem.ProductId)
-                {
-                    return RedirectToRoute("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) });
-                }
-            }
-
+            
             //prepare the model
             var model = await _mediator.Send(new GetProductDetailsPage {
                 Store = _workContext.CurrentStore,
                 Product = product,
-                IsAssociatedProduct = false,
-                UpdateCartItem = updatecartitem
+                IsAssociatedProduct = false
             });
 
             //product layout
@@ -172,7 +150,7 @@ namespace Grand.Web.Controllers
         //handle product attribute selection event. this way we return new price, overridden gtin/sku/mpn
         //currently we use this method on the product details pages
         [HttpPost]
-        public virtual async Task<IActionResult> ProductDetails_AttributeChange(ProductModel model, bool loadPicture)
+        public virtual async Task<IActionResult> ProductDetails_AttributeChange(ProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
@@ -182,8 +160,7 @@ namespace Grand.Web.Controllers
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
-                Model = model, 
-                LoadPicture = loadPicture,
+                Model = model,
                 Product = product
             });
 
@@ -205,15 +182,14 @@ namespace Grand.Web.Controllers
         }
 
         //handle product warehouse selection event. this way we return stock
-        //currently we use this method on the product details pages
         [HttpPost]
-        public virtual async Task<IActionResult> ProductDetails_WarehouseChange(string productId, string warehouseId, [FromServices] IStockQuantityService stockQuantityService)
+        public virtual async Task<IActionResult> ProductDetails_WarehouseChange(ProductModel model, [FromServices] IStockQuantityService stockQuantityService)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 return new JsonResult("");
 
-            var stock = stockQuantityService.FormatStockMessage(product, warehouseId, null);
+            var stock = stockQuantityService.FormatStockMessage(product, model.WarehouseId, null);
             return Json(new
             {
                 stockAvailability = stock
@@ -496,41 +472,13 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ProductReviews(
-            ProductReviewsModel model,
-            [FromServices] IGroupService groupService,
-            [FromServices] IOrderService orderService,
-            [FromServices] IProductReviewService productReviewService)
+            ProductReviewsModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product is not { Published: true } || !product.AllowCustomerReviews)
                 return Content("");
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage && !model.CaptchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            if (await groupService.IsGuest(_workContext.CurrentCustomer) && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Reviews.OnlyRegisteredUsersCanWriteReviews"));
-            }
-
-            if (_catalogSettings.ProductReviewPossibleOnlyAfterPurchasing &&
-                    !(await orderService.SearchOrders(customerId: _workContext.CurrentCustomer.Id, productId: model.ProductId, os: (int)OrderStatusSystem.Complete)).Any())
-                ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyAfterPurchasing"));
-
-            if (_catalogSettings.ProductReviewPossibleOnlyOnce)
-            {
-                var reviews = await productReviewService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id,
-                                                                              productId: model.ProductId,
-                                                                              pageSize: 1);
-                if (reviews.Any())
-                    ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyOnce"));
-            }
 
             if (ModelState.IsValid)
             {
@@ -671,30 +619,15 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model, bool captchaValid,
-            [FromServices] IGroupService groupService)
+        public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product is not { Published: true } || !_catalogSettings.EmailAFriendEnabled)
                 return Content("");
 
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            //check whether the current customer is guest and ia allowed to email a friend
-            if (await groupService.IsGuest(_workContext.CurrentCustomer) && !_catalogSettings.AllowAnonymousUsersToEmailAFriend)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Products.EmailAFriend.OnlyRegisteredUsers"));
-            }
-
             if (ModelState.IsValid)
             {
-                //email
                 await _mediator.Send(new SendProductEmailAFriendMessageCommand {
                     Customer = _workContext.CurrentCustomer,
                     Product = product,
@@ -730,9 +663,8 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model, bool captchaValid)
+        public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model)
         {
             var product = await _productService.GetProductById(model.Id);
             if (product is not { Published: true } || !_catalogSettings.AskQuestionOnProduct)
@@ -742,22 +674,13 @@ namespace Grand.Web.Controllers
                     message = "Product not found"
                 });
 
-            // validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnAskQuestionPage && !captchaValid)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = _captchaSettings.GetWrongCaptchaMessage(_translationService)
-                });
-            }
-
             if (!ModelState.IsValid)
                 
                 return Json(new {
                     success = false,
                     message = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage))
                 });
+            
             var productaskqestionmodel = new ProductAskQuestionModel {
                 Email = model.AskQuestionEmail,
                 FullName = model.AskQuestionFullName,

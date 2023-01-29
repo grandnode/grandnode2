@@ -10,7 +10,7 @@ public class ProductModel
     public string WarehouseId { get; set; }
     public string ReservationDatepickerFrom { get; set; }
     public string ReservationDatepickerTo { get; set; }
-
+    public bool LoadPicture { get; set; }
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
     public IList<CustomAttributeModel> Attributes { get; set; }
 }

@@ -416,9 +416,6 @@ var vm = new Vue({
                     if (response.data.stockAvailability) {
                         vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                     }
-                    if (response.data.buttonTextOutOfStockSubscription) {
-                        PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
-                    }
                     if (response.data.enabledattributemappingids) {
                         for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
                             document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
@@ -493,7 +490,6 @@ var vm = new Vue({
             }
         },
         getLinkedProductsQV: function (id) {
-            var data = { productId: id };
             axios({
                 url: '/Product/RelatedProducts',
                 method: 'get',
@@ -507,17 +503,13 @@ var vm = new Vue({
             });
         },
         warehouse_change_handler(id, url) {
-            var whId = document.getElementById('WarehouseId').value;
-            var data = { warehouseId: whId }
+            var data = new FormData();
+            data.append('warehouseId', document.getElementById('WarehouseId').value);
+            data.append('productId', id);
             axios({
-                url: url + '?productId=' + id,
-                data: JSON.stringify(data),
-                params: { product: id },
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+                url: url,
+                data: data,
+                method: 'post'
             }).then(function (response) {
                 if (response.data.stockAvailability) {
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
