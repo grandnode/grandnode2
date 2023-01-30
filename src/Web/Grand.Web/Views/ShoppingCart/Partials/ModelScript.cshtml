@@ -90,13 +90,9 @@
                 });
             },
             removeGiftVoucher(href) {
-                var bodyFormData = new FormData();
-                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
                 axios({
-                    method: 'post',
+                    method: 'get',
                     url: href,
-                    data: bodyFormData,
-                    headers: { 'Content-Type': 'multipart/form-data' },
                 }).then(function (response) {
                     vmorder.cart = response.data.model;
                 }).catch(function (error) {
@@ -219,6 +215,16 @@
                     this.vmorder.updateTotals();
                 });
             },
+            RemoveDiscountId(href) {
+                            axios({
+                                method: 'get',
+                                url: href
+                            }).then(function (response) {
+                                vmorder.cart = response.data.model;
+                            }).then(function () {
+                                this.vmorder.updateTotals();
+                            });
+                        },
             displayWarning(message) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
