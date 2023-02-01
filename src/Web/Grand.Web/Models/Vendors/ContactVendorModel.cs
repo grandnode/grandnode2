@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Vendors
@@ -27,5 +28,6 @@ namespace Grand.Web.Models.Vendors
         public string Result { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

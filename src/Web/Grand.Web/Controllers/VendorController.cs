@@ -131,22 +131,15 @@ namespace Grand.Web.Controllers
 
         [HttpPost, ActionName("ApplyVendor")]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, bool captchaValid, IFormFile uploadedFile)
+        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, IFormFile uploadedFile)
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
 
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
+            
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
@@ -296,7 +289,7 @@ namespace Grand.Web.Controllers
             if (prevPicture == null)
                 vendor.PictureId = "";
 
-            if (ModelState is { IsValid: true, ErrorCount: 0 })
+            if (ModelState.IsValid)
             {
                 var description = FormatText.ConvertText(model.Description);
 
@@ -363,11 +356,10 @@ namespace Grand.Web.Controllers
         }
 
 
-        [HttpPost, ActionName("ContactVendor")]
+        [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model, bool captchaValid)
+        public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model)
         {
             if (!_vendorSettings.AllowCustomersToContactVendors)
                 return Content("");
@@ -375,14 +367,6 @@ namespace Grand.Web.Controllers
             var vendor = await _vendorService.GetVendorById(model.VendorId);
             if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            model.VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
 
             if (ModelState.IsValid)
             {
