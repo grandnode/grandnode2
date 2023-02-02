@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.ShoppingCart
 {
@@ -19,5 +20,6 @@ namespace Grand.Web.Models.ShoppingCart
 
         public bool DisplayCaptcha { get; set; }
         
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

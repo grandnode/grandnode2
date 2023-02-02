@@ -130,6 +130,7 @@
                 var elementById = document.getElementById(element + id);
                 var data = new FormData();
                 data.append('shoppingcartId', id);
+                data.append('ShoppingCartType', 1);
                 data.append('quantity', elementById.value);
                 data.append('__RequestVerificationToken',
                     document.querySelector('input[name=__RequestVerificationToken]').value);

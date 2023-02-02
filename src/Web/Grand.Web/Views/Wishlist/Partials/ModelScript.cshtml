@@ -14,8 +14,7 @@
             deleteFromWishlist(id) {
                 axios({
                     url: '@Url.RouteUrl("DeleteItemFromWishlist")'+'/'+ id,
-                    method: 'post',
-                    headers: { 'Content-Type': 'application/json' }
+                    method: 'get',                    
                 }).then(function (response) {
                     if (response.data.success) {
                         vmwishlist.getModel();
@@ -58,6 +57,7 @@
                 var elementById = document.getElementById(element + id);
                 var data = new FormData();
                 data.append('shoppingcartId', id);
+                data.append('ShoppingCartType', 2);
                 data.append('quantity', elementById.value);
                 data.append('__RequestVerificationToken',
                     document.querySelector('input[name=__RequestVerificationToken]').value);
