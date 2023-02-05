@@ -3,7 +3,7 @@ using Grand.Business.Core.Utilities.ExportImport;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 
-namespace Grand.Business.Customers.Services
+namespace Grand.Business.Customers.Services.ExportImport
 {
     public class CustomerSchemaProperty : ISchemaProperty<Customer>
     {

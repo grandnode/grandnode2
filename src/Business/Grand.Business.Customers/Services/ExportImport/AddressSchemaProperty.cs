@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.ExportImport;
 using Grand.Domain.Common;
 
-namespace Grand.Business.Customers.Services
+namespace Grand.Business.Customers.Services.ExportImport
 {
     public class AddressSchemaProperty : ISchemaProperty<Address>
     {
