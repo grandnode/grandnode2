@@ -25,7 +25,9 @@ namespace Grand.Api.Infrastructure
                 application.UseSwagger();
                 application.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode API V1");
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode Backend API V1");
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", "Grandnode Frontend API V1");
+                    
                 });
             }
         }
@@ -38,7 +40,9 @@ namespace Grand.Api.Infrastructure
                 
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Grandnode API", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Grandnode Backend API", Version = "v1" });
+                    c.SwaggerDoc("v2", new OpenApiInfo { Title = "Grandnode Frontend API", Version = "v2" });
+                    
                     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, //Name the security scheme
                         new OpenApiSecurityScheme
                         {
@@ -59,10 +63,11 @@ namespace Grand.Api.Infrastructure
                         }
                     });
                     c.OperationFilter<AddParamOperationFilter>();
+                    c.DocumentFilter<SwaggerODataControllerDocumentFilter>();
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
                 });
-                
+
             }
         }
 

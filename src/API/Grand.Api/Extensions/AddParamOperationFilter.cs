@@ -7,9 +7,15 @@ namespace Grand.Api.Extensions
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.ApiDescription.HttpMethod == "GET" && context.ApiDescription.ParameterDescriptions.Count == 0)
+            if (context.ApiDescription.GroupName == "v1" && context.ApiDescription.HttpMethod == "GET" && context.ApiDescription.ParameterDescriptions.Count == 0)
             {
-                operation.Parameters.Add(new OpenApiParameter() {
+                ApplyV1(operation, context);
+            }
+        }
+
+        private void ApplyV1(OpenApiOperation operation, OperationFilterContext context)
+        {
+            operation.Parameters.Add(new OpenApiParameter() {
                     Name = "$top",
                     AllowReserved = true,
                     In = ParameterLocation.Query,
@@ -61,7 +67,6 @@ namespace Grand.Api.Extensions
                         Type = "string"
                     }
                 });
-            }
         }
     }
 }

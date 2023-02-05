@@ -91,9 +91,6 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterRequestHandler(IServiceCollection services)
         {
-
-            //Workaround - there is a problem with register generic type with IRequestHandler
-
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto, Domain.Directory.Country>,
                 IQueryable<CountryDto>>), typeof(GetGenericQueryHandler<CountryDto, Domain.Directory.Country>));
 
