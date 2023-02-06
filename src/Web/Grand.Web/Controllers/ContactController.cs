@@ -7,9 +7,9 @@ using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Contact;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
-using Grand.Web.Controllers;
 using Grand.Web.Events;
 using Grand.Web.Models.Contact;
 using MediatR;
@@ -41,6 +41,7 @@ public class ContactController : BasePublicController
 
     //available even when a store is closed
     [ClosedStore(true)]
+    [HttpGet]
     public virtual async Task<IActionResult> ContactUs(
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IPageService pageService)

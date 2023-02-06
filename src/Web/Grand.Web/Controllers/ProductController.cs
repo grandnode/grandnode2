@@ -13,6 +13,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Products;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;

@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;

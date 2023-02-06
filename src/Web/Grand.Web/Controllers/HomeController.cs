@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Grand.Web.Common.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {

@@ -14,6 +14,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Vendors;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Vendors;

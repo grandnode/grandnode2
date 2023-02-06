@@ -9,6 +9,7 @@ using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

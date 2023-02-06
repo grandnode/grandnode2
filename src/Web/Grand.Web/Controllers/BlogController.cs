@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Blogs;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Blogs;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;

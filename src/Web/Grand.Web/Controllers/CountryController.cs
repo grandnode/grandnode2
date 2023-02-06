@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
