@@ -42,7 +42,7 @@ public class ContactController : BasePublicController
     //available even when a store is closed
     [ClosedStore(true)]
     [HttpGet]
-    public virtual async Task<IActionResult> ContactUs(
+    public virtual async Task<IActionResult> Index(
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IPageService pageService)
     {
@@ -65,7 +65,7 @@ public class ContactController : BasePublicController
     [AutoValidateAntiforgeryToken]
     [ClosedStore(true)]
     [DenySystemAccount]
-    public virtual async Task<IActionResult> ContactUs(
+    public virtual async Task<IActionResult> Index(
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IPageService pageService,
         ContactUsModel model)

@@ -326,7 +326,7 @@ namespace Grand.Web.Endpoints
             //contact us
             endpointRouteBuilder.MapControllerRoute("ContactUs",
                             pattern + "contactus",
-                            new { controller = "Contact", action = "ContactUs" });
+                            new { controller = "Contact", action = "Index" });
 
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
