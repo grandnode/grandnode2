@@ -56,7 +56,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> List(NewsPagingFilteringModel command)
         {
             if (!_newsSettings.Enabled)
@@ -65,6 +65,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetNewsItemList { Command = command });
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> NewsItem(string newsItemId)
         {
             if (!_newsSettings.Enabled)

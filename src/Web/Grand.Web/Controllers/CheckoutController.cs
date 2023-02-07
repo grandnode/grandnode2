@@ -336,6 +336,7 @@ namespace Grand.Web.Controllers
         }
 
         #endregion
+        [HttpGet]
         public virtual async Task<IActionResult> Index()
         {
             var customer = _workContext.CurrentCustomer;
@@ -373,7 +374,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("Checkout");
         }
-        
+        [HttpGet]
         public virtual async Task<IActionResult> Start()
         {
             //validation
@@ -777,7 +778,7 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-        
+        [HttpGet]
         public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
         {
             var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
@@ -921,7 +922,7 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-        
+        [HttpGet]
         public virtual async Task<IActionResult> Completed(string orderId)
         {
             //validation
@@ -958,7 +959,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-        
+        [HttpGet]
         public virtual async Task<IActionResult> ConfirmOrder()
         {
             try
@@ -1031,7 +1032,7 @@ namespace Grand.Web.Controllers
                 return Json(new { error = 1, message = exc.Message });
             }
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> CompleteRedirectionPayment(string paymentTransactionId)
         {
             try

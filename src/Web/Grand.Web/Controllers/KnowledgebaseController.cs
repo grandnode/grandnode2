@@ -67,7 +67,7 @@ namespace Grand.Web.Controllers
             _customerSettings = customerSettings;
             _permissionService = permissionService;
         }
-
+        [HttpGet]
         public virtual IActionResult List()
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -77,7 +77,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> ArticlesByCategory(string categoryId)
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -124,7 +124,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> ItemsByKeyword(string keyword)
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -163,7 +163,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> KnowledgebaseArticle(string articleId, [FromServices] ICustomerService customerService)
         {
             if (!_knowledgebaseSettings.Enabled)

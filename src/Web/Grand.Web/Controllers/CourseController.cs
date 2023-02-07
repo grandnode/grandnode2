@@ -79,7 +79,7 @@ namespace Grand.Web.Controllers
                    //Store access
                    _aclService.Authorize(course, _workContext.CurrentStore.Id);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Details(string courseId)
         {
             var customer = _workContext.CurrentCustomer;
@@ -109,6 +109,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> Lesson(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -143,6 +144,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> DownloadFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -177,7 +179,7 @@ namespace Grand.Web.Controllers
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> VideoFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -212,7 +214,7 @@ namespace Grand.Web.Controllers
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Approved(string id)
         {
             var customer = _workContext.CurrentCustomer;

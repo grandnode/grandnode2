@@ -103,7 +103,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Categories
-
+        [HttpGet]
         public virtual async Task<IActionResult> Category(string categoryId, CatalogPagingFilteringModel command)
         {
             var category = await _categoryService.GetCategoryById(categoryId);
@@ -156,7 +156,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Brands
-
+        [HttpGet]
         public virtual async Task<IActionResult> Brand(string brandId, CatalogPagingFilteringModel command)
         {
             var brand = await _brandService.GetBrandById(brandId);
@@ -205,7 +205,7 @@ namespace Grand.Web.Controllers
 
             return View(layoutViewPath, model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> BrandAll()
         {
             var model = await _mediator.Send(new GetBrandAll {
@@ -219,7 +219,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Collections
-
+        [HttpGet]
         public virtual async Task<IActionResult> Collection(string collectionId, CatalogPagingFilteringModel command)
         {
             var collection = await _collectionService.GetCollectionById(collectionId);
@@ -268,7 +268,7 @@ namespace Grand.Web.Controllers
 
             return View(layoutViewPath, model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> CollectionAll()
         {
             var model = await _mediator.Send(new GetCollectionAll {
@@ -282,7 +282,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Vendors
-
+        [HttpGet]
         public virtual async Task<IActionResult> Vendor(string vendorId, CatalogPagingFilteringModel command)
         {
             var vendor = await _vendorService.GetVendorById(vendorId);
@@ -314,7 +314,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> VendorAll()
         {
             //we don't allow viewing of vendors if "vendors" block is hidden
@@ -425,7 +425,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Product tags
-
+        [HttpGet]
         public virtual async Task<IActionResult> ProductsByTag(string productTagId, CatalogPagingFilteringModel command, [FromServices] IProductTagService productTagService)
         {
             var productTag = await productTagService.GetProductTagById(productTagId);
@@ -441,6 +441,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> ProductsByTagName(string seName, CatalogPagingFilteringModel command, [FromServices] IProductTagService productTagService)
         {
             var productTag = await productTagService.GetProductTagBySeName(seName);
@@ -456,7 +457,7 @@ namespace Grand.Web.Controllers
             });
             return View("ProductsByTag", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> ProductTagsAll()
         {
             var model = await _mediator.Send(new GetProductTagsAll {
@@ -469,7 +470,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Searching
-
+        [HttpGet]
         public virtual async Task<IActionResult> Search(SearchModel model, CatalogPagingFilteringModel command)
         {
             //'Continue shopping' URL
@@ -492,7 +493,7 @@ namespace Grand.Web.Controllers
             });
             return View(searchModel);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> SearchTermAutoComplete(string term, string categoryId, [FromServices] CatalogSettings catalogSettings)
         {
             if (string.IsNullOrWhiteSpace(term) || term.Length < catalogSettings.ProductSearchTermMinimumLength)

@@ -96,7 +96,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Shopping cart
-
+        [HttpGet]
         public async Task<IActionResult> SidebarShoppingCart()
         {
             if (!_shoppingCartSettings.MiniShoppingCartEnabled)
@@ -260,7 +260,7 @@ namespace Grand.Web.Controllers
                 downloadGuid = download.DownloadGuid
             });
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Cart(bool checkoutAttributes)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
@@ -278,7 +278,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
+        [HttpGet]
         [DenySystemAccount]
         public async Task<IActionResult> CartSummary()
         {
@@ -297,7 +297,7 @@ namespace Grand.Web.Controllers
 
             return Json(model);
         }
-
+        [HttpGet]
         [DenySystemAccount]
         public async Task<IActionResult> CartTotal()
         {
@@ -356,7 +356,7 @@ namespace Grand.Web.Controllers
                 model = cartModel
             });
         }
-
+        [HttpGet]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ClearCart()
         {
@@ -476,7 +476,7 @@ namespace Grand.Web.Controllers
                 sidebarshoppingcartmodel = miniShoppingCart
             });
         }
-
+        [HttpGet]
         public virtual IActionResult ContinueShopping()
         {
             var returnUrl =
@@ -487,7 +487,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("HomePage");
         }
-
+        [HttpPost]
         [DenySystemAccount]
         public virtual async Task<IActionResult> StartCheckout(CheckoutAttributeSelectedModel model)
         {

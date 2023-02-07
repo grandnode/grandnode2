@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace Grand.Api.Controllers
@@ -18,6 +19,7 @@ namespace Grand.Api.Controllers
     [ApiExplorerSettings(GroupName = "v2")]
     [ApiController]
     [Route("[controller]/[action]")]
+    [SwaggerTag(description: "Create token")]
     public class TokenWebController : ControllerBase
     {
         private readonly ICustomerService _customerService;

@@ -50,7 +50,7 @@ namespace Grand.Web.Controllers
             });
         }
 
-
+        [HttpGet]
         public virtual async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {
             var model = await _mediator.Send(new SubscriptionActivationCommand { Active = active, Token = token });

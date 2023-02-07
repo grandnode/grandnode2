@@ -61,7 +61,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         // Product details page > out of stock subscribe button
         public virtual async Task<IActionResult> SubscribeButton(string productId, string warehouseId)
         {
@@ -195,6 +195,7 @@ namespace Grand.Web.Controllers
 
 
         // My account / Out of stock subscriptions
+        [HttpGet]
         public virtual async Task<IActionResult> CustomerSubscriptions(int? pageNumber)
         {
             if (_customerSettings.HideOutOfStockSubscriptionsTab)

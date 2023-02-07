@@ -76,7 +76,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Product details page
-
+        [HttpGet]
         public virtual async Task<IActionResult> ProductDetails(string productId)
         {
             var product = await _productService.GetProductById(productId);
@@ -301,7 +301,7 @@ namespace Grand.Web.Controllers
         }
 
         #region Quick view product
-
+        [HttpGet]
         public virtual async Task<IActionResult> QuickView(string productId)
         {
             var product = await _productService.GetProductById(productId);
@@ -402,7 +402,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Recently viewed products
-
+        [HttpGet]
         public virtual async Task<IActionResult> RecentlyViewedProducts()
         {
             if (!_catalogSettings.RecentlyViewedProductsEnabled)
@@ -421,7 +421,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Related products
-
+        [HttpGet]
         public virtual async Task<IActionResult> RelatedProducts(string productId, int? productThumbPictureSize)
         {
             var productIds = (await _productService.GetProductById(productId)).RelatedProducts.OrderBy(x => x.DisplayOrder).Select(x => x.ProductId2).ToArray();
@@ -444,7 +444,7 @@ namespace Grand.Web.Controllers
 
 
         #region Recently added products
-
+        [HttpGet]
         public virtual async Task<IActionResult> NewProducts()
         {
             if (!_catalogSettings.NewProductsEnabled)
@@ -713,7 +713,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Comparing products
-
+        [HttpGet]
         public virtual async Task<IActionResult> SidebarCompareProducts([FromServices] MediaSettings mediaSettings)
         {
             if (!_catalogSettings.CompareProductsEnabled)
@@ -723,7 +723,7 @@ namespace Grand.Web.Controllers
             return Json(model);
         }
 
-
+        [HttpGet]
         public virtual async Task<IActionResult> CompareProducts([FromServices] MediaSettings mediaSettings)
         {
             if (!_catalogSettings.CompareProductsEnabled)
@@ -736,7 +736,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Calendar
-
+        [HttpGet]
         public virtual async Task<IActionResult> GetDatesForMonth(string productId, int month, string parameter, int year, [FromServices] IProductReservationService productReservationService)
         {
             var allReservations = await productReservationService.GetProductReservationsByProductId(productId, true, null);

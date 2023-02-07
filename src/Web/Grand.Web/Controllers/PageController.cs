@@ -35,7 +35,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> PageDetails(string pageId)
         {
             if (string.IsNullOrEmpty(pageId))
@@ -61,7 +61,7 @@ namespace Grand.Web.Controllers
 
             return View(layoutViewPath, model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> PageDetailsPopup(string systemName)
         {
             var model = await _mediator.Send(new GetPageBlock { SystemName = systemName });

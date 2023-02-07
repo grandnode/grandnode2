@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
@@ -28,7 +27,6 @@ namespace Grand.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
         private readonly IPermissionService _permissionService;
         private readonly IMediator _mediator;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -42,7 +40,6 @@ namespace Grand.Web.Controllers
             IShoppingCartService shoppingCartService,
             ITranslationService translationService,
             ICustomerService customerService,
-            IGroupService groupService,
             IPermissionService permissionService,
             IMediator mediator,
             ShoppingCartSettings shoppingCartSettings)
@@ -51,7 +48,6 @@ namespace Grand.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _translationService = translationService;
             _customerService = customerService;
-            _groupService = groupService;
             _permissionService = permissionService;
             _mediator = mediator;
             _shoppingCartSettings = shoppingCartSettings;

@@ -13,6 +13,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
@@ -83,6 +84,7 @@ namespace Grand.Web.Controllers
         //available even when navigation is not allowed
         [PublicStore(true)]
         [ClosedStore(true)]
+        [IgnoreApi]
         public virtual IActionResult Login(bool? checkoutAsGuest)
         {
             var model = new LoginModel {
@@ -98,6 +100,7 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         [ClosedStore(true)]
         [AutoValidateAntiforgeryToken]
+        [IgnoreApi]
         public virtual async Task<IActionResult> Login(LoginModel model, string returnUrl)
         {
             if (ModelState.IsValid)
@@ -130,7 +133,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [IgnoreApi]
         public async Task<IActionResult> TwoFactorAuthorization()
         {
             if (!_customerSettings.TwoFactorAuthenticationEnabled)
@@ -160,7 +163,7 @@ namespace Grand.Web.Controllers
 
             return View();
         }
-
+        [IgnoreApi]
         [HttpPost]
         public async Task<IActionResult> TwoFactorAuthorization(string token,
             [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
@@ -204,7 +207,7 @@ namespace Grand.Web.Controllers
 
             return View();
         }
-
+        [IgnoreApi]
         private async Task<IActionResult> SignInAction(Customer customer, bool createPersistentCookie = false,
             string returnUrl = null)
         {
@@ -224,6 +227,7 @@ namespace Grand.Web.Controllers
         [ClosedStore(true)]
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [IgnoreApi]
         public virtual async Task<IActionResult> Logout(
             [FromServices] StoreInformationSettings storeInformationSettings)
         {
@@ -326,6 +330,7 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> Register()
         {
             //check whether registration is allowed
@@ -452,6 +457,8 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult RegisterResult(int resultId)
         {
             var resultText = "";
@@ -506,6 +513,7 @@ namespace Grand.Web.Controllers
         }
 
         //available even when navigation is not allowed
+        [HttpGet]
         [PublicStore(true)]
         public virtual async Task<IActionResult> AccountActivation(string token, string email)
         {
@@ -540,7 +548,8 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Info
-
+        
+        [HttpGet]
         public virtual async Task<IActionResult> Info()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -617,7 +626,8 @@ namespace Grand.Web.Controllers
                 redirect = Url.Action("Info")
             });
         }
-
+        
+        [HttpGet]
         public virtual async Task<IActionResult> Export()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -635,6 +645,7 @@ namespace Grand.Web.Controllers
 
         #region My account / Addresses
 
+        [HttpGet]
         public virtual async Task<IActionResult> Addresses()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -670,7 +681,7 @@ namespace Grand.Web.Controllers
                 redirect = Url.RouteUrl("CustomerAddresses")
             });
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> AddressAdd()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -733,7 +744,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> AddressEdit(string addressId)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -813,7 +824,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Downloadable products
-
+        [HttpGet]
         public virtual async Task<IActionResult> DownloadableProducts()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -828,7 +839,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
             var model = await _mediator.Send(new GetUserAgreement { OrderItemId = orderItemId });
@@ -838,7 +849,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Change password
-
+        [HttpGet]
         public virtual async Task<IActionResult> ChangePassword()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -876,7 +887,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Delete account
-
+        [HttpGet]
         public virtual async Task<IActionResult> DeleteAccount()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -921,7 +932,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Auctions
-
+        [HttpGet]
         public virtual async Task<IActionResult> Auctions()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -939,7 +950,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Notes
-
+        [HttpGet]
         public virtual async Task<IActionResult> Notes()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -956,7 +967,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Documents
-
+        [HttpGet]
         public virtual async Task<IActionResult> Documents(DocumentPagingModel command)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -977,7 +988,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Reviews
-
+        [HttpGet]
         public virtual async Task<IActionResult> Reviews()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -995,7 +1006,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / TwoFactorAuth
-
+        [HttpGet]
         public async Task<IActionResult> EnableTwoFactorAuthenticator()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1056,7 +1067,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> DisableTwoFactorAuthenticator()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1128,7 +1139,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Courses
-
+        [HttpGet]
         public virtual async Task<IActionResult> Courses()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1146,7 +1157,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / Sub accounts
-
+        [HttpGet]
         public virtual async Task<IActionResult> SubAccounts()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1162,7 +1173,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> SubAccountAdd()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1197,7 +1208,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("CustomerSubAccounts");
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> SubAccountEdit(string id)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))

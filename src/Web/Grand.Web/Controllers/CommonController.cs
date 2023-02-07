@@ -10,6 +10,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Themes;
@@ -98,6 +99,8 @@ namespace Grand.Web.Controllers
         #region Methods
 
         //page not found
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult PageNotFound()
         {
             Response.StatusCode = 404;
@@ -106,13 +109,16 @@ namespace Grand.Web.Controllers
         }
 
         //access denied
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult AccessDenied()
         {
             Response.StatusCode = 403;
             Response.ContentType = "text/html";
             return View();
         }
-
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult Route(string routeName)
         {
             if (string.IsNullOrEmpty(routeName))
@@ -124,11 +130,13 @@ namespace Grand.Web.Controllers
         }
 
         //external authentication error
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult ExternalAuthenticationError(IEnumerable<string> errors)
         {
             return View(errors);
         }
-
+        [HttpGet]
         [PublicStore(true)]
         [DenySystemAccount]
         public virtual async Task<IActionResult> SetLanguage(
@@ -166,6 +174,8 @@ namespace Grand.Web.Controllers
         }
 
         //Use in SlugRouteTransformer.
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult InternalRedirect(string url, bool permanentRedirect)
         {
             //ensure it's invoked from our GenericPathRoute class
@@ -197,6 +207,7 @@ namespace Grand.Web.Controllers
 
         [DenySystemAccount]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> SetCurrency(
             [FromServices] ICurrencyService currencyService,
             [FromServices] IUserFieldService userFieldService,
@@ -229,6 +240,7 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> SetStore(
             [FromServices] IStoreService storeService,
             [FromServices] IStoreHelper storeHelper,
@@ -270,6 +282,7 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> SetTaxType(int customerTaxType, string returnUrl = default)
         {
             var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
@@ -290,6 +303,7 @@ namespace Grand.Web.Controllers
         }
 
         [DenySystemAccount]
+        [HttpGet]
         public virtual async Task<IActionResult> SetStoreTheme(
             [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
         {
@@ -310,6 +324,7 @@ namespace Grand.Web.Controllers
         }
 
         //sitemap page
+        [HttpGet]
         public virtual async Task<IActionResult> Sitemap([FromServices] CommonSettings commonSettings)
         {
             if (!commonSettings.SitemapEnabled)
@@ -355,6 +370,7 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> PrivacyPreference([FromServices] StoreInformationSettings
             storeInformationSettings)
         {
@@ -411,12 +427,13 @@ namespace Grand.Web.Controllers
         //robots.txt file
         [ClosedStore(true)]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> RobotsTextFile()
         {
             var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
-
+        [HttpGet]
         public virtual IActionResult GenericUrl()
         {
             //not found
@@ -425,6 +442,8 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult StoreClosed()
         {
             return View();

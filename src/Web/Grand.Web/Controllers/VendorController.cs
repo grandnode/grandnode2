@@ -95,7 +95,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> ApplyVendor()
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
@@ -226,7 +226,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Info()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
