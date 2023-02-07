@@ -1,4 +1,5 @@
-﻿using Grand.Web.Common.Filters;
+﻿using Grand.Web.Common.Attributes;
+using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Common.Controllers
@@ -26,7 +27,8 @@ namespace Grand.Web.Common.Controllers
             
             return false;
         }
-
+        
+        [IgnoreApi]
         public new IActionResult View(object model)
         {
             if (IsJsonResponseView())
@@ -34,7 +36,8 @@ namespace Grand.Web.Common.Controllers
 
             return base.View(model);
         }
-
+        
+        [IgnoreApi]
         public new IActionResult View(string viewName, object model)
         {
             if (IsJsonResponseView())
