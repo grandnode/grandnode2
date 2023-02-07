@@ -959,7 +959,8 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-        [HttpGet]
+        
+        [HttpPost]
         public virtual async Task<IActionResult> ConfirmOrder()
         {
             try
