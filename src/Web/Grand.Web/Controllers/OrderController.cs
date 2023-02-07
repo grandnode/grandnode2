@@ -10,6 +10,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Page;
@@ -109,6 +110,7 @@ namespace Grand.Web.Controllers
         }
 
         //My account / Order details page / Print
+        [IgnoreApi]
         [HttpGet]
         public virtual async Task<IActionResult> PrintOrderDetails(string orderId)
         {

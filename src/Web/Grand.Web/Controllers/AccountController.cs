@@ -1006,6 +1006,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region My account / TwoFactorAuth
+        [IgnoreApi]
         [HttpGet]
         public async Task<IActionResult> EnableTwoFactorAuthenticator()
         {
@@ -1025,7 +1026,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
+        [IgnoreApi]
         [HttpPost]
         public async Task<IActionResult> EnableTwoFactorAuthenticator(
             CustomerInfoModel.TwoFactorAuthenticationModel model,
@@ -1066,7 +1067,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
+        [IgnoreApi]
         [HttpGet]
         public async Task<IActionResult> DisableTwoFactorAuthenticator()
         {
@@ -1091,7 +1092,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-
+        [IgnoreApi]
         [HttpPost]
         public async Task<IActionResult> DisableTwoFactorAuthenticator(
             CustomerInfoModel.TwoFactorAuthorizationModel model,

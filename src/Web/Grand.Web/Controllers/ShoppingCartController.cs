@@ -15,6 +15,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.ShoppingCart;
+using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
@@ -476,6 +477,8 @@ namespace Grand.Web.Controllers
                 sidebarshoppingcartmodel = miniShoppingCart
             });
         }
+        
+        [IgnoreApi]
         [HttpGet]
         public virtual IActionResult ContinueShopping()
         {

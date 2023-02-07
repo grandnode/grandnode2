@@ -433,6 +433,7 @@ namespace Grand.Web.Controllers
             var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
+        [IgnoreApi]
         [HttpGet]
         public virtual IActionResult GenericUrl()
         {
