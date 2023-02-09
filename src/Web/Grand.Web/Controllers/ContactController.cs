@@ -13,6 +13,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Events;
 using Grand.Web.Models.Contact;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 public class ContactController : BasePublicController
@@ -118,6 +119,7 @@ public class ContactController : BasePublicController
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId,
+        IFormFile uploadedFile, 
         [FromServices] IDownloadService downloadService,
         [FromServices] IContactAttributeService contactAttributeService)
     {
@@ -130,9 +132,7 @@ public class ContactController : BasePublicController
             });
         }
 
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
+        if (uploadedFile == null)
         {
             return Json(new {
                 success = false,
@@ -141,16 +141,15 @@ public class ContactController : BasePublicController
             });
         }
 
-        var fileBinary = httpPostedFile.GetDownloadBits();
+        var fileBinary = uploadedFile.GetDownloadBits();
 
         const string qqFileNameParameter = "qqfilename";
-        var fileName = httpPostedFile.FileName;
-        if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-            fileName = form[qqFileNameParameter].ToString();
+        var fileName = uploadedFile.FileName;
+        
         //remove path (passed in IE)
         fileName = Path.GetFileName(fileName);
 
-        var contentType = httpPostedFile.ContentType;
+        var contentType = uploadedFile.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))
