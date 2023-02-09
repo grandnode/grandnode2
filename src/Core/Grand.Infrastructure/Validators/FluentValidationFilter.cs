@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -39,7 +40,7 @@ namespace Grand.Infrastructure.Validators
                 return;
             }
             
-            foreach (var argument in context.ActionArguments.Where(x => !IsSimpleType(x.Value?.GetType())))
+            foreach (var argument in context.ActionArguments.Where(x => !CommonHelper.IsSimpleType(x.Value?.GetType())))
             {
                 Type genericType = typeof(IValidator<>).MakeGenericType(argument.Value!.GetType());
                 var validator = (IValidator)_serviceProvider.GetService(genericType);
@@ -57,28 +58,6 @@ namespace Grand.Infrastructure.Validators
 
             await next();
         }
-        
-        private static bool IsSimpleType(Type? type)
-        {
-            if (type == null)
-                return true;
-            
-            return
-                type.IsPrimitive ||
-                new Type[] {
-                    typeof(string),
-                    typeof(decimal),
-                    typeof(DateTime),
-                    typeof(DateTimeOffset),
-                    typeof(TimeSpan),
-                    typeof(Guid)
-                }.Contains(type) ||
-                type.IsEnum ||
-                Convert.GetTypeCode(type) != TypeCode.Object ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]))
-                ;
-        }
-
         #endregion
     }
 }
