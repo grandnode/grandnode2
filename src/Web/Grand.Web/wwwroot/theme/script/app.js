@@ -319,7 +319,7 @@ var vm = new Vue({
         removeFromCompareList: function (product, index) {
             if (product !== undefined) {
                 const compareList = AxiosCart.getCookie('Grand.CompareProduct');
-                const newCompareList = compareList.replace(product.Id, '');
+                const newCompareList = compareList.replace(product, '');
                 AxiosCart.setCookie('Grand.CompareProduct', newCompareList);
                 vm.compareproducts.Products.splice(index, 1);
             } else {
