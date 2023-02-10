@@ -2,6 +2,7 @@
 using Grand.Domain.Common;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Grand.Web.Models.Common;
@@ -23,6 +24,7 @@ namespace Grand.Web.Models.Contact
 
         [GrandResourceDisplayName("ContactUs.Subject")]
         public string Subject { get; set; }
+        [IgnoreApi]
         public bool SubjectEnabled { get; set; }
 
         [GrandResourceDisplayName("ContactUs.Enquiry")]
@@ -31,17 +33,24 @@ namespace Grand.Web.Models.Contact
         [GrandResourceDisplayName("ContactUs.FullName")]
         public string FullName { get; set; }
 
+        [IgnoreApi]
         public bool SuccessfullySent { get; set; }
+        [IgnoreApi]
         public string Result { get; set; }
-
+        
+        [IgnoreApi]
         public bool DisplayCaptcha { get; set; }
         public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> Attributes { get; set; }
         
+        [IgnoreApi]
         public string ContactAttributeInfo { get; set; }
+        [IgnoreApi]
         public IList<CustomAttribute> ContactAttribute { get; set; }
+        
+        [IgnoreApi]
         public IList<ContactAttributeModel> ContactAttributes { get; set; }
 
         public class ContactAttributeModel : BaseEntityModel

@@ -143,7 +143,6 @@ public class ContactController : BasePublicController
 
         var fileBinary = uploadedFile.GetDownloadBits();
 
-        const string qqFileNameParameter = "qqfilename";
         var fileName = uploadedFile.FileName;
         
         //remove path (passed in IE)

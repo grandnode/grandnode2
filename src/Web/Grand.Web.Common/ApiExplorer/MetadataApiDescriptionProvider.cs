@@ -1,7 +1,6 @@
 ﻿//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/DefaultApiDescriptionProvider.cs
-
+using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;

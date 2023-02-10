@@ -1,4 +1,4 @@
-﻿using Grand.Web.Common.Attributes;
+﻿using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 

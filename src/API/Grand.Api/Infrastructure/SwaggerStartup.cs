@@ -1,4 +1,5 @@
 ﻿using Grand.Api.Extensions;
+using Grand.Api.Infrastructure.Filters;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,6 +67,7 @@ namespace Grand.Api.Infrastructure
                     c.DocumentFilter<SwaggerODataControllerDocumentFilter>();
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
+                    c.SchemaFilter<IgnoreFieldFilter>();
                 });
 
             }

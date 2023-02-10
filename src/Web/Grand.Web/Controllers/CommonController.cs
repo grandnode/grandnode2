@@ -10,7 +10,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Customers;
-using Grand.Web.Common.Attributes;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Themes;

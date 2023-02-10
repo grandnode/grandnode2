@@ -1,4 +1,4 @@
-﻿using Grand.Web.Common.Attributes;
+﻿using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 
