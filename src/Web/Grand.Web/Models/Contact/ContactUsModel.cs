@@ -2,7 +2,6 @@
 using Grand.Domain.Common;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Grand.Web.Models.Common;
@@ -18,41 +17,24 @@ namespace Grand.Web.Models.Contact
             ContactAttribute = new List<CustomAttribute>();
             Attributes = new List<CustomAttributeModel>();
         }
-
         [GrandResourceDisplayName("ContactUs.Email")]
         public string Email { get; set; }
-
         [GrandResourceDisplayName("ContactUs.Subject")]
         public string Subject { get; set; }
-        [IgnoreApi]
         public bool SubjectEnabled { get; set; }
-
         [GrandResourceDisplayName("ContactUs.Enquiry")]
         public string Enquiry { get; set; }
-
         [GrandResourceDisplayName("ContactUs.FullName")]
         public string FullName { get; set; }
-
-        [IgnoreApi]
         public bool SuccessfullySent { get; set; }
-        [IgnoreApi]
         public string Result { get; set; }
-        
-        [IgnoreApi]
         public bool DisplayCaptcha { get; set; }
         public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
-
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> Attributes { get; set; }
-        
-        [IgnoreApi]
         public string ContactAttributeInfo { get; set; }
-        [IgnoreApi]
         public IList<CustomAttribute> ContactAttribute { get; set; }
-        
-        [IgnoreApi]
         public IList<ContactAttributeModel> ContactAttributes { get; set; }
-
         public class ContactAttributeModel : BaseEntityModel
         {
             public ContactAttributeModel()
@@ -60,15 +42,10 @@ namespace Grand.Web.Models.Contact
                 AllowedFileExtensions = new List<string>();
                 Values = new List<ContactAttributeValueModel>();
             }
-
             public string Name { get; set; }
-
             public string DefaultValue { get; set; }
-
             public string TextPrompt { get; set; }
-
             public bool IsRequired { get; set; }
-
             /// <summary>
             /// Selected day value for datepicker
             /// </summary>
@@ -81,26 +58,19 @@ namespace Grand.Web.Models.Contact
             /// Selected year value for datepicker
             /// </summary>
             public int? SelectedYear { get; set; }
-
             /// <summary>
             /// Allowed file extensions for customer uploaded files
             /// </summary>
             public IList<string> AllowedFileExtensions { get; set; }
-
             public AttributeControlType AttributeControlType { get; set; }
-
             public IList<ContactAttributeValueModel> Values { get; set; }
         }
 
         public class ContactAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
-
             public int DisplayOrder { get; set; }
-
             public string ColorSquaresRgb { get; set; }
-
-
             public bool IsPreSelected { get; set; }
         }
     }
