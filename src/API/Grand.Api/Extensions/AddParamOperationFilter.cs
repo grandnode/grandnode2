@@ -1,5 +1,4 @@
-﻿using MassTransit.Internals;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -81,7 +80,7 @@ namespace Grand.Api.Extensions
         {
             operation.Parameters ??= new List<OpenApiParameter>();
 
-            if (context.MethodInfo.GetAttribute<AutoValidateAntiforgeryTokenAttribute>().Any())
+            if (context.MethodInfo.GetCustomAttributes(typeof(AutoValidateAntiforgeryTokenAttribute), true).Any())
             {
                 operation.Parameters.Add(new OpenApiParameter {
                     Name = "X-CSRF-TOKEN",
