@@ -1,4 +1,5 @@
 ﻿//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/DefaultApiDescriptionProvider.cs
+
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Controllers;
@@ -104,8 +105,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var templateParameters = parsedTemplate?.Parameters?.ToList() ?? new List<TemplatePart>();
 
         var parameterContext = new ApiParameterContext(_modelMetadataProvider, action, templateParameters);
-
-        foreach (var parameter in GetParameters(parameterContext))
+        foreach (var parameter in GetParameters(parameterContext,
+                     httpMethod.Equals("GET", StringComparison.CurrentCultureIgnoreCase)))
         {
             apiDescription.ParameterDescriptions.Add(parameter);
         }
@@ -125,8 +126,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             var contentTypes = GetDeclaredContentTypes(requestMetadataAttributes);
             foreach (var parameter in apiDescription.ParameterDescriptions)
             {
-                if (parameter.Source == BindingSource.Body || 
-                    parameter.Source == BindingSource.Form )
+                if (parameter.Source == BindingSource.Body ||
+                    parameter.Source == BindingSource.Form)
                 {
                     // For request body bound parameters, determine the content types supported
                     // by input formatters.
@@ -152,7 +153,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         return apiDescription;
     }
 
-    private IList<ApiParameterDescription> GetParameters(ApiParameterContext context)
+    private IList<ApiParameterDescription> GetParameters(ApiParameterContext context, bool httpGet)
     {
         // First, get parameters from the model-binding/parameter-binding side of the world.
         if (context.ActionDescriptor.Parameters != null)
@@ -178,15 +179,15 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     metadata = _modelMetadataProvider.GetMetadataForType(actionParameter.ParameterType);
                 }
 
-                if (actionParameter.BindingInfo == null && 
+                if (!httpGet &&
+                    actionParameter.BindingInfo == null &&
                     !CommonHelper.IsSimpleType(actionParameter.ParameterType))
                 {
-                    actionParameter.BindingInfo = new BindingInfo
-                    {
+                    actionParameter.BindingInfo = new BindingInfo {
                         BindingSource = new BindingSource("Body", "Body", true, true)
                     };
                 }
-                
+
                 var bindingContext = new ApiParameterDescriptionContext(
                     metadata,
                     actionParameter.BindingInfo,
@@ -421,7 +422,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                     if (supportedTypes != null)
                     {
-                        foreach (var supportedType in supportedTypes.Where(x=>x == "application/json"))
+                        foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
                         {
                             results.Add(new ApiRequestFormat() {
                                 Formatter = formatter,

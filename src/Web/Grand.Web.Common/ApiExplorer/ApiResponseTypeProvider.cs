@@ -76,7 +76,7 @@ public class ApiResponseTypeProvider
         Type defaultErrorType)
     {
         var contentTypes = new MediaTypeCollection();
-        var responseTypeMetadataProviders = _mvcOptions.OutputFormatters.OfType<IApiResponseTypeMetadataProvider>();
+        var responseTypeMetadataProviders = _mvcOptions.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>();
 
         var responseTypes = ReadResponseMetadata(
             responseMetadataAttributes,
@@ -158,8 +158,7 @@ public class ApiResponseTypeProvider
 
                 if (apiResponseType.Type == typeof(void))
                 {
-                    if (type != null && (statusCode == StatusCodes.Status200OK ||
-                                         statusCode == StatusCodes.Status201Created))
+                    if (type != null && statusCode is StatusCodes.Status200OK or StatusCodes.Status201Created)
                     {
                         // ProducesResponseTypeAttribute's constructor defaults to setting "Type" to void when no value is specified.
                         // In this event, use the action's return type for 200 or 201 status codes. This lets you decorate an action with a
@@ -315,17 +314,7 @@ public class ApiResponseTypeProvider
         // We've already excluded Task, void, and IActionResult at this point.
         //
         // If the action might return any object, then assume we don't know anything about it.
-        if (declaredReturnType == typeof(object))
-        {
-            return null;
-        }
-
-        return declaredReturnType;
-    }
-
-    private static bool IsClientError(int statusCode)
-    {
-        return statusCode >= 400 && statusCode < 500;
+        return declaredReturnType == typeof(object) ? null : declaredReturnType;
     }
 
     private static bool HasSignificantMetadataProvider(IReadOnlyList<IApiResponseMetadataProvider> providers)
