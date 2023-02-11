@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.System.Reports;
+using Grand.Domain.Catalog;
+using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Domain.Catalog;
 using Grand.Web.Common.Components;
-using Grand.Web.Features.Models.Products;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,7 +61,7 @@ namespace Grand.Web.Components
                 var report = await _cacheBase.GetAsync(string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContext.CurrentStore.Id), async () =>
                                     await _orderReportService.BestSellersReport(
                                         createdFromUtc: fromdate,
-                                        ps: Domain.Payments.PaymentStatus.Paid,
+                                        ps: PaymentStatus.Paid,
                                         storeId: _workContext.CurrentStore.Id,
                                         pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
 
@@ -78,10 +79,9 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products.Take(_catalogSettings.NumberOfBestsellersOnHomepage),
+                Products = products.Take(_catalogSettings.NumberOfBestsellersOnHomepage)
             });
 
             return View(model);

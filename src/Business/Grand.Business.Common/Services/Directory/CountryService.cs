@@ -13,7 +13,7 @@ namespace Grand.Business.Common.Services.Directory
     /// <summary>
     /// Country service
     /// </summary>
-    public partial class CountryService : ICountryService
+    public class CountryService : ICountryService
     {
         #region Fields
 
@@ -54,7 +54,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Countries</returns>
         public virtual async Task<IList<Country>> GetAllCountries(string languageId = "", string storeId = "", bool showHidden = false)
         {
-            string key = string.Format(CacheKey.COUNTRIES_ALL_KEY, languageId, showHidden);
+            var key = string.Format(CacheKey.COUNTRIES_ALL_KEY, languageId, storeId, showHidden);
 
             return await _cacheBase.GetAsync(key, async () =>
             {
@@ -139,14 +139,7 @@ namespace Grand.Business.Common.Services.Directory
                         select c;
             var countries = await Task.FromResult(query.ToList());
             //sort by passed identifiers
-            var sortedCountries = new List<Country>();
-            foreach (string id in countryIds)
-            {
-                var country = countries.Find(x => x.Id == id);
-                if (country != null)
-                    sortedCountries.Add(country);
-            }
-            return sortedCountries;
+            return countryIds.Select(id => countries.Find(x => x.Id == id)).Where(country => country != null).ToList();
         }
 
         /// <summary>
@@ -159,7 +152,7 @@ namespace Grand.Business.Common.Services.Directory
             var key = string.Format(CacheKey.COUNTRIES_BY_TWOLETTER, twoLetterIsoCode);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                return await Task.FromResult(_countryRepository.Table.Where(x => x.TwoLetterIsoCode == twoLetterIsoCode).FirstOrDefault());
+                return await Task.FromResult(_countryRepository.Table.FirstOrDefault(x => x.TwoLetterIsoCode == twoLetterIsoCode));
             });
         }
 
@@ -173,7 +166,7 @@ namespace Grand.Business.Common.Services.Directory
             var key = string.Format(CacheKey.COUNTRIES_BY_THREELETTER, threeLetterIsoCode);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                return await Task.FromResult(_countryRepository.Table.Where(x => x.ThreeLetterIsoCode == threeLetterIsoCode).FirstOrDefault());
+                return await Task.FromResult(_countryRepository.Table.FirstOrDefault(x => x.ThreeLetterIsoCode == threeLetterIsoCode));
             });
         }
 
@@ -235,9 +228,8 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         /// <param name="countryId">Country identifier</param>
         /// <param name="languageId">Language identifier.</param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>States</returns>
-        public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "", bool showHidden = false)
+        public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "")
         {
             if (string.IsNullOrEmpty(countryId))
                 return new List<StateProvince>();
@@ -285,11 +277,14 @@ namespace Grand.Business.Common.Services.Directory
             if (country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id) != null)
             {
                 var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
-                state.Name = stateProvince.Name;
-                state.Locales = stateProvince.Locales;
-                state.Published = stateProvince.Published;
-                state.Abbreviation = stateProvince.Abbreviation;
-                state.DisplayOrder = stateProvince.DisplayOrder;
+                if (state != null)
+                {
+                    state.Name = stateProvince.Name;
+                    state.Locales = stateProvince.Locales;
+                    state.Published = stateProvince.Published;
+                    state.Abbreviation = stateProvince.Abbreviation;
+                    state.DisplayOrder = stateProvince.DisplayOrder;
+                }
             }
             await UpdateCountry(country);
         }
@@ -307,7 +302,8 @@ namespace Grand.Business.Common.Services.Directory
             if (country == null)
                 throw new ArgumentNullException(nameof(country));
 
-            country.StateProvinces.Remove(stateProvince);
+            var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
+            country.StateProvinces.Remove(state);
 
             await UpdateCountry(country);
 

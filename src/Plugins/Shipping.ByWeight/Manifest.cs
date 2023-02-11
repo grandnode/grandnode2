@@ -8,5 +8,5 @@ using Shipping.ByWeight;
     SystemName = ByWeightShippingDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "1.00"
+    Version = "2.00"
 )]

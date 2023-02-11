@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Addresses
     /// <summary>
     /// Address attribute service
     /// </summary>
-    public partial interface IAddressAttributeService
+    public interface IAddressAttributeService
     {
         /// <summary>
         /// Gets all address attributes
@@ -39,13 +39,13 @@ namespace Grand.Business.Core.Interfaces.Common.Addresses
         Task DeleteAddressAttribute(AddressAttribute addressAttribute);
        
         /// <summary>
-        /// Inserts a ddress attribute value
+        /// Inserts a address attribute value
         /// </summary>
         /// <param name="addressAttributeValue">Address attribute value</param>
         Task InsertAddressAttributeValue(AddressAttributeValue addressAttributeValue);
 
         /// <summary>
-        /// Updates the ddress attribute value
+        /// Updates the address attribute value
         /// </summary>
         /// <param name="addressAttributeValue">Address attribute value</param>
         Task UpdateAddressAttributeValue(AddressAttributeValue addressAttributeValue);

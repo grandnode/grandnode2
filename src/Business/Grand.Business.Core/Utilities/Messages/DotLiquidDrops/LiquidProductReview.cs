@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidProductReview : Drop
+    public class LiquidProductReview : Drop
     {
         private readonly ProductReview _productReview;
         private readonly Product _product;

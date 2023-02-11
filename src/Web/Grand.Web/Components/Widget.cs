@@ -7,7 +7,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class WidgetViewComponent : BaseViewComponent
     {
@@ -49,11 +49,12 @@ namespace Grand.Web.ViewComponents
             if (!cachedModel.Any())
                 return Content("");
 
-            if (additionalData != null)
-                foreach (var item in cachedModel)
-                {
-                    item.AdditionalData = additionalData;
-                }
+            if (additionalData == null) return View(cachedModel);
+            
+            foreach (var item in cachedModel)
+            {
+                item.AdditionalData = additionalData;
+            }
 
             return View(cachedModel);
         }

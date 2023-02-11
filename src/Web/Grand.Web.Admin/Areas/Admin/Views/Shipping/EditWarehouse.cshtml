@@ -11,7 +11,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-list-alt"></i>
-                        @Loc["Admin.Configuration.Shipping.Warehouses.EditWarehouseDetails"] - @Model.Name
+                        @Loc["Admin.Configuration.Shipping.Warehouses.EditWarehouseDetails"] - @Model.Name (@Model.Code)
                         <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Shipping.Warehouses.BackToList"], "Warehouses")</small>
                     </div>
                     <div class="actions">
@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="_CreateOrUpdateWarehouse" model="Model" />
+                   <partial name="Partials/CreateOrUpdateWarehouse" model="Model" />
                 </div>
             </div>
         </div>

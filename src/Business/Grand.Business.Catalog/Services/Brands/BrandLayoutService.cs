@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Brands
     /// <summary>
     /// Brand layout service
     /// </summary>
-    public partial class BrandLayoutService : IBrandLayoutService
+    public class BrandLayoutService : IBrandLayoutService
     {
         #region Fields
 
@@ -64,7 +64,7 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <returns>Brand layout</returns>
         public virtual Task<BrandLayout> GetBrandLayoutById(string brandLayoutId)
         {
-            string key = string.Format(CacheKey.BRAND_LAYOUT_BY_ID_KEY, brandLayoutId);
+            var key = string.Format(CacheKey.BRAND_LAYOUT_BY_ID_KEY, brandLayoutId);
             return _cacheBase.GetAsync(key, () => _brandLayoutRepository.GetByIdAsync(brandLayoutId));
         }
 

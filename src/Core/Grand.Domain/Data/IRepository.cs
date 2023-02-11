@@ -92,6 +92,15 @@ namespace Grand.Domain.Data
         Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
 
         /// <summary>
+        /// Inc field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        Task IncField<U>(string id, Expression<Func<T, U>> expression, U value);
+
+        /// <summary>
         /// Updates a single entity
         /// </summary>
         /// <param name="filterexpression"></param>
@@ -138,12 +147,11 @@ namespace Grand.Domain.Data
         /// <param name="id">Ident of entitie</param>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
-        /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <returns></returns>
         Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value);
 
-        // <summary>
+        /// <summary>
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>

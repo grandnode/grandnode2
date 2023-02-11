@@ -1,13 +1,14 @@
-﻿using Grand.Web.Common.Filters;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Models.Common;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Common;
+using Grand.Web.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CountryController : BasePublicController
+    public class CountryController : BasePublicController
     {
         #region Fields
 
@@ -30,14 +31,15 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> GetStatesByCountryId(string countryId, bool addSelectStateItem)
         {
             //this action method gets called via an ajax request
             if (string.IsNullOrEmpty(countryId))
             {
-                return Json(new List<StateProvinceModel>() { new StateProvinceModel { id = "", name = _translationService.GetResource("Address.SelectState") } });
+                return Json(new List<StateProvinceModel> { new() { id = "", name = _translationService.GetResource("Address.SelectState") } });
             }
-            var model = await _mediator.Send(new GetStatesProvince() { CountryId = countryId, AddSelectStateItem = addSelectStateItem });
+            var model = await _mediator.Send(new GetStatesProvince { CountryId = countryId, AddSelectStateItem = addSelectStateItem });
             return Json(model);
         }
 

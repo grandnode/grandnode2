@@ -28,12 +28,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Currencies))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
 
             var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>(key));
-            if (!currency.Any())
-                return NotFound();
+            if (!currency.Any()) return NotFound();
 
             return Ok(currency.FirstOrDefault());
         }
@@ -45,8 +43,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Currencies))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>()));
         }

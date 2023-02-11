@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Authentication
     /// <summary>
     /// Authentication service interface
     /// </summary>
-    public partial interface IGrandAuthenticationService
+    public interface IGrandAuthenticationService
     {
         /// <summary>
         /// Sign in

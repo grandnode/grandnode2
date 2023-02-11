@@ -6,7 +6,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task to clear Log table
     /// </summary>
-    public partial class ClearLogScheduleTask : IScheduleTask
+    public class ClearLogScheduleTask : IScheduleTask
     {
         private readonly ILogger _logger;
         public ClearLogScheduleTask(ILogger logger)

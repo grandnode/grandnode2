@@ -6,7 +6,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Security.Captcha;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Vendors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components
@@ -47,7 +47,7 @@ namespace Grand.Web.Components
                 return Content("");
 
             var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
+            if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
 
             var model = new ContactVendorModel {

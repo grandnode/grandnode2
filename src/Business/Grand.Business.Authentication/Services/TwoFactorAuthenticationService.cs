@@ -15,7 +15,7 @@ namespace Grand.Business.Authentication.Services
         private readonly IWorkContext _workContext;
         private readonly IUserFieldService _userFieldService;
         private readonly IServiceProvider _serviceProvider;
-        private TwoFactorAuthenticator _twoFactorAuthentication;
+        private readonly TwoFactorAuthenticator _twoFactorAuthentication;
 
         public TwoFactorAuthenticationService(
             IWorkContext workContext,
@@ -36,14 +36,12 @@ namespace Grand.Business.Authentication.Services
                     return _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
 
                 case TwoFactorAuthenticationType.EmailVerification:
-                    var customertoken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
-                    if (customertoken != token.Trim())
+                    var customerToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
+                    if (customerToken != token?.Trim())
                         return false;
-                    var validuntil = customer.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
-                    if (validuntil < DateTime.UtcNow)
-                        return false;
+                    var validUntil = customer.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
+                    return validUntil >= DateTime.UtcNow;
 
-                    return true;
                 case TwoFactorAuthenticationType.SMSVerification:
                     var smsVerificationService = _serviceProvider.GetRequiredService<ISMSVerificationService>();
                     return await smsVerificationService.Authenticate(secretKey, token.Trim(), customer);
@@ -59,7 +57,7 @@ namespace Grand.Business.Authentication.Services
             switch (twoFactorAuthenticationType)
             {
                 case TwoFactorAuthenticationType.AppVerification:
-                    var setupInfo = _twoFactorAuthentication.GenerateSetupCode(_workContext.CurrentStore.CompanyName, customer.Email, secretKey, false, 3);
+                    var setupInfo = _twoFactorAuthentication.GenerateSetupCode(_workContext.CurrentStore.CompanyName, customer.Email, secretKey, false);
                     model.CustomValues.Add("QrCodeImageUrl", setupInfo.QrCodeSetupImageUrl);
                     model.CustomValues.Add("ManualEntryQrCode", setupInfo.ManualEntryKey);
                     break;
@@ -79,7 +77,6 @@ namespace Grand.Business.Authentication.Services
                 default:
                     break;
             }
-
             return model;
         }
 

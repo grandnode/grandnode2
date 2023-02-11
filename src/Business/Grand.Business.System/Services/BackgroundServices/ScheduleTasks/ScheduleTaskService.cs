@@ -51,7 +51,6 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <summary>
         /// Gets all tasks
         /// </summary>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>Tasks</returns>
         public virtual async Task<IList<ScheduleTask>> GetAllTasks()
         {

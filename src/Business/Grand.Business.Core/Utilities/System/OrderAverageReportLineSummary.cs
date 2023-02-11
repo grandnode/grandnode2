@@ -3,7 +3,7 @@ namespace Grand.Business.Core.Utilities.System
     /// <summary>
     /// Represents an order average report line summary
     /// </summary>
-    public partial class OrderAverageReportLineSummary
+    public class OrderAverageReportLineSummary
     {
         /// <summary>
         /// Gets or sets the order status

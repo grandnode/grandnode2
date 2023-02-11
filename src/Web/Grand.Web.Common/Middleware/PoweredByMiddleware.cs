@@ -35,8 +35,8 @@ namespace Grand.Web.Common.Middleware
 
     public class PoweredByMiddlewareOptions: IPoweredByMiddlewareOptions
     {
-        const string PoweredByHeaderName = "X-Powered-By";
-        const string PoweredByHeaderValue = "GrandNode";
+        private const string PoweredByHeaderName = "X-Powered-By";
+        private const string PoweredByHeaderValue = "GrandNode";
 
         public string HeaderName => PoweredByHeaderName;
         public string HeaderValue { get; set; } = PoweredByHeaderValue;

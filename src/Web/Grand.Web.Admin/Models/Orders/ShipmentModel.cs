@@ -94,6 +94,7 @@ namespace Grand.Web.Admin.Models.Orders
             public class WarehouseInfo : BaseModel
             {
                 public string WarehouseId { get; set; }
+                public string WarehouseCode { get; set; }
                 public string WarehouseName { get; set; }
                 public int StockQuantity { get; set; }
                 public int ReservedQuantity { get; set; }

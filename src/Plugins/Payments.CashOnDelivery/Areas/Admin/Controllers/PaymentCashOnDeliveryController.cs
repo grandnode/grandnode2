@@ -11,7 +11,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.CashOnDelivery.Models;
 
-namespace Payments.CashOnDelivery.Controllers
+namespace Payments.CashOnDelivery.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

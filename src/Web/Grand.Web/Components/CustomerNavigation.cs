@@ -20,7 +20,7 @@ namespace Grand.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync(int selectedTabId = 0)
         {
-            var model = await _mediator.Send(new GetNavigation() {
+            var model = await _mediator.Send(new GetNavigation {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 SelectedTabId = selectedTabId,

@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Specification attribute service interface
     /// </summary>
-    public partial interface ISpecificationAttributeService
+    public interface ISpecificationAttributeService
     {
         #region Specification attribute
 
@@ -18,9 +18,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         Task<SpecificationAttribute> GetSpecificationAttributeById(string specificationAttributeId);
 
         /// <summary>
-        /// Gets a specification attribute by sename
+        /// Gets a specification attribute by se-name
         /// </summary>
-        /// <param name="sename">Sename</param>
+        /// <param name="sename">Se-name</param>
         /// <returns>Specification attribute</returns>
         Task<SpecificationAttribute> GetSpecificationAttributeBySeName(string sename);
 

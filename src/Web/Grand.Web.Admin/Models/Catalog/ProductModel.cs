@@ -726,15 +726,13 @@ namespace Grand.Web.Admin.Models.Catalog
         {
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse")]
             public string WarehouseId { get; set; }
+            public string WarehouseCode { get; set; }
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse")]
             public string WarehouseName { get; set; }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed")]
             public bool WarehouseUsed { get; set; }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity")]
             public int StockQuantity { get; set; }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity")]
             public int ReservedQuantity { get; set; }
 
@@ -782,8 +780,8 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Calendar.EndDate")]
             [UIHint("DateNullable")]
             public DateTime? EndDate { get; set; }
-            [UIHint("Time")]
 
+            [UIHint("Time")]
             [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Calendar.EndTime")]
             public DateTime EndTime { get; set; }
 

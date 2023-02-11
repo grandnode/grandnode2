@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Blogs;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Blogs;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
@@ -17,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class BlogController : BasePublicController
+    public class BlogController : BasePublicController
     {
         #region Fields
 
@@ -55,46 +56,52 @@ namespace Grand.Web.Controllers
 
         #region Methods
 
+        [HttpGet]
         public virtual async Task<IActionResult> List(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetBlogPostList() { Command = command });
+            var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByTag(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetBlogPostList() { Command = command });
+            var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByMonth(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetBlogPostList() { Command = command });
+            var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByCategory(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetBlogPostList() { Command = command });
+            var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogByKeyword(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetBlogPostList() { Command = command });
+            var model = await _mediator.Send(new GetBlogPostList { Command = command });
             return View("List", model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> BlogPost(string blogPostId,
             [FromServices] IAclService aclService,
             [FromServices] IPermissionService permissionService)
@@ -112,7 +119,7 @@ namespace Grand.Web.Controllers
             if (!aclService.Authorize(blogPost, _workContext.CurrentStore.Id))
                 return InvokeHttp404();
 
-            var model = await _mediator.Send(new GetBlogPost() { BlogPost = blogPost });
+            var model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
 
             //display "edit" (manage) link
             if (await permissionService.Authorize(StandardPermission.AccessAdminPanel) && await permissionService.Authorize(StandardPermission.ManageBlog))
@@ -123,31 +130,22 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> BlogCommentAdd(string blogPostId, BlogPostModel model, bool captchaValid)
+        public virtual async Task<IActionResult> BlogPost(BlogPostModel model,
+            [FromServices] IAclService aclService)
         {
-            if (!_blogSettings.Enabled)
+            var blogPost = await _blogService.GetBlogPostById(model.BlogPostId);
+            if (blogPost == null ||
+                (blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
+                (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow))
                 return RedirectToRoute("HomePage");
-
-            var blogPost = await _blogService.GetBlogPostById(blogPostId);
-            if (blogPost == null || !blogPost.AllowComments)
-                return RedirectToRoute("HomePage");
-
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_blogSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Blog.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnBlogCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
+            
+            if (!aclService.Authorize(blogPost, _workContext.CurrentStore.Id))
+                return InvokeHttp404();
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new InsertBlogCommentCommand() { Model = model, BlogPost = blogPost });
+                await _mediator.Send(new InsertBlogCommentCommand { Model = model, BlogPost = blogPost });
 
                 //notification
                 await _mediator.Publish(new BlogCommentEvent(blogPost, model.AddNewComment));
@@ -156,10 +154,10 @@ namespace Grand.Web.Controllers
                 TempData["Grand.blog.addcomment.result"] = _translationService.GetResource("Blog.Comments.SuccessfullyAdded");
                 return RedirectToRoute("BlogPost", new { SeName = blogPost.GetSeName(_workContext.WorkingLanguage.Id) });
             }
-
+            
             //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetBlogPost() { BlogPost = blogPost });
-            return View("BlogPost", model);
+            model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
+            return View(model);
         }
         #endregion
     }

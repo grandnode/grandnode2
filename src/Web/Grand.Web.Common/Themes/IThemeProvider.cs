@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Common.Themes
 {
-    public partial interface IThemeProvider
+    public interface IThemeProvider
     {
         bool ThemeConfigurationExists(string themeName);
 

@@ -1,0 +1,96 @@
+﻿@model object
+<script asp-location="Footer" asp-order="300">
+    var catalog = new Vue({
+        data: function () {
+            return {
+                Model: [],
+                pager: []
+            }
+        },
+        methods: {
+            loadProducts(url) {
+                catalog.getResponse(url);
+                //set state
+                var stateurl = new URL(url);
+                stateurl.searchParams.delete('timestamp');
+                window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
+            },
+            getResponse(url) {
+                url = new URL(url);
+                url.searchParams.set('timestamp', new Date().getTime());
+                const options = {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                };
+                axios.get(url, options)
+                    .then(response => {
+                        catalog.Model = response.data;
+                    })
+                    .catch(err => {
+                        console.log(`${err} whilst contacting the catalog page.`)
+                    });
+            },
+            goToPage(page) {
+                let urlPagenumber = new URL(window.location.href);
+                urlPagenumber.searchParams.set('pagenumber', page);
+                catalog.loadProducts(urlPagenumber.href);
+                this.scrollToSection();
+            },
+            scrollToSection() {
+                var container = document.getElementById("catalog-products");
+                window.scrollTo({
+                    top: container.offsetTop,
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }
+        },
+        created() {
+            this.Model = @Model;
+        },
+        watch: {
+            Model: function(val) {
+                if (val) {
+                    catalog.pager = [];
+                    function getValMin() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber - 4) < 1) {
+                            i = 1;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.PageNumber - 4;
+                        }
+                        return i;
+                    }
+                    function getValMax() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber + 4) < catalog.Model.PagingFilteringContext.TotalPages) {
+                            i = catalog.Model.PagingFilteringContext.PageNumber + 4;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.TotalPages;
+                        }
+                        return i;
+                    }
+                    for (var i = getValMin(); i <= getValMax(); i++) {
+                        catalog.pager.push(i);
+                    }
+
+                    var notFilteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems;
+                    var filteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems;
+                    var filterName = 'SpecificationAttributeName';
+
+                    var groupBy = function (xs, key) {
+                        return xs.reduce(function (rv, x) {
+                            (rv[x[key]] = rv[x[key]] || []).push(x);
+                            return rv;
+                        }, {});
+                    };
+
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems = groupBy(notFilteredList, filterName);
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems = groupBy(filteredList, filterName);
+                }
+            }
+        }
+    });
+</script>

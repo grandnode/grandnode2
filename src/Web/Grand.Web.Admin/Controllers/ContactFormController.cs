@@ -89,7 +89,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
             Error(ModelState);
-            return RedirectToAction("Details", new { id = id });
+            return RedirectToAction("Details", new { id });
         }
 
         [HttpPost]

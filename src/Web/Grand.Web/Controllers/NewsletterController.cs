@@ -1,14 +1,14 @@
 ﻿using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Models.Newsletter;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class NewsletterController : BasePublicController
+    public class NewsletterController : BasePublicController
     {
         private readonly IMediator _mediator;
 
@@ -20,40 +20,41 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> SubscribeNewsletter(string email, bool subscribe)
         {
-            var model = await _mediator.Send(new SubscribeNewsletterCommand() { Email = email, Subscribe = subscribe });
-            if (model.NewsletterCategory != null)
-            {
-                model.ShowCategories = true;
-                model.ResultCategory = await this.RenderPartialViewToString("NewsletterCategory", model.NewsletterCategory, true);
-            }
+            var model = await _mediator.Send(new SubscribeNewsletterCommand { Email = email, Subscribe = subscribe });
+            if (model.NewsletterCategory == null)
+                return Json(new {
+                    model.Success,
+                    model.Result,
+                    Showcategories = model.ShowCategories,
+                    model.ResultCategory
+                });
+            model.ShowCategories = true;
+            model.ResultCategory = await this.RenderPartialViewToString("NewsletterCategory", model.NewsletterCategory, true);
             return Json(new
             {
-                Success = model.Success,
-                Result = model.Result,
+                model.Success,
+                model.Result,
                 Showcategories = model.ShowCategories,
-                ResultCategory = model.ResultCategory,
+                model.ResultCategory
             });
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> SaveCategories(IFormCollection form)
+        public virtual async Task<IActionResult> SaveCategories(NewsletterCategoryModel model)
         {
-            var model = await _mediator.Send(new SubscriptionCategoryCommand() { Values = form.Keys.ToDictionary(k => k, v => Request.Form[v].ToString()) });
+            var result = await _mediator.Send(new SubscriptionCategoryCommand { Model = model});
             return Json(new
             {
-                Success = model.success,
-                Message = model.message
+                Success = result.success,
+                Message = result.message
             });
         }
 
-
+        [HttpGet]
         public virtual async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {
-            var model = await _mediator.Send(new SubscriptionActivationCommand() { Active = active, Token = token });
-            if (model == null)
-                return RedirectToRoute("HomePage");
-
-            return View(model);
+            var model = await _mediator.Send(new SubscriptionActivationCommand { Active = active, Token = token });
+            return model == null ? RedirectToRoute("HomePage") : View(model);
         }
     }
 }

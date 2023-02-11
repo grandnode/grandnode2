@@ -12,7 +12,7 @@ using Grand.Domain.Vendors;
 
 namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IMessageProviderService
+    public interface IMessageProviderService
     {
         #region Customer messages
 
@@ -386,6 +386,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <summary>
         /// Sends a "quantity below" notification to a store owner
         /// </summary>
+        /// <param name="product">Product</param>
         /// <param name="combination">Attribute combination</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
@@ -408,6 +409,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <summary>
         /// Sends an article comment notification message to a store owner
         /// </summary>
+        /// <param name="article">Article</param>
         /// <param name="articleComment">Article comment</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
@@ -416,6 +418,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <summary>
         /// Sends a news comment notification message to a store owner
         /// </summary>
+        /// <param name="newsItem">News item</param>
         /// <param name="newsComment">News comment</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
@@ -429,7 +432,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <param name="subscription">Subscription</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendBackinStockMessage(Customer customer, Product product, OutOfStockSubscription subscription, string languageId);
+        Task<int> SendBackInStockMessage(Customer customer, Product product, OutOfStockSubscription subscription, string languageId);
 
 
         /// <summary>
@@ -464,41 +467,11 @@ namespace Grand.Business.Core.Interfaces.Messages
         Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail, string senderName, string subject, string body, string ipaddress);
 
         /// <summary>
-        /// Sends a customer action event - Add to cart notification to a customer
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="ShoppingCartItem">Item</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionAddToCartMessage(CustomerAction action, ShoppingCartItem cartItem, string languageId, Customer customer);
-
-
-        /// <summary>
-        /// Sends a customer action event - Add order notification to a customer
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="Order">Order</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionAddToOrderMessage(CustomerAction action, Order order, Customer customer, string languageId);
-
-
-        /// <summary>
-        /// Sends a customer action event 
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionMessage(CustomerAction action, string languageId, Customer customer);
-
-        /// <summary>
         /// Sends auction ended notification to a customer (winner)
         /// </summary>
         /// <param name="product">Auction</param>
         /// <param name="languageId">Message language identifier</param>
-        /// <param name="Bid">Bid</param>
+        /// <param name="bid">Bid</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendAuctionWinEndedCustomerMessage(Product product, string languageId, Bid bid);
 
@@ -507,7 +480,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// </summary>
         /// <param name="product">Auction</param>
         /// <param name="languageId">Message language identifier</param>
-        /// <param name="Bid">Bid</param>
+        /// <param name="bid"></param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendAuctionEndedLostCustomerMessage(Product product, string languageId, Bid bid);
 
@@ -526,7 +499,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// </summary>
         /// <param name="languageId">Message language identifier</param>
         /// <param name="product">Auction</param>
-        /// <param name="Bid">Bid</param>
+        /// <param name="bid">Bid</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string languageId, Bid bid);
 
@@ -535,7 +508,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// </summary>
         /// <param name="languageId">Message language identifier</param>
         /// <param name="product">Product</param>
-        /// <param name="Bid">Bid</param>
+        /// <param name="bid">Bid</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendOutBidCustomerMessage(Product product, string languageId, Bid bid);
 
@@ -546,7 +519,6 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <param name="emailAccount">Email account</param>
         /// <param name="languageId">Language identifier</param>
         /// <param name="liquidObject">LiquidObject</param>
-        /// <param name="tokens">Tokens</param>
         /// <param name="toEmailAddress">Recipient email address</param>
         /// <param name="toName">Recipient name</param>
         /// <param name="attachmentFilePath">Attachment file path</param>

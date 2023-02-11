@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CategoryNavigationModel : BaseModel
+    public class CategoryNavigationModel : BaseModel
     {
         public CategoryNavigationModel()
         {

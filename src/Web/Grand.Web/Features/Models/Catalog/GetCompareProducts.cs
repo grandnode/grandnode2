@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Customers;
-using Grand.Web.Models.Catalog;
+﻿using Grand.Web.Models.Catalog;
 using MediatR;
 
 namespace Grand.Web.Features.Models.Catalog

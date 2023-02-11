@@ -11,7 +11,7 @@ namespace Grand.Business.Common.Services.Stores
     /// <summary>
     /// Store service
     /// </summary>
-    public partial class StoreService : IStoreService
+    public class StoreService : IStoreService
     {
         #region Fields
 
@@ -50,14 +50,10 @@ namespace Grand.Business.Common.Services.Stores
         /// <returns>Stores</returns>
         public virtual async Task<IList<Store>> GetAllStores()
         {
-            if (_allStores == null)
+            return _allStores ??= await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
             {
-                _allStores = await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
-                {
-                    return await Task.FromResult(_storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList());
-                });
-            }
-            return _allStores;
+                return await Task.FromResult(_storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList());
+            });
         }
 
         /// <summary>
@@ -66,14 +62,10 @@ namespace Grand.Business.Common.Services.Stores
         /// <returns>Stores</returns>
         public virtual IList<Store> GetAll()
         {
-            if (_allStores == null)
+            return _allStores ??= _cacheBase.Get(CacheKey.STORES_ALL_KEY, () =>
             {
-                _allStores = _cacheBase.Get(CacheKey.STORES_ALL_KEY, () =>
-                {
-                    return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList();
-                });
-            }
-            return _allStores;
+                return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList();
+            });
         }
 
         /// <summary>
@@ -83,7 +75,7 @@ namespace Grand.Business.Common.Services.Stores
         /// <returns>Store</returns>
         public virtual Task<Store> GetStoreById(string storeId)
         {
-            string key = string.Format(CacheKey.STORES_BY_ID_KEY, storeId);
+            var key = string.Format(CacheKey.STORES_BY_ID_KEY, storeId);
             return _cacheBase.GetAsync(key, () => _storeRepository.GetByIdAsync(storeId));
         }
 

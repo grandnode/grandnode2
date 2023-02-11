@@ -1,5 +1,7 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
@@ -13,12 +15,13 @@ namespace Grand.Business.Storage.Services
     /// <summary>
     /// Picture service for Windows Azure
     /// </summary>
-    public partial class AzurePictureService : PictureService
+    public class AzurePictureService : PictureService
     {
         #region Fields
 
-        private static BlobContainerClient container = null;
+        private static BlobContainerClient _container = null;
         private readonly AzureConfig _config;
+        private readonly IMimeMappingService _mimeMappingService;
 
         #endregion
 
@@ -32,7 +35,9 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AzureConfig config)
+            AzureConfig config,
+            IMimeMappingService mimeMappingService
+            )
             : base(pictureRepository,
                 logger,
                 mediator,
@@ -43,6 +48,7 @@ namespace Grand.Business.Storage.Services
                 storageSettings)
         {
             _config = config;
+            _mimeMappingService = mimeMappingService;
 
             if (string.IsNullOrEmpty(_config.AzureBlobStorageConnectionString))
                 throw new Exception("Azure connection string for BLOB is not specified");
@@ -51,7 +57,7 @@ namespace Grand.Business.Storage.Services
             if (string.IsNullOrEmpty(_config.AzureBlobStorageEndPoint))
                 throw new Exception("Azure end point for BLOB is not specified");
 
-            container = new BlobContainerClient(_config.AzureBlobStorageConnectionString, _config.AzureBlobStorageContainerName);
+            _container = new BlobContainerClient(_config.AzureBlobStorageConnectionString, _config.AzureBlobStorageContainerName);
 
         }
 
@@ -65,12 +71,12 @@ namespace Grand.Business.Storage.Services
         /// <param name="picture">Picture</param>
         protected override async Task DeletePictureThumbs(Picture picture)
         {
-            string filter = string.Format("{0}", picture.Id);
-            var blobs = container.GetBlobs(Azure.Storage.Blobs.Models.BlobTraits.All, Azure.Storage.Blobs.Models.BlobStates.All, filter);
+            var filter = $"{picture.Id}";
+            var blobs = _container.GetBlobs(BlobTraits.All, BlobStates.All, filter);
 
             foreach (var blob in blobs)
             {
-                await container.DeleteBlobAsync(blob.Name);
+                await _container.DeleteBlobAsync(blob.Name);
             }
         }
 
@@ -82,7 +88,7 @@ namespace Grand.Business.Storage.Services
         protected override async Task<string> GetThumbPhysicalPath(string thumbFileName)
         {
             var thumbFilePath = $"{_config.AzureBlobStorageEndPoint}{_config.AzureBlobStorageContainerName}/{thumbFileName}";
-            var blobClient = container.GetBlobClient(thumbFileName);
+            var blobClient = _container.GetBlobClient(thumbFileName);
             bool exists = await blobClient.ExistsAsync();
             return  exists? thumbFilePath : string.Empty;
         }
@@ -107,8 +113,26 @@ namespace Grand.Business.Storage.Services
         /// <param name="binary">Picture binary</param>
         protected override Task SaveThumb(string thumbFileName, byte[] binary)
         {
+                    
             Stream stream = new MemoryStream(binary);
-            container.UploadBlob(thumbFileName, stream);
+            _container.UploadBlob(thumbFileName, stream);
+
+            //Update content type and other properties 
+            var contentType = _mimeMappingService.Map(thumbFileName);
+            var blobClient = _container.GetBlobClient(thumbFileName);            
+            BlobProperties properties = blobClient.GetProperties();
+            BlobHttpHeaders blobHttpHeaders = new BlobHttpHeaders {
+                // Set the MIME ContentType every time the properties 
+                // are updated or the field will be cleared
+                ContentType = contentType,
+                // Populate remaining headers with 
+                // the pre-existing properties
+                CacheControl = properties.CacheControl,
+                ContentDisposition = properties.ContentDisposition,
+                ContentEncoding = properties.ContentEncoding,
+                ContentHash = properties.ContentHash
+            };
+            blobClient.SetHttpHeaders(blobHttpHeaders);            
             return Task.CompletedTask;
         }
 

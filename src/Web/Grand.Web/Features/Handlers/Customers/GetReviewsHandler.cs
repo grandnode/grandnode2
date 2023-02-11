@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Customers;
@@ -29,28 +29,28 @@ namespace Grand.Web.Features.Handlers.Customers
 
         public async Task<CustomerProductReviewsModel> Handle(GetReviews request, CancellationToken cancellationToken)
         {
-            var reviewsModel = new CustomerProductReviewsModel();
-
-            reviewsModel.CustomerId = request.Customer.Id;
-            reviewsModel.CustomerInfo = request.Customer != null ? !string.IsNullOrEmpty(request.Customer.Email) ? request.Customer.Email : _translationService.GetResource("Admin.Customers.Guest") : "";
+            var reviewsModel = new CustomerProductReviewsModel {
+                CustomerId = request.Customer.Id,
+                CustomerInfo = request.Customer != null ? !string.IsNullOrEmpty(request.Customer.Email) ? request.Customer.Email : _translationService.GetResource("Admin.Customers.Guest") : ""
+            };
 
             var productReviews = await _productReviewService.GetAllProductReviews(request.Customer.Id);
             foreach (var productReview in productReviews)
             {
                 var product = await _productService.GetProductById(productReview.ProductId);
 
-                var reviewModel = new CustomerProductReviewModel();
-
-                reviewModel.Id = productReview.Id;
-                reviewModel.ProductId = productReview.ProductId;
-                reviewModel.ProductName = product.Name;
-                reviewModel.ProductSeName = product.GetSeName(request.Language.Id);
-                reviewModel.Rating = productReview.Rating;
-                reviewModel.CreatedOn = _dateTimeService.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc);
-                reviewModel.Signature = productReview.Signature;
-                reviewModel.ReviewText = productReview.ReviewText;
-                reviewModel.ReplyText = productReview.ReplyText;
-                reviewModel.IsApproved = productReview.IsApproved;
+                var reviewModel = new CustomerProductReviewModel {
+                    Id = productReview.Id,
+                    ProductId = productReview.ProductId,
+                    ProductName = product.Name,
+                    ProductSeName = product.GetSeName(request.Language.Id),
+                    Rating = productReview.Rating,
+                    CreatedOn = _dateTimeService.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc),
+                    Signature = productReview.Signature,
+                    ReviewText = productReview.ReviewText,
+                    ReplyText = productReview.ReplyText,
+                    IsApproved = productReview.IsApproved
+                };
 
                 reviewsModel.Reviews.Add(reviewModel);
             }

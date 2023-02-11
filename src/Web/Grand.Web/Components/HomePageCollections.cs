@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class HomePageCollectionsViewComponent : BaseViewComponent
     {
@@ -21,16 +21,13 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetHomepageCollections() {
+            var model = await _mediator.Send(new GetHomepageCollections {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
 
-            if (!model.Any())
-                return Content("");
-
-            return View(model);
+            return !model.Any() ? Content("") : View(model);
         }
     }
 }

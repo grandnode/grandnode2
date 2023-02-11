@@ -16,13 +16,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
                 return Task.FromResult(false);
 
             //refund cannot be made if previously a partial refund has been already done. only other partial refund can be made in this case
-            if (paymentTransaction.RefundedAmount > 0)
-                return Task.FromResult(false);
-
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
-                return Task.FromResult(true);
-
-            return Task.FromResult(false);
+            return paymentTransaction.RefundedAmount > 0 ? Task.FromResult(false) : Task.FromResult(paymentTransaction.TransactionStatus == TransactionStatus.Paid);
         }
     }
 }

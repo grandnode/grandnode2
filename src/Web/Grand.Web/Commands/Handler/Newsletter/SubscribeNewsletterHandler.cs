@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure;
 using Grand.Domain.Messages;
+using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Models.Newsletter;
@@ -97,13 +97,13 @@ namespace Grand.Web.Commands.Handler.Newsletter
 
         private async Task<NewsletterCategoryModel> PrepareNewsletterCategory(string id)
         {
-            var model = new NewsletterCategoryModel();
-            model.NewsletterEmailId = id;
+            var model = new NewsletterCategoryModel {
+                NewsletterEmailId = id
+            };
             var categories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(_workContext.CurrentStore.Id);
             foreach (var item in categories)
             {
-                model.NewsletterCategories.Add(new NewsletterSimpleCategory()
-                {
+                model.NewsletterCategories.Add(new NewsletterSimpleCategory {
                     Id = item.Id,
                     Name = item.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                     Description = item.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),

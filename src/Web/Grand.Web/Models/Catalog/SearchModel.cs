@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class SearchModel : BaseModel
+    public class SearchModel : BaseModel
     {
         public SearchModel()
         {
@@ -18,7 +18,8 @@ namespace Grand.Web.Models.Catalog
         public string Warning { get; set; }
 
         public bool NoResults { get; set; }
-
+        
+        public string SearchCategoryId { get; set; }
         /// <summary>
         /// Query string
         /// </summary>

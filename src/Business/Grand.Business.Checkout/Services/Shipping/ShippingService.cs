@@ -17,7 +17,7 @@ namespace Grand.Business.Checkout.Services.Shipping
     /// <summary>
     /// Shipping service
     /// </summary>
-    public partial class ShippingService : IShippingService
+    public class ShippingService : IShippingService
     {
         #region Fields
 
@@ -153,10 +153,11 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <summary>
         ///  Gets available shipping options
         /// </summary>
+        /// <param name="customer"></param>
         /// <param name="cart">Shopping cart</param>
         /// <param name="shippingAddress">Shipping address</param>
         /// <param name="allowedShippingRateMethodSystemName">Filter by Shipping rate method identifier; null to load shipping options of all Shipping rate  methods</param>
-        /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
+        /// <param name="store">Store</param>
         /// <returns>Shipping options</returns>
         public virtual async Task<GetShippingOptionResponse> GetShippingOptions(Customer customer, IList<ShoppingCartItem> cart,
             Address shippingAddress, string allowedShippingRateMethodSystemName = "",
@@ -172,7 +173,7 @@ namespace Grand.Business.Checkout.Services.Shipping
 
             var shippingRateMethods = await LoadActiveShippingRateCalculationProviders(customer, store?.Id, cart);
             //filter by system name
-            if (!String.IsNullOrWhiteSpace(allowedShippingRateMethodSystemName))
+            if (!string.IsNullOrWhiteSpace(allowedShippingRateMethodSystemName))
             {
                 shippingRateMethods = shippingRateMethods
                     .Where(srcm => allowedShippingRateMethodSystemName.Equals(srcm.SystemName, StringComparison.OrdinalIgnoreCase))
@@ -182,67 +183,40 @@ namespace Grand.Business.Checkout.Services.Shipping
                 throw new GrandException("Shipping rate  method could not be loaded");
 
             //request shipping options from each Shipping rate  methods
-            foreach (var srcm in shippingRateMethods)
+            foreach (var shippingRateMethod in shippingRateMethods)
             {
                 //request shipping options (separately for each package-request)
-                IList<ShippingOption> srcmShippingOptions = null;
-
-                var getShippingOptionResponse = await srcm.GetShippingOptions(shippingOptionRequest);
+                IList<ShippingOption> shippingRateMethodOptions = null;
+                var getShippingOptionResponse = await shippingRateMethod.GetShippingOptions(shippingOptionRequest);
 
                 if (getShippingOptionResponse.Success)
                 {
                     //success
-                    if (srcmShippingOptions == null)
-                    {
-                        //first shipping option request
-                        srcmShippingOptions = getShippingOptionResponse.ShippingOptions;
-                    }
-                    else
-                    {
-                        //get shipping options which already exist for prior requested packages for this scrm (i.e. common options)
-                        srcmShippingOptions = srcmShippingOptions
-                            .Where(existingso => getShippingOptionResponse.ShippingOptions.Any(newso => newso.Name == existingso.Name))
-                            .ToList();
-
-                        //and sum the rates
-                        foreach (var existingso in srcmShippingOptions)
-                        {
-                            existingso.Rate += getShippingOptionResponse
-                                .ShippingOptions
-                                .First(newso => newso.Name == existingso.Name)
-                                .Rate;
-                        }
-                    }
+                    shippingRateMethodOptions = getShippingOptionResponse.ShippingOptions;
                 }
                 else
                 {
                     //errors
-                    foreach (string error in getShippingOptionResponse.Errors)
+                    foreach (var error in getShippingOptionResponse.Errors)
                     {
                         result.AddError(error);
-                        _ = _logger.Warning(string.Format("Shipping ({0}). {1}", srcm.FriendlyName, error));
+                        _ = _logger.Warning($"Shipping ({shippingRateMethod.FriendlyName}). {error}");
                     }
                     //clear the shipping options in this case
-                    srcmShippingOptions = new List<ShippingOption>();
                     break;
                 }
-
-
-                // add this scrm's options to the result
-                if (srcmShippingOptions != null)
+                if (shippingRateMethodOptions == null) continue;
+                foreach (var so in shippingRateMethodOptions)
                 {
-                    foreach (var so in srcmShippingOptions)
-                    {
-                        //set system name if not set yet
-                        if (String.IsNullOrEmpty(so.ShippingRateProviderSystemName))
-                            so.ShippingRateProviderSystemName = srcm.SystemName;
+                    //set system name if not set yet
+                    if (string.IsNullOrEmpty(so.ShippingRateProviderSystemName))
+                        so.ShippingRateProviderSystemName = shippingRateMethod.SystemName;
 
-                        result.ShippingOptions.Add(so);
-                    }
+                    result.ShippingOptions.Add(so);
                 }
             }
 
-            //returnvalidoptions if there are any (no matter of the errors returned by other shipping rate compuation methods).
+            //return valid options if there are any (no matter of the errors returned by other shipping rate computation methods).
             if (!result.ShippingOptions.Any() && !result.Errors.Any())
                 result.Errors.Clear();
 

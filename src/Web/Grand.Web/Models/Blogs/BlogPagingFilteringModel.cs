@@ -2,42 +2,34 @@
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogPagingFilteringModel : BasePageableModel
+    public class BlogPagingFilteringModel : BasePageableModel
     {
         #region Methods
 
         public virtual DateTime? GetParsedMonth()
         {
             DateTime? result = null;
-            if (!String.IsNullOrEmpty(Month))
+            if (string.IsNullOrEmpty(Month)) return null;
+            var tempDate = Month.Split(new [] { '-' });
+            if (tempDate.Length != 2) return null;
+            int.TryParse(tempDate[0], out var year);
+            int.TryParse(tempDate[1], out var month);
+            try
             {
-                string[] tempDate = Month.Split(new [] { '-' });
-                if (tempDate.Length == 2)
-                {
-                    int.TryParse(tempDate[0], out var year);
-                    int.TryParse(tempDate[1], out var month);
-                    try
-                    {
-                        result = new DateTime(year, month, 1);
-                    }
-                    catch { }
-                }
+                result = new DateTime(year, month, 1);
             }
+            catch { }
             return result;
         }
         public virtual DateTime? GetFromMonth()
         {
             var filterByMonth = GetParsedMonth();
-            if (filterByMonth.HasValue)
-                return filterByMonth.Value;
-            return null;
+            return filterByMonth;
         }
         public virtual DateTime? GetToMonth()
         {
             var filterByMonth = GetParsedMonth();
-            if (filterByMonth.HasValue)
-                return filterByMonth.Value.AddMonths(1).AddSeconds(-1);
-            return null;
+            return filterByMonth?.AddMonths(1).AddSeconds(-1);
         }
         #endregion
 

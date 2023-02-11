@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Marketing.Documents
 {
-    public partial interface IDocumentTypeService
+    public interface IDocumentTypeService
     {
         /// <summary>
         /// Gets a document type

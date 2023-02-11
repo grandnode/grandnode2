@@ -35,9 +35,9 @@ namespace Grand.Business.Customers.Queries.Handlers
                 query = query.Where(c => c.SeId == request.SalesEmployeeId);
 
             query = query.Where(c => !c.Deleted);
-            if (request.CustomerGroupIds != null && request.CustomerGroupIds.Length > 0)
+            if (request.CustomerGroupIds is { Length: > 0 })
                 query = query.Where(c => c.Groups.Any(x => request.CustomerGroupIds.Contains(x)));
-            if (request.CustomerTagIds != null && request.CustomerTagIds.Length > 0)
+            if (request.CustomerTagIds is { Length: > 0 })
             {
                 foreach (var item in request.CustomerTagIds)
                 {
@@ -79,7 +79,7 @@ namespace Grand.Business.Customers.Queries.Handlers
             {
                 query = request.Sct.HasValue ?
                     query.Where(c => c.ShoppingCartItems.Any(x => x.ShoppingCartTypeId == request.Sct.Value)) :
-                    query.Where(c => c.ShoppingCartItems.Count() > 0);
+                    query.Where(c => c.ShoppingCartItems.Any());
             }
 
             if (request.OrderBySelector == null)
@@ -95,13 +95,10 @@ namespace Grand.Business.Customers.Queries.Handlers
 
         private string GetName(Expression<Func<Customer, object>> exp)
         {
-            var body = exp.Body as MemberExpression;
-            if (body == null)
-            {
-                var ubody = (UnaryExpression)exp.Body;
-                body = ubody.Operand as MemberExpression;
-            }
-            return body.Member.Name;
+            if (exp.Body is MemberExpression body) return body.Member.Name;
+            var expBody = (UnaryExpression)exp.Body;
+            body = expBody.Operand as MemberExpression;
+            return body?.Member.Name;
         }
 
         private IOrderedQueryable<T> OrderingHelper<T>(IQueryable<T> source, string propertyName)

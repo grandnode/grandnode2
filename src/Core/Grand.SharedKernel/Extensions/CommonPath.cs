@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Grand.SharedKernel.Extensions
+﻿namespace Grand.SharedKernel.Extensions
 {
     public static class CommonPath
     {

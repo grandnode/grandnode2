@@ -14,12 +14,7 @@ namespace Grand.Business.Core.Extensions
             if (shippingProviderSettings == null)
                 throw new ArgumentNullException(nameof(shippingProviderSettings));
 
-            if (shippingProviderSettings.ActiveSystemNames == null)
-                return false;
-            foreach (string activeMethodSystemName in shippingProviderSettings.ActiveSystemNames)
-                if (srcm.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            return false;
+            return shippingProviderSettings.ActiveSystemNames != null && shippingProviderSettings.ActiveSystemNames.Any(activeMethodSystemName => srcm.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase));
         }
 
         public static bool CountryRestrictionExists(this ShippingMethod shippingMethod,
@@ -28,7 +23,7 @@ namespace Grand.Business.Core.Extensions
             if (shippingMethod == null)
                 throw new ArgumentNullException(nameof(shippingMethod));
 
-            bool result = shippingMethod.RestrictedCountries.ToList().Find(c => c.Id == countryId) != null;
+            var result = shippingMethod.RestrictedCountries.ToList().Find(c => c.Id == countryId) != null;
             return result;
         }
         public static bool CustomerGroupRestrictionExists(this ShippingMethod shippingMethod,
@@ -37,7 +32,7 @@ namespace Grand.Business.Core.Extensions
             if (shippingMethod == null)
                 throw new ArgumentNullException(nameof(shippingMethod));
 
-            bool result = shippingMethod.RestrictedGroups.ToList().Find(c => c == roleId) != null;
+            var result = shippingMethod.RestrictedGroups.ToList().Find(c => c == roleId) != null;
             return result;
         }
 
@@ -47,7 +42,7 @@ namespace Grand.Business.Core.Extensions
             if (shippingMethod == null)
                 throw new ArgumentNullException(nameof(shippingMethod));
 
-            bool result = shippingMethod.RestrictedGroups.ToList().Find(c => roleIds.Contains(c)) != null;
+            var result = shippingMethod.RestrictedGroups.ToList().Find(roleIds.Contains) != null;
             return result;
         }
     }

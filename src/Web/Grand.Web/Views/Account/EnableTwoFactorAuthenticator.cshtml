@@ -1,12 +1,11 @@
 @model CustomerInfoModel.TwoFactorAuthenticationModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
     //title
     pagebuilder.AddTitleParts(Loc["Title.TwoFactorAuth"]);
-    var code = "ManualEntryQrCode";
-    var imageUrl = "QrCodeImageUrl";
+    const string code = "ManualEntryQrCode";
+    const string imageUrl = "QrCodeImageUrl";
     var errors = Model.CustomValues.ContainsKey("Errors") ? Model.CustomValues["Errors"] : null;
 
 }
@@ -24,7 +23,7 @@
         <li>@Loc[$"Account.TwoFactorAuth.{Model.TwoFactorAuthenticationType}.FourthLine"]</li>
     </ul>
     <div class="message-error">@errors</div>
-    @if (Model.TwoFactorAuthenticationType == Grand.Domain.Customers.TwoFactorAuthenticationType.AppVerification)
+    @if (Model.TwoFactorAuthenticationType == TwoFactorAuthenticationType.AppVerification)
     {
         @await Component.InvokeAsync("Widget", new { widgetZone = "Enable.TwoFactorAuthentication.AppVerification" })
         <div class="mb-2">
@@ -72,7 +71,7 @@
             </div>
         </div>
     }
-    @if (Model.TwoFactorAuthenticationType == Grand.Domain.Customers.TwoFactorAuthenticationType.EmailVerification)
+    @if (Model.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
     {
         @await Component.InvokeAsync("Widget", new { widgetZone = "Enable.TwoFactorAuthentication.EmailVerification" })
         <div class="mb-2">
@@ -109,7 +108,7 @@
             </div>
         </div>
     }
-    @if (Model.TwoFactorAuthenticationType == Grand.Domain.Customers.TwoFactorAuthenticationType.SMSVerification && string.IsNullOrWhiteSpace(errors))
+    @if (Model.TwoFactorAuthenticationType == TwoFactorAuthenticationType.SMSVerification && string.IsNullOrWhiteSpace(errors))
     {
         @await Component.InvokeAsync("Widget", new { widgetZone = "Enable.TwoFactorAuthentication.SMSVerification" })
         <div class="mb-2">

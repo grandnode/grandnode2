@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// Page service interface
     /// </summary>
-    public partial interface IPageService
+    public interface IPageService
     {
        
         /// <summary>
@@ -27,8 +27,9 @@ namespace Grand.Business.Core.Interfaces.Cms
         /// Gets all pages
         /// </summary>
         /// <param name="storeId">Store identifier; pass "" to load all records</param>
+        /// <param name="ignoreAcl"></param>
         /// <returns>Pages</returns>
-        Task<IList<Page>> GetAllPages(string storeId, bool ignorAcl = false);
+        Task<IList<Page>> GetAllPages(string storeId, bool ignoreAcl = false);
 
         /// <summary>
         /// Inserts a page

@@ -5,7 +5,7 @@ namespace Grand.Web.Common.Security.Captcha
 {
     public class GoogleRecaptchaControl
     {
-        private const string RECAPTCHA_API_URL_VERSION = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit";
+        private const string RecaptchaApiUrlVersion = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit";
 
         public string Id { get; set; }
         public string Theme { get; set; }
@@ -23,31 +23,29 @@ namespace Grand.Web.Common.Security.Captcha
         {
             SetTheme();
 
-            if (_version == GoogleReCaptchaVersion.V2)
-            {
-                return RenderV2();
-            }
-            if (_version == GoogleReCaptchaVersion.V3)
-            {
-                return RenderV3();
-            }
-
-            throw new NotSupportedException("Specified version is not supported");
+            return _version switch {
+                GoogleReCaptchaVersion.V2 => RenderV2(),
+                GoogleReCaptchaVersion.V3 => RenderV3(),
+                _ => throw new NotSupportedException("Specified version is not supported")
+            };
         }
 
         private string RenderV2()
         {
-            var scriptCallbackTag = new TagBuilder("script");
-            scriptCallbackTag.TagRenderMode = TagRenderMode.Normal;
+            var scriptCallbackTag = new TagBuilder("script") {
+                TagRenderMode = TagRenderMode.Normal
+            };
             scriptCallbackTag.InnerHtml.AppendHtml($"var onloadCallback = function() {{grecaptcha.render('{Id}', {{'sitekey' : '{PublicKey}', 'theme' : '{Theme}' }});}};");
 
-            var captchaTag = new TagBuilder("div");
-            captchaTag.TagRenderMode = TagRenderMode.Normal;
+            var captchaTag = new TagBuilder("div") {
+                TagRenderMode = TagRenderMode.Normal
+            };
             captchaTag.Attributes.Add("id", Id);
 
-            var scriptLoadApiTag = new TagBuilder("script");
-            scriptLoadApiTag.TagRenderMode = TagRenderMode.Normal;
-            scriptLoadApiTag.Attributes.Add("src", RECAPTCHA_API_URL_VERSION + (string.IsNullOrEmpty(Language) ? "" : string.Format("&hl={0}", Language)));
+            var scriptLoadApiTag = new TagBuilder("script") {
+                TagRenderMode = TagRenderMode.Normal
+            };
+            scriptLoadApiTag.Attributes.Add("src", RecaptchaApiUrlVersion + (string.IsNullOrEmpty(Language) ? "" : $"&hl={Language}"));
             scriptLoadApiTag.Attributes.Add("async", null);
             scriptLoadApiTag.Attributes.Add("defer", null);
 
@@ -56,8 +54,9 @@ namespace Grand.Web.Common.Security.Captcha
 
         private string RenderV3()
         {
-            var scriptCallbackTag = new TagBuilder("script");
-            scriptCallbackTag.TagRenderMode = TagRenderMode.Normal;
+            var scriptCallbackTag = new TagBuilder("script") {
+                TagRenderMode = TagRenderMode.Normal
+            };
             var clientId = Guid.NewGuid().ToString();
             var script = new StringBuilder();
             script.AppendLine("function onloadCallback() {");
@@ -79,8 +78,9 @@ namespace Grand.Web.Common.Security.Captcha
             script.AppendLine("})}");
             scriptCallbackTag.InnerHtml.AppendHtml(script.ToString());
 
-            var captchaTagInput = new TagBuilder("input");
-            captchaTagInput.TagRenderMode = TagRenderMode.Normal;
+            var captchaTagInput = new TagBuilder("input") {
+                TagRenderMode = TagRenderMode.Normal
+            };
             captchaTagInput.Attributes.Add("type", "hidden");
             captchaTagInput.Attributes.Add("id", Id);
             captchaTagInput.Attributes.Add("name", Id);
@@ -88,9 +88,11 @@ namespace Grand.Web.Common.Security.Captcha
             var captchaTagDiv = new TagBuilder("div");
             captchaTagDiv.Attributes.Add("id", $"{clientId}");
 
-            var scriptLoadApiTag = new TagBuilder("script");
+            var scriptLoadApiTag = new TagBuilder("script") {
+                TagRenderMode = TagRenderMode.Normal
+            };
             scriptLoadApiTag.TagRenderMode = TagRenderMode.Normal;
-            scriptLoadApiTag.Attributes.Add("src", RECAPTCHA_API_URL_VERSION + (string.IsNullOrEmpty(Language) ? "" : string.Format("&hl={0}", Language)));
+            scriptLoadApiTag.Attributes.Add("src", RecaptchaApiUrlVersion + (string.IsNullOrEmpty(Language) ? "" : $"&hl={Language}"));
 
             return scriptLoadApiTag.RenderHtmlContent() + scriptCallbackTag.RenderHtmlContent() + captchaTagInput.RenderHtmlContent() + captchaTagDiv.RenderHtmlContent();
         }
@@ -99,8 +101,7 @@ namespace Grand.Web.Common.Security.Captcha
         {
             var themes = new[] { "white", "blackglass", "red", "clean", "light", "dark" };
 
-            if (Theme is null)
-                Theme = "light";
+            Theme ??= "light";
 
             switch (Theme.ToLower())
             {

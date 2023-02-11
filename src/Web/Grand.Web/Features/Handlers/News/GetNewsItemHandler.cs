@@ -3,11 +3,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
@@ -44,19 +44,22 @@ namespace Grand.Web.Features.Handlers.News
 
         public async Task<NewsItemModel> Handle(GetNewsItem request, CancellationToken cancellationToken)
         {
-            var model = new NewsItemModel();
-            model.Id = request.NewsItem.Id;
-            model.MetaTitle = request.NewsItem.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id);
-            model.MetaDescription = request.NewsItem.GetTranslation(x => x.MetaDescription, _workContext.WorkingLanguage.Id);
-            model.MetaKeywords = request.NewsItem.GetTranslation(x => x.MetaKeywords, _workContext.WorkingLanguage.Id);
-            model.SeName = request.NewsItem.GetSeName(_workContext.WorkingLanguage.Id);
-            model.Title = request.NewsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-            model.Short = request.NewsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id);
-            model.Full = request.NewsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id);
-            model.AllowComments = request.NewsItem.AllowComments;
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(request.NewsItem.StartDateUtc ?? request.NewsItem.CreatedOnUtc, DateTimeKind.Utc);
-            model.NumberOfComments = request.NewsItem.CommentCount;
-            model.AddNewComment.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage;
+            var model = new NewsItemModel {
+                Id = request.NewsItem.Id,
+                MetaTitle = request.NewsItem.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id),
+                MetaDescription = request.NewsItem.GetTranslation(x => x.MetaDescription, _workContext.WorkingLanguage.Id),
+                MetaKeywords = request.NewsItem.GetTranslation(x => x.MetaKeywords, _workContext.WorkingLanguage.Id),
+                SeName = request.NewsItem.GetSeName(_workContext.WorkingLanguage.Id),
+                Title = request.NewsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
+                Short = request.NewsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
+                Full = request.NewsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+                AllowComments = request.NewsItem.AllowComments,
+                CreatedOn = _dateTimeService.ConvertToUserTime(request.NewsItem.StartDateUtc ?? request.NewsItem.CreatedOnUtc, DateTimeKind.Utc),
+                NumberOfComments = request.NewsItem.CommentCount,
+                AddNewComment = {
+                    DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage
+                }
+            };
 
             //prepare comments
             await PrepareComments(request.NewsItem, model);
@@ -80,7 +83,7 @@ namespace Grand.Web.Features.Handlers.News
                     CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                     CommentTitle = nc.CommentTitle,
                     CommentText = nc.CommentText,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc),
+                    CreatedOn = _dateTimeService.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 model.Comments.Add(commentModel);
             }

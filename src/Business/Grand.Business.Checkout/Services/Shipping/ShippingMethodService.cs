@@ -65,24 +65,23 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Shipping method</returns>
         public virtual Task<ShippingMethod> GetShippingMethodById(string shippingMethodId)
         {
-            string key = string.Format(CacheKey.SHIPPINGMETHOD_BY_ID_KEY, shippingMethodId);
+            var key = string.Format(CacheKey.SHIPPINGMETHOD_BY_ID_KEY, shippingMethodId);
             return _cacheBase.GetAsync(key, () => _shippingMethodRepository.GetByIdAsync(shippingMethodId));
         }
 
         /// <summary>
         /// Gets all shipping methods
         /// </summary>
-        /// <param name="filterByCountryId">The country indentifier to filter by</param>
+        /// <param name="filterByCountryId">The country ident to filter by</param>
+        /// <param name="customer"></param>
         /// <returns>Shipping methods</returns>
         public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null)
         {
-            var shippingMethods = new List<ShippingMethod>();
-
-            shippingMethods = await _cacheBase.GetAsync(CacheKey.SHIPPINGMETHOD_ALL, async () =>
+            var shippingMethods = await _cacheBase.GetAsync(CacheKey.SHIPPINGMETHOD_ALL, async () =>
             {
                 var query = from sm in _shippingMethodRepository.Table
-                            orderby sm.DisplayOrder
-                            select sm;
+                    orderby sm.DisplayOrder
+                    select sm;
                 return await Task.FromResult(query.ToList());
             });
 

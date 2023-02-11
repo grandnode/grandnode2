@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Grand.Web.Common.Attributes;
+using Grand.Web.Common.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class HomeController : BasePublicController
+    public class HomeController : BasePublicController
     {
-        public virtual IActionResult Index() => View();
+        [IgnoreApi]
+        [HttpGet]
+        public virtual IActionResult Index()
+        {
+            return View();
+        }
     }
 }

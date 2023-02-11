@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Represents a request for getting shipping rate options
     /// </summary>
-    public partial class GetShippingOptionRequest
+    public class GetShippingOptionRequest
     {
         #region Ctor
 
@@ -90,10 +90,7 @@ namespace Grand.Business.Core.Utilities.Checkout
 
             public int GetQuantity()
             {
-                if (OverriddenQuantity.HasValue)
-                    return OverriddenQuantity.Value;
-
-                return ShoppingCartItem.Quantity;
+                return OverriddenQuantity ?? ShoppingCartItem.Quantity;
             }
         }
 

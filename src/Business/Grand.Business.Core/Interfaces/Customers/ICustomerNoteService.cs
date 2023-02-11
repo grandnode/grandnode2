@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     {
         #region Customer note
 
-        // <summary>
+        /// <summary>
         /// Get note for customer
         /// </summary>
         /// <param name="id">Note identifier</param>
@@ -29,9 +29,9 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Get notes for customer
         /// </summary>
         /// <param name="customerId">Customer identifier</param>
-        /// <param name="displaytocustomer">Display to customer</param>
+        /// <param name="displayToCustomer">Display to customer</param>
         /// <returns>OrderNote</returns>
-        Task<IList<CustomerNote>> GetCustomerNotes(string customerId, bool? displaytocustomer = null);
+        Task<IList<CustomerNote>> GetCustomerNotes(string customerId, bool? displayToCustomer = null);
 
         #endregion
     }

@@ -1,8 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Common.Services.ExportImport;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Country;
@@ -24,8 +25,8 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICountryViewModelService _countryViewModelService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
-        private readonly IExportManager _exportManager;
-        private readonly IImportManager _importManager;
+        private readonly IExportManager<CountryStates> _exportManager;
+        private readonly IImportManager<CountryStates> _importManager;
 
         #endregion
 
@@ -35,8 +36,8 @@ namespace Grand.Web.Admin.Controllers
             ICountryViewModelService countryViewModelService,
             ITranslationService translationService,
             ILanguageService languageService,
-            IExportManager exportManager,
-            IImportManager importManager)
+            IExportManager<CountryStates> exportManager,
+            IImportManager<CountryStates> importManager)
         {
             _countryService = countryService;
             _countryViewModelService = countryViewModelService;
@@ -167,7 +168,7 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("List");
                 }
                 Error(ModelState);
-                return RedirectToAction("Edit", new { id = id });
+                return RedirectToAction("Edit", new { id });
             }
             catch (Exception exc)
             {
@@ -339,10 +340,18 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ExportExcel()
         {
             var countries = await _countryService.GetAllCountries();
-            var bytes = _exportManager.ExportStatesToXlsx(countries);
+            var query = from p in countries
+                        from s in p.StateProvinces
+                        select new CountryStates() {
+                            Country = p.TwoLetterIsoCode,
+                            StateProvinceName = s.Name,
+                            Abbreviation = s.Abbreviation,
+                            DisplayOrder = s.DisplayOrder,
+                            Published = s.Published
+                        };
 
-            return File(bytes, "text/xls", "states.xlsx");
-
+            var bytes = await _exportManager.Export(query);
+            return File(bytes, "text/xls", "country.xlsx");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
@@ -353,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportCountryStatesFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
 
                     Success(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"));
                     return RedirectToAction("List");

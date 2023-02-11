@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.AdminSearch;
@@ -27,7 +26,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Business.System.Services.Installation
 {
-    public partial class InstallationService : IInstallationService
+    public partial class InstallationService
     {
         protected virtual async Task InstallSettings(bool installSampleData)
         {

@@ -280,7 +280,7 @@ namespace Shipping.ByWeight.Controllers
             foreach (var c in countries)
                 model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (selectedCountry != null && c.Id == selectedCountry.Id) });
             //states
-            var states = selectedCountry != null ? await _countryService.GetStateProvincesByCountryId(selectedCountry.Id, showHidden: true) : new List<StateProvince>();
+            var states = selectedCountry != null ? await _countryService.GetStateProvincesByCountryId(selectedCountry.Id) : new List<StateProvince>();
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
             foreach (var s in states)
                 model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (selectedState != null && s.Id == selectedState.Id) });

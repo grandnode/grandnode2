@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class AzureConfig
+    public class AzureConfig
     {
         /// <summary>
         /// A value indicating whether the site is run on Windows Azure Web Apps

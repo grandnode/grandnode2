@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class PopularProductTagsViewComponent : BaseViewComponent
     {
@@ -19,15 +19,11 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await _mediator.Send(new GetPopularProductTags() {
+            var model = await _mediator.Send(new GetPopularProductTags {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
-            if (!model.Tags.Any())
-                return Content("");
-
-            return View(model);
-
+            return !model.Tags.Any() ? Content("") : View(model);
         }
     }
 }

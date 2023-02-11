@@ -9,7 +9,7 @@ var AxiosCart = {
     quickview_product: function (quickviewurl) {
         axios({
             url: quickviewurl,
-            method: 'post',
+            method: 'get',
         }).then(function (response) {
             this.AxiosCart.success_process(response);
         }).catch(function (error) {
@@ -62,7 +62,7 @@ var AxiosCart = {
         if (document.querySelector("#ModalQuickView")) {
             var form = document.querySelector('#ModalQuickView #product-details-form');
         } else {
-            var form = document.querySelector('.product-standard #product-details-form');
+            var form = document.querySelector(formselector);
         }
         var data = new FormData(form);
         axios({

@@ -10,8 +10,8 @@ namespace Grand.Web.Features.Models.Checkout
 {
     public class GetShippingAddress : IRequest<CheckoutShippingAddressModel>
     {
-        public string SelectedCountryId { get; set; } = null;
-        public bool PrePopulateNewAddressWithCustomerFields { get; set; } = false;
+        public string SelectedCountryId { get; set; }
+        public bool PrePopulateNewAddressWithCustomerFields { get; set; }
         public IList<CustomAttribute> OverrideAttributes { get; set; }
         public Customer Customer { get; set; }
         public Store Store { get; set; }

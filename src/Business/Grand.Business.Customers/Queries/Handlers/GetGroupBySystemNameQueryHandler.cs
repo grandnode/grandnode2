@@ -17,7 +17,7 @@ namespace Grand.Business.Customers.Queries.Handlers
         public async Task<CustomerGroup> Handle(GetGroupBySystemNameQuery request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.SystemName))
-                throw new ArgumentNullException("Request.SystemName");
+                throw new ArgumentNullException(nameof(request.SystemName));
 
             return await _groupService.GetCustomerGroupBySystemName(request.SystemName);
         }

@@ -22,9 +22,11 @@ namespace Grand.Business.Authentication.Services
         /// <summary>
         /// Valid
         /// </summary>
-        /// <param name="customer">Customer</param>
+        /// <param name="context">Context</param>
         public virtual async Task<bool> Valid(TokenValidatedContext context)
         {
+            if (context.Principal == null) return await Task.FromResult(false);
+            
             _email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             var token = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
             if (string.IsNullOrEmpty(token))
@@ -32,30 +34,31 @@ namespace Grand.Business.Authentication.Services
                 _errorMessage = "Wrong token, change password on the customer and create token again";
                 return await Task.FromResult(false);
             }
+
             if (string.IsNullOrEmpty(_email))
             {
                 _errorMessage = "Email not exists in the context";
                 return await Task.FromResult(false);
             }
+
             var customer = await _customerService.GetCustomerByEmail(_email);
-            if (customer == null || !customer.Active || customer.Deleted)
+            if (customer is not { Active: true } || customer.Deleted)
             {
                 _errorMessage = "Email not exists/or not active in the customer table";
                 return await Task.FromResult(false);
             }
-            var userapi = await _userApiService.GetUserByEmail(_email);
-            if (userapi == null || !userapi.IsActive)
+
+            var userApi = await _userApiService.GetUserByEmail(_email);
+            if (userApi is not { IsActive: true })
             {
                 _errorMessage = "User api not exists/or not active in the user api table";
                 return await Task.FromResult(false);
             }
-            if (userapi.Token != token)
-            {
-                _errorMessage = "Wrong token, generate again";
-                return await Task.FromResult(false);
-            }
 
-            return await Task.FromResult(true);
+            if (userApi.Token == token) return await Task.FromResult(true);
+            _errorMessage = "Wrong token, generate again";
+            return await Task.FromResult(false);
+
         }
 
         /// <summary>

@@ -7,9 +7,9 @@
     pagebuilder.AddTitleParts(Loc["Title.Register"]);
 
     //continue URL
-    var qs = this.Context.Request.Query["ReturnUrl"];
+    var qs = Context.Request.Query["ReturnUrl"];
     var continueUrl = "";
-    if (!String.IsNullOrEmpty(qs) && Url.IsLocalUrl(qs))
+    if (!string.IsNullOrEmpty(qs) && Url.IsLocalUrl(qs))
     {
         continueUrl = qs;
     }

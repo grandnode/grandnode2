@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Common
 {
-    public partial class CurrencyModel : BaseEntityModel
+    public class CurrencyModel : BaseEntityModel
     {
         public string Name { get; set; }
 

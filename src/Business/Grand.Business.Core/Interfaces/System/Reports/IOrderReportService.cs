@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
     /// <summary>
     /// Order report service interface
     /// </summary>
-    public partial interface IOrderReportService
+    public interface IOrderReportService
     {
         /// <summary>
         /// Get "order by country" report
@@ -42,7 +42,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
         /// <param name="storeId">Store identifier</param>
         /// <param name="customerId">Customer identifier</param>
         /// <param name="vendorId">Vendor identifier</param>
-        /// <param name="SalesEmployeeId">Sales employee identifier</param>
+        /// <param name="salesEmployeeId">Sales employee identifier</param>
         /// <param name="billingCountryId">Billing country identifier</param>
         /// <param name="orderId">Order identifier</param>
         /// <param name="paymentMethodSystemName">Payment method system name; null to load all records</param>
@@ -54,7 +54,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
         /// <param name="billingLastName">Billing last name. Leave empty to load all records.</param>
         /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
-        /// <param name="tagid">Tag ident</param>
+        /// <param name="tagId">Tag ident</param>
         /// <returns>Result</returns>
         Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "", 
             string customerId = "", string vendorId = "", string salesEmployeeId = "",
@@ -63,7 +63,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
             string billingEmail = null, string billingLastName = "",
             bool ignoreCancelledOrders = false,
-            string tagid = null);
+            string tagId = null);
 
 
         /// <summary>
@@ -73,14 +73,12 @@ namespace Grand.Business.Core.Interfaces.System.Reports
         /// <param name="os">Order status</param>
         /// <returns>Result</returns>
         Task<OrderAverageReportLineSummary> OrderAverageReport(string storeId, int os);
-        
+
         /// <summary>
         /// Get best sellers report
         /// </summary>
         /// <param name="storeId">Store identifier; "" to load all records</param>
         /// <param name="vendorId">Vendor identifier; "" to load all records</param>
-        /// <param name="categoryId">Category identifier; "" to load all records</param>
-        /// <param name="collectionId">Collection identifier; "" to load all records</param>
         /// <param name="createdFromUtc">Order created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Order created date to (UTC); null to load all records</param>
         /// <param name="os">Order status; null to load all records</param>

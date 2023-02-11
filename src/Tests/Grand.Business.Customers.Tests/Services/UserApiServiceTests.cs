@@ -24,6 +24,13 @@ namespace Grand.Business.Customers.Tests.Services
         }
 
         [TestMethod()]
+        public async Task GetUserByIdTest()
+        {
+            await _userApiService.GetUserById("");
+            _repositoryMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
+
+        }
+        [TestMethod()]
         public async Task InsertUserApi_ValidArguments_InvokeRepositoryAndPublishEvent()
         {
             await _userApiService.InsertUserApi(new UserApi());

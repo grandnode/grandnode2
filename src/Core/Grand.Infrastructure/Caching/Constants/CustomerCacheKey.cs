@@ -91,7 +91,7 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {0} : salesemployee ID
+        /// {0} : sales-employee ID
         /// </remarks>
         public static string SALESEMPLOYEE_BY_ID_KEY => "Grand.salesemployee.id-{0}";
 

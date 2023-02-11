@@ -91,7 +91,7 @@ namespace Grand.Web.Admin.Services
             {
                 EnableCondition = checkoutAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
-                ConditionAttributes = (await _checkoutAttributeService.GetAllCheckoutAttributes(ignorAcl: false))
+                ConditionAttributes = (await _checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: false))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != checkoutAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
@@ -166,7 +166,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel()
         {
-            var checkoutAttributes = await _checkoutAttributeService.GetAllCheckoutAttributes(ignorAcl: true);
+            var checkoutAttributes = await _checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: true);
             return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
                 {
                     var attributeModel = x.ToModel();

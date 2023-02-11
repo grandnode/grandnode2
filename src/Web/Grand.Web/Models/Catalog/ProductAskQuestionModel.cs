@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductAskQuestionModel : BaseEntityModel
+    public class ProductAskQuestionModel : BaseEntityModel
     {
         public string ProductId { get; set; }
 

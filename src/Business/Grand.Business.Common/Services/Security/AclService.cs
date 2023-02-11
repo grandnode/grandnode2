@@ -10,7 +10,7 @@ namespace Grand.Business.Common.Services.Security
     /// <summary>
     /// ACL service
     /// </summary>
-    public partial class AclService : IAclService
+    public class AclService : IAclService
     {
         #region Ctor
 
@@ -31,7 +31,7 @@ namespace Grand.Business.Common.Services.Security
         /// Authorize ACL permission
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        /// <param name="entity">Wntity</param>
+        /// <param name="entity">Entity</param>
         /// <param name="customer">Customer</param>
         /// <returns>true - authorized; otherwise, false</returns>
         public virtual bool Authorize<T>(T entity, Customer customer) where T : BaseEntity, IGroupLinkEntity
@@ -45,17 +45,7 @@ namespace Grand.Business.Common.Services.Security
             if (!entity.LimitedToGroups)
                 return true;
 
-            if (CommonHelper.IgnoreAcl)
-                return true;
-
-            foreach (var role1 in customer.Groups)
-                foreach (var role2Id in entity.CustomerGroups)
-                    if (role1 == role2Id)
-                        //yes, we have such permission
-                        return true;
-
-            //no permission found
-            return false;
+            return CommonHelper.IgnoreAcl || customer.Groups.Any(role1 => entity.CustomerGroups.Any(role2Id => role1 == role2Id));
         }
 
         /// <summary>
@@ -77,16 +67,7 @@ namespace Grand.Business.Common.Services.Security
             if (CommonHelper.IgnoreStoreLimitations)
                 return true;
 
-            if (!entity.LimitedToStores)
-                return true;
-
-            foreach (var storeIdWithAccess in entity.Stores)
-                if (storeId == storeIdWithAccess)
-                    //yes, we have such permission
-                    return true;
-
-            //no permission found
-            return false;
+            return !entity.LimitedToStores || entity.Stores.Any(storeIdWithAccess => storeId == storeIdWithAccess);
         }
 
         #endregion

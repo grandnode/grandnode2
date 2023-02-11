@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogPostCategoryModel : BaseModel
+    public class BlogPostCategoryModel : BaseModel
     {
         public string Id { get; set; }
         public string Name { get; set; }

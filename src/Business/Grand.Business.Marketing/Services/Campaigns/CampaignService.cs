@@ -1,21 +1,19 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure.Extensions;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
-using MediatR;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Extensions;
+using MediatR;
 
 namespace Grand.Business.Marketing.Services.Campaigns
 {
-    public partial class CampaignService : ICampaignService
+    public class CampaignService : ICampaignService
     {
         private readonly IRepository<Campaign> _campaignRepository;
         private readonly IRepository<CampaignHistory> _campaignHistoryRepository;
@@ -23,11 +21,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
         private readonly IRepository<Customer> _customerRepository;
         private readonly IEmailSender _emailSender;
         private readonly IQueuedEmailService _queuedEmailService;
-        private readonly ICustomerService _customerService;
         private readonly IStoreService _storeService;
         private readonly IMediator _mediator;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
 
@@ -35,12 +30,10 @@ namespace Grand.Business.Marketing.Services.Campaigns
             IRepository<CampaignHistory> campaignHistoryRepository,
             IRepository<NewsLetterSubscription> newsLetterSubscriptionRepository,
             IRepository<Customer> customerRepository,
-            IEmailSender emailSender, 
+            IEmailSender emailSender,
             IQueuedEmailService queuedEmailService,
-            ICustomerService customerService, IStoreService storeService,
+            IStoreService storeService,
             IMediator mediator,
-            ICustomerActivityService customerActivityService,
-            ITranslationService translationService,
             ILanguageService languageService,
             IWorkContext workContext)
         {
@@ -51,10 +44,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             _emailSender = emailSender;
             _queuedEmailService = queuedEmailService;
             _storeService = storeService;
-            _customerService = customerService;
             _mediator = mediator;
-            _customerActivityService = customerActivityService;
-            _translationService = translationService;
             _languageService = languageService;
             _workContext = workContext;
         }
@@ -77,13 +67,13 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <summary>
         /// Inserts a campaign history
         /// </summary>
-        /// <param name="campaign">Campaign</param>        
-        public virtual async Task InsertCampaignHistory(CampaignHistory campaignhistory)
+        /// <param name="campaignHistory">Campaign</param>        
+        public virtual async Task InsertCampaignHistory(CampaignHistory campaignHistory)
         {
-            if (campaignhistory == null)
-                throw new ArgumentNullException(nameof(campaignhistory));
+            if (campaignHistory == null)
+                throw new ArgumentNullException(nameof(campaignHistory));
 
-            await _campaignHistoryRepository.InsertAsync(campaignhistory);
+            await _campaignHistoryRepository.InsertAsync(campaignHistory);
 
         }
 
@@ -157,20 +147,19 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (campaign == null)
                 throw new ArgumentNullException(nameof(campaign));
 
-            var model = new PagedList<NewsLetterSubscription>();
+            PagedList<NewsLetterSubscription> model;
             if (campaign.CustomerCreatedDateFrom.HasValue || campaign.CustomerCreatedDateTo.HasValue ||
-                campaign.CustomerHasShoppingCart != CampaignCondition.All || campaign.CustomerHasShoppingCart != CampaignCondition.All ||
+                campaign.CustomerHasShoppingCart is not (CampaignCondition.All and CampaignCondition.All) ||
                 campaign.CustomerLastActivityDateFrom.HasValue || campaign.CustomerLastActivityDateTo.HasValue ||
                 campaign.CustomerLastPurchaseDateFrom.HasValue || campaign.CustomerLastPurchaseDateTo.HasValue ||
                 campaign.CustomerTags.Count > 0 || campaign.CustomerGroups.Count > 0)
             {
 
                 var query = from o in _newsLetterSubscriptionRepository.Table
-                            where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || String.IsNullOrEmpty(campaign.StoreId))
+                            where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || string.IsNullOrEmpty(campaign.StoreId))
                             join c in _customerRepository.Table on o.CustomerId equals c.Id into joined
                             from customers in joined
-                            select new CampaignCustomerHelp()
-                            {
+                            select new CampaignCustomerHelp {
                                 CustomerEmail = customers.Email,
                                 Email = o.Email,
                                 CustomerId = customers.Id,
@@ -238,7 +227,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                         query = query.Where(x => x.NewsletterCategories.Contains(item));
                     }
                 }
-                model = await PagedList<NewsLetterSubscription>.Create(query.Select(x => new NewsLetterSubscription() { CustomerId = x.CustomerId, Email = x.Email, NewsLetterSubscriptionGuid = x.NewsLetterSubscriptionGuid }), pageIndex, pageSize);
+                model = await PagedList<NewsLetterSubscription>.Create(query.Select(x => new NewsLetterSubscription { CustomerId = x.CustomerId, Email = x.Email, NewsLetterSubscriptionGuid = x.NewsLetterSubscriptionGuid }), pageIndex, pageSize);
             }
             else
             {
@@ -295,33 +284,22 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (emailAccount == null)
                 throw new ArgumentNullException(nameof(emailAccount));
 
-            int totalEmailsSent = 0;
-            var language = await _languageService.GetLanguageById(campaign.LanguageId);
-            if (language == null)
-                language = (await _languageService.GetAllLanguages()).FirstOrDefault();
+            var totalEmailsSent = 0;
+            var language = await _languageService.GetLanguageById(campaign.LanguageId) ?? (await _languageService.GetAllLanguages()).FirstOrDefault();
 
             foreach (var subscription in subscriptions)
             {
                 Customer customer = null;
 
-                if (!String.IsNullOrEmpty(subscription.CustomerId))
-                {
-                    customer = await _customerService.GetCustomerById(subscription.CustomerId);
-                }
-
-                if (customer == null)
-                {
-                    customer = await _customerService.GetCustomerByEmail(subscription.Email);
-                }
+                if (!string.IsNullOrEmpty(subscription.CustomerId)) customer = await _customerRepository.GetByIdAsync(subscription.CustomerId);
+                customer ??= _customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
 
                 //ignore deleted or inactive customers when sending newsletter campaigns
                 if (customer != null && (!customer.Active || customer.Deleted))
                     continue;
 
                 var builder = new LiquidObjectBuilder(_mediator);
-                var store = await _storeService.GetStoreById(campaign.StoreId);
-                if (store == null)
-                    store = (await _storeService.GetAllStores()).FirstOrDefault();
+                var store = await _storeService.GetStoreById(campaign.StoreId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
 
                 builder.AddStoreTokens(store, language, emailAccount)
                        .AddNewsLetterSubscriptionTokens(subscription, store, _workContext.CurrentHost);
@@ -352,11 +330,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 email.ObjectId = campaign.Id;
 
                 await _queuedEmailService.InsertQueuedEmail(email);
-                await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
-
-                //activity log
-                if (customer != null)
-                    _ = _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, customer, "", _translationService.GetResource("ActivityLog.SendCampaign"), campaign.Name);
+                await InsertCampaignHistory(new CampaignHistory { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
 
                 totalEmailsSent++;
             }
@@ -377,17 +351,13 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (emailAccount == null)
                 throw new ArgumentNullException(nameof(emailAccount));
 
-            var language = await _languageService.GetLanguageById(campaign.LanguageId);
-            if (language == null)
-                language = (await _languageService.GetAllLanguages()).FirstOrDefault();
+            var language = await _languageService.GetLanguageById(campaign.LanguageId) ?? (await _languageService.GetAllLanguages()).FirstOrDefault();
 
-            var store = await _storeService.GetStoreById(campaign.StoreId);
-            if (store == null)
-                store = (await _storeService.GetAllStores()).FirstOrDefault();
+            var store = await _storeService.GetStoreById(campaign.StoreId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount);
-            var customer = await _customerService.GetCustomerByEmail(email);
+            var customer = _customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
             if (customer != null)
             {
                 builder.AddCustomerTokens(customer, store, _workContext.CurrentHost, language)

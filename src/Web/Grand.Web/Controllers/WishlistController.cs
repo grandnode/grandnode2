@@ -1,26 +1,25 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
-    public partial class WishlistController : BasePublicController
+    public class WishlistController : BasePublicController
     {
         #region Fields
 
@@ -28,7 +27,6 @@ namespace Grand.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
         private readonly IPermissionService _permissionService;
         private readonly IMediator _mediator;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -42,7 +40,6 @@ namespace Grand.Web.Controllers
             IShoppingCartService shoppingCartService,
             ITranslationService translationService,
             ICustomerService customerService,
-            IGroupService groupService,
             IPermissionService permissionService,
             IMediator mediator,
             ShoppingCartSettings shoppingCartSettings)
@@ -51,7 +48,6 @@ namespace Grand.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _translationService = translationService;
             _customerService = customerService;
-            _groupService = groupService;
             _permissionService = permissionService;
             _mediator = mediator;
             _shoppingCartSettings = shoppingCartSettings;
@@ -61,7 +57,7 @@ namespace Grand.Web.Controllers
 
         #region Wishlist
 
-
+        [HttpGet]
         public async Task<IActionResult> SidebarWishlist()
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
@@ -72,12 +68,12 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetMiniWishlist() {
+            var model = await _mediator.Send(new GetMiniWishlist {
                 Cart = cart.ToList(),
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Currency = _workContext.WorkingCurrency,
-                Store = _workContext.CurrentStore,
+                Store = _workContext.CurrentStore
             });
 
             return Json(model);
@@ -100,7 +96,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetWishlist() {
+            var model = await _mediator.Send(new GetWishlist {
                 Cart = cart.ToList(),
                 Customer = customer,
                 Language = _workContext.WorkingLanguage,
@@ -116,49 +112,36 @@ namespace Grand.Web.Controllers
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
+        public virtual async Task<IActionResult> UpdateQuantity(UpdateQuantityModel model)
         {
-            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
-                return RedirectToRoute("HomePage");
-
-            var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).FirstOrDefault(x => x.Id == shoppingcartId);
-            if (cart == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    warnings = "Shopping cart item not found",
-                });
-            }
-            if (quantity <= 0)
-            {
-                return Json(new
-                {
-                    success = false,
-                    warnings = "Wrong quantity ",
-                });
-            }
-
-
             var warnings = new List<string>();
-            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
-                cart.RentalStartDateUtc, cart.RentalEndDateUtc,
-                quantity, true);
-            warnings.AddRange(currSciWarnings);
+            if (ModelState.IsValid)
+            {
+                var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).FirstOrDefault(x => x.Id == model.ShoppingCartId);
+
+                var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                    cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                    cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                    model.Quantity);
+                warnings.AddRange(currSciWarnings);
+            }
+            else
+            {
+                warnings = ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)).ToList();
+            }
 
             return Json(new
             {
                 success = !warnings.Any(),
                 warnings = string.Join(", ", warnings),
-                totalproducts = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity),
+                totalproducts = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity)
             });
 
         }
 
         [DenySystemAccount]
         [HttpPost]
-        public virtual async Task<IActionResult> AddItemToCartFromWishlist(Guid? customerGuid, string shoppingcartId)
+        public virtual async Task<IActionResult> AddItemToCartFromWishlist(AddCartFromWishlistModel model)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
                 return Json(new { success = false, message = "No permission" });
@@ -166,14 +149,14 @@ namespace Grand.Web.Controllers
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return Json(new { success = false, message = "No permission" });
 
-            var pageCustomer = customerGuid.HasValue
-                ? await _customerService.GetCustomerByGuid(customerGuid.Value)
+            var pageCustomer = model.CustomerGuid.HasValue
+                ? await _customerService.GetCustomerByGuid(model.CustomerGuid.Value)
                 : _workContext.CurrentCustomer;
             if (pageCustomer == null)
                 return Json(new { success = false, message = "Customer not found" });
 
             var itemCart = pageCustomer.ShoppingCartItems
-                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == model.ShoppingCartId);
 
             if (itemCart == null)
                 return Json(new { success = false, message = "Shopping cart ident not found" });
@@ -182,8 +165,8 @@ namespace Grand.Web.Controllers
                        itemCart.ProductId, ShoppingCartType.ShoppingCart,
                        _workContext.CurrentStore.Id, itemCart.WarehouseId,
                        itemCart.Attributes, itemCart.EnteredPrice,
-                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
-                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
+                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity,
+                       validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings;
 
             if (warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });
@@ -196,8 +179,8 @@ namespace Grand.Web.Controllers
         }
 
         [DenySystemAccount]
-        [HttpPost]
-        public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingcartId)
+        [HttpGet]
+        public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingCartId)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
                 return Json(new { success = false, message = "No permission" });
@@ -206,7 +189,7 @@ namespace Grand.Web.Controllers
                 return Json(new { success = false, message = "No permission" });
 
             var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
-                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingCartId);
 
             if (itemCart == null)
                 return Json(new { success = false, message = "Shopping cart ident not found" });
@@ -219,9 +202,8 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model, bool captchaValid,
+        public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model,
             [FromServices] IMessageProviderService messageProviderService,
             [FromServices] CaptchaSettings captchaSettings)
         {
@@ -231,19 +213,7 @@ namespace Grand.Web.Controllers
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
             if (!cart.Any())
                 return Content("");
-
-            //validate CAPTCHA
-            if (captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage && !captchaValid)
-            {
-                ModelState.AddModelError("", captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            //check whether the current customer is guest and ia allowed to email wishlist
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_shoppingCartSettings.AllowAnonymousUsersToEmailWishlist)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
-            }
-
+            
             if (ModelState.IsValid)
             {
                 //email

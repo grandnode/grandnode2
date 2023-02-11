@@ -1,5 +1,4 @@
 ﻿@model BlogPostListModel
-@using Grand.Web.Models.Blogs;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -18,11 +17,11 @@
 }
 <div class="page blog-page">
     <h2 class="generalTitle">
-        @if (String.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
+        @if (string.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
         {
             if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
             {
-                @String.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
+                @string.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
             }
             else
             {
@@ -31,7 +30,7 @@
         }
         else
         {
-            @String.Format(Loc["Blog.TaggedWith"], Model.PagingFilteringContext.Tag)
+            @string.Format(Loc["Blog.TaggedWith"], Model.PagingFilteringContext.Tag)
         }
         @if (!string.IsNullOrEmpty(Model.SearchKeyword))
         {
@@ -66,31 +65,31 @@
                     }
                     <div class="card-header">
                         <h3 class="h5 mb-0">
-                            <a href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                 @item.Title
                             </a>
                         </h3>
                     </div>
                     <div class="card-body">
-                        @Html.Raw(!String.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
+                        @Html.Raw(!string.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
                         @if (item.Tags.Any())
                         {
                             <div class="tags">
                                 <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
 
-                                @for (int i = 0; i < item.Tags.Count; i++)
+                                @for (var i = 0; i < item.Tags.Count; i++)
                                 {
                                     var tag = item.Tags[i];
-                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
+                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new { tag})">@tag</a>
                                 }
                             </div>
                         }
                         <div class="buttons mt-3">
                             @if (item.AllowComments)
                             {
-                                <a href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
+                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName})#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
                             }
-                            <a href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName})" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
                         </div>
                     </div>
                     <div class="card-footer">

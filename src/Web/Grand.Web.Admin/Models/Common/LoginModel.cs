@@ -23,6 +23,6 @@ namespace Grand.Web.Admin.Models.Common
         public bool RememberMe { get; set; }
 
         public bool DisplayCaptcha { get; set; }
-
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

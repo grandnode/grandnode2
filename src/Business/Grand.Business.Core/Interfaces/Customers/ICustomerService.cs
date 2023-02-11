@@ -10,7 +10,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Customer service interface
     /// </summary>
-    public partial interface ICustomerService
+    public interface ICustomerService
     {
         #region Customers
 
@@ -25,19 +25,19 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <param name="ownerId">Owner identifier</param>
         /// <param name="salesEmployeeId">Sales employee identifier</param>
         /// <param name="customerGroupIds">A list of customer group identifiers to filter by (at least one match); pass null or empty list in order to load all customers; </param>
+        /// <param name="customerTagIds"></param>
         /// <param name="email">Email; null to load all customers</param>
         /// <param name="username">Username; null to load all customers</param>
         /// <param name="firstName">First name; null to load all customers</param>
         /// <param name="lastName">Last name; null to load all customers</param>
-        /// <param name="dayOfBirth">Day of birth; 0 to load all customers</param>
-        /// <param name="monthOfBirth">Month of birth; 0 to load all customers</param>
         /// <param name="company">Company; null to load all customers</param>
         /// <param name="phone">Phone; null to load all customers</param>
         /// <param name="zipPostalCode">Phone; null to load all customers</param>
         /// <param name="loadOnlyWithShoppingCart">Value indicating whether to load customers only with shopping cart</param>
-        /// <param name="sct">Value indicating what shopping cart type to filter; userd when 'loadOnlyWithShoppingCart' param is 'true'</param>
+        /// <param name="sct">Value indicating what shopping cart type to filter; user when 'loadOnlyWithShoppingCart' param is 'true'</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
+        /// <param name="orderBySelector"></param>
         /// <returns>Customers</returns>
         Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "", string ownerId = "",
@@ -141,6 +141,8 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Updates the customer field
         /// </summary>
         /// <param name="customer">Customer</param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
         Task UpdateCustomerField<T>(Customer customer,
             Expression<Func<Customer, T>> expression, T value);
 
@@ -148,6 +150,8 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Updates the customer field
         /// </summary>
         /// <param name="customerId">Customer ident</param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
         Task UpdateCustomerField<T>(string customerId,
             Expression<Func<Customer, T>> expression, T value);
       
@@ -173,7 +177,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Updates the customer in admin panel
         /// </summary>
         /// <param name="customer">Customer</param>
-        Task UpdateCustomerinAdminPanel(Customer customer);
+        Task UpdateCustomerInAdminPanel(Customer customer);
 
         /// <summary>
         /// Reset data required for checkout

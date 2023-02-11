@@ -12,6 +12,10 @@ namespace Grand.Domain.Shipping
             Address = new Address();
         }
         /// <summary>
+        /// Gets or sets the warehouse code
+        /// </summary>
+        public string Code { get; set; }
+        /// <summary>
         /// Gets or sets the warehouse name
         /// </summary>
         public string Name { get; set; }

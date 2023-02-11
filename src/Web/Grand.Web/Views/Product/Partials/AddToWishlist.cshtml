@@ -1,0 +1,18 @@
+﻿@model ProductDetailsModel.AddToCartModel
+@if (!Model.DisableWishlistButton)
+{
+    var addToWishlistText = "";
+    if (!string.IsNullOrEmpty(Model.UpdatedShoppingCartItemId) && Model.UpdateShoppingCartItemType is ShoppingCartType.Wishlist)
+    {
+        addToWishlistText = Loc["ShoppingCart.AddToWishlist.Update"];
+    }
+    else
+    {
+        addToWishlistText = Loc["ShoppingCart.AddToWishlist"];
+    }
+
+    <a id="add-to-wishlist-button-@Model.ProductId" class="btn btn-secondary add-to-wishlist-button mr-1" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })', @($"'#product-details-form-{Model.ProductId}'"));return false;" v-b-tooltip.hover.bottom title="@addToWishlistText">
+        <span class="sr-only">@addToWishlistText</span>
+        <b-icon icon="heart"></b-icon>
+    </a>
+}

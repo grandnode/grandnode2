@@ -35,7 +35,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>SalesEmployee</returns>
         public virtual Task<SalesEmployee> GetSalesEmployeeById(string salesEmployeeId)
         {
-            string key = string.Format(CacheKey.SALESEMPLOYEE_BY_ID_KEY, salesEmployeeId);
+            var key = string.Format(CacheKey.SALESEMPLOYEE_BY_ID_KEY, salesEmployeeId);
             return _cacheBase.GetAsync(key, () => _salesEmployeeRepository.GetByIdAsync(salesEmployeeId));
         }
 
@@ -93,7 +93,7 @@ namespace Grand.Business.Customers.Services
         /// <summary>
         /// Deletes a sales employee
         /// </summary>
-        /// <param name="warehouse">The sales employee</param>
+        /// <param name="salesEmployee">The sales employee</param>
         public virtual async Task DeleteSalesEmployee(SalesEmployee salesEmployee)
         {
             if (salesEmployee == null)

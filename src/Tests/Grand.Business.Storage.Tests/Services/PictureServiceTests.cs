@@ -43,6 +43,20 @@ namespace Grand.Business.Storage.Tests.Services
             _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _workContextMock.Object
                 , _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
         }
+        [TestMethod]
+        public async Task GetPictureById_InvokeExpectedMethods()
+        {
+            await _service.GetPictureById("1");
+            _cacheMock.Verify(c => c.GetAsync<Picture>(It.IsAny<string>(), It.IsAny<Func<Task<Picture>>>()), Times.Once);
+        }
+        [TestMethod]
+        public async Task LoadPictureBinary_FromDb()
+        {
+            _storagesettings.PictureStoreInDb = true;
+            _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture() { PictureBinary = new byte[] { } }));
+            await _service.LoadPictureBinary(new Picture());
+            _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
+        }
 
         [TestMethod]
         public async Task LoadPictureBinary_FromDb_InvokeRepository()
@@ -77,9 +91,17 @@ namespace Grand.Business.Storage.Tests.Services
             _repoMock.Verify(c => c.InsertAsync(It.IsAny<Picture>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Picture>>(), default), Times.Once);
         }
-
         [TestMethod]
-        public async Task UpdatePicture_InvokeExpectedMethods()
+        public async Task UpdatePicture_InvokeExpectedMethods_PublishEvent()
+        {
+            _storagesettings.PictureStoreInDb = true;
+            _cacheMock.Setup(c => c.GetAsync<Picture>(It.IsAny<string>(), It.IsAny<Func<Task<Picture>>>())).Returns(Task.FromResult(new Picture()));
+            _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture() { PictureBinary = new byte[] { } }));
+            await _service.UpdatePicture("1", new byte[] { }, "image/jpeg", "image", validateBinary: false);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Picture>>(), default), Times.Once);
+        }
+        [TestMethod]
+        public async Task UpdatePicture_PictureModel_InvokeExpectedMethods()
         {
             _storagesettings.PictureStoreInDb = true;
             await _service.UpdatePicture(new Picture());
@@ -95,5 +117,14 @@ namespace Grand.Business.Storage.Tests.Services
             Assert.AreEqual("product-name", _service.GetPictureSeName("Product-Name"));
             Assert.AreEqual("productname-2", _service.GetPictureSeName("ProductName-2"));
         }
+
+        [TestMethod()]
+        public async Task DeletePicture_ValidArguments_InvokeRepositoryAndPublishEvent()
+        {
+            await _service.DeletePicture(new Picture());
+            _repoMock.Verify(c => c.DeleteAsync(It.IsAny<Picture>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Picture>>(), default(CancellationToken)), Times.Once);
+        }
+
     }
 }

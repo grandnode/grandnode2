@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -24,6 +25,7 @@ namespace Grand.Web.Admin.Controllers
     public partial class BrandController : BaseAdminController
     {
         #region Fields
+
         private readonly IBrandViewModelService _brandViewModelService;
         private readonly IBrandService _brandService;
         private readonly IWorkContext _workContext;
@@ -31,9 +33,8 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager _exportManager;
-        private readonly IImportManager _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
+
         #endregion
 
         #region Constructors
@@ -46,8 +47,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IGroupService groupService,
-            IExportManager exportManager,
-            IImportManager importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _brandViewModelService = brandViewModelService;
@@ -57,8 +56,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _translationService = translationService;
             _groupService = groupService;
-            _exportManager = exportManager;
-            _importManager = importManager;
             _pictureViewModelService = pictureViewModelService;
         }
 
@@ -297,7 +294,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(brand.PictureId, brand.Id));
+            return View("Partials/PicturePopup", await _pictureViewModelService.PreparePictureModel(brand.PictureId, brand.Id));
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -327,7 +324,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
 
-            return View("PicturePopup", model);
+            return View("Partials/PicturePopup", model);
         }
 
         #endregion
@@ -335,11 +332,11 @@ namespace Grand.Web.Admin.Controllers
         #region Export / Import
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
-        public async Task<IActionResult> ExportXlsx()
+        public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Brand> exportManager)
         {
             try
             {
-                var bytes = _exportManager.ExportBrandsToXlsx(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = await exportManager.Export(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "brands.xlsx");
             }
             catch (Exception exc)
@@ -351,7 +348,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext, [FromServices] IImportManager<BrandDto> importManager)
         {
             //a vendor and staff cannot import collections
             if (workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -361,7 +358,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportBrandFromXlsx(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {

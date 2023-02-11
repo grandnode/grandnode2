@@ -19,6 +19,10 @@ using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Catalog.Services.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Domain.Catalog;
+using Grand.Business.Catalog.Services.ExportImport;
+using Grand.Business.Catalog.Services.ExportImport.Dto;
 
 namespace Grand.Business.Catalog.Startup
 {
@@ -30,6 +34,7 @@ namespace Grand.Business.Catalog.Startup
             RegisterCatalogService(services);
             RegisterDiscountsService(services);
             RegisterTaxService(services);
+            RegisterExportImport(services);
         }
 
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
@@ -48,7 +53,6 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<ICollectionService, CollectionService>();
             serviceCollection.AddScoped<IPriceFormatter, PriceFormatter>();
             serviceCollection.AddScoped<IProductAttributeFormatter, ProductAttributeFormatter>();
-            serviceCollection.AddScoped<IProductAttributeParser, ProductAttributeParser>();
             serviceCollection.AddScoped<IProductAttributeService, ProductAttributeService>();
             serviceCollection.AddScoped<IProductService, ProductService>();
             serviceCollection.AddScoped<IProductCategoryService, ProductCategoryService>();
@@ -85,5 +89,19 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<IVatService, VatService>();
             serviceCollection.AddScoped<ITaxCategoryService, TaxCategoryService>();
         }
+
+        private void RegisterExportImport(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<ISchemaProperty<Brand>, BrandSchemaProperty>();
+            serviceCollection.AddScoped<ISchemaProperty<Category>, CategorySchemaProperty>();
+            serviceCollection.AddScoped<ISchemaProperty<Collection>, CollectionSchemaProperty>();
+            serviceCollection.AddScoped<ISchemaProperty<Product>, ProductSchemaProperty>();
+
+            serviceCollection.AddScoped<IImportDataObject<CategoryDto>, CategoryImportDataObject>();
+            serviceCollection.AddScoped<IImportDataObject<BrandDto>, BrandImportDataObject>();
+            serviceCollection.AddScoped<IImportDataObject<CollectionDto>, CollectionImportDataObject>();
+            serviceCollection.AddScoped<IImportDataObject<ProductDto>, ProductImportDataObject>();
+        }
+
     }
 }

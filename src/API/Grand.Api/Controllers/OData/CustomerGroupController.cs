@@ -31,12 +31,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
-            if (!customerGroup.Any())
-                return NotFound();
+            if (!customerGroup.Any()) return NotFound();
 
             return Ok(customerGroup.FirstOrDefault());
         }
@@ -48,8 +46,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>()));
         }
@@ -61,15 +58,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] CustomerGroupDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new AddCustomerGroupCommand() { Model = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddCustomerGroupCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Update entity in CustomerGroup", OperationId = "UpdateCustomerGroup")]
@@ -80,16 +72,12 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(model.Id));
-            if (!customerGroup.Any())
-            {
-                return NotFound();
-            }
+            if (!customerGroup.Any()) return NotFound();
 
-            if (ModelState.IsValid && !model.IsSystem)
+            if (!model.IsSystem)
             {
                 model = await _mediator.Send(new UpdateCustomerGroupCommand() { Model = model });
                 return Ok(model);
@@ -105,23 +93,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<CustomerGroupDto> model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
-            if (!customerGroup.Any())
-            {
-                return NotFound();
-            }
+            if (!customerGroup.Any()) return NotFound();
+
             var cr = customerGroup.FirstOrDefault();
             model.ApplyTo(cr);
-
-            if (ModelState.IsValid && !cr.IsSystem)
+            if (!cr.IsSystem)
             {
                 await _mediator.Send(new UpdateCustomerGroupCommand() { Model = cr });
                 return Ok();
             }
-
             return BadRequest(ModelState);
         }
 
@@ -132,19 +115,13 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
-            if (!customerGroup.Any())
-            {
-                return NotFound();
-            }
+            if (!customerGroup.Any()) return NotFound();
 
-            if (customerGroup.FirstOrDefault().IsSystem)
-            {
-                return Forbid();
-            }
+            if (customerGroup.FirstOrDefault().IsSystem) return Forbid();
+
             await _mediator.Send(new DeleteCustomerGroupCommand() { Model = customerGroup.FirstOrDefault() });
 
             return Ok();

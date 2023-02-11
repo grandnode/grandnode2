@@ -9,7 +9,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Recently viewed products service
     /// </summary>
-    public partial class RecentlyViewedProductsService : IRecentlyViewedProductsService
+    public class RecentlyViewedProductsService : IRecentlyViewedProductsService
     {
         #region Fields
 
@@ -55,14 +55,16 @@ namespace Grand.Business.Catalog.Services.Products
 
             return query.ToList();
         }
+
         /// <summary>
         /// Gets a "recently viewed products" identifier list
         /// </summary>
+        /// <param name="customerId">Customer ident</param>
         /// <param name="number">Number of products to load</param>
         /// <returns>"recently viewed products" list</returns>
         protected async Task<IList<string>> GetRecentlyViewedProductsIds(string customerId, int number)
         {
-            string key = string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_KEY, customerId, number);
+            var key = string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_KEY, customerId, number);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _recentlyViewedProducts.Table
@@ -77,25 +79,22 @@ namespace Grand.Business.Catalog.Services.Products
 
         #region Methods
 
-
         /// <summary>
         /// Gets a "recently viewed products" list
         /// </summary>
+        /// <param name="customerId">Customer ident</param>
         /// <param name="number">Number of products to load</param>
         /// <returns>"recently viewed products" list</returns>
         public virtual async Task<IList<Product>> GetRecentlyViewedProducts(string customerId, int number)
         {
-            var products = new List<Product>();
             var productIds = await GetRecentlyViewedProductsIds(customerId, number);
-            foreach (var product in await _productService.GetProductsByIds(productIds.ToArray()))
-                if (product.Published)
-                    products.Add(product);
-            return products;
+            return (await _productService.GetProductsByIds(productIds.ToArray())).Where(product => product.Published).ToList();
         }
 
         /// <summary>
         /// Adds a product to a recently viewed products list
         /// </summary>
+        /// <param name="customerId">Customer ident</param>
         /// <param name="productId">Product identifier</param>
         public virtual async Task AddProductToRecentlyViewedList(string customerId, string productId)
         {
@@ -113,7 +112,7 @@ namespace Grand.Business.Catalog.Services.Products
                 recentlyViewedProduct.CreatedOnUtc = DateTime.UtcNow;
                 await _recentlyViewedProducts.UpdateAsync(recentlyViewedProduct);
             }
-            int maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
+            var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
             if (maxProducts <= 0)
                 maxProducts = 10;
 

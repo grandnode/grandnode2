@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
@@ -14,14 +14,13 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
     [DenySystemAccount]
-    public partial class MerchandiseReturnController : BasePublicController
+    public class MerchandiseReturnController : BasePublicController
     {
         #region Fields
 
@@ -33,6 +32,7 @@ namespace Grand.Web.Controllers
         private readonly IMediator _mediator;
         private readonly AddressSettings _addressSettings;
         private readonly OrderSettings _orderSettings;
+
         #endregion
 
         #region Constructors
@@ -64,9 +64,9 @@ namespace Grand.Web.Controllers
         private async Task PrepareModelAddress(AddressModel addressModel, Address address)
         {
             var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
-            var countries = await countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            addressModel = await _mediator.Send(new GetAddressModel()
-            {
+            var countries =
+                await countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
+            addressModel = await _mediator.Send(new GetAddressModel {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Customer = _workContext.CurrentCustomer,
@@ -78,47 +78,38 @@ namespace Grand.Web.Controllers
             });
         }
 
-        protected async Task<Address> PrepareAddress(MerchandiseReturnModel model, IFormCollection form)
+        private async Task<Address> PrepareAddress(MerchandiseReturnModel model)
         {
-            string pickupAddressId = form["pickup_address_id"];
             var address = new Address();
-            if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+            if (!_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress) return address;
+
+            if (!string.IsNullOrEmpty(model.PickupAddressId))
             {
-                if (!string.IsNullOrEmpty(pickupAddressId))
-                {
-                    address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == pickupAddressId);
-                }
-                else
-                {
-                    var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
-                    var addressAttributeParser = HttpContext.RequestServices.GetRequiredService<IAddressAttributeParser>();
-                    var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-                    foreach (var error in customAttributeWarnings)
-                    {
-                        ModelState.AddModelError("", error);
-                    }
-                    await TryUpdateModelAsync(model.NewAddress, "MerchandiseReturnNewAddress");
-                    address = model.NewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
-                    model.NewAddressPreselected = true;
-                    address.Attributes = customAttributes;
-                    address.CreatedOnUtc = DateTime.UtcNow;
-                }
+                address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == model.PickupAddressId);
             }
+            else
+            {
+                var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
+                    { SelectedAttributes = model.MerchandiseReturnNewAddress.SelectedAttributes });
+                address = model.MerchandiseReturnNewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
+                model.NewAddressPreselected = true;
+                address.Attributes = customAttributes;
+                address.CreatedOnUtc = DateTime.UtcNow;
+            }
+
             return address;
         }
-
 
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> CustomerMerchandiseReturns()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetMerchandiseReturns()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturns {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage
@@ -126,96 +117,69 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
-        public virtual async Task<IActionResult> MerchandiseReturn(string orderId, string errors = "")
+        [HttpGet]
+        public virtual async Task<IActionResult> MerchandiseReturn(string orderId)
         {
             var order = await _orderService.GetOrderById(orderId);
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }))
+            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetMerchandiseReturn()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturn {
                 Order = order,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
-            model.Error = errors;
             return View(model);
         }
 
-        [HttpPost, ActionName("MerchandiseReturn")]
+        [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> MerchandiseReturnSubmit(string orderId, MerchandiseReturnModel model, IFormCollection form)
+        public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await _orderService.GetOrderById(model.OrderId);
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }))
+            if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
                 return RedirectToRoute("HomePage");
 
-            ModelState.Clear();
+            var address = await PrepareAddress(model);
 
-            if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate && _orderSettings.MerchandiseReturns_PickupDateRequired && model.PickupDate == null)
+            if (ModelState.IsValid)
             {
-                ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.PickupDateRequired"));
+                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
+                    { Address = address, Model = model, Order = order });
+
+                model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"),
+                    result.ReturnNumber,
+                    Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.Id }));
+                model.OrderNumber = order.OrderNumber;
+                model.OrderCode = order.Code;
+                return View(model);
+            }
+            
+            var returnModel = await _mediator.Send(new GetMerchandiseReturn {
+                Order = order,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore
+            });
+            returnModel.Error = string.Join(", ",
+                ModelState.Keys.SelectMany(k => ModelState[k]!.Errors).Select(m => m.ErrorMessage).ToArray());
+            returnModel.Comments = model.Comments;
+            returnModel.PickupDate = model.PickupDate;
+            returnModel.NewAddressPreselected = model.NewAddressPreselected;
+            returnModel.MerchandiseReturnNewAddress = model.MerchandiseReturnNewAddress;
+            if (returnModel.NewAddressPreselected || _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+            {
+                await PrepareModelAddress(model.MerchandiseReturnNewAddress, address);
             }
 
-            var address = await PrepareAddress(model, form);
-
-            if (!ModelState.IsValid && ModelState.ErrorCount > 0)
-            {
-                var returnmodel = await _mediator.Send(new GetMerchandiseReturn()
-                {
-                    Order = order,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore
-                });
-                returnmodel.Error = string.Join(", ", ModelState.Keys.SelectMany(k => ModelState[k].Errors).Select(m => m.ErrorMessage).ToArray());
-                returnmodel.Comments = model.Comments;
-                returnmodel.PickupDate = model.PickupDate;
-                returnmodel.NewAddressPreselected = model.NewAddressPreselected;
-                returnmodel.NewAddress = model.NewAddress;
-                if (returnmodel.NewAddressPreselected || _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
-                {
-                    await PrepareModelAddress(model.NewAddress, address);
-                }
-                return View(returnmodel);
-            }
-            else
-            {
-                var result = await _mediator.Send(new MerchandiseReturnSubmitCommand() { Address = address, Model = model, Form = form, Order = order });
-                if (result.rr.ReturnNumber > 0)
-                {
-                    model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"), result.rr.ReturnNumber, Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.rr.Id }));
-                    model.OrderNumber = order.OrderNumber;
-                    model.OrderCode = order.Code;
-                    return View(result.model);
-                }
-
-                var returnmodel = await _mediator.Send(new GetMerchandiseReturn()
-                {
-                    Order = order,
-                    Language = _workContext.WorkingLanguage,
-                    Store = _workContext.CurrentStore
-                });
-                returnmodel.Error = result.model.Error;
-                returnmodel.Comments = model.Comments;
-                returnmodel.PickupDate = model.PickupDate;
-                returnmodel.NewAddressPreselected = model.NewAddressPreselected;
-                returnmodel.NewAddress = model.NewAddress;
-                if (returnmodel.NewAddressPreselected || _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
-                {
-                    await PrepareModelAddress(model.NewAddress, address);
-                }
-                return View(returnmodel);
-            }
-
+            return View(returnModel);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> MerchandiseReturnDetails(string merchandiseReturnId)
         {
             var rr = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
@@ -226,11 +190,10 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetMerchandiseReturnDetails()
-            {
+            var model = await _mediator.Send(new GetMerchandiseReturnDetails {
                 Order = order,
                 Language = _workContext.WorkingLanguage,
-                MerchandiseReturn = rr,
+                MerchandiseReturn = rr
             });
 
             return View(model);

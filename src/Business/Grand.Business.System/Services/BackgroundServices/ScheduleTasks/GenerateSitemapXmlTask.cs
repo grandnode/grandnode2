@@ -10,7 +10,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task end auctions
     /// </summary>
-    public partial class GenerateSitemapXmlTask : IScheduleTask
+    public class GenerateSitemapXmlTask : IScheduleTask
     {
         private readonly IMediator _mediator;
         private readonly ILanguageService _languageService;
@@ -40,13 +40,13 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 
             foreach (var store in stores)
             {
-                var storelanguages = await _languageService.GetAllLanguages(storeId: store.Id);
-                foreach (var lang in storelanguages)
+                var storeLanguages = await _languageService.GetAllLanguages(storeId: store.Id);
+                foreach (var lang in storeLanguages)
                 {
                     var siteMap = await _mediator.Send(new GetSitemapXmlCommand()
                     {
                         Language = lang,
-                        Store = store,
+                        Store = store
                     });
 
                     if (!(stores.Count == 1 && languages.Count == 1))

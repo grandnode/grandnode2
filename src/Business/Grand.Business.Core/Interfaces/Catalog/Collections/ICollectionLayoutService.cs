@@ -2,7 +2,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Collections
 {
-    public partial interface ICollectionLayoutService
+    public interface ICollectionLayoutService
     {
 
         /// <summary>

@@ -1,11 +1,11 @@
 ﻿using Grand.Domain.Common;
+using Grand.Web.Common.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Features.Models.Common
 {
     public class GetParseCustomAddressAttributes : IRequest<IList<CustomAttribute>>
     {
-        public IFormCollection Form { get; set; }
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
     }
 }

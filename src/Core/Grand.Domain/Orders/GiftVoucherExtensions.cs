@@ -1,3 +1,4 @@
+using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Stores;
 
@@ -8,6 +9,55 @@ namespace Grand.Domain.Orders
     /// </summary>
     public static class GiftVoucherExtensions
     {
+        /// <summary>
+        /// Add gift voucher attrbibutes
+        /// </summary>
+        /// <param name="customAttributes">Attributes</param>
+        /// <param name="recipientName">Recipient name</param>
+        /// <param name="recipientEmail">Recipient email</param>
+        /// <param name="senderName">Sender name</param>
+        /// <param name="senderEmail">Sender email</param>
+        /// <param name="giftVoucherMessage">Message</param>
+        /// <returns>Attributes</returns>
+        public static IList<CustomAttribute> AddGiftVoucherAttribute(IList<CustomAttribute> customAttributes, string recipientName,
+            string recipientEmail, string senderName, string senderEmail, string giftVoucherMessage)
+        {
+            if (customAttributes == null)
+                customAttributes = new List<CustomAttribute>();
+
+            customAttributes.Add(new CustomAttribute() { Key = "RecipientName", Value = recipientName });
+            customAttributes.Add(new CustomAttribute() { Key = "RecipientEmail", Value = recipientEmail });
+            customAttributes.Add(new CustomAttribute() { Key = "SenderName", Value = senderName });
+            customAttributes.Add(new CustomAttribute() { Key = "SenderEmail", Value = senderEmail });
+            customAttributes.Add(new CustomAttribute() { Key = "Message", Value = giftVoucherMessage });
+
+            return customAttributes;
+        }
+
+        /// <summary>
+        /// Get gift voucher attrbibutes
+        /// </summary>
+        /// <param name="customAttributes">Attributes</param>
+        /// <param name="recipientName">Recipient name</param>
+        /// <param name="recipientEmail">Recipient email</param>
+        /// <param name="senderName">Sender name</param>
+        /// <param name="senderEmail">Sender email</param>
+        /// <param name="giftVoucherMessage">Message</param>
+        public static void GetGiftVoucherAttribute(IList<CustomAttribute> customAttributes, out string recipientName,
+            out string recipientEmail, out string senderName,
+            out string senderEmail, out string giftVoucherMessage)
+        {
+            if (customAttributes == null)
+                customAttributes = new List<CustomAttribute>();
+
+            recipientName = customAttributes.FirstOrDefault(x => x.Key == "RecipientName")?.Value;
+            recipientEmail = customAttributes.FirstOrDefault(x => x.Key == "RecipientEmail")?.Value; ;
+            senderName = customAttributes.FirstOrDefault(x => x.Key == "SenderName")?.Value; ;
+            senderEmail = customAttributes.FirstOrDefault(x => x.Key == "SenderEmail")?.Value; ;
+            giftVoucherMessage = customAttributes.FirstOrDefault(x => x.Key == "Message")?.Value; ;
+
+        }
+
         /// <summary>
         /// Gets a gift voucher remaining amount
         /// </summary>

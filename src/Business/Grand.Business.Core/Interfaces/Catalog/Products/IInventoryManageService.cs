@@ -19,8 +19,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Adjust reserved inventory
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="quantityToChange">Quantity to increase or descrease</param>
+        /// <param name="quantityToChange">Quantity to increase or decrease</param>
         /// <param name="attributes">Attributes</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute> attributes = null, string warehouseId = "");
 
 

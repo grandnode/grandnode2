@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerDownloadableProductsModel : BaseModel
+    public class CustomerDownloadableProductsModel : BaseModel
     {
         public CustomerDownloadableProductsModel()
         {
@@ -12,7 +12,7 @@ namespace Grand.Web.Models.Customer
         public IList<DownloadableProductsModel> Items { get; set; }
 
         #region Nested classes
-        public partial class DownloadableProductsModel : BaseModel
+        public class DownloadableProductsModel : BaseModel
         {
             public Guid OrderItemGuid { get; set; }
 
@@ -32,7 +32,7 @@ namespace Grand.Web.Models.Customer
         #endregion
     }
 
-    public partial class UserAgreementModel : BaseModel
+    public class UserAgreementModel : BaseModel
     {
         public Guid OrderItemGuid { get; set; }
         public string UserAgreementText { get; set; }

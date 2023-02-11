@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers
 {
     [AllowAnonymous]
-    public partial class LetsEncryptController : Controller
+    public class LetsEncryptController : Controller
     {
         private readonly CommonSettings _commonSettings;
         private readonly IMediaFileStore _mediaFileStore;

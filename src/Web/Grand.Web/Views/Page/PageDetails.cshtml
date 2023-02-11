@@ -15,7 +15,7 @@
 
     if (!Model.IsPasswordProtected)
     {
-        pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+        pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
         pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
         pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
     }
@@ -23,7 +23,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var pageUrl = Url.RouteUrl("Page", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var pageUrl = Url.RouteUrl("Page", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(pageUrl);
     }
 }
@@ -36,8 +36,6 @@
     }
 
 <script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-
         function passwordProtect() {
             var postData = {
                 id: document.getElementById("@Html.IdFor(model => model.Id)").value,
@@ -70,19 +68,16 @@
             })
         }
 
-        document.getElementById('ph-page').style.display = "none";
-
-        document.getElementById("passwordPage").onkeypress = function (e) {
-            var key = e.charCode || e.keyCode || 0;
-            if (key == 13) {
-                passwordProtect()
-                e.preventDefault();
+        document.getElementById('ph-page').style.display = "none";        
+        document.addEventListener("keydown", (e) => {
+            if (e.key == "Enter"){
+                passwordProtect();
             }
-        }
-    });
+        });
+    
 </script>
     <div class="page page-password" id="ph-password">
-        <form id="passwordPage" asp-route="PageAuthenticate" method="post">
+        <form id="passwordPage" asp-route="PageAuthenticate" method="post" onsubmit="return false">
             <input asp-for="Id" type="hidden" />
             <div class="enter-password-title">
                 @Loc["Page.EnterPassword"]

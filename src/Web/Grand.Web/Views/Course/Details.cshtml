@@ -3,14 +3,14 @@
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_SingleColumn";
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var courseUrl = Url.RouteUrl("Course", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var courseUrl = Url.RouteUrl("Course", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(courseUrl);
     }
 
@@ -24,7 +24,7 @@
                 <img src="@Model.PictureUrl" class="mr-3" />
                 <div class="media-body">
                     <h2 class="d-flex flex-column">@Model.Name<span class="h6">(@Model.Level)</span></h2>
-                    @if (!String.IsNullOrWhiteSpace(Model.Description))
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
                     {
                         <p>
                             @Html.Raw(Model.Description)

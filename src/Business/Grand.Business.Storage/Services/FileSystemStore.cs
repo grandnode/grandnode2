@@ -20,12 +20,7 @@ namespace Grand.Business.Storage.Services
 
             var fileInfo = new PhysicalFileInfo(new FileInfo(physicalPath));
 
-            if (fileInfo.Exists)
-            {
-                return Task.FromResult<IFileStoreEntry>(new FileSystemStoreEntry(path, fileInfo));
-            }
-
-            return Task.FromResult<IFileStoreEntry>(null);
+            return Task.FromResult<IFileStoreEntry>(fileInfo.Exists ? new FileSystemStoreEntry(path, fileInfo) : null);
         }
 
         public IFileStoreEntry GetDirectoryInfo(string path)
@@ -34,26 +29,16 @@ namespace Grand.Business.Storage.Services
 
             var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
 
-            if (directoryInfo.Exists)
-            {
-                return new FileSystemStoreEntry(path, directoryInfo);
-            }
-
-            return null;
+            return directoryInfo.Exists ? new FileSystemStoreEntry(path, directoryInfo) : null;
         }
 
-        public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directorypath)
+        public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
         {
-            var physicalPath = GetPhysicalPath(directorypath);
+            var physicalPath = GetPhysicalPath(directoryPath);
 
             var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
 
-            if (directoryInfo.Exists)
-            {
-                return Task.FromResult(directoryInfo);
-            }
-
-            return Task.FromResult<PhysicalDirectoryInfo>(null);
+            return directoryInfo.Exists ? Task.FromResult(directoryInfo) : Task.FromResult<PhysicalDirectoryInfo>(null);
         }
         public IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false, bool listDirectories = true, bool listFiles = true)
         {
@@ -73,7 +58,7 @@ namespace Grand.Business.Storage.Services
                         .Select(f =>
                         {
                             var fileSystemInfo = new PhysicalDirectoryInfo(new DirectoryInfo(f));
-                            var fileRelativePath =  f[_fileSystemPath.Length..];
+                            var fileRelativePath = f[_fileSystemPath.Length..];
                             var filePath = this.NormalizePath(fileRelativePath);
                             return new FileSystemStoreEntry(filePath, fileSystemInfo);
                         }));
@@ -97,11 +82,9 @@ namespace Grand.Business.Storage.Services
         public bool TryCreateDirectory(string path)
         {
             var physicalPath = GetPhysicalPath(path);
-
+            
             if (File.Exists(physicalPath))
-            {
                 throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
-            }
 
             if (Directory.Exists(physicalPath))
             {
@@ -115,7 +98,7 @@ namespace Grand.Business.Storage.Services
         public Task<bool> TryRenameDirectory(string path, string newName)
         {
             var physicalPath = GetPhysicalPath(path);
-            
+
             if (File.Exists(physicalPath))
             {
                 throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
@@ -128,11 +111,11 @@ namespace Grand.Business.Storage.Services
             var directoryInfo = new DirectoryInfo(physicalPath);
 
             var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
+
             if (Directory.Exists(newphysicalPath))
             {
                 return Task.FromResult(false);
             }
-            
             directoryInfo.MoveTo(newphysicalPath);
 
             return Task.FromResult(true);
@@ -196,7 +179,7 @@ namespace Grand.Business.Storage.Services
                 throw new Exception($"The file '{srcPath}' does not exist.");
             }
             var file = await GetFileInfo(srcPath);
-            var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath, file.Name));
+            var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath));
 
             if (File.Exists(physicalDstPath) || Directory.Exists(physicalDstPath))
             {
@@ -270,10 +253,8 @@ namespace Grand.Business.Storage.Services
             Directory.CreateDirectory(physicalDirectoryPath);
 
             var fileInfo = new FileInfo(physicalPath);
-            using (var outputStream = fileInfo.Create())
-            {
-                await inputStream.CopyToAsync(outputStream);
-            }
+            await using var outputStream = fileInfo.Create();
+            await inputStream.CopyToAsync(outputStream);
 
             return path;
         }

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// Widget service interface
     /// </summary>
-    public partial interface IWidgetService
+    public interface IWidgetService
     {
         /// <summary>
         /// Load active widgets

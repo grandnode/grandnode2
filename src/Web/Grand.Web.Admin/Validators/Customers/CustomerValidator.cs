@@ -1,9 +1,11 @@
-﻿using FluentValidation;
+﻿using Amazon.S3;
+using FluentValidation;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Models.Customers;
+using System.Text.RegularExpressions;
 
 namespace Grand.Web.Admin.Validators.Customers
 {
@@ -61,6 +63,19 @@ namespace Grand.Web.Admin.Validators.Customers
                 RuleFor(x => x.Phone).NotEmpty().WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Phone.Required"));
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled) 
                 RuleFor(x => x.Fax).NotEmpty().WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Fax.Required"));
+
+            RuleFor(x => x).Custom((x, context) =>
+            {
+                if (!string.IsNullOrEmpty(x.Password))
+                {
+                    if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
+                    {
+                        Regex passwordregex = new Regex(customerSettings.PasswordRegularExpression);
+                        if(!passwordregex.Match(x.Password).Success)
+                            context.AddFailure(translationService.GetResource("Account.Fields.Password.Validation"));
+                    }
+                }
+            });
         }
     }
 }

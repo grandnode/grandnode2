@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product attribute service interface
     /// </summary>
-    public partial interface IProductAttributeService
+    public interface IProductAttributeService
     {
         #region Product attributes
 
@@ -97,18 +97,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <param name="productId">Product ident</param>
         /// <param name="productAttributeMappingId">Product attr mapping ident</param>
         Task UpdateProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId);
-
-        #endregion
-
-        #region Predefined product attribute values
-
-        /// <summary>
-        /// Gets predefined product attribute values by product attribute identifier
-        /// </summary>
-        /// <param name="productAttributeId">The product attribute identifier</param>
-        /// <returns>Product attribute mapping collection</returns>
-        Task<IList<PredefinedProductAttributeValue>> GetPredefinedProductAttributeValues(string productAttributeId);
-
 
         #endregion
 

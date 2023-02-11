@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Extensions;
 using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider

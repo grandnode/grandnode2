@@ -12,13 +12,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
         private const string ForAttributeName = "asp-for";
         private const string DisplayHintAttributeName = "asp-display-hint";
 
-        private readonly IWorkContext _workContext;
-        private readonly ITranslationService _translationService;
-
-        public AdminSelectTagHelper(IHtmlGenerator generator, IWorkContext workContext, ITranslationService translationService) : base(generator)
+        public AdminSelectTagHelper(IHtmlGenerator generator) : base(generator)
         {
-            _workContext = workContext;
-            _translationService = translationService;
         }
 
         [HtmlAttributeName(DisplayHintAttributeName)]
@@ -30,8 +25,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             output.TagName = "select";
             output.TagMode = TagMode.StartTagAndEndTag;
             var classValue = "form-control k-input ";
-            TagHelperAttribute forAttribute;
-            if (context.AllAttributes.TryGetAttribute("class", out forAttribute))
+            if (context.AllAttributes.TryGetAttribute("class", out var forAttribute))
             {
                 classValue += forAttribute.Value.ToString();
             }

@@ -1,8 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
+using System.Globalization;
 
 namespace Grand.Business.System.Commands.Handlers.Messages
 {
@@ -27,7 +28,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             var liquidAuctions = new LiquidAuctions(request.Product, request.Bid);
             var defaultCurrency = await _currencyService.GetPrimaryStoreCurrency();
             liquidAuctions.Price = _priceFormatter.FormatPrice(request.Bid.Amount, defaultCurrency);
-            liquidAuctions.EndTime = _dateTimeService.ConvertToUserTime(request.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc).ToString();
+            liquidAuctions.EndTime = _dateTimeService.ConvertToUserTime(request.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc).ToString(CultureInfo.InvariantCulture);
             return liquidAuctions;
         }
     }

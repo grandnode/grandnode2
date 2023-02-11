@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
@@ -7,7 +8,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
@@ -65,7 +65,6 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
         private readonly IDownloadService _downloadService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ILanguageService _languageService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -104,7 +103,6 @@ namespace Grand.Web.Admin.Services
                ICustomerActivityService customerActivityService,
                IOutOfStockSubscriptionService outOfStockSubscriptionService,
                IDownloadService downloadService,
-               IProductAttributeParser productAttributeParser,
                ILanguageService languageService,
                IProductAttributeFormatter productAttributeFormatter,
                IStockQuantityService stockQuantityService,
@@ -142,7 +140,6 @@ namespace Grand.Web.Admin.Services
             _customerActivityService = customerActivityService;
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
             _downloadService = downloadService;
-            _productAttributeParser = productAttributeParser;
             _stockQuantityService = stockQuantityService;
             _languageService = languageService;
             _productAttributeFormatter = productAttributeFormatter;
@@ -244,7 +241,7 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new() 
+        protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
         {
             var model = new T {
                 //a vendor should have access only to his products
@@ -548,7 +545,8 @@ namespace Grand.Web.Admin.Services
             {
                 var pwiModel = new ProductModel.ProductWarehouseInventoryModel {
                     WarehouseId = warehouse.Id,
-                    WarehouseName = warehouse.Name
+                    WarehouseName = warehouse.Name,
+                    WarehouseCode = warehouse.Code
                 };
                 if (product != null)
                 {
@@ -1104,7 +1102,7 @@ namespace Grand.Web.Admin.Services
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
             return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
         }
-        
+
         public virtual async Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product)
         {
             var productCategories = product.ProductCategories.OrderBy(x => x.DisplayOrder);
@@ -1895,8 +1893,8 @@ namespace Grand.Web.Admin.Services
 
                 //currenty any attribute can have condition. why not?
                 attributeModel.ConditionAllowed = true;
-                var conditionAttribute = _productAttributeParser.ParseProductAttributeMappings(product, x.ConditionAttribute).FirstOrDefault();
-                var conditionValue = _productAttributeParser.ParseProductAttributeValues(product, x.ConditionAttribute).FirstOrDefault();
+                var conditionAttribute = product.ParseProductAttributeMappings(x.ConditionAttribute).FirstOrDefault();
+                var conditionValue = product.ParseProductAttributeValues(x.ConditionAttribute).FirstOrDefault();
                 if (conditionAttribute != null && conditionValue != null)
                 {
                     var productAttribute = await _productAttributeService.GetProductAttributeById(conditionAttribute.ProductAttributeId);
@@ -1917,7 +1915,7 @@ namespace Grand.Web.Admin.Services
             //insert mapping
             var productAttributeMapping = model.ToEntity();
             //predefined values
-            var predefinedValues = await _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+            var predefinedValues = (await _productAttributeService.GetProductAttributeById(model.ProductAttributeId)).PredefinedProductAttributeValues;
             foreach (var predefinedValue in predefinedValues)
             {
                 var pav = predefinedValue.ToEntity();
@@ -1981,8 +1979,7 @@ namespace Grand.Web.Admin.Services
                 ProductId = product.Id
             };
             //pre-select attribute and values
-            var selectedPva = _productAttributeParser
-                .ParseProductAttributeMappings(product, productAttributeMapping.ConditionAttribute)
+            var selectedPva = product.ParseProductAttributeMappings(productAttributeMapping.ConditionAttribute)
                 .FirstOrDefault();
 
             var attributes = product.ProductAttributeMappings
@@ -2039,7 +2036,7 @@ namespace Grand.Web.Admin.Services
                                             item.IsPreSelected = false;
 
                                         //select new values
-                                        var selectedValues = _productAttributeParser.ParseProductAttributeValues(product, productAttributeMapping.ConditionAttribute);
+                                        var selectedValues = product.ParseProductAttributeValues(productAttributeMapping.ConditionAttribute);
                                         foreach (var attributeValue in selectedValues)
                                             foreach (var item in attributeModel.Values)
                                                 if (attributeValue.Id == item.Id)
@@ -2079,15 +2076,15 @@ namespace Grand.Web.Admin.Services
                         case AttributeControlType.ColorSquares:
                         case AttributeControlType.ImageSquares:
                             {
-                                form.TryGetValue(controlId, out string ctrlAttributes);
+                                form.TryGetValue(controlId, out var ctrlAttributes);
                                 if (!string.IsNullOrEmpty(ctrlAttributes))
                                 {
-                                    customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, ctrlAttributes).ToList();
                                 }
                                 else
                                 {
-                                    customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, "").ToList();
                                 }
                             }
@@ -2102,20 +2099,20 @@ namespace Grand.Web.Admin.Services
                                     {
                                         if (!string.IsNullOrEmpty(item))
                                         {
-                                            customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                            customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                                 attribute, item).ToList();
                                             anyValueSelected = true;
                                         }
                                     }
                                     if (!anyValueSelected)
                                     {
-                                        customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                        customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                             attribute, "").ToList();
                                     }
                                 }
                                 else
                                 {
-                                    customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                             attribute, "").ToList();
                                 }
                             }
@@ -2413,10 +2410,10 @@ namespace Grand.Web.Admin.Services
                         case AttributeControlType.ColorSquares:
                         case AttributeControlType.ImageSquares:
                             {
-                                form.TryGetValue(controlId, out string ctrlAttributes);
+                                form.TryGetValue(controlId, out var ctrlAttributes);
                                 if (!string.IsNullOrEmpty(ctrlAttributes))
                                 {
-                                    customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, ctrlAttributes).ToList();
                                 }
                             }
@@ -2429,7 +2426,7 @@ namespace Grand.Web.Admin.Services
                                     foreach (var item in cblAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         if (!string.IsNullOrEmpty(item))
-                                            customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                            customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                                 attribute, item).ToList();
                                     }
                                 }
@@ -2444,7 +2441,7 @@ namespace Grand.Web.Admin.Services
                                     .Select(v => v.Id)
                                     .ToList())
                                 {
-                                    customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, selectedAttributeId).ToList();
                                 }
                             }
@@ -2457,10 +2454,10 @@ namespace Grand.Web.Admin.Services
                 //validate conditional attributes (if specified)
                 foreach (var attribute in attributes)
                 {
-                    var conditionMet = _productAttributeParser.IsConditionMet(product, attribute, customAttributes);
+                    var conditionMet = product.IsConditionMet(attribute, customAttributes);
                     if (conditionMet.HasValue && !conditionMet.Value)
                     {
-                        customAttributes = _productAttributeParser.RemoveProductAttribute(customAttributes, attribute).ToList();
+                        customAttributes = Domain.Catalog.ProductExtensions.RemoveProductAttribute(customAttributes, attribute).ToList();
                     }
                 }
 
@@ -2479,7 +2476,7 @@ namespace Grand.Web.Admin.Services
                 }
                 #endregion                
 
-                if (_productAttributeParser.FindProductAttributeCombination(product, customAttributes) != null)
+                if (product.FindProductAttributeCombination(customAttributes) != null)
                 {
                     warnings.Add("This combination attributes exists!");
                 }
@@ -2555,14 +2552,14 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task GenerateAllAttributeCombinations(Product product)
         {
-            var allAttributesComb = _productAttributeParser.GenerateAllCombinations(product);
+            var allAttributesComb = product.GenerateAllCombinations();
             if (allAttributesComb == null || allAttributesComb.Count == 0)
                 return;
 
             var id = 1;
             foreach (var attributes in allAttributesComb)
             {
-                var existingCombination = _productAttributeParser.FindProductAttributeCombination(product, attributes.ToList());
+                var existingCombination = product.FindProductAttributeCombination(attributes.ToList());
 
                 //already exists?
                 if (existingCombination != null)

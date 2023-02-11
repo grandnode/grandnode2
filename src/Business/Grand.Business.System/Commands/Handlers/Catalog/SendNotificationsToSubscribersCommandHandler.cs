@@ -31,19 +31,14 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
             if (request.Product == null)
                 throw new ArgumentNullException(nameof(request.Product));
 
-            int result = 0;
-
             var subscriptions = await GetAllSubscriptionsByProductId(request.Product.Id, request.Attributes, request.Warehouse);
             foreach (var subscription in subscriptions)
             {
                 var customer = await _customerService.GetCustomerById(subscription.CustomerId);
                 //ensure that customer is registered (simple and fast way)
-                if (customer != null && CommonHelper.IsValidEmail(customer.Email))
-                {
-                    var customerLanguageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, subscription.StoreId);
-                    await _messageProviderService.SendBackinStockMessage(customer, request.Product, subscription, customerLanguageId);
-                    result++;
-                }
+                if (customer == null || !CommonHelper.IsValidEmail(customer.Email)) continue;
+                var customerLanguageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, subscription.StoreId);
+                await _messageProviderService.SendBackInStockMessage(customer, request.Product, subscription, customerLanguageId);
             }
 
             return subscriptions;
@@ -68,11 +63,11 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
                 query = query.Where(biss => biss.WarehouseId == warehouseId).ToList();
 
             //attributes
-            if (attributes != null && attributes.Any())
-                foreach (var item in attributes)
-                {
-                    query = query.Where(x => x.Attributes.Any(y => y.Key == item.Key && y.Value == item.Value)).ToList();
-                }
+            if (attributes == null || !attributes.Any()) return await Task.FromResult(query.ToList());
+            foreach (var item in attributes)
+            {
+                query = query.Where(x => x.Attributes.Any(y => y.Key == item.Key && y.Value == item.Value)).ToList();
+            }
 
             return await Task.FromResult(query.ToList());
         }

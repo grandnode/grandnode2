@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Localization
     /// <summary>
     /// Translation manager interface
     /// </summary>
-    public partial interface ITranslationService
+    public interface ITranslationService
     {
         
         /// <summary>

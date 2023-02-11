@@ -22,13 +22,13 @@ namespace Grand.Web.Common
     /// <summary>
     /// Represents work context for web application / current customer / store / language / currency
     /// </summary>
-    public partial class WorkContext : IWorkContext
+    public class WorkContext : IWorkContext
     {
         #region Fields
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IGrandAuthenticationService _authenticationService;
-        private readonly IApiAuthenticationService _apiauthenticationService;
+        private readonly IApiAuthenticationService _apiAuthenticationService;
         private readonly ICurrencyService _currencyService;
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
@@ -58,7 +58,7 @@ namespace Grand.Web.Common
         public WorkContext(
             IHttpContextAccessor httpContextAccessor,
             IGrandAuthenticationService authenticationService,
-            IApiAuthenticationService apiauthenticationService,
+            IApiAuthenticationService apiAuthenticationService,
             ICurrencyService currencyService,
             ICustomerService customerService,
             IGroupService groupService,
@@ -74,7 +74,7 @@ namespace Grand.Web.Common
         {
             _httpContextAccessor = httpContextAccessor;
             _authenticationService = authenticationService;
-            _apiauthenticationService = apiauthenticationService;
+            _apiAuthenticationService = apiAuthenticationService;
             _currencyService = currencyService;
             _customerService = customerService;
             _groupService = groupService;
@@ -99,20 +99,22 @@ namespace Grand.Web.Common
         /// <returns>The found language</returns>
         protected virtual async Task<Language> GetLanguageFromUrl(IList<Language> languages)
         {
-            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Request == null)
+            if (_httpContextAccessor.HttpContext?.Request == null)
                 return await Task.FromResult<Language>(null);
 
             var path = _httpContextAccessor.HttpContext.Request.Path.Value;
             if (string.IsNullOrEmpty(path))
                 return await Task.FromResult<Language>(null);
 
-            var firstSegment = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+            var firstSegment = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+                               string.Empty;
             if (string.IsNullOrEmpty(firstSegment))
                 return await Task.FromResult<Language>(null);
 
-            var language = languages.FirstOrDefault(urlLanguage => urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
+            var language = languages.FirstOrDefault(urlLanguage =>
+                urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 
-            if (language == null || !language.Published || !_aclService.Authorize(language, CurrentStore.Id))
+            if (language is not { Published: true } || !_aclService.Authorize(language, CurrentStore.Id))
                 return await Task.FromResult<Language>(null);
 
             return language;
@@ -124,11 +126,12 @@ namespace Grand.Web.Common
         /// <returns>The found language</returns>
         protected virtual async Task<Language> GetLanguageFromRequest(IList<Language> languages)
         {
-            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Request == null)
+            if (_httpContextAccessor.HttpContext?.Request == null)
                 return await Task.FromResult<Language>(null);
 
             //get request culture
-            var requestCulture = _httpContextAccessor.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture;
+            var requestCulture =
+                _httpContextAccessor.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture;
             if (requestCulture == null)
                 return await Task.FromResult<Language>(null);
 
@@ -137,7 +140,8 @@ namespace Grand.Web.Common
                 language.LanguageCulture.Equals(requestCulture.Culture.Name, StringComparison.OrdinalIgnoreCase));
 
             //check language availability
-            if (requestLanguage == null || !requestLanguage.Published || !_aclService.Authorize(requestLanguage, CurrentStore.Id))
+            if (requestLanguage is not { Published: true } ||
+                !_aclService.Authorize(requestLanguage, CurrentStore.Id))
                 return await Task.FromResult<Language>(null);
 
             return requestLanguage;
@@ -146,18 +150,15 @@ namespace Grand.Web.Common
         protected virtual async Task<Customer> SetImpersonatedCustomer(Customer customer)
         {
             //get impersonate user if required
-            var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
-            if (!string.IsNullOrEmpty(impersonatedCustomerId))
-            {
-                var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
-                if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
-                {
-                    //set impersonated customer
-                    _originalCustomerIfImpersonated = customer;
-                    return impersonatedCustomer;
-                }
-            }
-            return null;
+            var impersonatedCustomerId =
+                customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
+            if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
+            var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
+            if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
+            //set impersonated customer
+            _originalCustomerIfImpersonated = customer;
+            return impersonatedCustomer;
+
         }
 
         #endregion
@@ -175,7 +176,7 @@ namespace Grand.Web.Common
         /// <returns></returns>
         public virtual async Task<Customer> SetCurrentCustomer()
         {
-            Customer customer = null;
+            Customer customer;
             //check whether request is made by a background (schedule) task
             if (_httpContextAccessor.HttpContext == null)
             {
@@ -190,9 +191,9 @@ namespace Grand.Web.Common
                 }
             }
 
-            //set customer as a background task if method setted as AllowAnonymous
+            //set customer as a background task if method settled as AllowAnonymous
             var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
-            if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() is object)
+            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
             {
                 customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
                 //if customer comes from Anonymous method, doesn't need to create cookies
@@ -204,85 +205,75 @@ namespace Grand.Web.Common
                 }
             }
 
-            if (customer == null || customer.Deleted || !customer.Active)
+            //try to get registered user
+            customer = await _authenticationService.GetAuthenticatedCustomer();
+            //if customer is authenticated
+            if (customer != null)
             {
-                //try to get registered user
-                customer = await _authenticationService.GetAuthenticatedCustomer();
-                //if customer is authenticated
-                if (customer != null)
-                {
-                    //remove cookie
-                    await _authenticationService.SetCustomerGuid(Guid.Empty);
+                //remove cookie
+                await _authenticationService.SetCustomerGuid(Guid.Empty);
 
-                    //set if use impersonated session
-                    var impersonatedCustomer = await SetImpersonatedCustomer(customer);
-                    if (impersonatedCustomer != null)
-                        customer = impersonatedCustomer;
+                //set if use impersonated session
+                var impersonatedCustomer = await SetImpersonatedCustomer(customer);
+                if (impersonatedCustomer != null)
+                    customer = impersonatedCustomer;
 
-                    //cache the found customer
-                    _cachedCustomer = customer;
+                //cache the found customer
+                _cachedCustomer = customer;
 
 
-                    return customer;
-                }
+                return customer;
             }
 
-            if (customer == null)
+            //try to get api user
+            customer = await _apiAuthenticationService.GetAuthenticatedCustomer();
+            //if customer comes from api, doesn't need to create cookies
+            if (customer != null)
             {
-                //try to get api user
-                customer = await _apiauthenticationService.GetAuthenticatedCustomer();
-                //if customer comes from api, doesn't need to create cookies
-                if (customer != null)
-                {
-                    //set if use impersonated session
-                    var impersonatedCustomer = await SetImpersonatedCustomer(customer);
-                    if (impersonatedCustomer != null)
-                        customer = impersonatedCustomer;
+                //set if use impersonated session
+                var impersonatedCustomer = await SetImpersonatedCustomer(customer);
+                if (impersonatedCustomer != null)
+                    customer = impersonatedCustomer;
 
-                    //cache the found customer
-                    _cachedCustomer = customer;
-                    return customer;
+                //cache the found customer
+                _cachedCustomer = customer;
+                return customer;
+            }
+            
+            //get guest customer
+            var guid = await _authenticationService.GetCustomerGuid();
+            if (!string.IsNullOrEmpty(guid))
+            {
+                if (Guid.TryParse(guid, out Guid customerGuid))
+                {
+                    //get customer from guid (cannot not be registered)
+                    var customerByGuid = await _customerService.GetCustomerByGuid(customerGuid);
+                    if (customerByGuid != null && !await _groupService.IsRegistered(customerByGuid))
+                        customer = customerByGuid;
                 }
             }
-
-            if (customer == null || customer.Deleted || !customer.Active)
-            {
-                //get guest customer
-                var customerguid = await _authenticationService.GetCustomerGuid();
-                if (!string.IsNullOrEmpty(customerguid))
-                {
-                    if (Guid.TryParse(customerguid, out Guid customerGuid))
-                    {
-                        //get customer from guid (cannot not be registered)
-                        var customerByguid = await _customerService.GetCustomerByGuid(customerGuid);
-                        if (customerByguid != null && !await _groupService.IsRegistered(customerByguid))
-                            customer = customerByguid;
-                    }
-                }
-            }
-
+            
             if (customer == null || customer.Deleted || !customer.Active)
             {
                 var isCrawler = _detectionService.Crawler?.IsCrawler;
                 //check whether request is made by a search engine, in this case return built-in customer record for search engines
-                if (isCrawler.HasValue && isCrawler.Value)
+                if (isCrawler.Value)
                     customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
             }
 
-            if (customer == null || customer.Deleted || !customer.Active)
+            if (customer is { Deleted: false, Active: true })
+                return _cachedCustomer = customer;
+            
+            //create guest if not exists
+            customer = await _customerService.InsertGuestCustomer(CurrentStore);
+            if (_httpContextAccessor?.HttpContext?.Request.GetTypedHeaders().Referer?.ToString() is { } referer)
             {
-                //create guest if not exists
-                customer = await _customerService.InsertGuestCustomer(CurrentStore);
-                if (_httpContextAccessor?.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString() is { } referer)
-                {
-                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UrlReferrer, referer);
-                }
-                //set customer cookie
-                await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
+                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UrlReferrer, referer);
             }
-
+            //set customer cookie
+            await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
             //cache the found customer
-            return _cachedCustomer = customer ?? throw new Exception("No customer could be loaded");
+            return _cachedCustomer = customer;
         }
 
         /// <summary>
@@ -296,6 +287,7 @@ namespace Grand.Web.Common
                 //if the current customer is null/not active then set background task customer
                 customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
             }
+
             return _cachedCustomer = customer ?? throw new Exception("No customer could be loaded");
         }
 
@@ -342,7 +334,8 @@ namespace Grand.Web.Common
         public virtual async Task<Language> SetWorkingLanguage(Language language)
         {
             if (language != null)
-                await _userFieldService.SaveField(CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id, CurrentStore.Id);
+                await _userFieldService.SaveField(CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id,
+                    CurrentStore.Id);
 
             //then reset the cache value
             _cachedLanguage = null;
@@ -359,7 +352,8 @@ namespace Grand.Web.Common
         {
             Language language = null;
 
-            var adminAreaUrl = _httpContextAccessor.HttpContext?.Request?.Path.StartsWithSegments(new PathString("/Admin"));
+            var adminAreaUrl =
+                _httpContextAccessor.HttpContext?.Request.Path.StartsWithSegments(new PathString("/Admin"));
             var allStoreLanguages = await _languageService.GetAllLanguages(showHidden: adminAreaUrl ?? false);
 
             if (allStoreLanguages.Count == 1)
@@ -369,7 +363,8 @@ namespace Grand.Web.Common
                 language = await GetLanguageFromUrl(allStoreLanguages);
 
             //get current lang identifier
-            var customerLanguageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, CurrentStore.Id);
+            var customerLanguageId =
+                customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, CurrentStore.Id);
 
             if (_languageSettings.AutomaticallyDetectLanguage &&
                 language == null && string.IsNullOrEmpty(customerLanguageId))
@@ -378,23 +373,21 @@ namespace Grand.Web.Common
             }
 
             //check customer language 
-            var customerLanguage = language ??
-                (!string.IsNullOrEmpty(customerLanguageId) ?
-                allStoreLanguages.FirstOrDefault(language => language.Id == customerLanguageId) :
-                allStoreLanguages.FirstOrDefault(language => language.Id == CurrentStore.DefaultLanguageId));
-
-            //if the language for the current store not exist, then use the first
-            if (customerLanguage == null)
-                customerLanguage = allStoreLanguages.FirstOrDefault();
+            var customerLanguage = (language ??
+                                    (!string.IsNullOrEmpty(customerLanguageId)
+                                        ? allStoreLanguages.FirstOrDefault(lang => lang.Id == customerLanguageId)
+                                        : allStoreLanguages.FirstOrDefault(lang =>
+                                            //if the language for the current store not exist, then use the first
+                                            lang.Id == CurrentStore.DefaultLanguageId))) ?? allStoreLanguages.FirstOrDefault();
 
             //cache the language
             _cachedLanguage = customerLanguage;
 
             //save the language identifier
-            if (customerLanguage.Id != customerLanguageId)
+            if (customerLanguage != null && customerLanguage.Id != customerLanguageId)
             {
                 await _userFieldService.SaveField(customer,
-                    SystemCustomerFieldNames.LanguageId, customerLanguage?.Id, CurrentStore.Id);
+                    SystemCustomerFieldNames.LanguageId, customerLanguage.Id, CurrentStore.Id);
             }
 
             return _cachedLanguage ?? throw new Exception("No language could be loaded");
@@ -411,7 +404,8 @@ namespace Grand.Web.Common
         public virtual async Task<Currency> SetWorkingCurrency(Customer customer)
         {
             //return store currency when we're you are in admin panel
-            var adminAreaUrl = _httpContextAccessor.HttpContext?.Request?.Path.StartsWithSegments(new PathString("/Admin"));
+            var adminAreaUrl =
+                _httpContextAccessor.HttpContext?.Request.Path.StartsWithSegments(new PathString("/Admin"));
             if (adminAreaUrl.HasValue && adminAreaUrl.Value)
             {
                 var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
@@ -421,34 +415,26 @@ namespace Grand.Web.Common
                     return primaryStoreCurrency;
                 }
             }
+
             var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: CurrentStore?.Id);
 
             if (allStoreCurrencies.Count == 1)
                 return _cachedCurrency = allStoreCurrencies.FirstOrDefault();
 
-            var customerCurrencyId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, CurrentStore.Id);
+            var customerCurrencyId =
+                customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, CurrentStore?.Id);
 
-            var customerCurrency = allStoreCurrencies.FirstOrDefault(currency => currency.Id == customerCurrencyId);
-
-            if (customerCurrency == null)
-            {
-                if (!string.IsNullOrEmpty(CurrentStore?.DefaultCurrencyId))
-                    customerCurrency = allStoreCurrencies.FirstOrDefault(currency => currency.Id == CurrentStore.DefaultCurrencyId);
-                else
-                    customerCurrency = allStoreCurrencies.FirstOrDefault(currency => currency.Id == WorkingLanguage.DefaultCurrencyId);
-            }
-
-            if (customerCurrency == null)
-                customerCurrency = allStoreCurrencies.FirstOrDefault();
+            var customerCurrency = (allStoreCurrencies.FirstOrDefault(currency => currency.Id == customerCurrencyId) ?? (!string.IsNullOrEmpty(CurrentStore?.DefaultCurrencyId) ? allStoreCurrencies.FirstOrDefault(currency => currency.Id == CurrentStore.DefaultCurrencyId) : allStoreCurrencies.FirstOrDefault(currency => currency.Id == WorkingLanguage.DefaultCurrencyId))) ??
+                                   allStoreCurrencies.FirstOrDefault();
 
             //cache the currency
             _cachedCurrency = customerCurrency;
 
             //save the currency identifier
-            if (customerCurrency.Id != customerCurrencyId)
+            if (customerCurrency?.Id != customerCurrencyId)
             {
                 await _userFieldService.SaveField(customer,
-                    SystemCustomerFieldNames.CurrencyId, customerCurrency?.Id, CurrentStore.Id);
+                    SystemCustomerFieldNames.CurrencyId, customerCurrency?.Id, CurrentStore?.Id);
             }
 
             return _cachedCurrency ?? throw new Exception("No currency could be loaded");
@@ -480,7 +466,8 @@ namespace Grand.Web.Common
 
             if (_taxSettings.AllowCustomersToSelectTaxDisplayType && customer != null)
             {
-                var taxDisplayTypeId = customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId, CurrentStore.Id);
+                var taxDisplayTypeId =
+                    customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId, CurrentStore.Id);
                 taxDisplayType = (TaxDisplayType)taxDisplayTypeId;
             }
             else
@@ -488,6 +475,7 @@ namespace Grand.Web.Common
                 //or get the default tax display type
                 taxDisplayType = _taxSettings.TaxDisplayType;
             }
+
             //cache the value
             _cachedTaxDisplayType = taxDisplayType;
 

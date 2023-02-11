@@ -1,0 +1,45 @@
+﻿<div v-if="vmorder.ShippingMethod" class="checkout-data">
+    <div class="shipping-method">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_shipping_method_top" })
+        <template v-if="vmorder.ShippingMethodWarnings.length < 1">
+            <ul class="method-list px-0">
+                <li v-for="(shippingMethod, index) in vmorder.ShippingMethods">
+                    <label class="custom-control custom-checkbox">
+                        <input :id="'shippingoption_' + index" type="radio"
+                               onchange="vmorder.loadPartialView(value);"
+                               @@click="vmorder.selectedShippingMethod = index; vmorder.ShippingMethodError = undefined"
+                               name="shippingoption"
+                               :data-order="index"
+                               :value="shippingMethod.Name + ':' + shippingMethod.ShippingRateProviderSystemName"
+                               :checked="shippingMethod.Selected"
+                               class="custom-control-input">
+                        <span class="custom-control-label"></span>
+                        <span :for="'shippingoption_' + index" class="custom-control-description">
+                            {{shippingMethod.Name}} ({{shippingMethod.Fee}})
+                            <template v-if="shippingMethod.Description !== null">
+                                <span v-html="shippingMethod.Description"></span>
+                            </template>
+                        </span>
+                    </label>
+                </li>
+            </ul>
+            <template v-if="vmorder.ShippingMethodError !== null && vmorder.ShippingMethodError !== undefined">
+                <div class="alert alert-info">{{vmorder.ShippingMethodError}}</div>
+            </template>
+            <template v-if="vmorder.shippingBusy">
+                <div style="height: 65px" class="d-flex justify-content-center align-items-center w-100">
+                    <b-spinner variant="info" label="Loading..."></b-spinner>
+                </div>
+            </template>
+            <div id="shipping_form"></div>
+        </template>
+        <template v-else>
+            <div class="message-error">
+                <ul class="px-0 my-3">
+                    <li class="text-danger" v-for="warning in vmorder.ShippingMethodWarnings">{{warning}}</li>
+                </ul>
+            </div>
+        </template>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_shipping_method_bottom" })
+    </div>
+</div>

@@ -10,7 +10,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
     /// <summary>
     /// Price calculation service
     /// </summary>
-    public partial interface IPricingService
+    public interface IPricingService
     {
         /// <summary>
         /// Gets the final price
@@ -72,7 +72,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// <param name="currency">The currency</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
         /// <param name="quantity">Quantity</param>
-        /// <param name="attributes">Product atrributes</param>
+        /// <param name="attributes">Product attributes</param>
         /// <param name="customerEnteredPrice">Customer entered price (if specified)</param>
         /// <param name="rentalStartDate">Rental start date (null for not rental products)</param>
         /// <param name="rentalEndDate">Rental end date (null for not rental products)</param>

@@ -2,7 +2,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Categories
 {
-    public partial interface ICategoryLayoutService
+    public interface ICategoryLayoutService
     {
         
         /// <summary>

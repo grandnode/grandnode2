@@ -1,6 +1,5 @@
 ﻿
 using MongoDB.Driver;
-using System;
 
 namespace Grand.Data.Tests.MongoDb
 {

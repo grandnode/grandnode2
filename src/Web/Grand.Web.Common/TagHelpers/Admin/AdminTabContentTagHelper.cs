@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("content", ParentTag = "tabstrip-item")]
-    public partial class AdminTabContentTagHelper : TagHelper
+    public class AdminTabContentTagHelper : TagHelper
     {
         [ViewContext]
         public ViewContext ViewContext { get; set; }

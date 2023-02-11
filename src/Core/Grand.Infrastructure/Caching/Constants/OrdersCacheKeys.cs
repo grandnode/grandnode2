@@ -19,7 +19,7 @@
         /// </summary>
         /// <remarks>
         /// {0} : store ID
-        /// {1} : >A value indicating whether we should exlude shippable attributes
+        /// {1} : >A value indicating whether we should exclude shippable attributes
         /// {2} : ignore ACL?
         /// </remarks>
         public static string CHECKOUTATTRIBUTES_ALL_KEY => "Grand.checkoutattribute.all-{0}-{1}-{2}";

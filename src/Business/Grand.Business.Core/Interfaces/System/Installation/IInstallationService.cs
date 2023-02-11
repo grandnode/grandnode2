@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Business.Core.Interfaces.System.Installation
 {
-    public partial interface IInstallationService
+    public interface IInstallationService
     {
         Task InstallData(
             string httpscheme, HostString host,

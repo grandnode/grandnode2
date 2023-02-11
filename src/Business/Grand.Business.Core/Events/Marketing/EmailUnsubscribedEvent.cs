@@ -11,17 +11,13 @@ namespace Grand.Business.Core.Events.Marketing
             _email = email;
         }
 
-        public string Email {
-            get { return _email; }
-        }
+        public string Email => _email;
 
         public bool Equals(EmailUnsubscribedEvent other)
         {
             if (ReferenceEquals(null, other))
                 return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return Equals(other._email, _email);
+            return ReferenceEquals(this, other) || Equals(other._email, _email);
         }
 
         public override bool Equals(object obj)
@@ -30,14 +26,12 @@ namespace Grand.Business.Core.Events.Marketing
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj.GetType() != typeof(EmailUnsubscribedEvent))
-                return false;
-            return Equals((EmailUnsubscribedEvent)obj);
+            return obj.GetType() == typeof(EmailUnsubscribedEvent) && Equals((EmailUnsubscribedEvent)obj);
         }
 
         public override int GetHashCode()
         {
-            return (_email != null ? _email.GetHashCode() : 0);
+            return _email != null ? _email.GetHashCode() : 0;
         }
     }
 

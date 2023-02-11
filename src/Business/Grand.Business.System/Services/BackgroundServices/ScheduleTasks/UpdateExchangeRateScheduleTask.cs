@@ -8,7 +8,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task for updating exchange rates
     /// </summary>
-    public partial class UpdateExchangeRateScheduleTask : ScheduleTask, IScheduleTask
+    public class UpdateExchangeRateScheduleTask : ScheduleTask, IScheduleTask
     {
         private readonly ICurrencyService _currencyService;
         private readonly IExchangeRateService _exchangeRateService;
@@ -34,15 +34,13 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
             var primaryCurrencyCode = (await _currencyService.GetPrimaryExchangeRateCurrency()).CurrencyCode;
             var exchangeRates = await _exchangeRateService.GetCurrencyLiveRates(primaryCurrencyCode);
 
-            foreach (var exchageRate in exchangeRates)
+            foreach (var exchangeRate in exchangeRates)
             {
-                var currency = await _currencyService.GetCurrencyByCode(exchageRate.CurrencyCode);
-                if (currency != null)
-                {
-                    currency.Rate = exchageRate.Rate;
-                    currency.UpdatedOnUtc = DateTime.UtcNow;
-                    await _currencyService.UpdateCurrency(currency);
-                }
+                var currency = await _currencyService.GetCurrencyByCode(exchangeRate.CurrencyCode);
+                if (currency == null) continue;
+                currency.Rate = exchangeRate.Rate;
+                currency.UpdatedOnUtc = DateTime.UtcNow;
+                await _currencyService.UpdateCurrency(currency);
             }
         }
     }

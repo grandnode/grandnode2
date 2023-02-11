@@ -6,7 +6,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductOverviewModel : BaseEntityModel
+    public class ProductOverviewModel : BaseEntityModel
     {
         public ProductOverviewModel()
         {
@@ -28,6 +28,7 @@ namespace Grand.Web.Models.Catalog
         public string Flag { get; set; }
         public string Gtin { get; set; }
         public string Mpn { get; set; }
+        public string BrandName { get; set; }
         public bool IsFreeShipping { get; set; }
         public bool ShowSku { get; set; }
         public bool ShowQty { get; set; }
@@ -53,7 +54,7 @@ namespace Grand.Web.Models.Catalog
         public ProductReviewOverviewModel ReviewOverviewModel { get; set; }
 
         #region Nested Classes
-        public partial class ProductPriceModel : BaseModel
+        public class ProductPriceModel : BaseModel
         {
             public ProductPriceModel()
             {
@@ -82,7 +83,7 @@ namespace Grand.Web.Models.Catalog
 
         }
 
-        public partial class ProductAttributeModel : BaseModel
+        public class ProductAttributeModel : BaseModel
         {
             public ProductAttributeModel()
             {
@@ -96,7 +97,7 @@ namespace Grand.Web.Models.Catalog
             public IList<ProductAttributeValueModel> Values { get; set; }
         }
 
-        public partial class ProductAttributeValueModel : BaseModel
+        public class ProductAttributeValueModel : BaseModel
         {
             public ProductAttributeValueModel()
             {

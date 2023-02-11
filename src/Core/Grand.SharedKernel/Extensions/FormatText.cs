@@ -12,10 +12,7 @@ namespace Grand.SharedKernel.Extensions
             text = WebUtility.HtmlEncode(text);
 
             text = text.Replace("\r\n", "<br />");
-            text = text.Replace("\r", "<br />");
-            text = text.Replace("\n", "<br />");
             text = text.Replace("\t", "&nbsp;&nbsp;");
-            text = text.Replace("  ", "&nbsp;&nbsp;");
 
             return text;
         }

@@ -28,12 +28,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Vendors))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
 
             var vendor = await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>(key));
-            if (!vendor.Any())
-                return NotFound();
+            if (!vendor.Any()) return NotFound();
 
             return Ok(vendor.FirstOrDefault());
 
@@ -46,8 +44,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Vendors))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>()));
         }

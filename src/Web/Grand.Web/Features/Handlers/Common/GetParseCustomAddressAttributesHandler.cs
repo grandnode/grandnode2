@@ -21,20 +21,19 @@ namespace Grand.Web.Features.Handlers.Common
 
         public async Task<IList<CustomAttribute>> Handle(GetParseCustomAddressAttributes request, CancellationToken cancellationToken)
         {
-            if (request.Form == null)
-                throw new ArgumentNullException(nameof(request.Form));
+            if (request.SelectedAttributes == null)
+                throw new ArgumentNullException(nameof(request.SelectedAttributes));
 
             var customAttributes = new List<CustomAttribute>();
             var attributes = await _addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
             {
-                string controlId = string.Format("address_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
@@ -44,16 +43,17 @@ namespace Grand.Web.Features.Handlers.Common
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            request.Form.TryGetValue(controlId, out var cblAttributes);
-                            if (!String.IsNullOrEmpty(cblAttributes))
+                            var cblAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
                                     if (!string.IsNullOrEmpty(item))
                                         customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }
                             }
+
                         }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
@@ -66,17 +66,17 @@ namespace Grand.Web.Features.Handlers.Common
                                 .ToList())
                             {
                                 customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
-                                            attribute, selectedAttributeId.ToString()).ToList();
+                                            attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _addressAttributeParser.AddAddressAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

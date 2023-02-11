@@ -1,5 +1,7 @@
 ﻿using Grand.Business.Messages.Commands.Handlers;
 using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Common;
+using Grand.Business.Messages.Commands.Handlers.Common;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;

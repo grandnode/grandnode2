@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// News service interface
     /// </summary>
-    public partial interface INewsService
+    public interface INewsService
     {
         /// <summary>
         /// Gets a news
@@ -21,11 +21,12 @@ namespace Grand.Business.Core.Interfaces.Cms
         /// <param name="storeId">Store identifier; 0 if you want to get all records</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
+        /// <param name="ignoreAcl"></param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <param name="newsTitle">News title</param>
         /// <returns>News items</returns>
         Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
-            int pageIndex = 0, int pageSize = int.MaxValue, bool ignorAcl = false, bool showHidden = false, string newsTitle = "");
+            int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false, string newsTitle = "");
 
         /// <summary>
         /// Inserts a news item

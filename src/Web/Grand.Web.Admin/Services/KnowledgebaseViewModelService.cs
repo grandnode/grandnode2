@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Services
         {
             model.Categories.Add(new SelectListItem { Text = "[None]", Value = "" });
             var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
-            foreach (var category in categories)
+            foreach (var category in categories.SortCategoriesForTree())
             {
                 model.Categories.Add(new SelectListItem
                 {
@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Services
         {
             model.Categories.Add(new SelectListItem { Text = "[None]", Value = "" });
             var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
-            foreach (var category in categories)
+            foreach (var category in categories.SortCategoriesForTree())
             {
                 model.Categories.Add(new SelectListItem
                 {
@@ -104,7 +104,7 @@ namespace Grand.Web.Admin.Services
             List<TreeNode> nodeList = new List<TreeNode>();
 
             List<ITreeNode> list = new List<ITreeNode>();
-            list.AddRange(categories);
+            list.AddRange(categories.SortCategoriesForTree());
             list.AddRange(articles);
 
             foreach (var node in list)

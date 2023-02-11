@@ -23,7 +23,13 @@ namespace Grand.Business.Messages.Tests.Services
             _service = new QueuedEmailService(_repository.Object, _mediatorMock.Object);
         }
 
+        [TestMethod()]
+        public async Task GetQueuedEmailByIdTest()
+        {
+            await _service.GetQueuedEmailById("1");
+            _repository.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
 
+        }
         [TestMethod()]
         public async Task InsertQueuedEmail_ValidArgument_InvokeExpectedMethods()
         {
@@ -60,7 +66,18 @@ namespace Grand.Business.Messages.Tests.Services
             _repository.Verify(c => c.DeleteAsync(It.IsAny<QueuedEmail>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<QueuedEmail>>(), default), Times.Once);
         }
-
+        [TestMethod()]
+        public async Task DeleteCustomerEmail_ValidArgument_InvokeExpectedMethods()
+        {
+            await _service.DeleteCustomerEmail("email@email.com");
+            _repository.Verify(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()), Times.Once);
+        }
+        [TestMethod()]
+        public async Task DeleteAllEmails_ValidArgument_InvokeExpectedMethods()
+        {
+            await _service.DeleteAllEmails();
+            _repository.Verify(c => c.ClearAsync(), Times.Once);
+        }
         [TestMethod]
         public void DeleteQueuedEmai_NullArguemnt_ThrowException()
         {

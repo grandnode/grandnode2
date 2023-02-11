@@ -28,12 +28,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Languages))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
 
             var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>(key));
-            if (!language.Any())
-                return NotFound();
+            if (!language.Any()) return NotFound();
 
             return Ok(language.FirstOrDefault());
         }
@@ -45,8 +43,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Languages))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>()));
         }

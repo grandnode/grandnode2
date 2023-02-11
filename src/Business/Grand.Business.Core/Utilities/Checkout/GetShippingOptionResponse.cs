@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Represents a response of getting shipping rate options
     /// </summary>
-    public partial class GetShippingOptionResponse
+    public class GetShippingOptionResponse
     {
         /// <summary>
         /// Ctor
@@ -29,13 +29,7 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// <summary>
         /// Gets a value indicating whether request has been completed successfully
         /// </summary>
-        public bool Success
-        {
-            get 
-            { 
-                return Errors.Count == 0; 
-            }
-        }
+        public bool Success => Errors.Count == 0;
 
         /// <summary>
         /// Add error

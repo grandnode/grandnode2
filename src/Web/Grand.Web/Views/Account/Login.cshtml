@@ -7,7 +7,7 @@
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
 
     //register URL with return URL (if specified)
-    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
 }
 <div class="page login-page">
     <h2 class="generalTitle text-center mt-3">@Loc["Account.Login.Welcome"]</h2>
@@ -24,7 +24,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <div asp-validation-summary="ModelOnly" class="message-error w-100 alert alert-danger pb-0 text-center">@Loc["Account.Login.Unsuccessful"]</div>
+                                <div asp-validation-summary="All" class="message-error w-100 pb-0 text-center"></div>
                                 <div class="col-12 form-group mb-0">
                                     @if (Model.UsernamesEnabled)
                                     {

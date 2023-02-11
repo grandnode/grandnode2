@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
     /// <summary>
     /// Tax category service interface
     /// </summary>
-    public partial interface ITaxCategoryService
+    public interface ITaxCategoryService
     {
         
         /// <summary>

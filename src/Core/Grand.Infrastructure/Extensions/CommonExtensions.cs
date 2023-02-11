@@ -31,12 +31,6 @@ namespace Grand.Infrastructure.Extensions
             var returnUrl = baseUri + qb.ToQueryString();
             return returnUrl;
         }
-
-        public static TResult Return<TInput, TResult>(this TInput o, Func<TInput, TResult> evaluator, TResult failureValue)
-            where TInput : class
-        {
-            return o == null ? failureValue : evaluator(o);
-        }
-
+        
     }
 }

@@ -32,16 +32,16 @@ namespace Grand.Web.Common.Localization
                 var resFormat = _translationService.GetResource(name.ToLowerInvariant());
                 if (string.IsNullOrEmpty(resFormat))
                 {
-                    return new LocalizedString(name, resFormat, resFormat == null);
+                    return new LocalizedString(name, string.Empty, resFormat == null);
                 }
                 try
                 {
                     return new LocalizedString(name, string.Format(resFormat, arguments),
-                        resFormat == null);
+                        false);
                 }
                 catch
                 {
-                    return new LocalizedString(name, resFormat, resFormat == null);
+                    return new LocalizedString(name, resFormat, false);
                 }
             }
         }

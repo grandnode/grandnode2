@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Vendor service interface
     /// </summary>
-    public partial interface IVendorService
+    public interface IVendorService
     {
         /// <summary>
         /// Gets a vendor by vendor identifier
@@ -78,20 +78,20 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Update Vendor review totals
         /// </summary>
-        /// <param name="Vendor">Vendor</param>
-        Task UpdateVendorReviewTotals(Vendor Vendor);
+        /// <param name="vendor">Vendor</param>
+        Task UpdateVendorReviewTotals(Vendor vendor);
 
         /// <summary>
         /// Update Vendor review 
         /// </summary>
-        /// <param name="Vendorreview">Vendorreview</param>
-        Task UpdateVendorReview(VendorReview Vendorreview);
+        /// <param name="vendorReview">vendor review</param>
+        Task UpdateVendorReview(VendorReview vendorReview);
 
         /// <summary>
         /// Insert Vendor review 
         /// </summary>
-        /// <param name="Vendorreview">Vendorreview</param>
-        Task InsertVendorReview(VendorReview Vendorreview);
+        /// <param name="vendorReview">vendor review</param>
+        Task InsertVendorReview(VendorReview vendorReview);
 
         /// <summary>
         /// Gets all vendor reviews
@@ -101,8 +101,9 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <param name="fromUtc">Item creation from; null to load all records</param>
         /// <param name="toUtc">Item item creation to; null to load all records</param>
         /// <param name="message">Search title or review text; null to load all records</param>
-        /// <param name="storeId">Store identifier; "" to load all records</param>
         /// <param name="vendorId">Vendor identifier; "" to load all records</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Reviews</returns>
         Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
             DateTime? fromUtc = null, DateTime? toUtc = null,

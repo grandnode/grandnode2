@@ -49,15 +49,8 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
                     return false;
 
                 var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems).Where(x => x.OrderItemId == item.Id).Sum(x => x.Quantity);
-                var merchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery() { OrderItemId = item.Id })).ToList();
-                int qtyReturn = 0;
-                foreach (var rr in merchandiseReturns)
-                {
-                    foreach (var rrItem in rr.MerchandiseReturnItems)
-                    {
-                        qtyReturn += rrItem.Quantity;
-                    }
-                }
+                var merchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery { OrderItemId = item.Id }, cancellationToken)).ToList();
+                var qtyReturn = merchandiseReturns.Sum(rr => rr.MerchandiseReturnItems.Sum(rrItem => rrItem.Quantity));
 
                 if (!product.NotReturnable && qtyDelivery - qtyReturn > 0)
                     return true;

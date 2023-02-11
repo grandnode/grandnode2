@@ -39,3 +39,11 @@ jobs:
       run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
     - name: Grand.Business.System Unit Tests
       run: dotnet test ./src/Tests/Grand.Business.System.Tests/Grand.Business.System.Tests.csproj
+    - name: Grand.Business.Data Unit Tests
+      run: dotnet test ./src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj
+    - name: Grand.Domain.Domain.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.Domain.Tests/Grand.Domain.Tests.csproj
+    - name: Grand.Infrastructure.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.Infrastructure.Tests/Grand.Infrastructure.Tests.csproj
+    - name: Grand.SharedKernel.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj

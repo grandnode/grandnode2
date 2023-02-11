@@ -16,8 +16,9 @@ namespace Grand.Web.Common.Controllers
 
             controller.ViewData.Model = model;
 
-            using var writer = new StringWriter();
+            await using var writer = new StringWriter();
             IViewEngine viewEngine = controller.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) as ICompositeViewEngine;
+            if (viewEngine == null) return writer.GetStringBuilder().ToString();
             ViewEngineResult viewResult = viewEngine.FindView(controller.ControllerContext, viewName, !partial);
 
             if (viewResult.Success == false)

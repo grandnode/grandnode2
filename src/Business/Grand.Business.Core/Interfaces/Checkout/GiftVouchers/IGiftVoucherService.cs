@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.GiftVouchers
     /// <summary>
     /// Gift voucher service interface
     /// </summary>
-    public partial interface IGiftVoucherService
+    public interface IGiftVoucherService
     {
        
         /// <summary>

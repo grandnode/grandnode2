@@ -26,6 +26,13 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _affiliateService = new AffiliateService(_affiliateRepository.Object, _orderRepository.Object, _mediatorMock.Object);
         }
+        [TestMethod()]
+        public async Task GetAffiliateByIdTest()
+        {
+            await _affiliateService.GetAffiliateById("");
+            _affiliateRepository.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
+           
+        }
 
         [TestMethod()]
         public async Task UpdateAffiliate_NullParameter_ThrwoException()

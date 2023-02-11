@@ -16,12 +16,7 @@ namespace Grand.Web.Common.Components
             var themeViewPath = $"/Themes/{theme}/{viewPath}";
             var viewEngine = viewComponent.ViewContext.HttpContext.RequestServices.GetRequiredService<ICompositeViewEngine>();
             var result = viewEngine.GetView("", themeViewPath, isMainPage: false);
-            if (result.Success)
-            {
-                return themeViewPath;
-            }
-
-            return viewName;
+            return result.Success ? themeViewPath : viewName;
         }
     }
 }

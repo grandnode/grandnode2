@@ -33,6 +33,7 @@ namespace Grand.Web.Common.Startup
         /// Configure the using of added middleware
         /// </summary>
         /// <param name="application">Builder for configuring an application's request pipeline</param>
+        /// <param name="webHostEnvironment">WebHostEnvironment</param>
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             //check whether database is installed
@@ -42,7 +43,7 @@ namespace Grand.Web.Common.Startup
             //configure authentication
             application.UseGrandAuthentication();
 
-            //set workcontext
+            //set work context
             application.UseMiddleware<WorkContextMiddleware>();
 
         }

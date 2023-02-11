@@ -2,22 +2,21 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CourseController : BasePublicController
+    public class CourseController : BasePublicController
     {
         private readonly IPermissionService _permissionService;
         private readonly IAclService _aclService;
@@ -25,7 +24,6 @@ namespace Grand.Web.Controllers
         private readonly IGroupService _groupService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActionEventService _customerActionEventService;
         private readonly ICourseService _courseService;
         private readonly ICourseLessonService _courseLessonService;
         private readonly IDownloadService _downloadService;
@@ -39,7 +37,6 @@ namespace Grand.Web.Controllers
             IGroupService groupService,
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
-            ICustomerActionEventService customerActionEventService,
             ICourseService courseService,
             ICourseLessonService courseLessonService,
             IDownloadService downloadService,
@@ -52,7 +49,6 @@ namespace Grand.Web.Controllers
             _groupService = groupService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
-            _customerActionEventService = customerActionEventService;
             _courseService = courseService;
             _courseLessonService = courseLessonService;
             _downloadService = downloadService;
@@ -74,21 +70,16 @@ namespace Grand.Web.Controllers
                 return false;
 
             //Check whether the current user purchased the course
-            if (!await _mediator.Send(new GetCheckOrder() { Course = course, Customer = customer })
+            if (!await _mediator.Send(new GetCheckOrder { Course = course, Customer = customer })
                 && !await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 return false;
 
             //ACL (access control list)
-            if (!_aclService.Authorize(course, customer))
-                return false;
-
-            //Store access
-            if (!_aclService.Authorize(course, _workContext.CurrentStore.Id))
-                return false;
-
-            return true;
+            return _aclService.Authorize(course, customer) &&
+                   //Store access
+                   _aclService.Authorize(course, _workContext.CurrentStore.Id);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Details(string courseId)
         {
             var customer = _workContext.CurrentCustomer;
@@ -108,10 +99,9 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCourse", course.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
-            var model = await _mediator.Send(new GetCourse() {
+            var model = await _mediator.Send(new GetCourse {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage
@@ -119,6 +109,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> Lesson(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -142,10 +133,9 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path, Request.GetTypedHeaders().Referer?.ToString());
 
             //model
-            var model = await _mediator.Send(new GetLesson() {
+            var model = await _mediator.Send(new GetLesson {
                 Course = course,
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -154,6 +144,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> DownloadFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -178,17 +169,17 @@ namespace Grand.Web.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) {
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> VideoFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -213,17 +204,17 @@ namespace Grand.Web.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "video/mp4";
             return new FileContentResult(download.DownloadBinary, contentType) {
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Approved(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -239,7 +230,7 @@ namespace Grand.Web.Controllers
             if (!await CheckPermission(course, customer))
                 return Json(new { result = false });
 
-            await _mediator.Send(new CourseLessonApprovedCommand() { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
+            await _mediator.Send(new CourseLessonApprovedCommand { Course = course, Lesson = lesson, Customer = _workContext.CurrentCustomer });
 
             return Json(new { result = true });
         }

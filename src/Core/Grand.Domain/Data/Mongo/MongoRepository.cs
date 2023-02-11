@@ -210,6 +210,23 @@ namespace Grand.Domain.Data.Mongo
         }
 
         /// <summary>
+        /// Inc field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        public virtual async Task IncField<U>(string id, Expression<Func<T, U>> expression, U value)
+        {
+            var builder = Builders<T>.Filter;
+            var filter = builder.Eq(x => x.Id, id);
+            var update = Builders<T>.Update
+                .Inc(expression, value);
+
+            await _collection.UpdateOneAsync(filter, update);
+        }
+
+        /// <summary>
         /// Updates a single entity.
         /// </summary>
         /// <param name="filterexpression"></param>
@@ -233,7 +250,7 @@ namespace Grand.Domain.Data.Mongo
             await _collection.UpdateManyAsync(filterexpression, update);
         }
 
-        // <summary>
+        /// <summary>
         /// Add to set - add subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -301,7 +318,7 @@ namespace Grand.Domain.Data.Mongo
             }
 
         }
-        // <summary>
+        /// <summary>
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>

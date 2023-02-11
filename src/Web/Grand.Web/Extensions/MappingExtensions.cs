@@ -11,7 +11,6 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Course;
 using Grand.Web.Models.Pages;
 using Grand.Web.Models.Vendors;
-using Microsoft.AspNetCore.Http;
 using System.Globalization;
 
 namespace Grand.Web.Extensions
@@ -111,9 +110,9 @@ namespace Grand.Web.Extensions
                 SystemName = entity.SystemName,
                 IncludeInSitemap = entity.IncludeInSitemap,
                 IsPasswordProtected = entity.IsPasswordProtected,
-                Password = (entity.Password == password) ? password : "",
-                Title = entity.IsPasswordProtected && !(entity.Password == password) ? "" : entity.GetTranslation(x => x.Title, language.Id),
-                Body = entity.IsPasswordProtected && !(entity.Password == password) ? "" : entity.GetTranslation(x => x.Body, language.Id),
+                Password = entity.Password == password ? password : "",
+                Title = entity.IsPasswordProtected && entity.Password != password ? "" : entity.GetTranslation(x => x.Title, language.Id),
+                Body = entity.IsPasswordProtected && entity.Password != password ? "" : entity.GetTranslation(x => x.Body, language.Id),
                 MetaKeywords = entity.GetTranslation(x => x.MetaKeywords, language.Id),
                 MetaDescription = entity.GetTranslation(x => x.MetaDescription, language.Id),
                 MetaTitle = entity.GetTranslation(x => x.MetaTitle, language.Id),
@@ -199,8 +198,8 @@ namespace Grand.Web.Extensions
             destination.Email = model.Email;
             destination.Company = model.Company;
             destination.VatNumber = model.VatNumber;
-            destination.CountryId = !String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
-            destination.StateProvinceId = !String.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
+            destination.CountryId = !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
+            destination.StateProvinceId = !string.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
             destination.City = model.City;
             destination.Address1 = model.Address1;
             destination.Address2 = model.Address2;
@@ -236,8 +235,8 @@ namespace Grand.Web.Extensions
                     model.FaxNumber = model.FaxNumber.Trim();
             }
             destination.Company = model.Company;
-            destination.CountryId = !String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
-            destination.StateProvinceId = !String.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
+            destination.CountryId = !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "";
+            destination.StateProvinceId = !string.IsNullOrEmpty(model.StateProvinceId) ? model.StateProvinceId : "";
             destination.City = model.City;
             destination.Address1 = model.Address1;
             destination.Address2 = model.Address2;
@@ -249,25 +248,22 @@ namespace Grand.Web.Extensions
             return destination;
         }
 
-        public static void ParseReservationDates(this Product product, IFormCollection form,
+        public static void ParseReservationDates(this Product product, string reservationDatepickerFrom,string reservationDatepickerTo,
             out DateTime? startDate, out DateTime? endDate)
         {
             startDate = null;
             endDate = null;
 
-            string startControlId = string.Format("reservationDatepickerFrom_{0}", product.Id);
-            string endControlId = string.Format("reservationDatepickerTo_{0}", product.Id);
-            var ctrlStartDate = form[startControlId];
-            var ctrlEndDate = form[endControlId];
             try
             {
-                //currenly we support only this format (as in the \Views\Product\_RentalInfo.cshtml file)
+                //currently we support only this format (as in the \Views\Product\_RentalInfo.cshtml file)
                 const string datePickerFormat = "MM/dd/yyyy";
-                startDate = DateTime.ParseExact(ctrlStartDate, datePickerFormat, CultureInfo.InvariantCulture);
-                endDate = DateTime.ParseExact(ctrlEndDate, datePickerFormat, CultureInfo.InvariantCulture);
+                startDate = DateTime.ParseExact(reservationDatepickerFrom, datePickerFormat, CultureInfo.InvariantCulture);
+                endDate = DateTime.ParseExact(reservationDatepickerTo, datePickerFormat, CultureInfo.InvariantCulture);
             }
             catch
             {
+                // ignored
             }
         }
     }

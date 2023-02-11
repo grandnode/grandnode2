@@ -25,9 +25,9 @@ namespace Grand.Business.Storage.Services
         {
             return _fileStore.GetDirectoryInfo(path);
         }
-        public virtual Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directorypath)
+        public virtual Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
         {
-            return _fileStore.GetPhysicalDirectoryInfo(directorypath);
+            return _fileStore.GetPhysicalDirectoryInfo(directoryPath);
         }
 
         public virtual IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false, bool listDirectories = true, bool listFiles = true)

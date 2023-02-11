@@ -460,9 +460,9 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Validate payment form
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model"></param>
         /// <returns>List of validating errors</returns>
-        public async Task<IList<string>> ValidatePaymentForm(IFormCollection form)
+        public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
         {
             return await Task.FromResult(new List<string>());
         }
@@ -470,9 +470,9 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Get payment information
         /// </summary>
-        /// <param name="form">The parsed form values</param>
+        /// <param name="model"></param>
         /// <returns>Payment info holder</returns>
-        public async Task<PaymentTransaction> SavePaymentInfo(IFormCollection form)
+        public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
         {
             return await Task.FromResult<PaymentTransaction>(null);
         }
@@ -533,9 +533,9 @@ namespace Payments.PayPalStandard
             return await Task.FromResult(_translationService.GetResource("Plugins.Payments.PayPalStandard.PaymentMethodDescription"));
         }
 
-        public void GetPublicViewComponent(out string viewComponentName)
+        public Task<string> GetControllerRouteName()
         {
-            viewComponentName = "PaymentPayPalStandard";
+            return Task.FromResult("Plugin.PayPalStandard");
         }
 
         public string LogoURL => "/Plugins/Payments.PayPalStandard/logo.jpg";

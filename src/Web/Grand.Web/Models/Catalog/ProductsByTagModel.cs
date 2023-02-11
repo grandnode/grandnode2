@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductsByTagModel : BaseEntityModel
+    public class ProductsByTagModel : BaseEntityModel
     {
         public ProductsByTagModel()
         {

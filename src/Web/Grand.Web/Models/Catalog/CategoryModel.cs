@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CategoryModel : BaseEntityModel
+    public class CategoryModel : BaseEntityModel
     {
         public CategoryModel()
         {
@@ -33,7 +33,7 @@ namespace Grand.Web.Models.Catalog
         public IList<ProductOverviewModel> FeaturedProducts { get; set; }
         public IList<ProductOverviewModel> Products { get; set; }        
 		#region Nested Classes
-        public partial class SubCategoryModel : BaseEntityModel
+        public class SubCategoryModel : BaseEntityModel
         {
             public SubCategoryModel()
             {

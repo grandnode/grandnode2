@@ -27,19 +27,19 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         /// Inserts a pickupPoint
         /// </summary>
-        /// <param name="PickupPoint">PickupPoint</param>
-        Task InsertPickupPoint(PickupPoint pickuppoint);
+        /// <param name="pickupPoint">PickupPoint</param>
+        Task InsertPickupPoint(PickupPoint pickupPoint);
 
         /// <summary>
         /// Updates the pickupPoint
         /// </summary>
         /// <param name="pickupPoint">PickupPoint</param>
-        Task UpdatePickupPoint(PickupPoint pickuppoint);
+        Task UpdatePickupPoint(PickupPoint pickupPoint);
 
         /// <summary>
         /// Deletes a pickupPoint
         /// </summary>
         /// <param name="pickupPoint">The pickupPoint</param>
-        Task DeletePickupPoint(PickupPoint pickuppoint);
+        Task DeletePickupPoint(PickupPoint pickupPoint);
     }
 }

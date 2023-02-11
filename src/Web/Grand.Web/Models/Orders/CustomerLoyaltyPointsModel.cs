@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class CustomerLoyaltyPointsModel : BaseModel
+    public class CustomerLoyaltyPointsModel : BaseModel
     {
         public CustomerLoyaltyPointsModel()
         {
@@ -18,7 +18,7 @@ namespace Grand.Web.Models.Orders
 
         #region Nested classes
 
-        public partial class LoyaltyPointsHistoryModel : BaseEntityModel
+        public class LoyaltyPointsHistoryModel : BaseEntityModel
         {
             [GrandResourceDisplayName("LoyaltyPoints.Fields.Points")]
             public int Points { get; set; }

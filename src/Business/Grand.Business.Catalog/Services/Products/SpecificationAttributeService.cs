@@ -12,7 +12,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Specification attribute service
     /// </summary>
-    public partial class SpecificationAttributeService : ISpecificationAttributeService
+    public class SpecificationAttributeService : ISpecificationAttributeService
     {
         #region Fields
 
@@ -52,14 +52,14 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Specification attribute</returns>
         public virtual async Task<SpecificationAttribute> GetSpecificationAttributeById(string specificationAttributeId)
         {
-            string key = string.Format(CacheKey.SPECIFICATION_BY_ID_KEY, specificationAttributeId);
+            var key = string.Format(CacheKey.SPECIFICATION_BY_ID_KEY, specificationAttributeId);
             return await _cacheBase.GetAsync(key, () => _specificationAttributeRepository.GetByIdAsync(specificationAttributeId));
         }
 
         /// <summary>
-        /// Gets a specification attribute by sename
+        /// Gets a specification attribute by se-name
         /// </summary>
-        /// <param name="sename">Sename</param>
+        /// <param name="sename">Se-name</param>
         /// <returns>Specification attribute</returns>
         public virtual async Task<SpecificationAttribute> GetSpecificationAttributeBySeName(string sename)
         {
@@ -70,8 +70,8 @@ namespace Grand.Business.Catalog.Services.Products
 
             var key = string.Format(CacheKey.SPECIFICATION_BY_SENAME, sename);
             return await _cacheBase.GetAsync(key, async () => 
-                    await Task.FromResult(_specificationAttributeRepository.Table.Where(x => x.SeName == sename)
-                .FirstOrDefault()));
+                    await Task.FromResult(_specificationAttributeRepository.Table
+                        .FirstOrDefault(x => x.SeName == sename)));
         }
 
 
@@ -161,7 +161,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (string.IsNullOrEmpty(specificationAttributeOptionId))
                 return await Task.FromResult<SpecificationAttribute>(null);
 
-            string key = string.Format(CacheKey.SPECIFICATION_BY_OPTIONID_KEY, specificationAttributeOptionId);
+            var key = string.Format(CacheKey.SPECIFICATION_BY_OPTIONID_KEY, specificationAttributeOptionId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _specificationAttributeRepository.Table
@@ -184,7 +184,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id);
 
             var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
-            var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == specificationAttributeOption.Id).FirstOrDefault();
+            var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == specificationAttributeOption.Id);
             if (sao == null)
                 throw new ArgumentException("No specification attribute option found with the specified id");
 

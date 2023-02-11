@@ -139,7 +139,7 @@ namespace Grand.Web.Admin.Services
                 //requirements
                 foreach (var dr in discount.DiscountRules.OrderBy(dr => dr.Id))
                 {
-                    var discountPlugin = _discountService.LoadDiscountProviderBySystemName(dr.DiscountRequirementRuleSystemName);
+                    var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
                     var discountRequirement = discountPlugin.GetRequirementRules().Single(x => x.SystemName == dr.DiscountRequirementRuleSystemName);
                     {
                         if (discountPlugin != null)

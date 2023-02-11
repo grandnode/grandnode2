@@ -11,19 +11,12 @@ namespace Grand.Infrastructure.Startup
     {
         private readonly ReflectionEventSubscriber _subscriber;
 
-        private TelemetryClient _telementryClient;
-        protected TelemetryClient TelementryClient {
-            get {
-                if (_telementryClient == null)
-                {
-                    _telementryClient = _services.BuildServiceProvider().GetRequiredService<TelemetryClient>();
-                }
-                return _telementryClient;
-            }
-        }
+        private TelemetryClient _telemetryClient;
+
+        private TelemetryClient TelemetryClient => _telemetryClient ??= _services.BuildServiceProvider().GetRequiredService<TelemetryClient>();
         private readonly IServiceCollection _services;
 
-        private readonly ConcurrentDictionary<int, Operation> dictionary = new ();
+        private readonly ConcurrentDictionary<int, Operation> _dictionary = new ();
 
         record Operation(string Name, string Command);
 
@@ -42,25 +35,23 @@ namespace Grand.Infrastructure.Startup
 
         private void Handle(CommandStartedEvent cmdStart)
         {
-            dictionary.TryAdd(cmdStart.RequestId, new Operation(cmdStart.CommandName, cmdStart.Command.ToString()));
+            _dictionary.TryAdd(cmdStart.RequestId, new Operation(cmdStart.CommandName, cmdStart.Command.ToString()));
         }
 
         private void Handle(CommandSucceededEvent cmdSuccess)
         {
-            if (dictionary.TryGetValue(cmdSuccess.RequestId, out var operation))
-            {
-                var telemetry = new DependencyTelemetry {
-                    Data = operation.Command,                    
-                    Name = operation.Name,
-                    Type = "MongoDB",
-                    Timestamp = DateTime.UtcNow.Subtract(cmdSuccess.Duration),
-                    Duration = cmdSuccess.Duration,
-                    Success = true,
-                };
-                TelementryClient?.TrackDependency(telemetry);
+            if (!_dictionary.TryGetValue(cmdSuccess.RequestId, out var operation)) return;
+            var telemetry = new DependencyTelemetry {
+                Data = operation.Command,                    
+                Name = operation.Name,
+                Type = "MongoDB",
+                Timestamp = DateTime.UtcNow.Subtract(cmdSuccess.Duration),
+                Duration = cmdSuccess.Duration,
+                Success = true
+            };
+            TelemetryClient?.TrackDependency(telemetry);
 
-                dictionary.TryRemove(cmdSuccess.RequestId, out var _);
-            }
+            _dictionary.TryRemove(cmdSuccess.RequestId, out _);
         }
     }
 }

@@ -1,6 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -8,8 +7,8 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
@@ -18,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
-    public partial class NewsController : BasePublicController
+    public class NewsController : BasePublicController
     {
         #region Fields
 
@@ -30,7 +29,6 @@ namespace Grand.Web.Controllers
         private readonly IPermissionService _permissionService;
         private readonly IMediator _mediator;
         private readonly NewsSettings _newsSettings;
-        private readonly CaptchaSettings _captchaSettings;
 
         #endregion
 
@@ -43,8 +41,7 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             IPermissionService permissionService,
             IMediator mediator,
-            NewsSettings newsSettings,
-            CaptchaSettings captchaSettings)
+            NewsSettings newsSettings)
         {
             _newsService = newsService;
             _workContext = workContext;
@@ -54,36 +51,35 @@ namespace Grand.Web.Controllers
             _permissionService = permissionService;
             _mediator = mediator;
             _newsSettings = newsSettings;
-            _captchaSettings = captchaSettings;
         }
 
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> List(NewsPagingFilteringModel command)
         {
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetNewsItemList() { Command = command });
+            var model = await _mediator.Send(new GetNewsItemList { Command = command });
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> NewsItem(string newsItemId)
         {
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
             var newsItem = await _newsService.GetNewsById(newsItemId);
-            if (newsItem == null ||
-                !newsItem.Published ||
+            if (newsItem is not { Published: true } ||
                 (newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) ||
                 (newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow) ||
                 //Store acl
                 !_aclService.Authorize(newsItem, _workContext.CurrentStore.Id))
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetNewsItem() { NewsItem = newsItem });
+            var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
 
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManageNews))
@@ -94,34 +90,19 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> NewsCommentAdd(string newsItemId,
-            NewsItemModel model, bool captchaValid,
-            [FromServices] IGroupService groupService
-            )
+        public virtual async Task<IActionResult> NewsCommentAdd(NewsItemModel model)
         {
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var newsItem = await _newsService.GetNewsById(newsItemId);
-            if (newsItem == null || !newsItem.Published || !newsItem.AllowComments)
+            var newsItem = await _newsService.GetNewsById(model.NewsItemId);
+            if (newsItem is not { Published: true } || !newsItem.AllowComments)
                 return RedirectToRoute("HomePage");
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            if (await groupService.IsGuest(_workContext.CurrentCustomer) && !_newsSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("News.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new InsertNewsCommentCommand() { NewsItem = newsItem, Model = model });
+                await _mediator.Send(new InsertNewsCommentCommand { NewsItem = newsItem, Model = model });
 
                 //notification
                 await _mediator.Publish(new NewsCommentEvent(newsItem, model.AddNewComment));
@@ -136,7 +117,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("NewsItem", new { SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id) });
             }
 
-            model = await _mediator.Send(new GetNewsItem() { NewsItem = newsItem });
+            model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
             return View("NewsItem", model);
         }
         #endregion

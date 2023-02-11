@@ -1,11 +1,10 @@
 ﻿@model BlogPostModel
-@using Grand.Web.Models.Blogs;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
 
     //title
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 }
@@ -47,10 +46,10 @@
     {
         <div class="tags generalMarginSupporter">
             <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
-            @for (int i = 0; i < Model.Tags.Count; i++)
+            @for (var i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
-                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
+                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new { tag})">@tag</a>
             }
         </div>
     }
@@ -61,21 +60,21 @@
         <div class="fieldset new-comment generalMarginSupporter" id="comments">
             <h4 class="generalTitle generalMarginSupporter">@Loc["Blog.Comments.LeaveYourComment"]</h4>
             <div class="notifications">
-                <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                <div asp-validation-summary="All" class="message-error"></div>
                 @{
                     var result = TempData["Grand.blog.addcomment.result"] as string;
                 }
-                @if (!String.IsNullOrEmpty(result))
+                @if (!string.IsNullOrEmpty(result))
                 {
                     <div class="result alert alert-info">@result</div>
                 }
             </div>
             <validation-observer v-slot="{ handleSubmit }">
-                <form asp-controller="Blog" asp-action="BlogCommentAdd" asp-route-id="@Model.Id" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+                <form asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
                     <input type="hidden" name="blogPostId" value="@Model.Id" />
                     <div class="form-fields">
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors, classes }">
+                            <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
                                 <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
                                 <span class="required">*</span>
                                 <textarea asp-for="AddNewComment.CommentText" v-model="blog.CommentText" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
@@ -134,6 +133,5 @@
             </div>
         }
     }
-    @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_after_comments", additionalData = Model.Id })
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_bottom", additionalData = Model.Id })
 </div>

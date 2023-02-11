@@ -10,7 +10,7 @@ using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidOrder : Drop
+    public class LiquidOrder : Drop
     {
         private readonly Order _order;
         private readonly Language _language;

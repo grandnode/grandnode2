@@ -4,7 +4,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class OrderDetailsModel : BaseEntityModel
+    public class OrderDetailsModel : BaseEntityModel
     {
         public OrderDetailsModel()
         {
@@ -80,7 +80,7 @@ namespace Grand.Web.Models.Orders
 
         #region Nested Classes
 
-        public partial class OrderItemModel : BaseEntityModel
+        public class OrderItemModel : BaseEntityModel
         {
             public OrderItemModel()
             {
@@ -107,19 +107,19 @@ namespace Grand.Web.Models.Orders
             public string LicenseId { get; set; }
         }
 
-        public partial class TaxRate : BaseModel
+        public class TaxRate : BaseModel
         {
             public string Rate { get; set; }
             public string Value { get; set; }
         }
 
-        public partial class GiftVoucher : BaseModel
+        public class GiftVoucher : BaseModel
         {
             public string CouponCode { get; set; }
             public string Amount { get; set; }
         }
 
-        public partial class OrderNote : BaseEntityModel
+        public class OrderNote : BaseEntityModel
         {
             public bool HasDownload { get; set; }
             public string Note { get; set; }
@@ -127,7 +127,7 @@ namespace Grand.Web.Models.Orders
             public string OrderId { get; set; }
         }
 
-        public partial class ShipmentBriefModel : BaseEntityModel
+        public class ShipmentBriefModel : BaseEntityModel
         {
             public string TrackingNumber { get; set; }
             public int ShipmentNumber { get; set; }

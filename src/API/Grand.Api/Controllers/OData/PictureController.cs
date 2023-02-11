@@ -29,12 +29,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
             var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
-            if (picture == null || !picture.Any())
-                return NotFound();
+            if (picture == null || !picture.Any()) return NotFound();
 
             return Ok(picture.FirstOrDefault());
         }
@@ -46,15 +44,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] PictureDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new AddPictureCommand() { PictureDto = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddPictureCommand() { PictureDto = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Update entity in Picture", OperationId = "UpdatePicture")]
@@ -65,21 +58,13 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Put([FromBody] PictureDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Categories))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(model.Id));
-                if (picture == null || !picture.Any())
-                {
-                    return NotFound();
-                }
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(model.Id));
+            if (picture == null || !picture.Any()) return NotFound();
 
-                var result = await _mediator.Send(new UpdatePictureCommand() { Model = model });
-                return Ok(result);
-            }
-            return BadRequest(ModelState);
+            var result = await _mediator.Send(new UpdatePictureCommand() { Model = model });
+            return Ok(result);
         }
 
         [SwaggerOperation(summary: "Delete entity in Picture", OperationId = "DeletePicture")]
@@ -89,14 +74,11 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
             var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
-            if (picture == null || !picture.Any())
-            {
-                return NotFound();
-            }
+            if (picture == null || !picture.Any()) return NotFound();
+
             await _mediator.Send(new DeletePictureCommand() { PictureDto = picture.FirstOrDefault() });
             return Ok();
         }

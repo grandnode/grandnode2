@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Queries.Catalog;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using MediatR;
@@ -41,18 +41,17 @@ namespace Grand.Web.Components
             if (!_catalogSettings.RecommendedProductsEnabled)
                 return Content("");
 
-            var products = await _mediator.Send(new GetRecommendedProductsQuery() { CustomerGroupIds = _workContext.CurrentCustomer.GetCustomerGroupIds(), 
+            var products = await _mediator.Send(new GetRecommendedProductsQuery { CustomerGroupIds = _workContext.CurrentCustomer.GetCustomerGroupIds(), 
                 StoreId = _workContext.CurrentStore.Id });
 
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PreparePictureModel = true,
                 PreparePriceModel = true,
                 ProductThumbPictureSize = productThumbPictureSize,
-                Products = products,
+                Products = products
             });
 
             return View(model);

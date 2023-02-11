@@ -12,7 +12,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Out of stock subscription service
     /// </summary>
-    public partial class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
+    public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
     {
         #region Fields
 
@@ -26,9 +26,6 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="outOfStockSubscriptionRepository">Out of stock subscription repository</param>
-        /// <param name="messageProviderService">Message provider service</param>
-        /// <param name="IMediator">Mediator</param>
         public OutOfStockSubscriptionService(IRepository<OutOfStockSubscription> outOfStockSubscriptionRepository,
             IMediator mediator)
         {
@@ -54,14 +51,13 @@ namespace Grand.Business.Catalog.Services.Products
         {
             var query = from p in _outOfStockSubscriptionRepository.Table
                         select p;
-
             //customer
-            query = query.Where(biss => biss.CustomerId == customerId);
+            query = query.Where(x => x.CustomerId == customerId);
             //store
-            if (!String.IsNullOrEmpty(storeId))
-                query = query.Where(biss => biss.StoreId == storeId);
+            if (!string.IsNullOrEmpty(storeId))
+                query = query.Where(x => x.StoreId == storeId);
 
-            query = query.OrderByDescending(biss => biss.CreatedOnUtc);
+            query = query.OrderByDescending(x => x.CreatedOnUtc);
 
             return await PagedList<OutOfStockSubscription>.Create(query, pageIndex, pageSize);
         }

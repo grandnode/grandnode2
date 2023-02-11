@@ -9,7 +9,7 @@ using Wangkanai.Detection.Services;
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("admin-tabstrip")]
-    public partial class AdminTabStripTagHelper : TagHelper
+    public class AdminTabStripTagHelper : TagHelper
     {
         private readonly IMediator _mediator;
         private readonly IDetectionService _detectionService;
@@ -60,10 +60,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
             var eventMessage = new AdminTabStripCreated(Name);
             await _mediator.Publish(eventMessage);
-            int i = 0;
             foreach (var eventBlock in eventMessage.BlocksToRender)
             {
-                i++;
                 sb.AppendLine($"tab_{rnd}.append({{");
                 sb.AppendLine($"    text: '{eventBlock.tabname}',");
                 sb.AppendLine($"    content: '{eventBlock.content}'");
@@ -93,8 +91,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         private int GetSelectedTabIndex()
         {
-            int index = 0;
-            string dataKey = "Grand.selected-tab-index";
+            var index = 0;
+            var dataKey = "Grand.selected-tab-index";
             if (ViewContext.ViewData[dataKey] is int)
             {
                 index = (int)ViewContext.ViewData[dataKey];

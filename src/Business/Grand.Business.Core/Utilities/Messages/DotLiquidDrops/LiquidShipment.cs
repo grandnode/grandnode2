@@ -6,7 +6,7 @@ using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidShipment : Drop
+    public class LiquidShipment : Drop
     {
         private readonly Shipment _shipment;
         private readonly Order _order;

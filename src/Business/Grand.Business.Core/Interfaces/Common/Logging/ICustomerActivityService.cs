@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
     /// <summary>
     /// Customer activity service interface
     /// </summary>
-    public partial interface ICustomerActivityService
+    public interface ICustomerActivityService
     {
         /// <summary>
         /// Inserts an activity log type item
@@ -68,6 +68,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
         /// <param name="createdOnTo">Log item creation to; null to load all customers</param>
         /// <param name="customerId">Customer identifier; null to load all customers</param>
         /// <param name="activityLogTypeId">Activity log type identifier</param>
+        /// <param name="ipAddress"></param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Activity log items</returns>
@@ -102,7 +103,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
             DateTime? createdOnTo = null, string categoryId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
-        /// Gets knowledgebase category activity log items
+        /// Gets knowledge base category activity log items
         /// </summary>
         /// <param name="createdOnFrom">Log item creation from; null to load all records</param>
         /// <param name="createdOnTo">Log item creation to; null to load all records</param>
@@ -114,7 +115,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
             DateTime? createdOnTo = null, string categoryId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
-        /// Gets knowledgebase article activity log items
+        /// Gets knowledge base article activity log items
         /// </summary>
         /// <param name="createdOnFrom">Log item creation from; null to load all records</param>
         /// <param name="createdOnTo">Log item creation to; null to load all records</param>

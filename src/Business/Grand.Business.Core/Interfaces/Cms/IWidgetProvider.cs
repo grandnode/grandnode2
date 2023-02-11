@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// Provides an interface for creating widgets
     /// </summary>
-    public partial interface IWidgetProvider : IProvider
+    public interface IWidgetProvider : IProvider
     {
         /// <summary>
         /// Gets widget zones where this widget for rendered

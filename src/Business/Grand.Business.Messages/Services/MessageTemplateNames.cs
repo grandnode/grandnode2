@@ -1,7 +1,7 @@
 ﻿
-namespace Grand.Business.Messages
+namespace Grand.Business.Messages.Services
 {
-    public class MessageTemplateNames
+    public static class MessageTemplateNames
     {
         public const string CustomerRegistered = "NewCustomer.Notification";
         public const string CustomerWelcome = "Customer.WelcomeMessage";

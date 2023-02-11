@@ -46,26 +46,29 @@ namespace Authentication.Facebook.Infrastructure.Cache
                 return;
 
             //handle event only for this authentication method
-            if (!eventMessage.AuthenticationParameters.ProviderSystemName.Equals(FacebookAuthenticationDefaults.ProviderSystemName))
+            if (!eventMessage.AuthenticationParameters.ProviderSystemName.Equals(FacebookAuthenticationDefaults
+                    .ProviderSystemName))
                 return;
 
             //store some of the customer fields
-            var firstName = eventMessage.AuthenticationParameters.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.GivenName)?.Value;
+            var firstName = eventMessage.AuthenticationParameters.Claims
+                ?.FirstOrDefault(claim => claim.Type == ClaimTypes.GivenName)?.Value;
             if (!string.IsNullOrEmpty(firstName))
                 await _userFieldService.SaveField(eventMessage.Customer, SystemCustomerFieldNames.FirstName, firstName);
 
-            var lastName = eventMessage.AuthenticationParameters.Claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.Surname)?.Value;
+            var lastName = eventMessage.AuthenticationParameters.Claims
+                ?.FirstOrDefault(claim => claim.Type == ClaimTypes.Surname)?.Value;
             if (!string.IsNullOrEmpty(lastName))
                 await _userFieldService.SaveField(eventMessage.Customer, SystemCustomerFieldNames.LastName, lastName);
 
             //notifications for admin
             if (_customerSettings.NotifyNewCustomerRegistration)
-                await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
+                await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer,
+                    _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
             //send welcome message 
-            if (eventMessage.RegistrationResult.Success)
-                await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
-
+            await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContext.CurrentStore,
+                _workContext.WorkingLanguage.Id);
         }
 
         #endregion

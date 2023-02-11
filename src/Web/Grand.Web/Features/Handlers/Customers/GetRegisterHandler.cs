@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
@@ -91,7 +91,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -104,17 +104,17 @@ namespace Grand.Web.Features.Handlers.Customers
 
                     foreach (var s in states)
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id, Selected = s.Id == model.StateProvinceId });
                     }
                 }
             }
 
             //custom customer attributes
-            var customAttributes = await _mediator.Send(new GetCustomAttributes() {
+            var customAttributes = await _mediator.Send(new GetCustomAttributes {
                 Customer = request.Customer,
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
-            });
+            }, cancellationToken);
             foreach (var item in customAttributes.Where(x=>!x.IsReadOnly))
             {
                 model.CustomerAttributes.Add(item);
@@ -124,7 +124,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var newsletterCategories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(request.Store.Id);
             foreach (var item in newsletterCategories)
             {
-                model.NewsletterCategories.Add(new NewsletterSimpleCategory() {
+                model.NewsletterCategories.Add(new NewsletterSimpleCategory {
                     Id = item.Id,
                     Name = item.GetTranslation(x => x.Name, request.Language.Id),
                     Description = item.GetTranslation(x => x.Description, request.Language.Id),

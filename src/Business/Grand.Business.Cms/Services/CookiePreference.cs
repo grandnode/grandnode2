@@ -25,11 +25,11 @@ namespace Grand.Business.Cms.Services
 
         public virtual async Task<bool?> IsEnable(Customer customer, Store store, string cookieSystemName)
         {
-            bool? result = default(bool?);
+            var result = default(bool?);
             var savedCookiesConsent = await _userFieldService.GetFieldsForEntity<Dictionary<string, bool>>(customer, SystemCustomerFieldNames.ConsentCookies, store.Id);
-            if (savedCookiesConsent != null)
-                if (savedCookiesConsent.ContainsKey(cookieSystemName))
-                    result = savedCookiesConsent[cookieSystemName];
+            if (savedCookiesConsent == null) return null;
+            if (savedCookiesConsent.ContainsKey(cookieSystemName))
+                result = savedCookiesConsent[cookieSystemName];
 
             return result;
         }

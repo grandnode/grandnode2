@@ -1,10 +1,11 @@
-﻿using Grand.Domain.Media;
-using Grand.Business.Core.Interfaces.Marketing.Courses;
+﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Media;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Courses;
 using Grand.Web.Models.Course;
 using MediatR;
+
 namespace Grand.Web.Features.Handlers.Courses
 {
     public class GetCourseHandler : IRequestHandler<GetCourse, CourseModel>
@@ -42,7 +43,7 @@ namespace Grand.Web.Features.Handlers.Courses
             var subjects = await _courseSubjectService.GetByCourseId(request.Course.Id);
             foreach (var item in subjects)
             {
-                model.Subjects.Add(new CourseModel.Subject() {
+                model.Subjects.Add(new CourseModel.Subject {
                     Id = item.Id,
                     Name = item.Name,
                     DisplayOrder = item.DisplayOrder
@@ -54,7 +55,7 @@ namespace Grand.Web.Features.Handlers.Courses
                 var pictureUrl = await _pictureService.GetPictureUrl(item.PictureId, _mediaSettings.LessonThumbPictureSize);
                 var approved = await _courseActionService.CustomerLessonCompleted(request.Customer.Id, item.Id);
 
-                model.Lessons.Add(new CourseModel.Lesson() {
+                model.Lessons.Add(new CourseModel.Lesson {
                     Id = item.Id,
                     SubjectId = item.SubjectId,
                     Name = item.Name,
@@ -64,7 +65,7 @@ namespace Grand.Web.Features.Handlers.Courses
                     Approved = approved
                 });
             }
-            model.Approved = !model.Lessons.Any(x => !x.Approved);
+            model.Approved = model.Lessons.All(x => x.Approved);
             return model;
         }
     }

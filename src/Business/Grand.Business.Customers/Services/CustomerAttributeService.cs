@@ -11,7 +11,7 @@ namespace Grand.Business.Customers.Services
     /// <summary>
     /// Customer attribute service
     /// </summary>
-    public partial class CustomerAttributeService : ICustomerAttributeService
+    public class CustomerAttributeService : ICustomerAttributeService
     {
         #region Fields
 
@@ -48,7 +48,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customer attributes</returns>
         public virtual async Task<IList<CustomerAttribute>> GetAllCustomerAttributes()
         {
-            string key = CacheKey.CUSTOMERATTRIBUTES_ALL_KEY;
+            var key = CacheKey.CUSTOMERATTRIBUTES_ALL_KEY;
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from ca in _customerAttributeRepository.Table
@@ -65,7 +65,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customer attribute</returns>
         public virtual Task<CustomerAttribute> GetCustomerAttributeById(string customerAttributeId)
         {
-            string key = string.Format(CacheKey.CUSTOMERATTRIBUTES_BY_ID_KEY, customerAttributeId);
+            var key = string.Format(CacheKey.CUSTOMERATTRIBUTES_BY_ID_KEY, customerAttributeId);
             return _cacheBase.GetAsync(key, () => _customerAttributeRepository.GetByIdAsync(customerAttributeId));
         }
 

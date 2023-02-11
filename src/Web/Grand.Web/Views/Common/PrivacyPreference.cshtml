@@ -15,7 +15,7 @@
                             <div>@item.Description</div>
                         </div>
                         <div class="custom-control custom-switch">
-                            <input @if (!(item.AllowToDisable)) { <text> disabled checked</text> } @if (item.State == true) { <text> checked</text> } type="checkbox"
+                            <input @if (!item.AllowToDisable) { <text> checked</text> } @if (item.State) { <text> checked</text> } type="checkbox"
                                    value="@item.SystemName" class="custom-control-input" id="ConsentCookies_@item.SystemName" name="ConsentCookies_@item.SystemName">
                             <label class="custom-control-label" for="ConsentCookies_@item.SystemName"></label>
                         </div>

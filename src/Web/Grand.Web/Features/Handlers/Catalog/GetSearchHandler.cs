@@ -1,12 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Domain;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -20,7 +20,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -70,12 +69,9 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<SearchModel> Handle(GetSearch request, CancellationToken cancellationToken)
         {
-            if (request.Model == null)
-                request.Model = new SearchModel();
+            request.Model ??= new SearchModel();
 
-            var searchTerms = request.Model.q;
-            if (searchTerms == null)
-                searchTerms = "";
+            var searchTerms = request.Model.q ?? "";
             searchTerms = searchTerms.Trim();
 
             if (request.Model.Box)
@@ -84,19 +80,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Model.adv = true;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Model.PagingFilteringContext,
                 Language = request.Language,
                 AllowCustomersToSelectPageSize = _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
                 PageSizeOptions = _catalogSettings.SearchPagePageSizeOptions,
                 PageSize = _catalogSettings.SearchPageProductsPerPage
-            });
+            }, cancellationToken);
             request.Model.PagingFilteringContext = options.pagingFilteringModel;
             request.Command = options.command;
 
 
-            string cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
                request.Language.Id,
                 string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
@@ -108,9 +104,9 @@ namespace Grand.Web.Features.Handlers.Catalog
                 foreach (var c in allCategories)
                 {
                     //generate full category name (breadcrumb)
-                    string categoryBreadcrumb = "";
+                    var categoryBreadcrumb = "";
                     var breadcrumb = _categoryService.GetCategoryBreadCrumb(c, allCategories);
-                    for (int i = 0; i <= breadcrumb.Count - 1; i++)
+                    for (var i = 0; i <= breadcrumb.Count - 1; i++)
                     {
                         categoryBreadcrumb += breadcrumb[i].GetTranslation(x => x.Name, request.Language.Id);
                         if (i != breadcrumb.Count - 1)
@@ -134,7 +130,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 foreach (var c in categories)
                 {
                     request.Model.AvailableCategories.Add(new SelectListItem {
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Text = c.Breadcrumb,
                         Selected = request.Model.cid == c.Id
                     });
@@ -150,7 +146,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 });
                 foreach (var m in collections)
                     request.Model.AvailableCollections.Add(new SelectListItem {
-                        Value = m.Id.ToString(),
+                        Value = m.Id,
                         Text = m.GetTranslation(x => x.Name, request.Language.Id),
                         Selected = request.Model.mid == m.Id
                     });
@@ -168,121 +164,115 @@ namespace Grand.Web.Features.Handlers.Catalog
                     });
                     foreach (var vendor in vendors)
                         request.Model.AvailableVendors.Add(new SelectListItem {
-                            Value = vendor.Id.ToString(),
+                            Value = vendor.Id,
                             Text = vendor.GetTranslation(x => x.Name, request.Language.Id),
                             Selected = request.Model.vid == vendor.Id
                         });
                 }
             }
 
-            IPagedList<Product> products = new PagedList<Product>(new List<Product>(), 0, 1);
-
-            if (request.IsSearchTermSpecified)
+            if (!request.IsSearchTermSpecified) return request.Model;
+            
+            if (searchTerms.Length < _catalogSettings.ProductSearchTermMinimumLength)
             {
-                if (searchTerms.Length < _catalogSettings.ProductSearchTermMinimumLength)
+                request.Model.Warning = string.Format(_translationService.GetResource("Search.SearchTermMinimumLengthIsNCharacters"), _catalogSettings.ProductSearchTermMinimumLength);
+            }
+            else
+            {
+                var categoryIds = new List<string>();
+                var collectionId = "";
+                double? minPriceConverted = null;
+                double? maxPriceConverted = null;
+                var searchInDescriptions = false;
+                var vendorId = "";
+                if (request.Model.adv)
                 {
-                    request.Model.Warning = string.Format(_translationService.GetResource("Search.SearchTermMinimumLengthIsNCharacters"), _catalogSettings.ProductSearchTermMinimumLength);
+                    //advanced search
+                    var categoryId = request.Model.cid;
+                    if (!string.IsNullOrEmpty(categoryId))
+                    {
+                        categoryIds.Add(categoryId);
+                        //include subcategories
+                        categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }, cancellationToken));
+                    }
+                    collectionId = request.Model.mid;
+
+                    //min price
+                    if (!string.IsNullOrEmpty(request.Model.pf))
+                    {
+                        if (double.TryParse(request.Model.pf, out var minPrice))
+                            minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
+                    }
+                    //max price
+                    if (!string.IsNullOrEmpty(request.Model.pt))
+                    {
+                        if (double.TryParse(request.Model.pt, out var maxPrice))
+                            maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
+                    }
+
+                    searchInDescriptions = request.Model.sid;
+                    if (request.Model.asv)
+                        vendorId = request.Model.vid;
+                }
+
+                var searchInProductTags = searchInDescriptions;
+
+                IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
+                    (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+
+                //products
+                var searchproducts = await _mediator.Send(new GetSearchProductsQuery {
+                    LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
+                    CategoryIds = categoryIds,
+                    CollectionId = collectionId,
+                    Customer = request.Customer,
+                    StoreId = request.Store.Id,
+                    VisibleIndividuallyOnly = true,
+                    PriceMin = minPriceConverted,
+                    PriceMax = maxPriceConverted,
+                    Keywords = searchTerms,
+                    SearchDescriptions = searchInDescriptions,
+                    SearchSku = searchInDescriptions,
+                    SearchProductTags = searchInProductTags,
+                    FilteredSpecs = alreadyFilteredSpecOptionIds,
+                    LanguageId = request.Language.Id,
+                    OrderBy = (ProductSortingEnum)request.Command.OrderBy,
+                    PageIndex = request.Command.PageNumber - 1,
+                    PageSize = request.Command.PageSize,
+                    VendorId = vendorId
+                }, cancellationToken);
+
+                request.Model.Products = (await _mediator.Send(new GetProductOverview {
+                    Products = searchproducts.products,
+                    PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
+                }, cancellationToken)).ToList();
+
+                request.Model.PagingFilteringContext.LoadPagedList(searchproducts.products);
+
+                //specs
+                await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
+                    searchproducts.filterableSpecificationAttributeOptionIds,
+                    _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+
+                request.Model.NoResults = !request.Model.Products.Any();
+
+                //search term statistics
+                if (string.IsNullOrEmpty(searchTerms)) return request.Model;
+                    
+                var searchTerm = await _searchTermService.GetSearchTermByKeyword(searchTerms, request.Store.Id);
+                if (searchTerm != null)
+                {
+                    searchTerm.Count++;
+                    await _searchTermService.UpdateSearchTerm(searchTerm);
                 }
                 else
                 {
-                    var categoryIds = new List<string>();
-                    string collectionId = "";
-                    double? minPriceConverted = null;
-                    double? maxPriceConverted = null;
-                    bool searchInDescriptions = false;
-                    string vendorId = "";
-                    if (request.Model.adv)
-                    {
-                        //advanced search
-                        var categoryId = request.Model.cid;
-                        if (!String.IsNullOrEmpty(categoryId))
-                        {
-                            categoryIds.Add(categoryId);
-                            //include subcategories
-                            categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds() { ParentCategoryId = categoryId, Customer = request.Customer, Store = request.Store }));
-                        }
-                        collectionId = request.Model.mid;
-
-                        //min price
-                        if (!string.IsNullOrEmpty(request.Model.pf))
-                        {
-                            double minPrice;
-                            if (double.TryParse(request.Model.pf, out minPrice))
-                                minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
-                        }
-                        //max price
-                        if (!string.IsNullOrEmpty(request.Model.pt))
-                        {
-                            double maxPrice;
-                            if (double.TryParse(request.Model.pt, out maxPrice))
-                                maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
-                        }
-
-                        searchInDescriptions = request.Model.sid;
-                        if (request.Model.asv)
-                            vendorId = request.Model.vid;
-                    }
-
-                    var searchInProductTags = searchInDescriptions;
-
-                    IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                        (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
-
-                    //products
-                    var searchproducts = (await _mediator.Send(new GetSearchProductsQuery() {
-                        LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
-                        CategoryIds = categoryIds,
-                        CollectionId = collectionId,
-                        Customer = request.Customer,
+                    searchTerm = new SearchTerm {
+                        Keyword = searchTerms,
                         StoreId = request.Store.Id,
-                        VisibleIndividuallyOnly = true,
-                        PriceMin = minPriceConverted,
-                        PriceMax = maxPriceConverted,
-                        Keywords = searchTerms,
-                        SearchDescriptions = searchInDescriptions,
-                        SearchSku = searchInDescriptions,
-                        SearchProductTags = searchInProductTags,
-                        FilteredSpecs = alreadyFilteredSpecOptionIds,
-                        LanguageId = request.Language.Id,
-                        OrderBy = (ProductSortingEnum)request.Command.OrderBy,
-                        PageIndex = request.Command.PageNumber - 1,
-                        PageSize = request.Command.PageSize,
-                        VendorId = vendorId
-                    }));
-
-                    request.Model.Products = (await _mediator.Send(new GetProductOverview() {
-                        Products = searchproducts.products,
-                        PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-                    })).ToList();
-
-                    request.Model.PagingFilteringContext.LoadPagedList(searchproducts.products);
-
-                    //specs
-                    await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
-                        searchproducts.filterableSpecificationAttributeOptionIds,
-                        _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
-
-                    request.Model.NoResults = !request.Model.Products.Any();
-
-                    //search term statistics
-                    if (!String.IsNullOrEmpty(searchTerms))
-                    {
-                        var searchTerm = await _searchTermService.GetSearchTermByKeyword(searchTerms, request.Store.Id);
-                        if (searchTerm != null)
-                        {
-                            searchTerm.Count++;
-                            await _searchTermService.UpdateSearchTerm(searchTerm);
-                        }
-                        else
-                        {
-                            searchTerm = new SearchTerm {
-                                Keyword = searchTerms,
-                                StoreId = request.Store.Id,
-                                Count = 1
-                            };
-                            await _searchTermService.InsertSearchTerm(searchTerm);
-                        }
-                    }
+                        Count = 1
+                    };
+                    await _searchTermService.InsertSearchTerm(searchTerm);
                 }
             }
 

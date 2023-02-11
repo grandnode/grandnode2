@@ -16,11 +16,9 @@ namespace Grand.Web.Features.Handlers.Products
         public async Task<string> Handle(GetProductLayoutViewPath request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.ProductLayoutId))
-                throw new ArgumentNullException("ProductLayoutId");
+                throw new ArgumentNullException(nameof(request.ProductLayoutId));
 
-            var layout = await _productLayoutService.GetProductLayoutById(request.ProductLayoutId);
-            if (layout == null)
-                layout = (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault();
+            var layout = await _productLayoutService.GetProductLayoutById(request.ProductLayoutId) ?? (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault();
             if (layout == null)
                 throw new Exception("No default layout could be loaded");
             return layout.ViewPath;

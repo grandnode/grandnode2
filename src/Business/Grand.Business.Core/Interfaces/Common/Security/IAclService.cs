@@ -6,9 +6,9 @@ using Grand.Domain.Stores;
 namespace Grand.Business.Core.Interfaces.Common.Security
 {
     /// <summary>
-    /// ACL service inerface
+    /// ACL service interface
     /// </summary>
-    public partial interface IAclService
+    public interface IAclService
     {
         /// <summary>
         /// Authorize ACL permission

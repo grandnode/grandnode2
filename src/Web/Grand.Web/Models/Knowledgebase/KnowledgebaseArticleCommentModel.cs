@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Knowledgebase
 {
-    public partial class KnowledgebaseArticleCommentModel : BaseEntityModel
+    public class KnowledgebaseArticleCommentModel : BaseEntityModel
     {
         public string CustomerId { get; set; }
 

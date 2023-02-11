@@ -3,19 +3,18 @@ using MediatR;
 
 namespace Grand.Business.Core.Events.Checkout.Orders
 {
-    public class PlaceOrderDetailsEvent<R, O> : INotification where R : PlaceOrderResult where O : PlaceOrderContainter
+    public class PlaceOrderDetailsEvent<R, O> : INotification where R : PlaceOrderResult where O : PlaceOrderContainer
     {
         private readonly R _result;
-        private readonly O _containter;
+        private readonly O _container;
 
-        public PlaceOrderDetailsEvent(R result, O containter)
+        public PlaceOrderDetailsEvent(R result, O container)
         {
             _result = result;
-            _containter = containter;
+            _container = container;
         }
-        public R Result { get { return _result; } }
-        public O Containter { get { return _containter; } }
-
+        public R Result => _result;
+        public O Container => _container;
     }
 
 }

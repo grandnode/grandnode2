@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using MediatR;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -59,10 +58,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 return (true, "You can't cancel gift voucher, please delete it.");
             }
 
-            var shipments = (await _shipmentService.GetShipmentsByOrder(request.Order.Id));
+            var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
             foreach (var shipment in shipments)
             {
-                if (shipment.ShipmentItems.Where(x => x.OrderItemId == request.OrderItem.Id).Any())
+                if (shipment.ShipmentItems.Any(x => x.OrderItemId == request.OrderItem.Id))
                 {
                     return (true, $"This order item is in associated with shipment {shipment.ShipmentNumber}. Please delete it first.");
                 }
@@ -79,7 +78,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 Note = $"Order item has been deleted - {product.Name}",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
             });
 
             await _inventoryManageService.AdjustReserved(product, request.OrderItem.Quantity, request.OrderItem.Attributes, request.OrderItem.WarehouseId);
@@ -91,12 +90,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             request.Order.OrderSubtotalExclTax -= request.OrderItem.PriceExclTax;
             request.Order.OrderSubtotalInclTax -= request.OrderItem.PriceInclTax;
-            request.Order.OrderTax -= (request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax);
+            request.Order.OrderTax -= request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax;
             request.Order.OrderTotal -= request.OrderItem.PriceInclTax;
 
             if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
             {
-                if (!request.Order.HasItemsToAddToShipment() && !shipments.Where(x => x.DeliveryDateUtc == null).Any())
+                if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
                 {
                     request.Order.ShippingStatusId = ShippingStatus.Delivered;
                 }
@@ -107,7 +106,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.UpdateOrder(request.Order);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = request.Order }, cancellationToken);
 
             return (false, "");
         }

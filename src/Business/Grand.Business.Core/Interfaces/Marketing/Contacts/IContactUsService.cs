@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
     /// <summary>
     /// ContactUs interface
     /// </summary>
-    public partial interface IContactUsService
+    public interface IContactUsService
     {
         /// <summary>
         /// Deletes a contactus item
@@ -27,6 +27,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// <param name="email">email</param>
         /// <param name="vendorId">vendorId; null to load all records</param>
         /// <param name="customerId">customerId; null to load all records</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>ContactUs items</returns>

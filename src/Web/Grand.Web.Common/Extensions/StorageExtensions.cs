@@ -14,13 +14,11 @@ namespace Grand.Web.Common.Extensions
         /// <returns>Download binary array</returns>
         public static byte[] GetDownloadBits(this IFormFile file)
         {
-            using (var fileStream = file.OpenReadStream())
-            using (var ms = new MemoryStream())
-            {
-                fileStream.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                return fileBytes;
-            }
+            using var fileStream = file.OpenReadStream();
+            using var ms = new MemoryStream();
+            fileStream.CopyTo(ms);
+            var fileBytes = ms.ToArray();
+            return fileBytes;
         }
 
         /// <summary>

@@ -9,8 +9,6 @@ namespace Grand.Business.Core.Events.Messages
     /// A container for tokens that are added.
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
-    /// <param name="liquidDrop">DotLiquid Drop, e.g. LiquidOrder</param>
-    /// <param name="liquidObject">An object that acumulates all DotLiquid Drops</param>
     public class EntityTokensAddedEvent<T> : INotification where T : ParentEntity
     {
         private readonly T _entity;
@@ -24,8 +22,8 @@ namespace Grand.Business.Core.Events.Messages
             _liquidObject = liquidObject;
         }
 
-        public T Entity { get { return _entity; } }
-        public Drop LiquidDrop { get { return _liquidDrop; } }
-        public LiquidObject LiquidObject { get { return _liquidObject; } }
+        public T Entity => _entity;
+        public Drop LiquidDrop => _liquidDrop;
+        public LiquidObject LiquidObject => _liquidObject;
     }
 }

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
@@ -7,8 +7,8 @@ using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Features.Models.News;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
 using MediatR;
@@ -61,26 +61,26 @@ namespace Grand.Web.Features.Handlers.News
 
         private async Task<HomePageNewsItemsModel.NewsItemModel> PrepareNewsItemModel(NewsItem newsItem)
         {
-            var model = new HomePageNewsItemsModel.NewsItemModel();
-            model.Id = newsItem.Id;
-            model.SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id);
-            model.Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-            model.Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id);
-            model.Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id);
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc);
+            var model = new HomePageNewsItemsModel.NewsItemModel {
+                Id = newsItem.Id,
+                SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id),
+                Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
+                Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
+                Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+                CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc)
+            };
             //prepare picture model
-            if (!string.IsNullOrEmpty(newsItem.PictureId))
+            if (string.IsNullOrEmpty(newsItem.PictureId)) return model;
+            
+            var pictureSize = _mediaSettings.NewsListThumbPictureSize;
+            model.PictureModel = new PictureModel
             {
-                int pictureSize = _mediaSettings.NewsListThumbPictureSize;
-                model.PictureModel = new PictureModel
-                {
-                    Id = newsItem.PictureId,
-                    FullSizeImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId),
-                    ImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId, pictureSize),
-                    Title = string.Format(_translationService.GetResource("Media.News.ImageLinkTitleFormat"), newsItem.Title),
-                    AlternateText = string.Format(_translationService.GetResource("Media.News.ImageAlternateTextFormat"), newsItem.Title)
-                };
-            }
+                Id = newsItem.PictureId,
+                FullSizeImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId),
+                ImageUrl = await _pictureService.GetPictureUrl(newsItem.PictureId, pictureSize),
+                Title = string.Format(_translationService.GetResource("Media.News.ImageLinkTitleFormat"), newsItem.Title),
+                AlternateText = string.Format(_translationService.GetResource("Media.News.ImageAlternateTextFormat"), newsItem.Title)
+            };
             return model;
         }
     }

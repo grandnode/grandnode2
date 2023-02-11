@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
     /// <summary>
     /// Newsletter subscription service interface
     /// </summary>
-    public partial interface INewsLetterSubscriptionService
+    public interface INewsLetterSubscriptionService
     {
         /// <summary>
         /// Inserts a newsletter subscription
@@ -65,11 +65,26 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
         /// <param name="email">Email to search or string. Empty to load all records.</param>
         /// <param name="storeId">Store identifier. "" to load all records.</param>
         /// <param name="isActive">Value indicating whether subscriber record should be active or not; null to load all records</param>
-        /// <param name="customerGroupId">Customer group identifier. Used to filter subscribers by customer group. "" to load all records.</param>
+        /// <param name="categoryIds">categoryIds</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>NewsLetterSubscription entities</returns>
         Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string email = null,
             string storeId = "", bool? isActive = null, string[] categoryIds = null, int pageIndex = 0, int pageSize = int.MaxValue);
+
+        /// <summary>
+        /// Export newsletter subscribers to TXT
+        /// </summary>
+        /// <param name="subscriptions">Subscriptions</param>
+        /// <returns>Result in TXT (string) format</returns>
+        string ExportNewsletterSubscribersToTxt(IList<NewsLetterSubscription> subscriptions);
+
+        /// <summary>
+        /// Import newsletter subscribers from TXT file
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="currentStoreId">Current store ident</param>
+        /// <returns>Number of imported subscribers</returns>
+        Task<int> ImportNewsletterSubscribersFromTxt(Stream stream, string currentStoreId);
     }
 }

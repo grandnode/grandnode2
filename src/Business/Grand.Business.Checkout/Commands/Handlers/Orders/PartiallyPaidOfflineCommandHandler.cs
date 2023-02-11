@@ -33,7 +33,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var amountToPaid = command.AmountToPaid;
 
-            var canPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid });
+            var canPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery { PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid }, cancellationToken);
             if (!canPartiallyPaidOffline)
                 throw new GrandException("You can't partially paid (offline) this transaction");
 
@@ -51,11 +51,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.UpdateOrder(order);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             if (order.PaymentStatusId == PaymentStatus.Paid)
             {
-                await _mediator.Send(new ProcessOrderPaidCommand() { Order = order });
+                await _mediator.Send(new ProcessOrderPaidCommand { Order = order }, cancellationToken);
             }
 
             return true;

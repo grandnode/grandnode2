@@ -6,16 +6,16 @@ namespace Grand.Business.Core.Utilities.System
     public static class StandardAdminSiteMap
     {
         public static readonly List<AdminSiteMap> SiteMap =
-            new List<AdminSiteMap>() {
-                new AdminSiteMap {
+            new List<AdminSiteMap> {
+                new () {
                     SystemName = "Dashboard",
                     ResourceName = "Admin.Dashboard",
                     ControllerName = "Home",
                     ActionName = "Index",
                     IconClass = "icon-home",
                     DisplayOrder = 0,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Dashboard",
                             ResourceName = "Admin.Dashboard",
                             ControllerName = "Home",
@@ -23,7 +23,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "icon-bar-chart"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Dashboard",
                             ResourceName = "Admin.Dashboard.Statistics",
                             ControllerName = "Home",
@@ -32,7 +32,7 @@ namespace Grand.Business.Core.Utilities.System
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
                             IconClass = "icon-bulb"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Shopping carts and wishlists",
                             ResourceName = "Admin.Dashboards.CurrentCartWishlists",
                             PermissionNames = new List<string> { PermissionSystemName.CurrentCarts },
@@ -41,7 +41,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Online customers",
                             ResourceName = "Admin.Dashboards.OnlineCustomers",
                             PermissionNames = new List<string> { PermissionSystemName.Customers },
@@ -52,15 +52,15 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Catalog",
                     ResourceName = "Admin.Catalog",
                     PermissionNames = new List<string> { PermissionSystemName.Products, PermissionSystemName.Categories, PermissionSystemName.Brands, PermissionSystemName.Collections, PermissionSystemName.ProductReviews, PermissionSystemName.ProductTags,
                          PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes },
                     IconClass = "fa fa-sitemap",
                     DisplayOrder = 1,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Products",
                             ResourceName = "Admin.Catalog.Products.Manage",
                             PermissionNames = new List<string> { PermissionSystemName.Products },
@@ -69,7 +69,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Categories",
                             ResourceName = "Admin.Catalog.Categories",
                             ControllerName = "Category",
@@ -78,7 +78,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Brands",
                             ResourceName = "Admin.Catalog.Brands",
                             ControllerName = "Brand",
@@ -87,7 +87,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Collections",
                             ResourceName = "Admin.Catalog.Collections",
                             PermissionNames = new List<string> { PermissionSystemName.Collections },
@@ -96,7 +96,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Product tags",
                             ResourceName = "Admin.Catalog.ProductTags",
                             PermissionNames = new List<string> { PermissionSystemName.ProductTags },
@@ -105,7 +105,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Bulk edit products",
                             ResourceName = "Admin.Catalog.BulkEdit",
                             PermissionNames = new List<string> { PermissionSystemName.Products },
@@ -114,7 +114,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 5,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Product reviews",
                             ResourceName = "Admin.Catalog.ProductReviews",
                             PermissionNames = new List<string> { PermissionSystemName.ProductReviews },
@@ -123,7 +123,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 6,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Products attributes",
                             ResourceName = "Admin.Catalog.Attributes.ProductAttributes",
                             ControllerName = "ProductAttribute",
@@ -132,7 +132,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 7,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Specification attributes",
                             ResourceName = "Admin.Catalog.Attributes.SpecificationAttributes",
                             ControllerName = "SpecificationAttribute",
@@ -140,10 +140,10 @@ namespace Grand.Business.Core.Utilities.System
                             PermissionNames = new List<string> { PermissionSystemName.SpecificationAttributes },
                             DisplayOrder = 8,
                             IconClass = "fa fa-dot-circle-o"
-                        },
+                        }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Sales",
                     ResourceName = "Admin.Sales",
                     PermissionNames = new List<string> { PermissionSystemName.Orders, PermissionSystemName.Shipments,
@@ -151,8 +151,8 @@ namespace Grand.Business.Core.Utilities.System
                         PermissionSystemName.OrderStatus, PermissionSystemName.CheckoutAttributes },
                     IconClass = "icon-basket",
                     DisplayOrder = 2,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Orders",
                             ResourceName = "Admin.Orders",
                             PermissionNames = new List<string> { PermissionSystemName.Orders },
@@ -161,7 +161,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Shipments",
                             ResourceName = "Admin.Orders.Shipments.List",
                             PermissionNames = new List<string> { PermissionSystemName.Shipments },
@@ -170,7 +170,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Merchandise returns",
                             ResourceName = "Admin.Orders.MerchandiseReturns",
                             PermissionNames = new List<string> { PermissionSystemName.MerchandiseReturns },
@@ -179,7 +179,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Payment transaction",
                             ResourceName = "Admin.Orders.PaymentTransaction",
                             PermissionNames = new List<string> { PermissionSystemName.PaymentTransactions },
@@ -188,7 +188,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "OrderTags",
                             ResourceName = "Admin.Orders.OrderTags",
                             PermissionNames = new List<string> { PermissionSystemName.OrderTags },
@@ -197,7 +197,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Checkout attributes",
                             ResourceName = "Admin.Orders.CheckoutAttributes",
                             ControllerName = "CheckoutAttribute",
@@ -206,7 +206,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 5,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Order status",
                             ResourceName = "Admin.Orders.OrderStatus",
                             ControllerName = "OrderStatus",
@@ -214,19 +214,18 @@ namespace Grand.Business.Core.Utilities.System
                             ActionName = "Index",
                             DisplayOrder = 6,
                             IconClass = "fa fa-dot-circle-o"
-                        },
-
+                        }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Customers",
                     ResourceName = "Admin.Customers",
                     PermissionNames = new List<string> { PermissionSystemName.Customers, PermissionSystemName.Vendors, PermissionSystemName.VendorReviews, PermissionSystemName.ActivityLog,
                         PermissionSystemName.CustomerTags, PermissionSystemName.CustomerGroups, PermissionSystemName.SalesEmployees },
                     IconClass = "icon-users",
                     DisplayOrder = 3,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Customers",
                             ResourceName = "Admin.Customers.Customers",
                             PermissionNames = new List<string> { PermissionSystemName.Customers },
@@ -235,7 +234,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Customer groups",
                             ResourceName = "Admin.Customers.CustomerGroups",
                             PermissionNames = new List<string> { PermissionSystemName.CustomerGroups },
@@ -244,7 +243,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Customer tags",
                             ResourceName = "Admin.Customers.CustomerTags",
                             PermissionNames = new List<string> { PermissionSystemName.CustomerTags },
@@ -253,7 +252,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Vendors",
                             ResourceName = "Admin.Vendors",
                             PermissionNames = new List<string> { PermissionSystemName.Vendors },
@@ -262,7 +261,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Vendor reviews",
                             ResourceName = "Admin.VendorReviews",
                             PermissionNames = new List<string> { PermissionSystemName.VendorReviews },
@@ -271,7 +270,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Sales employee",
                             ResourceName = "Admin.Customers.SalesEmployees",
                             PermissionNames = new List<string> { PermissionSystemName.SalesEmployees },
@@ -280,7 +279,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 5,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Customer attributes",
                             ResourceName = "Admin.Customers.Attributes.Customer",
                             ControllerName = "CustomerAttribute",
@@ -289,7 +288,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 6,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Address attributes",
                             ResourceName = "Admin.Customers.Attributes.Address",
                             ControllerName = "AddressAttribute",
@@ -298,7 +297,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 7,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Activity Log",
                             ResourceName = "Admin.Configuration.ActivityLog",
                             PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
@@ -309,17 +308,17 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Marketing",
                     ResourceName = "Admin.Marketing",
                     PermissionNames = new List<string> { PermissionSystemName.Affiliates, PermissionSystemName.NewsletterCategories, PermissionSystemName.NewsletterSubscribers,
-                        PermissionSystemName.Campaigns, PermissionSystemName.Discounts, PermissionSystemName.Actions, PermissionSystemName.Reminders, PermissionSystemName.PushNotifications,
-                        PermissionSystemName.Banners, PermissionSystemName.InteractiveForms, PermissionSystemName.Affiliates, PermissionSystemName.Documents, PermissionSystemName.GiftVouchers,
+                        PermissionSystemName.Campaigns, PermissionSystemName.Discounts, PermissionSystemName.PushNotifications,
+                        PermissionSystemName.Affiliates, PermissionSystemName.Documents, PermissionSystemName.GiftVouchers,
                         PermissionSystemName.ContactAttributes},
                     IconClass = "icon-bulb",
                     DisplayOrder = 4,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Discounts",
                             ResourceName = "Admin.Marketing.Discounts",
                             PermissionNames = new List<string> { PermissionSystemName.Discounts },
@@ -328,7 +327,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Gift vouchers",
                             ResourceName = "Admin.GiftVouchers",
                             PermissionNames = new List<string> { PermissionSystemName.GiftVouchers },
@@ -336,17 +335,8 @@ namespace Grand.Business.Core.Utilities.System
                             ActionName = "List",
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Customer reminders",
-                            ResourceName = "Admin.Customers.CustomerReminders",
-                            PermissionNames = new List<string> { PermissionSystemName.Reminders },
-                            ControllerName = "CustomerReminder",
-                            ActionName = "List",
-                            DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
+                        },                        
+                        new () {
                             SystemName = "Affiliates",
                             ResourceName = "Admin.Affiliates",
                             PermissionNames = new List<string> { PermissionSystemName.Affiliates },
@@ -355,7 +345,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Contact attributes",
                             ResourceName = "Admin.Catalog.Attributes.ContactAttributes",
                             ControllerName = "ContactAttribute",
@@ -364,14 +354,14 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Newsletter",
                             ResourceName = "Admin.Marketing.Newsletter",
                             PermissionNames = new List<string> { PermissionSystemName.Campaigns, PermissionSystemName.NewsletterSubscribers },
                             IconClass = "fa fa-dot-circle-o",
                             DisplayOrder = 5,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Campaigns",
                                     ResourceName = "Admin.Marketing.Campaigns",
                                     PermissionNames = new List<string> { PermissionSystemName.Campaigns },
@@ -380,7 +370,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Newsletter categories",
                                     ResourceName = "Admin.Marketing.NewsletterCategory",
                                     PermissionNames = new List<string> { PermissionSystemName.NewsletterCategories },
@@ -389,7 +379,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Newsletter subscriptions",
                                     ResourceName = "Admin.Marketing.NewsletterSubscriptions",
                                     PermissionNames = new List<string> { PermissionSystemName.NewsletterSubscribers },
@@ -400,60 +390,15 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },                      
-                        new AdminSiteMap {
-                            SystemName = "Customer actions",
-                            ResourceName = "Admin.Customers.CustomerActions",
-                            PermissionNames = new List<string> { PermissionSystemName.Actions, PermissionSystemName.Banners, PermissionSystemName.InteractiveForms },
-                            IconClass = "fa fa-dot-circle-o",
-                            DisplayOrder = 6,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
-                                    SystemName = "Customer action type",
-                                    ResourceName = "Admin.Customers.Actiontype",
-                                    PermissionNames = new List<string> { PermissionSystemName.Actions },
-                                    ControllerName = "CustomerActionType",
-                                    ActionName = "ListTypes",
-                                    DisplayOrder = 0,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Customer actions",
-                                    ResourceName = "Admin.Customers.CustomerActions",
-                                    PermissionNames = new List<string> { PermissionSystemName.Actions },
-                                    ControllerName = "CustomerAction",
-                                    ActionName = "List",
-                                    DisplayOrder = 1,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Banners",
-                                    ResourceName = "Admin.Marketing.Banners",
-                                    PermissionNames = new List<string> { PermissionSystemName.Banners },
-                                    ControllerName = "Banner",
-                                    ActionName = "List",
-                                    DisplayOrder = 2,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "InteractiveForms",
-                                    ResourceName = "Admin.Marketing.InteractiveForms",
-                                    PermissionNames = new List<string> { PermissionSystemName.InteractiveForms },
-                                    ControllerName = "InteractiveForm",
-                                    ActionName = "List",
-                                    DisplayOrder = 3,
-                                    IconClass = "fa fa-dot-circle-o"
-                                }
-                            }
-                        },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "PushNotifications",
                             ResourceName = "Admin.PushNotifications",
                             PermissionNames = new List<string> { PermissionSystemName.PushNotifications },
                             ControllerName = "PushNotifications",
                             IconClass = "fa fa-dot-circle-o",
                             DisplayOrder = 7,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "PushNotifications",
                                     ResourceName = "Admin.PushNotifications.Send",
                                     PermissionNames = new List<string> { PermissionSystemName.PushNotifications },
@@ -462,7 +407,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "PushNotifications",
                                     ResourceName = "Admin.PushNotifications.Messages",
                                     PermissionNames = new List<string> { PermissionSystemName.PushNotifications },
@@ -471,7 +416,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "PushNotifications",
                                     ResourceName = "Admin.PushNotifications.Receivers",
                                     PermissionNames = new List<string> { PermissionSystemName.PushNotifications },
@@ -482,14 +427,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Documents",
                             ResourceName = "Admin.Marketing.Documents",
                             PermissionNames = new List<string> { PermissionSystemName.Documents },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 8,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Document types",
                                     ResourceName = "Admin.Marketing.Document.Type",
                                     ControllerName = "Document",
@@ -497,7 +442,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Document list",
                                     ResourceName = "Admin.Marketing.Document.List",
                                     ControllerName = "Document",
@@ -506,10 +451,10 @@ namespace Grand.Business.Core.Utilities.System
                                     IconClass = "fa fa-dot-circle-o"
                                 }
                             }
-                        },
+                        }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Content",
                     ResourceName = "Admin.Content",
                     PermissionNames = new List<string> { PermissionSystemName.News, PermissionSystemName.Blog,
@@ -517,8 +462,8 @@ namespace Grand.Business.Core.Utilities.System
                         PermissionSystemName.Knowledgebase, PermissionSystemName.Courses },
                     IconClass = "icon-layers",
                     DisplayOrder = 5,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Pages",
                             ResourceName = "Admin.Content.Pages",
                             PermissionNames = new List<string> { PermissionSystemName.Pages },
@@ -527,7 +472,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Message templates",
                             ResourceName = "Admin.Content.MessageTemplates",
                             PermissionNames = new List<string> { PermissionSystemName.MessageTemplates },
@@ -536,7 +481,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Knowledgebase",
                             ResourceName = "Admin.Content.Knowledgebase",
                             PermissionNames = new List<string> { PermissionSystemName.Knowledgebase },
@@ -545,7 +490,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "News",
                             ResourceName = "Admin.Content.News",
                             PermissionNames = new List<string> { PermissionSystemName.News },
@@ -554,14 +499,14 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Blog",
                             ResourceName = "Admin.Content.Blog",
                             PermissionNames = new List<string> { PermissionSystemName.Blog },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 4,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Blog categories",
                                     ResourceName = "Admin.Content.Blog.BlogCategories",
                                     ControllerName = "Blog",
@@ -569,7 +514,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Blog posts",
                                     ResourceName = "Admin.Content.Blog.BlogPosts",
                                     ControllerName = "Blog",
@@ -577,7 +522,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Blog comments",
                                     ResourceName = "Admin.Content.Blog.Comments",
                                     ControllerName = "Blog",
@@ -587,14 +532,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Course",
                             ResourceName = "Admin.Content.Course",
                             PermissionNames = new List<string> { PermissionSystemName.Courses },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 5,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Course level",
                                     ResourceName = "Admin.Content.Course.Level",
                                     ControllerName = "Course",
@@ -602,7 +547,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Manage courses",
                                     ResourceName = "Admin.Content.Course.Manage",
                                     ControllerName = "Course",
@@ -614,14 +559,14 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Reports",
                     ResourceName = "Admin.Reports",
                     PermissionNames = new List<string> { PermissionSystemName.Reports, PermissionSystemName.ActivityLog },
                     IconClass = "icon-bar-chart",
                     DisplayOrder = 6,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Low stock report",
                             ResourceName = "Admin.Reports.LowStockReport",
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
@@ -630,7 +575,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Bestsellers",
                             ResourceName = "Admin.Reports.Bestsellers",
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
@@ -639,7 +584,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Products never purchased",
                             ResourceName = "Admin.Reports.NeverSold",
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
@@ -648,7 +593,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Country report",
                             ResourceName = "Admin.Reports.Country",
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
@@ -658,7 +603,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Customer reports",
                             ResourceName = "Admin.Reports.Customers",
                             PermissionNames = new List<string> { PermissionSystemName.Reports },
@@ -668,7 +613,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Activity Stats",
                             ResourceName = "Admin.Reports.ActivityLog.ActivityStats",
                             PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
@@ -679,7 +624,7 @@ namespace Grand.Business.Core.Utilities.System
                          }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Configuration",
                     ResourceName = "Admin.Configuration",
                     PermissionNames = new List<string> { PermissionSystemName.Countries, PermissionSystemName.Languages, PermissionSystemName.Settings,
@@ -688,8 +633,8 @@ namespace Grand.Business.Core.Utilities.System
                         PermissionSystemName.ActivityLog, PermissionSystemName.Acl, PermissionSystemName.EmailAccounts, PermissionSystemName.Plugins, PermissionSystemName.Widgets, PermissionSystemName.Stores, PermissionSystemName.Maintenance },
                     IconClass = "icon-settings",
                     DisplayOrder = 7,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Stores",
                             ResourceName = "Admin.Configuration.Stores",
                             PermissionNames = new List<string> { PermissionSystemName.Stores },
@@ -698,7 +643,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Permissions",
                             ResourceName = "Admin.Configuration.Permissions",
                             PermissionNames = new List<string> { PermissionSystemName.Acl },
@@ -707,7 +652,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "EmailAccounts",
                             ResourceName = "Admin.Configuration.EmailAccounts",
                             PermissionNames = new List<string> { PermissionSystemName.EmailAccounts },
@@ -716,7 +661,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Languages",
                             ResourceName = "Admin.Configuration.Languages",
                             PermissionNames = new List<string> { PermissionSystemName.Languages },
@@ -725,7 +670,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Currencies",
                             ResourceName = "Admin.Configuration.Currencies",
                             PermissionNames = new List<string> { PermissionSystemName.Currencies },
@@ -734,7 +679,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Countries",
                             ResourceName = "Admin.Configuration.Countries",
                             PermissionNames = new List<string> { PermissionSystemName.Countries },
@@ -743,7 +688,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 5,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Search engine friendly names",
                             ResourceName = "Admin.Configuration.SeNames",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -752,14 +697,14 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 6,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Payment",
                             ResourceName = "Admin.Configuration.Payment",
                             PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 7,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Payment methods",
                                     ResourceName = "Admin.Configuration.Payment.Methods",
                                     PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
@@ -768,7 +713,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Payment settings",
                                     ResourceName = "Admin.Configuration.Payment.Settings",
                                     PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
@@ -777,7 +722,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Payment method restrictions",
                                     ResourceName = "Admin.Configuration.Payment.MethodRestrictions",
                                     PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
@@ -788,14 +733,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Shipping",
                             ResourceName = "Admin.Configuration.Shipping",
                             PermissionNames = new List<string> { PermissionSystemName.ShippingSettings },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 8,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Shipping providers",
                                     ResourceName = "Admin.Configuration.Shipping.Providers",
                                     ControllerName = "Shipping",
@@ -803,7 +748,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Shipping methods",
                                     ResourceName = "Admin.Configuration.Shipping.Methods",
                                     ControllerName = "Shipping",
@@ -811,7 +756,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Shipping method restrictions",
                                     ResourceName = "Admin.Configuration.Shipping.Restrictions",
                                     ControllerName = "Shipping",
@@ -819,7 +764,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 2,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Shipping settings",
                                     ResourceName = "Admin.Configuration.Shipping.Settings",
                                     ControllerName = "Shipping",
@@ -827,16 +772,16 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 3,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Measures",
                                     ResourceName = "Admin.Configuration.Measures",
                                     PermissionNames = new List<string> { PermissionSystemName.Measures },
                                     ControllerName = "Measure",
                                     DisplayOrder = 4,
                                     ActionName = "Index",
-                                    IconClass = "fa fa-arrow-circle-o-right",
+                                    IconClass = "fa fa-arrow-circle-o-right"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Delivery dates",
                                     ResourceName = "Admin.Configuration.Shipping.DeliveryDates",
                                     ControllerName = "Shipping",
@@ -844,7 +789,7 @@ namespace Grand.Business.Core.Utilities.System
                                     ActionName = "DeliveryDates",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Warehouses",
                                     ResourceName = "Admin.Configuration.Shipping.Warehouses",
                                     ControllerName = "Shipping",
@@ -852,7 +797,7 @@ namespace Grand.Business.Core.Utilities.System
                                     ActionName = "Warehouses",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "PickupPoints",
                                     ResourceName = "Admin.Configuration.Shipping.PickupPoints",
                                     ControllerName = "Shipping",
@@ -862,14 +807,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Tax",
                             ResourceName = "Admin.Configuration.Tax",
                             PermissionNames = new List<string> { PermissionSystemName.TaxSettings },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 9,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Tax providers",
                                     ResourceName = "Admin.Configuration.Tax.Providers",
                                     ControllerName = "Tax",
@@ -877,7 +822,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Tax categories",
                                     ResourceName = "Admin.Configuration.Tax.Categories",
                                     ControllerName = "Tax",
@@ -885,7 +830,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Tax settings",
                                     ResourceName = "Admin.Configuration.Tax.Settings",
                                     ControllerName = "Tax",
@@ -895,14 +840,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Templates",
                             ResourceName = "Admin.Configuration.Layouts",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
                             IconClass = "fa fa-arrow-circle-o-right",
                             DisplayOrder = 10,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Category layouts",
                                     ResourceName = "Admin.Configuration.Layouts.Category",
                                     ControllerName = "Layout",
@@ -910,7 +855,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Brand layouts",
                                     ResourceName = "Admin.Configuration.Layouts.Brand",
                                     ControllerName = "Layout",
@@ -918,7 +863,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Collection layouts",
                                     ResourceName = "Admin.Configuration.Layouts.Collection",
                                     ControllerName = "Layout",
@@ -926,7 +871,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 2,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Product layouts",
                                     ResourceName = "Admin.Configuration.Layouts.Product",
                                     ControllerName = "Layout",
@@ -934,7 +879,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 3,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Page layouts",
                                     ResourceName = "Admin.Configuration.Layouts.Page",
                                     ControllerName = "Layout",
@@ -946,14 +891,14 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Settings",
                     PermissionNames = new List<string> { PermissionSystemName.Settings, PermissionSystemName.ActivityLog },
                     ResourceName = "Admin.Settings",
                     IconClass = "icon-wrench",
                     DisplayOrder = 8,
-                    ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "General and common settings",
                                     ResourceName = "Admin.Settings.GeneralCommon",
                                     ControllerName = "Setting",
@@ -961,7 +906,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Catalog settings",
                                     ResourceName = "Admin.Settings.Catalog",
                                     ControllerName = "Setting",
@@ -969,7 +914,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Customer settings",
                                     ResourceName = "Admin.Settings.Customer",
                                     ControllerName = "Setting",
@@ -977,7 +922,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 2,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Sales settings",
                                     ResourceName = "Admin.Settings.Sales",
                                     ControllerName = "Setting",
@@ -985,7 +930,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 3,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Media settings",
                                     ResourceName = "Admin.Settings.Media",
                                     ControllerName = "Setting",
@@ -993,7 +938,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 4,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Content settings",
                                     ResourceName = "Admin.Settings.Content",
                                     ControllerName = "Setting",
@@ -1001,7 +946,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 5,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Vendor settings",
                                     ResourceName = "Admin.Settings.Vendor",
                                     ControllerName = "Setting",
@@ -1009,7 +954,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 6,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Push notifications settings",
                                     ResourceName = "Admin.Settings.PushNotifications",
                                     ControllerName = "Setting",
@@ -1017,7 +962,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 7,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Admin search settings",
                                     ResourceName = "Admin.Settings.AdminSearch",
                                     ControllerName = "Setting",
@@ -1025,7 +970,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 8,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "System settings",
                                     ResourceName = "Admin.Settings.System",
                                     ControllerName = "Setting",
@@ -1033,7 +978,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 9,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Activity Types",
                                     ResourceName = "Admin.Settings.ActivityLog.ActivityLogType",
                                     PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
@@ -1044,14 +989,14 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Plugins",
                     ResourceName = "Admin.Plugins",
                     PermissionNames = new List<string> { PermissionSystemName.Plugins, PermissionSystemName.Widgets, PermissionSystemName.ExternalAuthenticationMethods},
                     IconClass = "icon-puzzle",
                     DisplayOrder = 9,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "External authentication methods",
                             ResourceName = "Admin.Plugins.ExternalAuthenticationMethods",
                             PermissionNames = new List<string> { PermissionSystemName.ExternalAuthenticationMethods },
@@ -1060,7 +1005,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Widgets",
                             ResourceName = "Admin.Plugins.Widgets",
                             PermissionNames = new List<string> { PermissionSystemName.Widgets },
@@ -1069,7 +1014,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Local plugins",
                             ResourceName = "Admin.Plugins.Local",
                             PermissionNames = new List<string> { PermissionSystemName.Plugins },
@@ -1080,15 +1025,15 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "System",
                     ResourceName = "Admin.System",
                     PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
                         PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System },
                     IconClass = "icon-info",
                     DisplayOrder = 10,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Log",
                             ResourceName = "Admin.System.Log",
                             PermissionNames = new List<string> { PermissionSystemName.SystemLog },
@@ -1097,7 +1042,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "System information",
                             ResourceName = "Admin.System.SystemInfo",
                             PermissionNames = new List<string> { PermissionSystemName.System },
@@ -1106,7 +1051,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Queued emails",
                             ResourceName = "Admin.System.QueuedEmails",
                             PermissionNames = new List<string> { PermissionSystemName.MessageQueue },
@@ -1115,7 +1060,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 2,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Contact Us form",
                             ResourceName = "Admin.System.ContactForm",
                             PermissionNames = new List<string> { PermissionSystemName.MessageContactForm },
@@ -1124,7 +1069,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 3,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Maintenance",
                             ResourceName = "Admin.System.Maintenance",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -1133,7 +1078,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Schedule tasks",
                             ResourceName = "Admin.System.ScheduleTasks",
                             PermissionNames = new List<string> { PermissionSystemName.ScheduleTasks },
@@ -1142,14 +1087,14 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 5,
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Developer tools",
                             ResourceName = "Admin.System.DeveloperTools",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance, PermissionSystemName.System },
                             IconClass = "fa fa-dot-circle-o",
                             DisplayOrder = 6,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
+                            ChildNodes = new List<AdminSiteMap> {
+                                new () {
                                     SystemName = "Manage API Users",
                                     ResourceName = "Admin.System.APIUsers",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -1158,7 +1103,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 0,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Roslyn compiler",
                                     ResourceName = "Admin.System.Roslyn",
                                     PermissionNames = new List<string> { PermissionSystemName.System },
@@ -1167,7 +1112,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 1,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Custom css",
                                     ResourceName = "Admin.System.CustomCss",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -1176,7 +1121,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 2,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Custom JS",
                                     ResourceName = "Admin.System.CustomJs",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -1185,7 +1130,7 @@ namespace Grand.Business.Core.Utilities.System
                                     DisplayOrder = 3,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                                new AdminSiteMap {
+                                new () {
                                     SystemName = "Robot.txt",
                                     ResourceName = "Admin.System.RobotsTxt",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -1198,13 +1143,13 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Help",
                     ResourceName = "Admin.Help",
                     IconClass = "icon-question",
                     DisplayOrder = 11,
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
+                    ChildNodes = new List<AdminSiteMap> {
+                        new () {
                             SystemName = "Community forums",
                             ResourceName = "Admin.Help.Forums",
                             Url = "https://grandnode.com/boards?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Community",
@@ -1212,7 +1157,7 @@ namespace Grand.Business.Core.Utilities.System
                             DisplayOrder = 0,
                             OpenUrlInNewTab = true
                         },
-                        new AdminSiteMap {
+                        new () {
                             SystemName = "Premium support services",
                             ResourceName = "Admin.Help.SupportServices",
                             Url = "https://grandnode.com/premium-support-packages?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Support",
@@ -1222,12 +1167,12 @@ namespace Grand.Business.Core.Utilities.System
                         }
                     }
                 },
-                new AdminSiteMap {
+                new () {
                     SystemName = "Third party plugins",
                     ResourceName = "Admin.Plugins",
-                    DisplayOrder = 12,
+                    DisplayOrder = 12
                 }
 
             };
-    };
+    }
 }

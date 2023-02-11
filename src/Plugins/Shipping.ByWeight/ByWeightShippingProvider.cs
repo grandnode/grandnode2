@@ -13,7 +13,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Shipping.ByWeight.Services;
 
@@ -28,7 +27,6 @@ namespace Shipping.ByWeight
         private readonly IServiceProvider _serviceProvider;
         private readonly ITranslationService _translationService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly ICurrencyService _currencyService;
         private readonly ByWeightShippingSettings _byWeightShippingSettings;
@@ -42,7 +40,6 @@ namespace Shipping.ByWeight
             ITranslationService translationService,
             IProductService productService,
             IServiceProvider serviceProvider,
-            IProductAttributeParser productAttributeParser,
             ICheckoutAttributeParser checkoutAttributeParser,
             ICurrencyService currencyService,
             ByWeightShippingSettings byWeightShippingSettings)
@@ -52,7 +49,6 @@ namespace Shipping.ByWeight
             _translationService = translationService;
             _productService = productService;
             _serviceProvider = serviceProvider;
-            _productAttributeParser = productAttributeParser;
             _checkoutAttributeParser = checkoutAttributeParser;
             _currencyService = currencyService;
             _byWeightShippingSettings = byWeightShippingSettings;
@@ -121,7 +117,7 @@ namespace Shipping.ByWeight
             double attributesTotalWeight = 0;
             if (shoppingCartItem.Attributes != null && shoppingCartItem.Attributes.Any())
             {
-                var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
+                var attributeValues = product.ParseProductAttributeValues(shoppingCartItem.Attributes);
                 foreach (var attributeValue in attributeValues)
                 {
                     switch (attributeValue.AttributeValueTypeId)
@@ -141,6 +137,8 @@ namespace Shipping.ByWeight
                                     attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
                                 }
                             }
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -306,13 +304,13 @@ namespace Shipping.ByWeight
 
         public IList<string> LimitedToGroups => new List<string>();
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
         {
             //you can implement here any validation logic
             return await Task.FromResult(new List<string>());
         }
 
-        public async Task<string> GetPublicViewComponentName()
+        public async Task<string> GetControllerRouteName()
         {
             return await Task.FromResult("");
         }

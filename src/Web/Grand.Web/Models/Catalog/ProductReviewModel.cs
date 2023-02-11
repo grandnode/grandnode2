@@ -1,9 +1,10 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductReviewOverviewModel : BaseModel
+    public class ProductReviewOverviewModel : BaseModel
     {
         public string ProductId { get; set; }
 
@@ -14,7 +15,7 @@ namespace Grand.Web.Models.Catalog
         public bool AllowCustomerReviews { get; set; }
     }
 
-    public partial class ProductReviewsModel : BaseModel
+    public class ProductReviewsModel : BaseModel
     {
         public ProductReviewsModel()
         {
@@ -23,6 +24,8 @@ namespace Grand.Web.Models.Catalog
         }
         public string ProductId { get; set; }
 
+        public bool CaptchaValid { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
         public string ProductName { get; set; }
 
         public string ProductSeName { get; set; }
@@ -32,7 +35,7 @@ namespace Grand.Web.Models.Catalog
         public ProductReviewOverviewModel ProductReviewOverviewModel { get; set; }
     }
 
-    public partial class ProductReviewModel : BaseEntityModel
+    public class ProductReviewModel : BaseEntityModel
     {
         public string CustomerId { get; set; }
         public string CustomerName { get; set; }
@@ -47,7 +50,7 @@ namespace Grand.Web.Models.Catalog
     }
 
 
-    public partial class ProductReviewHelpfulnessModel : BaseModel
+    public class ProductReviewHelpfulnessModel : BaseModel
     {
         public string ProductReviewId { get; set; }
         public string ProductId { get; set; }
@@ -57,7 +60,7 @@ namespace Grand.Web.Models.Catalog
         public int HelpfulNoTotal { get; set; }
     }
 
-    public partial class AddProductReviewModel : BaseModel
+    public class AddProductReviewModel : BaseModel
     {
         [GrandResourceDisplayName("Reviews.Fields.Title")]
         public string Title { get; set; }

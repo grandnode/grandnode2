@@ -4,7 +4,7 @@ using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidNewsLetterSubscription : Drop
+    public class LiquidNewsLetterSubscription : Drop
     {
         private readonly NewsLetterSubscription _subscription;
         private readonly Store _store;

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutShippingMethodModel : BaseModel
+    public class CheckoutShippingMethodModel : BaseModel
     {
         public CheckoutShippingMethodModel()
         {
@@ -13,11 +13,13 @@ namespace Grand.Web.Models.Checkout
 
         public IList<ShippingMethodModel> ShippingMethods { get; set; }
 
+        public string ShippingOption { get; set; }
+        public IDictionary<string, string> Data{ get; set; }
         public IList<string> Warnings { get; set; }
 
         #region Nested classes
 
-        public partial class ShippingMethodModel : BaseModel
+        public class ShippingMethodModel : BaseModel
         {
             public string ShippingRateProviderSystemName { get; set; }
             public string Name { get; set; }

@@ -1,9 +1,10 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class WishlistEmailAFriendModel : BaseModel
+    public class WishlistEmailAFriendModel : BaseModel
     {
         [GrandResourceDisplayName("Wishlist.EmailAFriend.FriendEmail")]
         public string FriendEmail { get; set; }
@@ -19,5 +20,6 @@ namespace Grand.Web.Models.ShoppingCart
 
         public bool DisplayCaptcha { get; set; }
         
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

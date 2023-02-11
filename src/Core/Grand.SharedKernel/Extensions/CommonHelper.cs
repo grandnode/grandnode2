@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -111,8 +109,12 @@ namespace Grand.SharedKernel.Extensions
             if (str.Length > maxLength)
             {
                 var pLen = postfix == null ? 0 : postfix.Length;
+
                 var result = str[..(maxLength - pLen)];
-                if (!String.IsNullOrEmpty(postfix))
+                if(string.IsNullOrEmpty(result))
+                    return str[..(maxLength)];
+
+                if (!string.IsNullOrEmpty(postfix))
                 {
                     result += postfix;
                 }
@@ -157,7 +159,32 @@ namespace Grand.SharedKernel.Extensions
             }
             return true;
         }
-
+        
+        /// <summary>
+        /// Check if type is simple
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsSimpleType(Type? type)
+        {
+            if (type == null)
+                return true;
+            
+            return
+                type.IsPrimitive ||
+                new Type[] {
+                    typeof(string),
+                    typeof(decimal),
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(TimeSpan),
+                    typeof(Guid)
+                }.Contains(type) ||
+                type.IsEnum ||
+                Convert.GetTypeCode(type) != TypeCode.Object ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]))
+                ;
+        }
         /// <summary>
         /// Converts a value to a destination type.
         /// </summary>
@@ -213,10 +240,11 @@ namespace Grand.SharedKernel.Extensions
         /// <summary>
         /// Convert enum for front-end
         /// </summary>
-        /// <param name="str">Input string</param>
+        /// <param name="value">Enum value</param>
         /// <returns>Converted string</returns>
-        public static string ConvertEnum(string str)
+        public static string ConvertEnum<T>(T value) where T : struct
         {
+            var str = value.ToString();
             if (string.IsNullOrEmpty(str)) return string.Empty;
             string result = string.Empty;
             foreach (var c in str)

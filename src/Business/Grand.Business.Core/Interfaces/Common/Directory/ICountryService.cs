@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
     /// <summary>
     /// Country service interface
     /// </summary>
-    public partial interface ICountryService
+    public interface ICountryService
     {      
         /// <summary>
         /// Gets all countries
@@ -86,9 +86,8 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
         /// </summary>
         /// <param name="countryId">Country identifier</param>
         /// <param name="languageId">Language identifier.</param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>States</returns>
-        Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "", bool showHidden = false);
+        Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "");
 
         /// <summary>
         /// Inserts a state/province

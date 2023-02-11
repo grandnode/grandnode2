@@ -3,14 +3,14 @@
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var articleUrl = Url.RouteUrl("KnowledgebaseArticle", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(articleUrl);
     }
 }
@@ -28,7 +28,7 @@
             @foreach (var cat in Model.CategoryBreadcrumb)
             {
                 <li class="breadcrumb-item">
-                    <a href="@Url.RouteUrl("KnowledgebaseCategory", new { SeName = cat.SeName })" title="@cat.Name">@cat.Name</a>
+                    <a href="@Url.RouteUrl("KnowledgebaseCategory", new { cat.SeName })" title="@cat.Name">@cat.Name</a>
                 </li>
             }
         </ol>
@@ -36,7 +36,7 @@
 }
 
 @section left {
-    @await Component.InvokeAsync("KnowledgebaseCategories", new Grand.Web.Models.Knowledgebase.KnowledgebaseHomePageModel { CurrentCategoryId = Model.ParentCategoryId })
+    @await Component.InvokeAsync("KnowledgebaseCategories", new KnowledgebaseHomePageModel { CurrentCategoryId = Model.ParentCategoryId })
 }
 
 <div class="page">
@@ -46,7 +46,7 @@
 
     <div class="card">
         <div class="card-body">
-            @Html.Raw(@Model.Content)
+            @Html.Raw(Model.Content)
         </div>
     </div>
 
@@ -56,7 +56,7 @@
         <div class="list-group">
             @foreach (var article in Model.RelatedArticles)
             {
-                <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = article.SeName })">
+                <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { article.SeName })">
                     @article.Name
                 </a>
             }
@@ -68,11 +68,11 @@
         <div class="fieldset new-comment generalMarginSupporter" id="comments">
             <h4 class="generalTitle generalMarginSupporter">@Loc["Knowledgebase.Article.Comments.LeaveYourComment"]</h4>
             <div class="notifications">
-                <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                <div asp-validation-summary="All" class="message-error"></div>
                 @{
                     var result = TempData["Grand.knowledgebase.addarticlecomment.result"] as string;
                 }
-                @if (!String.IsNullOrEmpty(result))
+                @if (!string.IsNullOrEmpty(result))
                 {
                     <div class="result card bg-info p-3 text-white">@result</div>
                 }
@@ -115,7 +115,7 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="col-12 px-0">
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col">
                                         @comment.CommentText

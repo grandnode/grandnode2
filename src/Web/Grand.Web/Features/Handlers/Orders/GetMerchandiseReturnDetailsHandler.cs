@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Infrastructure;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -43,39 +43,33 @@ namespace Grand.Web.Features.Handlers.Orders
 
         public async Task<MerchandiseReturnDetailsModel> Handle(GetMerchandiseReturnDetails request, CancellationToken cancellationToken)
         {
-            var model = new MerchandiseReturnDetailsModel();
-            model.Comments = request.MerchandiseReturn.CustomerComments;
-            model.ReturnNumber = request.MerchandiseReturn.ReturnNumber;
-            model.ExternalId = request.MerchandiseReturn.ExternalId;
-            model.MerchandiseReturnStatus = request.MerchandiseReturn.MerchandiseReturnStatus;
-            model.CreatedOnUtc = request.MerchandiseReturn.CreatedOnUtc;
-            model.ShowPickupAddress = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress;
-            model.ShowPickupDate = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate;
-            model.PickupDate = request.MerchandiseReturn.PickupDate;
-            model.UserFields = request.MerchandiseReturn.UserFields;
-            model.PickupAddress = await _mediator.Send(new GetAddressModel()
-            {
-                Language = request.Language,
-                Address = request.MerchandiseReturn.PickupAddress,
-                ExcludeProperties = false,
-            });
+            var model = new MerchandiseReturnDetailsModel {
+                Comments = request.MerchandiseReturn.CustomerComments,
+                ReturnNumber = request.MerchandiseReturn.ReturnNumber,
+                ExternalId = request.MerchandiseReturn.ExternalId,
+                MerchandiseReturnStatus = request.MerchandiseReturn.MerchandiseReturnStatus,
+                CreatedOnUtc = request.MerchandiseReturn.CreatedOnUtc,
+                ShowPickupAddress = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress,
+                ShowPickupDate = _orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate,
+                PickupDate = request.MerchandiseReturn.PickupDate,
+                UserFields = request.MerchandiseReturn.UserFields,
+                PickupAddress = await _mediator.Send(new GetAddressModel {
+                    Language = request.Language,
+                    Address = request.MerchandiseReturn.PickupAddress,
+                    ExcludeProperties = false
+                }, cancellationToken)
+            };
 
             foreach (var item in request.MerchandiseReturn.MerchandiseReturnItems)
             {
-                var orderItem = request.Order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+                var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
 
-                string unitPrice = string.Empty;
-                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                {
+                var unitPrice = _priceFormatter.FormatPrice(request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ?
                     //including tax
-                    unitPrice = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax);
-                }
-                else
-                {
+                    orderItem.UnitPriceInclTax :
                     //excluding tax
-                    unitPrice = _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax);
-                }
+                    orderItem.UnitPriceExclTax);
 
                 model.MerchandiseReturnItems.Add(new MerchandiseReturnDetailsModel.MerchandiseReturnItemModel
                 {
@@ -106,7 +100,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 {
                     Id = merchandiseReturnNote.Id,
                     MerchandiseReturnId = merchandiseReturnNote.MerchandiseReturnId,
-                    HasDownload = !String.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
+                    HasDownload = !string.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
                     Note =  merchandiseReturnNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc)
                 });

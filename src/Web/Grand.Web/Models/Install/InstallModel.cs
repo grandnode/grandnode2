@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Install
 {
-    public partial class InstallModel : BaseModel
+    public class InstallModel : BaseModel
     {
         public InstallModel()
         {

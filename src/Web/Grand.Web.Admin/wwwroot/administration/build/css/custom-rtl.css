@@ -3361,6 +3361,12 @@ span.tag a {
     text-align: right;
 }
 
+label.required::before {
+    content: "*";
+    font-weight: bold;
+    color: red;
+}
+
 .k-panelbar .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active {
     border-bottom-color: #169f85;
 }

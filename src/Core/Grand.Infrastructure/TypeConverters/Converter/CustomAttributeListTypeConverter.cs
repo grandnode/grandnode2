@@ -9,46 +9,31 @@ namespace Grand.Infrastructure.TypeConverters.Converter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            if (sourceType == typeof(string))
-            {
-                return true;
-            }
-
-            return base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (value is string)
+            if (value is not string valueStr) return base.ConvertFrom(context, culture, value);
+            List<CustomAttribute> customAttributes = null;
+            if (string.IsNullOrEmpty(valueStr)) return null;
+            try
             {
-                List<CustomAttribute> customAttributes = null;
-                var valueStr = value as string;
-                if (!string.IsNullOrEmpty(valueStr))
-                {
-                    try
-                    {
-                        customAttributes = JsonSerializer.Deserialize<List<CustomAttribute>>(valueStr);
-                    }
-                    catch
-                    {
-                    }
-                }
-                return customAttributes;
+                customAttributes = JsonSerializer.Deserialize<List<CustomAttribute>>(valueStr);
             }
-            return base.ConvertFrom(context, culture, value);
+            catch
+            {
+                // ignored
+            }
+
+            return customAttributes;
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == typeof(string))
             {
-                var customAttributes = value as List<CustomAttribute>;
-                if (customAttributes != null)
-                {
-                    return JsonSerializer.Serialize(customAttributes);
-                }
-
-                return "";
+                return value is List<CustomAttribute> customAttributes ? JsonSerializer.Serialize(customAttributes) : "";
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

@@ -6,19 +6,19 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product review service
     /// </summary>
-    public partial interface IProductReviewService
+    public interface IProductReviewService
     {
         /// <summary>
         /// Insert product review 
         /// </summary>
-        /// <param name="productreview">Product review</param>
-        Task InsertProductReview(ProductReview productreview);
+        /// <param name="productReview">Product review</param>
+        Task InsertProductReview(ProductReview productReview);
 
         /// <summary>
         /// Update product review 
         /// </summary>
-        /// <param name="productreview">Product review</param>
-        Task UpdateProductReview(ProductReview productreview);
+        /// <param name="productReview">Product review</param>
+        Task UpdateProductReview(ProductReview productReview);
 
         /// <summary>
         /// Deletes a product review
@@ -36,6 +36,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <param name="message">Search title or review text; null to load all records</param>
         /// <param name="storeId">Store identifier; "" to load all records</param>
         /// <param name="productId">Product identifier; "" to load all records</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Reviews</returns>
         Task<IPagedList<ProductReview>> GetAllProductReviews(string customerId, bool? approved = null,
             DateTime? fromUtc = null, DateTime? toUtc = null,

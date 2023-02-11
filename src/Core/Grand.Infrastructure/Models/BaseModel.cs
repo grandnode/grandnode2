@@ -6,7 +6,7 @@ namespace Grand.Infrastructure.Models
     /// <summary>
     /// Represents base model
     /// </summary>
-    public partial class BaseModel
+    public class BaseModel
     {
         #region Ctor
 

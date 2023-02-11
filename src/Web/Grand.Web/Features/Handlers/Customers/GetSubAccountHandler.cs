@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Grand.Web.Features.Handlers.Customers
 {
-    public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountModel>
+    public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEditModel>
     {
         private readonly ICustomerService _customerService;
         public GetSubAccountHandler(ICustomerService customerService)
@@ -15,18 +15,17 @@ namespace Grand.Web.Features.Handlers.Customers
             _customerService = customerService;
         }
 
-        public async Task<SubAccountModel> Handle(GetSubAccount request, CancellationToken cancellationToken)
+        public async Task<SubAccountEditModel> Handle(GetSubAccount request, CancellationToken cancellationToken)
         {
             if (request.CurrentCustomer == null)
                 throw new ArgumentNullException(nameof(request.CurrentCustomer));
 
-            var model = new SubAccountModel();
+            var model = new SubAccountEditModel();
 
             var subaccount = await _customerService.GetCustomerById(customerId: request.CustomerId);
             if (subaccount != null && subaccount.OwnerId == request.CurrentCustomer.Id)
             {
-                model = new SubAccountModel()
-                {
+                model = new SubAccountEditModel {
                     Id = subaccount.Id,
                     Email = subaccount.Email,
                     Active = subaccount.Active,

@@ -30,12 +30,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
-            if (!collection.Any())
-                return NotFound();
+            if (!collection.Any()) return NotFound();
 
             return Ok(collection);
         }
@@ -47,8 +45,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>()));
         }
@@ -60,15 +57,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] CollectionDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new AddCollectionCommand() { Model = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddCollectionCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Update entity in Collection", OperationId = "UpdateCollection")]
@@ -79,22 +71,13 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Put([FromBody] CollectionDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(model.Id));
-            if (!collection.Any())
-            {
-                return NotFound();
-            }
+            if (!collection.Any()) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new UpdateCollectionCommand() { Model = model });
-                return Ok(model);
-            }
-
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new UpdateCollectionCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Partially update entity in Collection", OperationId = "PartiallyUpdateCollection")]
@@ -105,24 +88,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<CollectionDto> model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
-            if (!collection.Any())
-            {
-                return NotFound();
-            }
+            if (!collection.Any()) return NotFound();
+
             var man = collection.FirstOrDefault();
             model.ApplyTo(man);
-
-            if (ModelState.IsValid)
-            {
-                await _mediator.Send(new UpdateCollectionCommand() { Model = man });
-                return Ok();
-            }
-
-            return BadRequest(ModelState);
+            await _mediator.Send(new UpdateCollectionCommand() { Model = man });
+            return Ok();
         }
 
         [SwaggerOperation(summary: "Delete entity in Collection", OperationId = "DeleteCollection")]
@@ -132,14 +106,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Collections))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
-            if (!collection.Any())
-            {
-                return NotFound();
-            }
+            if (!collection.Any()) return NotFound();
 
             await _mediator.Send(new DeleteCollectionCommand() { Model = collection.FirstOrDefault() });
 

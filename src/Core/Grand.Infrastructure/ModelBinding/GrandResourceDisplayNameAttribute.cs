@@ -7,12 +7,6 @@ namespace Grand.Infrastructure.ModelBinding
     /// </summary>
     public class GrandResourceDisplayNameAttribute : DisplayNameAttribute, IModelAttribute
     {
-        #region Fields
-
-        private string _resourceValue = string.Empty;
-
-        #endregion
-
         #region Ctor
 
         /// <summary>
@@ -36,9 +30,7 @@ namespace Grand.Infrastructure.ModelBinding
         /// <summary>
         /// Gets name of the attribute
         /// </summary>
-        public string Name {
-            get { return nameof(GrandResourceDisplayNameAttribute); }
-        }
+        public string Name => nameof(GrandResourceDisplayNameAttribute);
 
         #endregion
     }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class DeleteAccountModel : BaseModel
+    public class DeleteAccountModel : BaseModel
     {
         [DataType(DataType.Password)]
         [GrandResourceDisplayName("Account.DeleteAccount.Fields.Password")]

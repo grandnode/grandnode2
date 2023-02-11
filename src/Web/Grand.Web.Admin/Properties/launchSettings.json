@@ -14,14 +14,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
-    "Grand.Web.Admin": {
+    },    
+    "Kestrel": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "https://localhost:5011/admin",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:5001;http://localhost:5000"
+      "applicationUrl": "https://localhost:5011;http://localhost:5010"
     }
   }
 }

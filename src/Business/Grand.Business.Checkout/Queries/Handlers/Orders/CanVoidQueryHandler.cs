@@ -23,11 +23,8 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction.TransactionAmount == 0)
                 return false;
 
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Authorized &&
-                await _paymentService.SupportVoid(paymentTransaction.PaymentMethodSystemName))
-                return true;
-
-            return false;
+            return paymentTransaction.TransactionStatus == TransactionStatus.Authorized &&
+                   await _paymentService.SupportVoid(paymentTransaction.PaymentMethodSystemName);
         }
     }
 }

@@ -8,7 +8,7 @@ using Grand.Api.Queries.Handlers.Common;
 using Grand.Api.Queries.Models.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,7 +44,7 @@ namespace Grand.Api.Infrastructure
                 services.AddCors(options =>
                 {
                     options.AddPolicy(Configurations.CorsPolicyName,
-                        builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
+                        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 });
                 //Add OData
                 services.AddControllers().AddOData(opt =>
@@ -53,6 +53,9 @@ namespace Grand.Api.Infrastructure
                     opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));
                     opt.Select().Filter().Count().Expand();
                 });
+
+                services.AddScoped<ModelValidationAttribute>();
+
             }
         }
         public int Priority => 505;
@@ -70,7 +73,7 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterDependencies(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
-            var typeFinder = new AppTypeSearcher();
+            var typeFinder = new TypeSearcher();
 
             //find dependency provided by other assemblies
             var dependencyInject = typeFinder.ClassesOfType<IDependencyEdmModel>();
@@ -88,9 +91,6 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterRequestHandler(IServiceCollection services)
         {
-
-            //Workaround - there is a problem with register generic type with IRequestHandler
-
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto, Domain.Directory.Country>,
                 IQueryable<CountryDto>>), typeof(GetGenericQueryHandler<CountryDto, Domain.Directory.Country>));
 

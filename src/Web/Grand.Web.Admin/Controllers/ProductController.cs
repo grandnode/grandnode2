@@ -1,20 +1,19 @@
-﻿using Grand.Business.Core.Commands.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Core.Interfaces.System.ExportImport;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
@@ -23,7 +22,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -44,14 +42,11 @@ namespace Grand.Web.Admin.Controllers
         private readonly IGroupService _groupService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IExportManager _exportManager;
-        private readonly IImportManager _importManager;
         private readonly IStoreService _storeService;
         private readonly IProductReservationService _productReservationService;
         private readonly IAuctionService _auctionService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPermissionService _permissionService;
-        private readonly IMediator _mediator;
 
         #endregion
 
@@ -66,14 +61,11 @@ namespace Grand.Web.Admin.Controllers
             IGroupService groupService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IExportManager exportManager,
-            IImportManager importManager,
             IStoreService storeService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             IDateTimeService dateTimeService,
-            IPermissionService permissionService,
-            IMediator mediator)
+            IPermissionService permissionService)
         {
             _productViewModelService = productViewModelService;
             _productService = productService;
@@ -83,14 +75,11 @@ namespace Grand.Web.Admin.Controllers
             _groupService = groupService;
             _languageService = languageService;
             _translationService = translationService;
-            _exportManager = exportManager;
-            _importManager = importManager;
             _storeService = storeService;
             _productReservationService = productReservationService;
             _auctionService = auctionService;
             _dateTimeService = dateTimeService;
             _permissionService = permissionService;
-            _mediator = mediator;
         }
 
         #endregion
@@ -304,7 +293,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
             Error(ModelState);
-            return RedirectToAction("Edit", new { id = id });
+            return RedirectToAction("Edit", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
@@ -321,7 +310,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Create)]
         [HttpPost]
-        public async Task<IActionResult> CopyProduct(ProductModel model, [FromServices] ICopyProductService copyProductService)
+        public async Task<IActionResult> CopyProduct(ProductModel model, [FromServices] ICopyProductService copyProductService, [FromServices] IPictureService pictureService)
         {
             var copyModel = model.CopyProductModel;
             try
@@ -340,7 +329,10 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 var newProduct = await copyProductService.CopyProduct(originalProduct,
-                    copyModel.Name, copyModel.Published, copyModel.CopyImages);
+                    copyModel.Name, copyModel.Published);
+
+                if (copyModel.CopyImages) await CopyImages(originalProduct, newProduct, pictureService);
+
                 Success("The product has been copied successfully");
                 return RedirectToAction("Edit", new { id = newProduct.Id });
             }
@@ -348,6 +340,28 @@ namespace Grand.Web.Admin.Controllers
             {
                 Error(exc.Message);
                 return RedirectToAction("Edit", new { id = copyModel.Id });
+            }
+        }
+
+        private async Task CopyImages(Product originalProduct, Product newProduct, IPictureService pictureService)
+        {
+            foreach (var productPicture in originalProduct.ProductPictures)
+            {
+                var picture = await pictureService.GetPictureById(productPicture.PictureId);
+                var pictureCopy = await pictureService.InsertPicture(
+                    await pictureService.LoadPictureBinary(picture),
+                    picture.MimeType,
+                    pictureService.GetPictureSeName(newProduct.Name),
+                    picture.AltAttribute,
+                    picture.TitleAttribute,
+                    false,
+                    Domain.Common.Reference.Product,
+                    newProduct.Id);
+
+                await _productService.InsertProductPicture(new ProductPicture {
+                    PictureId = pictureCopy.Id,
+                    DisplayOrder = productPicture.DisplayOrder
+                }, newProduct.Id);
             }
         }
 
@@ -1427,7 +1441,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
             model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
-            
+
             return View(model);
         }
         private async Task<List<SelectListItem>> PrepareAvailableAttributes(ISpecificationAttributeService specificationAttributeService)
@@ -1544,12 +1558,12 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
         [HttpPost]
-        public async Task<IActionResult> ExportExcelAll(ProductListModel model)
+        public async Task<IActionResult> ExportExcelAll(ProductListModel model, [FromServices] IExportManager<Product> exportManager)
         {
             var products = await _productViewModelService.PrepareProducts(model);
             try
             {
-                byte[] bytes = _exportManager.ExportProductsToXlsx(products);
+                byte[] bytes = await exportManager.Export(products);
                 return File(bytes, "text/xls", "products.xlsx");
             }
             catch (Exception exc)
@@ -1561,7 +1575,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
         [HttpPost]
-        public async Task<IActionResult> ExportExcelSelected(string selectedIds)
+        public async Task<IActionResult> ExportExcelSelected(string selectedIds, [FromServices] IExportManager<Product> exportManager)
         {
             var products = new List<Product>();
             if (selectedIds != null)
@@ -1578,13 +1592,13 @@ namespace Grand.Web.Admin.Controllers
                 products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
             }
 
-            byte[] bytes = _exportManager.ExportProductsToXlsx(products);
+            byte[] bytes = await exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile)
+        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile, [FromServices] IImportManager<ProductDto> importManager)
         {
             //a vendor ans staff cannot import products
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -1594,7 +1608,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportProductsFromXlsx(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {
@@ -2660,12 +2674,6 @@ namespace Grand.Web.Admin.Controllers
                 }
             }
 
-            //update fields on product
-            await _mediator.Send(new UpdateIntervalPropertiesCommand() { Product = product, IncludeBothDates = model.IncBothDate, Interval = model.Interval, IntervalUnit = (IntervalUnit)model.IntervalUnit });
-
-            //event notification
-            await _mediator.EntityUpdated(product);
-
             if (!ModelState.IsValid)
             {
                 Dictionary<string, Dictionary<string, object>> error = (Dictionary<string, Dictionary<string, object>>)ModelState.SerializeErrors();
@@ -2681,6 +2689,11 @@ namespace Grand.Web.Admin.Controllers
 
                 return Json(new { errors = s });
             }
+
+            //update fields on product
+            await _productService.UpdateProductField(product, x => x.Interval, model.Interval);
+            await _productService.UpdateProductField(product, x => x.IntervalUnitId, (IntervalUnit)model.IntervalUnit);
+            await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
             int minutesToAdd = 0;
             if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute)

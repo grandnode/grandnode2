@@ -8,7 +8,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task for sending queued message 
     /// </summary>
-    public partial class QueuedMessagesSendScheduleTask : IScheduleTask
+    public class QueuedMessagesSendScheduleTask : IScheduleTask
     {
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly IEmailSender _emailSender;
@@ -30,14 +30,14 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// </summary>
         public async Task Execute()
         {
-            var maxTries = 3;
+            const int maxTries = 3;
             var queuedEmails = await _queuedEmailService.SearchEmails(null, null, null, null, null, true, true, maxTries, false, -1, null, 0, 500);
             foreach (var queuedEmail in queuedEmails)
             {
-                var bcc = String.IsNullOrWhiteSpace(queuedEmail.Bcc)
+                var bcc = string.IsNullOrWhiteSpace(queuedEmail.Bcc)
                             ? null
                             : queuedEmail.Bcc.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                var cc = String.IsNullOrWhiteSpace(queuedEmail.CC)
+                var cc = string.IsNullOrWhiteSpace(queuedEmail.CC)
                             ? null
                             : queuedEmail.CC.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -63,7 +63,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 }
                 catch (Exception exc)
                 {
-                    _ = _logger.Error(string.Format("Error sending e-mail. {0}", exc.Message), exc);
+                    _ = _logger.Error($"Error sending e-mail. {exc.Message}", exc);
                 }
                 finally
                 {

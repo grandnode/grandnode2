@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
@@ -15,7 +15,6 @@ using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -26,8 +25,6 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly ITranslationService _translationService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ICacheBase _cacheBase;
-
         private readonly VendorSettings _vendorSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -41,7 +38,6 @@ namespace Grand.Web.Features.Handlers.Catalog
             MediaSettings mediaSettings,
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
-            ICacheBase cacheBase,
             CatalogSettings catalogSettings,
             CaptchaSettings captchaSettings)
         {
@@ -52,7 +48,6 @@ namespace Grand.Web.Features.Handlers.Catalog
             _mediaSettings = mediaSettings;
             _specificationAttributeService = specificationAttributeService;
             _httpContextAccessor = httpContextAccessor;
-            _cacheBase = cacheBase;
             _catalogSettings = catalogSettings;
             _captchaSettings = captchaSettings;
         }
@@ -69,14 +64,13 @@ namespace Grand.Web.Features.Handlers.Catalog
                 SeName = request.Vendor.GetSeName(request.Language.Id),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
                 RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage),
-                UserFields = request.Vendor.UserFields
+                UserFields = request.Vendor.UserFields,
+                Address = await _mediator.Send(new GetVendorAddress {
+                    Language = request.Language,
+                    Address = request.Vendor.Address,
+                    ExcludeProperties = false
+                }, cancellationToken)
             };
-
-            model.Address = await _mediator.Send(new GetVendorAddress() {
-                Language = request.Language,
-                Address = request.Vendor.Address,
-                ExcludeProperties = false,
-            });
 
             //prepare picture model
             var pictureModel = new PictureModel {
@@ -89,21 +83,21 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PictureModel = pictureModel;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
                 AllowCustomersToSelectPageSize = request.Vendor.AllowCustomersToSelectPageSize,
                 PageSize = request.Vendor.PageSize,
                 PageSizeOptions = request.Vendor.PageSizeOptions
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-              (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+              (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
             //products
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = await _mediator.Send(new GetSearchProductsQuery {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 Customer = request.Customer,
                 VendorId = request.Vendor.Id,
@@ -113,19 +107,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            }));
+            }, cancellationToken);
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products.products);
 
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

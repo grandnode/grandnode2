@@ -1,7 +1,7 @@
 {
   "name": "Grandnode Application",
   "short_name": "GrandNode",
-  "description": "Open Source Cross Platform E-Commerce Solution based on .NET Core and MondoDB",
+  "description": "Open Source Cross Platform E-Commerce Solution based on .NET Core and MongoDB",
   "icons": [{
         "src": "assets/images/icons/144x144.png",
           "sizes": "144x144",

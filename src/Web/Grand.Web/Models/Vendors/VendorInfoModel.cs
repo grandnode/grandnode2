@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Vendors
 {
-    public partial class VendorInfoModel : BaseModel
+    public class VendorInfoModel : BaseModel
     {
         public VendorInfoModel()
         {
