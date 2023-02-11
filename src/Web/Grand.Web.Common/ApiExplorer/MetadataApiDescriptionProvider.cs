@@ -183,16 +183,22 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     actionParameter.BindingInfo == null &&
                     !CommonHelper.IsSimpleType(actionParameter.ParameterType))
                 {
-                    actionParameter.BindingInfo = new BindingInfo {
-                        BindingSource = new BindingSource("Body", "Body", true, true)
-                    };
+                    var bindingContext = new ApiParameterDescriptionContext(
+                        metadata,
+                        new BindingInfo {
+                            BindingSource = new BindingSource("Body", "Body", true, true)
+                        },
+                        propertyName: actionParameter.Name);
+                    visitor.WalkParameter(bindingContext);
                 }
-
-                var bindingContext = new ApiParameterDescriptionContext(
-                    metadata,
-                    actionParameter.BindingInfo,
-                    propertyName: actionParameter.Name);
-                visitor.WalkParameter(bindingContext);
+                else
+                {
+                    var bindingContext = new ApiParameterDescriptionContext(
+                        metadata,
+                        actionParameter.BindingInfo,
+                        propertyName: actionParameter.Name);
+                    visitor.WalkParameter(bindingContext);
+                }
             }
         }
 
@@ -297,13 +303,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                 }
             }
 
-            if (parameter.ModelMetadata != null && parameter.ModelMetadata.IsBindingRequired)
+            if (parameter.ModelMetadata is { IsBindingRequired: true })
             {
                 parameter.IsRequired = true;
             }
 
-            if (parameter.Source == BindingSource.Path && parameter.RouteInfo != null &&
-                !parameter.RouteInfo.IsOptional)
+            if (parameter.Source == BindingSource.Path && parameter.RouteInfo is { IsOptional: false })
             {
                 parameter.IsRequired = true;
             }
@@ -422,7 +427,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                     if (supportedTypes != null)
                     {
-                        foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
+                        foreach (var supportedType in supportedTypes) //.Where(x => x == "application/json"))
                         {
                             results.Add(new ApiRequestFormat() {
                                 Formatter = formatter,
