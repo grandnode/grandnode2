@@ -185,8 +185,6 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> AddProductCatalog(ProductCatalogCart model)
         {
-            var cartType = (ShoppingCartType)model.ShoppingCartTypeId;
-
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 //no product found
@@ -196,7 +194,7 @@ namespace Grand.Web.Controllers
                     message = "No product found with the specified ID"
                 });
 
-            var redirect = RedirectToProduct(product, cartType, model.Quantity);
+            var redirect = RedirectToProduct(product, model.ShoppingCartTypeId, model.Quantity);
             if (redirect != null)
                 return redirect;
 
@@ -204,17 +202,17 @@ namespace Grand.Web.Controllers
 
             var warehouseId = GetWarehouse(product);
 
-            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, model.ShoppingCartTypeId);
 
-            if (cartType != ShoppingCartType.Wishlist)
+            if (model.ShoppingCartTypeId != ShoppingCartType.Wishlist)
             {
-                var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, cartType, product.Id, warehouseId);
+                var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, model.ShoppingCartTypeId, product.Id, warehouseId);
 
                 //if we already have the same product in the cart, then use the total quantity to validate
                 var quantityToValidate = shoppingCartItem?.Quantity + model.Quantity ?? model.Quantity;
                 var addToCartWarnings = await _shoppingCartValidator
                   .GetShoppingCartItemWarnings(customer, new ShoppingCartItem {
-                      ShoppingCartTypeId = cartType,
+                      ShoppingCartTypeId = model.ShoppingCartTypeId,
                       StoreId = _workContext.CurrentStore.Id,
                       WarehouseId = warehouseId,
                       Quantity = quantityToValidate
@@ -235,15 +233,15 @@ namespace Grand.Web.Controllers
             //try adding product to the cart 
             var addToCart = await _shoppingCartService.AddToCart(customer: customer,
                 productId: product.Id,
-                shoppingCartType: cartType,
+                shoppingCartType: model.ShoppingCartTypeId,
                 storeId: _workContext.CurrentStore.Id,
                 warehouseId: warehouseId,
                 quantity: model.Quantity,
                 validator: new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false,
-                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
-                    GetAttributesWarnings = cartType != ShoppingCartType.Wishlist,
-                    GetGiftVoucherWarnings = cartType != ShoppingCartType.Wishlist
+                    GetInventoryWarnings = model.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist,
+                    GetAttributesWarnings = model.ShoppingCartTypeId != ShoppingCartType.Wishlist,
+                    GetGiftVoucherWarnings = model.ShoppingCartTypeId != ShoppingCartType.Wishlist
                 });
 
             if (addToCart.warnings.Any())
@@ -260,7 +258,7 @@ namespace Grand.Web.Controllers
                 Customer = customer,
                 ShoppingCartItem = addToCart.shoppingCartItem,
                 Quantity = model.Quantity,
-                CartType = cartType,
+                CartType = model.ShoppingCartTypeId,
                 Currency = _workContext.WorkingCurrency,
                 Store = _workContext.CurrentStore,
                 Language = _workContext.WorkingLanguage,
@@ -268,7 +266,7 @@ namespace Grand.Web.Controllers
             });
 
             //added to the cart/wishlist
-            switch (cartType)
+            switch (model.ShoppingCartTypeId)
             {
                 case ShoppingCartType.Wishlist:
                     {
@@ -360,7 +358,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var message = ReturnFailMessage(product, (ShoppingCartType)model.ShoppingCartTypeId);
+            var message = ReturnFailMessage(product, model.ShoppingCartTypeId);
             if (message != null)
                 return message;
 
@@ -436,8 +434,6 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var cartType = (ShoppingCartType)model.ShoppingCartTypeId;
-
             //save item
             var addToCartWarnings = new List<string>();
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
@@ -448,12 +444,12 @@ namespace Grand.Web.Controllers
 
             //add to the cart
             var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
-                product.Id, cartType, _workContext.CurrentStore.Id, warehouseId,
+                product.Id, model.ShoppingCartTypeId, _workContext.CurrentStore.Id, warehouseId,
                 attributes, customerEnteredPriceConverted,
                 rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
                 new ShoppingCartValidatorOptions {
                     GetRequiredProductWarnings = false,
-                    GetInventoryWarnings = cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist
+                    GetInventoryWarnings = model.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist
                 });
 
             addToCartWarnings.AddRange(warnings);
@@ -476,7 +472,7 @@ namespace Grand.Web.Controllers
                 Customer = _workContext.CurrentCustomer,
                 ShoppingCartItem = shoppingCartItem,
                 Quantity = model.EnteredQuantity,
-                CartType = cartType,
+                CartType = model.ShoppingCartTypeId,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
                 Attributes = attributes,
                 Currency = _workContext.WorkingCurrency,
@@ -491,7 +487,7 @@ namespace Grand.Web.Controllers
             });
 
             //added to the cart/wishlist
-            switch (cartType)
+            switch (model.ShoppingCartTypeId)
             {
                 case ShoppingCartType.Wishlist:
                     {
@@ -570,8 +566,6 @@ namespace Grand.Web.Controllers
                         });
                     }
             }
-
-
             #endregion
         }
 
