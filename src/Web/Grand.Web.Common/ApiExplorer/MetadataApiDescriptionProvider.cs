@@ -419,7 +419,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var results = new List<ApiRequestFormat>();
         foreach (var contentType in contentTypes)
         {
-            foreach (var formatter in _mvcOptions.InputFormatters)
+            foreach (var formatter in _mvcOptions.InputFormatters.OfType<NewtonsoftJsonInputFormatter>())
             {
                 if (formatter is IApiRequestFormatMetadataProvider requestFormatMetadataProvider)
                 {
@@ -427,7 +427,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                     if (supportedTypes != null)
                     {
-                        foreach (var supportedType in supportedTypes) //.Where(x => x == "application/json"))
+                        foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
                         {
                             results.Add(new ApiRequestFormat() {
                                 Formatter = formatter,
