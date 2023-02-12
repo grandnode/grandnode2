@@ -1,5 +1,7 @@
 ﻿//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/DefaultApiDescriptionProvider.cs
 
+#nullable enable
+
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Controllers;
@@ -90,8 +92,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
     private ApiDescription CreateApiDescription(
         ControllerActionDescriptor action,
-        string? httpMethod,
-        string? groupName)
+        string httpMethod,
+        string groupName)
     {
         var parsedTemplate = ParseTemplate(action);
         var path = GetRelativePath(action, parsedTemplate);
@@ -360,16 +362,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         };
     }
 
-    private static IEnumerable<string?> GetHttpMethods(ControllerActionDescriptor action)
+    private static IEnumerable<string> GetHttpMethods(ControllerActionDescriptor action)
     {
-        if (action.ActionConstraints != null && action.ActionConstraints.Count > 0)
-        {
-            return action.ActionConstraints.OfType<HttpMethodActionConstraint>().SelectMany(c => c.HttpMethods);
-        }
-        else
-        {
-            return new string?[] { null };
-        }
+        return action.ActionConstraints is { Count: > 0 } ? action.ActionConstraints.OfType<HttpMethodActionConstraint>().SelectMany(c => c.HttpMethods) : new [] { string.Empty };
     }
 
     private static RouteTemplate? ParseTemplate(ControllerActionDescriptor action)
