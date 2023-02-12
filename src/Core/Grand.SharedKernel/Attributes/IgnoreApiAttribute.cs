@@ -4,3 +4,8 @@
 public class IgnoreApiAttribute : Attribute
 {
 }
+
+[AttributeUsage(AttributeTargets.Property)]
+public class IgnoreApiUrlAttribute : Attribute
+{
+}

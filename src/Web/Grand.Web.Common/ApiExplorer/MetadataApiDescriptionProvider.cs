@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
@@ -108,7 +109,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         foreach (var parameter in GetParameters(parameterContext,
                      httpMethod.Equals("GET", StringComparison.CurrentCultureIgnoreCase)))
         {
-            apiDescription.ParameterDescriptions.Add(parameter);
+                apiDescription.ParameterDescriptions.Add(parameter);
         }
 
         var requestMetadataAttributes = GetRequestMetadataAttributes(action);
@@ -227,6 +228,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             if (!context.Results[i].Source.IsFromRequest)
             {
                 context.Results.RemoveAt(i);
+            }
+            else
+            {
+                if (context.Results[i].ModelMetadata is DefaultModelMetadata metadata &&
+                    metadata.Attributes.Attributes.OfType<IgnoreApiUrlAttribute>().Any())
+                    context.Results.RemoveAt(i);
             }
         }
 
