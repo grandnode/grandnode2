@@ -14,6 +14,7 @@ using Grand.Web.Events;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
@@ -26,9 +27,7 @@ namespace Grand.Web.Controllers
         private readonly IBlogService _blogService;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
         private readonly BlogSettings _blogSettings;
-        private readonly CaptchaSettings _captchaSettings;
 
         #endregion
 
@@ -38,17 +37,13 @@ namespace Grand.Web.Controllers
             IMediator mediator,
             IBlogService blogService,
             ITranslationService translationService,
-            IGroupService groupService,
             IWorkContext workContext,
-            BlogSettings blogSettings,
-            CaptchaSettings captchaSettings)
+            BlogSettings blogSettings)
         {
             _mediator = mediator;
             _blogService = blogService;
             _translationService = translationService;
             _blogSettings = blogSettings;
-            _captchaSettings = captchaSettings;
-            _groupService = groupService;
             _workContext = workContext;
         }
 
@@ -57,6 +52,7 @@ namespace Grand.Web.Controllers
         #region Methods
 
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> List(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -66,6 +62,7 @@ namespace Grand.Web.Controllers
             return View("List", model);
         }
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> BlogByTag(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -75,6 +72,7 @@ namespace Grand.Web.Controllers
             return View("List", model);
         }
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> BlogByMonth(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -84,6 +82,7 @@ namespace Grand.Web.Controllers
             return View("List", model);
         }
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> BlogByCategory(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -93,6 +92,7 @@ namespace Grand.Web.Controllers
             return View("List", model);
         }
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> BlogByKeyword(BlogPagingFilteringModel command)
         {
             if (!_blogSettings.Enabled)
@@ -102,6 +102,7 @@ namespace Grand.Web.Controllers
             return View("List", model);
         }
         [HttpGet]
+        [ProducesResponseType(typeof(BlogPostModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> BlogPost(string blogPostId,
             [FromServices] IAclService aclService,
             [FromServices] IPermissionService permissionService)
@@ -131,33 +132,43 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> BlogPost(BlogPostModel model,
+        [ProducesResponseType(typeof(AddBlogCommentModel), StatusCodes.Status200OK)]
+        public virtual async Task<IActionResult> BlogPost(AddBlogCommentModel model,
             [FromServices] IAclService aclService)
         {
-            var blogPost = await _blogService.GetBlogPostById(model.BlogPostId);
+            var blogPost = await _blogService.GetBlogPostById(model.Id);
             if (blogPost == null ||
                 (blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
                 (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow))
-                return RedirectToRoute("HomePage");
+                return Json(new
+                {
+                    success = false
+                });
             
             if (!aclService.Authorize(blogPost, _workContext.CurrentStore.Id))
-                return InvokeHttp404();
+                return Json(new
+                {
+                    success = false
+                });
 
             if (ModelState.IsValid)
             {
                 await _mediator.Send(new InsertBlogCommentCommand { Model = model, BlogPost = blogPost });
 
                 //notification
-                await _mediator.Publish(new BlogCommentEvent(blogPost, model.AddNewComment));
+                await _mediator.Publish(new BlogCommentEvent(blogPost, model));
 
-                //The text boxes should be cleared after a comment has been posted
-                TempData["Grand.blog.addcomment.result"] = _translationService.GetResource("Blog.Comments.SuccessfullyAdded");
-                return RedirectToRoute("BlogPost", new { SeName = blogPost.GetSeName(_workContext.WorkingLanguage.Id) });
+                return Json(new
+                {
+                    success = true
+                });
             }
-            
-            //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
-            return View(model);
+            return Json(new
+            {
+                success = false,
+                message = string.Join(',', ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)))
+            });
+
         }
         #endregion
     }

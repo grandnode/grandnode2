@@ -70,16 +70,17 @@
                 }
             </div>
             <validation-observer v-slot="{ handleSubmit }">
-                <form asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-                    <input type="hidden" name="blogPostId" value="@Model.Id" />
+                <form id="addBlogComment" asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="handleSubmit(blog.submitBlogComment)">
+                    <input type="hidden" name="Id" value="@Model.Id" />
                     <div class="form-fields">
                         <div class="form-group">
                             <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
-                                <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
+                                <label for="CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
                                 <span class="required">*</span>
-                                <textarea asp-for="AddNewComment.CommentText" v-model="blog.CommentText" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
+                                <textarea name="CommentText" v-model="blog.CommentText" 
+                                    data-val-required="Enter comment"
+                                    v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
-                                <span asp-validation-for="AddNewComment.CommentText"></span>
                             </validation-provider>
                         </div>
                         @if (Model.AddNewComment.DisplayCaptcha)
@@ -102,7 +103,27 @@
                                 CommentText: '',
                             </text>
                         }
-                    })
+                    }),
+                    methods: {
+                        submitBlogComment() {
+                            var form = document.getElementById("addBlogComment");
+                            var url = form.getAttribute("action");
+                            var bodyFormData = new FormData(form);
+                            axios({
+                                url: url,
+                                data: bodyFormData,
+                                method: 'post',
+                                headers: {
+                                'Accept': 'application/json'                                    
+                            }
+                            }).then(function (response) {
+                                if (response.data.success == true){
+                                    location.reload();
+                                }                    
+                                vm.displayBarNotification(response.data.message, '', 'error', 3500);
+                            })
+                        }
+                    }
                 });
             </script>
         </div>

@@ -1,6 +1,6 @@
 //Contributor : MVCContrib
-
 using Grand.Domain;
+using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Common.Page.Paging
 {
@@ -23,15 +23,20 @@ namespace Grand.Web.Common.Page.Paging
         #endregion
 
         #region Properties
-
+        [IgnoreApiUrl]
+        [IgnoreApi]
         public int FirstItem { get; set; }
-
+        [IgnoreApiUrl]
+        [IgnoreApi]
         public bool HasNextPage { get; set; }
-
+        [IgnoreApiUrl]
+        [IgnoreApi]
         public bool HasPreviousPage { get; set; }
-
+        [IgnoreApiUrl]
+        [IgnoreApi]
         public int LastItem { get; set; }
-
+        [IgnoreApiUrl]
+        [IgnoreApi]
         public int PageIndex
         {
             get
@@ -42,13 +47,11 @@ namespace Grand.Web.Common.Page.Paging
                 return 0;
             }
         }
-
         public int PageNumber { get; set; }
-
         public int PageSize { get; set; }
-
+        [IgnoreApiUrl]
         public int TotalItems { get; set; }
-
+        [IgnoreApiUrl]
         public int TotalPages { get; set; }
 
         #endregion

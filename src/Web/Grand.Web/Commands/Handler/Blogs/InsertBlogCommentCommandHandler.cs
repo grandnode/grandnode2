@@ -46,7 +46,7 @@ namespace Grand.Web.Commands.Handler.Blogs
                 BlogPostId = request.BlogPost.Id,
                 CustomerId = customer.Id,
                 StoreId = _workContext.CurrentStore.Id,
-                CommentText = request.Model.AddNewComment.CommentText,
+                CommentText = request.Model.CommentText,
                 CreatedOnUtc = DateTime.UtcNow,
                 BlogPostTitle = request.BlogPost.Title
             };

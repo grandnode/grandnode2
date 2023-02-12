@@ -6,7 +6,7 @@ namespace Grand.Web.Commands.Models.Blogs
 {
     public class InsertBlogCommentCommand : IRequest<BlogComment>
     {
-        public BlogPostModel Model { get; set; }
+        public AddBlogCommentModel Model { get; set; }
         public BlogPost BlogPost { get; set; }
     }
 }
