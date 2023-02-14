@@ -21,6 +21,7 @@ namespace Grand.Web.Models.Vendors
         {
             Items = new List<VendorReviewModel>();
             AddVendorReview = new AddVendorReviewModel();
+            Captcha = new CaptchaModel();
         }
         public string VendorId { get; set; }
 
@@ -31,7 +32,7 @@ namespace Grand.Web.Models.Vendors
         public IList<VendorReviewModel> Items { get; set; }
         public AddVendorReviewModel AddVendorReview { get; set; }
         public VendorReviewOverviewModel VendorReviewOverview { get; set; }
-        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        public ICaptchaValidModel Captcha { get; set; }
     }
 
     public class VendorReviewModel : BaseEntityModel

@@ -4,7 +4,6 @@ using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
-using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Models.Contact
@@ -16,6 +15,7 @@ namespace Grand.Web.Models.Contact
             ContactAttributes = new List<ContactAttributeModel>();
             ContactAttribute = new List<CustomAttribute>();
             Attributes = new List<CustomAttributeModel>();
+            Captcha = new CaptchaModel();
         }
         [GrandResourceDisplayName("ContactUs.Email")]
         public string Email { get; set; }
@@ -29,7 +29,7 @@ namespace Grand.Web.Models.Contact
         public bool SuccessfullySent { get; set; }
         public string Result { get; set; }
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        public ICaptchaValidModel Captcha { get; set; }
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> Attributes { get; set; }
         public string ContactAttributeInfo { get; set; }

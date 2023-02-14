@@ -35,9 +35,9 @@ public class JsonBodyModelBinder : IModelBinder
                 bindingContext.Result =
                     ModelBindingResult.Success(JsonSerializer.Deserialize(jsonPayload, bindingContext.ModelType, options));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                bindingContext.Result = ModelBindingResult.Success(Activator.CreateInstance(bindingContext.ModelType));
+                throw ex;            
             }
         }
         else 

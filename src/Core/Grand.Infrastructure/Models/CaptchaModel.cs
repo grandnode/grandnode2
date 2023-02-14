@@ -1,6 +1,4 @@
-﻿using Grand.Infrastructure.Models;
-
-namespace Grand.Web.Admin.Models.Common;
+﻿namespace Grand.Infrastructure.Models;
 
 public record CaptchaModel : ICaptchaValidModel
 {
