@@ -53,7 +53,7 @@ namespace Grand.Api.Infrastructure
                         Contact = GetOpenApiContact(),
                         License = GetOpenApiLicense()
                     });
-                    
+                    c.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
                     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, //Name the security scheme
                         new OpenApiSecurityScheme
                         {
