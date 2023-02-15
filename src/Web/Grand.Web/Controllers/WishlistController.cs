@@ -15,6 +15,7 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
@@ -58,6 +59,7 @@ namespace Grand.Web.Controllers
         #region Wishlist
 
         [HttpGet]
+        [ProducesResponseType(typeof(MiniWishlistModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> SidebarWishlist()
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
@@ -80,6 +82,7 @@ namespace Grand.Web.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(WishlistModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> Index(Guid? customerGuid)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))

@@ -22,6 +22,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
@@ -98,6 +99,7 @@ namespace Grand.Web.Controllers
 
         #region Shopping cart
         [HttpGet]
+        [ProducesResponseType(typeof(MiniShoppingCartModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> SidebarShoppingCart()
         {
             if (!_shoppingCartSettings.MiniShoppingCartEnabled)
@@ -170,6 +172,7 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId,
+            IFormFile uploadedFile, 
             [FromServices] IDownloadService downloadService)
         {
             var attribute = await _checkoutAttributeService.GetCheckoutAttributeById(attributeId);
@@ -180,10 +183,7 @@ namespace Grand.Web.Controllers
                     downloadGuid = Guid.Empty
                 });
             }
-
-            var form = await HttpContext.Request.ReadFormAsync();
-            var httpPostedFile = form.Files.FirstOrDefault();
-            if (httpPostedFile == null)
+            if (uploadedFile == null)
             {
                 return Json(new {
                     success = false,
@@ -192,16 +192,13 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var fileBinary = httpPostedFile.GetDownloadBits();
+            var fileBinary = uploadedFile.GetDownloadBits();
+            var fileName = uploadedFile.FileName;
 
-            const string qqFileNameParameter = "qqfilename";
-            var fileName = httpPostedFile.FileName;
-            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-                fileName = form[qqFileNameParameter].ToString();
             //remove path (passed in IE)
             fileName = Path.GetFileName(fileName);
 
-            var contentType = httpPostedFile.ContentType;
+            var contentType = uploadedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
             if (!string.IsNullOrEmpty(fileExtension))
@@ -261,7 +258,9 @@ namespace Grand.Web.Controllers
                 downloadGuid = download.DownloadGuid
             });
         }
+        
         [HttpGet]
+        //[ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> Cart(bool checkoutAttributes)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
@@ -279,8 +278,10 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
+        
         [HttpGet]
         [DenySystemAccount]
+        [ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> CartSummary()
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id,
@@ -298,8 +299,10 @@ namespace Grand.Web.Controllers
 
             return Json(model);
         }
+        
         [HttpGet]
         [DenySystemAccount]
+        [ProducesResponseType(typeof(OrderTotalsModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> CartTotal()
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id,
@@ -357,6 +360,7 @@ namespace Grand.Web.Controllers
                 model = cartModel
             });
         }
+        
         [HttpGet]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ClearCart()
@@ -490,6 +494,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("HomePage");
         }
+        
         [HttpPost]
         [DenySystemAccount]
         public virtual async Task<IActionResult> StartCheckout(CheckoutAttributeSelectedModel model)
