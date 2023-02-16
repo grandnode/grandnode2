@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Blogs;
+using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Blogs;
 using Grand.Web.Common.Controllers;
@@ -16,6 +17,7 @@ using Grand.Web.Models.Blogs;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
@@ -153,14 +155,20 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new InsertBlogCommentCommand { Model = model, BlogPost = blogPost });
+                var blogComment = await _mediator.Send(new InsertBlogCommentCommand { Model = model, BlogPost = blogPost });
 
                 //notification
                 await _mediator.Publish(new BlogCommentEvent(blogPost, model));
 
                 return Json(new
                 {
-                    success = true
+                    success = true,
+                    message = _translationService.GetResource("Blog.Comments.SuccessfullyAdded"),
+                    model = new {
+                        blogComment.CommentText, 
+                        CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>().ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc), 
+                        CustomerName = _workContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices.GetService<CustomerSettings>().CustomerNameFormat) 
+                    }
                 });
             }
             return Json(new
