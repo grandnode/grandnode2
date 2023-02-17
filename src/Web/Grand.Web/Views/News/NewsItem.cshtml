@@ -31,89 +31,115 @@
     @if (Model.AllowComments)
     {
         <fieldset class="new-comment py-3 px-0" id="comments">
-            <h5><strong>@Loc["News.Comments.LeaveYourComment"]</strong></h5>
-            <div class="notifications">
-                <div asp-validation-summary="All" class="message-error"></div>
-                @{
-                    var result = TempData["Grand.news.addcomment.result"] as string;
-                }
-                @if (!string.IsNullOrEmpty(result))
-                {
-                    <div class="result alert alert-info">@result</div>
-                }
-            </div>
+            <h5>
+                <strong>@Loc["News.Comments.LeaveYourComment"]</strong>
+            </h5>
             <validation-observer v-slot="{ handleSubmit }">
-                <form asp-action="NewsCommentAdd" asp-controller="News" asp-route-sename="@Model.SeName" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-                    <input type="hidden" name="newsItemId" value="@Model.Id" />
+                <form id="addNewsComment" asp-action="NewsCommentAdd" asp-controller="News" method="post" v-on:submit.prevent="handleSubmit(news.submitNewsComment)">
+                    <input type="hidden" name="Id" value="@Model.Id"/>
                     <fieldset class="form-group">
-                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentTitle" v-slot="{ errors, classes }">
-                            <label asp-for="AddNewComment.CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
+                        <validation-provider tag="div" rules="required" name="CommentTitle" v-slot="{ errors, classes }">
+                            <label for="CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="AddNewComment.CommentTitle" v-bind:class="[classes , 'form-control enter-comment-title']" v-model="news.CommentTitle" />
+                            <input name="CommentTitle" v-bind:class="[classes , 'form-control enter-comment-title']"
+                                   data-val-required="@Loc["News.Comments.CommentTitle.Required"]"
+                                   v-model="news.CommentTitle"/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
-                            <span asp-validation-for="AddNewComment.CommentTitle"></span>
                         </validation-provider>
                     </fieldset>
                     <fieldset class="form-group">
-                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors, classes }">
-                            <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
+                        <validation-provider tag="div" rules="required" name="CommentText" v-slot="{ errors, classes }">
+                            <label for="CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
                             <span class="required">*</span>
-                            <textarea asp-for="AddNewComment.CommentText" v-model="news.CommentText" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
+                            <textarea name="CommentText" v-model="news.CommentText" 
+                                    data-val-required="@Loc["News.Comments.CommentText.Required"]"
+                                    v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
                             <span class="field-validation-error">{{ errors[0] }}</span>
-                            <span asp-validation-for="AddNewComment.CommentText"></span>
                         </validation-provider>
                     </fieldset>
                     @if (Model.AddNewComment.DisplayCaptcha)
                     {
                         <div class="captcha-box">
-                            <captcha />
+                            <captcha/>
                         </div>
                     }
                     <div class="buttons text-xs-center text-md-left generalMarginSupporter">
-                        <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]" />
+                        <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]"/>
                     </div>
                 </form>
             </validation-observer>
         </fieldset>
         <script asp-location="Footer" asp-order="300">
                 var news = new Vue({
-                    data: () => ({
-                        @{
-                            <text>
-                                CommentTitle: '',
-                                CommentText: '',
-                            </text>
+                    data: () => {
+                        return {
+                            Model: null,
+                            CommentTitle: '',
+                            CommentText: ''
+                        }                        
+                    },
+                    created() {
+                        this.Model = @Json.Serialize(Model.Comments);
+                    },
+                    methods: {
+                        submitNewsComment() {
+                            var form = document.getElementById("addNewsComment");
+                            var url = form.getAttribute("action");
+                            var bodyFormData = new FormData(form);
+                            axios({
+                                url: url,
+                                data: bodyFormData,
+                                method: 'post',
+                                headers: {
+                                'Accept': 'application/json'                                    
+                            }
+                            }).then(function (response) {
+                                if (response.data.success == true){
+                                    news.CommentTitle = ' ';
+                                    news.CommentText = ' ';
+                                    vm.displayBarNotification(response.data.message, '', 'success', 3000);
+                                    if (response.data.model){
+                                        news.addComment(response.data.model)
+                                    }
+                                } else {
+                                    vm.displayBarNotification(response.data.message, '', 'error', 3500);
+                                }
+                            })
+                        },
+                        addComment(model) {
+                              // Add object item to array
+                              this.Model.push(model);
                         }
-                    })
+                    }
                 });
         </script>
-        if (Model.Comments.Any())
-        {
+        <template v-if="news.Model.length > 0">
             <div class="comment-list">
-                <h4 class="generalTitle generalMarginSupporter"><strong>@Loc["News.Comments"]</strong></h4>
+                <h4 class="generalTitle generalMarginSupporter">
+                    <strong>@Loc["News.Comments"]</strong>
+                </h4>
                 <div class="comments">
-                    @foreach (var comment in Model.Comments)
-                    {
+                    <template v-for="comment in news.Model">
                         <div class="card mb-3">
                             <div class="card-header">
                                 <div class="d-inline-flex w-100">
-                                    <h6 class="mb-0">@comment.CustomerName</h6>
+                                    <h6 class="mb-0">{{comment.CustomerName}}</h6>
                                     <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                                     <small class="date text-muted">
                                         <span>@Loc["News.Comments.CreatedOn"]:</span>
-                                        <span>@comment.CreatedOn.ToString("g")</span>
+                                        <span>{{new Date( comment.CreatedOn).toDateString()}}</span>
                                     </small>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5>@comment.CommentTitle</h5>
-                                @comment.CommentText
+                                <h5>{{comment.CommentTitle}}</h5>
+                                {{comment.CommentText}}
                             </div>
                         </div>
-                    }
+                    </template>
                 </div>
             </div>
-        }
+        </template>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_after_comments", additionalData = Model.Id })
 </div>
