@@ -109,7 +109,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{B7D07028-26CB-45F0-B097-88C1D7D5CBD2}"
 	ProjectSection(SolutionItems) = preProject
 		src\Build\Grand.Common.props = src\Build\Grand.Common.props
-		src\Builds\Grand.Targets.props = src\Builds\Grand.Targets.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Data.Tests", "src\Tests\Grand.Data.Tests\Grand.Data.Tests.csproj", "{ACCAAA38-FBF0-4C18-9227-4A7A3897C5AC}"
