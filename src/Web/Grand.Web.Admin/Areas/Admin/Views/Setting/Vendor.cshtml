@@ -209,7 +209,18 @@
                                     <span asp-validation-for="TermsOfServiceEnabled"></span>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowToUploadFile" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowToUploadFile" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowToUploadFile"></span>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
                                     <admin-label asp-for="VendorReviewsMustBeApproved" class="control-label" />

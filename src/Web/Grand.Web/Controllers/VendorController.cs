@@ -116,6 +116,7 @@ namespace Grand.Web.Controllers
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage;
             model.Email = _workContext.CurrentCustomer.Email;
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
+            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             model.Address = await _mediator.Send(new GetVendorAddress {
@@ -144,7 +145,7 @@ namespace Grand.Web.Controllers
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
-            if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
+            if (_vendorSettings.AllowToUploadFile && uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
             {
                 try
                 {
@@ -213,7 +214,7 @@ namespace Grand.Web.Controllers
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage;
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
-
+            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
@@ -241,6 +242,7 @@ namespace Grand.Web.Controllers
             model.Email = vendor.Email;
             model.Name = vendor.Name;
             model.UserFields = vendor.UserFields;
+            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
             model.PictureUrl = await _pictureService.GetPictureUrl(vendor.PictureId);
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             model.Address = await _mediator.Send(new GetVendorAddress {
@@ -266,7 +268,7 @@ namespace Grand.Web.Controllers
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
-            if (uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
+            if (_vendorSettings.AllowToUploadFile && uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
             {
                 try
                 {
@@ -303,10 +305,10 @@ namespace Grand.Web.Controllers
                     var picture = await _pictureService.InsertPicture(vendorPictureBinary, contentType, null, reference: Reference.Vendor, objectId: vendor.Id);
                     if (picture != null)
                         vendor.PictureId = picture.Id;
+                    
+                    if (prevPicture != null)
+                        await _pictureService.DeletePicture(prevPicture);
                 }
-                if (prevPicture != null)
-                    await _pictureService.DeletePicture(prevPicture);
-
                 //update picture seo file name
                 await UpdatePictureSeoNames(vendor);
                 model.Address.ToEntity(vendor.Address);

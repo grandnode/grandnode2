@@ -38,17 +38,20 @@
                     <label asp-for="Description" class="col-form-label">@Loc["Account.VendorInfo.Description"]:</label>
                     <textarea asp-for="Description" class="form-control description"></textarea>
                 </div>
-                <div class="form-group">
-                    <label asp-for="PictureUrl" class="col-form-label">@Loc["Account.VendorInfo.Picture"]:</label>
-                    <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
-                    @if (!string.IsNullOrEmpty(Model.PictureUrl))
-                    {
-                        <div class="vendor-picture mt-3">
-                            <img src="@(Model.PictureUrl)" alt="picture" style="width:100px; display:block" />
-                            <a asp-route="CustomerVendorRemovePicture" name="remove-picture" class="btn btn-danger remove-picture-button mt-3">@Loc["Account.VendorInfo.Picture.Remove"]</a>
-                        </div>
-                    }
-                </div>
+                @if (Model.AllowToUploadFile)
+                {
+                    <div class="form-group">
+                        <label asp-for="PictureUrl" class="col-form-label">@Loc["Account.VendorInfo.Picture"]:</label>
+                        <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
+                        @if (!string.IsNullOrEmpty(Model.PictureUrl))
+                        {
+                            <div class="vendor-picture mt-3">
+                                <img src="@(Model.PictureUrl)" alt="picture" style="width:100px; display:block"/>
+                                <a asp-route="CustomerVendorRemovePicture" name="remove-picture" class="btn btn-danger remove-picture-button mt-3">@Loc["Account.VendorInfo.Picture.Remove"]</a>
+                            </div>
+                        }
+                    </div>
+                }
                 @{
                     var dataDictAddress = new ViewDataDictionary(ViewData)
                     {

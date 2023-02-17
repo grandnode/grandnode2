@@ -27,6 +27,7 @@ namespace Grand.Web.Models.Vendors
         public bool TermsOfServiceEnabled { get; set; }
         public bool TermsOfServicePopup { get; set; }
         public bool DisableFormInput { get; set; }
+        public bool AllowToUploadFile { get; set; }
         public string Result { get; set; }
     }
 }

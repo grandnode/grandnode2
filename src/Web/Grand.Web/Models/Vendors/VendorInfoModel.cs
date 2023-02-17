@@ -21,7 +21,7 @@ namespace Grand.Web.Models.Vendors
 
         [GrandResourceDisplayName("Account.VendorInfo.Picture")]
         public string PictureUrl { get; set; }
-
+        public bool AllowToUploadFile { get; set; }
         public VendorAddressModel Address { get; set; }
     }
 }
