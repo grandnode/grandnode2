@@ -1,8 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Pages;
+using Grand.Web.Models.Pages;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +35,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> PageDetails(string pageId)
         {
             if (string.IsNullOrEmpty(pageId))
@@ -53,12 +55,13 @@ namespace Grand.Web.Controllers
             var layoutViewPath = await _mediator.Send(new GetPageLayoutViewPath { LayoutId = model.PageLayoutId });
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManagePages))
+            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) &&
+                await _permissionService.Authorize(StandardPermission.ManagePages))
                 DisplayEditLink(Url.Action("Edit", "Page", new { id = model.Id, area = "Admin" }));
 
             return View(layoutViewPath, model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> PageDetailsPopup(string systemName)
         {
             var model = await _mediator.Send(new GetPageBlock { SystemName = systemName });
@@ -74,9 +77,12 @@ namespace Grand.Web.Controllers
 
         [DenySystemAccount]
         [HttpPost]
-        public virtual async Task<IActionResult> Authenticate(string id, string password)
+        public virtual async Task<IActionResult> Authenticate(AuthenticateModel model)
         {
-            if (string.IsNullOrEmpty(id))
+            if (!ModelState.IsValid)
+                return Json(new { Authenticated = false, Error = "Model is not valid" });
+
+            if (string.IsNullOrEmpty(model.Id))
                 return Json(new { Authenticated = false, Error = "Empty id" });
 
             var authResult = false;
@@ -84,11 +90,11 @@ namespace Grand.Web.Controllers
             var body = string.Empty;
             var error = string.Empty;
 
-            var page = await _mediator.Send(new GetPageBlock { PageId = id, Password = password });
+            var page = await _mediator.Send(new GetPageBlock { PageId = model.Id, Password = model.Password });
 
             if (page is not { IsPasswordProtected: true })
                 return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });
-            if (page.Password != null && page.Password.Equals(password))
+            if (page.Password != null && page.Password.Equals(model.Password))
             {
                 authResult = true;
                 title = page.Title;
@@ -98,6 +104,7 @@ namespace Grand.Web.Controllers
             {
                 error = _translationService.GetResource("Page.WrongPassword");
             }
+
             return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });
         }
 

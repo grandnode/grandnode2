@@ -6,10 +6,10 @@ namespace Grand.Business.Core.Extensions
 {
     public static class CustomerEventsExtensions
     {
-        public static async Task CustomerRegistrationEvent<C, R>(this IMediator eventPublisher, C result, R request) 
-            where C : RegistrationResult where R : RegistrationRequest
+        public static async Task CustomerRegistrationEvent<R>(this IMediator eventPublisher,  R request) 
+            where R : RegistrationRequest
         {
-            await eventPublisher.Publish(new CustomerRegistrationEvent<C, R>(result, request));
+            await eventPublisher.Publish(new CustomerRegistrationEvent<R>(request));
         }
     }
 }

@@ -9,7 +9,7 @@ var AxiosCart = {
     quickview_product: function (quickviewurl) {
         axios({
             url: quickviewurl,
-            method: 'post',
+            method: 'get',
         }).then(function (response) {
             this.AxiosCart.success_process(response);
         }).catch(function (error) {

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Infrastructure.Validators
@@ -37,22 +39,25 @@ namespace Grand.Infrastructure.Validators
                 await next();
                 return;
             }
-
-            if (context.ActionArguments.TryGetValue("model", out var model))
+            
+            foreach (var argument in context.ActionArguments.Where(x => !CommonHelper.IsSimpleType(x.Value?.GetType())))
             {
-                Type genericType = typeof(IValidator<>).MakeGenericType(model!.GetType());
+                Type genericType = typeof(IValidator<>).MakeGenericType(argument.Value!.GetType());
                 var validator = (IValidator)_serviceProvider.GetService(genericType);
-                if (validator is not null)
-                {
-                    var contextValidator = new ValidationContext<object>(model);
-                    var result = await validator.ValidateAsync(contextValidator);
-                    if (!result.IsValid) result.AddToModelState(context.ModelState, "");
-                }
+                if (validator is null) continue;
+                var contextValidator = new ValidationContext<object>(argument.Value);
+                var result = await validator.ValidateAsync(contextValidator);
+                if (result.IsValid) continue;
+                
+                result.AddToModelState(context.ModelState, "");
+                var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
+                if (!hasJsonData) continue;
+                context.Result = new BadRequestObjectResult(context.ModelState);
+                return;
             }
 
             await next();
         }
-
         #endregion
     }
 }

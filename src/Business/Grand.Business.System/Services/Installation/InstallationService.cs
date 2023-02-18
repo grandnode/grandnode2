@@ -378,7 +378,7 @@ namespace Grand.Business.System.Services.Installation
         protected virtual async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)
         {
             var customerManagerService = _serviceProvider.GetRequiredService<ICustomerManagerService>();
-            await customerManagerService.ChangePassword(new ChangePasswordRequest(defaultUserEmail, false, PasswordFormat.Hashed, defaultUserPassword));
+            await customerManagerService.ChangePassword(new ChangePasswordRequest(defaultUserEmail, PasswordFormat.Hashed, defaultUserPassword));
         }
 
         private async Task CreateIndexes(IDatabaseContext dbContext, DataSettings dataSettings)

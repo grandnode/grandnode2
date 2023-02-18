@@ -1,4 +1,5 @@
 ﻿using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Text.RegularExpressions;
 
@@ -12,16 +13,19 @@ public class CustomAttributesBinder : IModelBinder
         {
             throw new ArgumentNullException(nameof(bindingContext));
         }
-        
-        var model = new List<CustomAttributeModel>();
-        var formCollection =  bindingContext.HttpContext.Request.Form;
-        foreach (var form in formCollection)
+
+        if (bindingContext.HttpContext.Request.HasFormContentType)
         {
-            if(form.Key.StartsWith("attributes"))
-                model.Add(new CustomAttributeModel(){ Key = GetKey(form.Key), Value = form.Value} );
+            var model = new List<CustomAttributeModel>();
+            var formCollection = bindingContext.HttpContext.Request.Form;
+            foreach (var form in formCollection)
+            {
+                if (form.Key.StartsWith("attributes"))
+                    model.Add(new CustomAttributeModel() { Key = GetKey(form.Key), Value = form.Value });
+            }
+
+            bindingContext.Result = ModelBindingResult.Success(model);
         }
-        
-        bindingContext.Result = ModelBindingResult.Success(model);
         return Task.CompletedTask;
     }
 
@@ -30,10 +34,11 @@ public class CustomAttributesBinder : IModelBinder
         var regex = new Regex("\\[(?<Value>\\w+)\\]");
         string value = null;
         Match match = regex.Match(key);
-        if(match.Success)
+        if (match.Success)
         {
             value = match.Groups["Value"].Value;
         }
+
         return value;
     }
 }

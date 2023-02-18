@@ -2,23 +2,17 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
-using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Web.Commands.Models.Common;
 using Grand.Web.Commands.Models.Customers;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
@@ -34,28 +28,21 @@ namespace Grand.Web.Controllers
     {
         #region Fields
 
-        private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
-        private readonly CaptchaSettings _captchaSettings;
 
         #endregion
 
         #region Constructors
 
-        public CommonController(
-            ITranslationService translationService,
-            IWorkContext workContext,
+        public CommonController(IWorkContext workContext,
             ILanguageService languageService,
-            IMediator mediator,
-            CaptchaSettings captchaSettings)
+            IMediator mediator)
         {
-            _translationService = translationService;
             _workContext = workContext;
             _languageService = languageService;
             _mediator = mediator;
-            _captchaSettings = captchaSettings;
         }
 
         #endregion
@@ -112,6 +99,8 @@ namespace Grand.Web.Controllers
         #region Methods
 
         //page not found
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult PageNotFound()
         {
             Response.StatusCode = 404;
@@ -120,13 +109,16 @@ namespace Grand.Web.Controllers
         }
 
         //access denied
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult AccessDenied()
         {
             Response.StatusCode = 403;
             Response.ContentType = "text/html";
             return View();
         }
-
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult Route(string routeName)
         {
             if (string.IsNullOrEmpty(routeName))
@@ -138,19 +130,21 @@ namespace Grand.Web.Controllers
         }
 
         //external authentication error
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult ExternalAuthenticationError(IEnumerable<string> errors)
         {
             return View(errors);
         }
-
+        [HttpGet]
         [PublicStore(true)]
         [DenySystemAccount]
         public virtual async Task<IActionResult> SetLanguage(
             [FromServices] AppConfig config,
-            string langcode, string returnUrl = default)
+            string langCode, string returnUrl = default)
         {
 
-            var language = await _languageService.GetLanguageByCode(langcode);
+            var language = await _languageService.GetLanguageByCode(langCode);
             if (!language?.Published ?? false)
                 language = _workContext.WorkingLanguage;
 
@@ -179,7 +173,9 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
-        //helper method to redirect (use in SlugRouteTransformer).
+        //Use in SlugRouteTransformer.
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult InternalRedirect(string url, bool permanentRedirect)
         {
             //ensure it's invoked from our GenericPathRoute class
@@ -211,6 +207,7 @@ namespace Grand.Web.Controllers
 
         [DenySystemAccount]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> SetCurrency(
             [FromServices] ICurrencyService currencyService,
             [FromServices] IUserFieldService userFieldService,
@@ -243,9 +240,10 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> SetStore(
             [FromServices] IStoreService storeService,
-            [FromServices] IStoreHelper _storeHelper,
+            [FromServices] IStoreHelper storeHelper,
             [FromServices] CommonSettings commonSettings,
             string shortcut, string returnUrl = "")
         {
@@ -257,7 +255,7 @@ namespace Grand.Web.Controllers
                     var selectedstore = storeService.GetAll().FirstOrDefault(x => string.Equals(x.Shortcut, shortcut, StringComparison.InvariantCultureIgnoreCase));
                     if (selectedstore != null)
                     {
-                        await _storeHelper.SetStoreCookie(selectedstore.Id);
+                        await storeHelper.SetStoreCookie(selectedstore.Id);
 
                         //notification
                         await _mediator.Publish(new ChangeStoreEvent(_workContext.CurrentCustomer, selectedstore));
@@ -284,7 +282,8 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
-        public virtual async Task<IActionResult> SetTaxType(int customerTaxType, string returnUrl = "")
+        [HttpGet]
+        public virtual async Task<IActionResult> SetTaxType(int customerTaxType, string returnUrl = default)
         {
             var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
             await _workContext.SetTaxDisplayType(taxDisplayType);
@@ -304,6 +303,7 @@ namespace Grand.Web.Controllers
         }
 
         [DenySystemAccount]
+        [HttpGet]
         public virtual async Task<IActionResult> SetStoreTheme(
             [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
         {
@@ -323,87 +323,8 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
-        //contact us page
-        //available even when a store is closed
-        [ClosedStore(true)]
-        public virtual async Task<IActionResult> ContactUs(
-            [FromServices] StoreInformationSettings storeInformationSettings,
-            [FromServices] IPageService pageService)
-        {
-            if (storeInformationSettings.StoreClosed)
-            {
-                var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage is not { AccessibleWhenStoreClosed: true })
-                    return RedirectToRoute("StoreClosed");
-            }
-            var model = await _mediator.Send(new ContactUsCommand {
-                Customer = _workContext.CurrentCustomer,
-                Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
-            });
-            return View(model);
-        }
-
-        [HttpPost, ActionName("ContactUs")]
-        [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
-        [ClosedStore(true)]
-        [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactUsSend(
-            [FromServices] StoreInformationSettings storeInformationSettings,
-            [FromServices] IPageService pageService,
-            ContactUsModel model, bool captchaValid)
-        {
-            if (storeInformationSettings.StoreClosed)
-            {
-                var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage is not { AccessibleWhenStoreClosed: true })
-                    return RedirectToRoute("StoreClosed");
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            if (ModelState.IsValid)
-            {
-                var result = await _mediator.Send(new ContactUsSendCommand {
-                    CaptchaValid = captchaValid,
-                    Model = model,
-                    Store = _workContext.CurrentStore,
-                    IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
-                });
-
-                if (result.errors.Any())
-                {
-                    foreach (var item in result.errors)
-                    {
-                        ModelState.AddModelError("", item);
-                    }
-                }
-                else
-                {
-                    //notification
-                    await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model));
-
-                    model = result.model;
-                    return View(model);
-                }
-            }
-            var model1 = await _mediator.Send(new ContactUsCommand {
-                Customer = _workContext.CurrentCustomer,
-                Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore,
-                Model = model
-            });
-
-            return View(model1);
-        }
-
-
         //sitemap page
+        [HttpGet]
         public virtual async Task<IActionResult> Sitemap([FromServices] CommonSettings commonSettings)
         {
             if (!commonSettings.SitemapEnabled)
@@ -449,6 +370,7 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> PrivacyPreference([FromServices] StoreInformationSettings
             storeInformationSettings)
         {
@@ -505,12 +427,14 @@ namespace Grand.Web.Controllers
         //robots.txt file
         [ClosedStore(true)]
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> RobotsTextFile()
         {
             var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
-
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult GenericUrl()
         {
             //not found
@@ -519,125 +443,11 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
+        [IgnoreApi]
+        [HttpGet]
         public virtual IActionResult StoreClosed()
         {
             return View();
-        }
-
-        [HttpPost]
-        [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactAttributeChange(ContactAttributeChangeModel model)
-        {
-            var result = await _mediator.Send(new ContactAttributeChangeCommand {
-                Attributes = model.Attributes,
-                Customer = _workContext.CurrentCustomer,
-                Store = _workContext.CurrentStore
-            });
-            return Json(new
-            {
-                enabledattributeids = result.enabledAttributeIds.ToArray(),
-                disabledattributeids = result.disabledAttributeIds.ToArray()
-            });
-        }
-
-        [HttpPost]
-        [DenySystemAccount]
-        public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId,
-            [FromServices] IDownloadService downloadService,
-            [FromServices] IContactAttributeService contactAttributeService)
-        {
-            var attribute = await contactAttributeService.GetContactAttributeById(attributeId);
-            if (attribute is not { AttributeControlType: AttributeControlType.FileUpload })
-            {
-                return Json(new
-                {
-                    success = false,
-                    downloadGuid = Guid.Empty
-                });
-            }
-            var form = await HttpContext.Request.ReadFormAsync();
-            var httpPostedFile = form.Files.FirstOrDefault();
-            if (httpPostedFile == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "No file uploaded",
-                    downloadGuid = Guid.Empty
-                });
-            }
-
-            var fileBinary = httpPostedFile.GetDownloadBits();
-
-            const string qqFileNameParameter = "qqfilename";
-            var fileName = httpPostedFile.FileName;
-            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-                fileName = form[qqFileNameParameter].ToString();
-            //remove path (passed in IE)
-            fileName = Path.GetFileName(fileName);
-
-            var contentType = httpPostedFile.ContentType;
-
-            var fileExtension = Path.GetExtension(fileName);
-            if (!string.IsNullOrEmpty(fileExtension))
-                fileExtension = fileExtension.ToLowerInvariant();
-
-            if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
-            {
-                var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .ToList();
-                if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty
-                    });
-                }
-            }
-
-            if (attribute.ValidationFileMaximumSize.HasValue)
-            {
-                //compare in bytes
-                var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
-                if (fileBinary.Length > maxFileSizeBytes)
-                {
-                    //when returning JSON the mime-type must be set to text/plain
-                    //otherwise some browsers will pop-up a "Save As" dialog.
-                    return Json(new
-                    {
-                        success = false,
-                        message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty
-                    });
-                }
-            }
-
-            var download = new Download {
-                DownloadGuid = Guid.NewGuid(),
-                UseDownloadUrl = false,
-                DownloadUrl = "",
-                DownloadBinary = fileBinary,
-                ContentType = contentType,
-                //we store filename without extension for downloads
-                Filename = Path.GetFileNameWithoutExtension(fileName),
-                Extension = fileExtension,
-                IsNew = true
-            };
-
-            await downloadService.InsertDownload(download);
-
-            //when returning JSON the mime-type must be set to text/plain
-            //otherwise some browsers will pop-up a "Save As" dialog.
-            return Json(new
-            {
-                success = true,
-                message = _translationService.GetResource("ShoppingCart.FileUploaded"),
-                downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid
-            });
         }
 
         [HttpPost]

@@ -14,9 +14,7 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<SalesSettingsModel.OrderSettingsModel, OrderSettings>()
-                .ForMember(dest => dest.MinimumOrderPlacementInterval, mo => mo.Ignore())
-                .ForMember(dest => dest.UnpublishAuctionProduct, mo => mo.Ignore());
+            CreateMap<SalesSettingsModel.OrderSettingsModel, OrderSettings>();
         }
 
         public int Order => 0;

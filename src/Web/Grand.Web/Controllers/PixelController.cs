@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +10,6 @@ namespace Grand.Web.Controllers
     public class PixelController : BaseController
     {
         public virtual async Task<IActionResult> QueuedEmail(
-            [FromServices] IWorkContext workContext,
             [FromServices] IQueuedEmailService queuedEmailService,
             string emailId)
         {

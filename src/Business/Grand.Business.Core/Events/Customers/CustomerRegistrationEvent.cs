@@ -3,17 +3,14 @@ using MediatR;
 
 namespace Grand.Business.Core.Events.Customers
 {
-    public class CustomerRegistrationEvent<C, R> : INotification where C : RegistrationResult where R : RegistrationRequest
+    public class CustomerRegistrationEvent<R> : INotification where R : RegistrationRequest
     {
-        private readonly C _result;
         private readonly R _request;
 
-        public CustomerRegistrationEvent(C result, R request)
+        public CustomerRegistrationEvent(R request)
         {
-            _result = result;
             _request = request;
         }
-        public C Result => _result;
         public R Request => _request;
     }
 }

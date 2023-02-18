@@ -11,7 +11,7 @@ namespace Grand.Api.Controllers
     [ApiController]
     [Area("Api")]
     [Route("[area]/[controller]/[action]")]
-    [ApiExplorerSettings(IgnoreApi = false)]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     [SwaggerTag(description: "Create token")]
     public class TokenController : Controller
     {

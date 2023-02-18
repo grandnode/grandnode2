@@ -83,10 +83,7 @@ else
                 axios({
                     url: url,
                     method: 'post',
-                    params: { "vendorReviewId": reviewId, "vendorId": vendorId, "washelpful": wasHelpful },
-                    headers: {
-                        'X-Response-View': 'Json'
-                    },
+                    params: { "vendorReviewId": reviewId, "vendorId": vendorId, "washelpful": wasHelpful },                    
                 }).then(function (response) {
                     document.getElementById("helpfulness-vote-yes-" + reviewId + "").innerHTML = response.data.TotalYes
                     document.getElementById("helpfulness-vote-no-" + reviewId + "").innerHTML = response.data.TotalNo;
@@ -137,7 +134,6 @@ else
                     data: bodyFormData,
                     headers: {
                         "Content-Type": "multipart/form-data",
-                        'X-Response-View': 'Json'
                     },
                 }).then(function (response) {
                     vendorreviews.Model = response.data;

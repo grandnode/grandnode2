@@ -33,7 +33,7 @@
                             <b-link name="removediscount"
                                     title="@Loc["Common.Remove"]"
                                     class="mx-1"
-                                    @@click="vmorder.ApplyDiscountCode('@Url.RouteUrl("RemoveDiscountCoupon")?discountId=' + discount.Id)">
+                                    @@click="vmorder.RemoveDiscountId('@Url.RouteUrl("RemoveDiscountCoupon")?discountId=' + discount.Id)">
                                 <b-icon icon="trash" variant="danger"></b-icon>
                             </b-link>
                         </div>

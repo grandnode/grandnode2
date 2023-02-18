@@ -9,6 +9,7 @@ using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -78,7 +79,7 @@ namespace Grand.Web.Controllers
                    //Store access
                    _aclService.Authorize(course, _workContext.CurrentStore.Id);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Details(string courseId)
         {
             var customer = _workContext.CurrentCustomer;
@@ -108,6 +109,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> Lesson(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -142,6 +144,7 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public virtual async Task<IActionResult> DownloadFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -176,7 +179,7 @@ namespace Grand.Web.Controllers
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> VideoFile(string id)
         {
             var customer = _workContext.CurrentCustomer;
@@ -211,7 +214,7 @@ namespace Grand.Web.Controllers
                 FileDownloadName = fileName + download.Extension
             };
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Approved(string id)
         {
             var customer = _workContext.CurrentCustomer;

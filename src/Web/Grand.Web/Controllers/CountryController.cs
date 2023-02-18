@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -30,6 +31,7 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        [HttpGet]
         public virtual async Task<IActionResult> GetStatesByCountryId(string countryId, bool addSelectStateItem)
         {
             //this action method gets called via an ajax request

@@ -39,8 +39,7 @@
                     data: null,
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json'
                     }
                 }).then(response => {
                     this.cart = response.data;
@@ -53,8 +52,7 @@
                     data: null,
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json'
                     }
                 }).then(response => {
                     this.totals = response.data;
@@ -92,13 +90,9 @@
                 });
             },
             removeGiftVoucher(href) {
-                var bodyFormData = new FormData();
-                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
                 axios({
-                    method: 'post',
+                    method: 'get',
                     url: href,
-                    data: bodyFormData,
-                    headers: { 'Content-Type': 'multipart/form-data' },
                 }).then(function (response) {
                     vmorder.cart = response.data.model;
                 }).catch(function (error) {
@@ -117,8 +111,7 @@
                     baseURL: '@Url.RouteUrl("ShoppingCart")',
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
+                        'Content-Type': 'application/json',                        
                     },
                 }).then(function (response) {
                     vmorder.cart = response.data;
@@ -137,6 +130,7 @@
                 var elementById = document.getElementById(element + id);
                 var data = new FormData();
                 data.append('shoppingcartId', id);
+                data.append('ShoppingCartType', 1);
                 data.append('quantity', elementById.value);
                 data.append('__RequestVerificationToken',
                     document.querySelector('input[name=__RequestVerificationToken]').value);
@@ -222,6 +216,16 @@
                     this.vmorder.updateTotals();
                 });
             },
+            RemoveDiscountId(href) {
+                            axios({
+                                method: 'get',
+                                url: href
+                            }).then(function (response) {
+                                vmorder.cart = response.data.model;
+                            }).then(function () {
+                                this.vmorder.updateTotals();
+                            });
+                        },
             displayWarning(message) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',

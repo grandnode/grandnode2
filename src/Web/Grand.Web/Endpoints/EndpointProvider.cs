@@ -296,7 +296,7 @@ namespace Grand.Web.Endpoints
 
             //product email a friend
             endpointRouteBuilder.MapControllerRoute("ProductEmailAFriend",
-                            pattern + "productemailafriend/{productId?}",
+                            pattern + "productemailafriend",
                             new { controller = "Product", action = "ProductEmailAFriend" });
             
             //product ask question on product page
@@ -306,7 +306,7 @@ namespace Grand.Web.Endpoints
 
             //reviews
             endpointRouteBuilder.MapControllerRoute("ProductReviews",
-                            pattern + "productreviews/{productId}",
+                            pattern + "productreviews",
                             new { controller = "Product", action = "ProductReviews" });
 
             //set review helpfulness (AJAX link)
@@ -326,7 +326,7 @@ namespace Grand.Web.Endpoints
             //contact us
             endpointRouteBuilder.MapControllerRoute("ContactUs",
                             pattern + "contactus",
-                            new { controller = "Common", action = "ContactUs" });
+                            new { controller = "Contact", action = "Index" });
 
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
@@ -367,7 +367,7 @@ namespace Grand.Web.Endpoints
             // contact attributes with "upload file" type
             endpointRouteBuilder.MapControllerRoute("UploadFileContactAttribute",
                             pattern + "uploadfilecontactattribute/{attributeId}",
-                            new { controller = "Common", action = "UploadFileContactAttribute" });
+                            new { controller = "Contact", action = "UploadFileContactAttribute" });
 
             //CurrentPosition Save
             endpointRouteBuilder.MapControllerRoute("CurrentPosition",

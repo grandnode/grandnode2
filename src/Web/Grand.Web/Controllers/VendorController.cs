@@ -12,12 +12,12 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -95,7 +95,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         public virtual async Task<IActionResult> ApplyVendor()
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
@@ -132,22 +132,15 @@ namespace Grand.Web.Controllers
 
         [HttpPost, ActionName("ApplyVendor")]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, bool captchaValid, IFormFile uploadedFile)
+        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, IFormFile uploadedFile)
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
 
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
+            
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
@@ -233,7 +226,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> Info()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -297,7 +290,7 @@ namespace Grand.Web.Controllers
             if (prevPicture == null)
                 vendor.PictureId = "";
 
-            if (ModelState is { IsValid: true, ErrorCount: 0 })
+            if (ModelState.IsValid)
             {
                 var description = FormatText.ConvertText(model.Description);
 
@@ -364,11 +357,10 @@ namespace Grand.Web.Controllers
         }
 
 
-        [HttpPost, ActionName("ContactVendor")]
+        [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model, bool captchaValid)
+        public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model)
         {
             if (!_vendorSettings.AllowCustomersToContactVendors)
                 return Content("");
@@ -377,17 +369,9 @@ namespace Grand.Web.Controllers
             if (vendor is not { Active: true } || vendor.Deleted)
                 return Content("");
 
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            model.VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
-
             if (ModelState.IsValid)
             {
-                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
+                model = await _mediator.Send(new ContactVendorSendCommand { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() });
                 return Json(model);
             }
 

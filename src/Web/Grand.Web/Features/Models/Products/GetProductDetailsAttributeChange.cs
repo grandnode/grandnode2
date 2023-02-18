@@ -13,7 +13,6 @@ namespace Grand.Web.Features.Models.Products
         public Currency Currency { get; set; }
         public Store Store { get; set; }
         public Product Product { get; set; }
-        public bool LoadPicture { get; set; }
         public ProductModel Model { get; set; }
     }
 }

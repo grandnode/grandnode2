@@ -20,7 +20,7 @@
                     </template>
                     <template v-if="compareProductsQty > 0">
                         <template v-if="compareproducts !== null">
-                            <template v-for="product in compareproducts.Products">
+                            <template v-for="(product, key) in compareproducts.Products">
                                 <div class="item comapre-product d-inline-flex no-wrap">
                                     <a :href="product.Url" :title="product.DefaultPictureModel.Title" v-if="product.DefaultPictureModel.ImageUrl">
                                         <b-img :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" fluid></b-img>
@@ -30,7 +30,7 @@
                                         <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong></div>
                                     </div>
                                     <div>
-                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">
+                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id, key); getCompareList('@Url.RouteUrl("SidebarCompareProducts")'); ">
                                             <b-icon icon="trash" variant="danger"></b-icon>
                                         </a>
                                     </div>

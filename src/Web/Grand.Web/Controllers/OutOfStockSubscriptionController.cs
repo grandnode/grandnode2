@@ -6,6 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
@@ -60,7 +61,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
-
+        [HttpGet]
         // Product details page > out of stock subscribe button
         public virtual async Task<IActionResult> SubscribeButton(string productId, string warehouseId)
         {
@@ -91,7 +92,7 @@ namespace Grand.Web.Controllers
                 _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
         }
 
-        [HttpPost, ActionName("SubscribePopup")]
+        [HttpPost]
         public virtual async Task<IActionResult> SubscribePopup(ProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
@@ -156,7 +157,7 @@ namespace Grand.Web.Controllers
                     resource = _translationService.GetResource("OutOfStockSubscriptions.NotAllowed")
                 });
 
-            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Model = model });
+            var attributes = await _mediator.Send(new GetParseProductAttributes { Product = product, Attributes = model.Attributes });
             var subscriptionAttributes = await _outOfStockSubscriptionService
                 .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
 
@@ -194,6 +195,7 @@ namespace Grand.Web.Controllers
 
 
         // My account / Out of stock subscriptions
+        [HttpGet]
         public virtual async Task<IActionResult> CustomerSubscriptions(int? pageNumber)
         {
             if (_customerSettings.HideOutOfStockSubscriptionsTab)
@@ -236,7 +238,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-        [HttpPost, ActionName("CustomerSubscriptions")]
+        [HttpPost]
         public virtual async Task<IActionResult> CustomerSubscriptions(string[] subscriptions)
         {
             foreach (var id in subscriptions)

@@ -20,15 +20,23 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Register customer
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        Task<RegistrationResult> RegisterCustomer(RegistrationRequest request);
+        Task RegisterCustomer(RegistrationRequest request);
 
+        /// <summary>
+        /// Password match
+        /// </summary>
+        /// <param name="passwordFormat"></param>
+        /// <param name="oldPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <param name="passwordSalt"></param>
+        /// <returns></returns>
+        bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword, string passwordSalt);
+        
         /// <summary>
         /// Change password
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        Task<ChangePasswordResult> ChangePassword(ChangePasswordRequest request);
+        Task ChangePassword(ChangePasswordRequest request);
 
         /// <summary>
         /// Sets a user email

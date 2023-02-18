@@ -12,6 +12,7 @@ using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
@@ -66,7 +67,7 @@ namespace Grand.Web.Controllers
             _customerSettings = customerSettings;
             _permissionService = permissionService;
         }
-
+        [HttpGet]
         public virtual IActionResult List()
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -76,7 +77,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> ArticlesByCategory(string categoryId)
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -123,7 +124,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> ItemsByKeyword(string keyword)
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -162,7 +163,7 @@ namespace Grand.Web.Controllers
 
             return View("List", model);
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> KnowledgebaseArticle(string articleId, [FromServices] ICustomerService customerService)
         {
             if (!_knowledgebaseSettings.Enabled)
@@ -252,30 +253,16 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ArticleCommentAdd(string articleId, KnowledgebaseArticleModel model, bool captchaValid,
-               [FromServices] IWorkContext workContext,
-               [FromServices] IGroupService groupService,
+        public virtual async Task<IActionResult> ArticleCommentAdd(KnowledgebaseArticleModel model,
                [FromServices] ICustomerService customerService)
         {
             if (!_knowledgebaseSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(articleId);
+            var article = await _knowledgebaseService.GetPublicKnowledgebaseArticle(model.ArticleId);
             if (article is not { AllowComments: true })
                 return RedirectToRoute("HomePage");
-
-            if (await groupService.IsGuest(workContext.CurrentCustomer) && !_knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
-                ModelState.AddModelError("", _translationService.GetResource("Knowledgebase.Article.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
-
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnArticleCommentPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
 
             if (ModelState.IsValid)
             {

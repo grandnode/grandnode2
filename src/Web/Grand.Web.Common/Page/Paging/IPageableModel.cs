@@ -1,5 +1,7 @@
 //Contributor : MVCContrib
 
+using Grand.SharedKernel.Attributes;
+
 namespace Grand.Web.Common.Page.Paging
 {
     /// <summary>
@@ -10,6 +12,7 @@ namespace Grand.Web.Common.Page.Paging
         /// <summary>
         /// The current page index (starts from 0)
         /// </summary>
+        [IgnoreApi]
         int PageIndex { get; }
 		/// <summary>
 		/// The current page number (starts from 1)
@@ -30,18 +33,22 @@ namespace Grand.Web.Common.Page.Paging
 		/// <summary>
 		/// The index of the first item in the page.
 		/// </summary>
+		[IgnoreApi]
 		int FirstItem { get; }
 		/// <summary>
 		/// The index of the last item in the page.
 		/// </summary>
+		[IgnoreApi]
 		int LastItem { get; }
 		/// <summary>
 		/// Whether there are pages before the current page.
 		/// </summary>
+		[IgnoreApi]
 		bool HasPreviousPage { get; }
 		/// <summary>
 		/// Whether there are pages after the current page.
 		/// </summary>
+		[IgnoreApi]
 		bool HasNextPage { get; }
 	}
 

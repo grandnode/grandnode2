@@ -90,10 +90,7 @@
                 axios({
                     url: url,
                     method: 'post',
-                    params: { "productReviewId": reviewId, "productId": productId, "washelpful": wasHelpful },
-                    headers: {
-                        'X-Response-View': 'Json'
-                    },
+                    params: { "productReviewId": reviewId, "productId": productId, "washelpful": wasHelpful },                    
                 }).then(function (response) {
                     document.getElementById("helpfulness-vote-yes-" + reviewId + "").innerHTML = response.data.TotalYes
                     document.getElementById("helpfulness-vote-no-" + reviewId + "").innerHTML = response.data.TotalNo;
@@ -143,8 +140,7 @@
                     url: url,
                     data: bodyFormData,
                     headers: {
-                        "Content-Type": "multipart/form-data",
-                        'X-Response-View': 'Json'
+                        "Content-Type": "multipart/form-data"
                     },
                 }).then(function (response) {
                     productreviews.Model = response.data;

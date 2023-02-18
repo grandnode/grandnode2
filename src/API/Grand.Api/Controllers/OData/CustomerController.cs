@@ -170,9 +170,8 @@ namespace Grand.Api.Controllers.OData
 
             if (model == null || string.IsNullOrEmpty(model.Password)) return NotFound();
 
-            var changePassRequest = new ChangePasswordRequest(key, false, _customerSettings.DefaultPasswordFormat, model.Password);
-            var changePassResult = await _customerManagerService.ChangePassword(changePassRequest);
-            if (!changePassResult.Success) return BadRequest(string.Join(',', changePassResult.Errors));
+            var changePassRequest = new ChangePasswordRequest(key, _customerSettings.DefaultPasswordFormat, model.Password);
+            await _customerManagerService.ChangePassword(changePassRequest);
 
             return Ok(true);
         }

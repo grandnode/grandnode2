@@ -6,7 +6,7 @@
         <div class="mb-3">
             <label for="warehouseId" class="col-form-label">@Loc["Products.Warehouse"]:</label>
             <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
-                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="vm.attrchange(PopupQuickViewVueModal.Id)">
+                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="vm.warehouse_change_handler(PopupQuickViewVueModal.Id)">
                     <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
                         <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
                     </template>

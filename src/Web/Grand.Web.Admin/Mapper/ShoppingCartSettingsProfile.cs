@@ -12,10 +12,7 @@ namespace Grand.Web.Admin.Mapper
             CreateMap<ShoppingCartSettings, SalesSettingsModel.ShoppingCartSettingsModel>()
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<SalesSettingsModel.ShoppingCartSettingsModel, ShoppingCartSettings>()
-                .ForMember(dest => dest.RoundPrices, mo => mo.Ignore())
-                .ForMember(dest => dest.GroupTierPrices, mo => mo.Ignore())
-                .ForMember(dest => dest.ReservationDateFormat, mo => mo.Ignore());
+            CreateMap<SalesSettingsModel.ShoppingCartSettingsModel, ShoppingCartSettings>();
         }
 
         public int Order => 0;

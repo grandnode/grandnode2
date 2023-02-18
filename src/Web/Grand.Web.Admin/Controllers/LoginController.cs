@@ -62,64 +62,33 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> Index(LoginModel model, bool captchaValid)
+        public virtual async Task<IActionResult> Index(LoginModel model)
         {
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage && !captchaValid)
-            {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
             if (ModelState.IsValid)
             {
-                if (_customerSettings.UsernamesEnabled && model.Username != null)
-                {
-                    model.Username = model.Username.Trim();
-                }
-                var loginResult = await _customerManagerService.LoginCustomer(_customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                var loginResult =
+                    await _customerManagerService.LoginCustomer(
+                        _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
                 switch (loginResult)
                 {
                     case CustomerLoginResults.Successful:
-                        {
-                            var customer = _customerSettings.UsernamesEnabled ? await _customerService.GetCustomerByUsername(model.Username) : await _customerService.GetCustomerByEmail(model.Email);
-                            //sign in
-                            return await SignInAction(customer, model.RememberMe);
-                        }
+                    {
+                        var customer = _customerSettings.UsernamesEnabled
+                            ? await _customerService.GetCustomerByUsername(model.Username)
+                            : await _customerService.GetCustomerByEmail(model.Email);
+                        //sign in
+                        return await SignInAction(customer, model.RememberMe);
+                    }
                     case CustomerLoginResults.RequiresTwoFactor:
-                        {
-                            var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
-
-                            HttpContext.Session.SetString("AdminRequiresTwoFactor", userName);
-
-                            return RedirectToAction("TwoFactorAuthorization");
-                        }
-
-                    case CustomerLoginResults.CustomerNotExist:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
-                        break;
-                    case CustomerLoginResults.Deleted:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.Deleted"));
-                        break;
-                    case CustomerLoginResults.NotActive:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
-                        break;
-                    case CustomerLoginResults.NotRegistered:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
-                        break;
-                    case CustomerLoginResults.LockedOut:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
-                        break;
-                    case CustomerLoginResults.WrongPassword:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials"));
-                        break;
-                    default:
-                        ModelState.AddModelError("", _translationService.GetResource("Account.Login.WrongCredentials"));
-                        break;
+                    {
+                        var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
+                        HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                        return RedirectToRoute("TwoFactorAuthorization");
+                    }
                 }
             }
-
+            
             //If we got this far, something failed, redisplay form
             model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
@@ -166,8 +135,7 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost]
         public async Task<IActionResult> TwoFactorAuthorization(string token,
-            [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService
-            )
+            [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
         {
             if (!_customerSettings.TwoFactorAuthenticationEnabled)
                 return RedirectToRoute("AdminLogin");
@@ -197,7 +165,7 @@ namespace Grand.Web.Admin.Controllers
                 }
                 ModelState.AddModelError("", _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
             }
-
+            await _mediator.Publish(new CustomerLoginFailedEvent(customer));
             return View();
         }
     }

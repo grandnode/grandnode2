@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Customers;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Contact;
 using MediatR;
 
 namespace Grand.Web.Events

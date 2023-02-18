@@ -5,6 +5,10 @@ namespace Grand.Web.Models.Catalog
 {
     public class ProductEmailAFriendModel : BaseModel
     {
+        public ProductEmailAFriendModel()
+        {
+            Captcha = new CaptchaModel();
+        }
         public string ProductId { get; set; }
 
         public string ProductName { get; set; }
@@ -22,7 +26,7 @@ namespace Grand.Web.Models.Catalog
 
         public bool SuccessfullySent { get; set; }
         public string Result { get; set; }
-
         public bool DisplayCaptcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
                         {
-                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
@@ -57,7 +57,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            var cblAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            var cblAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
                                 foreach (var item in cblAttributes.Split(','))
@@ -87,7 +87,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     case AttributeControlType.MultilineTextbox:
                     case AttributeControlType.Datepicker:
                         {
-                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 var enteredText = ctrlAttributes.Trim();
@@ -98,7 +98,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            var guid = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            var guid = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             Guid.TryParse(guid, out Guid downloadGuid);
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
@@ -119,19 +119,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     customAttributes = ProductExtensions.RemoveProductAttribute(customAttributes, attribute).ToList();
                 }
             }
-            #endregion
-            #region Gift vouchers
-
-            if (request.Product.IsGiftVoucher)
-            {
-                customAttributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customAttributes,
-                    request.Model.RecipientName, 
-                    request.Model.RecipientEmail, 
-                    request.Model.SenderName, 
-                    request.Model.SenderEmail, 
-                    request.Model.Message).ToList();
-            }
-
             #endregion
 
             return customAttributes;

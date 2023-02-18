@@ -10,8 +10,9 @@ namespace Grand.Web.Models.Knowledgebase
             CategoryBreadcrumb = new List<KnowledgebaseCategoryModel>();
             Comments = new List<KnowledgebaseArticleCommentModel>();
             AddNewComment = new AddKnowledgebaseArticleCommentModel();
+            Captcha = new CaptchaModel();
         }
-
+        public string ArticleId { get; set; }
         public string Name { get; set; }
 
         public string Content { get; set; }
@@ -27,7 +28,9 @@ namespace Grand.Web.Models.Knowledgebase
         public string MetaTitle { get; set; }
 
         public bool AllowComments { get; set; }
-
+        
+        public ICaptchaValidModel Captcha { get; set; }
+        
         public IList<KnowledgebaseArticleModel> RelatedArticles { get; set; }
 
         public List<KnowledgebaseCategoryModel> CategoryBreadcrumb { get; set; }

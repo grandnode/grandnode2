@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Utilities.Authentication;
-using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using MediatR;
 
@@ -12,12 +11,10 @@ namespace Grand.Business.Core.Commands.Customers
     {
         public RegisteredByExternalMethod(
             Customer customer,
-            ExternalAuthParam parameters,
-            RegistrationResult registrationResult)
+            ExternalAuthParam parameters)
         {
             Customer = customer;
             AuthenticationParameters = parameters;
-            RegistrationResult = registrationResult;
         }
 
         /// <summary>
@@ -29,10 +26,5 @@ namespace Grand.Business.Core.Commands.Customers
         /// Gets or sets parameters of external authentication
         /// </summary>
         public ExternalAuthParam AuthenticationParameters { get; private set; }
-
-        /// <summary>
-        /// Gets or sets of registration result
-        /// </summary>
-        public RegistrationResult RegistrationResult { get; private set; }
     }
 }

@@ -20,5 +20,6 @@ namespace Grand.Web.Models.Customer
 
         public string Result { get; set; }
 
+        public bool PasswordIsExpired { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Grand.Api.Extensions;
+using Grand.Api.Infrastructure.Filters;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +26,8 @@ namespace Grand.Api.Infrastructure
                 application.UseSwagger();
                 application.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode API V1");
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode Backend API");
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", "Grandnode Frontend API");
                 });
             }
         }
@@ -35,10 +37,23 @@ namespace Grand.Api.Infrastructure
             var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
             if (apiConfig.Enabled && apiConfig.UseSwagger)
             {
-                
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Grandnode API", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Title = "Grandnode Backend API", 
+                        Version = "v1",
+                        Contact = GetOpenApiContact(),
+                        License = GetOpenApiLicense()
+                    });
+                    c.SwaggerDoc("v2", new OpenApiInfo
+                    {
+                        Title = "Grandnode Frontend API", 
+                        Version = "v2",
+                        Contact = GetOpenApiContact(),
+                        License = GetOpenApiLicense()
+                    });
+                    c.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
                     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, //Name the security scheme
                         new OpenApiSecurityScheme
                         {
@@ -59,15 +74,33 @@ namespace Grand.Api.Infrastructure
                         }
                     });
                     c.OperationFilter<AddParamOperationFilter>();
+                    c.DocumentFilter<SwaggerODataControllerDocumentFilter>();
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
+                    c.SchemaFilter<IgnoreFieldFilter>();
                 });
-                
+
             }
         }
 
         public int Priority => 90;
         public bool BeforeConfigure => true;
 
+        private OpenApiContact GetOpenApiContact()
+        {
+            return new OpenApiContact {
+                Name = "Grandnode",
+                Email = "support@grandnode.com",
+                Url = new Uri("https://grancnode.com"),
+            };
+        }
+
+        private OpenApiLicense GetOpenApiLicense()
+        {
+            return new OpenApiLicense {
+                Name = "GNU General Public License v3.0",
+                Url = new Uri("https://github.com/grandnode/grandnode2/blob/master/LICENSE"),
+            };
+        }
     }
 }

@@ -66,5 +66,12 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
             string separator = "<br />",
             bool htmlEncode = true,
             bool allowHyperlinks = true);
+
+        /// <summary>
+        /// Get parse contact attributes
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        Task<IList<CustomAttribute>> GetParseContactAttributes(IList<CustomAttribute> model);
     }
 }

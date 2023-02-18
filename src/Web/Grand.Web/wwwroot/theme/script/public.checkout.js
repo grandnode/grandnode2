@@ -775,8 +775,7 @@ var vmorder = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => {
@@ -790,8 +789,7 @@ var vmorder = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json'
                 },
                 showLoader: false
             }).then(response => {
@@ -836,7 +834,7 @@ var vmorder = new Vue({
             var url = window.location.origin + '/checkout/GetShippingFormPartialView?shippingOption=' + arg_value;
             axios({
                 url: url,
-                method: 'post',
+                method: 'get',
                 showLoader: false
             }).then(function (response) {
                 vmorder.shippingBusy = false;

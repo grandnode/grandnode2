@@ -18,6 +18,7 @@ namespace Grand.Web.Models.Customer
             CustomerAttributes = new List<CustomerAttributeModel>();
             SelectedAttributes = new List<CustomAttributeModel>();
             NewsletterCategories = new List<NewsletterSimpleCategory>();
+            Captcha = new CaptchaModel();
         }
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Fields.Email")]
@@ -133,7 +134,8 @@ namespace Grand.Web.Models.Customer
         public bool DisplayVatNumber { get; set; }
         
         public bool DisplayCaptcha { get; set; }
-
+        public ICaptchaValidModel Captcha { get; set; }
+        
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> SelectedAttributes { get; set; }
         

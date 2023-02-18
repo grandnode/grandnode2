@@ -4,7 +4,7 @@ using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
-using Grand.Web.Models.Common;
+using Grand.Web.Models.Vendors;
 using MediatR;
 
 namespace Grand.Web.Commands.Handler.Vendors

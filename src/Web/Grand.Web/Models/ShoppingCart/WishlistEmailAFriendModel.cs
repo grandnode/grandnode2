@@ -5,6 +5,11 @@ namespace Grand.Web.Models.ShoppingCart
 {
     public class WishlistEmailAFriendModel : BaseModel
     {
+        public WishlistEmailAFriendModel()
+        {
+            Captcha = new CaptchaModel();
+        }
+
         [GrandResourceDisplayName("Wishlist.EmailAFriend.FriendEmail")]
         public string FriendEmail { get; set; }
 
@@ -16,8 +21,7 @@ namespace Grand.Web.Models.ShoppingCart
 
         public bool SuccessfullySent { get; set; }
         public string Result { get; set; }
-
         public bool DisplayCaptcha { get; set; }
-        
+        public ICaptchaValidModel Captcha { get; set; }
     }
 }

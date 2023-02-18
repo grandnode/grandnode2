@@ -66,15 +66,15 @@ namespace Grand.Business.Customers.Services
 
         #region Methods
 
-        private bool PasswordMatch(CustomerHistoryPassword customerPassword, ChangePasswordRequest request)
+        public virtual bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword, string passwordSalt)
         {
-            var newPwd = request.PasswordFormat switch {
-                PasswordFormat.Clear => request.NewPassword,
-                PasswordFormat.Encrypted => _encryptionService.EncryptText(request.NewPassword, customerPassword.PasswordSalt),
-                PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.NewPassword, customerPassword.PasswordSalt, _customerSettings.HashedPasswordFormat),
+            var newPwd = passwordFormat switch {
+                PasswordFormat.Clear => newPassword,
+                PasswordFormat.Encrypted => _encryptionService.EncryptText(newPassword, passwordSalt),
+                PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(newPassword, passwordSalt, _customerSettings.HashedPasswordFormat),
                 _ => throw new Exception("PasswordFormat not supported")
             };
-            return customerPassword.Password.Equals(newPwd);
+            return oldPassword.Equals(newPwd);
         }
 
 
@@ -87,21 +87,7 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password)
         {
             var customer = _customerSettings.UsernamesEnabled ? await _customerService.GetCustomerByUsername(usernameOrEmail) : await _customerService.GetCustomerByEmail(usernameOrEmail);
-
-            if (customer == null)
-                return CustomerLoginResults.CustomerNotExist;
-            if (customer.Deleted)
-                return CustomerLoginResults.Deleted;
-            if (!customer.Active)
-                return CustomerLoginResults.NotActive;
-            if (!await _groupService.IsRegistered(customer))
-                return CustomerLoginResults.NotRegistered;
-
-            if (customer.CannotLoginUntilDateUtc.HasValue && customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
-                return CustomerLoginResults.LockedOut;
-
-            if (string.IsNullOrEmpty(password))
-                return CustomerLoginResults.WrongPassword;
+            
             var pwd = customer.PasswordFormatId switch {
                 PasswordFormat.Clear => password,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
@@ -110,30 +96,12 @@ namespace Grand.Business.Customers.Services
             };
             var isValid = pwd == customer.Password;
             if (!isValid)
-            {
-                //wrong password
-                customer.FailedLoginAttempts++;
-                if (_customerSettings.FailedPasswordAllowedAttempts > 0 &&
-                    customer.FailedLoginAttempts >= _customerSettings.FailedPasswordAllowedAttempts)
-                {
-                    //lock out
-                    customer.CannotLoginUntilDateUtc = DateTime.UtcNow.AddMinutes(_customerSettings.FailedPasswordLockoutMinutes);
-                    //reset the counter
-                    customer.FailedLoginAttempts = 0;
-                }
-                await _customerService.UpdateCustomerLastLoginDate(customer);
                 return CustomerLoginResults.WrongPassword;
-            }
 
             //2fa required
             if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && _customerSettings.TwoFactorAuthenticationEnabled)
                 return CustomerLoginResults.RequiresTwoFactor;
-
-            //save last login date
-            customer.FailedLoginAttempts = 0;
-            customer.CannotLoginUntilDateUtc = null;
-            customer.LastLoginDateUtc = DateTime.UtcNow;
-            await _customerService.UpdateCustomerLastLoginDate(customer);
+            
             return CustomerLoginResults.Successful;
         }
 
@@ -142,67 +110,17 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="request">Request</param>
         /// <returns>Result</returns>
-        public virtual async Task<RegistrationResult> RegisterCustomer(RegistrationRequest request)
+        public virtual async Task RegisterCustomer(RegistrationRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             if (request.Customer == null)
                 throw new ArgumentException("Can't load current customer");
-
-            var result = new RegistrationResult();
-
-            if (await _groupService.IsRegistered(request.Customer))
-            {
-                result.AddError("Current customer is already registered");
-                return result;
-            }
-            if (string.IsNullOrEmpty(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.EmailIsNotProvided"));
-                return result;
-            }
-            if (!CommonHelper.IsValidEmail(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Common.WrongEmail"));
-                return result;
-            }
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.PasswordIsNotProvided"));
-                return result;
-            }
-            if (_customerSettings.UsernamesEnabled)
-            {
-                if (string.IsNullOrEmpty(request.Username))
-                {
-                    result.AddError(_translationService.GetResource("Account.Register.Errors.UsernameIsNotProvided"));
-                    return result;
-                }
-            }
-
-            //validate unique user
-            if (await _customerService.GetCustomerByEmail(request.Email) != null)
-            {
-                result.AddError(_translationService.GetResource("Account.Register.Errors.EmailAlreadyExists"));
-                return result;
-            }
-            if (_customerSettings.UsernamesEnabled)
-            {
-                if (await _customerService.GetCustomerByUsername(request.Username) != null)
-                {
-                    result.AddError(_translationService.GetResource("Account.Register.Errors.UsernameAlreadyExists"));
-                    return result;
-                }
-            }
-
+            
             //event notification
-            await _mediator.CustomerRegistrationEvent(result, request);
-
-            //return if exist errors
-            if (result.Errors.Any())
-                return result;
-
+            await _mediator.CustomerRegistrationEvent(request);
+            
             request.Customer.Username = request.Username;
             request.Customer.Email = request.Email;
             request.Customer.PasswordFormatId = request.PasswordFormat;
@@ -225,7 +143,6 @@ namespace Grand.Business.Customers.Services
                 default:
                     break;
             }
-
             await _customerHistoryPasswordService.InsertCustomerPassword(request.Customer);
 
             request.Customer.Active = request.IsApproved;
@@ -244,73 +161,24 @@ namespace Grand.Business.Customers.Services
                 request.Customer.Groups.Remove(guestGroup.Id);
                 await _customerService.DeleteCustomerGroupInCustomer(guestGroup, request.Customer.Id);
             }
-
             request.Customer.PasswordChangeDateUtc = DateTime.UtcNow;
             await _customerService.UpdateCustomer(request.Customer);
 
-            return result;
         }
 
         /// <summary>
         /// Change password
         /// </summary>
         /// <param name="request">Request</param>
-        /// <returns>Result</returns>
-        public virtual async Task<ChangePasswordResult> ChangePassword(ChangePasswordRequest request)
+        public virtual async Task ChangePassword(ChangePasswordRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var result = new ChangePasswordResult();
-            if (string.IsNullOrWhiteSpace(request.Email))
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
-                return result;
-            }
-            if (string.IsNullOrWhiteSpace(request.NewPassword))
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
-                return result;
-            }
-
             var customer = await _customerService.GetCustomerByEmail(request.Email);
             if (customer == null)
-            {
-                result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));
-                return result;
-            }
-
-            if (request.ValidOldPassword)
-            {
-                var oldPwd = customer.PasswordFormatId switch {
-                    PasswordFormat.Encrypted => _encryptionService.EncryptText(request.OldPassword,
-                        customer.PasswordSalt),
-                    PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.OldPassword,
-                        customer.PasswordSalt, _customerSettings.HashedPasswordFormat),
-                    _ => request.OldPassword
-                };
-
-                if (oldPwd != customer.Password)
-                {
-                    result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.OldPasswordDoesntMatch"));
-                    return result;
-                }
-            }
-
-            //check for duplicates
-            if (_customerSettings.UnduplicatedPasswordsNumber > 0)
-            {
-                //get some of previous passwords
-                var previousPasswords = await _customerHistoryPasswordService.GetPasswords(customer.Id, passwordsToReturn: _customerSettings.UnduplicatedPasswordsNumber);
-
-                var newPasswordMatchesWithPrevious = previousPasswords.Any(password => PasswordMatch(password, request));
-                if (newPasswordMatchesWithPrevious)
-                {
-                    result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordMatchesWithPrevious"));
-                    return result;
-                }
-            }
-
+                throw new ArgumentNullException(nameof(customer));
+            
             switch (request.PasswordFormat)
             {
                 case PasswordFormat.Clear:
@@ -342,8 +210,6 @@ namespace Grand.Business.Customers.Services
 
             //create new login token
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
-
-            return result;
         }
 
         /// <summary>
