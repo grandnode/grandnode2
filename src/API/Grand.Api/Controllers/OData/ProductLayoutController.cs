@@ -27,12 +27,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
             var layout = await _mediator.Send(new GetLayoutQuery() { Id = key, LayoutName = typeof(Domain.Catalog.ProductLayout).Name });
-            if (!layout.Any())
-                return NotFound();
+            if (!layout.Any()) return NotFound();
 
             return Ok(layout.FirstOrDefault());
 
@@ -45,8 +43,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
             return Ok(await _mediator.Send(new GetLayoutQuery() { LayoutName = typeof(Domain.Catalog.ProductLayout).Name }));
         }

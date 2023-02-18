@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class PasswordRecoveryModel : BaseModel
+    public class PasswordRecoveryModel : BaseModel
     {
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.PasswordRecovery.Email")]

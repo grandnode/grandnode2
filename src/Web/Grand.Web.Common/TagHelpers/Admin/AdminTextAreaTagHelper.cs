@@ -52,7 +52,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             output.Attributes.SetAttribute("class", classValue);
 
             //add disabled attribute
-            bool.TryParse(IsDisabled, out bool disabled);
+            bool.TryParse(IsDisabled, out var disabled);
             if (disabled)
             {
                 var d = new TagHelperAttribute("disabled", "disabled");
@@ -66,7 +66,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             output.Attributes.SetAttribute("cols", colsNumber);
 
             //required asterisk
-            bool.TryParse(IsRequired, out bool required);
+            bool.TryParse(IsRequired, out var required);
             if (required)
             {
                 output.PreElement.SetHtmlContent("<div class='input-group input-group-required'>");

@@ -13,6 +13,6 @@ namespace Grand.Web.Features.Models.Products
         public Language Language { get; set; }
         public Store Store { get; set; }
         public Customer Customer { get; set; }
-        public int Size { get; set; } = 0;
+        public int Size { get; set; }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Grand.Infrastructure.Models;
-using Grand.Web.Models.Catalog;
-using Grand.Web.Models.Pages;
 using Grand.Web.Models.Blogs;
+using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Knowledgebase;
+using Grand.Web.Models.Pages;
 
 namespace Grand.Web.Models.Common
 {
-    public partial class SitemapModel : BaseModel
+    public class SitemapModel : BaseModel
     {
         public SitemapModel()
         {

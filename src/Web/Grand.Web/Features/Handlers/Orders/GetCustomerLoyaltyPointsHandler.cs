@@ -6,7 +6,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
 
-namespace Grand.Web.Features.Handlers.Newsletter
+namespace Grand.Web.Features.Handlers.Orders
 {
     public class GetCustomerLoyaltyPointsHandler : IRequestHandler<GetCustomerLoyaltyPoints, CustomerLoyaltyPointsModel>
     {
@@ -43,15 +43,15 @@ namespace Grand.Web.Features.Handlers.Newsletter
                 });
             }
             //current amount/balance
-            int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
-            double loyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
-            double loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
+            var loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
+            var loyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+            var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
             model.LoyaltyPointsBalance = loyaltyPointsBalance;
             model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
             //minimum amount/balance
-            int minimumLoyaltyPointsBalance = _loyaltyPointsSettings.MinimumLoyaltyPointsToUse;
-            double minimumLoyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
-            double minimumLoyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
+            var minimumLoyaltyPointsBalance = _loyaltyPointsSettings.MinimumLoyaltyPointsToUse;
+            var minimumLoyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
+            var minimumLoyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
             model.MinimumLoyaltyPointsBalance = minimumLoyaltyPointsBalance;
             model.MinimumLoyaltyPointsAmount = _priceFormatter.FormatPrice(minimumLoyaltyPointsAmount, false);
 

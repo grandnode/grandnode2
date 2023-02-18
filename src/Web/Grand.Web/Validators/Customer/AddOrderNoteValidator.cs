@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Orders;
 
 namespace Grand.Web.Validators.Customer

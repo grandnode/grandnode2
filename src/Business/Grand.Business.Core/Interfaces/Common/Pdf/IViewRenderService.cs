@@ -1,7 +1,7 @@
 ﻿namespace Grand.Business.Core.Interfaces.Common.Pdf
 {
     /// <summary>
-    /// Allow render rezor view as string
+    /// Allow render razor view as string
     /// </summary>
     public interface IViewRenderService
     {

@@ -16,9 +16,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<string> Handle(GetBrandLayoutViewPath request, CancellationToken cancellationToken)
         {
-            var layout = await _brandLayoutService.GetBrandLayoutById(request.LayoutId);
-            if (layout == null)
-                layout = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault();
+            var layout = await _brandLayoutService.GetBrandLayoutById(request.LayoutId) ?? (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault();
             if (layout == null)
                 throw new Exception("No default layout could be loaded");
             return layout.ViewPath;

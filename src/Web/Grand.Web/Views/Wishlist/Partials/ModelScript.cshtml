@@ -1,0 +1,115 @@
+﻿@model WishlistModel
+@{ 
+    var addToCartUrl = Model.EmailWishlistEnabled && !Model.IsEditable ? Url.RouteUrl("AddItemToCartFromWishlist", new { customerGuid = Model.CustomerGuid }) + "&shoppingcartId=" : Url.RouteUrl("AddItemToCartFromWishlist") + "?shoppingcartId=";
+}
+<script asp-location="Footer" asp-order="300">
+    var vmwishlist = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model),
+                PopupUpdateVueModal: null,
+            }
+        },
+        methods: {
+            deleteFromWishlist(id) {
+                axios({
+                    url: '@Url.RouteUrl("DeleteItemFromWishlist")'+'/'+ id,
+                    method: 'post',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vmwishlist.getModel();
+                    } else {
+                        vmwishlist.displayWarning(response.data.message, 'danger');
+                    }
+                });
+            },
+            addToCartFromWishlist(id) {
+                axios({
+                    url: '@Html.Raw(addToCartUrl)' + id,
+                    method: 'post',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vmwishlist.getModel();
+                        vm.updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")');
+                        vmwishlist.displayWarning('@Loc["Wishlist.AddedToCart"]', 'info', '@Loc["common.success"]');
+                    } else {
+                        vmwishlist.displayWarning(response.data.message, 'danger');
+                    }
+                });
+            },
+            getItemCart(id) {
+                axios({
+                    url: '@Url.RouteUrl("GetItemCart")'+'/'+ id,
+                    method: 'get',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vm.PopupQuickViewVueModal = response.data.model;
+                        vm.UpdatedShoppingCartItemId = id;
+                        vm.$refs['ModalQuickView'].show();
+                    } else {
+                        vmwishlist.displayWarning(response.data.message, 'danger');
+                    }
+                });
+            },
+            updateQuantity(element, id) {
+                var elementById = document.getElementById(element + id);
+                var data = new FormData();
+                data.append('shoppingcartId', id);
+                data.append('quantity', elementById.value);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+
+                axios({
+                    method: 'post',
+                    data: data,
+                    url: '@Url.RouteUrl("UpdateQuantityWishlist")',
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vmwishlist.getModel();
+                    }
+                    else {
+                        vmwishlist.displayWarning(response.data.warnings, 'danger');
+                    }
+                })
+            },
+            getModel() {
+                var date = new Date().getTime();
+                axios({
+                    method: 'get',
+                    params: {
+                        'timestamp': date
+                    },
+                    baseURL: '@Url.RouteUrl("Wishlist")',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json',
+                    }
+                }).then(function (response) {
+                    vmwishlist.Model = response.data;
+                    if (document.querySelector('.wishlist-qty')) {
+                        let total = 0;
+                        for (var i = 0; i < vmwishlist.Model.Items.length; i++) {
+                            total = total + vmwishlist.Model.Items[i].Quantity;
+                        }
+                        document.querySelector('.wishlist-qty').innerHTML = total;
+                    }
+                });
+            },
+            displayWarning(message, variant, title) {
+                if (typeof title == 'undefined') {
+                    title = '@Loc["common.warning"]';
+                }
+                this.$bvToast.toast(message, {
+                    title: title,
+                    variant: variant,
+                    autoHideDelay: 5000,
+                    appendToast: true
+                })
+            }
+        }
+    });
+</script>

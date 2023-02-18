@@ -12,9 +12,9 @@ namespace Grand.Web.Features.Models.Common
         public VendorAddressModel Model { get; set; }
         public Address Address { get; set; }
         public bool ExcludeProperties { get; set; }
-        public Func<IList<Country>> LoadCountries { get; set; } = null;
-        public bool PrePopulateWithCustomerFields { get; set; } = false;
-        public Customer Customer { get; set; } = null;
+        public Func<IList<Country>> LoadCountries { get; set; }
+        public bool PrePopulateWithCustomerFields { get; set; }
+        public Customer Customer { get; set; }
         public Language Language { get; set; }
     }
 }

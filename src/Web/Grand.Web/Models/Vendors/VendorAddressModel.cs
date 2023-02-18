@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Vendors
 {
-    public partial class VendorAddressModel : BaseEntityModel
+    public class VendorAddressModel : BaseEntityModel
     {
         public VendorAddressModel()
         {

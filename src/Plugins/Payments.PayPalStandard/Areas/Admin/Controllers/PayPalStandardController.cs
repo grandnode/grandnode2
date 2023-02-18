@@ -12,7 +12,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.PayPalStandard.Models;
 
-namespace Payments.PayPalStandard.Controllers
+namespace Payments.PayPalStandard.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

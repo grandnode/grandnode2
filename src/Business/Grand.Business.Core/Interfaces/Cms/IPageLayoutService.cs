@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// Page layout service interface
     /// </summary>
-    public partial interface IPageLayoutService
+    public interface IPageLayoutService
     {
         
         /// <summary>

@@ -37,13 +37,9 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
                 var productIds = query.Take(request.ProductsNumber).ToList();
 
-                var products = new List<Product>();
                 var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray());
-                foreach (var product in ids)
-                    if (product.Published)
-                        products.Add(product);
 
-                return products;
+                return ids.Where(product => product.Published).ToList();
             });
 
         }

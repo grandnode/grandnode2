@@ -1,5 +1,5 @@
 ﻿using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 
 namespace Grand.Infrastructure.Migrations
 {
@@ -9,7 +9,7 @@ namespace Grand.Infrastructure.Migrations
 
         public MigrationManager()
         {
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             _migrationConfigurations = typeSearcher.ClassesOfType<IMigration>();
         }
         
@@ -20,15 +20,14 @@ namespace Grand.Infrastructure.Migrations
         public IEnumerable<IMigration> GetAllMigrations()
         {
             return _migrationConfigurations
-                .Where(mg => PluginExtensions.OnlyInstalledPlugins(mg))
+                .Where(PluginExtensions.OnlyInstalledPlugins)
                 .Select(mg => (IMigration)Activator.CreateInstance(mg))
-                .OrderBy(mg => mg.Priority);
+                .OrderBy(mg => mg!.Priority);
         }
 
         /// <summary>
         /// Get current migrations 
         /// </summary>
-        /// <param name="dbVersion"></param>
         /// <returns></returns>
         public IEnumerable<IMigration> GetCurrentMigrations()
         {

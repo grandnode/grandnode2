@@ -90,8 +90,8 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
 
             if (!string.IsNullOrEmpty(request.OrderGuid))
             {
-                if (Guid.TryParse(request.OrderGuid, out Guid orderguid))
-                    query = query.Where(o => o.OrderGuid == orderguid);
+                if (Guid.TryParse(request.OrderGuid, out Guid orderGuid))
+                    query = query.Where(o => o.OrderGuid == orderGuid);
             }
             if (!string.IsNullOrEmpty(request.OrderCode))
             {

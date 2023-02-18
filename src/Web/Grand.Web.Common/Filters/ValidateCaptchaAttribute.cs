@@ -28,10 +28,10 @@ namespace Grand.Web.Common.Filters
         {
             #region Constants
 
-            private const string CHALLENGE_FIELD_KEY = "recaptcha_challenge_field";
-            private const string RESPONSE_FIELD_KEY = "recaptcha_response_field";
-            private const string G_RESPONSE_FIELD_KEY_V3 = "g-recaptcha-response-value";
-            private const string G_RESPONSE_FIELD_KEY_V2 = "g-recaptcha-response";
+            private const string ChallengeFieldKey = "recaptcha_challenge_field";
+            private const string ResponseFieldKey = "recaptcha_response_field";
+            private const string GResponseFieldKeyV3 = "g-recaptcha-response-value";
+            private const string GResponseFieldKeyV2 = "g-recaptcha-response";
 
             #endregion
 
@@ -67,31 +67,31 @@ namespace Grand.Web.Common.Filters
 
                 //get form values
                 var form = await context.HttpContext.Request.ReadFormAsync();
-                var captchaChallengeValue = form[CHALLENGE_FIELD_KEY];
-                var captchaResponseValue = form[RESPONSE_FIELD_KEY];
+                var captchaChallengeValue = form[ChallengeFieldKey];
+                var captchaResponseValue = form[ResponseFieldKey];
                 var gCaptchaResponseValue = string.Empty;
                 foreach (var item in form.Keys)
                 {
-                    if (item.Contains(G_RESPONSE_FIELD_KEY_V3))
+                    if (item.Contains(GResponseFieldKeyV3))
                         gCaptchaResponseValue = form[item];
                 }
 
                 if(string.IsNullOrEmpty(gCaptchaResponseValue))
-                    gCaptchaResponseValue = form[G_RESPONSE_FIELD_KEY_V2];
-                
-                if ((!StringValues.IsNullOrEmpty(captchaChallengeValue) && !StringValues.IsNullOrEmpty(captchaResponseValue)) || !string.IsNullOrEmpty(gCaptchaResponseValue))
+                    gCaptchaResponseValue = form[GResponseFieldKeyV2];
+
+                if ((StringValues.IsNullOrEmpty(captchaChallengeValue) ||
+                     StringValues.IsNullOrEmpty(captchaResponseValue)) &&
+                    string.IsNullOrEmpty(gCaptchaResponseValue)) return false;
+                //Captcha validate request
+                var recaptchaResponse = await _googleReCaptchaValidator.Validate(!StringValues.IsNullOrEmpty(captchaResponseValue) ? captchaResponseValue.ToString() : gCaptchaResponseValue);
+                isValid = recaptchaResponse.IsValid;
+                if (isValid) return true;
+                foreach (var error in recaptchaResponse.ErrorCodes)
                 {
-                    //Captcha validate request
-                    var recaptchaResponse = await _googleReCaptchaValidator.Validate(!StringValues.IsNullOrEmpty(captchaResponseValue) ? captchaResponseValue.ToString() : gCaptchaResponseValue);
-                    isValid = recaptchaResponse.IsValid;
-                    if (!isValid)
-                        foreach (var error in recaptchaResponse.ErrorCodes)
-                        {
-                            context.ModelState.AddModelError("", error);
-                        }
+                    context.ModelState.AddModelError("", error);
                 }
 
-                return isValid;
+                return false;
             }
 
             #endregion
@@ -99,14 +99,14 @@ namespace Grand.Web.Common.Filters
             #region Methods
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context == null || context.HttpContext == null || context.HttpContext.Request == null)
+                if (context?.HttpContext.Request == null)
                 {
                     await next();
                     return;
                 }                
 
                 //whether CAPTCHA is enabled
-                if (_captchaSettings.Enabled && context.HttpContext != null && context.HttpContext.Request != null)
+                if (_captchaSettings.Enabled)
                 {
                     //push the validation result as an action parameter
                     context.ActionArguments[_actionParameterName] = await ValidateCaptcha(context);

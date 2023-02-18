@@ -1,13 +1,16 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Binders;
+using Grand.Web.Common.Models;
 using Grand.Web.Models.Newsletter;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class CustomerInfoModel : BaseModel
+    public class CustomerInfoModel : BaseModel
     {
         public CustomerInfoModel()
         {
@@ -15,6 +18,7 @@ namespace Grand.Web.Models.Customer
             AvailableStates = new List<SelectListItem>();
             AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
             CustomerAttributes = new List<CustomerAttributeModel>();
+            SelectedAttributes = new List<CustomAttributeModel>();
             NewsletterCategories = new List<NewsletterSimpleCategory>();
         }
 
@@ -113,7 +117,8 @@ namespace Grand.Web.Models.Customer
         public bool NewsletterEnabled { get; set; }
         [GrandResourceDisplayName("Account.Fields.Newsletter")]
         public bool Newsletter { get; set; }
-
+        public string[] SelectedNewsletterCategory { get; set; }
+        
         //2factory
         public bool Is2faEnabled { get; set; }
 
@@ -127,7 +132,10 @@ namespace Grand.Web.Models.Customer
         [GrandResourceDisplayName("Account.AssociatedExternalAuth")]
         public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
         public int NumberOfExternalAuthenticationProviders { get; set; }
-
+        
+        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+        
         public IList<CustomerAttributeModel> CustomerAttributes { get; set; }
 
         public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; }
@@ -135,7 +143,7 @@ namespace Grand.Web.Models.Customer
 
         #region Nested classes
 
-        public partial class AssociatedExternalAuthModel : BaseEntityModel
+        public class AssociatedExternalAuthModel : BaseEntityModel
         {
             public string Email { get; set; }
             public string ExternalIdentifier { get; set; }

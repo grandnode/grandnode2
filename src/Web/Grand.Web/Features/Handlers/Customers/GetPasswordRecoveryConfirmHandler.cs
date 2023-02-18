@@ -24,18 +24,17 @@ namespace Grand.Web.Features.Handlers.Customers
             var model = new PasswordRecoveryConfirmModel();
 
             //validate token
-            if (!(request.Customer.IsPasswordRecoveryTokenValid(request.Token)))
+            if (!request.Customer.IsPasswordRecoveryTokenValid(request.Token))
             {
                 model.DisablePasswordChanging = true;
                 model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
             }
 
             //validate token expiration date
-            if (request.Customer.IsPasswordRecoveryLinkExpired(_customerSettings))
-            {
-                model.DisablePasswordChanging = true;
-                model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
-            }
+            if (!request.Customer.IsPasswordRecoveryLinkExpired(_customerSettings)) return await Task.FromResult(model);
+            
+            model.DisablePasswordChanging = true;
+            model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
             return await Task.FromResult(model);
         }
     }

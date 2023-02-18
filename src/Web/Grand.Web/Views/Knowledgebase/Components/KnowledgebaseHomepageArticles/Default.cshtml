@@ -1,4 +1,4 @@
-﻿@model Grand.Web.Models.Knowledgebase.KnowledgebaseHomePageModel
+﻿@model KnowledgebaseHomePageModel
 
 @if (Model.Items.Any())
 {
@@ -8,7 +8,7 @@
             {
                 if (item.IsArticle)
                 {
-                    <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { SeName = item.SeName })">
+                    <a class="list-group-item" href="@Url.RouteUrl("KnowledgebaseArticle", new { item.SeName })">
                         @item.Name
                     </a>
                 }

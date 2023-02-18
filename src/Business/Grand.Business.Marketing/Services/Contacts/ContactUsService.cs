@@ -10,7 +10,7 @@ namespace Grand.Business.Marketing.Services.Contacts
     /// <summary>
     /// ContactUs interface
     /// </summary>
-    public partial class ContactUsService : IContactUsService
+    public class ContactUsService : IContactUsService
     {
 
         private readonly IRepository<ContactUs> _contactusRepository;
@@ -55,6 +55,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="email">email</param>
         /// <param name="vendorId">vendorId; null to load all records</param>
         /// <param name="customerId">customerId; null to load all records</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>ContactUs items</returns>
@@ -70,14 +71,14 @@ namespace Grand.Business.Marketing.Services.Contacts
                 query = query.Where(l => fromUtc.Value <= l.CreatedOnUtc);
             if (toUtc.HasValue)
                 query = query.Where(l => toUtc.Value >= l.CreatedOnUtc);
-            if (!String.IsNullOrEmpty(vendorId))
+            if (!string.IsNullOrEmpty(vendorId))
                 query = query.Where(l => vendorId == l.VendorId);
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(l => customerId == l.CustomerId);
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(l => storeId == l.StoreId);
 
-            if (!String.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(email))
                 query = query.Where(l => l.Email.ToLower().Contains(email.ToLower()));
 
             query = query.OrderByDescending(x => x.CreatedOnUtc);

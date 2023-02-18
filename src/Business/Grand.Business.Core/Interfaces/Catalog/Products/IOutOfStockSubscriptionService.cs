@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Out of stock subscription service interface
     /// </summary>
-    public partial interface IOutOfStockSubscriptionService
+    public interface IOutOfStockSubscriptionService
     {
                 /// <summary>
         /// Gets all subscriptions

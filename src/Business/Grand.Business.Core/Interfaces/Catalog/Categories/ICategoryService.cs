@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Categories
 {
-    public partial interface ICategoryService
+    public interface ICategoryService
     {
         /// <summary>
         /// Gets all categories
@@ -50,7 +50,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Categories
         /// <summary>
         /// Gets all categories that should be displayed in search box
         /// </summary>
-        /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
         /// <returns>Categories</returns>
         Task<IList<Category>> GetAllCategoriesSearchBox();
 

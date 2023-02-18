@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -56,12 +55,11 @@ namespace Grand.Web.Components
             if (!products.Any())
                 return Content("");
 
-            var model = await _mediator.Send(new GetProductOverview()
-            {
+            var model = await _mediator.Send(new GetProductOverview {
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
                 ProductThumbPictureSize = productThumbPictureSize,
                 Products = products,
-                ForceRedirectionAfterAddingToCart = true,
+                ForceRedirectionAfterAddingToCart = true
             });
 
             return View(model);

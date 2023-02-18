@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Authentication
     /// <summary>
     /// External auth param
     /// </summary>
-    public partial class ExternalAuthParam
+    public class ExternalAuthParam
     {
         public ExternalAuthParam()
         {

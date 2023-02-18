@@ -1,6 +1,6 @@
 ﻿namespace Grand.Business.Core.Utilities.System
 {
-    public partial class ReportPeriodOrder
+    public class ReportPeriodOrder
     {
         public DateTime Date { get; set; }
         public int Count { get; set; }

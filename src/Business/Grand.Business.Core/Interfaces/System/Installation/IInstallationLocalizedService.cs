@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.System.Installation
     /// <summary>
     /// Translation service for installation process
     /// </summary>
-    public partial interface IInstallationLocalizedService
+    public interface IInstallationLocalizedService
     {
         /// <summary>
         /// Get locale resource value

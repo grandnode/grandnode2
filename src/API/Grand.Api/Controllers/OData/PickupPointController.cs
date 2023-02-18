@@ -28,15 +28,12 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
             var points = await _mediator.Send(new GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>(key));
-            if (!points.Any())
-                return NotFound();
+            if (!points.Any()) return NotFound();
 
             return Ok(points.FirstOrDefault());
-
         }
 
         [SwaggerOperation(summary: "Get entities from PickupPoint", OperationId = "GetPickupPoints")]
@@ -46,8 +43,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>()));
         }

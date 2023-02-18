@@ -31,7 +31,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            var canMarkOrderAsPaid = await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery() { PaymentTransaction = paymentTransaction });
+            var canMarkOrderAsPaid = await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }, cancellationToken);
             if (!canMarkOrderAsPaid)
                 throw new GrandException("You can't mark this Payment Transaction as paid");
 
@@ -54,14 +54,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 Note = "Order has been marked as paid",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
 
             });
 
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
             if (order.PaymentStatusId == PaymentStatus.Paid)
             {
-                await _mediator.Send(new ProcessOrderPaidCommand() { Order = order });
+                await _mediator.Send(new ProcessOrderPaidCommand { Order = order }, cancellationToken);
             }
             return true;
         }

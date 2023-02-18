@@ -2,14 +2,16 @@
 using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using StartupBase = Grand.Infrastructure.StartupBase;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseDefaultServiceProvider((context, options) =>
+builder.Host.UseDefaultServiceProvider((_, options) =>
 {
     options.ValidateScopes = false;
     options.ValidateOnBuild = false;
@@ -40,7 +42,7 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
 //add services
-Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Configuration);
+StartupBase.ConfigureServices(builder.Services, builder.Configuration);
 
 //Allow non ASCII chars in headers
 var config = new AppConfig();
@@ -49,7 +51,7 @@ if (config.AllowNonAsciiCharInHeaders)
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.ResponseHeaderEncodingSelector = (_) => Encoding.UTF8;
+        options.ResponseHeaderEncodingSelector = _ => Encoding.UTF8;
     });
 }
 if (config.MaxRequestBodySize.HasValue)
@@ -59,7 +61,7 @@ if (config.MaxRequestBodySize.HasValue)
         host.Limits.MaxRequestBodySize = config.MaxRequestBodySize.Value;
     });
 
-    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(opt =>
+    builder.Services.Configure<FormOptions>(opt =>
     {
         opt.MultipartBodyLengthLimit = config.MaxRequestBodySize.Value;
     });
@@ -68,16 +70,11 @@ if (config.MaxRequestBodySize.HasValue)
 //register task
 builder.Services.RegisterTasks();
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-}
-
 //build app
 var app = builder.Build();
 
 //request pipeline
-Grand.Infrastructure.StartupBase.ConfigureRequestPipeline(app, builder.Environment);
+StartupBase.ConfigureRequestPipeline(app, builder.Environment);
 
 //run app
 app.Run();

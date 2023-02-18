@@ -4,7 +4,7 @@ using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidShoppingCart : Drop
+    public class LiquidShoppingCart : Drop
     {
         private ICollection<LiquidShoppingCartItem> _items;
         private readonly Customer _customer;

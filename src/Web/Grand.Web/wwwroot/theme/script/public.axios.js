@@ -62,7 +62,7 @@ var AxiosCart = {
         if (document.querySelector("#ModalQuickView")) {
             var form = document.querySelector('#ModalQuickView #product-details-form');
         } else {
-            var form = document.querySelector('.product-standard #product-details-form');
+            var form = document.querySelector(formselector);
         }
         var data = new FormData(form);
         axios({

@@ -14,7 +14,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
     /// <summary>
     /// Checkout attribute service
     /// </summary>
-    public partial class CheckoutAttributeService : ICheckoutAttributeService
+    public class CheckoutAttributeService : ICheckoutAttributeService
     {
         #region Fields
 
@@ -46,16 +46,16 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
 
         #region Methods
 
-
         /// <summary>
         /// Gets all checkout attributes
         /// </summary>
         /// <param name="storeId">Store identifier</param>
-        /// <param name="excludeShippableAttributes">A value indicating whether we should exlude shippable attributes</param>
+        /// <param name="excludeShippableAttributes">A value indicating whether we should exclude shippable attributes</param>
+        /// <param name="ignoreAcl"></param>
         /// <returns>Checkout attributes</returns>
-        public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "", bool excludeShippableAttributes = false, bool ignorAcl = false)
+        public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "", bool excludeShippableAttributes = false, bool ignoreAcl = false)
         {
-            string key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignorAcl);
+            var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignoreAcl);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _checkoutAttributeRepository.Table
@@ -63,10 +63,10 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
 
                 query = query.OrderBy(c => c.DisplayOrder);
 
-                if ((!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations) ||
-                    (!ignorAcl && !CommonHelper.IgnoreAcl))
+                if ((!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations) ||
+                    (!ignoreAcl && !CommonHelper.IgnoreAcl))
                 {
-                    if (!ignorAcl && !CommonHelper.IgnoreAcl)
+                    if (!ignoreAcl && !CommonHelper.IgnoreAcl)
                     {
                         var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                         query = from p in query
@@ -74,7 +74,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                                 select p;
                     }
                     //Store acl
-                    if (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                    if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
                     {
                         query = from p in query
                                 where !p.LimitedToStores || p.Stores.Contains(storeId)
@@ -97,7 +97,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <returns>Checkout attribute</returns>
         public virtual Task<CheckoutAttribute> GetCheckoutAttributeById(string checkoutAttributeId)
         {
-            string key = string.Format(CacheKey.CHECKOUTATTRIBUTES_BY_ID_KEY, checkoutAttributeId);
+            var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_BY_ID_KEY, checkoutAttributeId);
             return _cacheBase.GetAsync(key, () => _checkoutAttributeRepository.GetByIdAsync(checkoutAttributeId));
         }
 

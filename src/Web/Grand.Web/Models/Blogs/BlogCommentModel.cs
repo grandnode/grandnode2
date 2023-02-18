@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Blogs
 {
-    public partial class BlogCommentModel : BaseEntityModel
+    public class BlogCommentModel : BaseEntityModel
     {
         public string CustomerId { get; set; }
 

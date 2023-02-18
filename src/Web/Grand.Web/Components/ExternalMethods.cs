@@ -4,7 +4,7 @@ using Grand.Web.Common.Components;
 using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class ExternalMethodsViewComponent : BaseViewComponent
     {

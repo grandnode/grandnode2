@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Pages
 {
-    public partial class PageModel : BaseEntityModel
+    public class PageModel : BaseEntityModel
     {
         public string SystemName { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

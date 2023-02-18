@@ -42,7 +42,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var amountToRefund = command.AmountToRefund;
 
-            var canPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund });
+            var canPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund }, cancellationToken);
             if (!canPartiallyRefundOffline)
                 throw new GrandException("You can't partially refund (offline) this order");
 
@@ -55,7 +55,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 throw new ArgumentNullException(nameof(order));
 
             //total amount refunded
-            double totalAmountRefunded = order.RefundedAmount + amountToRefund;
+            var totalAmountRefunded = order.RefundedAmount + amountToRefund;
 
             //update order info
             order.RefundedAmount = totalAmountRefunded;
@@ -64,7 +64,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             //notifications
             _ = await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
@@ -72,7 +72,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             _ = await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
 
             //raise event       
-            await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund));
+            await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund), cancellationToken);
             return true;
         }
     }

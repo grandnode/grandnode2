@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Core.Extensions;
-using Grand.Infrastructure.Caching;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Web.Features.Models.Catalog;
+using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 
@@ -27,7 +27,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<CollectionNavigationModel> Handle(GetCollectionNavigation request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
+            var cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
                 request.CurrentCollectionId, request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()),
                 request.Store.Id);
             var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>
@@ -47,7 +47,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         Name = collection.GetTranslation(x => x.Name, request.Language.Id),
                         Icon = collection.Icon,
                         SeName = collection.GetSeName(request.Language.Id),
-                        IsActive = currentCollection != null && currentCollection.Id == collection.Id,
+                        IsActive = currentCollection != null && currentCollection.Id == collection.Id
                     };
                     model.Collections.Add(modelMan);
                 }

@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Shipping.FixedRateShipping.Models;
 
 namespace Shipping.FixedRateShipping
@@ -118,12 +117,12 @@ namespace Shipping.FixedRateShipping
 
         public IShipmentTracker ShipmentTracker => null;
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
         {
             return await Task.FromResult(new List<string>());
         }
 
-        public async Task<string> GetPublicViewComponentName()
+        public async Task<string> GetControllerRouteName()
         {
             return await Task.FromResult("");
         }

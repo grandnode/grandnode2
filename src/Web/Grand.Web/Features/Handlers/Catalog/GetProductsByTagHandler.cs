@@ -30,18 +30,18 @@ namespace Grand.Web.Features.Handlers.Catalog
             };
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions() {
+            var options = await _mediator.Send(new GetViewSortSizeOptions {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
                 AllowCustomersToSelectPageSize = _catalogSettings.ProductsByTagAllowCustomersToSelectPageSize,
                 PageSize = _catalogSettings.ProductsByTagPageSize,
                 PageSizeOptions = _catalogSettings.ProductsByTagPageSizeOptions
-            });
+            }, cancellationToken);
             model.PagingFilteringContext = options.command;
 
             //products
-            var products = (await _mediator.Send(new GetSearchProductsQuery() {
+            var products = (await _mediator.Send(new GetSearchProductsQuery {
                 Customer = request.Customer,
                 StoreId = request.Store.Id,
                 ProductTag = request.ProductTag.Name,
@@ -49,12 +49,12 @@ namespace Grand.Web.Features.Handlers.Catalog
                 OrderBy = (ProductSortingEnum)request.Command.OrderBy,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
-            })).products;
+            }, cancellationToken)).products;
 
-            model.Products = (await _mediator.Send(new GetProductOverview() {
+            model.Products = (await _mediator.Send(new GetProductOverview {
                 Products = products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
-            })).ToList();
+            }, cancellationToken)).ToList();
 
             model.PagingFilteringContext.LoadPagedList(products);
 

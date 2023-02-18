@@ -1,5 +1,4 @@
 ﻿@model CustomerAddressListModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -29,7 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < Model.Addresses.Count; i++)
+                    @for (var i = 0; i < Model.Addresses.Count; i++)
                     {
                         var address = Model.Addresses[i];
                         <tr>
@@ -59,11 +58,11 @@
                                             @address.FaxNumber
                                         </li>
                                     }
-                                    @if (address.CompanyEnabled && !String.IsNullOrEmpty(address.Company))
+                                    @if (address.CompanyEnabled && !string.IsNullOrEmpty(address.Company))
                                     {
                                         <li class="company">@address.Company</li>
                                     }
-                                    @if (address.VatNumberEnabled && !String.IsNullOrEmpty(address.VatNumber))
+                                    @if (address.VatNumberEnabled && !string.IsNullOrEmpty(address.VatNumber))
                                     {
                                         <li class="vatnumber">@address.VatNumber</li>
                                     }
@@ -73,7 +72,7 @@
                                             @address.Address1
                                         </li>
                                     }
-                                    @if (address.StreetAddress2Enabled && !String.IsNullOrEmpty(address.Address2))
+                                    @if (address.StreetAddress2Enabled && !string.IsNullOrEmpty(address.Address2))
                                     {
                                         <li class="address2">
                                             @address.Address2
@@ -92,7 +91,7 @@
                                         }
                                         if (address.StateProvinceEnabled)
                                         {
-                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
@@ -100,7 +99,7 @@
                                         }
                                         if (address.ZipPostalCodeEnabled)
                                         {
-                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
@@ -110,13 +109,13 @@
                                             @cityStateZip
                                         </li>
                                     }
-                                    @if (address.CountryEnabled && !String.IsNullOrEmpty(address.CountryName))
+                                    @if (address.CountryEnabled && !string.IsNullOrEmpty(address.CountryName))
                                     {
                                         <li class="country">
                                             @address.CountryName
                                         </li>
                                     }
-                                    @if (!String.IsNullOrEmpty(address.FormattedCustomAddressAttributes))
+                                    @if (!string.IsNullOrEmpty(address.FormattedCustomAddressAttributes))
                                     {
                                         <li class="custom-attributes-view">
                                             @Html.Raw(address.FormattedCustomAddressAttributes)

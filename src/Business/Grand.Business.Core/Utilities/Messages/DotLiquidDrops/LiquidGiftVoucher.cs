@@ -4,7 +4,7 @@ using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidGiftVoucher : Drop
+    public class LiquidGiftVoucher : Drop
     {
         private readonly GiftVoucher _giftVoucher;
 

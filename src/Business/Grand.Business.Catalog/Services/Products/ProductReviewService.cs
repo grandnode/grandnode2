@@ -38,6 +38,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="fromUtc">Item creation from; null to load all records</param>
         /// <param name="toUtc">Item item creation to; null to load all records</param>
         /// <param name="message">Search title or review text; null to load all records</param>
+        /// <param name="storeId">Store ident</param>
+        /// <param name="productId">Product ident</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Reviews</returns>
         public virtual async Task<IPagedList<ProductReview>> GetAllProductReviews(string customerId, bool? approved,
             DateTime? fromUtc = null, DateTime? toUtc = null,
@@ -48,17 +52,17 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (approved.HasValue)
                 query = query.Where(c => c.IsApproved == approved.Value);
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(c => c.CustomerId == customerId);
             if (fromUtc.HasValue)
                 query = query.Where(c => fromUtc.Value <= c.CreatedOnUtc);
             if (toUtc.HasValue)
                 query = query.Where(c => toUtc.Value >= c.CreatedOnUtc);
-            if (!String.IsNullOrEmpty(message))
+            if (!string.IsNullOrEmpty(message))
                 query = query.Where(c => c.Title.Contains(message) || c.ReviewText.Contains(message));
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(c => c.StoreId == storeId || c.StoreId == "");
-            if (!String.IsNullOrEmpty(productId))
+            if (!string.IsNullOrEmpty(productId))
                 query = query.Where(c => c.ProductId == productId);
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
@@ -80,26 +84,26 @@ namespace Grand.Business.Catalog.Services.Products
             //event notification
             await _mediator.EntityInserted(productReview);
         }
-        public virtual async Task UpdateProductReview(ProductReview productreview)
+        public virtual async Task UpdateProductReview(ProductReview productReview)
         {
-            if (productreview == null)
-                throw new ArgumentNullException(nameof(productreview));
+            if (productReview == null)
+                throw new ArgumentNullException(nameof(productReview));
 
             var update = UpdateBuilder<ProductReview>.Create()
-                .Set(x => x.Title, productreview.Title)
-                .Set(x => x.ReviewText, productreview.ReviewText)
-                .Set(x => x.ReplyText, productreview.ReplyText)
-                .Set(x => x.Signature, productreview.Signature)
+                .Set(x => x.Title, productReview.Title)
+                .Set(x => x.ReviewText, productReview.ReviewText)
+                .Set(x => x.ReplyText, productReview.ReplyText)
+                .Set(x => x.Signature, productReview.Signature)
                 .Set(x => x.UpdatedOnUtc, DateTime.UtcNow)
-                .Set(x => x.IsApproved, productreview.IsApproved)
-                .Set(x => x.HelpfulNoTotal, productreview.HelpfulNoTotal)
-                .Set(x => x.HelpfulYesTotal, productreview.HelpfulYesTotal)
-                .Set(x => x.ProductReviewHelpfulnessEntries, productreview.ProductReviewHelpfulnessEntries);
+                .Set(x => x.IsApproved, productReview.IsApproved)
+                .Set(x => x.HelpfulNoTotal, productReview.HelpfulNoTotal)
+                .Set(x => x.HelpfulYesTotal, productReview.HelpfulYesTotal)
+                .Set(x => x.ProductReviewHelpfulnessEntries, productReview.ProductReviewHelpfulnessEntries);
 
-            await _productReviewRepository.UpdateOneAsync(x => x.Id == productreview.Id, update);
+            await _productReviewRepository.UpdateOneAsync(x => x.Id == productReview.Id, update);
 
             //event notification
-            await _mediator.EntityUpdated(productreview);
+            await _mediator.EntityUpdated(productReview);
         }
 
         /// <summary>

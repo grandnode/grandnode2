@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Localization
     /// <summary>
     /// Language service interface
     /// </summary>
-    public partial interface ILanguageService
+    public interface ILanguageService
     {
         
         /// <summary>

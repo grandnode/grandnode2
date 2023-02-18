@@ -17,6 +17,9 @@ namespace Grand.Web.Common.TagHelpers
         [ViewContext]
         public ViewContext ViewContext { get; set; }
 
+        [HtmlAttributeName("PartialViewName")]
+        public string PartialViewName { get; set; }
+
         [HtmlAttributeName("Attribute")]
         public string Attribute { get; set; }
 
@@ -99,8 +102,7 @@ namespace Grand.Web.Common.TagHelpers
                 for (var i = Begin_Year; i >= End_Year; i--)
                     model.SelectListYear.Add(new SelectListItem() { Value = i.ToString(), Text = i.ToString(), Selected = (SelectedYear == i) });
             }
-
-            output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("_DatePickerDropDowns", model)).ToHtmlString());
+            output.Content.SetHtmlContent((await _htmlHelper.PartialAsync(PartialViewName, model)).ToHtmlString());
 
         }
     }

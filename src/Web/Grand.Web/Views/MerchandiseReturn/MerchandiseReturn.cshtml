@@ -1,5 +1,4 @@
 ﻿@model MerchandiseReturnModel
-@using Grand.Web.Models.Orders;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_SingleColumn";
@@ -9,7 +8,7 @@
 }
 <div class="page return-request-page">
     <h1 class="text-center generalTitle h2">@string.Format(Loc["MerchandiseReturns.Title"], Model.OrderNumber)</h1>
-    @if (!String.IsNullOrEmpty(Model.Result))
+    @if (!string.IsNullOrEmpty(Model.Result))
     {
         <div class="result alert alert-info">
             @Html.Raw(Model.Result)
@@ -17,7 +16,7 @@
     }
     else
     {
-        @if (!String.IsNullOrEmpty(Model.Error))
+        @if (!string.IsNullOrEmpty(Model.Error))
         {
             <div class="result alert alert-danger">
                 @Model.Error
@@ -29,11 +28,6 @@
                     <h2 class="h5 mt-3"><strong>@Loc["MerchandiseReturns.SelectProduct(s)"]</strong></h2>
                     <div class="table-responsive">
                         <table class="table table-hover merchandise-table data-table">
-                            <colgroup>
-                                <col />
-                                <col width="200" />
-                                <col width="150" />
-                            </colgroup>
                             <thead class="table-inverse">
                                 <tr>
                                     <th class="product">
@@ -54,39 +48,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @{
-                                    int index = 0;
-                                }
-                                <tr>
-                                    <td>
-                                        <validation-provider tag="div" rules="required|exact_length:1,@Loc["merchandisereturns.noitemssubmitted"]" v-slot="{ errors, classes }">
-                                            @foreach (var item in Model.Items)
-                                            {
-                                                index++;
-                                                <div>
-                                                    <label class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input" v-model="merchandisereturns.checkboxes" value="@index" @@change="merchandisereturns.allowed($event.target ,'quantity@(item.Id)')" name="checkbox_@(item.Id)" id="check_@(item.Id)">
-                                                        <span class="custom-control-label"></span>
-                                                        <span class="custom-control-description"></span>
-                                                    </label>
-                                                </div>
-                                            }
-                                            <span class="field-validation-error" v-if="errors[0]">{{ errors[0] }}</span>
-                                        </validation-provider>
-                                    </td>
+                            <tr>
                                 </tr>
                                 <tr>
-                                    @foreach (var item in Model.Items)
+                                    @for(var j = 0; j < Model.Items.Count; j++)
                                     {
-                                        index++;
+                                        var item = Model.Items[j];
                                             <td>
                                                 <div class="product">
                                                     <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
-                                                    @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                                     {
                                                         <a id="attributes-btn" class="btn btn-sm btn-outline-info" v-b-tooltip.html.right.hover title="@Html.Raw(item.AttributeInfo)">Attributes</a>
                                                     }
-                                                    @if (!String.IsNullOrEmpty(item.VendorName))
+                                                    @if (!string.IsNullOrEmpty(item.VendorName))
                                                     {
                                                         <div class="vendor">
                                                             @item.VendorName
@@ -97,9 +72,14 @@
                                                     @item.UnitPrice
                                                 </div>
                                                 <div class="quantity">
+                                                    <input type="hidden" asp-for="@Model.Items[j].Id"/>
+                                                    <input type="hidden" asp-for="@Model.Items[j].ProductName"/>
                                                     <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
-                                                        <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))" v-bind:class="[classes , 'custom-select form-control']" disabled="disabled" v-model="merchandisereturns.quantity_@(item.Id)" ref="quantity@(item.Id)" name="quantity@(item.Id)">
-                                                            @for (int i = 0; i <= item.Quantity; i++)
+                                                        <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))"
+                                                                v-bind:class="[classes , 'custom-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
+                                                                ref="quantity@(item.Id)"
+                                                                asp-for="@Model.Items[j].Quantity">
+                                                            @for (var i = 0; i <= item.Quantity; i++)
                                                             {
                                                                 <option value="@(i)">@(i)</option>
                                                             }
@@ -115,7 +95,8 @@
                                                             Value = x.Id.ToString()
                                                         }).ToList();
                                                     }
-                                                    <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@reasonsSelectList" name="reason@(item.Id)" class="form-control custom-select return-reasons"></select>
+                                                    <select asp-for="@Model.Items[j].MerchandiseReturnReasonId" 
+                                                            asp-items="@reasonsSelectList" class="form-control custom-select return-reasons"></select>
                                                 </div>
                                                 <div>
                                                     @{
@@ -125,7 +106,8 @@
                                                             Value = x.Id.ToString()
                                                         }).ToList();
                                                     }
-                                                    <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@actionsSelectList" name="action@(item.Id)" class="form-control custom-select return-actions"></select>
+                                                    <select asp-for="@Model.Items[j].MerchandiseReturnActionId" 
+                                                            asp-items="@actionsSelectList" class="form-control custom-select return-actions"></select>
                                                 </div>
                                             </td>
                                         }
@@ -149,30 +131,30 @@
                                     <div class="section select-pickup-address">
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
-                                            <select name="pickup_address_id" id="pickup-address-select" class="custom-select address-select"
+                                            <select name="PickupAddressId" id="pickup-address-select" class="custom-select address-select"
                                                     title="" @@change="merchandisereturns.isNewAddress()">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {
                                                     var addressLine = "";
                                                     addressLine += address.FirstName;
                                                     addressLine += " " + address.LastName;
-                                                    if (address.StreetAddressEnabled && !String.IsNullOrEmpty(address.Address1))
+                                                    if (address.StreetAddressEnabled && !string.IsNullOrEmpty(address.Address1))
                                                     {
                                                         addressLine += ", " + address.Address1;
                                                     }
-                                                    if (address.CityEnabled && !String.IsNullOrEmpty(address.City))
+                                                    if (address.CityEnabled && !string.IsNullOrEmpty(address.City))
                                                     {
                                                         addressLine += ", " + address.City;
                                                     }
-                                                    if (address.StateProvinceEnabled && !String.IsNullOrEmpty(address.StateProvinceName))
+                                                    if (address.StateProvinceEnabled && !string.IsNullOrEmpty(address.StateProvinceName))
                                                     {
                                                         addressLine += ", " + address.StateProvinceName;
                                                     }
-                                                    if (address.ZipPostalCodeEnabled && !String.IsNullOrEmpty(address.ZipPostalCode))
+                                                    if (address.ZipPostalCodeEnabled && !string.IsNullOrEmpty(address.ZipPostalCode))
                                                     {
                                                         addressLine += " " + address.ZipPostalCode;
                                                     }
-                                                    if (address.CountryEnabled && !String.IsNullOrWhiteSpace(address.CountryName))
+                                                    if (address.CountryEnabled && !string.IsNullOrWhiteSpace(address.CountryName))
                                                     {
                                                         addressLine += ", " + address.CountryName;
                                                     }
@@ -187,9 +169,14 @@
                                     <div class="section new-pickup-address" id="pickup-new-address-form" ref="visible">
                                         <div class="enter-address">
                                             @{
-                                                var dataDictAddress = new ViewDataDictionary(ViewData);
-                                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "MerchandiseReturnNewAddress";
-                                                <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
+                                                var dataDictAddress = new ViewDataDictionary(ViewData)
+                                                {
+                                                    TemplateInfo =
+                                                    {
+                                                        HtmlFieldPrefix = "MerchandiseReturnNewAddress"
+                                                    }
+                                                };
+                                                <partial name="Partials/CreateOrUpdateAddress" model="Model.MerchandiseReturnNewAddress" view-data="dataDictAddress" />
                                             }
                                         </div>
                                     </div>

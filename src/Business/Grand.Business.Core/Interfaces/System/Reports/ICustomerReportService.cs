@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
     /// <summary>
     /// Customer report service interface
     /// </summary>
-    public partial interface ICustomerReportService
+    public interface ICustomerReportService
     {
         /// <summary>
         /// Get best customers
@@ -36,6 +36,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
         /// <summary>
         /// Get "customer by time" report
         /// </summary>
+        /// <param name="storeId">Store ident</param>
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <returns>Result</returns>

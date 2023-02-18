@@ -20,15 +20,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Canceled ||
-                paymentTransaction.TransactionStatus == TransactionStatus.Pending)
+            if (paymentTransaction.TransactionStatus is TransactionStatus.Canceled or TransactionStatus.Pending)
                 return false;
 
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Authorized &&
-                await _paymentService.SupportCapture(paymentTransaction.PaymentMethodSystemName))
-                return true;
-
-            return false;
+            return paymentTransaction.TransactionStatus == TransactionStatus.Authorized &&
+                   await _paymentService.SupportCapture(paymentTransaction.PaymentMethodSystemName);
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Infrastructure;
 using Grand.Domain.Blogs;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
+using Grand.Infrastructure;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
@@ -57,22 +57,24 @@ namespace Grand.Web.Features.Handlers.Blogs
             if (request.BlogPost == null)
                 throw new ArgumentNullException(nameof(request.BlogPost));
 
-            var model = new BlogPostModel();
-
-            model.Id = request.BlogPost.Id;
-            model.MetaTitle = request.BlogPost.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id);
-            model.MetaDescription = request.BlogPost.GetTranslation(x => x.MetaDescription, _workContext.WorkingLanguage.Id);
-            model.MetaKeywords = request.BlogPost.GetTranslation(x => x.MetaKeywords, _workContext.WorkingLanguage.Id);
-            model.SeName = request.BlogPost.GetSeName(_workContext.WorkingLanguage.Id);
-            model.Title = request.BlogPost.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-            model.Body = request.BlogPost.GetTranslation(x => x.Body, _workContext.WorkingLanguage.Id);
-            model.BodyOverview = request.BlogPost.GetTranslation(x => x.BodyOverview, _workContext.WorkingLanguage.Id);
-            model.AllowComments = request.BlogPost.AllowComments;
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(request.BlogPost.StartDateUtc ?? request.BlogPost.CreatedOnUtc, DateTimeKind.Utc);
-            model.Tags = request.BlogPost.ParseTags().ToList();
-            model.NumberOfComments = request.BlogPost.CommentCount;
-            model.AddNewComment.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnBlogCommentPage;
-            model.UserFields = request.BlogPost.UserFields;
+            var model = new BlogPostModel {
+                Id = request.BlogPost.Id,
+                MetaTitle = request.BlogPost.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id),
+                MetaDescription = request.BlogPost.GetTranslation(x => x.MetaDescription, _workContext.WorkingLanguage.Id),
+                MetaKeywords = request.BlogPost.GetTranslation(x => x.MetaKeywords, _workContext.WorkingLanguage.Id),
+                SeName = request.BlogPost.GetSeName(_workContext.WorkingLanguage.Id),
+                Title = request.BlogPost.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
+                Body = request.BlogPost.GetTranslation(x => x.Body, _workContext.WorkingLanguage.Id),
+                BodyOverview = request.BlogPost.GetTranslation(x => x.BodyOverview, _workContext.WorkingLanguage.Id),
+                AllowComments = request.BlogPost.AllowComments,
+                CreatedOn = _dateTimeService.ConvertToUserTime(request.BlogPost.StartDateUtc ?? request.BlogPost.CreatedOnUtc, DateTimeKind.Utc),
+                Tags = request.BlogPost.ParseTags().ToList(),
+                NumberOfComments = request.BlogPost.CommentCount,
+                AddNewComment = {
+                    DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnBlogCommentPage
+                },
+                UserFields = request.BlogPost.UserFields
+            };
 
             var blogComments = await _blogService.GetBlogCommentsByBlogPostId(request.BlogPost.Id);
             foreach (var bc in blogComments)
@@ -97,16 +99,16 @@ namespace Grand.Web.Features.Handlers.Blogs
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId, _mediaSettings.BlogThumbPictureSize),
                     Style = picture?.Style,
-                    ExtraField = picture?.ExtraField
+                    ExtraField = picture?.ExtraField,
+                    //"title" attribute
+                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)) ?
+                        picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                        string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), blogPost.Title),
+                    //"alt" attribute
+                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)) ?
+                        picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                        string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), blogPost.Title)
                 };
-                //"title" attribute
-                pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
-                    picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
-                    string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), blogPost.Title);
-                //"alt" attribute
-                pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
-                    picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
-                    string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), blogPost.Title);
 
                 model.PictureModel = pictureModel;
             }
@@ -121,7 +123,7 @@ namespace Grand.Web.Features.Handlers.Blogs
                 CustomerId = blogComment.CustomerId,
                 CustomerName = customer.FormatUserName(_customerSettings.CustomerNameFormat),
                 CommentText = blogComment.CommentText,
-                CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc)
             };
             return model;
         }

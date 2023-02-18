@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Domain.Blogs;
+﻿using Grand.Domain.Blogs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Cms.Tests.Extensions

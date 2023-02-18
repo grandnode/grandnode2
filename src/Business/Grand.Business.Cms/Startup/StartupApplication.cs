@@ -15,6 +15,7 @@ namespace Grand.Business.Cms.Startup
             services.AddScoped<IBlogService, BlogService>();
             services.AddScoped<IWidgetService, WidgetService>();
             services.AddScoped<INewsService, NewsService>();
+            services.AddScoped<IKnowledgebaseService, KnowledgebaseService>();
             services.AddScoped<IPageLayoutService, PageLayoutService>();
             services.AddScoped<IPageService, PageService>();
             services.AddScoped<ICookiePreference, CookiePreference>();

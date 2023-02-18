@@ -12,7 +12,7 @@ namespace Grand.Business.Common.Services.Security
     /// <summary>
     /// Permission service
     /// </summary>
-    public partial class PermissionService : IPermissionService
+    public class PermissionService : IPermissionService
     {
         #region Fields
 
@@ -63,10 +63,10 @@ namespace Grand.Business.Common.Services.Security
             if (string.IsNullOrEmpty(permissionSystemName))
                 return false;
 
-            string key = string.Format(CacheKey.PERMISSIONS_ALLOWED_KEY, customerGroup.Id, permissionSystemName);
+            var key = string.Format(CacheKey.PERMISSIONS_ALLOWED_KEY, customerGroup.Id, permissionSystemName);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var permissionRecord = await Task.FromResult(_permissionRepository.Table.Where(x => x.SystemName == permissionSystemName).FirstOrDefault());
+                var permissionRecord = await Task.FromResult(_permissionRepository.Table.FirstOrDefault(x => x.SystemName == permissionSystemName));
                 return permissionRecord?.CustomerGroups.Contains(customerGroup.Id) ?? false;
             });
         }
@@ -106,7 +106,7 @@ namespace Grand.Business.Common.Services.Security
         /// <returns>Permission</returns>
         public virtual async Task<Permission> GetPermissionBySystemName(string systemName)
         {
-            if (String.IsNullOrWhiteSpace(systemName))
+            if (string.IsNullOrWhiteSpace(systemName))
                 return await Task.FromResult<Permission>(null);
 
             var query = from pr in _permissionRepository.Table
@@ -201,7 +201,7 @@ namespace Grand.Business.Common.Services.Security
         /// <returns>true - authorized; otherwise, false</returns>
         public virtual async Task<bool> Authorize(string permissionSystemName, Customer customer)
         {
-            if (String.IsNullOrEmpty(permissionSystemName))
+            if (string.IsNullOrEmpty(permissionSystemName))
                 return false;
 
             var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
@@ -218,18 +218,18 @@ namespace Grand.Business.Common.Services.Security
         /// Gets a permission action
         /// </summary>
         /// <param name="systemName">Permission system name</param>
-        /// <param name="customeroleId">Customer group ident</param>
+        /// <param name="customerGroupId">Customer group ident</param>
         /// <returns>Permission action</returns>
-        public virtual async Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customeroleId)
+        public virtual async Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customerGroupId)
         {
             return await Task.FromResult(_permissionActionRepository.Table
-                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customeroleId).ToList());
+                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customerGroupId).ToList());
         }
 
         /// <summary>
         /// Inserts a permission action record
         /// </summary>
-        /// <param name="permission">Permission</param>
+        /// <param name="permissionAction">Permission action</param>
         public virtual async Task InsertPermissionAction(PermissionAction permissionAction)
         {
             if (permissionAction == null)
@@ -244,7 +244,7 @@ namespace Grand.Business.Common.Services.Security
         /// <summary>
         /// Inserts a permission action record
         /// </summary>
-        /// <param name="permission">Permission</param>
+        /// <param name="permissionAction">Permission action</param>
         public virtual async Task DeletePermissionAction(PermissionAction permissionAction)
         {
             if (permissionAction == null)
@@ -259,7 +259,7 @@ namespace Grand.Business.Common.Services.Security
         /// <summary>
         /// Authorize permission for action
         /// </summary>
-        /// <param name="permissionRecordSystemName">Permission system name</param>
+        /// <param name="permissionSystemName">Permission system name</param>
         /// <param name="permissionActionName">Permission action name</param>
         /// <returns>true - authorized; otherwise, false</returns>
         public virtual async Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName)
@@ -279,8 +279,8 @@ namespace Grand.Business.Common.Services.Security
                 var key = string.Format(CacheKey.PERMISSIONS_ALLOWED_ACTION_KEY, group.Id, permissionSystemName, permissionActionName);
                 var permissionAction = await _cacheBase.GetAsync(key, async () =>
                 {
-                    return await Task.FromResult(_permissionActionRepository.Table.Where(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName)
-                                .FirstOrDefault());
+                    return await Task.FromResult(_permissionActionRepository.Table
+                        .FirstOrDefault(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName));
                 });
                 if (permissionAction != null)
                     return false;

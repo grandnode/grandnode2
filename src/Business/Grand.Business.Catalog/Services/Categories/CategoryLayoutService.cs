@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Categories
     /// <summary>
     /// Category layout service
     /// </summary>
-    public partial class CategoryLayoutService : ICategoryLayoutService
+    public class CategoryLayoutService : ICategoryLayoutService
     {
         #region Fields
 
@@ -64,7 +64,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Category layout</returns>
         public virtual Task<CategoryLayout> GetCategoryLayoutById(string categoryLayoutId)
         {
-            string key = string.Format(CacheKey.CATEGORY_LAYOUT_BY_ID_KEY, categoryLayoutId);
+            var key = string.Format(CacheKey.CATEGORY_LAYOUT_BY_ID_KEY, categoryLayoutId);
             return _cacheBase.GetAsync(key, () => _categoryLayoutRepository.GetByIdAsync(categoryLayoutId));
         }
 

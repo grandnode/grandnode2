@@ -16,7 +16,6 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -43,7 +42,6 @@ namespace Grand.Web.Admin.Services
         #region Fields
 
         private readonly IOrderService _orderService;
-        private readonly IOrderReportService _orderReportService;
         private readonly IPricingService _pricingService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPriceFormatter _priceFormatter;
@@ -58,7 +56,6 @@ namespace Grand.Web.Admin.Services
         private readonly IProductService _productService;
         private readonly IMessageProviderService _messageProviderService;
         private readonly IProductAttributeService _productAttributeService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IGiftVoucherService _giftVoucherService;
         private readonly IDownloadService _downloadService;
         private readonly IStoreService _storeService;
@@ -86,7 +83,6 @@ namespace Grand.Web.Admin.Services
         #region Ctor
 
         public OrderViewModelService(IOrderService orderService,
-            IOrderReportService orderReportService,
             IPricingService priceCalculationService,
             IDateTimeService dateTimeService,
             IPriceFormatter priceFormatter,
@@ -101,7 +97,6 @@ namespace Grand.Web.Admin.Services
             IProductService productService,
             IMessageProviderService messageProviderService,
             IProductAttributeService productAttributeService,
-            IProductAttributeParser productAttributeParser,
             IGiftVoucherService giftVoucherService,
             IDownloadService downloadService,
             IStoreService storeService,
@@ -126,7 +121,6 @@ namespace Grand.Web.Admin.Services
             IMediator mediator)
         {
             _orderService = orderService;
-            _orderReportService = orderReportService;
             _pricingService = priceCalculationService;
             _dateTimeService = dateTimeService;
             _priceFormatter = priceFormatter;
@@ -141,7 +135,6 @@ namespace Grand.Web.Admin.Services
             _productService = productService;
             _messageProviderService = messageProviderService;
             _productAttributeService = productAttributeService;
-            _productAttributeParser = productAttributeParser;
             _giftVoucherService = giftVoucherService;
             _downloadService = downloadService;
             _storeService = storeService;
@@ -583,7 +576,7 @@ namespace Grand.Web.Admin.Services
             model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
             model.PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext);
             model.PaymentStatusEnum = order.PaymentStatusId;
-            var pt = await _paymentTransactionService.GetByOrdeGuid(order.OrderGuid);
+            var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
             if (pt != null)
                 model.PaymentTransactionId = pt.Id;
 
@@ -596,7 +589,7 @@ namespace Grand.Web.Admin.Services
 
             model.BillingAddress = await order.BillingAddress.ToModel(_countryService);
             model.BillingAddress.FormattedCustomAddressAttributes = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, order.BillingAddress.Attributes);
-            model.BillingAddress.NameEnabled = true;
+            model.BillingAddress.NameEnabled = _addressSettings.NameEnabled;
             model.BillingAddress.FirstNameEnabled = true;
             model.BillingAddress.FirstNameRequired = true;
             model.BillingAddress.LastNameEnabled = true;
@@ -635,7 +628,7 @@ namespace Grand.Web.Admin.Services
                     {
                         model.ShippingAddress = await order.ShippingAddress.ToModel(_countryService);
                         model.ShippingAddress.FormattedCustomAddressAttributes = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, order.ShippingAddress.Attributes);
-                        model.ShippingAddress.NameEnabled = true;
+                        model.ShippingAddress.NameEnabled = _addressSettings.NameEnabled;
                         model.ShippingAddress.FirstNameEnabled = true;
                         model.ShippingAddress.FirstNameRequired = true;
                         model.ShippingAddress.LastNameEnabled = true;
@@ -725,7 +718,7 @@ namespace Grand.Web.Admin.Services
                         Id = orderItem.Id,
                         ProductId = orderItem.ProductId,
                         ProductName = product.Name,
-                        Sku = product.FormatSku(orderItem.Attributes, _productAttributeParser),
+                        Sku = product.FormatSku(orderItem.Attributes),
                         Quantity = orderItem.Quantity,
                         OpenQty = orderItem.OpenQty,
                         CancelQty = orderItem.CancelQty,
@@ -737,7 +730,7 @@ namespace Grand.Web.Admin.Services
                         IsDownloadActivated = orderItem.IsDownloadActivated,
                     };
                     //picture
-                    var orderItemPicture = await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService, _productAttributeParser);
+                    var orderItemPicture = await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
                     orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75, true);
 
                     //license file
@@ -895,7 +888,7 @@ namespace Grand.Web.Admin.Services
                 Address = await address.ToModel(_countryService)
             };
             model.Address.Id = address.Id;
-            model.Address.NameEnabled = true;
+            model.Address.NameEnabled = _addressSettings.NameEnabled;
             model.Address.FirstNameEnabled = true;
             model.Address.FirstNameRequired = true;
             model.Address.LastNameEnabled = true;
@@ -1061,7 +1054,7 @@ namespace Grand.Web.Admin.Services
                             form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, ctrlAttributes).ToList();
                             }
                         }
@@ -1073,7 +1066,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 foreach (var item in ctrlAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                 {
-                                    customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                    customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                         attribute, item).ToList();
                                 }
                             }
@@ -1088,7 +1081,7 @@ namespace Grand.Web.Admin.Services
                                 .Select(v => v.Id)
                                 .ToList())
                             {
-                                customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, selectedAttributeId.ToString()).ToList();
                             }
                         }
@@ -1100,7 +1093,7 @@ namespace Grand.Web.Admin.Services
                             if (!String.IsNullOrEmpty(ctrlAttributes))
                             {
                                 string enteredText = ctrlAttributes.ToString().Trim();
-                                customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, enteredText).ToList();
                             }
                         }
@@ -1118,7 +1111,7 @@ namespace Grand.Web.Admin.Services
                             catch { }
                             if (selectedDate.HasValue)
                             {
-                                customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, selectedDate.Value.ToString("D")).ToList();
                             }
                         }
@@ -1130,7 +1123,7 @@ namespace Grand.Web.Admin.Services
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
                             {
-                                customattributes = _productAttributeParser.AddProductAttribute(customattributes,
+                                customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                         attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
@@ -1142,10 +1135,10 @@ namespace Grand.Web.Admin.Services
             //validate conditional attributes (if specified)
             foreach (var attribute in attributes)
             {
-                var conditionMet = _productAttributeParser.IsConditionMet(product, attribute, customattributes);
+                var conditionMet = product.IsConditionMet(attribute, customattributes);
                 if (conditionMet.HasValue && !conditionMet.Value)
                 {
-                    customattributes = _productAttributeParser.RemoveProductAttribute(customattributes, attribute).ToList();
+                    customattributes = Domain.Catalog.ProductExtensions.RemoveProductAttribute(customattributes, attribute).ToList();
                 }
             }
 
@@ -1188,8 +1181,7 @@ namespace Grand.Web.Admin.Services
                         continue;
                     }
                 }
-
-                customattributes = _productAttributeParser.AddGiftVoucherAttribute(customattributes,
+                customattributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customattributes,
                     recipientName, recipientEmail, senderName, senderEmail, giftVoucherMessage).ToList();
             }
 
@@ -1199,14 +1191,15 @@ namespace Grand.Web.Admin.Services
             var shoppingCartService = _serviceProvider.GetRequiredService<IShoppingCartService>();
             var inventoryManageService = _serviceProvider.GetRequiredService<IInventoryManageService>();
 
-            warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemAttributeWarnings(customer, product, new ShoppingCartItem()
-            {
+            var shoppingCartItem = new ShoppingCartItem() {
                 ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
                 Quantity = quantity,
                 WarehouseId = product.WarehouseId,
                 Attributes = customattributes
-            }));
-            warnings.AddRange(_shoppingCartValidator.GetShoppingCartItemGiftVoucherWarnings(ShoppingCartType.ShoppingCart, product, customattributes));
+            };
+
+            warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemAttributeWarnings(customer, product, shoppingCartItem));
+            warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemGiftVoucherWarnings(customer, product, shoppingCartItem));
             if (warnings.Count == 0)
             {
                 //no errors
@@ -1221,7 +1214,7 @@ namespace Grand.Web.Admin.Services
                     ProductId = product.Id,
                     VendorId = product.VendorId,
                     WarehouseId = product.WarehouseId,
-                    Sku = product.FormatSku(customattributes, _productAttributeParser),
+                    Sku = product.FormatSku(customattributes),
                     SeId = order.SeId,
                     UnitPriceInclTax = unitPriceInclTax,
                     UnitPriceExclTax = unitPriceExclTax,

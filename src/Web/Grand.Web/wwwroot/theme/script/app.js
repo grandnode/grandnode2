@@ -429,14 +429,14 @@ var vm = new Vue({
                             document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
                         }
                     }
-                    if (response.data.notAvailableAttributeMappingids) {
+                    /*if (response.data.notAvailableAttributeMappingids) {
                         document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                         for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
                             if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
                                 document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
                             }
                         }
-                    }
+                    }*/
                     if (response.data.pictureDefaultSizeUrl !== null) {
                         vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
                     }
@@ -493,10 +493,9 @@ var vm = new Vue({
         getLinkedProductsQV: function (id) {
             var data = { productId: id };
             axios({
-                url: '/Component/Index',
-                method: 'post',
-                params: { "name": "RelatedProducts" },
-                data: JSON.stringify(data),
+                url: '/Product/RelatedProducts',
+                method: 'get',
+                params: { "productId": id },
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',

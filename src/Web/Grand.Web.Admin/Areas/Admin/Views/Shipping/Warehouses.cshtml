@@ -68,6 +68,11 @@
             },
             scrollable: false,
             columns: [{
+                field: "Code",
+                title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]",
+                template: '<a class="k-link" href="EditWarehouse/#=Id#">#=kendo.htmlEncode(Code)#</a>',
+            },
+                {
                 field: "Name",
                 title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]",
                 template: '<a class="k-link" href="EditWarehouse/#=Id#">#=kendo.htmlEncode(Name)#</a>',
@@ -75,7 +80,6 @@
             {
                 field: "DisplayOrder",
                 title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]",
-                width: 120,
             }]
         });
     });

@@ -12,6 +12,7 @@ namespace Grand.Business.Core.Interfaces.Authentication
         /// Add Authentication
         /// </summary>
         /// <param name="builder">Add Authentication builder</param>
+        /// <param name="configuration">Configuration</param>
         void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration);
 
         /// <summary>

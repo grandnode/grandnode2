@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class EstimateShippingModel : BaseModel
+    public class EstimateShippingModel : BaseModel
     {
         public EstimateShippingModel()
         {
@@ -25,7 +25,7 @@ namespace Grand.Web.Models.ShoppingCart
         public IList<SelectListItem> AvailableStates { get; set; }
     }
 
-    public partial class EstimateShippingResultModel : BaseModel
+    public class EstimateShippingResultModel : BaseModel
     {
         public EstimateShippingResultModel()
         {
@@ -39,7 +39,7 @@ namespace Grand.Web.Models.ShoppingCart
 
         #region Nested Classes
 
-        public partial class ShippingOptionModel : BaseModel
+        public class ShippingOptionModel : BaseModel
         {
             public string Name { get; set; }
 

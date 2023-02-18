@@ -94,7 +94,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
         {
-            var contactAttributes = await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignorAcl: true);
+            var contactAttributes = await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true);
             return contactAttributes.Select(x =>
             {
                 var attributeModel = x.ToModel();
@@ -121,7 +121,7 @@ namespace Grand.Web.Admin.Services
             {
                 EnableCondition = contactAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
-                ConditionAttributes = (await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignorAcl: true))
+                ConditionAttributes = (await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>

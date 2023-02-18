@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class CollectionModel : BaseEntityModel
+    public class CollectionModel : BaseEntityModel
     {
         public CollectionModel()
         {

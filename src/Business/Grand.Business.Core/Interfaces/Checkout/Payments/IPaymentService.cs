@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
     /// <summary>
     /// Payment service interface
     /// </summary>
-    public partial interface IPaymentService
+    public interface IPaymentService
     {
         /// <summary>
         /// Load active payment methods
@@ -37,7 +37,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         IList<IPaymentProvider> LoadAllPaymentMethods(Customer customer = null, string storeId = "", string filterByCountryId = "");
 
         /// <summary>
-        /// Gets a list of coutnry identifiers in which a certain payment method is now allowed
+        /// Gets a list of country identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <returns>A list of country identifiers</returns>
@@ -55,14 +55,14 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="countryIds">A list of country identifiers</param>
-        Task SaveRestictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds);
+        Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds);
 
         /// <summary>
         /// Saves a list of shipping identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="shippingIds">A list of shipping identifiers</param>
-        Task SaveRestictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds);
+        Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds);
 
         /// <summary>
         /// Process a payment
@@ -93,7 +93,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// <summary>
         /// Gets an additional handling fee of a payment method
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <param name="paymentMethodSystemName">Payment method system name</param>
         /// <returns>Additional handling fee</returns>
         Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName);

@@ -3,7 +3,7 @@ namespace Grand.Business.Core.Enums.Checkout
     /// <summary>
     /// Shipment status event
     /// </summary>
-    public partial class ShipmentStatusEvent
+    public class ShipmentStatusEvent
     {
         /// <summary>
         /// Event name

@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Endpoints
 {
-    public partial class SlugEndpointProvider : IEndpointProvider
+    public class SlugEndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
@@ -93,12 +93,9 @@ namespace Grand.Web.Endpoints
 
         }
 
-        public int Priority {
-            get {
-                //it should be the last route
-                //we do not set it to -int.MaxValue so it could be overridden (if required)
-                return -1000000;
-            }
-        }
+        public int Priority =>
+            //it should be the last route
+            //we do not set it to -int.MaxValue so it could be overridden (if required)
+            -1000000;
     }
 }

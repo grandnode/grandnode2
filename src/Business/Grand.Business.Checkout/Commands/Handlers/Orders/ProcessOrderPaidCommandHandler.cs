@@ -73,13 +73,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 await _messageProviderService.SendOrderPaidStoreOwnerMessage(order, customer, _languageSettings.DefaultAdminLanguageId);
                 if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
                 {
-                    var vendors = await _mediator.Send(new GetVendorsInOrderQuery() { Order = order });
+                    var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = order });
                     foreach (var vendor in vendors)
                     {
                         await _messageProviderService.SendOrderPaidVendorMessage(order, vendor, _languageSettings.DefaultAdminLanguageId);
                     }
                 }
-                //TODO add "order paid email sent" order note
             }
         }
     }

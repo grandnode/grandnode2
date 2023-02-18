@@ -40,7 +40,7 @@ namespace Grand.Web.Models.Orders
 
         #region Nested Classes
 
-        public partial class MerchandiseReturnNote : BaseEntityModel
+        public class MerchandiseReturnNote : BaseEntityModel
         {
             public bool HasDownload { get; set; }
             public string Note { get; set; }

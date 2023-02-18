@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Grand.Business.Cms.Services
 {
-    public partial class RobotsTxtService : IRobotsTxtService
+    public class RobotsTxtService : IRobotsTxtService
     {
 
         #region Fields

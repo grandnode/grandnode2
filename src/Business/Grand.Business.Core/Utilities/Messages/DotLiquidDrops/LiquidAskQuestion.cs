@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidAskQuestion : Drop
+    public class LiquidAskQuestion : Drop
     {
         private readonly string message;
         private readonly string email;

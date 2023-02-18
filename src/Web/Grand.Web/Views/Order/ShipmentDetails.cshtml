@@ -46,7 +46,7 @@
                         @Loc["Order.Shipments.DeliveryDate.NotYet"]
                     }
                 </li>
-                @if (!String.IsNullOrEmpty(Model.TrackingNumber))
+                @if (!string.IsNullOrEmpty(Model.TrackingNumber))
                 {
                     <li class="tracking-number">
                         @Loc["Order.Shipments.TrackingNumber"]:
@@ -79,7 +79,7 @@
                     <li class="fax">
                         <span>@Loc["Order.Shipments.Fax"]:</span> @Model.Order.ShippingAddress.FaxNumber
                     </li>
-                    if (!String.IsNullOrEmpty(Model.Order.ShippingAddress.Company))
+                    if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.Company))
                     {
                         <li class="company">
                             @Model.Order.ShippingAddress.Company
@@ -88,7 +88,7 @@
                     <li class="address1">
                         @Model.Order.ShippingAddress.Address1
                     </li>
-                    if (!String.IsNullOrEmpty(Model.Order.ShippingAddress.Address2))
+                    if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.Address2))
                     {
                         <li class="address2">
                             @Model.Order.ShippingAddress.Address2
@@ -98,7 +98,7 @@
                         @Model.Order.ShippingAddress.City, @Model.Order.ShippingAddress.StateProvinceName
                         @Model.Order.ShippingAddress.ZipPostalCode
                     </li>
-                    if (!String.IsNullOrEmpty(Model.Order.ShippingAddress.CountryName))
+                    if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.CountryName))
                     {
                         <li class="country">
                             @Model.Order.ShippingAddress.CountryName
@@ -168,13 +168,13 @@
                                     <div class="col-12 col-md name">
                                         <strong class="d-lg-none">@Loc["Order.Shipments.Product(s).Name"]: </strong>
                                         <em><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></em>
-                                        @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                        @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                         {
                                             <div class="col attributes">
                                                 @Html.Raw(item.AttributeInfo)
                                             </div>
                                         }
-                                        @if (!String.IsNullOrEmpty(item.RentalInfo))
+                                        @if (!string.IsNullOrEmpty(item.RentalInfo))
                                         {
                                             <div class="col rental-info">
                                                 @Html.Raw(item.RentalInfo)

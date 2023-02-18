@@ -1,5 +1,4 @@
 ﻿@model CustomerDownloadableProductsModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -27,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody role="rowgroup">
-                    @for (int i = 0; i < Model.Items.Count; i++)
+                    @for (var i = 0; i < Model.Items.Count; i++)
                     {
                         var item = Model.Items[i];
                         <tr role="row">
@@ -42,7 +41,7 @@
                             <td>
                                 <div>
                                     <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
-                                    @if (!String.IsNullOrEmpty(item.ProductAttributes))
+                                    @if (!string.IsNullOrEmpty(item.ProductAttributes))
                                     {
                                         <div class="attributes">@Html.Raw(item.ProductAttributes)</div>
                                     }
@@ -50,13 +49,13 @@
                             </td>
                             <td>
                                 <div>
-                                    @if (!String.IsNullOrEmpty(item.DownloadId)) { 
+                                    @if (!string.IsNullOrEmpty(item.DownloadId)) { 
                                         <a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">
                                             @Loc["DownloadableProducts.Fields.Download"]</a>
                                     }else {
                                         @Loc["DownloadableProducts.Fields.Download.NA"]
                                     }
-                                    @if (!String.IsNullOrEmpty(item.LicenseId)) {
+                                    @if (!string.IsNullOrEmpty(item.LicenseId)) {
                                         <a href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })">
                                             @Loc["DownloadableProducts.Fields.DownloadLicense"]
                                         </a> 

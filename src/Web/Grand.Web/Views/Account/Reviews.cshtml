@@ -1,5 +1,4 @@
 ﻿@model CustomerProductReviewsModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @inject IWorkContext workContext
 @{
@@ -21,7 +20,7 @@
         <div class="product-review-list">
             @foreach (var review in Model.Reviews)
             {
-                int ratingStars = review.Rating;
+                var ratingStars = review.Rating;
                 <div class="card product-review-item mb-3">
                     <header class="card-header">
                         <div class="review-info d-inline-flex w-100">

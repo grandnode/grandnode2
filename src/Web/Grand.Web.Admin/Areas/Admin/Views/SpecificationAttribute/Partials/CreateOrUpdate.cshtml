@@ -1,0 +1,40 @@
+﻿@model SpecificationAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="specificationattribute-edit" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabOptions" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabUsedByProducts" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/UserFields" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="specification_attribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

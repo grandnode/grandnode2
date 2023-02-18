@@ -15,7 +15,7 @@ namespace Payments.PayPalStandard.Services
             _logger = logger;
         }
 
-        // <summary>
+        /// <summary>
         /// Gets IPN PayPal URL
         /// </summary>
         /// <returns></returns>

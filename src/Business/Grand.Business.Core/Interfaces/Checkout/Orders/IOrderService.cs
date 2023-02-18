@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// <summary>
     /// Order service interface
     /// </summary>
-    public partial interface IOrderService
+    public interface IOrderService
     {
         #region Orders
 
@@ -65,7 +65,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <param name="warehouseId">Warehouse identifier, only orders with products from a specified warehouse will be loaded; 0 to load all orders</param>
         /// <param name="billingCountryId">Billing country identifier; 0 to load all orders</param>
         /// <param name="ownerId">Owner identifier</param>
-        /// <param name="salesemployeeId">Sales employee identifier</param>
+        /// <param name="salesEmployeeId">Sales ident</param>
         /// <param name="paymentMethodSystemName">Payment method system name; null to load all records</param>
         /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
@@ -73,6 +73,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <param name="ps">Order payment status; null to load all orders</param>
         /// <param name="ss">Order shipment status; null to load all orders</param>
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
+        /// <param name="billingLastName"></param>
         /// <param name="orderGuid">Search by order GUID (Global unique identifier) or part of GUID. Leave empty to load all records.</param>
         /// <param name="orderCode">Search by order code.</param>
         /// <param name="pageIndex">Page index</param>
@@ -135,25 +136,25 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
 
 
         /// <summary>
-        /// Get ordernotes for order
+        /// Get order notes for order
         /// </summary>
         /// <param name="orderId">Order identifier</param>
         /// <returns>OrderNote</returns>
         Task<IList<OrderNote>> GetOrderNotes(string orderId);
 
         /// <summary>
-        /// Get ordernote by id
+        /// Get order note by id
         /// </summary>
-        /// <param name="ordernoteId">Order note identifier</param>
+        /// <param name="orderNoteId">Order note identifier</param>
         /// <returns>OrderNote</returns>
-        Task<OrderNote> GetOrderNote(string ordernoteId);
+        Task<OrderNote> GetOrderNote(string orderNoteId);
 
 
         /// <summary>
         /// Cancel Expired UnPaid Orders
         /// </summary>
-        /// <param name="expirationDateUTC">Date at which all unPaid  orders and has pending status Would be Canceled</param>
-        Task CancelExpiredOrders(DateTime expirationDateUTC);
+        /// <param name="expirationDateUtc">Date at which all unPaid  orders and has pending status Would be Canceled</param>
+        Task CancelExpiredOrders(DateTime expirationDateUtc);
 
         #endregion
 

@@ -42,6 +42,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// Gets product collection by collection id
         /// </summary>
         /// <param name="collectionId">Collection id</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -49,7 +50,7 @@ namespace Grand.Business.Catalog.Services.Collections
         public virtual async Task<IPagedList<ProductsCollection>> GetProductCollectionsByCollectionId(string collectionId, string storeId,
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
-            string key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex, pageSize, _workContext.CurrentCustomer.Id, storeId);
+            var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex, pageSize, _workContext.CurrentCustomer.Id, storeId);
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = _productRepository.Table.Where(x => x.ProductCollections.Any(y => y.CollectionId == collectionId));
@@ -75,7 +76,7 @@ namespace Grand.Business.Catalog.Services.Collections
 
                 }
 
-                var query_ProductCollection = from prod in query
+                var queryProductCollection = from prod in query
                                               from pm in prod.ProductCollections
                                               select new ProductsCollection {
                                                   Id = pm.Id,
@@ -85,12 +86,12 @@ namespace Grand.Business.Catalog.Services.Collections
                                                   CollectionId = pm.CollectionId
                                               };
 
-                query_ProductCollection = from pm in query_ProductCollection
+                queryProductCollection = from pm in queryProductCollection
                                           where pm.CollectionId == collectionId
                                           orderby pm.DisplayOrder
                                           select pm;
 
-                return Task.FromResult(new PagedList<ProductsCollection>(query_ProductCollection, pageIndex, pageSize));
+                return Task.FromResult(new PagedList<ProductsCollection>(queryProductCollection, pageIndex, pageSize));
             });
         }
 

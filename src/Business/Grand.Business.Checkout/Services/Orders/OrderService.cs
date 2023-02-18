@@ -14,7 +14,7 @@ namespace Grand.Business.Checkout.Services.Orders
     /// <summary>
     /// Order service
     /// </summary>
-    public partial class OrderService : IOrderService
+    public class OrderService : IOrderService
     {
         #region Fields
 
@@ -31,7 +31,6 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="orderRepository">Order repository</param>
         /// <param name="orderNoteRepository">Order note repository</param>
-        /// <param name="productAlsoPurchasedRepository">Product also purchased repository</param>
         /// <param name="mediator">Mediator</param>
         public OrderService(IRepository<Order> orderRepository,
             IRepository<OrderNote> orderNoteRepository,
@@ -63,7 +62,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <summary>
         /// Gets an order
         /// </summary>
-        /// <param name="orderId">The order item identifier</param>
+        /// <param name="orderItemId">The order item identifier</param>
         /// <returns>Order</returns>
         public virtual Task<Order> GetOrderByOrderItemId(string orderItemId)
         {
@@ -80,7 +79,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Order</returns>
         public virtual Task<Order> GetOrderByNumber(int orderNumber)
         {
-            return Task.FromResult(_orderRepository.Table.Where(x => x.OrderNumber == orderNumber).FirstOrDefault());
+            return Task.FromResult(_orderRepository.Table.FirstOrDefault(x => x.OrderNumber == orderNumber));
         }
 
         /// <summary>
@@ -112,14 +111,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         select o;
             var orders = await Task.FromResult(query.ToList());
             //sort by passed identifiers
-            var sortedOrders = new List<Order>();
-            foreach (string id in orderIds)
-            {
-                var order = orders.Find(x => x.Id == id);
-                if (order != null)
-                    sortedOrders.Add(order);
-            }
-            return sortedOrders;
+            return orderIds.Select(id => orders.Find(x => x.Id == id)).Where(order => order != null).ToList();
         }
 
         /// <summary>
@@ -146,7 +138,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="warehouseId">Warehouse identifier, only orders with products from a specified warehouse will be loaded; 0 to load all orders</param>
         /// <param name="billingCountryId">Billing country identifier; 0 to load all orders</param>
         /// <param name="ownerId">Owner identifier</param>
-        /// <param name="salesemployeeId">Sales employee identifier</param>
+        /// <param name="salesEmployeeId">Sales employee identifier</param>
         /// <param name="paymentMethodSystemName">Payment method system name; null to load all records</param>
         /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
@@ -154,8 +146,9 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="ps">Order payment status; null to load all orders</param>
         /// <param name="ss">Order shipment status; null to load all orders</param>
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
-        /// <param name="orderNotes">Search in order notes. Leave empty to load all records.</param>
+        /// <param name="billingLastName"></param>
         /// <param name="orderGuid">Search by order GUID (Global unique identifier) or part of GUID. Leave empty to load all orders.</param>
+        /// <param name="orderCode"></param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="orderTagId">Order tag identifier</param>
@@ -163,13 +156,13 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IPagedList<Order>> SearchOrders(string storeId = "",
             string vendorId = "", string customerId = "",
             string productId = "", string affiliateId = "", string warehouseId = "",
-            string billingCountryId = "", string ownerId = "", string salesemployeeId = "", string paymentMethodSystemName = null,
+            string billingCountryId = "", string ownerId = "", string salesEmployeeId = "", string paymentMethodSystemName = null,
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             string billingEmail = null, string billingLastName = "", string orderGuid = null,
             string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "")
         {
-            var querymodel = new GetOrderQuery()
+            var queryModel = new GetOrderQuery
             {
                 AffiliateId = affiliateId,
                 BillingCountryId = billingCountryId,
@@ -192,9 +185,9 @@ namespace Grand.Business.Checkout.Services.Orders
                 WarehouseId = warehouseId,
                 OrderTagId = orderTagId,
                 OwnerId = ownerId,
-                SalesEmployeeId = salesemployeeId
+                SalesEmployeeId = salesEmployeeId
             };
-            var query = await _mediator.Send(querymodel);
+            var query = await _mediator.Send(queryModel);
             return await PagedList<Order>.Create(query, pageIndex, pageSize);
         }
 
@@ -234,17 +227,17 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <summary>
         /// Cancel UnPaid Orders and has pending status
         /// </summary>
-        /// <param name="expirationDateUTC">Date at which all unPaid orders and has pending status Would be Canceled</param>
-        public async Task CancelExpiredOrders(DateTime expirationDateUTC)
+        /// <param name="expirationDateUtc">Date at which all unPaid orders and has pending status Would be Canceled</param>
+        public async Task CancelExpiredOrders(DateTime expirationDateUtc)
         {
             var orders = _orderRepository.Table
-              .Where(o => o.CreatedOnUtc < expirationDateUTC && o.PaymentStatusId == PaymentStatus.Pending &&
+              .Where(o => o.CreatedOnUtc < expirationDateUtc && o.PaymentStatusId == PaymentStatus.Pending &&
               o.OrderStatusId == (int)OrderStatusSystem.Pending && (o.ShippingStatusId == ShippingStatus.Pending 
               || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))
               .ToList();
 
             foreach (var order in orders)
-                await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true });
+                await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
         }
 
         #endregion
@@ -331,13 +324,13 @@ namespace Grand.Business.Checkout.Services.Orders
         }
 
         /// <summary>
-        /// Get ordernote by id
+        /// Get order note by id
         /// </summary>
-        /// <param name="ordernoteId">Order note identifier</param>
+        /// <param name="orderNoteId">Order note identifier</param>
         /// <returns>OrderNote</returns>
-        public virtual Task<OrderNote> GetOrderNote(string ordernoteId)
+        public virtual Task<OrderNote> GetOrderNote(string orderNoteId)
         {
-            return Task.FromResult(_orderNoteRepository.Table.Where(x => x.Id == ordernoteId).FirstOrDefault());
+            return Task.FromResult(_orderNoteRepository.Table.FirstOrDefault(x => x.Id == orderNoteId));
         }
 
 

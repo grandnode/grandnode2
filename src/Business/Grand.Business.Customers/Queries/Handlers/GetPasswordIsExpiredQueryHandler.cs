@@ -34,12 +34,8 @@ namespace Grand.Business.Customers.Queries.Handlers
             //setting disabled for all
             if (_customerSettings.PasswordLifetime == 0)
                 return false;
-
-            var currentLifetime = 0;
-            if (!request.Customer.PasswordChangeDateUtc.HasValue)
-                currentLifetime = int.MaxValue;
-            else
-                currentLifetime = (DateTime.UtcNow - request.Customer.PasswordChangeDateUtc.Value).Days;
+            
+            var currentLifetime = !request.Customer.PasswordChangeDateUtc.HasValue ? int.MaxValue : (DateTime.UtcNow - request.Customer.PasswordChangeDateUtc.Value).Days;
 
             return currentLifetime >= _customerSettings.PasswordLifetime;
         }

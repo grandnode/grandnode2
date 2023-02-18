@@ -44,7 +44,7 @@ namespace Grand.Business.Common.Services.Directory
             var result =
                 customer.Groups.Contains(customerGroup.Id)
                 && (!onlyActiveCustomerGroups || customerGroup.Active)
-                && (customerGroup.SystemName == customerGroupSystemName)
+                && customerGroup.SystemName == customerGroupSystemName
                 && (!isSystem.HasValue || customerGroup.IsSystem == isSystem);
 
             return result;
@@ -71,13 +71,8 @@ namespace Grand.Business.Common.Services.Directory
             if (string.IsNullOrWhiteSpace(customerGroupId))
                 return Task.FromResult<CustomerGroup>(null);
 
-            string key = string.Format(CacheKey.CUSTOMERGROUPS_BY_KEY, customerGroupId);
-            return _cacheBase.GetAsync(key, () =>
-            {
-                return _customerGroupRepository.GetByIdAsync(customerGroupId);
-            });
-
-
+            var key = string.Format(CacheKey.CUSTOMERGROUPS_BY_KEY, customerGroupId);
+            return _cacheBase.GetAsync(key, () => _customerGroupRepository.GetByIdAsync(customerGroupId));
         }
 
         /// <summary>
@@ -87,17 +82,20 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Customer group</returns>
         public virtual async Task<CustomerGroup> GetCustomerGroupBySystemName(string systemName)
         {
-            string key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
+            var key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                return await Task.FromResult(_customerGroupRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefault());
+                return await Task.FromResult(_customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == systemName));
             });
         }
 
         /// <summary>
         /// Gets all customer groups
         /// </summary>
+        /// <param name="pageSize"></param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <param name="name"></param>
+        /// <param name="pageIndex"></param>
         /// <returns>Customer groups</returns>
         public virtual async Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string name = "", int pageIndex = 0,
             int pageSize = int.MaxValue, bool showHidden = false)

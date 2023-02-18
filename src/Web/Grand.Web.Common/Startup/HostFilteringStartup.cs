@@ -21,11 +21,11 @@ namespace Grand.Web.Common.Startup
         /// <param name="configuration">Configuration root of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var securityconfig = new SecurityConfig();
-            configuration.GetSection("Security").Bind(securityconfig);
+            var securityConfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityConfig);
 
             //configuration[
-            var hosts = securityconfig.AllowedHosts?
+            var hosts = securityConfig.AllowedHosts?
                         .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             if (hosts?.Length > 0)
             {
@@ -37,6 +37,7 @@ namespace Grand.Web.Common.Startup
         /// Configure the using of added middleware
         /// </summary>
         /// <param name="application">Builder for configuring an application's request pipeline</param>
+        /// <param name="webHostEnvironment">WebHostEnvironment</param>
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             //check whether database is installed

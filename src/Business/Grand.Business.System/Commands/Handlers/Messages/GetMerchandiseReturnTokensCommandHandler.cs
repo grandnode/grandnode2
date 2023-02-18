@@ -2,7 +2,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 
@@ -38,15 +38,15 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
             liquidMerchandiseReturn.PickupAddressCountry =
                             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.CountryId) ?
-                            (country?.GetTranslation(x => x.Name, request.Language.Id)) : "";
+                            country?.GetTranslation(x => x.Name, request.Language.Id) : "";
 
             foreach (var merchandiseReturnItem in request.MerchandiseReturn.MerchandiseReturnItems)
             {
                 var orderItem = request.Order.OrderItems.Where(x => x.Id == merchandiseReturnItem.OrderItemId).First();
                 var product = await _productService.GetProductById(orderItem.ProductId);
-                var liqitem = new LiquidMerchandiseReturnItem(merchandiseReturnItem, orderItem, product, request.Order.CustomerLanguageId);
+                var liquidItem = new LiquidMerchandiseReturnItem(merchandiseReturnItem, orderItem, product, request.Order.CustomerLanguageId);
 
-                liquidMerchandiseReturn.Items.Add(liqitem);
+                liquidMerchandiseReturn.Items.Add(liquidItem);
             }
 
             return liquidMerchandiseReturn;

@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Checkout
 {
-    public partial class CheckoutPaymentMethodModel : BaseModel
+    public class CheckoutPaymentMethodModel : BaseModel
     {
         public CheckoutPaymentMethodModel()
         {
@@ -16,10 +16,10 @@ namespace Grand.Web.Models.Checkout
         public string LoyaltyPointsAmount { get; set; }
         public bool LoyaltyPointsEnoughToPayForOrder { get; set; }
         public bool UseLoyaltyPoints { get; set; }
-
+        public string PaymentMethod{ get; set; }
         #region Nested classes
 
-        public partial class PaymentMethodModel : BaseModel
+        public class PaymentMethodModel : BaseModel
         {
             public string PaymentMethodSystemName { get; set; }
             public string Name { get; set; }

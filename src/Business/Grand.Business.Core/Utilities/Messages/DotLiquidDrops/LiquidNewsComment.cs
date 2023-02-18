@@ -5,7 +5,7 @@ using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidNewsComment : Drop
+    public class LiquidNewsComment : Drop
     {
         private readonly NewsComment _newsComment;
         private readonly NewsItem _newsItem;

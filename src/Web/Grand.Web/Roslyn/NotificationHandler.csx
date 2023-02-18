@@ -1,4 +1,4 @@
-﻿#! "net5.0"
+﻿#! "net6.0"
 #r "Grand.Infrastructure"
 #r "Grand.Business.Messages"
 #r "Grand.Web"

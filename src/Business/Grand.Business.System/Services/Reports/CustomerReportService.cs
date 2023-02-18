@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain;
@@ -14,13 +13,12 @@ namespace Grand.Business.System.Services.Reports
     /// <summary>
     /// Customer report service
     /// </summary>
-    public partial class CustomerReportService : ICustomerReportService
+    public class CustomerReportService : ICustomerReportService
     {
         #region Fields
 
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<Order> _orderRepository;
-        private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly IDateTimeService _dateTimeService;
 
@@ -33,18 +31,15 @@ namespace Grand.Business.System.Services.Reports
         /// </summary>
         /// <param name="customerRepository">Customer repository</param>
         /// <param name="orderRepository">Order repository</param>
-        /// <param name="customerService">Customer service</param>
         /// <param name="dateTimeService">Date time helper</param>
         /// <param name="groupService">group service</param>
         public CustomerReportService(IRepository<Customer> customerRepository,
             IRepository<Order> orderRepository,
-            ICustomerService customerService,
             IGroupService groupService,
             IDateTimeService dateTimeService)
         {
             _customerRepository = customerRepository;
             _orderRepository = orderRepository;
-            _customerService = customerService;
             _groupService = groupService;
             _dateTimeService = dateTimeService;
         }
@@ -142,7 +137,7 @@ namespace Grand.Business.System.Services.Reports
                         c.CreatedOnUtc >= date
                         //&& c.CreatedOnUtc <= DateTime.UtcNow
                         select c;
-            int count = query.Count();
+            var count = query.Count();
             return count;
         }
 
@@ -150,6 +145,7 @@ namespace Grand.Business.System.Services.Reports
         /// <summary>
         /// Get "customer by time" report
         /// </summary>
+        /// <param name="storeId">Store ident</param>
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <returns>Result</returns>
@@ -158,10 +154,8 @@ namespace Grand.Business.System.Services.Reports
 
         {
             List<CustomerByTimeReportLine> report = new List<CustomerByTimeReportLine>();
-            if (!startTimeUtc.HasValue)
-                startTimeUtc = DateTime.MinValue;
-            if (!endTimeUtc.HasValue)
-                endTimeUtc = DateTime.UtcNow;
+            startTimeUtc ??= DateTime.MinValue;
+            endTimeUtc ??= DateTime.UtcNow;
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
             var builderquery = from p in _customerRepository.Table
@@ -188,7 +182,7 @@ namespace Grand.Business.System.Services.Reports
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0'),
+                        Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }
@@ -206,7 +200,7 @@ namespace Grand.Business.System.Services.Reports
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
+                        Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }

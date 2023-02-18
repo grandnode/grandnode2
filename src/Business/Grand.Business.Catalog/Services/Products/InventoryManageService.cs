@@ -18,7 +18,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<InventoryJournal> _inventoryJournalRepository;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ICacheBase _cacheBase;
         private readonly IMediator _mediator;
@@ -31,7 +30,6 @@ namespace Grand.Business.Catalog.Services.Products
         public InventoryManageService(
             IRepository<Product> productRepository,
             IRepository<InventoryJournal> inventoryJournalRepository,
-            IProductAttributeParser productAttributeParser,
             IStockQuantityService stockQuantityService,
             ICacheBase cacheBase,
             IMediator mediator,
@@ -39,7 +37,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             _productRepository = productRepository;
             _inventoryJournalRepository = inventoryJournalRepository;
-            _productAttributeParser = productAttributeParser;
             _stockQuantityService = stockQuantityService;
             _cacheBase = cacheBase;
             _mediator = mediator;
@@ -50,7 +47,7 @@ namespace Grand.Business.Catalog.Services.Products
 
         #region Utilities methods
 
-        private async Task ManageStockInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
+        private async Task ManageStockInventory(Product product, ShipmentItem shipmentItem)
         {
             if (product.UseMultipleWarehouses)
             {
@@ -77,9 +74,9 @@ namespace Grand.Business.Catalog.Services.Products
                 await UpdateStockProduct(product);
             }
         }
-        private async Task ManageStockByAttributesInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
+        private async Task ManageStockByAttributesInventory(Product product, ShipmentItem shipmentItem)
         {
-            var combination = _productAttributeParser.FindProductAttributeCombination(product, shipmentItem.Attributes);
+            var combination = product.FindProductAttributeCombination(shipmentItem.Attributes);
             if (combination == null)
                 return;
 
@@ -120,51 +117,43 @@ namespace Grand.Business.Catalog.Services.Products
             foreach (var item in product.BundleProducts)
             {
                 var p1 = await _productRepository.GetByIdAsync(item.ProductId);
-                if (p1 != null && p1.Id != product.Id &&
-                    p1.ManageInventoryMethodId != ManageInventoryMethod.DontManageStock)
+                if (p1 == null || p1.Id == product.Id ||
+                    p1.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
+                var shipmentItem1 = new ShipmentItem() {
+                    Id = shipmentItem.Id,
+                    Attributes = shipmentItem.Attributes,
+                    OrderItemId = shipmentItem.OrderItemId,
+                    ProductId = shipmentItem.ProductId,
+                    Quantity = shipmentItem.Quantity * item.Quantity,
+                    WarehouseId = shipmentItem.WarehouseId
+                };
+                if (!await CheckExistsInventoryJournal(p1, shipmentItem1))
                 {
-                    var _shipmentItem = new ShipmentItem() {
-                        Id = shipmentItem.Id,
-                        Attributes = shipmentItem.Attributes,
-                        OrderItemId = shipmentItem.OrderItemId,
-                        ProductId = shipmentItem.ProductId,
-                        Quantity = shipmentItem.Quantity * item.Quantity,
-                        WarehouseId = shipmentItem.WarehouseId
-                    };
-                    if (!await CheckExistsInventoryJournal(p1, _shipmentItem))
-                    {
-                        await BookReservedInventory(p1, shipment, _shipmentItem);
-                    }
+                    await BookReservedInventory(p1, shipment, shipmentItem1);
                 }
             }
         }
         private async Task ManageAttributesInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
         {
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shipmentItem.Attributes);
+            var attributeValues = product.ParseProductAttributeValues(shipmentItem.Attributes);
             foreach (var attributeValue in attributeValues)
             {
-                if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
-                {
-                    //associated product
-                    var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
-                    if (associatedProduct != null
-                         && associatedProduct.Id != product.Id
-                         && associatedProduct.ManageInventoryMethodId != ManageInventoryMethod.DontManageStock)
-                    {
-                        if (!await CheckExistsInventoryJournal(associatedProduct, shipmentItem))
-                        {
-                            var _shipmentItem = new ShipmentItem() {
-                                Id = shipmentItem.Id,
-                                Attributes = shipmentItem.Attributes,
-                                OrderItemId = shipmentItem.OrderItemId,
-                                ProductId = shipmentItem.ProductId,
-                                Quantity = shipmentItem.Quantity * attributeValue.Quantity,
-                                WarehouseId = shipmentItem.WarehouseId
-                            };
-                            await BookReservedInventory(associatedProduct, shipment, _shipmentItem);
-                        }
-                    }
-                }
+                if (attributeValue.AttributeValueTypeId != AttributeValueType.AssociatedToProduct) continue;
+                //associated product
+                var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
+                if (associatedProduct == null
+                    || associatedProduct.Id == product.Id
+                    || associatedProduct.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
+                if (await CheckExistsInventoryJournal(associatedProduct, shipmentItem)) continue;
+                var item = new ShipmentItem() {
+                    Id = shipmentItem.Id,
+                    Attributes = shipmentItem.Attributes,
+                    OrderItemId = shipmentItem.OrderItemId,
+                    ProductId = shipmentItem.ProductId,
+                    Quantity = shipmentItem.Quantity * attributeValue.Quantity,
+                    WarehouseId = shipmentItem.WarehouseId
+                };
+                await BookReservedInventory(associatedProduct, shipment, item);
             }
         }
 
@@ -207,7 +196,7 @@ namespace Grand.Business.Catalog.Services.Products
             //manage stock by attributes
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(product, inventoryJournal.Attributes);
+                var combination = product.FindProductAttributeCombination(inventoryJournal.Attributes);
                 if (combination == null)
                     return;
 
@@ -241,7 +230,7 @@ namespace Grand.Business.Catalog.Services.Products
                         pwi.ReservedQuantity = 0;
 
                     combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
+                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
@@ -280,8 +269,9 @@ namespace Grand.Business.Catalog.Services.Products
         /// Adjust reserved inventory
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="quantityToChange">Quantity to increase or descrease</param>
+        /// <param name="quantityToChange">Quantity to increase or decrease</param>
         /// <param name="attributes">Attributes</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         public virtual async Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute> attributes = null, string warehouseId = "")
         {
             if (product == null)
@@ -351,14 +341,13 @@ namespace Grand.Business.Catalog.Services.Products
                 //qty is increased. product is out of stock (minimum stock quantity is reached again)?
                 if (_catalogSettings.PublishBackProductWhenCancellingOrders)
                 {
-                    var totalStock = prevStockQuantity;
                     if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
                     {
                         switch (product.LowStockActivityId)
                         {
                             case LowStockActivity.DisableBuyButton:
                                 product.DisableBuyButton = false;
-                                product.LowStock = product.MinStockQuantity <= totalStock;
+                                product.LowStock = product.MinStockQuantity <= prevStockQuantity;
 
                                 await _productRepository.UpdateField(product.Id, x => x.DisableBuyButton, product.DisableBuyButton);
                                 await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
@@ -373,7 +362,7 @@ namespace Grand.Business.Catalog.Services.Products
                                 break;
                             case LowStockActivity.Unpublish:
                                 product.Published = true;
-                                product.LowStock = product.MinStockQuantity < totalStock;
+                                product.LowStock = product.MinStockQuantity < prevStockQuantity;
 
                                 await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
                                 await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
@@ -406,7 +395,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(product, attributes);
+                var combination = product.FindProductAttributeCombination(attributes);
                 if (combination != null)
                 {
                     if (quantityToChange < 0)
@@ -430,7 +419,7 @@ namespace Grand.Business.Catalog.Services.Products
                 foreach (var item in product.BundleProducts)
                 {
                     var p1 = await _productRepository.GetByIdAsync(item.ProductId);
-                    if (p1 != null && (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes))
+                    if (p1 is { ManageInventoryMethodId: ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes })
                     {
                         await AdjustReserved(p1, quantityToChange * item.Quantity, attributes, warehouseId);
                     }
@@ -438,17 +427,15 @@ namespace Grand.Business.Catalog.Services.Products
             }
 
             //bundled products
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
+            var attributeValues = product.ParseProductAttributeValues(attributes);
             foreach (var attributeValue in attributeValues)
             {
-                if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
+                if (attributeValue.AttributeValueTypeId != AttributeValueType.AssociatedToProduct) continue;
+                //associated product (bundle)
+                var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
+                if (associatedProduct != null)
                 {
-                    //associated product (bundle)
-                    var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
-                    if (associatedProduct != null)
-                    {
-                        await AdjustReserved(associatedProduct, quantityToChange * attributeValue.Quantity, null, warehouseId);
-                    }
+                    await AdjustReserved(associatedProduct, quantityToChange * attributeValue.Quantity, null, warehouseId);
                 }
             }
 
@@ -461,6 +448,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="quantity">Quantity, must be negative</param>
+        /// <param name="warehouseId"></param>
         protected virtual async Task ReserveInventory(Product product, int quantity, string warehouseId)
         {
             if (product == null)
@@ -504,6 +492,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="product">Product</param>
         /// <param name="combination">Combination</param>
         /// <param name="quantity">Quantity, must be negative</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task ReserveInventoryCombination(Product product, ProductAttributeCombination combination, int quantity, string warehouseId)
         {
             if (product == null)
@@ -561,6 +550,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="quantity">Quantity, must be positive</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task UnblockReservedInventory(Product product, int quantity, string warehouseId)
         {
             if (product == null)
@@ -604,7 +594,9 @@ namespace Grand.Business.Catalog.Services.Products
         /// Unblocks the given quantity reserved items in the warehouses
         /// </summary>
         /// <param name="product">Product</param>
+        /// <param name="combination">Combination</param>
         /// <param name="quantity">Quantity, must be positive</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task UnblockReservedInventoryCombination(Product product, ProductAttributeCombination combination, int quantity, string warehouseId)
         {
             if (product == null)
@@ -613,11 +605,9 @@ namespace Grand.Business.Catalog.Services.Products
             if (quantity < 0)
                 throw new ArgumentException("Value must be positive.", nameof(quantity));
 
-            var qty = quantity;
-
             if (!product.UseMultipleWarehouses)
             {
-                combination.ReservedQuantity -= qty;
+                combination.ReservedQuantity -= quantity;
                 if (combination.ReservedQuantity < 0)
                     combination.ReservedQuantity = 0;
 
@@ -634,7 +624,7 @@ namespace Grand.Business.Catalog.Services.Products
                 if (pwi == null)
                     return;
 
-                pwi.ReservedQuantity -= qty;
+                pwi.ReservedQuantity -= quantity;
                 if (pwi.ReservedQuantity < 0)
                     pwi.ReservedQuantity = 0;
 
@@ -671,12 +661,12 @@ namespace Grand.Business.Catalog.Services.Products
             //standard manage stock 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
             {
-                await ManageStockInventory(product, shipment, shipmentItem);
+                await ManageStockInventory(product, shipmentItem);
             }
             //manage stock by attributes
             if (shipmentItem.Attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                await ManageStockByAttributesInventory(product, shipment, shipmentItem);
+                await ManageStockByAttributesInventory(product, shipmentItem);
             }
 
             //manage stock by bundle products
@@ -698,7 +688,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityUpdated(product);
 
             //insert inventory journal
-            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+            if (product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes)
                 await InsertInventoryJournal(product, shipment, shipmentItem);
 
         }
@@ -748,7 +738,7 @@ namespace Grand.Business.Catalog.Services.Products
             //update
             await _productRepository.UpdateField(product.Id, x => x.StockQuantity, product.StockQuantity);
             await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-            await _productRepository.UpdateField(product.Id, x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0));
+            await _productRepository.UpdateField(product.Id, x => x.LowStock, (product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0);
             await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
 

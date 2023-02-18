@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.News;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class HomePageNewsViewComponent : BaseViewComponent
     {
@@ -23,10 +23,7 @@ namespace Grand.Web.ViewComponents
                 return Content("");
 
             var model = await _mediator.Send(new GetHomePageNewsItems());
-            if (!model.NewsItems.Any())
-                return Content("");
-
-            return View(model);
+            return !model.NewsItems.Any() ? Content("") : View(model);
         }
     }
 }

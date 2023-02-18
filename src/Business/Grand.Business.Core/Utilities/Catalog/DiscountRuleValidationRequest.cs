@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Utilities.Catalog
     /// <summary>
     /// Represents a discount requirement validation request
     /// </summary>
-    public partial class DiscountRuleValidationRequest
+    public class DiscountRuleValidationRequest
     {
         /// <summary>
         /// Gets or sets the discount 

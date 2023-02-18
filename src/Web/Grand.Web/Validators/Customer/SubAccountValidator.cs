@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Models.Customer;
 
 namespace Grand.Web.Validators.Customer
@@ -21,11 +21,11 @@ namespace Grand.Web.Validators.Customer
             RuleFor(x => x.LastName).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.LastName.Required"));
 
             RuleFor(x => x.Password).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Password.Required"))
-                .When(subaccount => (string.IsNullOrEmpty(subaccount.Id)) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
+                .When(subaccount => string.IsNullOrEmpty(subaccount.Id) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
 
             if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
                 RuleFor(x => x.Password).Matches(customerSettings.PasswordRegularExpression).WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")))
-                    .When(subaccount => (string.IsNullOrEmpty(subaccount.Id)) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
+                    .When(subaccount => string.IsNullOrEmpty(subaccount.Id) || (!string.IsNullOrEmpty(subaccount.Id) && !string.IsNullOrEmpty(subaccount.Password)));
 
         }
     }

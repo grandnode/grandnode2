@@ -7,16 +7,15 @@ namespace Grand.Business.Core.Events.Checkout.Orders
     public class CapturePaymentTransactionDetailsEvent<R, C> : INotification where R : CapturePaymentResult where C : PaymentTransaction
     {
         private readonly R _result;
-        private readonly C _containter;
+        private readonly C _container;
 
-        public CapturePaymentTransactionDetailsEvent(R result, C containter)
+        public CapturePaymentTransactionDetailsEvent(R result, C container)
         {
             _result = result;
-            _containter = containter;
+            _container = container;
         }
-        public R Result { get { return _result; } }
-        public C Containter { get { return _containter; } }
-
+        public R Result => _result;
+        public C Container => _container;
     }
 
 }

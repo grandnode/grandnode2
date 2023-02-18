@@ -1,5 +1,4 @@
 ﻿@model CoursesModel
-@using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -20,7 +19,7 @@
             <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="h5 mb-0 d-inline-flex">
-                        <a href="@Url.RouteUrl("Course", new { SeName = item.SeName })">
+                        <a href="@Url.RouteUrl("Course", new { item.SeName })">
                             @item.Name
                         </a>
                     </h3>

@@ -55,11 +55,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //check whether the order wasn't cancelled before
             if (request.Order.OrderStatusId != (int)OrderStatusSystem.Cancelled)
             {
-                //return (add) back redeemded loyalty points
-                await _mediator.Send(new ReturnBackRedeemedLoyaltyPointsCommand() { Order = request.Order });
+                //return (add) back redeemed loyalty points
+                await _mediator.Send(new ReturnBackRedeemedLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
 
                 //reduce (cancel) back loyalty points (previously awarded for this order)
-                await _mediator.Send(new ReduceLoyaltyPointsCommand() { Order = request.Order });
+                await _mediator.Send(new ReduceLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
 
                 //Adjust inventory
                 foreach (var orderItem in request.Order.OrderItems)
@@ -78,7 +78,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //deactivate gift vouchers
             if (_orderSettings.DeactivateGiftVouchersAfterDeletingOrder)
-                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand() { Order = request.Order, Activate = false });
+                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = false }, cancellationToken);
 
             request.Order.Deleted = true;
             //now delete an order
@@ -90,14 +90,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //add a note
             await _orderService.InsertOrderNote(new OrderNote
             {
-                Note = $"Order has been deleted",
+                Note = "Order has been deleted",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
             });
 
             //event notification
-            await _mediator.Publish(new OrderDeletedEvent(request.Order));
+            await _mediator.Publish(new OrderDeletedEvent(request.Order), cancellationToken);
 
             return true;
         }

@@ -10,7 +10,7 @@ namespace Grand.Infrastructure.Caching
     /// <summary>
     /// Represents a manager for memory caching
     /// </summary>
-    public partial class MemoryCacheBase : ICacheBase
+    public class MemoryCacheBase : ICacheBase
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace Grand.Infrastructure.Caching
         private bool _disposed;
         private static CancellationTokenSource _resetCacheToken = new();
 
-        protected readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
+        protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
 
         #endregion
 
@@ -43,51 +43,45 @@ namespace Grand.Infrastructure.Caching
 
         public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
         {
-            T cacheEntry;
-            if (!_cache.TryGetValue(key, out cacheEntry))
+            if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
+            SemaphoreSlim semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+            await semaphore.WaitAsync();
+            try
             {
-                SemaphoreSlim slock = _cacheEntries.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
-                await slock.WaitAsync();
-                try
+                if (!_cache.TryGetValue(key, out cacheEntry))
                 {
-                    if (!_cache.TryGetValue(key, out cacheEntry))
-                    {
-                        cacheEntry = await acquire();
-                        _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
-                    }
+                    cacheEntry = await acquire();
+                    _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
                 }
-                finally
-                {
-                    slock.Release();
-                }
+            }
+            finally
+            {
+                semaphore.Release();
             }
             return cacheEntry;
         }
 
         public virtual T Get<T>(string key, Func<T> acquire)
         {
-            return Get<T>(key, acquire, CommonHelper.CacheTimeMinutes);
+            return Get(key, acquire, CommonHelper.CacheTimeMinutes);
         }
 
         public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
         {
-            T cacheEntry;
-            if (!_cache.TryGetValue(key, out cacheEntry))
+            if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
+            SemaphoreSlim semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+            semaphore.Wait();
+            try
             {
-                SemaphoreSlim slock = _cacheEntries.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
-                slock.Wait();
-                try
+                if (!_cache.TryGetValue(key, out cacheEntry))
                 {
-                    if (!_cache.TryGetValue(key, out cacheEntry))
-                    {
-                        cacheEntry = acquire();
-                        _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
-                    }
+                    cacheEntry = acquire();
+                    _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
                 }
-                finally
-                {
-                    slock.Release();
-                }
+            }
+            finally
+            {
+                semaphore.Release();
             }
             return cacheEntry;
         }        
@@ -104,10 +98,10 @@ namespace Grand.Infrastructure.Caching
 
         public virtual Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var cacheEntrie in entriesToRemove)
+            var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntries in entriesToRemove)
             {
-                _cache.Remove(cacheEntrie.Key);
+                _cache.Remove(cacheEntries.Key);
             }
 
             if (publisher)
@@ -119,7 +113,7 @@ namespace Grand.Infrastructure.Caching
         public virtual Task Clear(bool publisher = true)
         {
             //clear keys
-            foreach (var cacheEntry in _cacheEntries.Keys.ToList())
+            foreach (var cacheEntry in CacheEntries.Keys.ToList())
                 _cache.Remove(cacheEntry);
 
             //cancel
@@ -145,23 +139,21 @@ namespace Grand.Infrastructure.Caching
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _cache.Dispose();
-                }
-                _disposed = true;
+                _cache.Dispose();
             }
+            _disposed = true;
         }
 
         #endregion
 
         #region Utilities
 
-        protected MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
+        private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
         {
-            var options = new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
+            var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
                 .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 .RegisterPostEvictionCallback(PostEvictionCallback);
 
@@ -171,7 +163,7 @@ namespace Grand.Infrastructure.Caching
         private void PostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
             if (reason != EvictionReason.Replaced)
-                _cacheEntries.TryRemove(key.ToString(), out var _);
+                CacheEntries.TryRemove(key.ToString(), out var _);
             
         }
 

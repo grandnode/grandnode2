@@ -22,8 +22,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var subaccouns = await _customerService.GetAllCustomers(ownerId: request.Customer.Id);
             foreach (var item in subaccouns)
             {
-                model.Add(new SubAccountSimpleModel()
-                {
+                model.Add(new SubAccountSimpleModel {
                     Id = item.Id,
                     Email = item.Email,
                     Active = item.Active,

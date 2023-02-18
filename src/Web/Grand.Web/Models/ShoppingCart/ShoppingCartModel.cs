@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class ShoppingCartModel : BaseModel
+    public class ShoppingCartModel : BaseModel
     {
         public ShoppingCartModel()
         {
@@ -35,7 +35,7 @@ namespace Grand.Web.Models.ShoppingCart
         public GiftVoucherBoxModel GiftVoucherBox { get; set; }
         #region Nested Classes
 
-        public partial class ShoppingCartItemModel : BaseEntityModel
+        public class ShoppingCartItemModel : BaseEntityModel
         {
             public ShoppingCartItemModel()
             {
@@ -53,6 +53,7 @@ namespace Grand.Web.Models.ShoppingCart
             public string ProductUrl { get; set; }
             public string WarehouseId { get; set; }
             public string WarehouseName { get; set; }
+            public string WarehouseCode { get; set; }
             public string VendorId { get; set; }
             public string VendorName { get; set; }
             public string VendorSeName { get; set; }
@@ -77,7 +78,7 @@ namespace Grand.Web.Models.ShoppingCart
             public IList<string> Warnings { get; set; }
         }
 
-        public partial class CheckoutAttributeModel : BaseEntityModel
+        public class CheckoutAttributeModel : BaseEntityModel
         {
             public CheckoutAttributeModel()
             {
@@ -103,7 +104,7 @@ namespace Grand.Web.Models.ShoppingCart
             public IList<CheckoutAttributeValueModel> Values { get; set; }
         }
 
-        public partial class CheckoutAttributeValueModel : BaseEntityModel
+        public class CheckoutAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
 
@@ -114,7 +115,7 @@ namespace Grand.Web.Models.ShoppingCart
             public bool IsPreSelected { get; set; }
         }
 
-        public partial class DiscountBoxModel : BaseModel
+        public class DiscountBoxModel : BaseModel
         {
             public DiscountBoxModel()
             {
@@ -130,7 +131,7 @@ namespace Grand.Web.Models.ShoppingCart
             }
         }
 
-        public partial class GiftVoucherBoxModel : BaseModel
+        public class GiftVoucherBoxModel : BaseModel
         {
             public bool Display { get; set; }
             public string Message { get; set; }

@@ -16,7 +16,7 @@ namespace Grand.Business.Catalog.Services.Collections
     /// <summary>
     /// Collection service
     /// </summary>
-    public partial class CollectionService : ICollectionService
+    public class CollectionService : ICollectionService
     {
         #region Fields
 
@@ -70,10 +70,10 @@ namespace Grand.Business.Catalog.Services.Collections
 
             if (!showHidden)
                 query = query.Where(m => m.Published);
-            if (!String.IsNullOrWhiteSpace(collectionName))
+            if (!string.IsNullOrWhiteSpace(collectionName))
                 query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(collectionName.ToLower()));
 
-            if ((!CommonHelper.IgnoreAcl || (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!showHidden && !CommonHelper.IgnoreAcl)
                 {
@@ -84,7 +84,7 @@ namespace Grand.Business.Catalog.Services.Collections
                             select p;
 
                 }
-                if (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
                 {
                     //Limited to stores rules
                     query = from p in query
@@ -124,7 +124,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <returns>Collection</returns>
         public virtual Task<Collection> GetCollectionById(string collectionId)
         {
-            string key = string.Format(CacheKey.COLLECTIONS_BY_ID_KEY, collectionId);
+            var key = string.Format(CacheKey.COLLECTIONS_BY_ID_KEY, collectionId);
             return _cacheBase.GetAsync(key, () => _collectionRepository.GetByIdAsync(collectionId));
         }
 

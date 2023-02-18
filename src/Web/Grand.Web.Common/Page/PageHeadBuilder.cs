@@ -5,7 +5,7 @@ namespace Grand.Web.Common.Page
     /// <summary>
     /// Page head builder
     /// </summary>
-    public partial class PageHeadBuilder : IPageHeadBuilder
+    public class PageHeadBuilder : IPageHeadBuilder
     {
         #region Fields
 
@@ -26,7 +26,6 @@ namespace Grand.Web.Common.Page
         /// Constuctor
         /// </summary>
         /// <param name="seoSettings">SEO settings</param>
-        /// <param name="hostingEnvironment">Hosting environment</param>
         public PageHeadBuilder(SeoSettings seoSettings)
         {
             _title = new List<string>();
@@ -65,14 +64,11 @@ namespace Grand.Web.Common.Page
         {
             string result;
             var titleParts = string.Join(_seoSettings.PageTitleSeparator, _title.AsEnumerable().Reverse().ToList());
-            if (!String.IsNullOrEmpty(titleParts))
+            if (!string.IsNullOrEmpty(titleParts))
             {
                 if (addDefaultTitle)
                 {
-                    if (_seoSettings.PageTitleSeoAdjustment)
-                        result = string.Join(_seoSettings.PageTitleSeparator, _seoSettings.DefaultTitle, titleParts);
-                    else
-                        result = string.Join(_seoSettings.PageTitleSeparator, titleParts, _seoSettings.DefaultTitle);
+                    result = _seoSettings.PageTitleSeoAdjustment ? string.Join(_seoSettings.PageTitleSeparator, _seoSettings.DefaultTitle, titleParts) : string.Join(_seoSettings.PageTitleSeparator, titleParts, _seoSettings.DefaultTitle);
                 }
                 else
                 {
@@ -105,7 +101,7 @@ namespace Grand.Web.Common.Page
         public virtual string GenerateMetaDescription()
         {
             var description = string.Join(", ", _metaDescription.AsEnumerable().Reverse().ToList());
-            var result = !String.IsNullOrEmpty(description) ? description : _seoSettings.DefaultMetaDescription;
+            var result = !string.IsNullOrEmpty(description) ? description : _seoSettings.DefaultMetaDescription;
             return result;
         }
 
@@ -128,7 +124,7 @@ namespace Grand.Web.Common.Page
         public virtual string GenerateMetaKeywords()
         {
             var keyword = string.Join(", ", _metaKeyword.AsEnumerable().Reverse().ToList());
-            var result = !String.IsNullOrEmpty(keyword) ? keyword : _seoSettings.DefaultMetaKeywords;
+            var result = !string.IsNullOrEmpty(keyword) ? keyword : _seoSettings.DefaultMetaKeywords;
             return result;
         }
 
@@ -153,7 +149,7 @@ namespace Grand.Web.Common.Page
             var result = new StringBuilder();
             foreach (var canonicalUrl in _canonicalUrl)
             {
-                result.AppendFormat("<link rel=\"canonical\" href=\"{0}\" />", canonicalUrl);
+                result.Append($"<link rel=\"canonical\" href=\"{canonicalUrl}\" />");
                 result.Append(Environment.NewLine);
             }
             return result.ToString();
@@ -208,7 +204,7 @@ namespace Grand.Web.Common.Page
 
         public virtual string GeneratePageCssClasses()
         {
-            string result = string.Join(" ", _pageCssClass.AsEnumerable().Reverse().ToArray());
+            var result = string.Join(" ", _pageCssClass.AsEnumerable().Reverse().ToArray());
             return result;
         }
 

@@ -31,18 +31,16 @@ namespace Grand.Web.Common.TagHelpers
             }
 
             var classes = _pageHeadBuilder.GeneratePageCssClasses();
-            if(!string.IsNullOrEmpty(classes))
+            if (string.IsNullOrEmpty(classes)) return Task.CompletedTask;
+            if (output.Attributes.ContainsName("class"))
             {
-                if (output.Attributes.ContainsName("class"))
-                {
-                    var attribute = output.Attributes["class"];
-                    output.Attributes.Remove(attribute);
-                    output.Attributes.Add("class", $"{attribute.Value} {classes}");
-                }
-                else
-                    output.Attributes.Add("class", classes);
+                var attribute = output.Attributes["class"];
+                output.Attributes.Remove(attribute);
+                output.Attributes.Add("class", $"{attribute.Value} {classes}");
             }
-            
+            else
+                output.Attributes.Add("class", classes);
+
 
             return Task.CompletedTask;
         }

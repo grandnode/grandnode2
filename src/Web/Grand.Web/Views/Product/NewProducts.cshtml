@@ -6,7 +6,6 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.NewProducts"]);
 }
-@using Grand.Web.Models.Catalog;
 <div class="page recently-added-products-page col-12 px-0">
     <h1 class="h2 generalTitle">@Loc["Products.NewProducts"]</h1>
     @if (Model.Any())
@@ -15,7 +14,7 @@
             @foreach (var product in Model)
             {
                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                    <partial name="_CatalogProductView" model="product" />
+                    <partial name="Partials/CatalogProductView" model="product" />
                 </div>
             }
         </div>

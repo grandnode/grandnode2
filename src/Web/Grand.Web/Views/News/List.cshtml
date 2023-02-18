@@ -20,7 +20,7 @@
                     }
                     <div class="card-header">
                         <h3 class="h5 mb-0">
-                            <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
+                            <a href="@Url.RouteUrl("NewsItem", new { item.SeName })">
                                 @item.Title
                             </a>
                         </h3>
@@ -29,7 +29,7 @@
                         @Html.Raw(item.Short)
                     </div>
                     <div class="buttons mb-3 px-3">
-                        <a class="btn btn-sm btn-outline-info read-more" href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@Loc["News.MoreInfo"]</a>
+                        <a class="btn btn-sm btn-outline-info read-more" href="@Url.RouteUrl("NewsItem", new { item.SeName })">@Loc["News.MoreInfo"]</a>
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">@item.CreatedOn.ToString("D")</small>

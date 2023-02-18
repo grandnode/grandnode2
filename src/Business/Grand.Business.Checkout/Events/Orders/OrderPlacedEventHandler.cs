@@ -27,38 +27,35 @@ namespace Grand.Business.Checkout.Events.Orders
         public Task Handle(OrderPlacedEvent notification, CancellationToken cancellationToken)
         {
             //insert product also purchased
-            InsertProductAlsoPurchased(notification.Order);
+            _ = InsertProductAlsoPurchased(notification.Order);
             //update customer
-            UpdateCustomer(notification.Order);
-
+            _ = UpdateCustomer(notification.Order);
             //Insert Loyalty Points History
-            InsertLoyaltyPointsHistory(notification.Order);
-
+            _ = InsertLoyaltyPointsHistory(notification.Order);
             return Task.CompletedTask;
         }
 
-        protected Task InsertProductAlsoPurchased(Order order)
+        private Task InsertProductAlsoPurchased(Order order)
         {
             foreach (var item in order.OrderItems)
             {
                 foreach (var it in order.OrderItems.Where(x => x.ProductId != item.ProductId))
                 {
-                    var productPurchase = new ProductAlsoPurchased();
-                    productPurchase.ProductId = item.ProductId;
-                    productPurchase.OrderId = order.Id;
-                    productPurchase.CreatedOrderOnUtc = order.CreatedOnUtc;
-                    productPurchase.Quantity = it.Quantity;
-                    productPurchase.StoreId = order.StoreId;
-                    productPurchase.ProductId2 = it.ProductId;
+                    var productPurchase = new ProductAlsoPurchased {
+                        ProductId = item.ProductId,
+                        OrderId = order.Id,
+                        CreatedOrderOnUtc = order.CreatedOnUtc,
+                        Quantity = it.Quantity,
+                        StoreId = order.StoreId,
+                        ProductId2 = it.ProductId
+                    };
                     _productAlsoPurchasedRepository.InsertAsync(productPurchase);
                 }
             }
             return Task.CompletedTask;
-
-
         }
 
-        protected Task UpdateCustomer(Order order)
+        private Task UpdateCustomer(Order order)
         {
             //Updated field "free shipping" after added a new order
             _customerService.UpdateCustomerField(order.CustomerId, x => x.FreeShipping, false);
@@ -75,7 +72,7 @@ namespace Grand.Business.Checkout.Events.Orders
             return Task.CompletedTask;
         }
 
-        protected Task InsertLoyaltyPointsHistory(Order order)
+        private Task InsertLoyaltyPointsHistory(Order order)
         {
             //loyalty points history
             if (order.RedeemedLoyaltyPointsAmount > 0)

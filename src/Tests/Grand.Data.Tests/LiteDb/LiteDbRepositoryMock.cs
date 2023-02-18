@@ -5,9 +5,9 @@ using LiteDB;
 
 namespace Grand.Data.Tests.LiteDb
 {
-    public partial class MongoDBRepositoryMock<T> : LiteDBRepository<T>, IRepository<T> where T : BaseEntity
+    public partial class LiteDBRepositoryMock<T> : LiteDBRepository<T>, IRepository<T> where T : BaseEntity
     {
-        public MongoDBRepositoryMock(): base("MemoryStream")
+        public LiteDBRepositoryMock(): base(Guid.NewGuid().ToString())
         {
             _database = new LiteDatabase(new MemoryStream());
             _database.DropCollection(typeof(T).Name);

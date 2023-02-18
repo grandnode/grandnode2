@@ -34,7 +34,7 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
         Task<bool> IsVendor(Customer customer);
 
         /// <summary>
-        /// Gets a value indicating whether customer is owner subaccount
+        /// Gets a value indicating whether customer is owner sub-account
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <returns>Result</returns>

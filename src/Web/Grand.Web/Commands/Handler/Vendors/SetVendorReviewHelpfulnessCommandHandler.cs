@@ -33,7 +33,7 @@ namespace Grand.Web.Commands.Handler.Vendors
                 {
                     VendorReviewId = request.Review.Id,
                     CustomerId = request.Customer.Id,
-                    WasHelpful = request.Washelpful,
+                    WasHelpful = request.Washelpful
                 };
                 request.Review.VendorReviewHelpfulnessEntries.Add(prh);
                 if (!request.Customer.HasContributions)

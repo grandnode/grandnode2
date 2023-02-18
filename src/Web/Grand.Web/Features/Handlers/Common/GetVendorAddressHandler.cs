@@ -38,15 +38,15 @@ namespace Grand.Web.Features.Handlers.Common
                 model.Company = request.Address.Company;
                 model.CountryId = request.Address.CountryId;
                 Country country = null;
-                if (!String.IsNullOrEmpty(request.Address.CountryId))
+                if (!string.IsNullOrEmpty(request.Address.CountryId))
                     country = await _countryService.GetCountryById(request.Address.CountryId);
-                model.CountryName = country != null ? country.GetTranslation(x => x.Name, request.Language.Id) : null;
+                model.CountryName = country?.GetTranslation(x => x.Name, request.Language.Id);
 
                 model.StateProvinceId = request.Address.StateProvinceId;
                 StateProvince state = null;
-                if (!String.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
+                if (!string.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
                     state = country.StateProvinces.FirstOrDefault(x => x.Id == request.Address.StateProvinceId);
-                model.StateProvinceName = state != null ? state.GetTranslation(x => x.Name, request.Language.Id) : null;
+                model.StateProvinceName = state?.GetTranslation(x => x.Name, request.Language.Id);
 
                 model.City = request.Address.City;
                 model.Address1 = request.Address.Address1;
@@ -83,7 +83,7 @@ namespace Grand.Web.Features.Handlers.Common
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -91,15 +91,15 @@ namespace Grand.Web.Features.Handlers.Common
                 if (_vendorSettings.StateProvinceEnabled)
                 {
                     var states = await _countryService
-                        .GetStateProvincesByCountryId(!String.IsNullOrEmpty(model.CountryId) ? model.CountryId : "", request.Language.Id);
+                        .GetStateProvincesByCountryId(!string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "", request.Language.Id);
                     
                     model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
                     foreach (var s in states)
                     {
                         model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, request.Language.Id),
-                            Value = s.Id.ToString(),
-                            Selected = (s.Id == model.StateProvinceId)
+                            Value = s.Id,
+                            Selected = s.Id == model.StateProvinceId
                         });
                     }
                 }

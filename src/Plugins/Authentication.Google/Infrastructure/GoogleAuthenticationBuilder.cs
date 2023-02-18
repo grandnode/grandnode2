@@ -1,15 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Domain.Configuration;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using System.Net;
-using System.Text.Json;
 
 namespace Authentication.Google.Infrastructure
 {

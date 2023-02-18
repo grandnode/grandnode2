@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Blogs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class BlogMonthsViewComponent : BaseViewComponent
     {

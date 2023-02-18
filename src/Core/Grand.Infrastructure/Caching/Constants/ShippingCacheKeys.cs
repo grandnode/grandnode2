@@ -34,7 +34,7 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {0} : picpup point ID
+        /// {0} : pickup point point ID
         /// </remarks>
         public static string PICKUPPOINTS_BY_ID_KEY => "Grand.pickuppoint.id-{0}";
 

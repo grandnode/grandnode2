@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidEmailAFriend : Drop
+    public class LiquidEmailAFriend : Drop
     {
         private readonly string _personalMessage;
         private readonly string _customerEmail;

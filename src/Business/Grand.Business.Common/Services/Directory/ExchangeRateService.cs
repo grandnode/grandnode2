@@ -36,9 +36,8 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Active exchange rate provider</returns>
         public virtual IExchangeRateProvider LoadActiveExchangeRateProvider()
         {
-            var exchangeRateProvider = LoadExchangeRateProviderBySystemName(_currencySettings.ActiveExchangeRateProviderSystemName);
-            if (exchangeRateProvider == null)
-                exchangeRateProvider = LoadAllExchangeRateProviders().FirstOrDefault();
+            var exchangeRateProvider = LoadExchangeRateProviderBySystemName(_currencySettings.ActiveExchangeRateProviderSystemName) ??
+                                       LoadAllExchangeRateProviders().FirstOrDefault();
             return exchangeRateProvider;
         }
 

@@ -10,7 +10,7 @@ namespace Grand.Business.Checkout.Services.Shipping
     /// <summary>
     /// Shipment service
     /// </summary>
-    public partial class ShipmentService : IShipmentService
+    public class ShipmentService : IShipmentService
     {
         #region Fields
 
@@ -105,17 +105,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             var query = from o in _shipmentRepository.Table
                         where shipmentIds.Contains(o.Id)
                         select o;
-            var shipments = await Task.FromResult(query.ToList());
-
-            //sort by passed identifiers
-            var sortedOrders = new List<Shipment>();
-            foreach (string id in shipmentIds)
-            {
-                var shipment = shipments.Find(x => x.Id == id);
-                if (shipment != null)
-                    sortedOrders.Add(shipment);
-            }
-            return sortedOrders;
+            return await Task.FromResult(query.ToList());
         }
 
 
@@ -223,17 +213,16 @@ namespace Grand.Business.Checkout.Services.Shipping
         }
 
         /// <summary>
-        /// Get shipmentnote by id
+        /// Get shipment note by id
         /// </summary>
-        /// <param name="shipmentnoteId">Shipment note identifier</param>
+        /// <param name="shipmentNoteId">Shipment note identifier</param>
         /// <returns>shipmentNote</returns>
-        public virtual Task<ShipmentNote> GetShipmentNote(string shipmentnoteId)
+        public virtual Task<ShipmentNote> GetShipmentNote(string shipmentNoteId)
         {
-            return Task.FromResult(_shipmentNoteRepository.Table.Where(x => x.Id == shipmentnoteId).FirstOrDefault());
+            return Task.FromResult(_shipmentNoteRepository.Table.FirstOrDefault(x => x.Id == shipmentNoteId));
         }
-
-
         #endregion
+        
         #endregion
     }
 }

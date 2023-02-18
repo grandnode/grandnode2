@@ -6,36 +6,21 @@ namespace Grand.Web.Common.Extensions
     {
         public static object SerializeErrors(this ModelStateDictionary modelStateDictionary)
         {
-            return modelStateDictionary.Where(entry => entry.Value.Errors.Any())
+            return modelStateDictionary.Where(entry => entry.Value != null && entry.Value.Errors.Any())
                 .ToDictionary(entry => entry.Key, entry => SerializeModelState(entry.Value));
         }
 
         private static Dictionary<string, object> SerializeModelState(ModelStateEntry modelState)
         {
-            var errors = new List<string>();
-            for (var i = 0; i < modelState.Errors.Count; i++)
-            {
-                var modelError = modelState.Errors[i];
-                var errorText = modelError.ErrorMessage;
-
-                if (!string.IsNullOrEmpty(errorText))
-                {
-                    errors.Add(errorText);
-                }
-            }
-
-            var dictionary = new Dictionary<string, object>();
-            dictionary["errors"] = errors.ToArray();
+            var dictionary = new Dictionary<string, object> {
+                ["errors"] = modelState.Errors.Select(modelError => modelError.ErrorMessage).Where(errorText => !string.IsNullOrEmpty(errorText)).ToArray()
+            };
             return dictionary;
         }
 
         public static object ToDataSourceResult(this ModelStateDictionary modelState)
         {
-            if (!modelState.IsValid)
-            {
-                return modelState.SerializeErrors();
-            }
-            return null;
+            return !modelState.IsValid ? modelState.SerializeErrors() : null;
         }
     }
 }

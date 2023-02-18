@@ -10,7 +10,7 @@ namespace Grand.Web.Common.Themes
     /// <summary>
     /// Theme context
     /// </summary>
-    public partial class ThemeContext : IThemeContext
+    public class ThemeContext : IThemeContext
     {
         private readonly IWorkContext _workContext;
         private readonly IUserFieldService _userFieldService;
@@ -18,7 +18,7 @@ namespace Grand.Web.Common.Themes
         private readonly VendorSettings _vendorSettings;
         private readonly IThemeProvider _themeProvider;
 
-        private bool _themeIsCached, _adminthemeIsCached;
+        private bool _themeIsCached, _adminThemeIsCached;
         private string _cachedThemeName, _cachedAdminThemeName;
 
         public ThemeContext(IWorkContext workContext,
@@ -44,7 +44,7 @@ namespace Grand.Web.Common.Themes
                 if (_themeIsCached)
                     return _cachedThemeName;
 
-                string theme = "";
+                var theme = "";
                 if (_storeInformationSettings.AllowCustomerToSelectTheme)
                 {
                     if (_workContext.CurrentCustomer != null)
@@ -67,7 +67,7 @@ namespace Grand.Web.Common.Themes
 
                 //cache theme
                 _cachedThemeName = theme;
-                _adminthemeIsCached = true;
+                _adminThemeIsCached = true;
                 return theme;
             }
         }
@@ -80,7 +80,7 @@ namespace Grand.Web.Common.Themes
             get
             {
 
-                if (_adminthemeIsCached)
+                if (_adminThemeIsCached)
                     return _cachedAdminThemeName;
 
                 var theme = "Default";
@@ -92,9 +92,9 @@ namespace Grand.Web.Common.Themes
                 {
                     if (_workContext.CurrentCustomer != null)
                     {
-                        var customertheme = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminThemeName, _workContext.CurrentStore.Id);
-                        if (!string.IsNullOrEmpty(customertheme))
-                            theme = customertheme;
+                        var customerTheme = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminThemeName, _workContext.CurrentStore.Id);
+                        if (!string.IsNullOrEmpty(customerTheme))
+                            theme = customerTheme;
                     }
                 }
 

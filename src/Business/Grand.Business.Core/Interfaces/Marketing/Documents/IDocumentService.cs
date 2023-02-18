@@ -4,7 +4,7 @@ using Grand.Domain.Documents;
 
 namespace Grand.Business.Core.Interfaces.Marketing.Documents
 {
-    public partial interface IDocumentService
+    public interface IDocumentService
     {
         /// <summary>
         /// Gets a document 

@@ -39,7 +39,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            var canRefundOffline = await _mediator.Send(new CanRefundOfflineQuery() { PaymentTransaction = paymentTransaction });
+            var canRefundOffline = await _mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction }, cancellationToken);
             if (!canRefundOffline)
                 throw new GrandException("You can't refund this payment transaction");
 
@@ -52,11 +52,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            //amout to refund
-            double amountToRefund = order.OrderTotal;
+            //amount to refund
+            var amountToRefund = order.OrderTotal;
 
             //total amount refunded
-            double totalAmountRefunded = order.RefundedAmount + amountToRefund;
+            var totalAmountRefunded = order.RefundedAmount + amountToRefund;
 
             //update order info
             order.RefundedAmount = totalAmountRefunded;
@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             //notifications for store owner
             await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
@@ -75,7 +75,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
 
             //raise event       
-            await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund));
+            await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund), cancellationToken);
             return true;
         }
     }

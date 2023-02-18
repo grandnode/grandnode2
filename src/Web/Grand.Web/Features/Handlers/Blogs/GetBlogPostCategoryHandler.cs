@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using MediatR;
 
@@ -32,8 +32,7 @@ namespace Grand.Web.Features.Handlers.Blogs
                 var categories = await _blogService.GetAllBlogCategories(_workContext.CurrentStore.Id);
                 foreach (var item in categories)
                 {
-                    model.Add(new BlogPostCategoryModel()
-                    {
+                    model.Add(new BlogPostCategoryModel {
                         Id = item.Id,
                         Name = item.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                         SeName = item.SeName,

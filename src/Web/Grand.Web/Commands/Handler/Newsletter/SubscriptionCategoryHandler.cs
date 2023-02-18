@@ -4,7 +4,8 @@ using MediatR;
 
 namespace Grand.Web.Commands.Handler.Newsletter
 {
-    public class SubscriptionCategoryHandler : IRequestHandler<SubscriptionCategoryCommand, (string message, bool success)>
+    public class
+        SubscriptionCategoryHandler : IRequestHandler<SubscriptionCategoryCommand, (string message, bool success)>
     {
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
 
@@ -13,32 +14,24 @@ namespace Grand.Web.Commands.Handler.Newsletter
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
         }
 
-        public async Task<(string message, bool success)> Handle(SubscriptionCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<(string message, bool success)> Handle(SubscriptionCategoryCommand request,
+            CancellationToken cancellationToken)
         {
-            bool success = false;
-            string message = string.Empty;
+            var success = false;
+            var message = string.Empty;
 
-            var newsletterEmailId = request.Values["NewsletterEmailId"].ToString();
+            var newsletterEmailId = request.Model.NewsletterEmailId;
             if (!string.IsNullOrEmpty(newsletterEmailId))
             {
-                var subscription = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionById(newsletterEmailId);
+                var subscription =
+                    await _newsLetterSubscriptionService.GetNewsLetterSubscriptionById(newsletterEmailId);
                 if (subscription != null)
                 {
-                    foreach (string formKey in request.Values.Keys)
+                    foreach (var category in request.Model.Category)
                     {
-                        if (formKey.Contains("Category_"))
-                        {
-                            try
-                            {
-                                var category = formKey.Split('_')[1];
-                                subscription.Categories.Add(category);
-                            }
-                            catch (Exception ex)
-                            {
-                                message = ex.Message;
-                            }
-                        }
+                        subscription.Categories.Add(category);
                     }
+
                     success = true;
                     await _newsLetterSubscriptionService.UpdateNewsLetterSubscription(subscription, false);
                 }

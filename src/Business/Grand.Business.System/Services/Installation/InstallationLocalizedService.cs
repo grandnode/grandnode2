@@ -9,7 +9,7 @@ namespace Grand.Business.System.Services.Installation
     /// <summary>
     /// Translation service for installation process
     /// </summary>
-    public partial class InstallationLocalizedService : IInstallationLocalizedService
+    public class InstallationLocalizedService : IInstallationLocalizedService
     {
         /// <summary>
         /// Available languages
@@ -20,12 +20,7 @@ namespace Grand.Business.System.Services.Installation
         /// Available collation
         /// </summary>
         private IList<InstallationCollation> _availableCollation;
-
-
-        public InstallationLocalizedService()
-        {
-
-        }
+        
         /// <summary>
         /// Get locale resource value
         /// </summary>
@@ -42,11 +37,9 @@ namespace Grand.Business.System.Services.Installation
                 .Select(r => r.Value)
                 .FirstOrDefault();
 
-            if (string.IsNullOrEmpty(resourceValue))
+            return string.IsNullOrEmpty(resourceValue) ?
                 //return name
-                return resourceName;
-
-            return resourceValue;
+                resourceName : resourceValue;
         }
 
         /// <summary>

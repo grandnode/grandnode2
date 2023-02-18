@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.ShoppingCart
 {
-    public partial class WishlistEmailAFriendModel : BaseModel
+    public class WishlistEmailAFriendModel : BaseModel
     {
         [GrandResourceDisplayName("Wishlist.EmailAFriend.FriendEmail")]
         public string FriendEmail { get; set; }

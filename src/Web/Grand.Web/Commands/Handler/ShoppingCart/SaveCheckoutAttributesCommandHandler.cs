@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Web.Commands.Models.ShoppingCart;
 using MediatR;
 
@@ -34,14 +34,13 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
             if (request.Cart == null)
                 throw new ArgumentNullException(nameof(request.Cart));
 
-            if (request.Form == null)
-                throw new ArgumentNullException(nameof(request.Form));
+            if (request.SelectedAttributes == null)
+                throw new ArgumentNullException(nameof(request.SelectedAttributes));
 
             var customAttributes = new List<CustomAttribute>();
             var checkoutAttributes = await _checkoutAttributeService.GetAllCheckoutAttributes(request.Store.Id, !request.Cart.RequiresShipping());
             foreach (var attribute in checkoutAttributes)
             {
-                string controlId = string.Format("checkout_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
@@ -49,7 +48,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
@@ -60,14 +59,17 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            request.Form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
-                                    customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes, attribute, item).ToList();
+                                    if (!string.IsNullOrEmpty(item))
+                                        customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
+                                            attribute, item).ToList();
                                 }
                             }
+
                         }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
@@ -80,7 +82,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                                 .ToList())
                             {
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                                            attribute, selectedAttributeId.ToString()).ToList();
+                                            attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
@@ -88,10 +90,10 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                     case AttributeControlType.MultilineTextbox:
                     case AttributeControlType.Datepicker:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -99,10 +101,8 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            Guid downloadGuid;
-                            request.Form.TryGetValue(controlId, out var guid);
-
-                            Guid.TryParse(guid, out downloadGuid);
+                            var guid = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            Guid.TryParse(guid, out var downloadGuid);
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
                             {
@@ -110,8 +110,6 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                                            attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
             }

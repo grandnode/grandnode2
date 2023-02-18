@@ -3,7 +3,7 @@ namespace Grand.Infrastructure.Configuration
     /// <summary>
     /// Represents a Application Config
     /// </summary>
-    public partial class AppConfig 
+    public class AppConfig 
     {
         public AppConfig()
         {

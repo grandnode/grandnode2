@@ -9,6 +9,7 @@ namespace Grand.Web.Common.TagHelpers
         /// Registers a script tag on the head
         /// </summary>
         /// <param name="script"></param>
+        /// <param name="order"></param>
         void RegisterHeadScript(IHtmlContent script, int order);
 
         /// <summary>
@@ -20,12 +21,14 @@ namespace Grand.Web.Common.TagHelpers
         /// Registers a custom script tag on at the foot.
         /// </summary>
         /// <param name="script"></param>
+        /// <param name="order"></param>
         void RegisterFootScript(IHtmlContent script, int order);
 
         /// <summary>
         /// Registers a custom template tag in the head/footer.
         /// </summary>
         /// <param name="script"></param>
+        /// <param name="head"></param>
         void RegisterTemplate(IHtmlContent script, bool head);
 
         /// <summary>

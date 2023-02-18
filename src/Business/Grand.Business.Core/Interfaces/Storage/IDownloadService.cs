@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Storage
     /// <summary>
     /// Download service interface
     /// </summary>
-    public partial interface IDownloadService
+    public interface IDownloadService
     {
         /// <summary>
         /// Gets a download

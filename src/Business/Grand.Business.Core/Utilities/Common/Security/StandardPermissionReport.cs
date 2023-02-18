@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
     {
         private static string CategoryReport => "Reports";
 
-        public static readonly Permission ManageReports = new Permission
+        public static readonly Permission ManageReports = new()
         {
             Name = "Manage Reports",
             SystemName = PermissionSystemName.Reports,

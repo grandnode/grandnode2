@@ -8,7 +8,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Shipping.ShippingPoint.Services;
 using System.Xml.Serialization;
 
@@ -91,10 +90,11 @@ namespace Shipping.ShippingPoint
             return await Task.FromResult(false);
         }
 
-        public async Task<IList<string>> ValidateShippingForm(IFormCollection form)
+        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
         {
-            var shippingMethodName = form["shippingoption"].ToString().Replace("___", "_").Split(new[] { '_' })[0];
-            var shippingOptionId = form["selectedShippingOption"].ToString();
+            data.TryGetValue("selectedShippingOption", out var shippingOptionId);
+            
+            var shippingMethodName = shippingOption?.Split(new[] { ':' })[0];
 
             if (string.IsNullOrEmpty(shippingOptionId))
                 return new List<string>() { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
@@ -117,10 +117,7 @@ namespace Shipping.ShippingPoint
                 _workContext.CurrentStore.Id);
 
             var forCustomer =
-            string.Format("<strong>{0}:</strong> {1}<br><strong>{2}:</strong> {3}<br>",
-                _translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName"), chosenShippingOption.ShippingPointName,
-                _translationService.GetResource("Shipping.ShippingPoint.Fields.Description"), chosenShippingOption.Description
-            );
+                $"<strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName")}:</strong> {chosenShippingOption.ShippingPointName}<br><strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.Description")}:</strong> {chosenShippingOption.Description}<br>";
 
             await _userFieldService.SaveField(
                 _workContext.CurrentCustomer,
@@ -144,7 +141,7 @@ namespace Shipping.ShippingPoint
 
             var stringBuilder = new StringBuilder();
             string serializedAttribute;
-            using (var tw = new StringWriter(stringBuilder))
+            await using (var tw = new StringWriter(stringBuilder))
             {
                 var xmlS = new XmlSerializer(typeof(Domain.ShippingPointSerializable));
                 xmlS.Serialize(tw, serializedObject);
@@ -159,9 +156,9 @@ namespace Shipping.ShippingPoint
             return new List<string>();
         }
 
-        public async Task<string> GetPublicViewComponentName()
+        public async Task<string> GetControllerRouteName()
         {
-            return await Task.FromResult("ShippingPoint");
+            return await Task.FromResult("Plugins.ShippingPoint.Points");
         }
 
         public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;

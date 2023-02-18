@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
@@ -53,7 +52,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             : (double?)default,
                             orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
                             orderItem.Quantity, false,
-                            validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings);
+                            validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings);
                     }
                 }
                 else

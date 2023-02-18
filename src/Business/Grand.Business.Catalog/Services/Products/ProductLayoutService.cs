@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Product layout service
     /// </summary>
-    public partial class ProductLayoutService : IProductLayoutService
+    public class ProductLayoutService : IProductLayoutService
     {
         #region Fields
 
@@ -65,7 +65,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product layout</returns>
         public virtual Task<ProductLayout> GetProductLayoutById(string productLayoutId)
         {
-            string key = string.Format(CacheKey.PRODUCT_LAYOUT_BY_ID_KEY, productLayoutId);
+            var key = string.Format(CacheKey.PRODUCT_LAYOUT_BY_ID_KEY, productLayoutId);
             return _cacheBase.GetAsync(key, () => _productLayoutRepository.GetByIdAsync(productLayoutId));
         }
 

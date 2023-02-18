@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 
@@ -9,16 +10,13 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 {
     public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductAttributes, IList<CustomAttribute>>
     {
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IDownloadService _downloadService;
         private readonly IProductService _productService;
 
         public GetParseProductAttributesHandler(
-            IProductAttributeParser productAttributeParser,
             IDownloadService downloadService,
             IProductService productService)
         {
-            _productAttributeParser = productAttributeParser;
             _downloadService = downloadService;
             _productService = productService;
         }
@@ -42,7 +40,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
             foreach (var attribute in productAttributes)
             {
-                string controlId = string.Format("product_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
@@ -50,23 +47,23 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, ctrlAttributes).ToList();
                             }
                         }
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            request.Form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
-                                    if (!String.IsNullOrEmpty(item))
-                                        customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    if (!string.IsNullOrEmpty(item))
+                                        customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }
                             }
@@ -81,7 +78,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                                 .Select(v => v.Id)
                                 .ToList())
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, selectedAttributeId).ToList();
                             }
                         }
@@ -90,83 +87,49 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     case AttributeControlType.MultilineTextbox:
                     case AttributeControlType.Datepicker:
                         {
-                            request.Form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                var enteredText = ctrlAttributes.Trim();
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
                         }
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            request.Form.TryGetValue(controlId, out var guid);
+                            var guid = request.Model.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             Guid.TryParse(guid, out Guid downloadGuid);
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
-                        break;
-                    default:
                         break;
                 }
             }
             //validate conditional attributes (if specified)
             foreach (var attribute in productAttributes)
             {
-                var conditionMet = _productAttributeParser.IsConditionMet(request.Product, attribute, customAttributes);
+                var conditionMet = request.Product.IsConditionMet(attribute, customAttributes);
                 if (conditionMet.HasValue && !conditionMet.Value)
                 {
-                    customAttributes = _productAttributeParser.RemoveProductAttribute(customAttributes, attribute).ToList();
+                    customAttributes = ProductExtensions.RemoveProductAttribute(customAttributes, attribute).ToList();
                 }
             }
-
             #endregion
-
             #region Gift vouchers
 
             if (request.Product.IsGiftVoucher)
             {
-                string recipientName = "";
-                string recipientEmail = "";
-                string senderName = "";
-                string senderEmail = "";
-                string giftVoucherMessage = "";
-                foreach (string formKey in request.Form.Keys)
-                {
-                    if (formKey.Equals(string.Format("giftvoucher_{0}.RecipientName", request.Product.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        recipientName = request.Form[formKey];
-                        continue;
-                    }
-                    if (formKey.Equals(string.Format("giftvoucher_{0}.RecipientEmail", request.Product.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        recipientEmail = request.Form[formKey];
-                        continue;
-                    }
-                    if (formKey.Equals(string.Format("giftvoucher_{0}.SenderName", request.Product.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        senderName = request.Form[formKey];
-                        continue;
-                    }
-                    if (formKey.Equals(string.Format("giftvoucher_{0}.SenderEmail", request.Product.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        senderEmail = request.Form[formKey];
-                        continue;
-                    }
-                    if (formKey.Equals(string.Format("giftvoucher_{0}.Message", request.Product.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        giftVoucherMessage = request.Form[formKey];
-                        continue;
-                    }
-                }
-
-                customAttributes = _productAttributeParser.AddGiftVoucherAttribute(customAttributes,
-                    recipientName, recipientEmail, senderName, senderEmail, giftVoucherMessage).ToList();
+                customAttributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customAttributes,
+                    request.Model.RecipientName, 
+                    request.Model.RecipientEmail, 
+                    request.Model.SenderName, 
+                    request.Model.SenderEmail, 
+                    request.Model.Message).ToList();
             }
 
             #endregion

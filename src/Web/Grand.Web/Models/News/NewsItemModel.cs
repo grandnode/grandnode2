@@ -3,7 +3,7 @@ using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.News
 {
-    public partial class NewsItemModel : BaseEntityModel
+    public class NewsItemModel : BaseEntityModel
     {
         public NewsItemModel()
         {

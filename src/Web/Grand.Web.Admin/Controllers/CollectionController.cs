@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -32,8 +33,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager _exportManager;
-        private readonly IImportManager _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
 
         #endregion
@@ -48,8 +47,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IGroupService groupService,
-            IExportManager exportManager,
-            IImportManager importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _collectionViewModelService = collectionViewModelService;
@@ -59,8 +56,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _translationService = translationService;
             _groupService = groupService;
-            _exportManager = exportManager;
-            _importManager = importManager;
             _pictureViewModelService = pictureViewModelService;
         }
 
@@ -109,8 +104,7 @@ namespace Grand.Web.Admin.Controllers
             }
             var collections = await _collectionService.GetAllCollections(model.SearchCollectionName,
                 model.SearchStoreId, command.Page - 1, command.PageSize, true);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = collections.Select(x => x.ToModel()),
                 Total = collections.TotalCount
             };
@@ -300,7 +294,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(collection.PictureId, collection.Id));
+            return View("Partials/PicturePopup", await _pictureViewModelService.PreparePictureModel(collection.PictureId, collection.Id));
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -330,7 +324,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
 
-            return View("PicturePopup", model);
+            return View("Partials/PicturePopup", model);
         }
 
         #endregion
@@ -338,11 +332,11 @@ namespace Grand.Web.Admin.Controllers
         #region Export / Import
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
-        public async Task<IActionResult> ExportXlsx()
+        public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Collection> exportManager)
         {
             try
             {
-                var bytes = _exportManager.ExportCollectionsToXlsx(await _collectionService.GetAllCollections(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = await exportManager.Export(await _collectionService.GetAllCollections(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "collections.xlsx");
             }
             catch (Exception exc)
@@ -354,7 +348,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext, [FromServices] IImportManager<CollectionDto> importManager)
         {
             //a vendor and staff cannot import collections
             if (workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -364,7 +358,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportCollectionFromXlsx(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {
@@ -395,8 +389,7 @@ namespace Grand.Web.Admin.Controllers
 
             var (collectionProductModels, totalCount) = await _collectionViewModelService.PrepareCollectionProductModel(collectionId, _workContext.CurrentStore.Id, command.Page, command.PageSize);
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = collectionProductModels.ToList(),
                 Total = totalCount
             };
@@ -445,8 +438,7 @@ namespace Grand.Web.Admin.Controllers
                 model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
             }
             var products = await _collectionViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = products.products.ToList(),
                 Total = products.totalCount
             };
@@ -487,8 +479,7 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson(permission.message);
 
             var (activityLogModels, totalCount) = await _collectionViewModelService.PrepareActivityLogModel(collectionId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = activityLogModels.ToList(),
                 Total = totalCount
             };

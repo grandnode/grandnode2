@@ -11,7 +11,7 @@ namespace Grand.Business.Common.Services.Seo
     /// <summary>
     /// Provides information about Slug URL Entity
     /// </summary>
-    public partial class SlugService : ISlugService
+    public class SlugService : ISlugService
     {
         #region Fields
 
@@ -45,11 +45,8 @@ namespace Grand.Business.Common.Services.Seo
         protected virtual async Task<IList<EntityUrl>> GetAllUrlEntityCached()
         {
             //cache
-            string key = string.Format(CacheKey.URLEntity_ALL_KEY);
-            return await _cacheBase.GetAsync(key, async () =>
-            {
-                return await Task.FromResult(_urlEntityRepository.Table.ToList());
-            });
+            var key = string.Format(CacheKey.URLEntity_ALL_KEY);
+            return await _cacheBase.GetAsync(key, async () => await Task.FromResult(_urlEntityRepository.Table.ToList()));
         }
 
         #region Methods
@@ -57,7 +54,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <summary>
         /// Gets an URL Entity
         /// </summary>
-        /// <param name="entityUrlId">URL Entity identifier</param>
+        /// <param name="urlEntityId">URL Entity identifier</param>
         /// <returns>URL Entity</returns>
         public virtual Task<EntityUrl> GetEntityUrlById(string urlEntityId)
         {
@@ -116,7 +113,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <returns>Found URL Entity</returns>
         public virtual async Task<EntityUrl> GetBySlug(string slug)
         {
-            if (String.IsNullOrEmpty(slug))
+            if (string.IsNullOrEmpty(slug))
                 return null;
 
             slug = slug.ToLowerInvariant();
@@ -135,7 +132,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <returns>Found URL Entity</returns>
         public virtual async Task<EntityUrl> GetBySlugCached(string slug)
         {
-            if (String.IsNullOrEmpty(slug))
+            if (string.IsNullOrEmpty(slug))
                 return null;
 
             slug = slug.ToLowerInvariant();
@@ -151,13 +148,10 @@ namespace Grand.Business.Common.Services.Seo
                 return entityUrlForCaching;
             }
 
-            string key = string.Format(CacheKey.URLEntity_BY_SLUG_KEY, slug);
+            var key = string.Format(CacheKey.URLEntity_BY_SLUG_KEY, slug);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var urlEntity = await GetBySlug(slug);
-                if (urlEntity == null)
-                    return null;
-
                 return urlEntity;
             });
         }
@@ -197,7 +191,7 @@ namespace Grand.Business.Common.Services.Seo
         {
             if (_config.LoadAllUrlEntitiesOnStartup)
             {
-                string key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
+                var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
                 return await _cacheBase.GetAsync(key, async () =>
                 {
                     var source = await GetAllUrlEntityCached();
@@ -207,15 +201,13 @@ namespace Grand.Business.Common.Services.Seo
                                 ur.LanguageId == languageId &&
                                 ur.IsActive
                                 select ur.Slug;
-                    var slug = query.FirstOrDefault();
-                    if (slug == null)
-                        slug = "";
+                    var slug = query.FirstOrDefault() ?? "";
                     return slug;
                 });
             }
             else
             {
-                string key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
+                var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
                 return await _cacheBase.GetAsync(key, async () =>
                 {
 
@@ -226,9 +218,7 @@ namespace Grand.Business.Common.Services.Seo
                                 ur.LanguageId == languageId &&
                                 ur.IsActive
                                 select ur.Slug;
-                    var slug = await Task.FromResult(query.FirstOrDefault());
-                    if (slug == null)
-                        slug = "";
+                    var slug = await Task.FromResult(query.FirstOrDefault()) ?? "";
                     return slug;
                 });
             }
@@ -246,8 +236,8 @@ namespace Grand.Business.Common.Services.Seo
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            string entityId = entity.Id;
-            string entityName = typeof(T).Name;
+            var entityId = entity.Id;
+            var entityName = typeof(T).Name;
 
             var query = from ur in _urlEntityRepository.Table
                         where ur.EntityId == entityId &&
@@ -281,7 +271,7 @@ namespace Grand.Business.Common.Services.Seo
                         EntityName = entityName,
                         Slug = slug,
                         LanguageId = languageId,
-                        IsActive = true,
+                        IsActive = true
                     };
                     await InsertEntityUrl(entityUrl);
                 }
@@ -317,7 +307,7 @@ namespace Grand.Business.Common.Services.Seo
                             EntityName = entityName,
                             Slug = slug,
                             LanguageId = languageId,
-                            IsActive = true,
+                            IsActive = true
                         };
                         await InsertEntityUrl(entityUrl);
 

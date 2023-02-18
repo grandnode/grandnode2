@@ -1,5 +1,4 @@
 ﻿@model MerchandiseReturnDetailsModel
-@using Grand.Web.Models.Orders
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -81,7 +80,7 @@
                 </div>
             </div>
 
-            @if (!String.IsNullOrEmpty(Model.Comments))
+            @if (!string.IsNullOrEmpty(Model.Comments))
             {
                 <div class="comments">
                     <label class="col-form-label">@Loc["Account.CustomerMerchandiseReturns.Comments"] </label>
@@ -95,7 +94,7 @@
 
             @if (Model.ShowPickupDate)
             {
-                @if (Model.PickupDate != default(DateTime))
+                @if (Model.PickupDate != default)
                 {
                     <div class="d-inline-flex align-items-center w-100 my-3">
                         <b-icon class="mx-2" icon="calendar2-check" variant="info"></b-icon>
@@ -133,13 +132,13 @@
                                     @Loc["Order.Fax"]: @Model.PickupAddress.FaxNumber
                                 </li>
                             }
-                            @if (Model.PickupAddress.CompanyEnabled && !String.IsNullOrEmpty(Model.PickupAddress.Company))
+                            @if (Model.PickupAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.PickupAddress.Company))
                             {
                                 <li class="company">
                                     @Model.PickupAddress.Company
                                 </li>
                             }
-                            @if (Model.PickupAddress.VatNumberEnabled && !String.IsNullOrEmpty(Model.PickupAddress.VatNumber))
+                            @if (Model.PickupAddress.VatNumberEnabled && !string.IsNullOrEmpty(Model.PickupAddress.VatNumber))
                             {
                                 <li class="company">
                                     @Model.PickupAddress.VatNumber
@@ -151,7 +150,7 @@
                                     @Model.PickupAddress.Address1
                                 </li>
                             }
-                            @if (Model.PickupAddress.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.PickupAddress.Address2))
+                            @if (Model.PickupAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.PickupAddress.Address2))
                             {
                                 <li class="address2">
                                     @Model.PickupAddress.Address2
@@ -178,14 +177,14 @@
                                     }
                                 </li>
                             }
-                            @if (Model.PickupAddress.CountryEnabled && !String.IsNullOrEmpty(Model.PickupAddress.CountryName))
+                            @if (Model.PickupAddress.CountryEnabled && !string.IsNullOrEmpty(Model.PickupAddress.CountryName))
                             {
                                 <li class="country">
                                     @Model.PickupAddress.CountryName
                                 </li>
                             }
 
-                            @if (!String.IsNullOrEmpty(Model.PickupAddress.FormattedCustomAddressAttributes))
+                            @if (!string.IsNullOrEmpty(Model.PickupAddress.FormattedCustomAddressAttributes))
                             {
                                 <li class="custom-attributes-view">
                                     @Html.Raw(Model.PickupAddress.FormattedCustomAddressAttributes)

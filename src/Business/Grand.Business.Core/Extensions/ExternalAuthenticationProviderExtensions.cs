@@ -22,14 +22,7 @@ namespace Grand.Business.Core.Extensions
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            if (settings.ActiveAuthenticationMethodSystemNames == null)
-                return false;
-
-            foreach (string activeMethodSystemName in settings.ActiveAuthenticationMethodSystemNames)
-                if (method.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase))
-                    return true;
-
-            return false;
+            return settings.ActiveAuthenticationMethodSystemNames != null && settings.ActiveAuthenticationMethodSystemNames.Any(activeMethodSystemName => method.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

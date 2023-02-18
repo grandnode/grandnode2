@@ -21,12 +21,11 @@ namespace Grand.Web.Common.Menu
         public virtual async Task Load()
         {
             var adminSiteMaps = await _adminSiteMapService.GetSiteMap();
-            var sitemap = new SiteMapNode()
-            {
+            var sitemap = new SiteMapNode {
                 SystemName = "Home",
                 ResourceName = "Admin.Home",
                 ControllerName = "Home",
-                ActionName = "Overview",
+                ActionName = "Overview"
             };
             await PrepareRootNode(sitemap, adminSiteMaps);
         }
@@ -38,9 +37,9 @@ namespace Grand.Web.Common.Menu
             {
                 foreach (var item in adminSiteMaps)
                 {
-                    var mainsite = new SiteMapNode();
-                    siteMap.ChildNodes.Add(mainsite);
-                    await Iterate(mainsite, item);
+                    var mainSite = new SiteMapNode();
+                    siteMap.ChildNodes.Add(mainSite);
+                    await Iterate(mainSite, item);
                 }
             }
             RootNode = siteMap;
@@ -52,9 +51,9 @@ namespace Grand.Web.Common.Menu
 
             foreach (var item in siteMapNode.ChildNodes.OrderBy(x=>x.DisplayOrder))
             {
-                var mainsite = new SiteMapNode();
-                siteMap.ChildNodes.Add(mainsite);
-                await Iterate(mainsite, item);
+                var mainSite = new SiteMapNode();
+                siteMap.ChildNodes.Add(mainSite);
+                await Iterate(mainSite, item);
             }
         }
 

@@ -3,7 +3,7 @@ using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Orders
 {
-    public partial class ShipmentDetailsModel : BaseEntityModel
+    public class ShipmentDetailsModel : BaseEntityModel
     {
         public ShipmentDetailsModel()
         {
@@ -24,7 +24,7 @@ namespace Grand.Web.Models.Orders
 
 		#region Nested Classes
 
-        public partial class ShipmentItemModel : BaseEntityModel
+        public class ShipmentItemModel : BaseEntityModel
         {
             public string Sku { get; set; }
             public string ProductId { get; set; }
@@ -37,21 +37,21 @@ namespace Grand.Web.Models.Orders
             public int QuantityShipped { get; set; }
         }
 
-        public partial class ShipmentStatusEventModel : BaseModel
+        public class ShipmentStatusEventModel : BaseModel
         {
             public string EventName { get; set; }
             public string Location { get; set; }
             public string Country { get; set; }
             public DateTime? Date { get; set; }
         }
-        public partial class ShipmentNote : BaseEntityModel
+        public class ShipmentNote : BaseEntityModel
         {
             public bool HasDownload { get; set; }
             public string Note { get; set; }
             public DateTime CreatedOn { get; set; }
             public string ShipmentId { get; set; }
         }
-        public partial class OrderModel : BaseEntityModel
+        public class OrderModel : BaseEntityModel
         {
             public int OrderNumber { get; set; }
             public string OrderCode { get; set; }

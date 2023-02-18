@@ -101,7 +101,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             output.SuppressOutput();
 
             //disabled attribute
-            bool.TryParse(IsDisabled, out bool disabled);
+            bool.TryParse(IsDisabled, out var disabled);
             if (disabled)
             {
                 var d = new TagHelperAttribute("disabled", "disabled");
@@ -109,7 +109,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             }
 
             //required asterisk
-            bool.TryParse(IsRequired, out bool required);
+            bool.TryParse(IsRequired, out var required);
             if (required)
             {
                 output.PreElement.SetHtmlContent("<div class='input-group input-group-required'>");
@@ -121,7 +121,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             viewContextAware?.Contextualize(ViewContext);
 
             //add form-control class
-            bool.TryParse(RenderFormControlClass, out bool renderFormControlClass);
+            bool.TryParse(RenderFormControlClass, out var renderFormControlClass);
             object htmlAttributes = null;
             if (string.IsNullOrEmpty(RenderFormControlClass) && For.Metadata.ModelType.Name.Equals("String") || renderFormControlClass)
                 htmlAttributes = new { @class = "form-control k-input" };
@@ -177,7 +177,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
         {
             if (target == null)
             {
-                throw new ArgumentNullException("target", "The assignment target cannot be null.");
+                throw new ArgumentNullException(nameof(target), "The assignment target cannot be null.");
             }
 
             if (string.IsNullOrEmpty(fieldName))

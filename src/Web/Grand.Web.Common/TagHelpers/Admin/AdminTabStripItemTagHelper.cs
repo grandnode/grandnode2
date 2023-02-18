@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("tabstrip-item")]
-    public partial class AdminTabStripItemTagHelper : TagHelper
+    public class AdminTabStripItemTagHelper : TagHelper
     {
         [ViewContext]
         public ViewContext ViewContext { get; set; }
@@ -18,8 +18,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         private int GetSelectedTabIndex()
         {
-            int index = 0;
-            string dataKey = "Grand.selected-tab-index";
+            var index = 0;
+            var dataKey = "Grand.selected-tab-index";
             if (this.ViewContext.ViewData[dataKey] is int)
             {
                 index = (int)this.ViewContext.ViewData[dataKey];
@@ -37,7 +37,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            var content = await output.GetChildContentAsync();
+            _ = await output.GetChildContentAsync();
             output.TagName = "li";
 
             var selectedIndex = GetSelectedTabIndex();

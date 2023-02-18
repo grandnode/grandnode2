@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.ViewComponents
+namespace Grand.Web.Components
 {
     public class CategoryNavigationViewComponent : BaseViewComponent
     {
@@ -21,7 +21,7 @@ namespace Grand.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(string currentCategoryId, string currentProductId)
         {
-            var model = await _mediator.Send(new GetCategoryNavigation() {
+            var model = await _mediator.Send(new GetCategoryNavigation {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,

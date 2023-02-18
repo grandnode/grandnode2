@@ -6,20 +6,20 @@ namespace Grand.Business.Core.Interfaces.Common.Seo
     /// <summary>
     /// Provides information about URL Entity
     /// </summary>
-    public partial interface ISlugService
+    public interface ISlugService
     {
        
         /// <summary>
         /// Gets an entity url
         /// </summary>
-        /// <param name="entityUrlId">URL entity identifier</param>
+        /// <param name="urlEntityId">URL entity identifier</param>
         /// <returns>URL Entity</returns>
         Task<EntityUrl> GetEntityUrlById(string urlEntityId);
 
         /// <summary>
         /// Inserts an URL Entity
         /// </summary>
-        /// <param name="entityUrl">URL Entity</param>
+        /// <param name="urlEntity">URL Entity</param>
         Task InsertEntityUrl(EntityUrl urlEntity);
 
         /// <summary>

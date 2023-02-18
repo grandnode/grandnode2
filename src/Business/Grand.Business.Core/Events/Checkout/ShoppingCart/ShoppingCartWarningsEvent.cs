@@ -18,12 +18,11 @@ namespace Grand.Business.Core.Events.Checkout.ShoppingCart
             _checkoutAttributes = checkoutAttributes;
             _validateCheckoutAttributes = validateCheckoutAttributes;
         }
-        public IList<T> Warnings { get { return _warnings; } }
-        public IList<U> ShoppingCartItems { get { return _shoppingCartItems; } }
+        public IList<T> Warnings => _warnings;
+        public IList<U> ShoppingCartItems => _shoppingCartItems;
 
-        public IList<CustomAttribute> CheckoutAttributes { get { return _checkoutAttributes; } }
+        public IList<CustomAttribute> CheckoutAttributes => _checkoutAttributes;
 
-        public bool ValidateCheckoutAttributes { get { return _validateCheckoutAttributes; } }
-
+        public bool ValidateCheckoutAttributes => _validateCheckoutAttributes;
     }
 }

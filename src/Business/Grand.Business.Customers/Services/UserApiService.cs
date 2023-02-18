@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Grand.Business.Customers.Services
 {
-    public partial class UserApiService : IUserApiService
+    public class UserApiService : IUserApiService
     {
         #region Fields
 
@@ -33,10 +33,10 @@ namespace Grand.Business.Customers.Services
         /// <summary>
         /// Get user api by email
         /// </summary>
-        /// <param name="id">id</param>
+        /// <param name="email">email</param>
         public virtual async Task<UserApi> GetUserByEmail(string email)
         {
-            return await Task.FromResult(_userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefault());
+            return await Task.FromResult(_userRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant()));
         }
 
         /// <summary>
@@ -82,7 +82,6 @@ namespace Grand.Business.Customers.Services
         /// <param name="email"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
-        /// <returns>PagedList<UserApi></returns>
         public virtual async Task<IPagedList<UserApi>> GetUsers(string email = "", int pageIndex = 0, int pageSize = 2147483647)
         {
             var query = from p in _userRepository.Table

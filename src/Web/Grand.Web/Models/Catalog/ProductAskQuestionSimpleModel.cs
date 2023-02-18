@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class ProductAskQuestionSimpleModel : BaseEntityModel
+    public class ProductAskQuestionSimpleModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Products.AskQuestion.Email")]
         public string AskQuestionEmail { get; set; }

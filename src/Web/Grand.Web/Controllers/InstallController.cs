@@ -1,12 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
+﻿using Grand.Business.Core.Commands.System.Security;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Commands.System.Security;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
+using Grand.Domain.Logging;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Migrations;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
@@ -20,7 +19,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Grand.Web.Controllers
 {
-    public partial class InstallController : Controller
+    public class InstallController : Controller
     {
         #region Fields
 
@@ -61,29 +60,21 @@ namespace Grand.Web.Controllers
         {
             HttpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out var language);
 
-            if (string.IsNullOrEmpty(language))
-            {
-                //find by current browser culture
-                if (HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages))
-                {
-                    var userLanguage = userLanguages.FirstOrDefault().Return(l => l.Split(',')[0], string.Empty);
-                    if (!string.IsNullOrEmpty(userLanguage))
-                    {
-                        return userLanguage;
-                    }
-                }
-            }
-
-            return language;
+            if (!string.IsNullOrEmpty(language)) return language;
+            //find by current browser culture
+            if (!HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages)) return language;
+            var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
+            return !string.IsNullOrEmpty(userLanguage) ? userLanguage : language;
         }
-        protected InstallModel PrepareModel(InstallModel model)
+
+        private InstallModel PrepareModel(InstallModel model)
         {
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
 
             model ??= new InstallModel {
                 AdminEmail = "admin@yourstore.com",
                 InstallSampleData = false,
-                DatabaseConnectionString = "",
+                DatabaseConnectionString = ""
             };
 
             model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
@@ -105,7 +96,7 @@ namespace Grand.Web.Controllers
                 model.AvailableLanguages.Add(new SelectListItem {
                     Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
                     Text = lang.Name,
-                    Selected = selected,
+                    Selected = selected
                 });
             }
             //prepare collation list
@@ -114,7 +105,7 @@ namespace Grand.Web.Controllers
                 model.AvailableCollation.Add(new SelectListItem {
                     Value = col.Value,
                     Text = col.Name,
-                    Selected = locService.GetCurrentLanguage().Code == col.Value,
+                    Selected = locService.GetCurrentLanguage().Code == col.Value
                 });
             }
 
@@ -126,16 +117,11 @@ namespace Grand.Web.Controllers
             if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
-            var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
-
-            var installed = await _cacheBase.GetAsync("Installed", async () => { return await Task.FromResult(false); });
-            if (installed)
-                return View(new InstallModel() { Installed = true });
-
-            return View(PrepareModel(null));
+            var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
+            return View(installed ? new InstallModel { Installed = true } : PrepareModel(null));
         }
 
-        protected string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
+        private string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
         {
             var connectionString = "";
 
@@ -156,7 +142,7 @@ namespace Grand.Web.Controllers
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
 
                     var userNameandPassword = "";
-                    if (!(string.IsNullOrEmpty(model.MongoDBUsername)))
+                    if (!string.IsNullOrEmpty(model.MongoDBUsername))
                         userNameandPassword = model.MongoDBUsername + ":" + model.MongoDBPassword + "@";
 
                     connectionString = "mongodb://" + userNameandPassword + model.MongoDBServerName + "/" + model.MongoDBDatabaseName;
@@ -222,69 +208,67 @@ namespace Grand.Web.Controllers
 
             await CheckConnectionString(locService, connectionString, model);
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(PrepareModel(model));
+            try
             {
-                try
+                //save settings
+                var settings = new DataSettings {
+                    ConnectionString = connectionString,
+                    DbProvider = model.DataProvider
+                };
+
+                await DataSettingsManager.SaveSettings(settings);
+                DataSettingsManager.LoadSettings(reloadSettings: true);
+
+                var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
+                await installationService.InstallData(
+                    HttpContext.Request.Scheme, HttpContext.Request.Host,
+                    model.AdminEmail, model.AdminPassword, model.Collation,
+                    model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
+
+                //reset cache
+                DataSettingsManager.ResetCache();
+
+                PluginManager.ClearPlugins();
+
+                var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
+
+                foreach (var pluginInfo in pluginsInfo)
                 {
-                    //save settings
-                    var settings = new DataSettings {
-                        ConnectionString = connectionString,
-                        DbProvider = model.DataProvider
-                    };
-
-                    await DataSettingsManager.SaveSettings(settings);
-                    DataSettingsManager.LoadSettings(reloadSettings: true);
-
-                    var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
-                    await installationService.InstallData(
-                        HttpContext.Request.Scheme, HttpContext.Request.Host,
-                        model.AdminEmail, model.AdminPassword, model.Collation,
-                        model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
-
-                    //reset cache
-                    DataSettingsManager.ResetCache();
-
-                    PluginManager.ClearPlugins();
-
-                    var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
-
-                    foreach (var pluginInfo in pluginsInfo)
+                    try
                     {
-                        try
-                        {
-                            var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
-                            await plugin.Install();
-                        }
-                        catch (Exception ex)
-                        {
-                            var _logger = _serviceProvider.GetRequiredService<ILogger>();
-                            await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
-                                ex.Message + " " + ex.InnerException?.Message);
-                        }
+                        var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                        await plugin.Install();
                     }
-
-                    //register default permissions
-                    var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
-                    await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = permissionProvider });
-
-                    //install migration process - install only header
-                    var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
-                    migrationProcess.InstallApplication();
-
-                    //restart application
-                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
-                    return View(new InstallModel() { Installed = true });
+                    catch (Exception ex)
+                    {
+                        var _logger = _serviceProvider.GetRequiredService<ILogger>();
+                        await _logger.InsertLog(LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
+                            ex.Message + " " + ex.InnerException?.Message);
+                    }
                 }
-                catch (Exception exception)
-                {
-                    //reset cache
-                    DataSettingsManager.ResetCache();
-                    await _cacheBase.Clear();
 
-                    System.IO.File.Delete(CommonPath.SettingsPath);
+                //register default permissions
+                var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+                await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
 
-                    ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
-                }
+                //install migration process - install only header
+                var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
+                migrationProcess.InstallApplication();
+
+                //restart application
+                await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
+                return View(new InstallModel { Installed = true });
+            }
+            catch (Exception exception)
+            {
+                //reset cache
+                DataSettingsManager.ResetCache();
+                await _cacheBase.Clear();
+
+                System.IO.File.Delete(CommonPath.SettingsPath);
+
+                ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
             }
             return View(PrepareModel(model));
         }

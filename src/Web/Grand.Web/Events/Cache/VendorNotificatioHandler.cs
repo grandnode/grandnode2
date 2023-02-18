@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure.Caching;
-using Grand.Domain.Vendors;
+﻿using Grand.Domain.Vendors;
+using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;
 

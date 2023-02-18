@@ -537,7 +537,7 @@ var Reservation = {
     },
 
     onDatePickerSelect: function onDatePickerSelect() {
-        var form = document.querySelector('#product-details-form');
+        var form = document.querySelector('#product-details-form-'+Reservation.productId);
         var data = new FormData(form);
         axios({
             url: Reservation.ajaxUrl2,

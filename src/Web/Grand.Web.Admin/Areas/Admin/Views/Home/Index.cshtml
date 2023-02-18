@@ -114,7 +114,7 @@
                                 </div>
                                 <div class="x_content-body">
                                     <div class="partialContents" data-url="@Url.Action("DashboardActivity", new { area = Constants.AreaAdmin })">
-                                        <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                        <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                                     </div>
                                 </div>
                             </div>
@@ -139,7 +139,7 @@
                         </div>
                         <div class="x_content">
                             <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardGeneralData", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@
                         </div>
                         <div class="x_content">
                             <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataBySource", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                             </div>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                         </div>
                         <div class="x_content">
                             <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByExit", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                             </div>
                         </div>
                     </div>
@@ -210,7 +210,7 @@
                         </div>
                         <div class="x_content">
                             <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByDevice", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                             </div>
                         </div>
                     </div>
@@ -225,7 +225,7 @@
                         </div>
                         <div class="x_content">
                             <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByLocalization", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
                             </div>
                         </div>
                     </div>
@@ -368,7 +368,7 @@
         }
 
         $(".Dashboard_GoogleAnalytics_Data").each(function (index, item) {
-            $(item).html('<img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...');
+            $(item).html('<img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...');
             var url = $(item).data("url") + '?startDate=' + $('#dashboard-report-range').data('daterangepicker').startDate.format('YYYY-MM-DD') + '&endDate=' + $('#dashboard-report-range').data('daterangepicker').endDate.format('YYYY-MM-DD');
             if (url && url.length > 0) {
                 $(item).load(url);

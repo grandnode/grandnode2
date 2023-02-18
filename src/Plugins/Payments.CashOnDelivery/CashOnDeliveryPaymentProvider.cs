@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Utilities.Checkout;
@@ -110,20 +109,20 @@ namespace Payments.CashOnDelivery
             return result;
         }
 
-        public async Task<IList<string>> ValidatePaymentForm(IFormCollection form)
+        public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
         {
             var warnings = new List<string>();
             return await Task.FromResult(warnings);
         }
 
-        public async Task<PaymentTransaction> SavePaymentInfo(IFormCollection form)
+        public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
         {
             return await Task.FromResult<PaymentTransaction>(null);
         }
 
-        public void GetPublicViewComponent(out string viewComponentName)
+        public Task<string> GetControllerRouteName()
         {
-            viewComponentName = "PaymentCashOnDelivery";
+            return Task.FromResult("Plugin.PaymentCashOnDelivery");
         }
 
         public async Task<CapturePaymentResult> Capture(PaymentTransaction paymentTransaction)

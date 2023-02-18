@@ -28,12 +28,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
             var warehouse = await _mediator.Send(new GetGenericQuery<WarehouseDto, Domain.Shipping.Warehouse>(key));
-            if (!warehouse.Any())
-                return NotFound();
+            if (!warehouse.Any()) return NotFound();
 
             return Ok(warehouse.FirstOrDefault());
         }
@@ -45,8 +43,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<WarehouseDto, Domain.Shipping.Warehouse>()));
         }

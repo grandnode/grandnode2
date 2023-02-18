@@ -55,7 +55,7 @@ namespace Grand.Web.Common.Filters
             /// <summary>
             /// Called early in the filter pipeline to confirm request is authorized
             /// </summary>
-            /// <param name="filterContext">Authorization filter context</param>
+            /// <param name="context">Authorization filter context</param>
             public Task OnAuthorizationAsync(AuthorizationFilterContext context)
             {
                 //ignore filter (the action available even when navigation is not allowed)

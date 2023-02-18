@@ -6,12 +6,12 @@ namespace Grand.Business.Core.Interfaces.Marketing.Customers
     /// <summary>
     /// Product tag service interface
     /// </summary>
-    public partial interface ICustomerTagService
+    public interface ICustomerTagService
     {
         /// <summary>
         /// Delete a customer tag
         /// </summary>
-        /// <param name="productTag">Customer tag</param>
+        /// <param name="customerTag">Customer tag</param>
         Task DeleteCustomerTag(CustomerTag customerTag);
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Customers
         /// <summary>
         /// Updates the customer tag
         /// </summary>
-        /// <param name="productTag">Product tag</param>
+        /// <param name="customerTag">Customer tag</param>
         Task UpdateCustomerTag(CustomerTag customerTag);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Customers
         /// <summary>
         /// Gets customer tag product
         /// </summary>
-        /// <param name="Id">id</param>
+        /// <param name="id">id</param>
         /// <returns>Customer tag product</returns>
         Task<CustomerTagProduct> GetCustomerTagProductById(string id);
 

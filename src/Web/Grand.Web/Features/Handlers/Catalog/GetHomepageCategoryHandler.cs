@@ -1,16 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -38,7 +38,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CategoryModel>> Handle(GetHomepageCategory request, CancellationToken cancellationToken)
         {
-            string categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
+            var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
                             string.Join(",", request.Customer.GetCustomerGroupIds()),
                             request.Store.Id,
                             request.Language.Id);
@@ -46,7 +46,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
             {
                 var cat = new List<CategoryModel>();
-                foreach (var x in (await _categoryService.GetAllCategoriesDisplayedOnHomePage()))
+                foreach (var x in await _categoryService.GetAllCategoriesDisplayedOnHomePage())
                 {
                     var catModel = x.ToModel(request.Language);
                     //prepare picture model
@@ -57,16 +57,16 @@ namespace Grand.Web.Features.Handlers.Catalog
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
                         Style = picture?.Style,
-                        ExtraField = picture?.ExtraField
+                        ExtraField = picture?.ExtraField,
+                        //"title" attribute
+                        Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(z => z.TitleAttribute, request.Language.Id)) ?
+                            picture.GetTranslation(z => z.TitleAttribute, request.Language.Id) :
+                            string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name),
+                        //"alt" attribute
+                        AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(z => z.AltAttribute, request.Language.Id)) ?
+                            picture.GetTranslation(z => z.AltAttribute, request.Language.Id) :
+                            string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name)
                     };
-                    //"title" attribute
-                    catModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
-                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name);
-                    //"alt" attribute
-                    catModel.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
-                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name);
 
                     cat.Add(catModel);
                 }

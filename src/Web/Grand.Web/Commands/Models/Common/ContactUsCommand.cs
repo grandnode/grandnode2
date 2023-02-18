@@ -3,7 +3,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Commands.Models.Common
 {
@@ -13,6 +12,5 @@ namespace Grand.Web.Commands.Models.Common
         public Store Store { get; set; }
         public Language Language { get; set; }
         public ContactUsModel Model { get; set; }
-        public IFormCollection Form { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Grand.Api.Filters;
+using Grand.Api.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace Grand.Api.Controllers
     [Route("odata/[controller]")]
     [ApiExplorerSettings(IgnoreApi = false)]
     [AuthorizeApiAdmin]
+    [ServiceFilter(typeof(ModelValidationAttribute))]
     public abstract partial class BaseODataController : ODataController
     {
         public override ForbidResult Forbid()

@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class AmazonConfig
+    public class AmazonConfig
     {
         /// <summary>
         /// Amazon Access Key

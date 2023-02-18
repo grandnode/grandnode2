@@ -17,7 +17,7 @@ namespace Grand.Business.Catalog.Services.Categories
     /// <summary>
     /// Category service
     /// </summary>
-    public partial class CategoryService : ICategoryService
+    public class CategoryService : ICategoryService
     {
         #region Fields
 
@@ -37,6 +37,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="categoryRepository">Category repository</param>
         /// <param name="workContext">Work context</param>
+        /// <param name="mediator">Mediator</param>
         /// <param name="aclService">ACL service</param>
         public CategoryService(ICacheBase cacheBase,
             IRepository<Category> categoryRepository,
@@ -60,6 +61,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// </summary>
         /// <param name="parentId">Parent Id</param>
         /// <param name="categoryName">Category name</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -72,13 +74,13 @@ namespace Grand.Business.Catalog.Services.Categories
 
             if (!showHidden)
                 query = query.Where(c => c.Published);
-            if (!String.IsNullOrWhiteSpace(categoryName))
+            if (!string.IsNullOrWhiteSpace(categoryName))
                 query = query.Where(m => m.Name.ToLowerInvariant().Contains(categoryName.ToLowerInvariant()));
 
             if (parentId != null)
                 query = query.Where(m => m.ParentCategoryId == parentId);
 
-            if ((!CommonHelper.IgnoreAcl || (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!showHidden && !CommonHelper.IgnoreAcl)
                 {
@@ -88,7 +90,7 @@ namespace Grand.Business.Catalog.Services.Categories
                             where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                             select p;
                 }
-                if (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
                 {
                     //Limited to stores rule
                     query = from p in query
@@ -115,23 +117,28 @@ namespace Grand.Business.Catalog.Services.Categories
 
             query = query.Where(c => c.Published && c.IncludeInMenu);
 
-            if ((!CommonHelper.IgnoreAcl || (!String.IsNullOrEmpty(_workContext.CurrentStore.Id) && !CommonHelper.IgnoreStoreLimitations)))
+            switch (CommonHelper.IgnoreAcl)
             {
-                if (!CommonHelper.IgnoreAcl)
+                case true when
+                    string.IsNullOrEmpty(_workContext.CurrentStore.Id) || CommonHelper.IgnoreStoreLimitations:
+                    return await Task.FromResult(query.ToList());
+                case false:
                 {
                     //Limited to customer group (access control list)
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
-                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                            select p;
+                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                        select p;
+                    break;
                 }
-                if (!String.IsNullOrEmpty(_workContext.CurrentStore.Id) && !CommonHelper.IgnoreStoreLimitations)
-                {
-                    //Limited to stores rule
-                    query = from p in query
-                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
-                            select p;
-                }
+            }
+
+            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id) && !CommonHelper.IgnoreStoreLimitations)
+            {
+                //Limited to stores rule
+                query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    select p;
             }
             return await Task.FromResult(query.ToList());
         }
@@ -148,7 +155,7 @@ namespace Grand.Business.Catalog.Services.Categories
         {
             var storeId = _workContext.CurrentStore.Id;
             var customer = _workContext.CurrentCustomer;
-            string key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden, customer.Id, storeId, includeAllLevels);
+            var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden, customer.Id, storeId, includeAllLevels);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
@@ -157,7 +164,7 @@ namespace Grand.Business.Catalog.Services.Categories
 
                 if (!showHidden && (!CommonHelper.IgnoreAcl || !CommonHelper.IgnoreStoreLimitations))
                 {
-                    if (!showHidden && !CommonHelper.IgnoreAcl)
+                    if (!CommonHelper.IgnoreAcl)
                     {
                         //Limited to customer groups rules
                         var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
@@ -175,16 +182,14 @@ namespace Grand.Business.Catalog.Services.Categories
 
                 }
                 var categories = query.OrderBy(x => x.DisplayOrder).ToList();
-                if (includeAllLevels)
+                if (!includeAllLevels) return categories;
+                var childCategories = new List<Category>();
+                //add child levels
+                foreach (var category in categories)
                 {
-                    var childCategories = new List<Category>();
-                    //add child levels
-                    foreach (var category in categories)
-                    {
-                        childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, includeAllLevels));
-                    }
-                    categories.AddRange(childCategories);
+                    childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
                 }
+                categories.AddRange(childCategories);
                 return categories;
             });
         }
@@ -234,7 +239,6 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <summary>
         /// Gets all categories displayed in the search box
         /// </summary>
-        /// <param name="showHidden">A value that indicates if it should shows hidden records<</param>
         /// <returns>Categories</returns>
         public virtual async Task<IList<Category>> GetAllCategoriesSearchBox()
         {
@@ -253,9 +257,6 @@ namespace Grand.Business.Catalog.Services.Categories
         /// Get category breadcrumb 
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="categoryService">Category service</param>
-        /// <param name="aclService">ACL service</param>
-        /// <param name="storeLinkService">Store link service</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
         /// <returns>Category breadcrumb </returns>
         public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category category, bool showHidden = false)
@@ -323,15 +324,15 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Formatted breadcrumb</returns>
         public virtual async Task<string> GetFormattedBreadCrumb(Category category, string separator = ">>", string languageId = "")
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             var breadcrumb = await GetCategoryBreadCrumb(category, true);
-            for (int i = 0; i <= breadcrumb.Count - 1; i++)
+            for (var i = 0; i <= breadcrumb.Count - 1; i++)
             {
                 var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
-                result = String.IsNullOrEmpty(result)
+                result = string.IsNullOrEmpty(result)
                     ? categoryName
-                    : string.Format("{0} {1} {2}", result, separator, categoryName);
+                    : $"{result} {separator} {categoryName}";
             }
 
             return result;
@@ -348,15 +349,15 @@ namespace Grand.Business.Catalog.Services.Categories
         public virtual string GetFormattedBreadCrumb(Category category,
             IList<Category> allCategories, string separator = ">>", string languageId = "")
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             var breadcrumb = GetCategoryBreadCrumb(category, allCategories, true);
-            for (int i = 0; i <= breadcrumb.Count - 1; i++)
+            for (var i = 0; i <= breadcrumb.Count - 1; i++)
             {
                 var categoryName = breadcrumb[i].GetTranslation(x => x.Name, languageId);
-                result = String.IsNullOrEmpty(result)
+                result = string.IsNullOrEmpty(result)
                     ? categoryName
-                    : string.Format("{0} {1} {2}", result, separator, categoryName);
+                    : $"{result} {separator} {categoryName}";
             }
 
             return result;
@@ -382,7 +383,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Category</returns>
         public virtual async Task<Category> GetCategoryById(string categoryId)
         {
-            string key = string.Format(CacheKey.CATEGORIES_BY_ID_KEY, categoryId);
+            var key = string.Format(CacheKey.CATEGORIES_BY_ID_KEY, categoryId);
             return await _cacheBase.GetAsync(key, () => _categoryRepository.GetByIdAsync(categoryId));
         }
 

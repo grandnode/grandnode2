@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Authentication
     /// <summary>
     /// External authentication service
     /// </summary>
-    public partial interface IExternalAuthenticationService
+    public interface IExternalAuthenticationService
     {
         #region External authentication methods
 
@@ -76,7 +76,7 @@ namespace Grand.Business.Core.Interfaces.Authentication
         /// <summary>
         /// Delete the external authentication
         /// </summary>
-        /// <param name="externalAuthenticationRecord">External authentication</param>
+        /// <param name="externalAuthentication">External authentication</param>
         Task DeleteExternalAuthentication(ExternalAuthentication externalAuthentication);
     }
 }

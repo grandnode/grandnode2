@@ -25,12 +25,8 @@ namespace Grand.Business.Core.Extensions
 
         private static Task FilteredLog(ILogger logger, LogLevel level, string message, Exception exception = null, Customer customer = null)
         {
-            if (logger.IsEnabled(level))
-            {
-                var fullMessage = exception == null ? string.Empty : exception.ToString();
-                return logger.InsertLog(level, message, fullMessage, customer);
-            }
-            return Task.CompletedTask;
+            var fullMessage = exception == null ? string.Empty : exception.ToString();
+            return logger.InsertLog(level, message, fullMessage, customer);
         }
     }
 }

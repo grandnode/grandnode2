@@ -20,7 +20,7 @@
             <div class="list-group">
                 @foreach (var category in Model.Categories)
                 {
-                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Category", new { SeName = category.SeName })">@category.Name</a>
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Category", new { category.SeName })">@category.Name</a>
                 }
             </div>
         </div>
@@ -61,7 +61,7 @@
             <div class="list-group">
                 @foreach (var item in Model.BlogPosts)
                 {
-                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})">@item.Title</a>
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("BlogPost", new { item.SeName})">@item.Title</a>
                 }
             </div>
         </div>
@@ -73,7 +73,7 @@
             <div class="list-group">
                 @foreach (var item in Model.KnowledgebaseArticles)
                 {
-                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("KnowledgebaseArticle", new {SeName = item.SeName})">@item.Name</a>
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("KnowledgebaseArticle", new { item.SeName})">@item.Name</a>
                 }
             </div>
         </div>
@@ -85,7 +85,7 @@
             <div class="list-group">
                 @foreach (var brand in Model.Brands)
                 {
-                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Brand", new { SeName = brand.SeName })">@brand.Name</a>
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Brand", new { brand.SeName })">@brand.Name</a>
                 }
             </div>
         </div>
@@ -97,7 +97,7 @@
             <div class="list-group sitemap-products-group">
                 @foreach (var product in Model.Products)
                 {
-                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Product", new { product.SeName })">@product.Name</a>
                 }
             </div>
         </div>

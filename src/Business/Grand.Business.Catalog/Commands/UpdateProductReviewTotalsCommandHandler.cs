@@ -30,13 +30,13 @@ namespace Grand.Business.Catalog.Commands.Handlers
             if (request.Product == null)
                 throw new ArgumentNullException(nameof(request.Product));
 
-            int approvedRatingSum = 0;
-            int notApprovedRatingSum = 0;
-            int approvedTotalReviews = 0;
-            int notApprovedTotalReviews = 0;
+            var approvedRatingSum = 0;
+            var notApprovedRatingSum = 0;
+            var approvedTotalReviews = 0;
+            var notApprovedTotalReviews = 0;
 
             var reviews = await _productReviewService.GetAllProductReviews(null, null, null, null, null,
-                null, request.Product.Id, 0, int.MaxValue);
+                null, request.Product.Id);
 
             foreach (var pr in reviews)
             {

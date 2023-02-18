@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Customer attribute parser interface
     /// </summary>
-    public partial interface ICustomerAttributeParser
+    public interface ICustomerAttributeParser
     {
         /// <summary>
         /// Gets selected customer attributes
@@ -26,7 +26,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="ca">Customer attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
@@ -35,7 +35,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Validates customer attributes
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Warnings</returns>
         Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes);
 
@@ -44,10 +44,10 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// </summary>
         /// <param name="language">Language</param>
         /// <param name="customAttributes">Attributes</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Separator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <returns>Attributes</returns>
-        Task<string> FormatAttributes(Language language, IList<CustomAttribute> customAttributes, string serapator = "<br />", bool htmlEncode = true);
+        Task<string> FormatAttributes(Language language, IList<CustomAttribute> customAttributes, string separator = "<br />", bool htmlEncode = true);
 
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IMessageBus : IMessagePublisher, IMessageSubscriber
     {
-        Task OnSubscriptionChanged(IMessageEvent message);
+        void OnSubscriptionChanged(IMessageEvent message);
     }
 }

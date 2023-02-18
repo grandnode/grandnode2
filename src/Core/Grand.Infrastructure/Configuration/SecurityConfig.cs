@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class SecurityConfig
+    public class SecurityConfig
     {
         /// <summary>
         /// Gets or sets a value indicating whether to use Forwards proxied headers onto current request
@@ -54,5 +54,10 @@
 
         public int HttpsRedirectionRedirect { get; set; }
         public int? HttpsRedirectionHttpsPort { get; set; }
+
+        /// <summary>
+        /// When enabled, allowing Razor files to be updated if they're edited.
+        /// </summary>
+        public bool EnableRuntimeCompilation { get; set; }
     }
 }

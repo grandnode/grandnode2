@@ -11,7 +11,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
     /// <summary>
     /// Gift voucher service
     /// </summary>
-    public partial class GiftVoucherService : IGiftVoucherService
+    public class GiftVoucherService : IGiftVoucherService
     {
         #region Fields
 
@@ -51,11 +51,11 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
         /// <summary>
         /// Gets all gift vouchers
         /// </summary>
-        /// <param name="purchasedWithOrderId">Associated order ID; null to load all records</param>
+        /// <param name="purchasedWithOrderItemId">Associated order ID; null to load all records</param>
         /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
         /// <param name="isGiftVoucherActivated">Value indicating whether gift voucher is activated; null to load all records</param>
-        /// <param name="giftVoucherCouponCode">Gift voucher coupon code; nullto load all records</param>
+        /// <param name="giftVoucherCouponCode">Gift voucher coupon code; null to load all records</param>
         /// <param name="recipientName">Recipient name; null to load all records</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
             string recipientName = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var model = new GetGiftVoucherQuery() {
+            var model = new GetGiftVoucherQuery {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 Code = giftVoucherCouponCode,

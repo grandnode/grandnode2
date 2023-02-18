@@ -7,7 +7,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task for deleting guest customers
     /// </summary>
-    public partial class DeleteGuestsScheduleTask : IScheduleTask
+    public class DeleteGuestsScheduleTask : IScheduleTask
     {
         private readonly ICustomerService _customerService;
         private readonly SystemSettings _systemSettings;

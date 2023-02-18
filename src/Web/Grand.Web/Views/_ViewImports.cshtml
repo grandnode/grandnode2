@@ -5,6 +5,7 @@
 @addTagHelper *, Grand.Web
 @addTagHelper *, MiniProfiler.AspNetCore.Mvc
 
+@using System.Text;
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Microsoft.AspNetCore.Mvc.ViewFeatures
@@ -40,5 +41,6 @@
 @using Grand.Domain.Seo
 @using Grand.Domain.Stores
 @using Grand.Infrastructure
+@using Grand.Web.Common.Localization
 
-@inject Grand.Web.Common.Localization.LocService Loc
+@inject LocService Loc

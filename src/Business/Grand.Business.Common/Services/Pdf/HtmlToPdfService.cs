@@ -5,7 +5,6 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
-using HtmlRendererCore.PdfSharp;
 
 namespace Grand.Business.Common.Services.Pdf
 {
@@ -14,8 +13,8 @@ namespace Grand.Business.Common.Services.Pdf
     /// </summary>
     public class HtmlToPdfService : IPdfService
     {
-        private const string _orderTemaplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
-        private const string _shipmentsTemaplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
+        private const string OrderTemplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
+        private const string ShipmentsTemplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
 
         private readonly IViewRenderService _viewRenderService;
         private readonly ILanguageService _languageService;
@@ -31,17 +30,8 @@ namespace Grand.Business.Common.Services.Pdf
             _storeFilesContext = storeFilesContext;
         }
 
-        protected PdfGenerateConfig PdfConfig()
-        {
-            var config = new PdfGenerateConfig {
-                PageSize = PdfSharpCore.PageSize.A4
-            };
-            config.SetMargins(20);
-            config.PageOrientation = PdfSharpCore.PageOrientation.Portrait;
-            return config;
-        }
-
-        public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "")
+        public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
+            string vendorId = "")
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -49,9 +39,11 @@ namespace Grand.Business.Common.Services.Pdf
             if (orders == null)
                 throw new ArgumentNullException(nameof(orders));
 
-            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(_orderTemaplate, new(orders, vendorId));
-            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
-            pdf.Save(stream);
+            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate,
+                new(orders, vendorId));
+            TextReader sr = new StringReader(html);
+            using var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent);
+            doc.SaveAsPDF(stream);
         }
 
         public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
@@ -59,23 +51,23 @@ namespace Grand.Business.Common.Services.Pdf
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            var fileName = string.Format("order_{0}_{1}.pdf", order.OrderGuid, CommonHelper.GenerateRandomDigitCode(4));
+            var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}.pdf";
 
             var dir = CommonPath.WebMapPath("assets/files/exportimport");
+            if (dir == null)
+                throw new ArgumentNullException(nameof(dir));
+
             if (!System.IO.Directory.Exists(dir))
             {
                 System.IO.Directory.CreateDirectory(dir);
             }
 
             var filePath = Path.Combine(dir, fileName);
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                var orders = new List<Order>
-                {
-                    order
-                };
-                await PrintOrdersToPdf(fileStream, orders, languageId, vendorId);
-            }
+            await using var fileStream = new FileStream(filePath, FileMode.Create);
+            var orders = new List<Order> {
+                order
+            };
+            await PrintOrdersToPdf(fileStream, orders, languageId, vendorId);
             return filePath;
         }
 
@@ -89,11 +81,12 @@ namespace Grand.Business.Common.Services.Pdf
 
             var lang = await _languageService.GetLanguageById(languageId);
             if (lang == null)
-                throw new ArgumentException(string.Format("Cannot load language. ID={0}", languageId));
+                throw new ArgumentException($"Cannot load language. ID={languageId}");
 
-            var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(_shipmentsTemaplate, shipments);
-            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
-            pdf.Save(stream);
+            var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(ShipmentsTemplate, shipments);
+            TextReader sr = new StringReader(html);
+            using var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent);
+            doc.SaveAsPDF(stream);
         }
 
         public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")
@@ -101,30 +94,23 @@ namespace Grand.Business.Common.Services.Pdf
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            string fileName = string.Format("order_{0}_{1}", order.OrderGuid, CommonHelper.GenerateRandomDigitCode(4));
-            string downloadId = string.Empty;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                var orders = new List<Order>
-                {
-                    order
-                };
-                await PrintOrdersToPdf(ms, orders, languageId, vendorId);
-                var download = new Download {
-                    Filename = fileName,
-                    Extension = ".pdf",
-                    ContentType = "application/pdf",
-                };
+            var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}";
+            using MemoryStream ms = new MemoryStream();
+            var orders = new List<Order> {
+                order
+            };
+            await PrintOrdersToPdf(ms, orders, languageId, vendorId);
+            var download = new Download {
+                Filename = fileName,
+                Extension = ".pdf",
+                ContentType = "application/pdf",
+            };
 
-                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytes(download.Filename, ms.ToArray());
-                await _downloadRepository.InsertAsync(download);
+            download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytes(download.Filename, ms.ToArray());
+            await _downloadRepository.InsertAsync(download);
 
-                //TODO
-                //await _mediator.EntityInserted(download);
-                downloadId = download.Id;
-            }
-            return downloadId;
+            //await _mediator.EntityInserted(download);
+            return download.Id;
         }
     }
-
 }

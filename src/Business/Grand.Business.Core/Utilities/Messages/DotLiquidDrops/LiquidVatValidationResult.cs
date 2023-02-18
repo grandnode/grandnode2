@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidVatValidationResult : Drop
+    public class LiquidVatValidationResult : Drop
     {
         private readonly string name;
         private readonly string address;

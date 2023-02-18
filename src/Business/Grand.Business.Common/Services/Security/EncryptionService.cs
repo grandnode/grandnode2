@@ -6,11 +6,6 @@ namespace Grand.Business.Common.Services.Security
 {
     public class EncryptionService : IEncryptionService
     {
-        public EncryptionService()
-        {
-
-        }
-
         /// <summary>
         /// Create salt key
         /// </summary>
@@ -31,19 +26,20 @@ namespace Grand.Business.Common.Services.Security
         /// <summary>
         /// Create a password hash
         /// </summary>
-        /// <param name="password">{assword</param>
-        /// <param name="saltkey">Salk key</param>
+        /// <param name="password">password</param>
+        /// <param name="saltKey">Salk key</param>
+        /// <param name="passwordFormat"></param>
         /// <returns>Password hash</returns>
-        public virtual string CreatePasswordHash(string password, string saltkey, HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1)
+        public virtual string CreatePasswordHash(string password, string saltKey, HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1)
         {
-            var saltAndPassword = string.Concat(password, saltkey);
+            var saltAndPassword = string.Concat(password, saltKey);
             HashAlgorithm algorithm = passwordFormat switch
             {
                 HashedPasswordFormat.SHA1 => SHA1.Create(),
                 HashedPasswordFormat.SHA256 => SHA256.Create(),
                 HashedPasswordFormat.SHA384 => SHA384.Create(),
                 HashedPasswordFormat.SHA512 => SHA512.Create(),
-                _ => throw new NotSupportedException("Not supported format"),
+                _ => throw new NotSupportedException("Not supported format")
             };
             if (algorithm == null)
                 throw new ArgumentException("Unrecognized hash name");
@@ -66,12 +62,12 @@ namespace Grand.Business.Common.Services.Security
             if (string.IsNullOrEmpty(privateKey) || privateKey.Length != 24)
                 throw new Exception("Wrong private key");
 
-            var tDES = TripleDES.Create();
+            var tDes = TripleDES.Create();
 
-            tDES.Key = new ASCIIEncoding().GetBytes(privateKey);
-            tDES.IV = new ASCIIEncoding().GetBytes(privateKey[^8..]);
+            tDes.Key = new ASCIIEncoding().GetBytes(privateKey);
+            tDes.IV = new ASCIIEncoding().GetBytes(privateKey[^8..]);
 
-            byte[] encryptedBinary = EncryptTextToMemory(plainText, tDES.Key, tDES.IV);
+            var encryptedBinary = EncryptTextToMemory(plainText, tDes.Key, tDes.IV);
             return Convert.ToBase64String(encryptedBinary);
         }
 
@@ -87,43 +83,37 @@ namespace Grand.Business.Common.Services.Security
                 return cipherText;
 
             if (string.IsNullOrEmpty(encryptionPrivateKey) || encryptionPrivateKey.Length != 24)
-                throw new Exception("Wrong encryp private key");
+                throw new Exception("Wrong encrypt private key");
 
-            var tDES = TripleDES.Create();
-            tDES.Key = new ASCIIEncoding().GetBytes(encryptionPrivateKey);
-            tDES.IV = new ASCIIEncoding().GetBytes(encryptionPrivateKey[^8..]);
+            var tDes = TripleDES.Create();
+            tDes.Key = new ASCIIEncoding().GetBytes(encryptionPrivateKey);
+            tDes.IV = new ASCIIEncoding().GetBytes(encryptionPrivateKey[^8..]);
 
-            byte[] buffer = Convert.FromBase64String(cipherText);
-            return DecryptTextFromMemory(buffer, tDES.Key, tDES.IV);
+            var buffer = Convert.FromBase64String(cipherText);
+            return DecryptTextFromMemory(buffer, tDes.Key, tDes.IV);
         }
 
         #region Utilities
 
         private byte[] EncryptTextToMemory(string data, byte[] key, byte[] iv)
         {
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, TripleDES.Create().CreateEncryptor(key, iv), CryptoStreamMode.Write))
             {
-                using (var cs = new CryptoStream(ms, TripleDES.Create().CreateEncryptor(key, iv), CryptoStreamMode.Write))
-                {
-                    byte[] toEncrypt = new UnicodeEncoding().GetBytes(data);
-                    cs.Write(toEncrypt, 0, toEncrypt.Length);
-                    cs.FlushFinalBlock();
-                }
-
-                return ms.ToArray();
+                var toEncrypt = new UnicodeEncoding().GetBytes(data);
+                cs.Write(toEncrypt, 0, toEncrypt.Length);
+                cs.FlushFinalBlock();
             }
+
+            return ms.ToArray();
         }
 
         private string DecryptTextFromMemory(byte[] data, byte[] key, byte[] iv)
         {
-            using (var ms = new MemoryStream(data))
-            {
-                using (var cs = new CryptoStream(ms, TripleDES.Create().CreateDecryptor(key, iv), CryptoStreamMode.Read))
-                {
-                    var sr = new StreamReader(cs, new UnicodeEncoding());
-                    return sr.ReadLine();
-                }
-            }
+            using var ms = new MemoryStream(data);
+            using var cs = new CryptoStream(ms, TripleDES.Create().CreateDecryptor(key, iv), CryptoStreamMode.Read);
+            var sr = new StreamReader(cs, new UnicodeEncoding());
+            return sr.ReadLine();
         }
 
         #endregion

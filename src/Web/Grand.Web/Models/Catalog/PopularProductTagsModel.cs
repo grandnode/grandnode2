@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Models.Catalog
 {
-    public partial class PopularProductTagsModel : BaseModel
+    public class PopularProductTagsModel : BaseModel
     {
         public PopularProductTagsModel()
         {
@@ -13,25 +13,25 @@ namespace Grand.Web.Models.Catalog
 
         protected virtual int GetFontSize(double weight, double mean, double stdDev)
         {
-            double factor = (weight - mean);
+            var factor = weight - mean;
 
             if (factor != 0 && stdDev != 0) factor /= stdDev;
 
-            return (factor > 2) ? 150 :
-                (factor > 1) ? 120 :
-                (factor > 0.5) ? 100 :
-                (factor > -0.5) ? 90 :
-                (factor > -1) ? 85 :
-                (factor > -2) ? 80 :
+            return factor > 2 ? 150 :
+                factor > 1 ? 120 :
+                factor > 0.5 ? 100 :
+                factor > -0.5 ? 90 :
+                factor > -1 ? 85 :
+                factor > -2 ? 80 :
                 75;
         }
 
         protected virtual double Mean(IEnumerable<double> values)
         {
             double sum = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
                 sum += d;
                 count++;
@@ -44,11 +44,11 @@ namespace Grand.Web.Models.Catalog
         {
             mean = Mean(values);
             double sumOfDiffSquares = 0;
-            int count = 0;
+            var count = 0;
 
-            foreach (double d in values)
+            foreach (var d in values)
             {
-                double diff = (d - mean);
+                var diff = d - mean;
                 sumOfDiffSquares += diff * diff;
                 count++;
             }
@@ -65,8 +65,7 @@ namespace Grand.Web.Models.Catalog
             var itemWeights = new List<double>();
             foreach (var tag in Tags)
                 itemWeights.Add(tag.ProductCount);
-            double mean;
-            double stdDev = StdDev(itemWeights, out mean);
+            var stdDev = StdDev(itemWeights, out var mean);
 
             return GetFontSize(productTag.ProductCount, mean, stdDev);
         }

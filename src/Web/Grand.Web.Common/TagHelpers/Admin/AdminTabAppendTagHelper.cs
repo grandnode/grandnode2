@@ -3,7 +3,7 @@
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("admin-tab-append", Attributes = "tab-strip-name, tab-name, tab-content")]
-    public partial class AdminTabAppendTagHelper : TagHelper
+    public class AdminTabAppendTagHelper : TagHelper
     {
         private const string TabStripName = "tab-strip-name";
         private const string TabName = "tab-name";

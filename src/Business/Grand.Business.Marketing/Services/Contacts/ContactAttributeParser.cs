@@ -1,7 +1,5 @@
 using Grand.Business.Core.Extensions;
-using Grand.Business.Marketing.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -16,20 +14,17 @@ namespace Grand.Business.Marketing.Services.Contacts
     /// <summary>
     /// Contact attribute parser
     /// </summary>
-    public partial class ContactAttributeParser : IContactAttributeParser
+    public class ContactAttributeParser : IContactAttributeParser
     {
         private readonly IContactAttributeService _contactAttributeService;
-        private readonly IDownloadService _downloadService;
         private readonly IWorkContext _workContext;
 
         public ContactAttributeParser(
             IContactAttributeService contactAttributeService,
-            IDownloadService downloadService,
             IWorkContext workContext
             )
         {
             _contactAttributeService = contactAttributeService;
-            _downloadService = downloadService;
             _workContext = workContext;
         }
 
@@ -58,7 +53,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <summary>
         /// Get contact attribute values
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Contact attribute values</returns>
         public virtual async Task<IList<ContactAttributeValue>> ParseContactAttributeValues(IList<CustomAttribute> customAttributes)
         {
@@ -73,32 +68,21 @@ namespace Grand.Business.Marketing.Services.Contacts
                     continue;
 
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value);
-                foreach (var valueStr in valuesStr)
-                {
-                    if (!string.IsNullOrEmpty(valueStr))
-                    {
-                        var value = attribute.ContactAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
-                        if (value != null)
-                            values.Add(value);
-                    }
-                }
+                values.AddRange(from valueStr in valuesStr where !string.IsNullOrEmpty(valueStr) select attribute.ContactAttributeValues.FirstOrDefault(x => x.Id == valueStr) into value where value != null select value);
             }
             return values;
         }
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="ca">Contact attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
         public virtual IList<CustomAttribute> AddContactAttribute(IList<CustomAttribute> customAttributes, ContactAttribute ca, string value)
         {
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
-
+            customAttributes ??= new List<CustomAttribute>();
             customAttributes.Add(new CustomAttribute() { Key = ca.Id, Value = value });
-
             return customAttributes;
 
         }
@@ -107,15 +91,14 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// Check whether condition of some attribute is met (if specified). Return "null" if not condition is specified
         /// </summary>
         /// <param name="attribute">Contact attribute</param>
-        /// <param name="selectedAttributes">Selected attributes</param>
+        /// <param name="customAttributes">Selected attributes</param>
         /// <returns>Result</returns>
         public virtual async Task<bool?> IsConditionMet(ContactAttribute attribute, IList<CustomAttribute> customAttributes)
         {
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
 
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
+            customAttributes ??= new List<CustomAttribute>();
 
             var conditionAttribute = attribute.ConditionAttribute;
             if (!conditionAttribute.Any())
@@ -143,10 +126,9 @@ namespace Grand.Business.Marketing.Services.Contacts
             var allFound = true;
             foreach (var t1 in valuesThatShouldBeSelected)
             {
-                bool found = false;
-                foreach (var t2 in selectedValues)
-                    if (t1 == t2)
-                        found = true;
+                var found = false;
+                foreach (var t2 in selectedValues.Where(t2 => t1 == t2))
+                    found = true;
                 if (!found)
                     allFound = false;
             }
@@ -157,7 +139,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <summary>
         /// Remove an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="attribute">Contact attribute</param>
         /// <returns>Updated result</returns>
         public virtual IList<CustomAttribute> RemoveContactAttribute(IList<CustomAttribute> customAttributes, ContactAttribute attribute)
@@ -171,15 +153,15 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="language">Language</param>
         /// <param name="customAttributes">Attributes </param>
         /// <param name="customer">Customer</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Separator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
-        /// <param name="allowHyperlinks">A value indicating whether to HTML hyperink tags could be rendered (if required)</param>
+        /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
         /// <returns>Attributes</returns>
         public virtual async Task<string> FormatAttributes(
             Language language,
             IList<CustomAttribute> customAttributes,
             Customer customer,
-            string serapator = "<br />",
+            string separator = "<br />",
             bool htmlEncode = true,
             bool allowHyperlinks = true)
         {
@@ -192,60 +174,44 @@ namespace Grand.Business.Marketing.Services.Contacts
             {
                 var attribute = attributes[i];
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
-                for (int j = 0; j < valuesStr.Count; j++)
+                for (var j = 0; j < valuesStr.Count; j++)
                 {
-                    string valueStr = valuesStr[j];
-                    string formattedAttribute = "";
+                    var valueStr = valuesStr[j];
+                    var formattedAttribute = "";
                     if (!attribute.ShouldHaveValues())
                     {
                         //no values
                         if (attribute.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
-                            //multiline textbox
+                            //multiline text box
                             var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = string.Format("{0}: {1}", attributeName, FormatText.ConvertText(valueStr));
-                            //we never encode multiline textbox input
+                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                            //we never encode multiline text box input
                         }
                         else if (attribute.AttributeControlType == AttributeControlType.FileUpload)
                         {
                             //file upload
-                            Guid downloadGuid;
-                            Guid.TryParse(valueStr, out downloadGuid);
-                            var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                            if (download != null)
+                            if (Guid.TryParse(valueStr, out var downloadGuid))
                             {
-                                string attributeText = "";
-                                var fileName = string.Format("{0}{1}",
-                                    download.Filename ?? download.DownloadGuid.ToString(),
-                                    download.Extension);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    fileName = WebUtility.HtmlEncode(fileName);
+                                var attributeText = string.Empty;
+                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                                 if (allowHyperlinks)
                                 {
-                                    //hyperlinks are allowed
-                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), download.DownloadGuid);
-                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, fileName);
+                                    var downloadLink =
+                                        $"{_workContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                    attributeText =
+                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
                                 }
-                                else
-                                {
-                                    //hyperlinks aren't allowed
-                                    attributeText = fileName;
-                                }
-                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    attributeName = WebUtility.HtmlEncode(attributeName);
-                                formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
+                                formattedAttribute = $"{attributeName}: {attributeText}";
                             }
                         }
                         else
                         {
-                            //other attributes (textbox, datepicker)
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, language.Id), valueStr);
+                            //other attributes (text box, datepicker)
+                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -253,22 +219,21 @@ namespace Grand.Business.Marketing.Services.Contacts
                     }
                     else
                     {
-                        var attributeValue = attribute.ContactAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
+                        var attributeValue = attribute.ContactAttributeValues.FirstOrDefault(x => x.Id == valueStr);
                         if (attributeValue != null)
                         {
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, language.Id), attributeValue.GetTranslation(a => a.Name, language.Id));
+                            formattedAttribute =
+                                $"{attribute.GetTranslation(a => a.Name, language.Id)}: {attributeValue.GetTranslation(a => a.Name, language.Id)}";
                         }
                         //encode (if required)
                         if (htmlEncode)
                             formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
                     }
 
-                    if (!string.IsNullOrEmpty(formattedAttribute))
-                    {
-                        if (i != 0 || j != 0)
-                            result.Append(serapator);
-                        result.Append(formattedAttribute);
-                    }
+                    if (string.IsNullOrEmpty(formattedAttribute)) continue;
+                    if (i != 0 || j != 0)
+                        result.Append(separator);
+                    result.Append(formattedAttribute);
                 }
             }
             return result.ToString();

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class MimeMappingService : IMimeMappingService
+    public class MimeMappingService : IMimeMappingService
     {
         private readonly FileExtensionContentTypeProvider _contentTypeProvider;
 
@@ -14,8 +14,7 @@ namespace Grand.Business.Messages.Services
 
         public string Map(string filename)
         {
-            string contentType;
-            if (!_contentTypeProvider.TryGetContentType(filename, out contentType))
+            if (!_contentTypeProvider.TryGetContentType(filename, out var contentType))
             {
                 contentType = "application/octet-stream";
             }

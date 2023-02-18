@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 
@@ -24,8 +24,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<VendorNavigationModel> Handle(GetVendorNavigation request, CancellationToken cancellationToken)
         {
-            string cacheKey = CacheKeyConst.VENDOR_NAVIGATION_MODEL_KEY;
-            var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>
+            var cacheModel = await _cacheBase.GetAsync(CacheKeyConst.VENDOR_NAVIGATION_MODEL_KEY, async () =>
             {
                 var vendors = await _vendorService.GetAllVendors(pageSize: _vendorSettings.VendorsBlockItemsToDisplay);
                 var model = new VendorNavigationModel
@@ -39,7 +38,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     {
                         Id = vendor.Id,
                         Name = vendor.GetTranslation(x => x.Name, request.Language.Id),
-                        SeName = vendor.GetSeName(request.Language.Id),
+                        SeName = vendor.GetSeName(request.Language.Id)
                     });
                 }
                 return model;

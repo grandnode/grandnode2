@@ -17,7 +17,7 @@ namespace Grand.Business.Storage.Services
 
         public string Path => _path;
         public string Name => _fileInfo.Name;
-        public string DirectoryPath => _path[0..(_path.Length - Name.Length)].TrimEnd('/');
+        public string DirectoryPath => _path[0..^Name.Length].TrimEnd('/');
         public string PhysicalPath => _fileInfo.PhysicalPath;
         public DateTime LastModifiedUtc => _fileInfo.LastModified.UtcDateTime;
         public long Length => _fileInfo.Length;

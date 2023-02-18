@@ -18,18 +18,18 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<Course> GetCourseByProductId(string productId)
         {
-            return await Task.FromResult(_courseRepository.Table.Where(p => p.ProductId == productId).FirstOrDefault());
+            return await Task.FromResult(_courseRepository.Table.FirstOrDefault(p => p.ProductId == productId));
         }
 
         public virtual async Task<Product> GetProductByCourseId(string courseId)
         {
-            return await Task.FromResult(_productRepository.Table.Where(p => p.CourseId == courseId).FirstOrDefault());
+            return await Task.FromResult(_productRepository.Table.FirstOrDefault(p => p.CourseId == courseId));
         }
 
         public virtual async Task UpdateCourseOnProduct(string productId, string courseId)
         {
             if (string.IsNullOrEmpty(productId))
-                throw new ArgumentNullException("productId");
+                throw new ArgumentNullException(nameof(productId));
 
             await _productRepository.UpdateField(productId, x => x.CourseId, courseId);
             await _productRepository.UpdateField(productId, x => x.UpdatedOnUtc, DateTime.UtcNow);

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.SharedKernel
+﻿namespace Grand.SharedKernel
 {
     /// <summary>
     /// Represents errors that occur during application execution

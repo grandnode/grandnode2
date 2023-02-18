@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class RedisConfig
+    public class RedisConfig
     {
         /// <summary>
         /// Enable the Publish/Subscribe messaging with redis to manage memory cache on every server

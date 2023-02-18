@@ -10,6 +10,8 @@ namespace Grand.Web.Admin.Models.Shipping
         {
             Address = new AddressModel();
         }
+        [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Code")]
+        public string Code { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Name")]
         public string Name { get; set; }

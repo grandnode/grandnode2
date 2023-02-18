@@ -12,10 +12,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (order == null)
                 throw new ArgumentNullException(nameof(request.Order));
 
-            if (order.OrderStatusId == (int)OrderStatusSystem.Pending)
-                return Task.FromResult(true);
-
-            return Task.FromResult(false);
+            return Task.FromResult(order.OrderStatusId == (int)OrderStatusSystem.Pending);
         }
     }
 }

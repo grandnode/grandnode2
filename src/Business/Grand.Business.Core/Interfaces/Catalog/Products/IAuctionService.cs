@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Auction service interface
     /// </summary>
-    public partial interface IAuctionService
+    public interface IAuctionService
     {
        
         /// <summary>
@@ -34,6 +34,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets bids for product Id
         /// </summary>
         /// <param name="productId">Product Id</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Bids</returns>
         Task<IPagedList<Bid>> GetBidsByProductId(string productId, int pageIndex = 0, int pageSize = int.MaxValue);
 
@@ -41,15 +43,17 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets bids for Customer Id
         /// </summary>
         /// <param name="customerId">Customer Id</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Bids</returns>
         Task<IPagedList<Bid>> GetBidsByCustomerId(string customerId, int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
         /// Gets bid for specified Id
         /// </summary>
-        /// <param name="Id">Id</param>
+        /// <param name="id">Id</param>
         /// <returns>Bid</returns>
-        Task<Bid> GetBid(string Id);
+        Task<Bid> GetBid(string id);
 
         /// <summary>
         /// Get latest bid for product Id
@@ -71,8 +75,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// </summary>
         /// <param name="product"></param>
         /// <param name="ended"></param>
-        /// <param name="enddate"></param>
-        Task UpdateAuctionEnded(Product product, bool ended, bool enddate = false);
+        /// <param name="endDate"></param>
+        Task UpdateAuctionEnded(Product product, bool ended, bool endDate = false);
 
         /// <summary>
         /// Gets auctions that have to be ended

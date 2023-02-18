@@ -6,7 +6,6 @@ namespace Grand.Business.Core.Events.Messages
     /// <summary>
     /// A container for tokens that are added.
     /// </summary>
-    /// <typeparam name="U"></typeparam>
     public class MessageTokensAddedEvent : INotification
     {
         private readonly MessageTemplate _message;
@@ -18,7 +17,7 @@ namespace Grand.Business.Core.Events.Messages
             _liquidObject = liquidObject;
         }
 
-        public MessageTemplate Message { get { return _message; } }
-        public LiquidObject LiquidObject { get { return _liquidObject; } }
+        public MessageTemplate Message => _message;
+        public LiquidObject LiquidObject => _liquidObject;
     }
 }

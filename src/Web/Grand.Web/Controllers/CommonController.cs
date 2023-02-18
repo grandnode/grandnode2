@@ -4,9 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
-using Grand.Web.Common.Themes;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -18,6 +15,11 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Models.Common;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Themes;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -25,12 +27,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
-    public partial class CommonController : BasePublicController
+    public class CommonController : BasePublicController
     {
         #region Fields
 
@@ -90,10 +90,10 @@ namespace Grand.Web.Controllers
             var language = (await _languageService.GetAllLanguages())
                 .FirstOrDefault(urlLanguage => urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 
-            return language != null ? language.Published : false;
+            return language?.Published ?? false;
         }
 
-        private string AddLanguageSeo(string url, Language language)
+        private static string AddLanguageSeo(string url, Language language)
         {
             if (language == null)
                 throw new ArgumentNullException(nameof(language));
@@ -206,10 +206,7 @@ namespace Grand.Web.Controllers
 
             url = Flurl.Url.EncodeIllegalCharacters(url);
 
-            if (permanentRedirect)
-                return RedirectPermanent(url);
-
-            return Redirect(url);
+            return permanentRedirect ? RedirectPermanent(url) : Redirect(url);
         }
 
         [DenySystemAccount]
@@ -257,7 +254,7 @@ namespace Grand.Web.Controllers
             {
                 if (commonSettings.AllowToSelectStore)
                 {
-                    var selectedstore = storeService.GetAll().FirstOrDefault(x => x.Shortcut.ToLowerInvariant() == shortcut.ToLowerInvariant());
+                    var selectedstore = storeService.GetAll().FirstOrDefault(x => string.Equals(x.Shortcut, shortcut, StringComparison.InvariantCultureIgnoreCase));
                     if (selectedstore != null)
                     {
                         await _storeHelper.SetStoreCookie(selectedstore.Id);
@@ -336,10 +333,10 @@ namespace Grand.Web.Controllers
             if (storeInformationSettings.StoreClosed)
             {
                 var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
+                if (closestorepage is not { AccessibleWhenStoreClosed: true })
                     return RedirectToRoute("StoreClosed");
             }
-            var model = await _mediator.Send(new ContactUsCommand() {
+            var model = await _mediator.Send(new ContactUsCommand {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -355,12 +352,12 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> ContactUsSend(
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IPageService pageService,
-            ContactUsModel model, IFormCollection form, bool captchaValid)
+            ContactUsModel model, bool captchaValid)
         {
             if (storeInformationSettings.StoreClosed)
             {
                 var closestorepage = await pageService.GetPageBySystemName("ContactUs");
-                if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
+                if (closestorepage is not { AccessibleWhenStoreClosed: true })
                     return RedirectToRoute("StoreClosed");
             }
 
@@ -372,9 +369,8 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new ContactUsSendCommand() {
+                var result = await _mediator.Send(new ContactUsSendCommand {
                     CaptchaValid = captchaValid,
-                    Form = form,
                     Model = model,
                     Store = _workContext.CurrentStore,
                     IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
@@ -390,21 +386,20 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //notification
-                    await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model, form));
+                    await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result.model));
 
                     model = result.model;
                     return View(model);
                 }
             }
-            model = await _mediator.Send(new ContactUsCommand() {
+            var model1 = await _mediator.Send(new ContactUsCommand {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
-                Model = model,
-                Form = form
+                Model = model
             });
 
-            return View(model);
+            return View(model1);
         }
 
 
@@ -414,7 +409,7 @@ namespace Grand.Web.Controllers
             if (!commonSettings.SitemapEnabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetSitemap() {
+            var model = await _mediator.Send(new GetSitemap {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -435,7 +430,7 @@ namespace Grand.Web.Controllers
                 //disabled
                 return Json(new { stored = false });
 
-            //save consentcookies
+            //save consent cookies
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "", _workContext.CurrentStore.Id);
             var dictionary = new Dictionary<string, bool>();
             var consentCookies = cookiePreference.GetConsentCookies();
@@ -444,7 +439,7 @@ namespace Grand.Web.Controllers
                 dictionary.Add(item.SystemName, accept);
             }
             if (dictionary.Any())
-                await userFieldService.SaveField<Dictionary<string, bool>>(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
+                await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
 
             //save setting - CookieAccepted
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted, true, _workContext.CurrentStore.Id);
@@ -461,7 +456,7 @@ namespace Grand.Web.Controllers
                 //disabled
                 return Json(new { html = "" });
 
-            var model = await _mediator.Send(new GetPrivacyPreference() {
+            var model = await _mediator.Send(new GetPrivacyPreference {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
             });
@@ -469,7 +464,7 @@ namespace Grand.Web.Controllers
             return Json(new
             {
                 html = await this.RenderPartialViewToString("PrivacyPreference", model, true),
-                model = model,
+                model
             });
         }
 
@@ -477,32 +472,32 @@ namespace Grand.Web.Controllers
         [ClosedStore(true)]
         [PublicStore(true)]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> PrivacyPreference(IFormCollection form,
+        public virtual async Task<IActionResult> PrivacyPreference(IDictionary<string, string> model,
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IUserFieldService userFieldService,
-            [FromServices] ICookiePreference _cookiePreference)
+            [FromServices] ICookiePreference cookiePreference)
         {
 
             if (!storeInformationSettings.DisplayPrivacyPreference)
                 return Json(new { success = false });
 
-            var consent = "ConsentCookies";
+            const string consent = "ConsentCookies";
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "", _workContext.CurrentStore.Id);
             var selectedConsentCookies = new List<string>();
-            foreach (var item in form)
+            foreach (var item in model)
             {
                 if (item.Key.StartsWith(consent))
                     selectedConsentCookies.Add(item.Value);
             }
             var dictionary = new Dictionary<string, bool>();
-            var consentCookies = _cookiePreference.GetConsentCookies();
+            var consentCookies = cookiePreference.GetConsentCookies();
             foreach (var item in consentCookies)
             {
                 if (item.AllowToDisable)
                     dictionary.Add(item.SystemName, selectedConsentCookies.Contains(item.SystemName));
             }
 
-            await userFieldService.SaveField<Dictionary<string, bool>>(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
+            await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
 
             return Json(new { success = true });
         }
@@ -512,7 +507,7 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> RobotsTextFile()
         {
-            var sb = await _mediator.Send(new GetRobotsTextFile() { StoreId = _workContext.CurrentStore.Id });
+            var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
 
@@ -524,14 +519,17 @@ namespace Grand.Web.Controllers
 
         [ClosedStore(true)]
         [PublicStore(true)]
-        public virtual IActionResult StoreClosed() => View();
+        public virtual IActionResult StoreClosed()
+        {
+            return View();
+        }
 
         [HttpPost]
         [DenySystemAccount]
-        public virtual async Task<IActionResult> ContactAttributeChange(IFormCollection form)
+        public virtual async Task<IActionResult> ContactAttributeChange(ContactAttributeChangeModel model)
         {
-            var result = await _mediator.Send(new ContactAttributeChangeCommand() {
-                Form = form,
+            var result = await _mediator.Send(new ContactAttributeChangeCommand {
+                Attributes = model.Attributes,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
             });
@@ -549,12 +547,12 @@ namespace Grand.Web.Controllers
             [FromServices] IContactAttributeService contactAttributeService)
         {
             var attribute = await contactAttributeService.GetContactAttributeById(attributeId);
-            if (attribute == null || attribute.AttributeControlType != AttributeControlType.FileUpload)
+            if (attribute is not { AttributeControlType: AttributeControlType.FileUpload })
             {
                 return Json(new
                 {
                     success = false,
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             var form = await HttpContext.Request.ReadFormAsync();
@@ -565,15 +563,15 @@ namespace Grand.Web.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 
             var fileBinary = httpPostedFile.GetDownloadBits();
 
-            var qqFileNameParameter = "qqfilename";
+            const string qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
-            if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();
             //remove path (passed in IE)
             fileName = Path.GetFileName(fileName);
@@ -581,7 +579,7 @@ namespace Grand.Web.Controllers
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
@@ -595,7 +593,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -612,7 +610,7 @@ namespace Grand.Web.Controllers
                     {
                         success = false,
                         message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), attribute.ValidationFileMaximumSize.Value),
-                        downloadGuid = Guid.Empty,
+                        downloadGuid = Guid.Empty
                     });
                 }
             }
@@ -638,20 +636,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.FileUploaded"),
                 downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),
-                downloadGuid = download.DownloadGuid,
-            });
-        }
-
-
-        [HttpPost, ActionName("PopupInteractiveForm")]
-        [DenySystemAccount]
-        public virtual async Task<IActionResult> PopupInteractiveForm(IFormCollection formCollection)
-        {
-            var result = await _mediator.Send(new PopupInteractiveCommand() { Form = formCollection });
-            return Json(new
-            {
-                success = !result.Any(),
-                errors = result
+                downloadGuid = download.DownloadGuid
             });
         }
 
@@ -666,7 +651,7 @@ namespace Grand.Web.Controllers
             if (!customerSettings.GeoEnabled)
                 return Content("");
 
-            await _mediator.Send(new CurrentPositionCommand() { Customer = _workContext.CurrentCustomer, Model = model });
+            await _mediator.Send(new CurrentPositionCommand { Customer = _workContext.CurrentCustomer, Model = model });
 
             return Content("");
         }

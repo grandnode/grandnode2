@@ -40,12 +40,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
-            if (customer == null)
-                return NotFound();
+            if (customer == null) return NotFound();
 
             return Ok(customer);
         }
@@ -57,15 +55,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] CustomerDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new AddCustomerCommand() { Model = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddCustomerCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Update entity in Customer", OperationId = "UpdateCustomer")]
@@ -75,15 +68,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Put([FromBody] CustomerDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new UpdateCustomerCommand() { Model = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new UpdateCustomerCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Delete entity from Customer", OperationId = "DeleteCustomer")]
@@ -93,20 +81,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
-            if (customer == null)
-            {
-                return NotFound();
-            }
+            if (customer == null) return NotFound();
 
             await _mediator.Send(new DeleteCustomerCommand() { Email = key });
 
             return Ok();
         }
-
 
         //odata/Customer/(email)/AddAddress
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
@@ -118,15 +101,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> AddAddress(string key, [FromBody] AddressDto address)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
-            if (customer == null)
-                return NotFound();
+            if (customer == null) return NotFound();
 
             address = await _mediator.Send(new AddCustomerAddressCommand() { Customer = customer, Address = address });
             return Ok(address);
@@ -142,15 +120,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateAddress(string key, [FromBody] AddressDto address)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
-            if (customer == null)
-                return NotFound();
+            if (customer == null) return NotFound();
 
             address = await _mediator.Send(new UpdateCustomerAddressCommand() { Customer = customer, Address = address });
 
@@ -167,25 +140,20 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAddress(string key, [FromBody] DeleteAddressDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            if (model == null || string.IsNullOrEmpty(model.AddressId))
-                return NotFound();
+            if (model == null || string.IsNullOrEmpty(model.AddressId)) return NotFound();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
-            if (customer == null)
-                return NotFound();
+            if (customer == null) return NotFound();
 
             var address = customer.Addresses.FirstOrDefault(x => x.Id == model.AddressId.ToString());
-            if (address == null)
-                return NotFound();
+            if (address == null) return NotFound();
 
             await _mediator.Send(new DeleteCustomerAddressCommand() { Customer = customer, Address = address });
 
             return Ok(true);
         }
-
 
         //odata/Customer/(email)/SetPassword
         //body: { "password": "123456" }
@@ -198,21 +166,14 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> SetPassword(string key, [FromBody] PasswordDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Customers))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            if (model == null || string.IsNullOrEmpty(model.Password))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (model == null || string.IsNullOrEmpty(model.Password)) return NotFound();
 
             var changePassRequest = new ChangePasswordRequest(key, false, _customerSettings.DefaultPasswordFormat, model.Password);
             var changePassResult = await _customerManagerService.ChangePassword(changePassRequest);
-            if (!changePassResult.Success)
-            {
-                return BadRequest(string.Join(',', changePassResult.Errors));
-            }
+            if (!changePassResult.Success) return BadRequest(string.Join(',', changePassResult.Errors));
+
             return Ok(true);
         }
     }

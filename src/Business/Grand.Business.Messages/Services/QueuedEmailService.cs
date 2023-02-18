@@ -8,7 +8,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class QueuedEmailService : IQueuedEmailService
+    public class QueuedEmailService : IQueuedEmailService
     {
         private readonly IRepository<QueuedEmail> _queuedEmailRepository;
         private readonly IMediator _mediator;
@@ -77,7 +77,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task DeleteCustomerEmail(string email)
         {
             if (email == null)
-                throw new ArgumentNullException("email");
+                throw new ArgumentNullException(nameof(email));
 
             var deleteCustomerEmail = _queuedEmailRepository.Table.Where(x => x.To == email);
 
@@ -110,13 +110,8 @@ namespace Grand.Business.Messages.Services
                         select qe;
             var queuedEmails = query.ToList();
             //sort by passed identifiers
-            var sortedQueuedEmails = new List<QueuedEmail>();
-            foreach (string id in queuedEmailIds)
-            {
-                var queuedEmail = queuedEmails.Find(x => x.Id == id);
-                if (queuedEmail != null)
-                    sortedQueuedEmails.Add(queuedEmail);
-            }
+            var sortedQueuedEmails = 
+                queuedEmailIds.Select(id => queuedEmails.Find(x => x.Id == id)).Where(queuedEmail => queuedEmail != null).ToList();
             return await Task.FromResult(sortedQueuedEmails);
         }
 
@@ -174,16 +169,10 @@ namespace Grand.Business.Messages.Services
             if (maxSendTries > 0)
                 query = query.Where(qe => qe.SentTries < maxSendTries);
 
-            if (loadNewest)
-            {
-                //load the newest records
-                query = query.OrderByDescending(qe => qe.CreatedOnUtc);
-            }
-            else
-            {
+            //load the newest records
+            query = loadNewest ? query.OrderByDescending(qe => qe.CreatedOnUtc) :
                 //load by priority
-                query = query.OrderByDescending(qe => qe.PriorityId).ThenBy(qe => qe.CreatedOnUtc);
-            }
+                query.OrderByDescending(qe => qe.PriorityId).ThenBy(qe => qe.CreatedOnUtc);
             return await PagedList<QueuedEmail>.Create(query, pageIndex, pageSize);
         }
 
