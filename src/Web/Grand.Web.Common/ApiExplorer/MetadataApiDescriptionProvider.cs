@@ -1,7 +1,9 @@
 ﻿//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/DefaultApiDescriptionProvider.cs
 
+#nullable enable
+
+using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Attributes;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
@@ -89,8 +92,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
     private ApiDescription CreateApiDescription(
         ControllerActionDescriptor action,
-        string? httpMethod,
-        string? groupName)
+        string httpMethod,
+        string groupName)
     {
         var parsedTemplate = ParseTemplate(action);
         var path = GetRelativePath(action, parsedTemplate);
@@ -105,10 +108,10 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var templateParameters = parsedTemplate?.Parameters?.ToList() ?? new List<TemplatePart>();
 
         var parameterContext = new ApiParameterContext(_modelMetadataProvider, action, templateParameters);
-
-        foreach (var parameter in GetParameters(parameterContext))
+        foreach (var parameter in GetParameters(parameterContext,
+                     httpMethod.Equals("GET", StringComparison.CurrentCultureIgnoreCase)))
         {
-            apiDescription.ParameterDescriptions.Add(parameter);
+                apiDescription.ParameterDescriptions.Add(parameter);
         }
 
         var requestMetadataAttributes = GetRequestMetadataAttributes(action);
@@ -126,8 +129,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             var contentTypes = GetDeclaredContentTypes(requestMetadataAttributes);
             foreach (var parameter in apiDescription.ParameterDescriptions)
             {
-                if (parameter.Source == BindingSource.Body || 
-                    parameter.Source == BindingSource.Form )
+                if (parameter.Source == BindingSource.Body ||
+                    parameter.Source == BindingSource.Form)
                 {
                     // For request body bound parameters, determine the content types supported
                     // by input formatters.
@@ -153,7 +156,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         return apiDescription;
     }
 
-    private IList<ApiParameterDescription> GetParameters(ApiParameterContext context)
+    private IList<ApiParameterDescription> GetParameters(ApiParameterContext context, bool httpGet)
     {
         // First, get parameters from the model-binding/parameter-binding side of the world.
         if (context.ActionDescriptor.Parameters != null)
@@ -179,20 +182,26 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     metadata = _modelMetadataProvider.GetMetadataForType(actionParameter.ParameterType);
                 }
 
-                if (actionParameter.BindingInfo == null && 
+                if (!httpGet &&
+                    actionParameter.BindingInfo == null &&
                     !CommonHelper.IsSimpleType(actionParameter.ParameterType))
                 {
-                    actionParameter.BindingInfo = new BindingInfo
-                    {
-                        BindingSource = new BindingSource("Body", "Body", true, true)
-                    };
+                    var bindingContext = new ApiParameterDescriptionContext(
+                        metadata,
+                        new BindingInfo {
+                            BindingSource = new BindingSource("Body", "Body", true, true)
+                        },
+                        propertyName: actionParameter.Name);
+                    visitor.WalkParameter(bindingContext);
                 }
-                
-                var bindingContext = new ApiParameterDescriptionContext(
-                    metadata,
-                    actionParameter.BindingInfo,
-                    propertyName: actionParameter.Name);
-                visitor.WalkParameter(bindingContext);
+                else
+                {
+                    var bindingContext = new ApiParameterDescriptionContext(
+                        metadata,
+                        actionParameter.BindingInfo,
+                        propertyName: actionParameter.Name);
+                    visitor.WalkParameter(bindingContext);
+                }
             }
         }
 
@@ -221,6 +230,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             if (!context.Results[i].Source.IsFromRequest)
             {
                 context.Results.RemoveAt(i);
+            }
+            else
+            {
+                if (context.Results[i].ModelMetadata is DefaultModelMetadata metadata &&
+                    metadata.Attributes.Attributes.OfType<IgnoreApiUrlAttribute>().Any())
+                    context.Results.RemoveAt(i);
             }
         }
 
@@ -297,13 +312,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                 }
             }
 
-            if (parameter.ModelMetadata != null && parameter.ModelMetadata.IsBindingRequired)
+            if (parameter.ModelMetadata is { IsBindingRequired: true })
             {
                 parameter.IsRequired = true;
             }
 
-            if (parameter.Source == BindingSource.Path && parameter.RouteInfo != null &&
-                !parameter.RouteInfo.IsOptional)
+            if (parameter.Source == BindingSource.Path && parameter.RouteInfo is { IsOptional: false })
             {
                 parameter.IsRequired = true;
             }
@@ -348,16 +362,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         };
     }
 
-    private static IEnumerable<string?> GetHttpMethods(ControllerActionDescriptor action)
+    private static IEnumerable<string> GetHttpMethods(ControllerActionDescriptor action)
     {
-        if (action.ActionConstraints != null && action.ActionConstraints.Count > 0)
-        {
-            return action.ActionConstraints.OfType<HttpMethodActionConstraint>().SelectMany(c => c.HttpMethods);
-        }
-        else
-        {
-            return new string?[] { null };
-        }
+        return action.ActionConstraints is { Count: > 0 } ? action.ActionConstraints.OfType<HttpMethodActionConstraint>().SelectMany(c => c.HttpMethods) : new [] { string.Empty };
     }
 
     private static RouteTemplate? ParseTemplate(ControllerActionDescriptor action)
@@ -414,7 +421,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var results = new List<ApiRequestFormat>();
         foreach (var contentType in contentTypes)
         {
-            foreach (var formatter in _mvcOptions.InputFormatters)
+            foreach (var formatter in _mvcOptions.InputFormatters.OfType<NewtonsoftJsonInputFormatter>())
             {
                 if (formatter is IApiRequestFormatMetadataProvider requestFormatMetadataProvider)
                 {
@@ -422,7 +429,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                     if (supportedTypes != null)
                     {
-                        foreach (var supportedType in supportedTypes.Where(x=>x == "application/json"))
+                        foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
                         {
                             results.Add(new ApiRequestFormat() {
                                 Formatter = formatter,

@@ -20,25 +20,18 @@ public class JsonBodyModelBinder : IModelBinder
         var hasJsonContentType = httpContext.Request.ContentType?.Contains("application/json") ?? false;
         if (hasJsonContentType)
         {
-            try
+            string jsonPayload;
+            using (var streamReader = new StreamReader(httpContext.Request.Body))
             {
-                string jsonPayload;
-                using (var streamReader = new StreamReader(httpContext.Request.Body))
-                {
-                    jsonPayload = await streamReader.ReadToEndAsync();
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                options.Converters.Add(new StringConverter());
-                bindingContext.Result =
-                    ModelBindingResult.Success(JsonSerializer.Deserialize(jsonPayload, bindingContext.ModelType, options));
+                jsonPayload = await streamReader.ReadToEndAsync();
             }
-            catch(Exception)
+            var options = new JsonSerializerOptions
             {
-                bindingContext.Result = ModelBindingResult.Success(Activator.CreateInstance(bindingContext.ModelType));
-            }
+                PropertyNameCaseInsensitive = true
+            };
+            options.Converters.Add(new StringConverter());
+            bindingContext.Result =
+                ModelBindingResult.Success(JsonSerializer.Deserialize(jsonPayload, bindingContext.ModelType, options));
         }
         else 
         {

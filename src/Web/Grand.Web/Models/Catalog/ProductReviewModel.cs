@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Catalog
 {
@@ -21,11 +20,12 @@ namespace Grand.Web.Models.Catalog
         {
             Items = new List<ProductReviewModel>();
             AddProductReview = new AddProductReviewModel();
+            Captcha = new CaptchaModel();
         }
         public string ProductId { get; set; }
 
         public bool CaptchaValid { get; set; }
-        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        public ICaptchaValidModel Captcha { get; set; }
         public string ProductName { get; set; }
 
         public string ProductSeName { get; set; }

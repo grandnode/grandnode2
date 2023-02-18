@@ -13,7 +13,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.Web.Commands.Models.Customers;
-using Grand.Web.Common.Attributes;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
@@ -22,6 +22,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -550,6 +551,7 @@ namespace Grand.Web.Controllers
         #region My account / Info
         
         [HttpGet]
+        [Authorize]
         public virtual async Task<IActionResult> Info()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -719,7 +721,7 @@ namespace Grand.Web.Controllers
             {
                 var address = model.Address.ToEntity(_workContext.CurrentCustomer, addressSettings);
                 address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
-                    { SelectedAttributes = model.Address.SelectedAttributes });;
+                    { SelectedAttributes = model.Address.SelectedAttributes });
                 address.CreatedOnUtc = DateTime.UtcNow;
                 customer.Addresses.Add(address);
 
@@ -792,7 +794,7 @@ namespace Grand.Web.Controllers
             {
                 address = model.Address.ToEntity(address, _workContext.CurrentCustomer, addressSettings);
                 address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes
-                    { SelectedAttributes = model.Address.SelectedAttributes });;
+                    { SelectedAttributes = model.Address.SelectedAttributes });
                 await _customerService.UpdateAddress(address, customer.Id);
 
                 if (customer.BillingAddress?.Id == address.Id)
@@ -1201,7 +1203,7 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            var result = await _mediator.Send(new SubAccountAddCommand {
+            _ = await _mediator.Send(new SubAccountAddCommand {
                 Customer = _workContext.CurrentCustomer,
                 Model = model,
                 Store = _workContext.CurrentStore

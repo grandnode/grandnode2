@@ -1745,12 +1745,18 @@ namespace Grand.Web.Admin.Services
                 else
                     storeName = _translationService.GetResource("Admin.Catalog.Products.TierPrices.Fields.Store.All");
 
+                var groupName = string.Empty;
+                if(string.IsNullOrEmpty(x.CustomerGroupId))
+                    groupName =_translationService.GetResource("Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All");
+                else
+                    groupName = (await _groupService.GetCustomerGroupById(x.CustomerGroupId))?.Name ?? "NOT FOUND";
+                
                 items.Add(new ProductModel.TierPriceModel {
                     Id = x.Id,
                     StoreId = x.StoreId,
                     Store = storeName,
                     CurrencyCode = x.CurrencyCode,
-                    CustomerGroup = !string.IsNullOrEmpty(x.CustomerGroupId) ? (await _groupService.GetCustomerGroupById(x.CustomerGroupId)).Name : _translationService.GetResource("Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"),
+                    CustomerGroup = groupName,
                     ProductId = product.Id,
                     CustomerGroupId = !string.IsNullOrEmpty(x.CustomerGroupId) ? x.CustomerGroupId : "",
                     Quantity = x.Quantity,

@@ -2,7 +2,6 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Newsletter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,6 +18,7 @@ namespace Grand.Web.Models.Customer
             CustomerAttributes = new List<CustomerAttributeModel>();
             SelectedAttributes = new List<CustomAttributeModel>();
             NewsletterCategories = new List<NewsletterSimpleCategory>();
+            Captcha = new CaptchaModel();
         }
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Fields.Email")]
@@ -134,7 +134,7 @@ namespace Grand.Web.Models.Customer
         public bool DisplayVatNumber { get; set; }
         
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+        public ICaptchaValidModel Captcha { get; set; }
         
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> SelectedAttributes { get; set; }

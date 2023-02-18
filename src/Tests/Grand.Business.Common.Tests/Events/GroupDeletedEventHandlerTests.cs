@@ -1,7 +1,12 @@
 ﻿using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Tests.Caching;
+using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Grand.Business.Common.Events.Tests
 {
@@ -10,13 +15,17 @@ namespace Grand.Business.Common.Events.Tests
     {
 
         private IRepository<Customer> _repository;
+        private IRepository<Product> _product;
         private GroupDeletedEventHandler _handler;
-
+        private MemoryCacheBase _cacheBase;
         [TestInitialize()]
         public void Init()
         {
             _repository = new MongoDBRepositoryTest<Customer>();
-            _handler = new GroupDeletedEventHandler(_repository);
+            _product = new MongoDBRepositoryTest<Product>();
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object);
+
+            _handler = new GroupDeletedEventHandler(_repository, _product, _cacheBase);
         }
 
         [TestMethod()]

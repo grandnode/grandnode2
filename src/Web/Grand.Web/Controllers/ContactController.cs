@@ -43,6 +43,7 @@ public class ContactController : BasePublicController
     //available even when a store is closed
     [ClosedStore(true)]
     [HttpGet]
+    [ProducesResponseType(typeof(ContactUsModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Index(
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IPageService pageService)
@@ -63,6 +64,7 @@ public class ContactController : BasePublicController
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(ContactUsModel), StatusCodes.Status200OK)]
     [AutoValidateAntiforgeryToken]
     [ClosedStore(true)]
     [DenySystemAccount]
@@ -143,7 +145,6 @@ public class ContactController : BasePublicController
 
         var fileBinary = uploadedFile.GetDownloadBits();
 
-        const string qqFileNameParameter = "qqfilename";
         var fileName = uploadedFile.FileName;
         
         //remove path (passed in IE)
