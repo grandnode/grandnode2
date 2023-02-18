@@ -165,14 +165,14 @@ namespace Grand.SharedKernel.Extensions
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsSimpleType(Type? type)
+        public static bool IsSimpleType(Type type)
         {
             if (type == null)
                 return true;
             
             return
                 type.IsPrimitive ||
-                new Type[] {
+                new[] {
                     typeof(string),
                     typeof(decimal),
                     typeof(DateTime),
@@ -210,11 +210,11 @@ namespace Grand.SharedKernel.Extensions
                 var sourceType = value.GetType();
 
                 var destinationConverter = TypeDescriptor.GetConverter(destinationType);
-                if (destinationConverter != null && destinationConverter.CanConvertFrom(value.GetType()))
+                if (destinationConverter.CanConvertFrom(value.GetType()))
                     return destinationConverter.ConvertFrom(null, culture, value);
 
                 var sourceConverter = TypeDescriptor.GetConverter(sourceType);
-                if (sourceConverter != null && sourceConverter.CanConvertTo(destinationType))
+                if (sourceConverter.CanConvertTo(destinationType))
                     return sourceConverter.ConvertTo(null, culture, value, destinationType);
 
                 if (destinationType.IsEnum && value is int)

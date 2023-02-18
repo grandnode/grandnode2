@@ -83,10 +83,11 @@ namespace Grand.Business.Storage.Services
         {
             if (!_bucketExist)
             {
-                _bucketExist = await _s3Client.DoesS3BucketExistAsync(_bucketName);
+
+                _bucketExist = await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(_s3Client, _bucketName);
                 while (_bucketExist == false)
                 {
-                    S3Region s3Region = S3Region.FindValue(_config.AmazonRegion);
+                    var s3Region = S3Region.FindValue(_config.AmazonRegion);
                     var putBucketRequest = new PutBucketRequest {
                         BucketName = _bucketName,
                         BucketRegion = s3Region,
@@ -104,7 +105,7 @@ namespace Grand.Business.Storage.Services
 
                         throw;
                     }
-                    _bucketExist = await _s3Client.DoesS3BucketExistAsync(_bucketName);
+                    _bucketExist = await Amazon.S3.Util.AmazonS3Util.DoesS3BucketExistV2Async(_s3Client, _bucketName);
                 }
             }
         }

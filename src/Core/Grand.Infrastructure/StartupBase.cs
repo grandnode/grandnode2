@@ -151,7 +151,10 @@ namespace Grand.Infrastructure
         private static void AddMediator(this IServiceCollection services, ITypeSearcher typeSearcher)
         {
             var assemblies = typeSearcher.GetAssemblies().ToArray();
-            services.AddMediatR(assemblies);
+            services.AddMediatR(options =>
+            {
+                options.RegisterServicesFromAssemblies(assemblies);
+            });
         }
 
         /// <summary>

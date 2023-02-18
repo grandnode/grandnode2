@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Grand.Web.Commands.Handler.Customers
 {
-    public class SubAccountAddCommandHandler : IRequestHandler<SubAccountAddCommand, Unit>
+    public class SubAccountAddCommandHandler : IRequestHandler<SubAccountAddCommand>
     {
         private readonly ICustomerService _customerService;
         private readonly ICustomerManagerService _customerManagerService;
@@ -26,7 +26,7 @@ namespace Grand.Web.Commands.Handler.Customers
             _customerSettings = customerSettings;
         }
 
-        public async Task<Unit> Handle(SubAccountAddCommand request, CancellationToken cancellationToken)
+        public async Task Handle(SubAccountAddCommand request, CancellationToken cancellationToken)
         {
             var customer = await PrepareCustomer(request);
 
@@ -38,7 +38,7 @@ namespace Grand.Web.Commands.Handler.Customers
 
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.FirstName, request.Model.FirstName);
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
-            return Unit.Value;
+            
         }
 
         protected async Task<Customer> PrepareCustomer(SubAccountAddCommand request)
