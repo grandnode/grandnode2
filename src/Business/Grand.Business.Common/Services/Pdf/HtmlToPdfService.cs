@@ -41,7 +41,11 @@ namespace Grand.Business.Common.Services.Pdf
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate,
                 new(orders, vendorId));
-            TextReader sr = new StringReader(html);
+
+            var xmlWithEscapedCharacters = html.Replace(" \" ", "&quot").Replace(" ' ", "&apos").Replace(" & ", "&amp;")
+                .Replace(" < ", "&lt;").Replace(" > ", "&gt;");
+
+            TextReader sr = new StringReader(xmlWithEscapedCharacters);
             using var doc = Scryber.Components.Document.ParseDocument(sr, Scryber.ParseSourceType.DynamicContent);
             doc.SaveAsPDF(stream);
         }
