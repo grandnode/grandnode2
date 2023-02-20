@@ -194,7 +194,7 @@
                         @if (!string.IsNullOrEmpty(item.AttributeDescription))
                         {
                             <br/>
-                            <small>@(Html.Raw(item.AttributeDescription))</small>
+                            @(Html.Raw(item.AttributeDescription))
                         }
                     </td>
                     <td>
@@ -224,7 +224,10 @@
         @if (!limitbyVendor)
         {
             <div class="summary">
-
+                @if (!string.IsNullOrEmpty(order.CheckoutAttributeDescription))
+                {
+                    @(Html.Raw(order.CheckoutAttributeDescription))
+                }
                 <div style="float: right">
 
                     @(_translationService.GetResource("PDFInvoice.Sub-Total", order.CustomerLanguageId))
