@@ -10,15 +10,15 @@
         <div class="loader"><div class="loader-line" style="-webkit-transform: scaleX(1); -moz-transform: scaleX(1); -ms-transform: scaleX(1); -o-transform: scaleX(1);transform: scaleX(1);"></div></div>
 
         <div class="col-xl-10">
-            <canvas class="w-100" id="customizeCanvas"></canvas>            
+            <canvas class="w-100" id="customizeCanvas"></canvas>
         </div>
 
         <div class="col-xl-2">
-            <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">       
-                <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
-                    class="square" 
-                    :style="{backgroundImage: 'url(' + material.url + ')' }"
-                    v-on:click="customizeApp.changeMaterial(material)">
+            <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">
+                <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick"
+                     class="square"
+                     :style="{backgroundImage: 'url(' + material.url + ')' }"
+                     v-on:click="customizeApp.changeMaterial(material)">
                 </div>
             </div>
             <div v-else>
@@ -29,61 +29,66 @@
 </div>
 
 
-<script asp-location="Footer" asp-order="301">
+<script>
     //# sourceURL=customization.js
+    console.log("ProductCustomize");
+
     // Working play ground https://playground.babylonjs.com/#3AQQI8#5
     var customizeApp = new Vue({
-        data: {
-            camera: null,
-            canvas: null,
-            light: null,
-            cameraInitialSetting: {
-                alpha: @customizationAttribute.InitialCameraAlpha,
-                beta: @customizationAttribute.InitialCameraBeta,
-                radius: @customizationAttribute.InitialCameraRadius,
-                target: new BABYLON.Vector3(0, 0, 0),
-                upperAlphaLimit: @customizationAttribute.UpperAlphaLimit,
-                lowerBetaLimit: @customizationAttribute.LowerBetaLimit,
-                upperBetaLimit: @customizationAttribute.UpperRadiusLimit,
-                lowerRadiusLimit: @customizationAttribute.LowerRadiusLimit,
-                upperRadiusLimit: @customizationAttribute.UpperRadiusLimit
-            },
-            productData: {
-                url: "@customizationAttribute.ObjectPath",
-                objectName: "@customizationAttribute.ObjectName",
-                meshes: [
-                    @foreach(var mesh in meshes){
+        data() {
+            return {
+                camera: null,
+                canvas: null,
+                light: null,
+                cameraInitialSetting: {
+                    alpha: @customizationAttribute.InitialCameraAlpha,
+                    beta: @customizationAttribute.InitialCameraBeta,
+                    radius: @customizationAttribute.InitialCameraRadius,
+                    target: new BABYLON.Vector3(0, 0, 0),
+                    upperAlphaLimit: @customizationAttribute.UpperAlphaLimit,
+                    lowerBetaLimit: @customizationAttribute.LowerBetaLimit,
+                    upperBetaLimit: @customizationAttribute.UpperRadiusLimit,
+                    lowerRadiusLimit: @customizationAttribute.LowerRadiusLimit,
+                    upperRadiusLimit: @customizationAttribute.UpperRadiusLimit
+                    },
+                productData: {
+                    url: "@customizationAttribute.ObjectPath",
+                    objectName: "@customizationAttribute.ObjectName",
+                    meshes: [
+                    @foreach (var mesh in meshes)
+                    {
                         <text>
+                            {
+                                id: "@mesh.MeshId",
+                                cameraSetting: {
+                                    alpha: @mesh.CameraAlpha,
+                                    beta: @mesh.CameraBeta,
+                                    radius: @mesh.CameraRadius
+                                            },
+                                availableMaterials: [
+                        @foreach (var material in mesh.MaterialModels)
                         {
-                            id: "@mesh.MeshId",
-                            cameraSetting: {
-                                alpha: @mesh.CameraAlpha,
-                                beta: @mesh.CameraBeta,
-                                radius: @mesh.CameraRadius
-                            },
-                            availableMaterials: [
-                                @foreach(var material in mesh.MaterialModels)
-                                    {
-                                     <text>
+                            <text>
                                         {
                                             name: "@material.Name",
                                             url: "@material.FilePath",
                                             price: @material.Price,
                                             cost: @material.Cost
-                                        },  
-                                    </text>
-                                    }
-                                ]
-                        },
+                                                                },
+                            </text>
+                        }
+                                                ]
+                            },
                         </text>
                     }
-                ],
-            },
-            // logic for current 
-            canvas: null,
-            light: null,
-            selectedAvailableMaterialsAfterClick: null,
-            selectedMeshId: null
+                        ],
+                },
+                // logic for current
+                canvas: null,
+                light: null,
+                selectedAvailableMaterialsAfterClick: null,
+                selectedMeshId: null
+            }
         },
         methods: {
             bootstrapApp: function () {
@@ -121,13 +126,13 @@
                     , this.productData.url
                     , "helmet.babylon");
 
-                var self=this;
+                var self = this;
                 loadHelmetModel.onSuccess = (t) => {
                     engine.runRenderLoop(() => {
                         scene.render();
                     })
 
-                    //setup click 
+                    //setup click
                     captureClickEventAndPopulateMaterials(self);
 
                     // setup event listener
@@ -137,21 +142,21 @@
                 loader.load();
 
 
-                var setUpEventListener = function(self){
+                var setUpEventListener = function (self) {
                     window.addEventListener("changeMaterial", (event) => {
-                        if(event.detail){
-                        // TODO: Load this in advance allow the switch to work faster
-                        var texture = new BABYLON.StandardMaterial(event.detail.name, scene);
-                        texture.diffuseTexture = new BABYLON.Texture(event.detail.url, scene);
-                        texture.reflectionTexture = new BABYLON.Texture(event.detail.url, scene);
+                        if (event.detail) {
+                            // TODO: Load this in advance allow the switch to work faster
+                            var texture = new BABYLON.StandardMaterial(event.detail.name, scene);
+                            texture.diffuseTexture = new BABYLON.Texture(event.detail.url, scene);
+                            texture.reflectionTexture = new BABYLON.Texture(event.detail.url, scene);
 
-                        scene.getMeshByName(self.selectedMeshId).material = texture
+                            scene.getMeshByName(self.selectedMeshId).material = texture
                         }
                     })
-                    
+
                 }
 
-                var captureClickEventAndPopulateMaterials = function(self){      
+                var captureClickEventAndPopulateMaterials = function (self) {
                     scene.onPointerDown = function () {
                         var ray = scene.createPickingRay(scene.pointerX, scene.pointerY, BABYLON.Matrix.Identity(), self.camera);
 
@@ -219,8 +224,8 @@
             //    ])
             //    return animation;
             //},
-            changeMaterial: function(material){
-                var eventChangeMaterial = new CustomEvent("changeMaterial", {                    
+            changeMaterial: function (material) {
+                var eventChangeMaterial = new CustomEvent("changeMaterial", {
                     detail: {
                         cost: material.cost,
                         name: material.name,
@@ -229,12 +234,13 @@
                     }
                 });
                 window.dispatchEvent(eventChangeMaterial);
-            }      
+            }
         }
     })
 
     // Make sure the page is loaded
     window.onload = (event) => {
+        console.log(customizeApp);
         customizeApp.bootstrapApp();
     }
 

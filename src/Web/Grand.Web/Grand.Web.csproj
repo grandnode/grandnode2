@@ -57,6 +57,7 @@
 		<Compile Remove="Plugins\**" />
 		<EmbeddedResource Remove="Plugins\**" />
 		<None Remove="Plugins\**" />
+		<Compile Remove="Themes\Default\Views\Product\Partials\ProductCustomization.cshtml.cs" />
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
