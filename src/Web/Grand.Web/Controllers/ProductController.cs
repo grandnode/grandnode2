@@ -736,7 +736,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Calendar
-        [HttpGet]
+        [HttpPost]
         public virtual async Task<IActionResult> GetDatesForMonth(string productId, int month, string parameter, int year, [FromServices] IProductReservationService productReservationService)
         {
             var allReservations = await productReservationService.GetProductReservationsByProductId(productId, true, null);
