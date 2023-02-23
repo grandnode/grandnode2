@@ -2,6 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 LABEL stage=build-env
 WORKDIR /app
 
+#install node 
+RUN bash -E $(curl -fsSL https://deb.nodesource.com/setup_18.x | bash - ); apt install -y nodejs
+
 # Copy and build
 COPY ./src /app
 
@@ -23,6 +26,7 @@ RUN dotnet build /app/Plugins/Widgets.GoogleAnalytics -c Release
 RUN dotnet build /app/Plugins/Widgets.Slider -c Release
 
 # build web client
+RUN 
 RUN cd /app/Web/Grand.Web && npm install && npm run build
 
 # build Web
