@@ -556,7 +556,7 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new WidgetSettings {
-                ActiveWidgetSystemNames = new List<string> { "Widgets.Slider" },
+                ActiveWidgetSystemNames = new List<string>(),
             });
 
             await _settingService.SaveSetting(new GoogleAnalyticsSettings() {

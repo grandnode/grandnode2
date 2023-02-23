@@ -1,4 +1,10 @@
-﻿
+﻿23/2/2023
+username: admin@yourstore.com
+password: 1234567
+
+Remove widget slider
+
+---------------------------------------------
 
 Product Display
 Product
