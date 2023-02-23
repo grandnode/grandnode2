@@ -26,7 +26,6 @@ RUN dotnet build /app/Plugins/Widgets.GoogleAnalytics -c Release
 RUN dotnet build /app/Plugins/Widgets.Slider -c Release
 
 # build web client
-RUN 
 RUN cd /app/Web/Grand.Web && npm install && npm run build
 
 # build Web
