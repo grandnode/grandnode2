@@ -51,4 +51,7 @@
 	<Resource Name="ContactUs.ValidationFileAllowed" Area="Front">
 		<Value>This file extension does not allow to upload</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Vendor.AllowToUploadFile" Area="Admin">
+		<Value>Allow vendor to upload picture file</Value>
+	</Resource>
 </Language>

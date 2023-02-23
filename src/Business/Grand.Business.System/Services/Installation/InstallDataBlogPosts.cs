@@ -23,7 +23,7 @@ namespace Grand.Business.System.Services.Installation
                                     new BlogPost
                                         {
                                              AllowComments = false,
-                                             Title = "About GrandNode",
+                                             Title = "Open-source e-commerce platform GrandNode",
                                              BodyOverview = "<p>GrandNode is one of a kind open-source e-commerce platform. Thanks to most advanced ASP.NET Core framework and out of the box set of features it makes a perfect fit for multiple e-business models.</p>",
                                              Body = "<p>Meet the flexible, the most versatile open-source e-commerce platform on the market. Use GrandNode and its ready-to-use integrations to sell everywhere with a single platform. GrandNode guarantees functionalities for now and for the future. We ensure both, the base needs of each e-commerce, and future features needed for expansion. GrandNode is one platform that suits various business models. It can successfully empower traditional B2C & B2B stores, helping local brands expand globally. Our solution supports booking processes, facilitates the management of the availability calendar and even enables the sale of online courses.</p>",
                                              Tags = "e-commerce, grandnode, sample tag, money",

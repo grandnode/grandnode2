@@ -1203,7 +1203,7 @@ namespace Grand.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            _ = await _mediator.Send(new SubAccountAddCommand {
+            await _mediator.Send(new SubAccountAddCommand {
                 Customer = _workContext.CurrentCustomer,
                 Model = model,
                 Store = _workContext.CurrentStore

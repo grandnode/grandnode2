@@ -45,13 +45,15 @@
                         <label asp-for="Description" class="col-form-label">@Loc["Vendors.ApplyAccount.Description"]:</label>
                         <textarea asp-for="Description" class="form-control description"></textarea>
                     </div>
-
-                    <div class="form-group">
-                        <label class="col-form-label">@Loc["Vendors.ApplyAccount.Picture"]:</label>
-                        <div class="custom-file">
-                            <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
+                    @if (Model.AllowToUploadFile)
+                    {
+                        <div class="form-group">
+                            <label class="col-form-label">@Loc["Vendors.ApplyAccount.Picture"]:</label>
+                            <div class="custom-file">
+                                <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (Model.DisplayCaptcha)
                     {
                         <div class="captcha-box">

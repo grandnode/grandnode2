@@ -61,16 +61,6 @@
     {
         <div class="fieldset new-comment generalMarginSupporter" id="comments">
             <h4 class="generalTitle generalMarginSupporter">@Loc["Blog.Comments.LeaveYourComment"]</h4>
-            <div class="notifications">
-                <div asp-validation-summary="All" class="message-error"></div>
-                @{
-                    var result = TempData["Grand.blog.addcomment.result"] as string;
-                }
-                @if (!string.IsNullOrEmpty(result))
-                {
-                    <div class="result alert alert-info">@result</div>
-                }
-            </div>
             <validation-observer v-slot="{ handleSubmit }">
                 <form id="addBlogComment" asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="handleSubmit(blog.submitBlogComment)">
                     <input type="hidden" name="Id" value="@Model.Id"/>

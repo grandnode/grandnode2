@@ -52,8 +52,7 @@ namespace Grand.Infrastructure.Startup
                     var mongoUrl = new MongoUrl(connectionString);
                     var databaseName = mongoUrl.DatabaseName;
                     var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
-                    clientSettings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
-
+                    
                     if (applicationInsights.Enabled)
                         clientSettings.ClusterConfigurator = builder => { builder.Subscribe(new ApplicationInsightsSubscriber(serviceCollection)); };
 

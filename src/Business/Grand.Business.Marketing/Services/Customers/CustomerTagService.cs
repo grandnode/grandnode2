@@ -175,11 +175,10 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <returns>Number of customers</returns>
         public virtual async Task<int> GetCustomerCount(string customerTagId)
         {
-            var query = _customerRepository.Table.
-                Where(x => x.CustomerTags.Contains(customerTagId)).
-                GroupBy(p => p, (k, s) => new { Counter = s.Count() }).ToList();
-            if (query.Count > 0)
-                return query.FirstOrDefault().Counter;
+            var count = _customerRepository.Table.
+                Count(x => x.CustomerTags.Contains(customerTagId));
+            if (count > 0)
+                return count;
             return await Task.FromResult(0);
         }
 
