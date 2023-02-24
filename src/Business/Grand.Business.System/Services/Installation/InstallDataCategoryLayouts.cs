@@ -7,6 +7,7 @@ namespace Grand.Business.System.Services.Installation
     {
         protected virtual async Task InstallCategoryLayouts()
         {
+            // Grid category layout
             var categoryLayouts = new List<CategoryLayout>
                                {
                                    new CategoryLayout
@@ -17,6 +18,18 @@ namespace Grand.Business.System.Services.Installation
                                        },
                                };
             await _categoryLayoutRepository.InsertAsync(categoryLayouts);
+
+            // Grid category layout
+            var categoryLayoutsCard = new List<CategoryLayout>
+                               {
+                                   new CategoryLayout
+                                       {
+                                           Name = "Grid or Lines Card",
+                                           ViewPath = "CategoryLayout.GridOrLines_Card",
+                                           DisplayOrder = 1
+                                       },
+                               };
+            await _categoryLayoutRepository.InsertAsync(categoryLayoutsCard);
         }
     }
 }
