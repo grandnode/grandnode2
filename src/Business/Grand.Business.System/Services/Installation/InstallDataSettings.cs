@@ -340,7 +340,7 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new LoyaltyPointsSettings {
-                Enabled = true,
+                Enabled = false,
                 ExchangeRate = 1,
                 PointsForRegistration = 0,
                 PointsForPurchases_Amount = 10,
