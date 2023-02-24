@@ -210,7 +210,7 @@ namespace Grand.Business.System.Services.Installation
                 NewProductsEnabled = true,
                 NewProductsOnHomePage = false,
                 NewProductsNumberOnHomePage = 6,
-                CompareProductsEnabled = true,
+                CompareProductsEnabled = false,
                 CompareProductsNumber = 4,
                 ProductSearchAutoCompleteEnabled = true,
                 ProductSearchAutoCompleteNumberOfProducts = 10,
