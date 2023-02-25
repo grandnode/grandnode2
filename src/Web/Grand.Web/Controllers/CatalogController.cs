@@ -206,12 +206,13 @@ namespace Grand.Web.Controllers
             return View(layoutViewPath, model);
         }
         [HttpGet]
-        public virtual async Task<IActionResult> BrandAll()
+        public virtual async Task<IActionResult> BrandAll(BrandPagingModel command)
         {
             var model = await _mediator.Send(new GetBrandAll {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
+                Store = _workContext.CurrentStore,
+                Command = command
             });
             return View(model);
         }

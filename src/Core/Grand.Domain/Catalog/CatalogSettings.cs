@@ -409,5 +409,11 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a sorting by availability
         /// </summary>
         public bool SortingByAvailability { get; set; }
+
+        /// <summary>
+        /// Gets or sets the max value for page size to use for pagination on all brands page 
+        /// </summary>
+        public int MaxBrandPageSize { get; set; } = 10;
+
     }
 }

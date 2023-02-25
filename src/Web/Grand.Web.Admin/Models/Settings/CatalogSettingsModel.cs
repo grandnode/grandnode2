@@ -240,6 +240,9 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultCollectionPageSize")]
         public int DefaultCollectionPageSize { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Catalog.MaxBrandPageSize")]
+        public int MaxBrandPageSize { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Catalog.ShowProductsFromSubcategoriesInSearchBox")]
         public bool ShowProductsFromSubcategoriesInSearchBox { get; set; }
 

@@ -2,10 +2,8 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Customers;
+using Grand.Domain.Catalog;
 using Grand.Domain.Media;
-using Grand.Infrastructure.Caching;
-using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
@@ -14,65 +12,89 @@ using MediatR;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
-    public class GetBrandAllHandler : IRequestHandler<GetBrandAll, IList<BrandModel>>
+    public class GetBrandAllHandler : IRequestHandler<GetBrandAll, BrandListModel>
     {
         private readonly IBrandService _brandService;
         private readonly IPictureService _pictureService;
         private readonly ITranslationService _translationService;
-        private readonly ICacheBase _cacheBase;
         private readonly MediaSettings _mediaSettings;
+        private readonly CatalogSettings _catalogSettings;
 
         public GetBrandAllHandler(IBrandService brandService,
             IPictureService pictureService,
             ITranslationService translationService,
-            ICacheBase cacheBase,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            CatalogSettings catalogSettings)
         {
             _brandService = brandService;
             _pictureService = pictureService;
             _translationService = translationService;
-            _cacheBase = cacheBase;
             _mediaSettings = mediaSettings;
+            _catalogSettings = catalogSettings;
         }
 
-        public async Task<IList<BrandModel>> Handle(GetBrandAll request, CancellationToken cancellationToken)
+        public async Task<BrandListModel> Handle(GetBrandAll request, CancellationToken cancellationToken)
         {
-            var cacheKey = string.Format(CacheKeyConst.BRAND_ALL_MODEL_KEY,
-                request.Language.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
-                request.Store.Id);
-            return await _cacheBase.GetAsync(cacheKey, () => PrepareBrandAll(request));
+            var model = new BrandListModel();
+            model.BrandsModel = await PrepareBrands(request, model);
+            return model;
         }
 
-        private async Task<List<BrandModel>> PrepareBrandAll(GetBrandAll request)
+        private async Task<List<BrandModel>> PrepareBrands(GetBrandAll request, BrandListModel brandListModel)
         {
+            request.Command.PageSize = 10;
+            if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
+            if (request.Command.PageSize == 0 || request.Command.PageSize > _catalogSettings.MaxBrandPageSize)
+            {
+                request.Command.PageSize = _catalogSettings.MaxBrandPageSize;
+            }
+
             var model = new List<BrandModel>();
-            var brands = await _brandService.GetAllBrands(storeId: request.Store.Id);
+            var brands = await _brandService.GetAllBrands(storeId: request.Store.Id,
+                pageIndex: request.Command.PageNumber - 1,
+                pageSize: request.Command.PageSize
+            );
+            
+            brandListModel.PagingModel.LoadPagedList(brands);
+
             foreach (var brand in brands)
             {
-                var modelBrand = brand.ToModel(request.Language);
-
-                //prepare picture model
-                var picture = !string.IsNullOrEmpty(brand.PictureId) ? await _pictureService.GetPictureById(brand.PictureId) : null;
-                modelBrand.PictureModel = new PictureModel
-                {
-                    Id = brand.PictureId,
-                    FullSizeImageUrl = await _pictureService.GetPictureUrl(brand.PictureId),
-                    ImageUrl = await _pictureService.GetPictureUrl(brand.PictureId, _mediaSettings.BrandThumbPictureSize),
-                    Style = picture?.Style,
-                    ExtraField = picture?.ExtraField,
-                    //"title" attribute
-                    Title = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)) ?
-                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Brand.ImageLinkTitleFormat"), brand.Name),
-                    //"alt" attribute
-                    AlternateText = picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id)) ?
-                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
-                        string.Format(_translationService.GetResource("Media.Brand.ImageAlternateTextFormat"), brand.Name)
-                };
-
-                model.Add(modelBrand);
+                model.Add(await BuildBrand(brand, request));
             }
+
+            return model;
+        }
+
+        private async Task<BrandModel> BuildBrand(Brand brand, GetBrandAll request)
+        {
+            var model = brand.ToModel(request.Language);
+
+            //prepare picture model
+            var picture = !string.IsNullOrEmpty(brand.PictureId)
+                ? await _pictureService.GetPictureById(brand.PictureId)
+                : null;
+            model.PictureModel = new PictureModel {
+                Id = brand.PictureId,
+                FullSizeImageUrl = await _pictureService.GetPictureUrl(brand.PictureId),
+                ImageUrl = await _pictureService.GetPictureUrl(brand.PictureId, _mediaSettings.BrandThumbPictureSize),
+                Style = picture?.Style,
+                ExtraField = picture?.ExtraField,
+                //"title" attribute
+                Title =
+                    picture != null &&
+                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))
+                        ? picture.GetTranslation(x => x.TitleAttribute, request.Language.Id)
+                        : string.Format(_translationService.GetResource("Media.Brand.ImageLinkTitleFormat"),
+                            brand.Name),
+                //"alt" attribute
+                AlternateText =
+                    picture != null &&
+                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))
+                        ? picture.GetTranslation(x => x.AltAttribute, request.Language.Id)
+                        : string.Format(_translationService.GetResource("Media.Brand.ImageAlternateTextFormat"),
+                            brand.Name)
+            };
+
             return model;
         }
     }
