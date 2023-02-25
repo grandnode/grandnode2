@@ -94,6 +94,10 @@ namespace Grand.Business.Catalog.Services.Products
                 if (product.ProductTypeId == ProductType.BundledProduct)
                 {
                     var i = 0;
+                    if (result.Length > 0)
+                    {
+                        result.Append(separator);
+                    }
                     foreach (var bundle in product.BundleProducts)
                     {
                         var p1 = await _productService.GetProductById(bundle.ProductId);
@@ -101,7 +105,14 @@ namespace Grand.Business.Catalog.Services.Products
                         if (i > 0)
                             result.Append(separator);
 
-                        result.Append($"<a href=\"{p1.GetSeName(langId)}\"> {p1.GetTranslation(x => x.Name, langId)} </a>");
+                        if (htmlEncode)
+                        {
+                            result.Append($"<a href=\"{p1.GetSeName(langId)}\"> {WebUtility.HtmlEncode(p1.GetTranslation(x => x.Name, langId))} </a>");
+                        }
+                        else
+                        {
+                            result.Append($"<a href=\"{p1.GetSeName(langId)}\"> {p1.GetTranslation(x => x.Name, langId)} </a>");
+                        }
                         var formattedAttribute = await PrepareFormattedAttribute(p1, customAttributes, langId, separator, htmlEncode,
                             renderPrices, allowHyperlinks, showInAdmin);
                         if (formattedAttribute.Length > 0)
