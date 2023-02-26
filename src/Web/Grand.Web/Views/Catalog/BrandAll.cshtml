@@ -26,7 +26,10 @@
                 </div>
             }
         </div>
-        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel" />
+        @if (Model.BrandsModel.Any())
+        {
+            <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel"/>
+        }        
     </div>
 </div>
 
