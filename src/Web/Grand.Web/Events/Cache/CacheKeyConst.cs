@@ -80,16 +80,6 @@ namespace Grand.Web.Events.Cache
         public const string COLLECTION_HAS_FEATURED_PRODUCTS_KEY = "Grand.productcollection.hasfeaturedproducts-{0}-{1}-{2}";
 
         /// <summary>
-        /// Key for List of CollectionModel caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : language id
-        /// {1} : comma separated list of customer groups
-        /// {2} : current store ID
-        /// </remarks>
-        public const string COLLECTION_ALL_MODEL_KEY = "Grand.collection.navigation.all-{0}-{1}-{2}.pres";
-
-        /// <summary>
         /// Key for VendorNavigationModel caching
         /// </summary>
         public const string VENDOR_NAVIGATION_MODEL_KEY = "Grand.pres.vendor.navigation";
