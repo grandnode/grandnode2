@@ -43,9 +43,9 @@ namespace Grand.Web.Features.Handlers.Catalog
         private async Task<List<BrandModel>> PrepareBrands(GetBrandAll request, BrandListModel brandListModel)
         {
             if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
-            if (request.Command.PageSize == 0 || request.Command.PageSize > _catalogSettings.MaxBrandPageSize)
+            if (request.Command.PageSize == 0 || request.Command.PageSize > _catalogSettings.MaxCatalogPageSize)
             {
-                request.Command.PageSize = _catalogSettings.MaxBrandPageSize;
+                request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
             }
 
             var model = new List<BrandModel>();

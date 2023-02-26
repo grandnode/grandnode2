@@ -10038,8 +10038,8 @@
 	<Resource Name="Admin.Settings.Catalog.LimitOfFeaturedProducts" Area="Admin">
 		<Value>Limit Of Featured Products</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Catalog.MaxBrandPageSize" Area="Admin">
-		<Value>The max number of brands that can be displayed on the all brands page (page size)</Value>
+	<Resource Name="Admin.Settings.Catalog.MaxCatalogPageSize" Area="Admin">
+		<Value>Page size for the all page of brand/collection/vendor/category</Value>
 	</Resource>
 	<Resource Name="Admin.Settings.Catalog.NewProductsEnabled" Area="Admin">
 		<Value>'New products' page enabled</Value>

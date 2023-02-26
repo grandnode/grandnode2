@@ -54,7 +54,7 @@
 	<Resource Name="Admin.Settings.Vendor.AllowToUploadFile" Area="Admin">
 		<Value>Allow vendor to upload picture file</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Catalog.MaxBrandPageSize" Area="Admin">
-		<Value>The max number of brands that can be displayed on the all brands page (page size)</Value>
+	<Resource Name="Admin.Settings.Catalog.MaxCatalogPageSize" Area="Admin">
+		<Value>Page size for the all page of brand/collection/vendor/category</Value>
 	</Resource>
 </Language>
