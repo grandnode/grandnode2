@@ -6,10 +6,11 @@ using MediatR;
 
 namespace Grand.Web.Features.Models.Catalog
 {
-    public class GetCollectionAll : IRequest<IList<CollectionModel>>
+    public class GetCollectionAll : IRequest<CollectionListModel>
     {
         public Store Store { get; set; }
         public Customer Customer { get; set; }
         public Language Language { get; set; }
+        public CollectionPagingModel Command { get; set; }
     }
 }

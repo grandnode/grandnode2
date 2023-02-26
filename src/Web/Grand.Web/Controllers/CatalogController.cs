@@ -270,12 +270,13 @@ namespace Grand.Web.Controllers
             return View(layoutViewPath, model);
         }
         [HttpGet]
-        public virtual async Task<IActionResult> CollectionAll()
+        public virtual async Task<IActionResult> CollectionAll(CollectionPagingModel command)
         {
             var model = await _mediator.Send(new GetCollectionAll {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
+                Store = _workContext.CurrentStore,
+                Command = command
             });
             return View(model);
         }

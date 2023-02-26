@@ -1,4 +1,4 @@
-﻿@model IList<CollectionModel>
+﻿@model CollectionListModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -10,7 +10,7 @@
     <h1 class="generalTitle h2">@Loc["Collections.List"]</h1>
     <div class="collectionGrid">
         <div class="form-row flex-grid">
-            @foreach (var item in Model)
+            @foreach (var item in Model.CollectionModel)
             {
                 <div class="col-md-4 col-6 mb-2">
                     <a class="mb-2" href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
@@ -26,6 +26,10 @@
                 </div>
             }
         </div>
+        @if (Model.CollectionModel.Any())
+        {
+            <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel"/>
+        }
     </div>
 </div>
 
