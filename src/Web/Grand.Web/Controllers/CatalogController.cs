@@ -317,13 +317,13 @@ namespace Grand.Web.Controllers
             return View(model);
         }
         [HttpGet]
-        public virtual async Task<IActionResult> VendorAll()
+        public virtual async Task<IActionResult> VendorAll(VendorPagingModel command)
         {
             //we don't allow viewing of vendors if "vendors" block is hidden
             if (_vendorSettings.VendorsBlockItemsToDisplay == 0)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetVendorAll { Language = _workContext.WorkingLanguage });
+            var model = await _mediator.Send(new GetVendorAll { Language = _workContext.WorkingLanguage, Command = command });
             return View(model);
         }
 

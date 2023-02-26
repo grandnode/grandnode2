@@ -1,4 +1,4 @@
-﻿@model IList<VendorModel>
+﻿@model VendorListModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -11,7 +11,7 @@
     <h1 class="generalTitle h2">@Loc["Vendors.List"]</h1>
     <div class="vendor-grid">
         <div class="form-row flex-grid">
-            @foreach (var item in Model)
+            @foreach (var item in Model.VendorsModel)
             {
                 <div class="col-md-4 col-6">
                     <a class="mb-2" href="@Url.RouteUrl("Vendor", new { item.SeName })" title="@item.PictureModel.Title">
@@ -27,5 +27,9 @@
                 </div>
             }
         </div>
+        @if (Model.VendorsModel.Any())
+        {
+            <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel"/>
+        }  
     </div>
 </div>

@@ -4,8 +4,9 @@ using MediatR;
 
 namespace Grand.Web.Features.Models.Catalog
 {
-    public class GetVendorAll : IRequest<IList<VendorModel>>
+    public class GetVendorAll : IRequest<VendorListModel>
     {
         public Language Language { get; set; }
+        public VendorPagingModel Command { get; set; }
     }
 }

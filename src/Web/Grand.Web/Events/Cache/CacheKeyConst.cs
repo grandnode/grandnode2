@@ -96,12 +96,6 @@ namespace Grand.Web.Events.Cache
         public const string VENDOR_NAVIGATION_PATTERN_KEY = "Grand.pres.vendor.navigation";
 
         /// <summary>
-        /// Key for List of VendorModel caching
-        /// </summary>
-        public const string VENDOR_ALL_MODEL_KEY = "Grand.pres.vendor.navigation.all";
-
-        
-        /// <summary>
         /// Key for CategoryNavigationModel caching
         /// </summary>
         /// <remarks>
