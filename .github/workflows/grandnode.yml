@@ -4,9 +4,9 @@ on:
     branches:
     - master
 env:
-  AZURE_WEBAPP_NAME: grandnode
+  AZURE_WEBAPP_NAME: grandnode-dev
   AZURE_WEBAPP_PACKAGE_PATH: src/Web/Grand.Web/publish
-  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.grandnode_81e0 }}
+  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
   WORKING_DIRECTORY: src/Web/Grand.Web  
