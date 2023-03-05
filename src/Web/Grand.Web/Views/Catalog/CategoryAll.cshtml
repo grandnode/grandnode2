@@ -1,0 +1,32 @@
+﻿@model CategoryListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Categories"]);
+}
+<div class="page category-page">
+    <h1 class="generalTitle h2">@Loc["Categories.List"]</h1>
+    <div class="col-12 categoryGrid px-0">
+        <div class="form-row">
+            @foreach (var item in Model.CategoriesModel)
+            {
+                <div class="col-md-4 col-6 mb-2">
+                    <a href="@Url.RouteUrl("Category", new { item.SeName })" title="@item.PictureModel.Title">
+                        <div class="card mb-2">
+                            <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">
+                            <div class="card-body">
+                                <h5>@item.Name</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+        @if (Model.CategoriesModel.Any())
+        {
+            <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel"/>
+        }
+    </div>
+</div>

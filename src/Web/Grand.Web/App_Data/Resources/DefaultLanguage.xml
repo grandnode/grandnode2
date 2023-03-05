@@ -12590,6 +12590,9 @@
 	<Resource Name="Categories.Breadcrumb.Top" Area="Front">
 		<Value>Home</Value>
 	</Resource>
+	<Resource Name="Categories.List" Area="Front">
+		<Value>Categories List</Value>
+	</Resource>
 	<Resource Name="Categories.TotalProducts" Area="Front">
 		<Value>({0})</Value>
 	</Resource>
@@ -15805,6 +15808,9 @@
 	</Resource>
 	<Resource Name="Title.Brands" Area="Front">
 		<Value>Brands</Value>
+	</Resource>
+	<Resource Name="Title.Categories" Area="Front">
+		<Value>Categories</Value>
 	</Resource>
 	<Resource Name="Title.Checkout" Area="Front">
 		<Value>Checkout</Value>

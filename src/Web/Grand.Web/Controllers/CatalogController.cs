@@ -152,6 +152,18 @@ namespace Grand.Web.Controllers
 
             return View(layoutViewPath, model);
         }
+        [HttpGet]
+        public virtual async Task<IActionResult> CategoryAll(CategoryPagingModel command)
+        {
+            var model = await _mediator.Send(new GetCategoryAll {
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                Command = command
+            });
+            return View(model);
+        }
+
 
         #endregion
 

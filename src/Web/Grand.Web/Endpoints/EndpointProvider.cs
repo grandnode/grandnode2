@@ -229,6 +229,11 @@ namespace Grand.Web.Endpoints
                             pattern + "producttag/all/",
                             new { controller = "Catalog", action = "ProductTagsAll" });
 
+            //categories
+            endpointRouteBuilder.MapControllerRoute("CategoryList",
+                pattern + "category/all/",
+                new { controller = "Catalog", action = "CategoryAll" });
+            
             //brands
             endpointRouteBuilder.MapControllerRoute("BrandList",
                             pattern + "brand/all/",
