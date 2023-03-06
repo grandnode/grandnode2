@@ -21,17 +21,26 @@
         /// <summary>
         /// Gets the full version
         /// </summary>
-        public const string FullVersion = MajorVersion + "." + MinorVersion + "." + PatchVersion;
+        public const string FullVersion = $"{MajorVersion}.{MinorVersion}.{PatchVersion}";
 
         /// <summary>
         /// Gets the Supported DB version
         /// </summary>
-        public const string SupportedDBVersion = MajorVersion + "." + MinorVersion;
+        public const string SupportedDBVersion = $"{MajorVersion}.{MinorVersion}";
 
         /// <summary>
         /// Gets the Supported plugin version
         /// </summary>
-        public const string SupportedPluginVersion = MajorVersion + "." + MinorVersion;
+        public const string SupportedPluginVersion = $"{MajorVersion}.{MinorVersion}";
 
+        /// <summary>
+        /// Gets the git branch
+        /// </summary>
+        public const string GitBranch = ThisAssembly.Git.Branch;
+        
+        /// <summary>
+        /// Gets the git commit
+        /// </summary>
+        public const string GitCommit = ThisAssembly.Git.Commit;
     }
 }

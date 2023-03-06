@@ -11927,6 +11927,12 @@
 	<Resource Name="Admin.System.SystemInfo.ContentRootPath" Area="Admin">
 		<Value>Absolute path to the directory that contains the application content files</Value>
 	</Resource>
+	<Resource Name="Admin.System.SystemInfo.GitBranch" Area="Front">
+		<Value>Git branch</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.GitCommit" Area="Front">
+		<Value>Git commit</Value>
+	</Resource>	
 	<Resource Name="Admin.System.SystemInfo.GrandVersion" Area="Admin">
 		<Value>grandnode version</Value>
 	</Resource>

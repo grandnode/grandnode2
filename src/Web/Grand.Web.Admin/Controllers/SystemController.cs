@@ -86,8 +86,11 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> SystemInfo()
         {
-            var model = new SystemInfoModel();
-            model.GrandVersion = GrandVersion.FullVersion;
+            var model = new SystemInfoModel {
+                GrandVersion = GrandVersion.FullVersion,
+                GitBranch = GrandVersion.GitBranch,
+                GitCommit = GrandVersion.GitCommit
+            };
             try
             {
                 model.OperatingSystem = RuntimeInformation.OSDescription;
