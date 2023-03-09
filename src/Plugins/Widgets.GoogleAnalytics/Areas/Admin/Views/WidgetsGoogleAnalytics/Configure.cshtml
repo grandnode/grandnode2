@@ -6,22 +6,18 @@
 @await Component.InvokeAsync("StoreScope")
 @{
     //default values
-    var googleAnalytics_trackingScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("<!-- Google code for Analytics tracking -->" + "\r\n" +
-        "<script type=\"text/javascript\">" + "\r\n" +
-        "var _gaq = _gaq || [];" + "\r\n" +
-        "_gaq.push(['_setAccount', '{GOOGLEID}']);" + "\r\n" +
-        "_gaq.push(['_trackPageview']);" + "\r\n" +
-        "{ECOMMERCE}" + "\r\n" +
-        "(function() {" + "\r\n" +
-        "var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;" + "\r\n" +
-        "ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';" + "\r\n" +
-        "var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);" + "\r\n" +
-        "})();" + "\r\n" +
-        "</script>"));
-    var googleAnalytics_EcommerceScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("_gaq.push(['_addTrans', '{ORDERID}', '{SITE}', '{TOTAL}', '{TAX}', '{SHIP}', '{CITY}', '{STATEPROVINCE}', '{COUNTRY}']);" + "\r\n" +
-        "{DETAILS}" + "\r\n" +
-        "_gaq.push(['_trackTrans']); "));
-    var googleAnalytics_EcommerceDetailScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("_gaq.push(['_addItem', '{ORDERID}', '{PRODUCTSKU}', '{PRODUCTNAME}', '{CATEGORYNAME}', '{UNITPRICE}', '{QUANTITY}' ]); "));
+    var googleAnalytics_trackingScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"<!-- Google tag (gtag.js) -->
+                    <script async src='https://www.googletagmanager.com/gtag/js?id={GOOGLEID}'></script>
+                    <script>
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
+                        gtag('config', '{GOOGLEID}');
+                        {ECOMMERCE}
+                    </script>
+                "));
+    var googleAnalytics_EcommerceScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});"));
+    var googleAnalytics_EcommerceDetailScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, "));
     
 }
 <script>
