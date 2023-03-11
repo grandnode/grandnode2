@@ -28,7 +28,7 @@ jobs:
     - name: Build sln
       run: dotnet build "GrandNode.sln"
     - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore -p:SourceRevisionId=${{ GITHUB_SHA }} -p:GitBranch=${GITHUB_REF#refs/heads/}
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore -p:SourceRevisionId=${{ github.sha }} -p:GitBranch=${{ github.ref_name }}
     - name: Grand.Business.Authentication Unit Tests
       run: dotnet test ./src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj
     - name: Grand.Business.Catalog Unit Tests
@@ -58,7 +58,7 @@ jobs:
     - name: Grand.SharedKernel.Tests Unit Tests
       run: dotnet test ./src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj
     - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}" -p:SourceRevisionId=${{ GITHUB_SHA }} -p:GitBranch=${GITHUB_REF#refs/heads/}
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}" -p:SourceRevisionId=${{ github.sha }} -p:GitBranch=${{ github.ref_name }}
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
