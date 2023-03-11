@@ -57,17 +57,6 @@ steps:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
-# disabled           
-#- task: Docker@2
-#  displayName: 'Build and push to dockerhub'
-#  inputs:
-#    containerRegistry: 'DockerHub'
-#    repository: 'grandnode/grandnode2'
-#    command: 'buildAndPush'
-#    tags: |
-#      latest
-#    Dockerfile: '**/Dockerfile'
-
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
