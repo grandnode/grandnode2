@@ -1,5 +1,9 @@
 name: Build and deploy .NET Core app to Linux WebApp grandnode
-on: [push]  
+on:   
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]  
   
 env:
   AZURE_WEBAPP_NAME: grandnode-dev
