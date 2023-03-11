@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Build\Grand.Common.props" />
+  <Import Project="..\..\Build\Grand.Common.props" />   
   <ItemGroup>
-    <PackageReference Include="GitInfo" Version="3.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="GoogleAuthenticator" Version="3.0.0" />
     <PackageReference Include="MassTransit" Version="8.0.12" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
