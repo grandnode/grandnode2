@@ -25,8 +25,14 @@ RUN dotnet build /app/Plugins/Widgets.FacebookPixel -c Release -p:SourceRevision
 RUN dotnet build /app/Plugins/Widgets.GoogleAnalytics -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Widgets.Slider -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
-# build Web
-RUN dotnet publish /app/Web/Grand.Web -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
+# restore
+RUN dotnet restore /app/Web/Grand.Web/Grand.Web.csproj
+
+#build
+RUN dotnet build /app/Web/Grand.Web/Grand.Web.csproj --no-restore -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
+
+# publish Web
+RUN dotnet publish /app/Web/Grand.Web --no-restore -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0

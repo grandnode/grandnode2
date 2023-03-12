@@ -18,17 +18,20 @@
 		<Using Include="System.Threading"/>
 		<Using Include="System.Threading.Tasks"/>
 	</ItemGroup>
-	<Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation">
+	<Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation" Condition="'$(SourceRevisionId)'==''">
 		<Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True" IgnoreExitCode="True">
 			<Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput" />
 		</Exec>
 	</Target>
-	<Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation">
+	<Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation" Condition="'$(GitBranch)'==''">
 		<Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="True" IgnoreExitCode="True">
-			<Output PropertyName="GitBranch" TaskParameter="ConsoleOutput" />
+			<Output PropertyName="branch" TaskParameter="ConsoleOutput" />
 		</Exec>
 		<ItemGroup>
-			<AssemblyMetadata Include="BranchName" Value="$(GitBranch)" />
+			<AssemblyMetadata Include="BranchName" Value="$(branch)" />
 		</ItemGroup>
 	</Target>
+	<ItemGroup Condition="'$(GitBranch)'!=''">
+		<AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" />
+	</ItemGroup>
 </Project>

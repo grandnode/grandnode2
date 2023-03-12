@@ -68,7 +68,7 @@ namespace Grand.Infrastructure
 
             var appAssembly = typeof(GrandVersion).Assembly;
             var infoBranchAttr = appAssembly.GetCustomAttributes(typeof(AssemblyMetadataAttribute))
-                .FirstOrDefault(x => ((AssemblyMetadataAttribute)x).Key == "BranchName");
+                .FirstOrDefault(x => ((AssemblyMetadataAttribute)x).Key == "GitBranch");
             _gitBranch = infoBranchAttr != null ? ((AssemblyMetadataAttribute)infoBranchAttr).Value : "UNKNOWN";
             return _gitBranch;
         }
