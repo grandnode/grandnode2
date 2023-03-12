@@ -28,7 +28,7 @@
 			<Output PropertyName="branch" TaskParameter="ConsoleOutput" />
 		</Exec>
 		<ItemGroup>
-			<AssemblyMetadata Include="BranchName" Value="$(branch)" />
+			<AssemblyMetadata Include="GitBranch" Value="$(branch)" />
 		</ItemGroup>
 	</Target>
 	<ItemGroup Condition="'$(GitBranch)'!=''">
