@@ -4,7 +4,7 @@
     {
         public string DbConnectionString { get; set; }
         public int DbProvider { get; set; }
-        public IList<string> InstalledPlugins { get; set; } = new List<string>();
+        public string InstalledPlugins { get; set; }
 
     }
 }

@@ -18,7 +18,6 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 
@@ -35,7 +34,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IPriceFormatter _priceFormatter;
         private readonly IPictureService _pictureService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -51,7 +49,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IPriceFormatter priceFormatter,
             IPictureService pictureService,
             IShoppingCartValidator shoppingCartValidator,
-            IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
@@ -66,7 +63,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _priceFormatter = priceFormatter;
             _pictureService = pictureService;
             _shoppingCartValidator = shoppingCartValidator;
-            _httpContextAccessor = httpContextAccessor;
             _linkGenerator = linkGenerator;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
@@ -115,7 +111,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = sename,
-                    ProductUrl = _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = sename }),
+                    ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                     Quantity = sci.Quantity,
                     AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes),
                     AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually

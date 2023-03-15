@@ -64,7 +64,7 @@ namespace Grand.Infrastructure.Plugins
                 try
                 {
                     var installedPluginSystemNames =
-                        advConfig.InstalledPlugins.Any() ? advConfig.InstalledPlugins :
+                        !string.IsNullOrEmpty(advConfig.InstalledPlugins) ? advConfig.InstalledPlugins.Split(",").Select(x=>x.Trim()) :
                         PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
 
                     Log.Information("Creating shadow copy folder and querying for dlls");

@@ -17,7 +17,6 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Diagnostics;
 
@@ -37,7 +36,6 @@ namespace Grand.Web.Features.Handlers.Products
         private readonly IPictureService _pictureService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IMediator _mediator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -55,7 +53,6 @@ namespace Grand.Web.Features.Handlers.Products
             IPictureService pictureService,
             IDateTimeService dateTimeService,
             IMediator mediator,
-            IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings)
@@ -72,7 +69,6 @@ namespace Grand.Web.Features.Handlers.Products
             _pictureService = pictureService;
             _dateTimeService = dateTimeService;
             _mediator = mediator;
-            _httpContextAccessor = httpContextAccessor;
             _linkGenerator = linkGenerator;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
@@ -170,8 +166,7 @@ namespace Grand.Web.Features.Handlers.Products
                 ShortDescription = product.GetTranslation(x => x.ShortDescription, _workContext.WorkingLanguage.Id),
                 FullDescription = product.GetTranslation(x => x.FullDescription, _workContext.WorkingLanguage.Id),
                 SeName = sename,
-                Url = _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product",
-                    new { SeName = sename }),
+                Url = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                 ProductType = product.ProductTypeId,
                 Sku = product.Sku,
                 Gtin = product.Gtin,

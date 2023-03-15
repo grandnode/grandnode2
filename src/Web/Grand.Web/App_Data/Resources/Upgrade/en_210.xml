@@ -63,4 +63,10 @@
 	<Resource Name="Categories.List" Area="Front">
 		<Value>Categories List</Value>
 	</Resource>
+	<Resource Name="Admin.System.SystemInfo.GitBranch" Area="Front">
+		<Value>Git branch</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.GitCommit" Area="Front">
+		<Value>Git commit</Value>
+	</Resource>
 </Language>

@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Build\Grand.Common.props" />
+  <Import Project="..\..\Build\Grand.Common.props" />   
   <ItemGroup>
     <PackageReference Include="GoogleAuthenticator" Version="3.0.0" />
     <PackageReference Include="MassTransit" Version="8.0.12" />

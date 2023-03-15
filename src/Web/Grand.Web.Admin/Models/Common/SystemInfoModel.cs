@@ -18,9 +18,14 @@ namespace Grand.Web.Admin.Models.Common
         [GrandResourceDisplayName("Admin.System.SystemInfo.MachineName")]
         public string MachineName { get; set; }
 
-
         [GrandResourceDisplayName("Admin.System.SystemInfo.GrandVersion")]
         public string GrandVersion { get; set; }
+        
+        [GrandResourceDisplayName("Admin.System.SystemInfo.GitBranch")]
+        public string GitBranch { get; set; }
+
+        [GrandResourceDisplayName("Admin.System.SystemInfo.GitCommit")]
+        public string GitCommit { get; set; }
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.OperatingSystem")]
         public string OperatingSystem { get; set; }

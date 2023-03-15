@@ -13,7 +13,6 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
@@ -27,7 +26,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IPricingService _pricingService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IPictureService _pictureService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MediaSettings _mediaSettings;
@@ -40,7 +38,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IPricingService priceCalculationService,
             IPriceFormatter priceFormatter,
             IPictureService pictureService,
-            IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator,
             ShoppingCartSettings shoppingCartSettings,
             MediaSettings mediaSettings)
@@ -52,7 +49,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _pricingService = priceCalculationService;
             _priceFormatter = priceFormatter;
             _pictureService = pictureService;
-            _httpContextAccessor = httpContextAccessor;
             _linkGenerator = linkGenerator;
             _shoppingCartSettings = shoppingCartSettings;
             _mediaSettings = mediaSettings;
@@ -84,7 +80,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = sename,
-                    ProductUrl = _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = sename }),
+                    ProductUrl = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
                     Quantity = sci.Quantity,
                     AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes)
                 };
