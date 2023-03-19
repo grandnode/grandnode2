@@ -12959,6 +12959,9 @@
 	<Resource Name="ContactUs.EmailSubject" Area="Front">
 		<Value>{0}. Contact us</Value>
 	</Resource>
+	<Resource Name="ContactUs.Subject.Hint" Area="Front">
+		<Value>Enter your subject</Value>
+	</Resource>
 	<Resource Name="ContactUs.Enquiry" Area="Front">
 		<Value>Enquiry</Value>
 	</Resource>
