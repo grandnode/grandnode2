@@ -33,7 +33,7 @@
         {
             <div class="btn-group w-100 mt-3">
                 <input name="HighestBidValue" type="number" class="form-control" value="@(Model.HighestBidValue > 0 ? (Model.HighestBidValue + 1).ToString(CultureInfo.InvariantCulture) : (Model.StartPrice + 1).ToString(CultureInfo.InvariantCulture))" />
-                <button id="bid-button-@Model.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" data-productid="@Model.Id" onclick="AxiosCart.addbid('@Url.RouteUrl("AddBid", new { productId = Model.Id })', '#product-details-form'); return false;">
+                <button id="bid-button-@Model.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" data-productid="@Model.Id" onclick="AxiosCart.addbid('@Url.RouteUrl("AddBid", new { productId = Model.Id })', @($"'#product-details-form-{Model.Id}'")); return false;">
                     <b-icon icon="hammer" class="mx-1"></b-icon><span>@Loc["ShoppingCart.Bid"]</span>
                 </button>
             </div>
