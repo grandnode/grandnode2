@@ -66,7 +66,7 @@ namespace Grand.Api.Infrastructure
             });
 
 
-            builder.AddJwtBearer(FrontendAPIConfig.Scheme, options =>
+            builder.AddJwtBearer(FrontendAPIConfig.AuthenticationScheme, options =>
             {
                 var config = new FrontendAPIConfig();
                 configuration.GetSection("FrontendAPI").Bind(config);

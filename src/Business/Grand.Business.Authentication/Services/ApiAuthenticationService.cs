@@ -75,7 +75,7 @@ namespace Grand.Business.Authentication.Services
         {
             Customer customer = null;
             if (_httpContextAccessor.HttpContext == null) return null;
-            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(FrontendAPIConfig.Scheme);
+            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(FrontendAPIConfig.AuthenticationScheme);
             if (!authResult.Succeeded)
             {
                 _httpContextAccessor.HttpContext.Response.StatusCode = 400;
