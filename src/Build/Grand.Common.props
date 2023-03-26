@@ -6,7 +6,7 @@
 		<Product>grandnode</Product>
 		<PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>   
 		<RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
-		<PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/master/LICENSE</PackageLicenseUrl>
+		<PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/main/LICENSE</PackageLicenseUrl>
 		<RepositoryType>Git</RepositoryType>
 	</PropertyGroup>
 	<ItemGroup>

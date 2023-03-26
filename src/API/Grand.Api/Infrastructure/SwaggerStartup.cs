@@ -99,7 +99,7 @@ namespace Grand.Api.Infrastructure
         {
             return new OpenApiLicense {
                 Name = "GNU General Public License v3.0",
-                Url = new Uri("https://github.com/grandnode/grandnode2/blob/master/LICENSE"),
+                Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE"),
             };
         }
     }
