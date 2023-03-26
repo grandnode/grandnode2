@@ -16,9 +16,9 @@
 		<PackageReference Include="elFinder.Net.AspNetCore" Version="1.5.0" />
 		<PackageReference Include="elFinder.Net.Core" Version="1.5.0" />
 		<PackageReference Include="elFinder.Net.Drivers.FileSystem" Version="1.5.0" />
-		<PackageReference Include="Google.Apis" Version="1.59.0" />
-		<PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.59.0.2484" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.14" />
+		<PackageReference Include="Google.Apis" Version="1.60.0" />
+		<PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.60.0.2484" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.15" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
