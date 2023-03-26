@@ -34,7 +34,7 @@ Advanced personalization, scalability, speed, and high efficiency - these are fe
 <div align="center">
 
 ![Tests on Linux, MacOS and Windows](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml/badge.svg)
-[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=master)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=master)
+[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=main)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=main)
 [![Docker Image CI](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml)
 ![License](https://img.shields.io/github/license/grandnode/grandnode2)
 <a href="https://docs.grandnode.com/"><img src="https://img.shields.io/badge/Docs-docs.grandnode.com-brightgreen"></a>
@@ -188,4 +188,4 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 To clarify behavior rules in our community, GrandNode has adopted the code of conduct defined by the Contributor Covenant. For more information see the [Code of Conduct.](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
 
 ## License
-GrandNode is completely free and distributed under the GNU General Public License v3.0. It's available [here](https://github.com/grandnode/grandnode2/blob/master/LICENSE)
+GrandNode is completely free and distributed under the GNU General Public License v3.0. It's available [here](https://github.com/grandnode/grandnode2/blob/main/LICENSE)
