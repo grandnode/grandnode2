@@ -16,42 +16,6 @@ namespace Grand.Business.Common.Services.Directory
         private readonly ICacheBase _cacheBase;
         private readonly IMediator _mediator;
 
-        #region Utilities
-
-        /// <summary>
-        /// Gets a value indicating whether customer is in a certain customer group
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="customerGroupSystemName">Customer group system name</param>
-        /// <param name="onlyActiveCustomerGroups">A value indicating whether we should look only in active customer groups</param>
-        /// <param name="isSystem">A value indicating whether we should look only in system groups</param>
-        /// <returns>Result</returns>
-        private async Task<bool> IsInCustomerGroup(Customer customer,
-            string customerGroupSystemName,
-            bool onlyActiveCustomerGroups = true,
-            bool? isSystem = null)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (string.IsNullOrEmpty(customerGroupSystemName))
-                throw new ArgumentNullException(nameof(customerGroupSystemName));
-
-            var customerGroup = await GetCustomerGroupBySystemName(customerGroupSystemName);
-            if (customerGroup == null)
-                return false;
-
-            var result =
-                customer.Groups.Contains(customerGroup.Id)
-                && (!onlyActiveCustomerGroups || customerGroup.Active)
-                && customerGroup.SystemName == customerGroupSystemName
-                && (!isSystem.HasValue || customerGroup.IsSystem == isSystem);
-
-            return result;
-        }
-
-        #endregion
-
         public GroupService(IRepository<CustomerGroup> customerGroupRepository,
             ICacheBase cacheBase,
             IMediator mediator)
@@ -167,6 +131,38 @@ namespace Grand.Business.Common.Services.Directory
 
             //event notification
             await _mediator.EntityDeleted(customerGroup);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether customer is in a certain customer group
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="customerGroupSystemName">Customer group system name</param>
+        /// <param name="onlyActiveCustomerGroups">A value indicating whether we should look only in active customer groups</param>
+        /// <param name="isSystem">A value indicating whether we should look only in system groups</param>
+        /// <returns>Result</returns>
+        public virtual async Task<bool> IsInCustomerGroup(Customer customer,
+            string customerGroupSystemName,
+            bool onlyActiveCustomerGroups = true,
+            bool? isSystem = null)
+        {
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
+
+            if (string.IsNullOrEmpty(customerGroupSystemName))
+                throw new ArgumentNullException(nameof(customerGroupSystemName));
+
+            var customerGroup = await GetCustomerGroupBySystemName(customerGroupSystemName);
+            if (customerGroup == null)
+                return false;
+
+            var result =
+                customer.Groups.Contains(customerGroup.Id)
+                && (!onlyActiveCustomerGroups || customerGroup.Active)
+                && customerGroup.SystemName == customerGroupSystemName
+                && (!isSystem.HasValue || customerGroup.IsSystem == isSystem);
+
+            return result;
         }
 
         public Task<bool> IsStaff(Customer customer)

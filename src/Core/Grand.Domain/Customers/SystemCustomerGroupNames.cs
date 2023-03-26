@@ -2,16 +2,16 @@ namespace Grand.Domain.Customers
 {
     public static partial class SystemCustomerGroupNames
     {
-        public static string Administrators { get { return "Administrators"; } }
-        
-        public static string Registered { get { return "Registered"; } }
+        public const string Administrators = "Administrators";
 
-        public static string Guests { get { return "Guests"; } }
+        public const string Registered = "Registered";
 
-        public static string Vendors { get { return "Vendors"; } }
+        public const string Guests = "Guests";
 
-        public static string Staff { get { return "Staff"; } }
+        public const string Vendors = "Vendors";
 
-        public static string SalesManager { get { return "SalesManager"; } }
+        public const string Staff = "Staff";
+
+        public const string SalesManager = "SalesManager";
     }
 }

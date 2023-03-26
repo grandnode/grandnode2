@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
+using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
@@ -15,6 +16,7 @@ using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
@@ -96,13 +98,11 @@ namespace Grand.Web.Controllers
 
         #region Methods
         [HttpGet]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> ApplyVendor()
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
-
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
 
             var model = new ApplyVendorModel();
             if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.VendorId))
@@ -134,14 +134,12 @@ namespace Grand.Web.Controllers
         [HttpPost, ActionName("ApplyVendor")]
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, IFormFile uploadedFile)
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
 
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-            
             var contentType = string.Empty;
             byte[] vendorPictureBinary = null;
 
@@ -227,12 +225,11 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
+
         [HttpGet]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> Info()
         {
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 
@@ -257,11 +254,9 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> Info(VendorInfoModel model, IFormFile uploadedFile)
         {
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 
@@ -334,11 +329,9 @@ namespace Grand.Web.Controllers
         }
 
         [HttpGet]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> RemovePicture()
         {
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-
             if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
                 return RedirectToRoute("CustomerInfo");
 

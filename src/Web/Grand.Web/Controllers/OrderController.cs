@@ -20,6 +20,8 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Security.Authorization;
+using Grand.Domain.Customers;
 
 namespace Grand.Web.Controllers
 {
@@ -82,11 +84,9 @@ namespace Grand.Web.Controllers
 
         //My account / Orders
         [HttpGet]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> CustomerOrders(OrderPagingModel command)
         {
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-
             var model = await _mediator.Send(new GetCustomerOrderList {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -252,11 +252,9 @@ namespace Grand.Web.Controllers
 
         //My account / Loyalty points
         [HttpGet]
+        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
         public virtual async Task<IActionResult> CustomerLoyaltyPoints([FromServices] LoyaltyPointsSettings loyaltyPointsSettings)
         {
-            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
-                return Challenge();
-
             if (!loyaltyPointsSettings.Enabled)
                 return RedirectToRoute("CustomerInfo");
 
