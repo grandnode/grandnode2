@@ -14277,6 +14277,9 @@
 		<Value>Notify me when available</Value>
 	</Resource>
 	<Resource Name="OutOfStockSubscriptions.OnlyRegistered" Area="Front">
+		<Value>Only registered customers can get notify</Value>
+	</Resource>
+	<Resource Name="OutOfStockSubscriptions.OnlyRegisteredText" Area="Front">
 		<Value>Only registered customers can use this feature</Value>
 	</Resource>
 	<Resource Name="OutOfStockSubscriptions.PleaseWait" Area="Front">

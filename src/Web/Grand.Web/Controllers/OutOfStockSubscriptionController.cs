@@ -71,7 +71,7 @@ namespace Grand.Web.Controllers
 
             var customer = _workContext.CurrentCustomer;
             if (!await _groupService.IsRegistered(customer))
-                return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
+                return Content(_translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered"));
 
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock)
                 return Content(_translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"));
@@ -108,8 +108,8 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(customer))
                 return Json(new {
                     subscribe = false,
-                    buttontext = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable"),
-                    resource = _translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered")
+                    buttontext = _translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered"),
+                    resource = _translationService.GetResource("OutOfStockSubscriptions.OnlyRegisteredText")
                 });
 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
