@@ -48,7 +48,7 @@ namespace Shipping.ShippingPoint.Services
         public virtual async Task<IPagedList<ShippingPoints>> GetAllStoreShippingPoint(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = from gp in _shippingPointRepository.Table
-                        where (gp.StoreId == storeId || string.IsNullOrEmpty(gp.StoreId)) || storeId == ""
+                        where gp.StoreId == storeId || string.IsNullOrEmpty(gp.StoreId) || storeId == ""
                         select gp;
 
             var records = query.ToList();
@@ -60,13 +60,13 @@ namespace Shipping.ShippingPoint.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="pickupPointId"></param>
+        /// <param name="pointName"></param>
         /// <returns></returns>
         public virtual Task<ShippingPoints> GetStoreShippingPointByPointName(string pointName)
         {
-            return Task.FromResult((from shippingOoint in _shippingPointRepository.Table
-                    where shippingOoint.ShippingPointName == pointName
-                    select shippingOoint).FirstOrDefault());
+            return Task.FromResult((from shippingPoint in _shippingPointRepository.Table
+                    where shippingPoint.ShippingPointName == pointName
+                    select shippingPoint).FirstOrDefault());
         }
 
         /// <summary>

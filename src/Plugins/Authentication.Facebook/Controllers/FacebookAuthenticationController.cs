@@ -44,7 +44,7 @@ namespace Authentication.Facebook.Controllers
 
             //configure login callback action
             var authenticationProperties = new AuthenticationProperties {
-                RedirectUri = Url.Action("FacebookLoginCallback", "FacebookAuthentication", new { returnUrl = returnUrl })
+                RedirectUri = Url.Action("FacebookLoginCallback", "FacebookAuthentication", new { returnUrl })
             };
 
             return Challenge(authenticationProperties, FacebookDefaults.AuthenticationScheme);

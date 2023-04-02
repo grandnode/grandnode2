@@ -4,7 +4,7 @@ using Grand.Infrastructure.Plugins;
 
 namespace DiscountRules.Standard
 {
-    public partial class DiscountPlugin : BasePlugin, IPlugin
+    public class DiscountPlugin : BasePlugin, IPlugin
     {
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;

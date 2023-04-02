@@ -28,7 +28,7 @@ namespace Payments.BrainTree
 
         public async Task<IList<string>> GetWidgetZones()
         {
-            return await Task.FromResult(new string[] { "checkout_payment_info_top" });
+            return await Task.FromResult(new[] { "checkout_payment_info_top" });
         }
 
         public Task<string> GetPublicViewComponentName(string widgetZone)

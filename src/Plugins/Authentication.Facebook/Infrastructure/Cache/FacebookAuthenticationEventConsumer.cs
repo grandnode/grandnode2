@@ -11,7 +11,7 @@ namespace Authentication.Facebook.Infrastructure.Cache
     /// <summary>
     /// Facebook authentication event consumer (used for saving customer fields on registration)
     /// </summary>
-    public partial class FacebookAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
+    public class FacebookAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
     {
         #region Fields
 

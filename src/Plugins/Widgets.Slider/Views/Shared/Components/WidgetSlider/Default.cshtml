@@ -1,18 +1,6 @@
 ﻿@model Widgets.Slider.Models.PublicInfoModel
 
 <link rel="stylesheet" type="text/css" asp-src="/Plugins/Widgets.Slider/Assets/vue-style.css" />
-<script asp-location="Header">
-    document.addEventListener('DOMContentLoaded', function () {
-        // fire if first slide has set full width
-        if (document.querySelector('#GrandCarousel .carousel-item').getAttribute('data-width') == 'full') {
-            var mainContainer = document.querySelector(".main-container");
-            var GrandCarousel = document.getElementById("GrandCarousel");
-            var parentDiv = mainContainer.parentNode;
-
-            parentDiv.insertBefore(GrandCarousel, mainContainer);
-        }
-    });
-</script>
 
 <b-carousel id="GrandCarousel" fade controls indicators img-width="1024" img-height="267" :interval="6000">
     @foreach (var item in Model.Slide)

@@ -30,18 +30,6 @@ namespace Widgets.GoogleAnalytics
         }
 
         /// <summary>
-        /// Gets widget zones where this widget should be rendered
-        /// </summary>
-        /// <returns>Widget zones</returns>
-        public IList<string> GetWidgetZones()
-        {
-            return new List<string>
-            {
-                "body_end_html_tag_before", "clean_body_end_html_tag_before"
-            };
-        }
-
-        /// <summary>
         /// Install plugin
         /// </summary>
         public override async Task Install()

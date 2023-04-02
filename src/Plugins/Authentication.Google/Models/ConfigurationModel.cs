@@ -9,7 +9,7 @@ namespace Authentication.Google.Models
         public string ClientKeyIdentifier { get; set; }
         [GrandResourceDisplayName("Plugins.ExternalAuth.Google.ClientSecret")]
         public string ClientSecret { get; set; }
-        [GrandResourceDisplayName("Plugins.Externalauth.Google.DisplayOrder")]
+        [GrandResourceDisplayName("Plugins.ExternalAuth.Google.DisplayOrder")]
         public int DisplayOrder { get; set; }
     }
 }

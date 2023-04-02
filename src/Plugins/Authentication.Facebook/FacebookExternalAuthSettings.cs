@@ -3,7 +3,7 @@ using Grand.Domain.Configuration;
 namespace Authentication.Facebook
 {
     /// <summary>
-    /// Represents settings of the Facebook authentication mehod
+    /// Represents settings of the Facebook authentication method
     /// </summary>
     public class FacebookExternalAuthSettings : ISettings
     {        

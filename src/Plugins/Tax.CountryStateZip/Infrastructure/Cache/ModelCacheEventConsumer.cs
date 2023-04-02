@@ -9,7 +9,7 @@ namespace Tax.CountryStateZip.Infrastructure.Cache
     /// <summary>
     /// Model cache event consumer (used for caching of presentation layer models)
     /// </summary>
-    public partial class ModelCacheEventConsumer :
+    public class ModelCacheEventConsumer :
         //tax rates
         INotificationHandler<EntityInserted<TaxRate>>,
         INotificationHandler<EntityUpdated<TaxRate>>,

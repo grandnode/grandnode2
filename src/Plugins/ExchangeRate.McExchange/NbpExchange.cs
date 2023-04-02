@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Mime;
@@ -18,7 +19,7 @@ namespace ExchangeRate.McExchange
             var currentDate = DateTime.Today.AddDays(-1);
             var httpClient = _httpClientFactory.CreateClient(Constant.DefaultHttpClientName);
             httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Xml);
-            using var response = await httpClient.GetStreamAsync($"{Constant.NbpUrl}{currentDate.AddDays(-7):yyyy-MM-dd}/{currentDate:yyyy-MM-dd}");
+            await using var response = await httpClient.GetStreamAsync($"{Constant.NbpUrl}{currentDate.AddDays(-7):yyyy-MM-dd}/{currentDate:yyyy-MM-dd}");
             var document = new XmlDocument();
             document.Load(response);
 
@@ -28,11 +29,13 @@ namespace ExchangeRate.McExchange
                 .First();
 
             var updateDate = DateTime.ParseExact(node.InnerText, "yyyy-MM-dd", null);
+            Debug.Assert(node.ParentNode != null, "node.ParentNode != null");
             var ratesNode = node.ParentNode.SelectSingleNode("Rates");
 
-            var provider = new NumberFormatInfo();
-            provider.CurrencyDecimalSeparator = ".";
-            provider.NumberGroupSeparator = "";
+            var provider = new NumberFormatInfo {
+                CurrencyDecimalSeparator = ".",
+                NumberGroupSeparator = ""
+            };
 
             var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
             foreach (XmlNode node2 in ratesNode.ChildNodes)

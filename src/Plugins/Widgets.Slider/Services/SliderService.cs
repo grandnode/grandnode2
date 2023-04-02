@@ -6,11 +6,11 @@ using Widgets.Slider.Domain;
 
 namespace Widgets.Slider.Services
 {
-    public partial class SliderService : ISliderService
+    public class SliderService : ISliderService
     {
         #region Fields
 
-        private readonly IRepository<PictureSlider> _reporistoryPictureSlider;
+        private readonly IRepository<PictureSlider> _repositoryPictureSlider;
         private readonly IAclService _aclService;
         private readonly IWorkContext _workContext;
         private readonly ICacheBase _cacheBase;
@@ -23,16 +23,17 @@ namespace Widgets.Slider.Services
         /// {1} : Slider type
         /// {2} : Object entry / categoryId || collectionId
         /// </remarks>
-        public const string SLIDERS_MODEL_KEY = "Grand.slider-{0}-{1}-{2}";
-        public const string SLIDERS_PATTERN_KEY = "Grand.slider";
+        private const string SLIDERS_MODEL_KEY = "Grand.slider-{0}-{1}-{2}";
+
+        private const string SLIDERS_PATTERN_KEY = "Grand.slider";
 
         #endregion
         
-        public SliderService(IRepository<PictureSlider> reporistoryPictureSlider,
+        public SliderService(IRepository<PictureSlider> repositoryPictureSlider,
             IWorkContext workContext, IAclService aclService,
             ICacheBase cacheManager)
         {
-            _reporistoryPictureSlider = reporistoryPictureSlider;
+            _repositoryPictureSlider = repositoryPictureSlider;
             _workContext = workContext;
             _aclService = aclService;
             _cacheBase = cacheManager;
@@ -41,15 +42,15 @@ namespace Widgets.Slider.Services
         /// Delete a slider
         /// </summary>
         /// <param name="slider">Slider</param>
-        public virtual async Task DeleteSlider(PictureSlider slide)
+        public virtual async Task DeleteSlider(PictureSlider slider)
         {
-            if (slide == null)
-                throw new ArgumentNullException(nameof(slide));
+            if (slider == null)
+                throw new ArgumentNullException(nameof(slider));
 
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
 
-            await _reporistoryPictureSlider.DeleteAsync(slide);
+            await _repositoryPictureSlider.DeleteAsync(slider);
         }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace Widgets.Slider.Services
         /// <returns>Picture Sliders</returns>
         public virtual async Task<IList<PictureSlider>> GetPictureSliders()
         {
-            return await Task.FromResult(_reporistoryPictureSlider.Table.OrderBy(x => x.SliderTypeId).ThenBy(x => x.DisplayOrder).ToList());
+            return await Task.FromResult(_repositoryPictureSlider.Table.OrderBy(x => x.SliderTypeId).ThenBy(x => x.DisplayOrder).ToList());
         }
 
         /// <summary>
@@ -67,10 +68,10 @@ namespace Widgets.Slider.Services
         /// <returns>Picture Sliders</returns>
         public virtual async Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string objectEntry = "")
         {
-            string cacheKey = string.Format(SLIDERS_MODEL_KEY, _workContext.CurrentStore.Id, sliderType.ToString(), objectEntry);
+            var cacheKey = string.Format(SLIDERS_MODEL_KEY, _workContext.CurrentStore.Id, sliderType.ToString(), objectEntry);
             return await _cacheBase.GetAsync(cacheKey, async () =>
             {
-                var query = from s in _reporistoryPictureSlider.Table
+                var query = from s in _repositoryPictureSlider.Table
                             where s.SliderTypeId == sliderType && s.Published
                             select s;
 
@@ -90,7 +91,7 @@ namespace Widgets.Slider.Services
         /// <returns>Tax rate</returns>
         public virtual Task<PictureSlider> GetById(string slideId)
         {
-            return _reporistoryPictureSlider.GetByIdAsync(slideId);
+            return _repositoryPictureSlider.GetByIdAsync(slideId);
         }
 
         /// <summary>
@@ -105,7 +106,7 @@ namespace Widgets.Slider.Services
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
 
-            await _reporistoryPictureSlider.InsertAsync(slide);
+            await _repositoryPictureSlider.InsertAsync(slide);
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace Widgets.Slider.Services
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
 
-            await _reporistoryPictureSlider.UpdateAsync(slide);
+            await _repositoryPictureSlider.UpdateAsync(slide);
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace Widgets.Slider.Services
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
 
-            await _reporistoryPictureSlider.DeleteAsync(slide);
+            await _repositoryPictureSlider.DeleteAsync(slide);
         }
 
     }

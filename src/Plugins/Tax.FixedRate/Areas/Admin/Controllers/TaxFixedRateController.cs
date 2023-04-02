@@ -51,18 +51,19 @@ namespace Tax.FixedRate.Controllers
         [HttpPost]
         public async Task<IActionResult> TaxRateUpdate(FixedTaxRateModel model)
         {
-            string taxCategoryId = model.TaxCategoryId;
-            double rate = model.Rate;
+            var taxCategoryId = model.TaxCategoryId;
+            var rate = model.Rate;
 
-            await _settingService.SetSetting(string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategoryId), new FixedTaxRate() { Rate = rate });
+            await _settingService.SetSetting($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}", new FixedTaxRate() { Rate = rate });
 
             return new JsonResult("");
         }
 
         [NonAction]
-        protected double GetTaxRate(string taxCategoryId)
+        private double GetTaxRate(string taxCategoryId)
         {
-            var rate = _settingService.GetSettingByKey<FixedTaxRate>(string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategoryId))?.Rate;
+            var rate = _settingService.GetSettingByKey<FixedTaxRate>(
+                $"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}")?.Rate;
             return rate ?? 0;
         }
     }

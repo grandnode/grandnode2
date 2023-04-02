@@ -6,6 +6,7 @@ using Grand.Web.Common.Filters;
 using Grand.Domain.Discounts;
 using Microsoft.AspNetCore.Mvc;
 using DiscountRules.Standard.HadSpentAmount.Models;
+using System.Globalization;
 
 namespace DiscountRules.Standard.HadSpentAmount.Controllers
 {
@@ -50,7 +51,8 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
             };
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHadSpentAmount{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
+            ViewData.TemplateInfo.HtmlFieldPrefix =
+                $"DiscountRulesHadSpentAmount{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
             return View(model);
         }
@@ -73,7 +75,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
             if (discountRequirement != null)
             {
                 //update existing rule
-                discountRequirement.Metadata = spentAmount.ToString();
+                discountRequirement.Metadata = spentAmount.ToString(CultureInfo.InvariantCulture);
                 await _discountService.UpdateDiscount(discount);
             }
             else
@@ -81,7 +83,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
                 //save new rule
                 discountRequirement = new DiscountRule {
                     DiscountRequirementRuleSystemName = "DiscountRules.Standard.HadSpentAmount",
-                    Metadata = spentAmount.ToString()
+                    Metadata = spentAmount.ToString(CultureInfo.InvariantCulture)
                 };
                 discount.DiscountRules.Add(discountRequirement);
                 await _discountService.UpdateDiscount(discount);

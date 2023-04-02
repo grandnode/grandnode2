@@ -17,6 +17,7 @@ namespace Authentication.Google.Infrastructure
         /// Configure
         /// </summary>
         /// <param name="builder">Authentication builder</param>
+        /// <param name="configuration">Configuration</param>
         public void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration)
         {
             builder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
@@ -33,7 +34,7 @@ namespace Authentication.Google.Infrastructure
                     OnRemoteFailure = ctx =>
                     {
                         ctx.HandleResponse();
-                        var errorMessage = ctx.Failure.Message;
+                        var errorMessage = ctx.Failure?.Message;
                         var state = ctx.Request.Query["state"].FirstOrDefault();
                         errorMessage = WebUtility.UrlEncode(errorMessage);
                         ctx.Response.Redirect($"/google-signin-failed?error_message={errorMessage}");

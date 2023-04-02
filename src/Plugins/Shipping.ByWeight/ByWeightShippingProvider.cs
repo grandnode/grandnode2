@@ -75,7 +75,7 @@ namespace Shipping.ByWeight
             }
 
             //additional fixed cost
-            double shippingTotal = shippingByWeightRecord.AdditionalFixedCost;
+            var shippingTotal = shippingByWeightRecord.AdditionalFixedCost;
             //charge amount per weight unit
             if (shippingByWeightRecord.RatePerWeightUnit > 0)
             {
@@ -87,7 +87,7 @@ namespace Shipping.ByWeight
             //percentage rate of subtotal
             if (shippingByWeightRecord.PercentageRateOfSubtotal > 0)
             {
-                shippingTotal += Math.Round((double)((((float)subTotal) * ((float)shippingByWeightRecord.PercentageRateOfSubtotal)) / 100f), 2);
+                shippingTotal += Math.Round((float)subTotal * (float)shippingByWeightRecord.PercentageRateOfSubtotal / 100f, 2);
             }
 
             if (shippingTotal < 0)
@@ -132,13 +132,11 @@ namespace Shipping.ByWeight
                             {
                                 //bundled product
                                 var associatedProduct = await _productService.GetProductById(attributeValue.AssociatedProductId);
-                                if (associatedProduct != null && associatedProduct.IsShipEnabled)
+                                if (associatedProduct is { IsShipEnabled: true })
                                 {
                                     attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
                                 }
                             }
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -150,7 +148,7 @@ namespace Shipping.ByWeight
         /// Gets shopping cart weight
         /// </summary>
         /// <param name="request">Request</param>
-        /// <param name="includeCheckoutAttributes">A value indicating whether we should calculate weights of selected checkotu attributes</param>
+        /// <param name="includeCheckoutAttributes">A value indicating whether we should calculate weights of selected checkout attributes</param>
         /// <returns>Total weight</returns>
         private async Task<double> GetTotalWeight(GetShippingOptionRequest request, bool includeCheckoutAttributes = true)
         {
@@ -204,14 +202,14 @@ namespace Shipping.ByWeight
             }
 
             var storeId = getShippingOptionRequest.StoreId;
-            if (String.IsNullOrEmpty(storeId))
+            if (string.IsNullOrEmpty(storeId))
                 storeId = _workContext.CurrentStore.Id;
-            string countryId = getShippingOptionRequest.ShippingAddress.CountryId;
-            string stateProvinceId = getShippingOptionRequest.ShippingAddress.StateProvinceId;
+            var countryId = getShippingOptionRequest.ShippingAddress.CountryId;
+            var stateProvinceId = getShippingOptionRequest.ShippingAddress.StateProvinceId;
 
             //string warehouseId = getShippingOptionRequest.WarehouseFrom != null ? getShippingOptionRequest.WarehouseFrom.Id : "";
 
-            string zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
+            var zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
             double subTotal = 0;
             var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
 
@@ -225,7 +223,7 @@ namespace Shipping.ByWeight
                     subTotal += (await priceCalculationService.GetSubTotal(packageItem.ShoppingCartItem, product)).subTotal;
             }
 
-            double weight = await GetTotalWeight(getShippingOptionRequest);
+            var weight = await GetTotalWeight(getShippingOptionRequest);
 
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId, _workContext.CurrentCustomer);
             foreach (var shippingMethod in shippingMethods)
@@ -236,19 +234,19 @@ namespace Shipping.ByWeight
                     var _rate = await GetRate(subTotal, weight, shippingMethod.Id, storeId, item, countryId, stateProvinceId, zip);
                     if (_rate.HasValue)
                     {
-                        if (rate == null)
-                            rate = 0;
+                        rate ??= 0;
 
                         rate += _rate.Value;
                     }
                 }
 
-                if (rate != null && rate.HasValue)
+                if (rate is { })
                 {
-                    var shippingOption = new ShippingOption();
-                    shippingOption.Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
-                    shippingOption.Description = shippingMethod.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id);
-                    shippingOption.Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(rate.Value, _workContext.WorkingCurrency);
+                    var shippingOption = new ShippingOption {
+                        Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                        Description = shippingMethod.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
+                        Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(rate.Value, _workContext.WorkingCurrency)
+                    };
                     response.ShippingOptions.Add(shippingOption);
                 }
             }
@@ -270,7 +268,7 @@ namespace Shipping.ByWeight
         /// <summary>
         /// Returns a value indicating whether shipping methods should be hidden during checkout
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <returns>true - hide; false - display.</returns>
         public async Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart)
         {

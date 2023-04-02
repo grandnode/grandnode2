@@ -5,7 +5,7 @@ using Shipping.ByWeight.Domain;
 
 namespace Shipping.ByWeight.Services
 {
-    public partial class ShippingByWeightService : IShippingByWeightService
+    public class ShippingByWeightService : IShippingByWeightService
     {
         #region Constants
         private const string SHIPPINGBYWEIGHT_ALL_KEY = "Grand.shippingbyweight.all-{0}-{1}";
@@ -44,7 +44,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            string key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, pageIndex, pageSize);
+            var key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, pageIndex, pageSize);
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = from sbw in _sbwRepository.Table
@@ -58,8 +58,7 @@ namespace Shipping.ByWeight.Services
             string storeId, string warehouseId,
             string countryId, string stateProvinceId, string zip, double weight)
         {
-            if (zip == null)
-                zip = string.Empty;
+            zip ??= string.Empty;
             zip = zip.Trim();
 
             var existingRates = (await GetAll())
@@ -67,28 +66,28 @@ namespace Shipping.ByWeight.Services
                 .ToList();
 
             if (!string.IsNullOrEmpty(warehouseId))
-                existingRates = existingRates.Where(x => x.WarehouseId == warehouseId).Any() 
+                existingRates = existingRates.Any(x => x.WarehouseId == warehouseId) 
                     ? existingRates.Where(x => x.WarehouseId == warehouseId).ToList() 
                     : existingRates.Where(x => string.IsNullOrEmpty(x.WarehouseId)).ToList();
 
             if (!string.IsNullOrEmpty(storeId))
-                existingRates = existingRates.Where(x => x.StoreId == storeId).Any() 
+                existingRates = existingRates.Any(x => x.StoreId == storeId) 
                     ? existingRates.Where(x => x.StoreId == storeId).ToList() 
                     : existingRates.Where(x => string.IsNullOrEmpty(x.StoreId)).ToList();
             
             if (!string.IsNullOrEmpty(countryId))
-                existingRates = existingRates.Where(x => x.CountryId == countryId).Any() 
+                existingRates = existingRates.Any(x => x.CountryId == countryId) 
                     ? existingRates.Where(x => x.CountryId == countryId).ToList() 
                     : existingRates.Where(x => string.IsNullOrEmpty(x.CountryId)).ToList();
 
             if (!string.IsNullOrEmpty(stateProvinceId))
-                existingRates = existingRates.Where(x => x.StateProvinceId == stateProvinceId).Any() 
+                existingRates = existingRates.Any(x => x.StateProvinceId == stateProvinceId) 
                     ? existingRates.Where(x => x.StateProvinceId == stateProvinceId).ToList() 
                     : existingRates.Where(x => string.IsNullOrEmpty(x.StateProvinceId)).ToList();
 
             if (!string.IsNullOrEmpty(zip))
-                existingRates = existingRates.Where(x => x.Zip == zip).Any()
-                   ? existingRates.Where(x => x.Zip == zip).ToList()
+                existingRates = existingRates.Any(x => x.Zip == zip)
+                    ? existingRates.Where(x => x.Zip == zip).ToList()
                    : existingRates.Where(x => string.IsNullOrEmpty(x.Zip)).ToList();
 
             return existingRates.FirstOrDefault();

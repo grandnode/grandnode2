@@ -3,7 +3,7 @@ using Shipping.ByWeight.Domain;
 
 namespace Shipping.ByWeight.Services
 {
-    public partial interface IShippingByWeightService
+    public interface IShippingByWeightService
     {
         Task DeleteShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
 

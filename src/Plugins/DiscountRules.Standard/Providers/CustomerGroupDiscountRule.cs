@@ -3,12 +3,8 @@ using Grand.Business.Core.Utilities.Catalog;
 
 namespace DiscountRules.Provider
 {
-    public partial class CustomerGroupDiscountRule : IDiscountRule
+    public class CustomerGroupDiscountRule : IDiscountRule
     {
-        public CustomerGroupDiscountRule()
-        {
-        }
-
         /// <summary>
         /// Check discount requirement
         /// </summary>
@@ -28,15 +24,11 @@ namespace DiscountRules.Provider
             if (string.IsNullOrEmpty(request.DiscountRule.Metadata))
                 return result;
 
-            foreach (var customerGroup in request.Customer.Groups.ToList())
-                if (request.DiscountRule.Metadata == customerGroup)
-                {
-                    //valid
-                    result.IsValid = true;
-                    return result;
-                }
+            if (request.Customer.Groups.ToList().All(customerGroup => request.DiscountRule.Metadata != customerGroup))
+                return await Task.FromResult(result);
+            result.IsValid = true;
+            return result;
 
-            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -48,9 +40,9 @@ namespace DiscountRules.Provider
         public string GetConfigurationUrl(string discountId, string discountRequirementId)
         {
             //configured 
-            string result = "Admin/CustomerGroups/Configure/?discountId=" + discountId;
+            var result = "Admin/CustomerGroups/Configure/?discountId=" + discountId;
             if (!string.IsNullOrEmpty(discountRequirementId))
-                result += string.Format("&discountRequirementId={0}", discountRequirementId);
+                result += $"&discountRequirementId={discountRequirementId}";
             return result;
         }
 

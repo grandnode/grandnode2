@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Widgets.Slider.Models
 {
-    public partial class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>, IStoreLinkModel
+    public class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>, IStoreLinkModel
     {
         public SlideModel()
         {
@@ -57,7 +57,7 @@ namespace Widgets.Slider.Models
 
     }
 
-    public partial class SlideLocalizedModel : ILocalizedModelLocal
+    public class SlideLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

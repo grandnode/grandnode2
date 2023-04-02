@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Payments.CashOnDelivery
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {

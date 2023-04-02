@@ -16,7 +16,7 @@
                     3. Fill out the form and tap the <b>Create App ID button</b>.<br />
                     4. The <b>Product Setup</b> page is displayed, letting you select the features for your new app. Click <b>Get Started</b> on <b>Facebook Login</b>.<br />
                     5. Click the <b>Settings</b> link in the menu at the left, you are presented with the <b>Client OAuth Settings</b> page with some defaults already set.<br />
-                    6. Enter "@($"https://yourstore.com/signin-facebook")" into the <b>Valid OAuth Redirect URIs</b> field.<br />
+                    6. Enter "@("https://yourstore.com/signin-facebook")" into the <b>Valid OAuth Redirect URIs</b> field.<br />
                     7. Click <b>Save Changes</b>.<br />
                     8. Click the <b>Dashboard</b> link in the left navigation.<br />
                     9. Copy your App ID and App secret below.<br />
@@ -32,7 +32,7 @@
                     <admin-label asp-for="ClientId" class="control-label" />
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <input asp-for=ClientId type="text"
+                    <input asp-for="ClientId" type="text"
                         disabled class="form-control k-input text-box single-line" />
                     <span asp-validation-for="ClientId"></span>
                 </div>
@@ -42,7 +42,7 @@
                     <admin-label asp-for="ClientSecret" class="control-label" />
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <input asp-for=ClientSecret type="text" disabled class="form-control k-input text-box single-line" />
+                    <input asp-for="ClientSecret" type="text" disabled class="form-control k-input text-box single-line" />
                     <span asp-validation-for="ClientSecret"></span>
                 </div>
             </div>

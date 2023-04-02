@@ -5,7 +5,7 @@ namespace Shipping.ByWeight.Domain
     /// <summary>
     /// Represents a shipping by weight record
     /// </summary>
-    public partial class ShippingByWeightRecord : BaseEntity
+    public class ShippingByWeightRecord : BaseEntity
     {
         /// <summary>
         /// Gets or sets the store identifier

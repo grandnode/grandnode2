@@ -43,7 +43,7 @@ namespace Authentication.Google.Controllers
 
             //configure login callback action
             var authenticationProperties = new AuthenticationProperties {
-                RedirectUri = Url.Action("GoogleLoginCallback", "GoogleAuthentication", new { returnUrl = returnUrl })
+                RedirectUri = Url.Action("GoogleLoginCallback", "GoogleAuthentication", new { returnUrl })
             };
 
             return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);

@@ -18,35 +18,28 @@ namespace Shipping.ShippingPoint.Services
         Task<IPagedList<ShippingPoints>> GetAllStoreShippingPoint(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pointName"></param>
-        /// <returns></returns>
-        Task<ShippingPoints> GetStoreShippingPointByPointName(string pointName);
-
-        /// <summary>
         /// Gets a pickup point
         /// </summary>
-        /// <param name="ShippingPointId">Pickup point identifier</param>
+        /// <param name="shippingPointId">Pickup point identifier</param>
         /// <returns>Pickup point</returns>
-        Task<ShippingPoints> GetStoreShippingPointById(string ShippingPointId);
+        Task<ShippingPoints> GetStoreShippingPointById(string shippingPointId);
 
         /// <summary>
         /// Inserts a pickup point
         /// </summary>
-        /// <param name="ShippingPoint">Pickup point</param>
-        Task InsertStoreShippingPoint(Domain.ShippingPoints ShippingPoint);
+        /// <param name="shippingPoint">Pickup point</param>
+        Task InsertStoreShippingPoint(ShippingPoints shippingPoint);
 
         /// <summary>
         /// Updates a pickup point
         /// </summary>
-        /// <param name="ShippingPoint">Pickup point</param>
-        Task UpdateStoreShippingPoint(Domain.ShippingPoints ShippingPoint);
+        /// <param name="shippingPoint">Pickup point</param>
+        Task UpdateStoreShippingPoint(ShippingPoints shippingPoint);
 
         /// <summary>
         /// Deletes a pickup point
         /// </summary>
-        /// <param name="ShippingPoint">Pickup point</param>
-        Task DeleteStoreShippingPoint(Domain.ShippingPoints ShippingPoint);
+        /// <param name="shippingPoint">Pickup point</param>
+        Task DeleteStoreShippingPoint(ShippingPoints shippingPoint);
     }
 }

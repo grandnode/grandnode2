@@ -35,7 +35,7 @@ namespace Payments.CashOnDelivery.Models
 
         #region Nested class
 
-        public partial class ConfigurationLocalizedModel : ILocalizedModelLocal
+        public class ConfigurationLocalizedModel : ILocalizedModelLocal
         {
             public string LanguageId { get; set; }
 

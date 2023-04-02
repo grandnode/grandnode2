@@ -7,10 +7,7 @@ namespace Shipping.ShippingPoint
 {
     public class MapperConfiguration : Profile, IAutoMapperProfile
     {
-        public int Order
-        {
-            get { return 0; }
-        }
+        public int Order => 0;
 
         public MapperConfiguration()
         {

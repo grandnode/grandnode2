@@ -4,7 +4,7 @@ using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider
 {
-    public partial class HasAllProductsDiscountRule : IDiscountRule
+    public class HasAllProductsDiscountRule : IDiscountRule
     {
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -48,80 +48,65 @@ namespace DiscountRules.Provider
                             select new { ProductId = g.Key, TotalQuantity = g.Sum(x => x.Quantity) };
             var cart = cartQuery.ToList();
 
-            bool allFound = true;
+            var allFound = true;
             foreach (var restrictedProduct in restrictedProductIds.Select(x => x.Trim()))
             {
-                if (String.IsNullOrWhiteSpace(restrictedProduct))
+                if (string.IsNullOrWhiteSpace(restrictedProduct))
                     continue;
 
-                bool found1 = false;
+                var found1 = false;
                 foreach (var sci in cart)
                 {
-                    if (restrictedProduct.Contains(":"))
+                    if (restrictedProduct.Contains(':'))
                     {
-                        if (restrictedProduct.Contains("-"))
+                        if (restrictedProduct.Contains('-'))
                         {
                             //the third way (the quantity rage specified)
                             //{Product ID}:{Min quantity}-{Max quantity}. For example, 77:1-3, 123:2-5, 156:3-8
-                            string restrictedProductId = restrictedProduct.Split(new[] { ':' })[0];
-                            int quantityMin;
-                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1].Split(new[] { '-' })[0], out quantityMin))
+                            var restrictedProductId = restrictedProduct.Split(new[] { ':' })[0];
+                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1].Split(new[] { '-' })[0], out var quantityMin))
                                 //parsing error; exit;
                                 return result;
-                            int quantityMax;
-                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1].Split(new[] { '-' })[1], out quantityMax))
+                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1].Split(new[] { '-' })[1], out var quantityMax))
                                 //parsing error; exit;
                                 return result;
 
-                            if (sci.ProductId == restrictedProductId && quantityMin <= sci.TotalQuantity && sci.TotalQuantity <= quantityMax)
-                            {
-                                found1 = true;
-                                break;
-                            }
+                            if (sci.ProductId != restrictedProductId || quantityMin > sci.TotalQuantity ||
+                                sci.TotalQuantity > quantityMax) continue;
+                            found1 = true;
+                            break;
                         }
                         else
                         {
                             //the second way (the quantity specified)
                             //{Product ID}:{Quantity}. For example, 77:1, 123:2, 156:3
-                            string restrictedProductId = restrictedProduct.Split(new[] { ':' })[0];
-                            int quantity;
-                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1], out quantity))
+                            var restrictedProductId = restrictedProduct.Split(new[] { ':' })[0];
+                            if (!int.TryParse(restrictedProduct.Split(new[] { ':' })[1], out var quantity))
                                 //parsing error; exit;
                                 return result;
 
-                            if (sci.ProductId == restrictedProductId && sci.TotalQuantity == quantity)
-                            {
-                                found1 = true;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //the first way (the quantity is not specified)
-                        if (sci.ProductId == restrictedProduct)
-                        {
+                            if (sci.ProductId != restrictedProductId || sci.TotalQuantity != quantity) continue;
                             found1 = true;
                             break;
                         }
                     }
-                }
 
-                if (!found1)
-                {
-                    allFound = false;
+                    //the first way (the quantity is not specified)
+                    if (sci.ProductId != restrictedProduct) continue;
+                    found1 = true;
                     break;
                 }
+
+                if (found1) continue;
+                allFound = false;
+                break;
             }
 
-            if (allFound)
-            {
-                //valid
-                result.IsValid = true;
-                return result;
-            }
+            if (!allFound) return await Task.FromResult(result);
+            //valid
+            result.IsValid = true;
+            return result;
 
-            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -133,9 +118,9 @@ namespace DiscountRules.Provider
         public string GetConfigurationUrl(string discountId, string discountRequirementId)
         {
             //configured 
-            string result = "Admin/HasAllProducts/Configure/?discountId=" + discountId;
+            var result = "Admin/HasAllProducts/Configure/?discountId=" + discountId;
             if (!string.IsNullOrEmpty(discountRequirementId))
-                result += string.Format("&discountRequirementId={0}", discountRequirementId);
+                result += $"&discountRequirementId={discountRequirementId}";
             return result;
         }
 

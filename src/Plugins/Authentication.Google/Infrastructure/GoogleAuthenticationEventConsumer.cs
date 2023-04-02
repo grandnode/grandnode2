@@ -11,7 +11,7 @@ namespace Authentication.Google.Infrastructure.Cache
     /// <summary>
     /// Google authentication event consumer (used for saving customer fields on registration)
     /// </summary>
-    public partial class GoogleAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
+    public class GoogleAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
     {
         #region Fields
 

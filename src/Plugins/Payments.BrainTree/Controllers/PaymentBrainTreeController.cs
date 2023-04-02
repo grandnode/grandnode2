@@ -57,7 +57,7 @@ namespace Payments.BrainTree.Controllers
                     PrivateKey = privateKey
                 };
 
-                ViewBag.ClientToken = gateway.ClientToken.Generate();
+                ViewBag.ClientToken = await gateway.ClientToken.GenerateAsync();
                 ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart)).shoppingCartTotal;
 
                 return View("PaymentInfo_3DS", model);
@@ -69,7 +69,7 @@ namespace Payments.BrainTree.Controllers
                 var year = Convert.ToString(DateTime.Now.Year + i);
                 model.ExpireYears.Add(new SelectListItem {
                     Text = year,
-                    Value = year,
+                    Value = year
                 });
             }
 
@@ -79,7 +79,7 @@ namespace Payments.BrainTree.Controllers
                 var text = i < 10 ? "0" + i : i.ToString();
                 model.ExpireMonths.Add(new SelectListItem {
                     Text = text,
-                    Value = i.ToString(),
+                    Value = i.ToString()
                 });
             }
 
@@ -103,13 +103,11 @@ namespace Payments.BrainTree.Controllers
                 selectedYear.Selected = true;
 
             var validator = new PaymentInfoValidator(_brainTreePaymentSettings, _translationService);
-            var results = validator.Validate(model);
-            if (!results.IsValid)
-            {
-                var query = from error in results.Errors
-                            select error.ErrorMessage;
-                model.Errors = string.Join(", ", query);
-            }
+            var results = await validator.ValidateAsync(model);
+            if (results.IsValid) return View("PaymentInfo", model);
+            var query = from error in results.Errors
+                select error.ErrorMessage;
+            model.Errors = string.Join(", ", query);
             return View("PaymentInfo", model);
         }
     }

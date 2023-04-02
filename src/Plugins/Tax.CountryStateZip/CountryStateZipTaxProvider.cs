@@ -79,10 +79,8 @@ namespace Tax.CountryStateZip
             var taxCategoryId = calculateTaxRequest.TaxCategoryId;
             var countryId = calculateTaxRequest.Address.CountryId;
             var stateProvinceId = calculateTaxRequest.Address.StateProvinceId;
-            var zip = calculateTaxRequest.Address.ZipPostalCode;
+            var zip = calculateTaxRequest.Address.ZipPostalCode ?? string.Empty;
 
-            if (zip == null)
-                zip = string.Empty;
             zip = zip.Trim();
 
             var existingRates = allTaxRates.Where(taxRate => taxRate.CountryId == countryId && taxRate.TaxCategoryId == taxCategoryId).ToList();

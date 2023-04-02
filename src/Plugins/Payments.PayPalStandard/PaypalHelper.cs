@@ -22,24 +22,17 @@ namespace Payments.PayPalStandard
         {
             var result = PaymentStatus.Pending;
 
-            if (paymentStatus == null)
-                paymentStatus = string.Empty;
+            paymentStatus ??= string.Empty;
 
-            if (pendingReason == null)
-                pendingReason = string.Empty;
+            pendingReason ??= string.Empty;
 
             switch (paymentStatus.ToLowerInvariant())
             {
                 case "pending":
-                    switch (pendingReason.ToLowerInvariant())
-                    {
-                        case "authorization":
-                            result = PaymentStatus.Authorized;
-                            break;
-                        default:
-                            result = PaymentStatus.Pending;
-                            break;
-                    }
+                    result = pendingReason.ToLowerInvariant() switch {
+                        "authorization" => PaymentStatus.Authorized,
+                        _ => PaymentStatus.Pending
+                    };
                     break;
                 case "processed":
                 case "completed":
@@ -55,8 +48,6 @@ namespace Payments.PayPalStandard
                 case "refunded":
                 case "reversed":
                     result = PaymentStatus.Refunded;
-                    break;
-                default:
                     break;
             }
             return result;

@@ -4,7 +4,7 @@ using Grand.Domain.Stores;
 
 namespace Widgets.Slider.Domain
 {
-    public partial class PictureSlider : BaseEntity, ITranslationEntity, IStoreLinkEntity
+    public class PictureSlider : BaseEntity, ITranslationEntity, IStoreLinkEntity
     {
         public PictureSlider()
         {

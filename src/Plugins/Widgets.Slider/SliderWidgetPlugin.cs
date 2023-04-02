@@ -9,7 +9,7 @@ using Widgets.Slider.Domain;
 namespace Widgets.Slider
 {
     /// <summary>
-    /// PLugin
+    /// Plugin
     /// </summary>
     public class SliderWidgetPlugin : BasePlugin, IPlugin
     {
@@ -42,8 +42,8 @@ namespace Widgets.Slider
 
             //pictures
             var sampleImagesPath = CommonPath.MapPath("Plugins/Widgets.Slider/Assets/slider/sample-images/");
-            var byte1 = File.ReadAllBytes(sampleImagesPath + "banner1.png");
-            var byte2 = File.ReadAllBytes(sampleImagesPath + "banner2.png");
+            var byte1 = await File.ReadAllBytesAsync(sampleImagesPath + "banner1.png");
+            var byte2 = await File.ReadAllBytesAsync(sampleImagesPath + "banner2.png");
 
             var pictureSlider1 = new PictureSlider()
             {

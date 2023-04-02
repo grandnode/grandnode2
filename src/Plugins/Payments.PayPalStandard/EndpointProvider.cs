@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Payments.PayPalStandard
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
@@ -22,7 +22,7 @@ namespace Payments.PayPalStandard
             //IPN
             endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayPalStandard.IPNHandler",
                  "Plugins/PaymentPayPalStandard/IPNHandler",
-                 new { controller = "PaymentPayPalStandard", action = "IPNHandler" }
+                 new { controller = "PaymentPayPalStandard", action = "IpnHandler" }
             );
             //Cancel
             endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayPalStandard.CancelOrder",

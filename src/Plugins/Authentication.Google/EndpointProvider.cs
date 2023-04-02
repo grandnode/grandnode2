@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Authentication.Google
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
@@ -13,12 +13,6 @@ namespace Authentication.Google
                  new { controller = "GoogleAuthentication", action = "GoogleSignInFailed" }
             );
         }
-        public int Priority
-        {
-            get
-            {
-                return 10;
-            }
-        }
+        public int Priority => 10;
     }
 }

@@ -60,7 +60,7 @@ namespace Payments.CashOnDelivery.Areas.Admin.Controllers
                 AdditionalFeePercentage = cashOnDeliveryPaymentSettings.AdditionalFeePercentage,
                 ShippableProductRequired = cashOnDeliveryPaymentSettings.ShippableProductRequired,
                 DisplayOrder = cashOnDeliveryPaymentSettings.DisplayOrder,
-                SkipPaymentInfo = cashOnDeliveryPaymentSettings.SkipPaymentInfo,
+                SkipPaymentInfo = cashOnDeliveryPaymentSettings.SkipPaymentInfo
             };
             model.DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText;
 

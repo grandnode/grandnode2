@@ -43,7 +43,7 @@ namespace Shipping.FixedRateShipping
 
         private double GetRate(string shippingMethodId)
         {
-            string key = string.Format("ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{0}", shippingMethodId);
+            var key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
             var rate = this._settingService.GetSettingByKey<FixedShippingRate>(key)?.Rate;
             return rate ?? 0;
         }
@@ -69,7 +69,7 @@ namespace Shipping.FixedRateShipping
                 return response;
             }
 
-            string restrictByCountryId = (getShippingOptionRequest.ShippingAddress != null && !String.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
+            var restrictByCountryId = getShippingOptionRequest.ShippingAddress != null && !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId, getShippingOptionRequest.Customer);
             foreach (var shippingMethod in shippingMethods)
             {
@@ -95,13 +95,13 @@ namespace Shipping.FixedRateShipping
             if (getShippingOptionRequest == null)
                 throw new ArgumentNullException(nameof(getShippingOptionRequest));
 
-            string restrictByCountryId = (getShippingOptionRequest.ShippingAddress != null && !String.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
+            var restrictByCountryId = getShippingOptionRequest.ShippingAddress != null && !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId);
 
             var rates = new List<double>();
             foreach (var shippingMethod in shippingMethods)
             {
-                double rate = GetRate(shippingMethod.Id);
+                var rate = GetRate(shippingMethod.Id);
                 if (!rates.Contains(rate))
                     rates.Add(rate);
             }

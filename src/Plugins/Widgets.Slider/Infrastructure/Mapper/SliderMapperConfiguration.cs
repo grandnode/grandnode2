@@ -7,43 +7,30 @@ namespace Widgets.Slider.Infrastructure.Mapper
 {
     public class SliderMapperConfiguration : Profile, IAutoMapperProfile
     {
-        protected string SetObjectEntry(SlideModel model)
+        private string SetObjectEntry(SlideModel model)
         {
-            if (model.SliderTypeId == (int)SliderType.HomePage)
-                return "";
-
-            if (model.SliderTypeId == (int)SliderType.Category)
-                return model.CategoryId;
-
-            if (model.SliderTypeId == (int)SliderType.Collection)
-                return model.CollectionId;
-
-            if (model.SliderTypeId == (int)SliderType.Brand)
-                return model.BrandId;
-
-            return "";
-        }
-        protected string GetCategoryId(PictureSlider pictureSlider)
-        {
-            if (pictureSlider.SliderTypeId == SliderType.Category)
-                return pictureSlider.ObjectEntry;
-
-            return "";
+            return model.SliderTypeId switch {
+                (int)SliderType.HomePage => "",
+                (int)SliderType.Category => model.CategoryId,
+                (int)SliderType.Collection => model.CollectionId,
+                (int)SliderType.Brand => model.BrandId,
+                _ => ""
+            };
         }
 
-        protected string GetCollectionId(PictureSlider pictureSlider)
+        private string GetCategoryId(PictureSlider pictureSlider)
         {
-            if (pictureSlider.SliderTypeId == SliderType.Collection)
-                return pictureSlider.ObjectEntry;
-
-            return "";
+            return pictureSlider.SliderTypeId == SliderType.Category ? pictureSlider.ObjectEntry : "";
         }
-        protected string GetBrandId(PictureSlider pictureSlider)
-        {
-            if (pictureSlider.SliderTypeId == SliderType.Brand)
-                return pictureSlider.ObjectEntry;
 
-            return "";
+        private string GetCollectionId(PictureSlider pictureSlider)
+        {
+            return pictureSlider.SliderTypeId == SliderType.Collection ? pictureSlider.ObjectEntry : "";
+        }
+
+        private string GetBrandId(PictureSlider pictureSlider)
+        {
+            return pictureSlider.SliderTypeId == SliderType.Brand ? pictureSlider.ObjectEntry : "";
         }
 
         public SliderMapperConfiguration()
@@ -67,9 +54,6 @@ namespace Widgets.Slider.Infrastructure.Mapper
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore())
                 .ForMember(dest => dest.PictureUrl, mo => mo.Ignore());
         }
-        public int Order
-        {
-            get { return 0; }
-        }
+        public int Order => 0;
     }
 }

@@ -55,10 +55,11 @@ namespace DiscountRules.CustomerGroups.Controllers
             //customer groups
             model.AvailableCustomerGroups.Add(new SelectListItem { Text = "Select customer group", Value = "" });
             foreach (var cr in await _groupService.GetAllCustomerGroups(showHidden: true))
-                model.AvailableCustomerGroups.Add(new SelectListItem { Text = cr.Name, Value = cr.Id.ToString(), Selected = discountRequirement != null && cr.Id == discountRequirement?.Metadata });
+                model.AvailableCustomerGroups.Add(new SelectListItem { Text = cr.Name, Value = cr.Id, Selected = discountRequirement != null && cr.Id == discountRequirement?.Metadata });
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesCustomerGroups{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
+            ViewData.TemplateInfo.HtmlFieldPrefix =
+                $"DiscountRulesCustomerGroups{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
             return View(model);
         }

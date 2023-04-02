@@ -25,7 +25,6 @@ namespace Authentication.Facebook
         /// <summary>
         /// Gets a view component for displaying plugin in public store
         /// </summary>
-        /// <param name="viewComponentName">View component name</param>
         public async Task<string> GetPublicViewComponentName()
         {
             return await Task.FromResult("FacebookAuthentication");

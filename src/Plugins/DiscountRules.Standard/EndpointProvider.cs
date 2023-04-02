@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace DiscountRules
 {
-    public partial class EndpointProvider : IEndpointProvider
+    public class EndpointProvider : IEndpointProvider
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
@@ -56,12 +56,6 @@ namespace DiscountRules
                  new { controller = "HasOneProduct", action = "LoadProductFriendlyNames" }
             );
         }
-        public int Priority
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Priority => 0;
     }
 }

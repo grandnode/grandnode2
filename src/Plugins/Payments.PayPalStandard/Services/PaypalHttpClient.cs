@@ -26,7 +26,7 @@ namespace Payments.PayPalStandard.Services
                 "https://ipnpb.paypal.com/cgi-bin/webscr";
         }
 
-        public virtual async Task<(bool success, Dictionary<string, string> values)> VerifyIpn(string formString)
+        public async Task<(bool success, Dictionary<string, string> values)> VerifyIpn(string formString)
         {
             var formContent = new StringContent($"cmd=_notify-validate&{formString}",
                 Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -51,7 +51,7 @@ namespace Payments.PayPalStandard.Services
                 var line = l.Trim();
                 var equalPox = line.IndexOf('=');
                 if (equalPox >= 0)
-                    values.Add(line.Substring(0, equalPox), line.Substring(equalPox + 1));
+                    values.Add(line[..equalPox], line[(equalPox + 1)..]);
             }
             return (success, values);
         }
@@ -67,7 +67,7 @@ namespace Payments.PayPalStandard.Services
                 PaypalHelper.PayPalUrl;
         }
 
-        public virtual async Task<(bool status, Dictionary<string, string> values, string response)> GetPdtDetails(string tx)
+        public async Task<(bool status, Dictionary<string, string> values, string response)> GetPdtDetails(string tx)
         {
             var formContent = new StringContent($"cmd=_notify-synch&at={_paypalStandardPaymentSettings.PdtToken}&tx={tx}",
                Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -97,7 +97,7 @@ namespace Payments.PayPalStandard.Services
                 {
                     var equalPox = line.IndexOf('=');
                     if (equalPox >= 0)
-                        values.Add(line.Substring(0, equalPox), line.Substring(equalPox + 1));
+                        values.Add(line[..equalPox], line[(equalPox + 1)..]);
                 }
             }
 

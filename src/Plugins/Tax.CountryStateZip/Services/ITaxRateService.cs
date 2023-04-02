@@ -6,7 +6,7 @@ namespace Tax.CountryStateZip.Services
     /// <summary>
     /// Tax rate service interface
     /// </summary>
-    public partial interface ITaxRateService
+    public interface ITaxRateService
     {
         /// <summary>
         /// Deletes a tax rate

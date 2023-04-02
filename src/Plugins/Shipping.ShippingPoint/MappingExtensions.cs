@@ -15,11 +15,5 @@ namespace Shipping.ShippingPoint
         {
             return model.MapTo<ShippingPointModel, ShippingPoints>();
         }
-
-        public static ShippingPoints ToEntity(this ShippingPointModel model, ShippingPoints destination)
-        {
-            return model.MapTo(destination);
-        }
-
     }
 }

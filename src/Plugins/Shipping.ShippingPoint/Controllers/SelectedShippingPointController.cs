@@ -40,7 +40,7 @@ namespace Shipping.ShippingPoint.Controllers
             var rateBase = await _currencyService.ConvertFromPrimaryStoreCurrency(shippingPoint.PickupFee, _workContext.WorkingCurrency);
             var fee = _priceFormatter.FormatShippingPrice(rateBase);
 
-            var viewModel = new PointModel() {
+            var viewModel = new PointModel {
                 ShippingPointName = shippingPoint.ShippingPointName,
                 Description = shippingPoint.Description,
                 PickupFee = fee,
@@ -48,7 +48,7 @@ namespace Shipping.ShippingPoint.Controllers
                 Address1 = shippingPoint.Address1,
                 City = shippingPoint.City,
                 CountryName = (await _countryService.GetCountryById(shippingPoint.CountryId))?.Name,
-                ZipPostalCode = shippingPoint.ZipPostalCode,
+                ZipPostalCode = shippingPoint.ZipPostalCode
             };
             return View(viewModel);
         }
@@ -64,7 +64,7 @@ namespace Shipping.ShippingPoint.Controllers
             var shippingPointsModel = new List<SelectListItem> {
                 new() { Value = "", Text = _translationService.GetResource("Shipping.ShippingPoint.SelectShippingOption") }
             };
-            shippingPointsModel.AddRange(shippingPoints.Select(shippingPoint => new SelectListItem() { Value = shippingPoint.Id, Text = shippingPoint.ShippingPointName }));
+            shippingPointsModel.AddRange(shippingPoints.Select(shippingPoint => new SelectListItem { Value = shippingPoint.Id, Text = shippingPoint.ShippingPointName }));
 
             return View(shippingPointsModel);
 

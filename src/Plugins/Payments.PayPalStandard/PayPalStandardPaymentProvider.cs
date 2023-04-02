@@ -91,7 +91,7 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Create common query parameters for the request
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="order"></param>
         /// <returns>Created query parameters</returns>
         private async Task<IDictionary<string, string>> CreateQueryParameters(Order order)
         {
@@ -99,7 +99,7 @@ namespace Payments.PayPalStandard
             var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
             var stateProvince = "";
             var countryCode = "";
-            if (!String.IsNullOrEmpty(order.ShippingAddress?.StateProvinceId))
+            if (!string.IsNullOrEmpty(order.ShippingAddress?.StateProvinceId))
             {
                 var countryService = _serviceProvider.GetRequiredService<ICountryService>();
                 var country = await countryService.GetCountryById(order.ShippingAddress?.CountryId);
@@ -107,7 +107,7 @@ namespace Payments.PayPalStandard
                 if (state != null)
                     stateProvince = state.Abbreviation;
             }
-            if (!String.IsNullOrEmpty(order.ShippingAddress?.CountryId))
+            if (!string.IsNullOrEmpty(order.ShippingAddress?.CountryId))
             {
                 var country = await _serviceProvider.GetRequiredService<ICountryService>().GetCountryById(order.ShippingAddress?.CountryId);
                 if (country != null)
@@ -158,7 +158,7 @@ namespace Payments.PayPalStandard
         /// Add order items to the request query parameters
         /// </summary>
         /// <param name="parameters">Query parameters</param>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="order"></param>
         private async Task AddItemsParameters(IDictionary<string, string> parameters, Order order)
         {
             //upload order items
@@ -181,7 +181,7 @@ namespace Payments.PayPalStandard
                 parameters.Add($"amount_{itemCount}", roundedItemPrice.ToString("0.00", CultureInfo.InvariantCulture));
                 parameters.Add($"quantity_{itemCount}", item.Quantity.ToString());
 
-                cartTotal += (item.PriceExclTax);
+                cartTotal += item.PriceExclTax;
                 roundedCartTotal += roundedItemPrice * item.Quantity;
                 itemCount++;
             }
@@ -196,7 +196,7 @@ namespace Payments.PayPalStandard
                 var attributePrice = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer);
                 if (attributePrice.checkoutPrice > 0)
                 {
-                    double roundedAttributePrice = Math.Round(await currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, workContext.WorkingCurrency), 2);
+                    var roundedAttributePrice = Math.Round(await currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, workContext.WorkingCurrency), 2);
                     //add query parameters
                     if (attributeValue.ca != null)
                     {
@@ -219,7 +219,7 @@ namespace Payments.PayPalStandard
                 parameters.Add($"amount_{itemCount}", roundedShippingPrice.ToString("0.00", CultureInfo.InvariantCulture));
                 parameters.Add($"quantity_{itemCount}", "1");
 
-                cartTotal += (order.OrderShippingExclTax);
+                cartTotal += order.OrderShippingExclTax;
                 roundedCartTotal += roundedShippingPrice;
                 itemCount++;
             }
@@ -232,7 +232,7 @@ namespace Payments.PayPalStandard
                 parameters.Add($"amount_{itemCount}", roundedPaymentMethodPrice.ToString("0.00", CultureInfo.InvariantCulture));
                 parameters.Add($"quantity_{itemCount}", "1");
 
-                cartTotal += (order.PaymentMethodAdditionalFeeExclTax);
+                cartTotal += order.PaymentMethodAdditionalFeeExclTax;
                 roundedCartTotal += roundedPaymentMethodPrice;
                 itemCount++;
             }
@@ -245,15 +245,14 @@ namespace Payments.PayPalStandard
                 parameters.Add($"amount_{itemCount}", roundedTaxAmount.ToString("0.00", CultureInfo.InvariantCulture));
                 parameters.Add($"quantity_{itemCount}", "1");
 
-                cartTotal += (order.OrderTax);
+                cartTotal += order.OrderTax;
                 roundedCartTotal += roundedTaxAmount;
-                itemCount++;
             }
 
             if (cartTotal > order.OrderTotal)
             {
                 //get the difference between what the order total is and what it should be and use that as the "discount"
-                var discountTotal = Math.Round(cartTotal - (order.OrderTotal), 2);
+                var discountTotal = Math.Round(cartTotal - order.OrderTotal, 2);
                 roundedCartTotal -= discountTotal;
 
                 //gift voucher or loyalty points amount applied to cart in nopCommerce - shows in PayPal as "discount"
@@ -268,7 +267,7 @@ namespace Payments.PayPalStandard
         /// Add order total to the request query parameters
         /// </summary>
         /// <param name="parameters">Query parameters</param>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="order"></param>
         private async Task AddOrderTotalParameters(IDictionary<string, string> parameters, Order order)
         {
             //round order total
@@ -298,7 +297,7 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Process a payment
         /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="paymentTransaction"></param>
         /// <returns>Process payment result</returns>
         public async Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction)
         {
@@ -310,10 +309,11 @@ namespace Payments.PayPalStandard
             //nothing
             return Task.CompletedTask;
         }
+
         /// <summary>
         /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="paymentTransaction"></param>
         public async Task PostRedirectPayment(PaymentTransaction paymentTransaction)
         {
             var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
@@ -335,7 +335,7 @@ namespace Payments.PayPalStandard
                 var redirectUrl = QueryHelpers.AddQueryString(GetPaypalUrl(), parameters);
                 if (redirectUrl.Length <= 2048)
                 {
-                    _httpContextAccessor.HttpContext.Response.Redirect(redirectUrl);
+                    _httpContextAccessor.HttpContext?.Response.Redirect(redirectUrl);
                     return;
                 }
             }
@@ -348,7 +348,7 @@ namespace Payments.PayPalStandard
                 .ToDictionary(parameter => parameter.Key, parameter => parameter.Value);
 
             var url = QueryHelpers.AddQueryString(GetPaypalUrl(), queryParameters);
-            _httpContextAccessor.HttpContext.Response.Redirect(url);
+            _httpContextAccessor.HttpContext?.Response.Redirect(url);
         }
 
         /// <summary>
@@ -380,18 +380,17 @@ namespace Payments.PayPalStandard
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (double)((((float)subtotal.subTotalWithDiscount) * ((float)_paypalStandardPaymentSettings.AdditionalFee)) / 100f);
+                result = (float)subtotal.subTotalWithDiscount * (float)_paypalStandardPaymentSettings.AdditionalFee / 100f;
             }
             else
             {
                 //fixed value
                 result = _paypalStandardPaymentSettings.AdditionalFee;
             }
-            if (result > 0)
-            {
-                var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-                result = await currencyService.ConvertFromPrimaryStoreCurrency(result, _workContext.WorkingCurrency);
-            }
+
+            if (!(result > 0)) return await Task.FromResult(result);
+            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
+            result = await currencyService.ConvertFromPrimaryStoreCurrency(result, _workContext.WorkingCurrency);
             //return result;
             return await Task.FromResult(result);
         }

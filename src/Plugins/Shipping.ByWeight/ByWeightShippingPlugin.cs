@@ -36,7 +36,7 @@ namespace Shipping.ByWeight
         {
             //settings
             var settings = new ByWeightShippingSettings {
-                LimitMethodsToCreated = false,
+                LimitMethodsToCreated = false
             };
             await _settingService.SaveSetting(settings);
 
@@ -65,17 +65,9 @@ namespace Shipping.ByWeight
         }
 
         /// <summary>
-        /// Uninstall plugin
-        /// </summary>
-        public override async Task Uninstall()
-        {
-            await base.Uninstall();
-        }
-
-        /// <summary>
         /// Returns a value indicating whether shipping methods should be hidden during checkout
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <returns>true - hide; false - display.</returns>
         public async Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart)
         {

@@ -49,7 +49,7 @@ namespace DiscountRules.HasAllProducts.Models
 
         #region Nested classes
 
-        public partial class AddProductModel : BaseModel
+        public class AddProductModel : BaseModel
         {
             public AddProductModel()
             {
@@ -82,7 +82,7 @@ namespace DiscountRules.HasAllProducts.Models
             public bool IsLoggedInAsVendor { get; set; }
         }
 
-        public partial class ProductModel : BaseEntityModel
+        public class ProductModel : BaseEntityModel
         {
             public string Name { get; set; }
 
@@ -105,7 +105,7 @@ namespace DiscountRules.HasOneProduct.Models
 
         #region Nested classes
 
-        public partial class AddProductModel : BaseModel
+        public class AddProductModel : BaseModel
         {
             public AddProductModel()
             {
@@ -137,7 +137,7 @@ namespace DiscountRules.HasOneProduct.Models
             public bool IsLoggedInAsVendor { get; set; }
         }
 
-        public partial class ProductModel : BaseEntityModel
+        public class ProductModel : BaseEntityModel
         {
             public string Name { get; set; }
 

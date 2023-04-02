@@ -26,18 +26,16 @@ namespace Widgets.Slider.ViewComponents
             _workContext = workContext;
         }
 
-        protected async Task<string> GetPictureUrl(string pictureId)
+        private async Task<string> GetPictureUrl(string pictureId)
         {
-            var url = await _pictureService.GetPictureUrl(pictureId, showDefaultPicture: false);
-            if (url == null)
-                url = "";
+            var url = await _pictureService.GetPictureUrl(pictureId, showDefaultPicture: false) ?? "";
 
             return url;
         }
 
-        protected async Task PrepareModel(IList<PictureSlider> sliders, PublicInfoModel model)
+        private async Task PrepareModel(IList<PictureSlider> sliders, PublicInfoModel model)
         {
-            int i = 1;
+            var i = 1;
             foreach (var item in sliders.OrderBy(x => x.DisplayOrder))
             {
                 model.Slide.Add(new PublicInfoModel.Slider() {

@@ -64,21 +64,23 @@ namespace Shipping.FixedRateShipping.Controllers
             if (!await _permissionService.Authorize(StandardPermission.ManageShippingSettings))
                 return Content("Access denied");
 
-            string shippingMethodId = model.ShippingMethodId;
+            var shippingMethodId = model.ShippingMethodId;
             var rate = new FixedShippingRate()
             {
                 Rate = model.Rate
             };
 
-            await _settingService.SetSetting(string.Format("ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{0}", shippingMethodId), rate);
+            await _settingService.SetSetting(
+                $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}", rate);
 
             return new JsonResult("");
         }
 
         [NonAction]
-        protected double GetShippingRate(string shippingMethodId)
+        private double GetShippingRate(string shippingMethodId)
         {
-            var rate = _settingService.GetSettingByKey<FixedShippingRate>(string.Format("ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{0}", shippingMethodId))?.Rate;
+            var rate = _settingService.GetSettingByKey<FixedShippingRate>(
+                $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}")?.Rate;
             return rate ?? 0;
         }
     }

@@ -34,7 +34,7 @@ namespace Widgets.Slider
                 PropertyInfo[] props = item.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                 foreach (var prop in props)
                 {
-                    bool insert = true;
+                    var insert = true;
 
                     foreach (var i in interfaces)
                     {
@@ -49,7 +49,7 @@ namespace Widgets.Slider
                         {
                             LanguageId = item.LanguageId,
                             LocaleKey = prop.Name,
-                            LocaleValue = prop.GetValue(item).ToString(),
+                            LocaleValue = prop.GetValue(item)?.ToString(),
                         });
                 }
             }

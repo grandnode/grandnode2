@@ -5,7 +5,7 @@ namespace Tax.CountryStateZip.Domain
     /// <summary>
     /// Represents a tax rate
     /// </summary>
-    public partial class TaxRate : BaseEntity
+    public class TaxRate : BaseEntity
     {
         /// <summary>
         /// Gets or sets the store identifier

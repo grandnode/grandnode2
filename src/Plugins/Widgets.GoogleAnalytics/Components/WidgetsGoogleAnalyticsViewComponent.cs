@@ -58,8 +58,8 @@ namespace Widgets.GoogleAnalytics.Components
                     return Content("");
 
                 //Special case, if we are in last step of checkout, we can use order total for conversion value
-                if (controller.ToString().Equals("checkout", StringComparison.OrdinalIgnoreCase) &&
-                    action.ToString().Equals("completed", StringComparison.OrdinalIgnoreCase))
+                if (controller.ToString()!.Equals("checkout", StringComparison.OrdinalIgnoreCase) &&
+                    action.ToString()!.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 {
                     var lastOrder = await GetLastOrder();
                     globalScript += await GetEcommerceScript(lastOrder);
@@ -106,15 +106,15 @@ namespace Widgets.GoogleAnalytics.Components
 
                 var analyticsEcommerceScript = _googleAnalyticsEcommerceSettings.EcommerceScript + "\n";
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{GOOGLEID}", _googleAnalyticsEcommerceSettings.GoogleId);
-                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{ORDERID}", order.Id.ToString());
+                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{ORDERID}", order.Id);
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{TOTAL}", order.OrderTotal.ToString("0.00", usCulture));
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{CURRENCY}", order.CustomerCurrencyCode);
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{TAX}", order.OrderTax.ToString("0.00", usCulture));
                 var orderShipping = _googleAnalyticsEcommerceSettings.IncludingTax ? order.OrderShippingInclTax : order.OrderShippingExclTax;
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{SHIP}", orderShipping.ToString("0.00", usCulture));
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{CITY}", order.BillingAddress == null ? "" : FixIllegalJavaScriptChars(order.BillingAddress.City));
-                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{STATEPROVINCE}", order.BillingAddress == null || String.IsNullOrEmpty(order.BillingAddress.StateProvinceId) ? "" : FixIllegalJavaScriptChars(state?.Name));
-                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{COUNTRY}", order.BillingAddress == null || String.IsNullOrEmpty(order.BillingAddress.CountryId) ? "" : FixIllegalJavaScriptChars(country?.Name));
+                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{STATEPROVINCE}", order.BillingAddress == null || string.IsNullOrEmpty(order.BillingAddress.StateProvinceId) ? "" : FixIllegalJavaScriptChars(state?.Name));
+                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{COUNTRY}", order.BillingAddress == null || string.IsNullOrEmpty(order.BillingAddress.CountryId) ? "" : FixIllegalJavaScriptChars(country?.Name));
 
                 var sb = new StringBuilder();
 
@@ -124,16 +124,16 @@ namespace Widgets.GoogleAnalytics.Components
                 foreach (var item in order.OrderItems)
                 {
                     var product = await productService.GetProductById(item.ProductId);
-                    string analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript;
+                    var analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript;
                     //get category
-                    string category = "";
+                    var category = "";
                     if (product.ProductCategories.Any())
                     {
-                        var defaultProductCategory = await categoryService.GetCategoryById(product.ProductCategories.OrderBy(x => x.DisplayOrder).FirstOrDefault().CategoryId);
+                        var defaultProductCategory = await categoryService.GetCategoryById(product.ProductCategories.MinBy(x => x.DisplayOrder).CategoryId);
                         if (defaultProductCategory != null)
                             category = defaultProductCategory.Name;
                     }
-                    analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{ORDERID}", order.Id.ToString());
+                    analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{ORDERID}", order.Id);
                     //The SKU code is a required parameter for every item that is added to the transaction
                     analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(item.Sku));
                     analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{PRODUCTID}", FixIllegalJavaScriptChars(item.ProductId));
@@ -156,7 +156,7 @@ namespace Widgets.GoogleAnalytics.Components
 
         private string FixIllegalJavaScriptChars(string text)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return text;
 
             //replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)

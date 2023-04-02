@@ -64,8 +64,7 @@ namespace Shipping.ShippingPoint
             var response = new GetShippingOptionResponse();
 
 
-            response.ShippingOptions.Add(new ShippingOption()
-            {
+            response.ShippingOptions.Add(new ShippingOption {
                 Name = _translationService.GetResource("Shipping.ShippingPoint.PluginName"),
                 Description = _translationService.GetResource("Shipping.ShippingPoint.PluginDescription"),
                 Rate = 0,
@@ -97,14 +96,14 @@ namespace Shipping.ShippingPoint
             var shippingMethodName = shippingOption?.Split(new[] { ':' })[0];
 
             if (string.IsNullOrEmpty(shippingOptionId))
-                return new List<string>() { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
+                return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
             if (shippingMethodName != _translationService.GetResource("Shipping.ShippingPoint.PluginName"))
                 throw new ArgumentException("shippingMethodName");
 
             var chosenShippingOption = await _shippingPointService.GetStoreShippingPointById(shippingOptionId);
             if (chosenShippingOption == null)
-                return new List<string>() { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
+                return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
             //override price 
             var offeredShippingOptions = await _workContext.CurrentCustomer.GetUserField<List<ShippingOption>>(_userFieldService, SystemCustomerFieldNames.OfferedShippingOptions, _workContext.CurrentStore.Id);
@@ -125,8 +124,7 @@ namespace Shipping.ShippingPoint
                 forCustomer,
                     _workContext.CurrentStore.Id);
 
-            var serializedObject = new Domain.ShippingPointSerializable()
-            {
+            var serializedObject = new Domain.ShippingPointSerializable {
                 Id = chosenShippingOption.Id,
                 ShippingPointName = chosenShippingOption.ShippingPointName,
                 Description = chosenShippingOption.Description,
@@ -136,7 +134,7 @@ namespace Shipping.ShippingPoint
                 City = chosenShippingOption.City,
                 Address1 = chosenShippingOption.Address1,
                 ZipPostalCode = chosenShippingOption.ZipPostalCode,
-                StoreId = chosenShippingOption.StoreId,
+                StoreId = chosenShippingOption.StoreId
             };
 
             var stringBuilder = new StringBuilder();

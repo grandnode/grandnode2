@@ -8,5 +8,5 @@ using Widgets.FacebookPixel;
     SystemName = FacebookPixelDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "1.00"
+    Version = "2.1.1"
 )]

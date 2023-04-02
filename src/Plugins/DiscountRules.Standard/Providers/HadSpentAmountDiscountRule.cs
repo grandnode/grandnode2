@@ -6,7 +6,7 @@ using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider
 {
-    public partial class HadSpentAmountDiscountRule : IDiscountRule
+    public class HadSpentAmountDiscountRule : IDiscountRule
     {
         private readonly IOrderService _orderService;
         private readonly ITranslationService _translationService;
@@ -30,30 +30,29 @@ namespace DiscountRules.Provider
             //invalid by default
             var result = new DiscountRuleValidationResult();
 
-            if (double.TryParse(request.DiscountRule.Metadata, out var spentAmountRequirement))
+            if (!double.TryParse(request.DiscountRule.Metadata, out var spentAmountRequirement)) return result;
+            
+            if (spentAmountRequirement == 0)
             {
-                if (spentAmountRequirement == 0)
-                {
-                    //valid
-                    result.IsValid = true;
-                    return result;
-                }
+                //valid
+                result.IsValid = true;
+                return result;
+            }
 
-                if (request.Customer == null)
-                    return result;
+            if (request.Customer == null)
+                return result;
 
-                var orders = await _orderService.SearchOrders(storeId: request.Store.Id,
-                    customerId: request.Customer.Id,
-                    os: (int)OrderStatusSystem.Complete);
-                double spentAmount = orders.Sum(o => o.OrderTotal);
-                if (spentAmount > spentAmountRequirement)
-                {
-                    result.IsValid = true;
-                }
-                else
-                {
-                    result.UserError = _translationService.GetResource("Plugins.DiscountRules.Standard.HadSpentAmount.NotEnough");
-                }
+            var orders = await _orderService.SearchOrders(storeId: request.Store.Id,
+                customerId: request.Customer.Id,
+                os: (int)OrderStatusSystem.Complete);
+            var spentAmount = orders.Sum(o => o.OrderTotal);
+            if (spentAmount > spentAmountRequirement)
+            {
+                result.IsValid = true;
+            }
+            else
+            {
+                result.UserError = _translationService.GetResource("Plugins.DiscountRules.Standard.HadSpentAmount.NotEnough");
             }
             return result;
         }
@@ -67,9 +66,9 @@ namespace DiscountRules.Provider
         public string GetConfigurationUrl(string discountId, string discountRequirementId)
         {
             //configured 
-            string result = "Admin/HadSpentAmount/Configure/?discountId=" + discountId;
+            var result = "Admin/HadSpentAmount/Configure/?discountId=" + discountId;
             if (!string.IsNullOrEmpty(discountRequirementId))
-                result += string.Format("&discountRequirementId={0}", discountRequirementId);
+                result += $"&discountRequirementId={discountRequirementId}";
             return result;
         }
 

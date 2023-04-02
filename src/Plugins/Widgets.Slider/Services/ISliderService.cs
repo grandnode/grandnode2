@@ -2,7 +2,7 @@
 
 namespace Widgets.Slider.Services
 {
-    public partial interface ISliderService
+    public interface ISliderService
     {
         /// <summary>
         /// Delete a slider
@@ -40,11 +40,5 @@ namespace Widgets.Slider.Services
         /// </summary>
         /// <param name="slide">Picture Slider</param>
         Task UpdatePictureSlider(PictureSlider slide);
-
-        /// <summary>
-        /// Delete slide
-        /// </summary>
-        /// <param name="slide">Picture Slider</param>
-        Task DeletePictureSlider(PictureSlider slide);
     }
 }

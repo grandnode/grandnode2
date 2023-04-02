@@ -6,6 +6,7 @@ using Grand.Web.Common.Filters;
 using Grand.Domain.Discounts;
 using Grand.Plugin.DiscountRules.ShoppingCart.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace DiscountRules.Standard.Controllers
 {
@@ -49,7 +50,8 @@ namespace DiscountRules.Standard.Controllers
             };
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesShoppingCart{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
+            ViewData.TemplateInfo.HtmlFieldPrefix =
+                $"DiscountRulesShoppingCart{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
             return View(model);
         }
@@ -72,7 +74,7 @@ namespace DiscountRules.Standard.Controllers
             if (discountRequirement != null)
             {
                 //update existing rule
-                discountRequirement.Metadata = spentAmount.ToString();
+                discountRequirement.Metadata = spentAmount.ToString(CultureInfo.InvariantCulture);
                 await _discountService.UpdateDiscount(discount);
             }
             else
@@ -81,7 +83,7 @@ namespace DiscountRules.Standard.Controllers
                 discountRequirement = new DiscountRule
                 {
                     DiscountRequirementRuleSystemName = "DiscountRequirement.ShoppingCart",
-                    Metadata = spentAmount.ToString()
+                    Metadata = spentAmount.ToString(CultureInfo.InvariantCulture)
                 };
                 discount.DiscountRules.Add(discountRequirement);
                 await _discountService.UpdateDiscount(discount);

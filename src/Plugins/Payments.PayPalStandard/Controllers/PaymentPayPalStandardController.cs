@@ -10,7 +10,6 @@ using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Payments.PayPalStandard.Services;
@@ -57,10 +56,7 @@ namespace Payments.PayPalStandard.Controllers
 
         private string QueryString(string name)
         {
-            if (StringValues.IsNullOrEmpty(HttpContext.Request.Query[name]))
-                return default;
-
-            return HttpContext.Request.Query[name].ToString();
+            return StringValues.IsNullOrEmpty(HttpContext.Request.Query[name]) ? default : HttpContext.Request.Query[name].ToString();
         }
 
         public async Task<IActionResult> PDTHandler()
@@ -71,7 +67,7 @@ namespace Payments.PayPalStandard.Controllers
                 !processor.IsPaymentMethodActive(_paymentSettings))
                 throw new GrandException("PayPal Standard module cannot be loaded");
 
-            (var status, var values, var _) = await _paypalHttpClient.GetPdtDetails(tx);
+            var (status, values, _) = await _paypalHttpClient.GetPdtDetails(tx);
 
             if (status)
             {
@@ -79,9 +75,13 @@ namespace Payments.PayPalStandard.Controllers
                 Guid orderNumberGuid = Guid.Empty;
                 try
                 {
-                    orderNumberGuid = new Guid(orderNumber);
+                    if (orderNumber != null) orderNumberGuid = new Guid(orderNumber);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 Order order = await _orderService.GetOrderByGuid(orderNumberGuid);
                 if (order != null)
                 {
@@ -130,14 +130,15 @@ namespace Payments.PayPalStandard.Controllers
                         Note = sb.ToString(),
                         DisplayToCustomer = false,
                         CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
+                        OrderId = order.Id
                     });
 
                     //load settings for a chosen store scope
                     //validate order total
                     if (_payPalStandardPaymentSettings.PdtValidateOrderTotal && !Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal * order.CurrencyRate, 2)))
                     {
-                        string errorStr = string.Format("PayPal PDT. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.OrderNumber);
+                        var errorStr =
+                            $"PayPal PDT. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.OrderNumber}.";
                         _ = _logger.Error(errorStr);
 
                         //order note
@@ -154,11 +155,11 @@ namespace Payments.PayPalStandard.Controllers
                     //mark order as paid
                     if (newPaymentStatus == PaymentStatus.Paid)
                     {
-                        if (await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery() { PaymentTransaction = paymentTransaction }))
+                        if (await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }))
                         {
                             paymentTransaction.AuthorizationTransactionId = txn_id;
                             await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
-                            await _mediator.Send(new MarkAsPaidCommand() { PaymentTransaction = paymentTransaction });
+                            await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
                         }
                     }
                 }
@@ -173,21 +174,25 @@ namespace Payments.PayPalStandard.Controllers
                 {
                     orderNumberGuid = new Guid(custom);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 Order order = await _orderService.GetOrderByGuid(orderNumberGuid);
                 if (order != null)
                 {                    
                     return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
                 }
-                else
-                    return RedirectToAction("Index", "Home", new { area = "" });
+
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> IPNHandler()
+        public async Task<IActionResult> IpnHandler()
         {
-            string strRequest = string.Empty;
+            string strRequest;
             using (var stream = new StreamReader(Request.Body))
             {
                 strRequest = await stream.ReadToEndAsync();
@@ -201,25 +206,20 @@ namespace Payments.PayPalStandard.Controllers
             if (success)
             {
                 #region values
-                double mc_gross = 0;
+                double mcGross = 0;
                 try
                 {
-                    mc_gross = double.Parse(values["mc_gross"], new CultureInfo("en-US"));
+                    mcGross = double.Parse(values["mc_gross"], new CultureInfo("en-US"));
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
 
-                values.TryGetValue("payer_status", out var payer_status);
-                values.TryGetValue("payment_status", out var payment_status);
-                values.TryGetValue("pending_reason", out var pending_reason);
-                values.TryGetValue("mc_currency", out var mc_currency);
-                values.TryGetValue("txn_id", out var txn_id);
-                values.TryGetValue("txn_type", out var txn_type);
-                values.TryGetValue("rp_invoice_id", out var rp_invoice_id);
-                values.TryGetValue("payment_type", out var payment_type);
-                values.TryGetValue("payer_id", out var payer_id);
-                values.TryGetValue("receiver_id", out var receiver_id);
-                values.TryGetValue("invoice", out var invoice);
-                values.TryGetValue("payment_fee", out var payment_fee);
+                values.TryGetValue("payment_status", out var paymentStatus);
+                values.TryGetValue("pending_reason", out var pendingReason);
+                values.TryGetValue("txn_id", value: out var txnId);
+                values.TryGetValue("txn_type", out var txnType);
 
                 #endregion
 
@@ -230,10 +230,10 @@ namespace Payments.PayPalStandard.Controllers
                     sb.AppendLine(kvp.Key + ": " + kvp.Value);
                 }
 
-                var newPaymentStatus = PaypalHelper.GetPaymentStatus(payment_status, pending_reason);
+                var newPaymentStatus = PaypalHelper.GetPaymentStatus(paymentStatus, pendingReason);
                 sb.AppendLine("New payment status: " + newPaymentStatus);
 
-                switch (txn_type)
+                switch (txnType)
                 {
                     case "recurring_payment_profile_created":
                         //do nothing here
@@ -244,18 +244,18 @@ namespace Payments.PayPalStandard.Controllers
                     default:
                         #region Standard payment
                         {
-                            string orderNumber = string.Empty;
-                            values.TryGetValue("custom", out orderNumber);
+                            values.TryGetValue("custom", out var orderNumber);
                             Guid orderNumberGuid = Guid.Empty;
                             try
                             {
-                                orderNumberGuid = new Guid(orderNumber);
+                                if (orderNumber != null) orderNumberGuid = Guid.Parse(orderNumber);
                             }
                             catch
                             {
+                                // ignored
                             }
 
-                            var order = await _orderService.GetOrderByGuid(orderNumberGuid);
+                            var order = orderNumberGuid != Guid.Empty ? await _orderService.GetOrderByGuid(orderNumberGuid) : null;
                             if (order != null)
                             {
                                 //order note
@@ -263,31 +263,28 @@ namespace Payments.PayPalStandard.Controllers
                                     Note = sb.ToString(),
                                     DisplayToCustomer = false,
                                     CreatedOnUtc = DateTime.UtcNow,
-                                    OrderId = order.Id,
+                                    OrderId = order.Id
                                 });
                                 var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
 
                                 switch (newPaymentStatus)
                                 {
-                                    case PaymentStatus.Pending:
-                                        {
-                                        }
-                                        break;
                                     case PaymentStatus.Authorized:
                                         {
                                             //validate order total
-                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal, 2)))
+                                            if (Math.Round(mcGross, 2).Equals(Math.Round(order.OrderTotal, 2)))
                                             {
                                                 //valid
-                                                if (await _mediator.Send(new CanMarkPaymentTransactionAsAuthorizedQuery() { PaymentTransaction = paymentTransaction }))
+                                                if (await _mediator.Send(new CanMarkPaymentTransactionAsAuthorizedQuery { PaymentTransaction = paymentTransaction }))
                                                 {
-                                                    await _mediator.Send(new MarkAsAuthorizedCommand() { PaymentTransaction = paymentTransaction });
+                                                    await _mediator.Send(new MarkAsAuthorizedCommand { PaymentTransaction = paymentTransaction });
                                                 }
                                             }
                                             else
                                             {
                                                 //not valid
-                                                string errorStr = string.Format("PayPal IPN. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.Id);
+                                                var errorStr =
+                                                    $"PayPal IPN. Returned order total {mcGross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.Id}.";
                                                 //log
                                                 _ = _logger.Error(errorStr);
                                                 //order note
@@ -295,7 +292,7 @@ namespace Payments.PayPalStandard.Controllers
                                                     Note = errorStr,
                                                     DisplayToCustomer = false,
                                                     CreatedOnUtc = DateTime.UtcNow,
-                                                    OrderId = order.Id,
+                                                    OrderId = order.Id
                                                 });
                                             }
                                         }
@@ -303,21 +300,22 @@ namespace Payments.PayPalStandard.Controllers
                                     case PaymentStatus.Paid:
                                         {
                                             //validate order total
-                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal, 2)))
+                                            if (Math.Round(mcGross, 2).Equals(Math.Round(order.OrderTotal, 2)))
                                             {
                                                 //valid
-                                                if (await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery() { PaymentTransaction = paymentTransaction }))
+                                                if (await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }))
                                                 {
-                                                    paymentTransaction.AuthorizationTransactionId = txn_id;
+                                                    paymentTransaction.AuthorizationTransactionId = txnId;
                                                     await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
-                                                    await _mediator.Send(new MarkAsPaidCommand() { PaymentTransaction = paymentTransaction });
+                                                    await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
                                                 }
                                             }
                                             else
                                             {
                                                 //not valid
-                                                string errorStr = string.Format("PayPal IPN. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.Id);
+                                                var errorStr =
+                                                    $"PayPal IPN. Returned order total {mcGross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.Id}.";
                                                 //log
                                                 _ = _logger.Error(errorStr);
                                                 //order note
@@ -325,42 +323,50 @@ namespace Payments.PayPalStandard.Controllers
                                                     Note = errorStr,
                                                     DisplayToCustomer = false,
                                                     CreatedOnUtc = DateTime.UtcNow,
-                                                    OrderId = order.Id,
+                                                    OrderId = order.Id
                                                 });
                                             }
                                         }
                                         break;
                                     case PaymentStatus.Refunded:
                                         {
-                                            var totalToRefund = Math.Abs(mc_gross);
+                                            var totalToRefund = Math.Abs(mcGross);
                                             if (totalToRefund > 0 && Math.Round(totalToRefund, 2).Equals(Math.Round(order.OrderTotal, 2)))
                                             {
                                                 //refund
-                                                if (await _mediator.Send(new CanRefundOfflineQuery() { PaymentTransaction = paymentTransaction }))
+                                                if (await _mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction }))
                                                 {
-                                                    await _mediator.Send(new RefundOfflineCommand() { PaymentTransaction = paymentTransaction });
+                                                    await _mediator.Send(new RefundOfflineCommand { PaymentTransaction = paymentTransaction });
                                                 }
                                             }
                                             else
                                             {
                                                 //partial refund
-                                                if (await _mediator.Send(new CanPartiallyRefundOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = totalToRefund }))
+                                                if (await _mediator.Send(new CanPartiallyRefundOfflineQuery { PaymentTransaction = paymentTransaction, AmountToRefund = totalToRefund }))
                                                 {
-                                                    await _mediator.Send(new PartiallyRefundOfflineCommand() { PaymentTransaction = paymentTransaction, AmountToRefund = totalToRefund });
+                                                    await _mediator.Send(new PartiallyRefundOfflineCommand { PaymentTransaction = paymentTransaction, AmountToRefund = totalToRefund });
                                                 }
                                             }
                                         }
                                         break;
                                     case PaymentStatus.Voided:
                                         {
-                                            if (await _mediator.Send(new CanVoidOfflineQuery() { PaymentTransaction = paymentTransaction }))
+                                            if (await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }))
                                             {
-                                                await _mediator.Send(new VoidOfflineCommand() { PaymentTransaction = paymentTransaction });
+                                                await _mediator.Send(new VoidOfflineCommand { PaymentTransaction = paymentTransaction });
                                             }
                                         }
                                         break;
-                                    default:
+                                    case PaymentStatus.Pending:
                                         break;
+                                    case PaymentStatus.PartiallyPaid:
+                                        break;
+                                    case PaymentStatus.PartiallyRefunded:
+                                        break;
+                                    case PaymentStatus.PendingRefunded:
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
                                 }
                             }
                             else
@@ -374,10 +380,8 @@ namespace Payments.PayPalStandard.Controllers
                 return Ok();
 
             }
-            else
-            {
-                _ = _logger.Error("PayPal IPN failed.", new GrandException(strRequest));
-            }
+
+            _ = _logger.Error("PayPal IPN failed.", new GrandException(strRequest));
 
             return BadRequest();
 
@@ -387,10 +391,7 @@ namespace Payments.PayPalStandard.Controllers
         {
             var order = (await _orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
                 customerId: _workContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
-            if (order != null)
-                return RedirectToRoute("OrderDetails", new { orderId = order.Id });
-
-            return RedirectToRoute("HomePage");
+            return order != null ? RedirectToRoute("OrderDetails", new { orderId = order.Id }) : RedirectToRoute("HomePage");
         }
 
         public IActionResult PaymentInfo()

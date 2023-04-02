@@ -38,14 +38,14 @@ namespace Payments.PayPalStandard.Areas.Admin.Controllers
             _permissionService = permissionService;
         }
 
-        protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
+        private async Task<string> GetActiveStore()
         {
-            var stores = await storeService.GetAllStores();
+            var stores = await _storeService.GetAllStores();
             if (stores.Count < 2)
-                return stores.FirstOrDefault().Id;
+                return stores.FirstOrDefault()?.Id;
 
-            var storeId = workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
-            var store = await storeService.GetStoreById(storeId);
+            var storeId = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
+            var store = await _storeService.GetStoreById(storeId);
 
             return store != null ? store.Id : "";
         }
@@ -56,20 +56,20 @@ namespace Payments.PayPalStandard.Areas.Admin.Controllers
                 return AccessDeniedView();
 
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var payPalStandardPaymentSettings = _settingService.LoadSetting<PayPalStandardPaymentSettings>(storeScope);
 
-            var model = new ConfigurationModel();
-            model.UseSandbox = payPalStandardPaymentSettings.UseSandbox;
-            model.BusinessEmail = payPalStandardPaymentSettings.BusinessEmail;
-            model.PdtToken = payPalStandardPaymentSettings.PdtToken;
-            model.PdtValidateOrderTotal = payPalStandardPaymentSettings.PdtValidateOrderTotal;
-            model.AdditionalFee = payPalStandardPaymentSettings.AdditionalFee;
-            model.AdditionalFeePercentage = payPalStandardPaymentSettings.AdditionalFeePercentage;
-            model.PassProductNamesAndTotals = payPalStandardPaymentSettings.PassProductNamesAndTotals;
-            model.DisplayOrder = payPalStandardPaymentSettings.DisplayOrder;
-
-            model.StoreScope = storeScope;
+            var model = new ConfigurationModel {
+                UseSandbox = payPalStandardPaymentSettings.UseSandbox,
+                BusinessEmail = payPalStandardPaymentSettings.BusinessEmail,
+                PdtToken = payPalStandardPaymentSettings.PdtToken,
+                PdtValidateOrderTotal = payPalStandardPaymentSettings.PdtValidateOrderTotal,
+                AdditionalFee = payPalStandardPaymentSettings.AdditionalFee,
+                AdditionalFeePercentage = payPalStandardPaymentSettings.AdditionalFeePercentage,
+                PassProductNamesAndTotals = payPalStandardPaymentSettings.PassProductNamesAndTotals,
+                DisplayOrder = payPalStandardPaymentSettings.DisplayOrder,
+                StoreScope = storeScope
+            };
 
             return View(model);
         }
@@ -84,7 +84,7 @@ namespace Payments.PayPalStandard.Areas.Admin.Controllers
                 return await Configure();
 
             //load settings for a chosen store scope
-            var storeScope = await this.GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var payPalStandardPaymentSettings = _settingService.LoadSetting<PayPalStandardPaymentSettings>(storeScope);
 
             //save settings

@@ -16,19 +16,20 @@ namespace ExchangeRate.McExchange
         public async Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates()
         {
             var httpClient = _httpClientFactory.CreateClient(Constant.DefaultHttpClientName);
-            using var response = await httpClient.GetStreamAsync(Constant.EcbUrl);
+            await using var response = await httpClient.GetStreamAsync(Constant.EcbUrl);
             var document = new XmlDocument();
             document.Load(response);
-            var nsmgr = new XmlNamespaceManager(document.NameTable);
-            nsmgr.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
-            nsmgr.AddNamespace("gesmes", "http://www.gesmes.org/xml/2002-08-01");
+            var nameTable = new XmlNamespaceManager(document.NameTable);
+            nameTable.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
+            nameTable.AddNamespace("gesmes", "http://www.gesmes.org/xml/2002-08-01");
 
-            var node = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", nsmgr);
+            var node = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", nameTable);
             var updateDate = DateTime.ParseExact(node.Attributes["time"].Value, "yyyy-MM-dd", null);
 
-            var provider = new NumberFormatInfo();
-            provider.NumberDecimalSeparator = ".";
-            provider.NumberGroupSeparator = "";
+            var provider = new NumberFormatInfo {
+                NumberDecimalSeparator = ".",
+                NumberGroupSeparator = ""
+            };
 
             var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
             foreach (XmlNode node2 in node.ChildNodes)

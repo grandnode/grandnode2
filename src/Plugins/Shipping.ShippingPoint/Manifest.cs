@@ -8,5 +8,5 @@ using Shipping.ShippingPoint;
     SystemName = ShippingPointRateDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "2.00"
+    Version = "2.1.1"
 )]

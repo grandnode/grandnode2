@@ -42,10 +42,11 @@ namespace Widgets.Slider.Areas.Admin.Controllers
         }
         public IActionResult Configure()
         {
-            var model = new ConfigurationModel();
-            model.DisplayOrder = _sliderWidgetSettings.DisplayOrder;
-            model.CustomerGroups = _sliderWidgetSettings.LimitedToGroups?.ToArray();
-            model.Stores = _sliderWidgetSettings.LimitedToStores?.ToArray();
+            var model = new ConfigurationModel {
+                DisplayOrder = _sliderWidgetSettings.DisplayOrder,
+                CustomerGroups = _sliderWidgetSettings.LimitedToGroups?.ToArray(),
+                Stores = _sliderWidgetSettings.LimitedToStores?.ToArray()
+            };
             return View(model);
         }
 

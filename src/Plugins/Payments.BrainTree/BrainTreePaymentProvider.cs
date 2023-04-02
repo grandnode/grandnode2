@@ -81,23 +81,23 @@ namespace Payments.BrainTree
         public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
         {
             if (model.TryGetValue("CardNonce", out var cardNonce) && !StringValues.IsNullOrEmpty(cardNonce))
-                _httpContextAccessor.HttpContext!.Session.SetString("CardNonce", cardNonce.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("CardNonce", cardNonce);
 
             if (model.TryGetValue("CardholderName", out var cardholderName) &&
                 !StringValues.IsNullOrEmpty(cardholderName))
-                _httpContextAccessor.HttpContext!.Session.SetString("CardholderName", cardholderName.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("CardholderName", cardholderName);
 
             if (model.TryGetValue("CardNumber", out var cardNumber) && !StringValues.IsNullOrEmpty(cardNumber))
-                _httpContextAccessor.HttpContext!.Session.SetString("CardNumber", cardNumber.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("CardNumber", cardNumber);
 
             if (model.TryGetValue("ExpireMonth", out var expireMonth) && !StringValues.IsNullOrEmpty(expireMonth))
-                _httpContextAccessor.HttpContext!.Session.SetString("ExpireMonth", expireMonth.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("ExpireMonth", expireMonth);
 
             if (model.TryGetValue("ExpireYear", out var expireYear) && !StringValues.IsNullOrEmpty(expireYear))
-                _httpContextAccessor.HttpContext!.Session.SetString("ExpireYear", expireYear.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("ExpireYear", expireYear);
 
             if (model.TryGetValue("CardCode", out var creditCardCvv2) && !StringValues.IsNullOrEmpty(creditCardCvv2))
-                _httpContextAccessor.HttpContext!.Session.SetString("CardCode", creditCardCvv2.ToString());
+                _httpContextAccessor.HttpContext!.Session.SetString("CardCode", creditCardCvv2);
 
             return await Task.FromResult<PaymentTransaction>(null);
         }
@@ -129,7 +129,7 @@ namespace Payments.BrainTree
 
             //new transaction request
             var transactionRequest = new TransactionRequest {
-                Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount),
+                Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount)
             };
 
             if (_brainTreePaymentSettings.Use3DS)
@@ -203,7 +203,7 @@ namespace Payments.BrainTree
         /// <summary>
         /// Returns a value indicating whether payment method should be hidden during checkout
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <returns>true - hide; false - display.</returns>
         public async Task<bool> HidePaymentMethod(IList<ShoppingCartItem> cart)
         {
@@ -217,7 +217,7 @@ namespace Payments.BrainTree
         /// <summary>
         /// Gets additional handling fee
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <returns>Additional handling fee</returns>
         public async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
         {
@@ -230,8 +230,8 @@ namespace Payments.BrainTree
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (double)((((float)subtotal.subTotalWithDiscount) *
-                                   ((float)_brainTreePaymentSettings.AdditionalFee)) / 100f);
+                result = (float)subtotal.subTotalWithDiscount *
+                    (float)_brainTreePaymentSettings.AdditionalFee / 100f;
             }
             else
             {
@@ -239,12 +239,10 @@ namespace Payments.BrainTree
                 result = _brainTreePaymentSettings.AdditionalFee;
             }
 
-            if (result > 0)
-            {
-                var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-                var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
-                result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
-            }
+            if (!(result > 0)) return await Task.FromResult(result);
+            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
+            var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
+            result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
 
             //return result;
             return await Task.FromResult(result);
@@ -343,11 +341,7 @@ namespace Payments.BrainTree
         /// <summary>
         /// Gets a payment method type
         /// </summary>
-        public PaymentMethodType PaymentMethodType {
-            get {
-                return PaymentMethodType.Standard;
-            }
-        }
+        public PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public string ConfigurationUrl => BrainTreeDefaults.ConfigurationUrl;
 

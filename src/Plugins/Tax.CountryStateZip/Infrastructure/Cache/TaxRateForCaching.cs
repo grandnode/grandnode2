@@ -3,7 +3,7 @@ namespace Tax.CountryStateZip.Infrastructure.Cache
     /// <summary>
     /// Represents a tax rate
     /// </summary>
-    public partial class TaxRateForCaching
+    public class TaxRateForCaching
     {
         public string Id { get; set; }
         public string StoreId { get; set; }

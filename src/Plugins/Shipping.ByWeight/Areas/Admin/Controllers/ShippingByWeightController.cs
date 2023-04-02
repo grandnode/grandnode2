@@ -65,10 +65,10 @@ namespace Shipping.ByWeight.Controllers
         }
         public IActionResult Configure()
         {
-            var model = new ShippingByWeightListModel();
-
-            model.LimitMethodsToCreated = _shippingByWeightSettings.LimitMethodsToCreated;
-            model.DisplayOrder = _shippingByWeightSettings.DisplayOrder;
+            var model = new ShippingByWeightListModel {
+                LimitMethodsToCreated = _shippingByWeightSettings.LimitMethodsToCreated,
+                DisplayOrder = _shippingByWeightSettings.DisplayOrder
+            };
 
             return View(model);
         }
@@ -109,39 +109,39 @@ namespace Shipping.ByWeight.Controllers
                     AdditionalFixedCost = x.AdditionalFixedCost,
                     PercentageRateOfSubtotal = x.PercentageRateOfSubtotal,
                     RatePerWeightUnit = x.RatePerWeightUnit,
-                    LowerWeightLimit = x.LowerWeightLimit,
+                    LowerWeightLimit = x.LowerWeightLimit
                 };
                 //shipping method
                 var shippingMethod = await _shippingMethodService.GetShippingMethodById(x.ShippingMethodId);
-                m.ShippingMethodName = (shippingMethod != null) ? shippingMethod.Name : "Unavailable";
+                m.ShippingMethodName = shippingMethod != null ? shippingMethod.Name : "Unavailable";
                 //store
                 var store = await _storeService.GetStoreById(x.StoreId);
-                m.StoreName = (store != null) ? store.Shortcut : "*";
+                m.StoreName = store != null ? store.Shortcut : "*";
                 //warehouse
                 var warehouse = await _warehouseService.GetWarehouseById(x.WarehouseId);
-                m.WarehouseName = (warehouse != null) ? warehouse.Name : "*";
+                m.WarehouseName = warehouse != null ? warehouse.Name : "*";
                 //country
                 var c = await _countryService.GetCountryById(x.CountryId);
-                m.CountryName = (c != null) ? c.Name : "*";
+                m.CountryName = c != null ? c.Name : "*";
                 //state
                 var s = c?.StateProvinces.FirstOrDefault(y => y.Id == x.StateProvinceId);
-                m.StateProvinceName = (s != null) ? s.Name : "*";
+                m.StateProvinceName = s != null ? s.Name : "*";
                 //zip
-                m.Zip = (!String.IsNullOrEmpty(x.Zip)) ? x.Zip : "*";
+                m.Zip = !string.IsNullOrEmpty(x.Zip) ? x.Zip : "*";
 
 
                 var htmlSb = new StringBuilder("<div>");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.From"), m.From);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.From")}: {m.From}");
                 htmlSb.Append("<br />");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.To"), m.To);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.To")}: {m.To}");
                 htmlSb.Append("<br />");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.AdditionalFixedCost"), m.AdditionalFixedCost);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.AdditionalFixedCost")}: {m.AdditionalFixedCost}");
                 htmlSb.Append("<br />");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit"), m.RatePerWeightUnit);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit")}: {m.RatePerWeightUnit}");
                 htmlSb.Append("<br />");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.LowerWeightLimit"), m.LowerWeightLimit);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.LowerWeightLimit")}: {m.LowerWeightLimit}");
                 htmlSb.Append("<br />");
-                htmlSb.AppendFormat("{0}: {1}", _translationService.GetResource("Plugins.Shipping.ByWeight.Fields.PercentageRateOfSubtotal"), m.PercentageRateOfSubtotal);
+                htmlSb.Append($"{_translationService.GetResource("Plugins.Shipping.ByWeight.Fields.PercentageRateOfSubtotal")}: {m.PercentageRateOfSubtotal}");
 
                 htmlSb.Append("</div>");
                 m.DataHtml = htmlSb.ToString();
@@ -170,10 +170,11 @@ namespace Shipping.ByWeight.Controllers
 
         public async Task<IActionResult> AddPopup()
         {
-            var model = new ShippingByWeightModel();
-            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
-            model.To = 1000000;
+            var model = new ShippingByWeightModel {
+                PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode,
+                BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
+                To = 1000000
+            };
 
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
             if (shippingMethods.Count == 0)
@@ -182,19 +183,19 @@ namespace Shipping.ByWeight.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = "*", Value = " " });
             foreach (var store in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = "*", Value = " " });
             foreach (var warehouses in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = warehouses.Name, Value = warehouses.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = warehouses.Name, Value = warehouses.Id });
             //shipping methods
             foreach (var sm in shippingMethods)
-                model.AvailableShippingMethods.Add(new SelectListItem { Text = sm.Name, Value = sm.Id.ToString() });
+                model.AvailableShippingMethods.Add(new SelectListItem { Text = sm.Name, Value = sm.Id });
             //countries
             model.AvailableCountries.Add(new SelectListItem { Text = "*", Value = " " });
             var countries = await _countryService.GetAllCountries(showHidden: true);
             foreach (var c in countries)
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             //states
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
 
@@ -266,24 +267,24 @@ namespace Shipping.ByWeight.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = "*", Value = "" });
             foreach (var store in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id.ToString(), Selected = (selectedStore != null && store.Id == selectedStore.Id) });
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id, Selected = selectedStore != null && store.Id == selectedStore.Id });
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = "*", Value = "" });
             foreach (var warehouse in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = warehouse.Name, Value = warehouse.Id.ToString(), Selected = (selectedWarehouse != null && warehouse.Id == selectedWarehouse.Id) });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = warehouse.Name, Value = warehouse.Id, Selected = selectedWarehouse != null && warehouse.Id == selectedWarehouse.Id });
             //shipping methods
             foreach (var sm in shippingMethods)
-                model.AvailableShippingMethods.Add(new SelectListItem { Text = sm.Name, Value = sm.Id.ToString(), Selected = (selectedShippingMethod != null && sm.Id == selectedShippingMethod.Id) });
+                model.AvailableShippingMethods.Add(new SelectListItem { Text = sm.Name, Value = sm.Id, Selected = selectedShippingMethod != null && sm.Id == selectedShippingMethod.Id });
             //countries
             model.AvailableCountries.Add(new SelectListItem { Text = "*", Value = "" });
             var countries = await _countryService.GetAllCountries(showHidden: true);
             foreach (var c in countries)
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (selectedCountry != null && c.Id == selectedCountry.Id) });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = selectedCountry != null && c.Id == selectedCountry.Id });
             //states
             var states = selectedCountry != null ? await _countryService.GetStateProvincesByCountryId(selectedCountry.Id) : new List<StateProvince>();
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
             foreach (var s in states)
-                model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (selectedState != null && s.Id == selectedState.Id) });
+                model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = selectedState != null && s.Id == selectedState.Id });
 
             return View(model);
         }
