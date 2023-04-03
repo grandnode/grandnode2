@@ -75,4 +75,7 @@
 	<Resource Name="OutOfStockSubscriptions.OnlyRegisteredText" Area="Front">
 		<Value>Only registered customers can use this feature</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ProductSortingEnum.Rating" Area="Common">
+		<Value>Rating</Value>
+	</Resource>
 </Language>

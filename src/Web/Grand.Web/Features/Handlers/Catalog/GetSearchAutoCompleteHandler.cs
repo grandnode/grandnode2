@@ -133,7 +133,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Desc = item.GetTranslation(x => x.ShortDescription, request.Language.Id) ?? "",
                     PictureUrl = pictureUrl,
                     AllowCustomerReviews = rating.AllowCustomerReviews,
-                    Rating = rating.TotalReviews > 0 ? rating.RatingSum * 100 / rating.TotalReviews / 5 : 0,
+                    Rating = rating.AvgRating,
                     Price = price.Price,
                     PriceWithDiscount = price.PriceWithDiscount,
                     Url = $"{storeurl}/{item.SeName}"

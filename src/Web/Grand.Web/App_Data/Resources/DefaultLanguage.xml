@@ -13238,6 +13238,9 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.ProductSortingEnum.PriceDesc" Area="Common">
 		<Value>Price: High to Low</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ProductSortingEnum.Rating" Area="Common">
+		<Value>Rating</Value>
+	</Resource>
 	<Resource Name="Enums.Grand.Domain.Catalog.ProductType.BundledProduct" Area="Common">
 		<Value>Bundled product</Value>
 	</Resource>

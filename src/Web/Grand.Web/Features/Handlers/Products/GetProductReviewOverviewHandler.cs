@@ -11,6 +11,7 @@ namespace Grand.Web.Features.Handlers.Products
             var productReview = new ProductReviewOverviewModel {
                 RatingSum = request.Product.ApprovedRatingSum,
                 TotalReviews = request.Product.ApprovedTotalReviews,
+                AvgRating = request.Product.AvgRating,
                 ProductId = request.Product.Id,
                 AllowCustomerReviews = request.Product.AllowCustomerReviews
             };

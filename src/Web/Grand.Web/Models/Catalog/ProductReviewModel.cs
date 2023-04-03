@@ -10,6 +10,7 @@ namespace Grand.Web.Models.Catalog
         public int RatingSum { get; set; }
 
         public int TotalReviews { get; set; }
+        public double AvgRating { get; set; }
 
         public bool AllowCustomerReviews { get; set; }
     }

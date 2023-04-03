@@ -127,6 +127,10 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public int ApprovedTotalReviews { get; set; }
         /// <summary>
+        /// Gets or sets the average rating (approved reviews)
+        /// </summary>
+        public double AvgRating { get; set; }
+        /// <summary>
         /// Gets or sets the total rating votes (not approved reviews)
         /// </summary>
         public int NotApprovedTotalReviews { get; set; }

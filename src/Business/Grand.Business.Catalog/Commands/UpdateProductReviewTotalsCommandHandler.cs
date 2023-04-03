@@ -18,7 +18,8 @@ namespace Grand.Business.Catalog.Commands.Handlers
 
         #endregion
 
-        public UpdateProductReviewTotalsCommandHandler(IRepository<Product> productRepository, IProductReviewService productReviewService, ICacheBase cacheBase)
+        public UpdateProductReviewTotalsCommandHandler(IRepository<Product> productRepository,
+            IProductReviewService productReviewService, ICacheBase cacheBase)
         {
             _productRepository = productRepository;
             _cacheBase = cacheBase;
@@ -56,14 +57,16 @@ namespace Grand.Business.Catalog.Commands.Handlers
             request.Product.NotApprovedRatingSum = notApprovedRatingSum;
             request.Product.ApprovedTotalReviews = approvedTotalReviews;
             request.Product.NotApprovedTotalReviews = notApprovedTotalReviews;
-
+            request.Product.AvgRating = approvedTotalReviews > 0 ? Math.Round((double)approvedRatingSum / approvedTotalReviews, 2) : 0;
+            
             var update = UpdateBuilder<Product>.Create()
-            .Set(x => x.ApprovedRatingSum, request.Product.ApprovedRatingSum)
-            .Set(x => x.NotApprovedRatingSum, request.Product.NotApprovedRatingSum)
-            .Set(x => x.ApprovedTotalReviews, request.Product.ApprovedTotalReviews)
-            .Set(x => x.NotApprovedTotalReviews, request.Product.NotApprovedTotalReviews);
+                .Set(x => x.ApprovedRatingSum, request.Product.ApprovedRatingSum)
+                .Set(x => x.NotApprovedRatingSum, request.Product.NotApprovedRatingSum)
+                .Set(x => x.ApprovedTotalReviews, request.Product.ApprovedTotalReviews)
+                .Set(x => x.AvgRating, request.Product.AvgRating)
+                .Set(x => x.NotApprovedTotalReviews, request.Product.NotApprovedTotalReviews);
 
-            await _productRepository.UpdateOneAsync(x=>x.Id == request.Product.Id, update);
+            await _productRepository.UpdateOneAsync(x => x.Id == request.Product.Id, update);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, request.Product.Id));

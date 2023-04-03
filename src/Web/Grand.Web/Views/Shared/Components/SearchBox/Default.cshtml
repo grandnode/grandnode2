@@ -103,7 +103,7 @@
                                             </div>
                                             <div class="media-body">
                                                 <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                                <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating / 20"></b-form-rating>
+                                                <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating"></b-form-rating>
                                                 <div v-if="item.Price" class="price">{{item.Price}}</div>
                                                 <p v-html="item.Desc" class="mt-1 mb-0"></p>
                                             </div>

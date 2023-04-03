@@ -9,7 +9,7 @@
         public string Price { get; set; }
         public string PriceWithDiscount { get; set; }
         public bool AllowCustomerReviews { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         public string PictureUrl { get; set; }
     }
 }

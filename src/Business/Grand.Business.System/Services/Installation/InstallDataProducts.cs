@@ -3750,8 +3750,8 @@ namespace Grand.Business.System.Services.Installation
                 await _productReviewRepository.InsertAsync(productReview);
 
                 product.ApprovedRatingSum = rating;
-                product.ApprovedTotalReviews = product.ApprovedTotalReviews + 1;
-
+                product.ApprovedTotalReviews += 1;
+                product.AvgRating = rating / product.ApprovedTotalReviews;
             }
             await _productRepository.UpdateAsync(allProducts);
         }

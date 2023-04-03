@@ -38,9 +38,12 @@
         /// </summary>
         MostViewed = 25,
         /// <summary>
-        /// Product most onsale
+        /// Product most on-sale
         /// </summary>
         OnSale = 30,
-
+        /// <summary>
+        /// Product rating
+        /// </summary>
+        Rating = 40
     }
 }
