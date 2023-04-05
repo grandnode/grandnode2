@@ -1,5 +1,5 @@
 ﻿using Grand.Infrastructure;
-using Grand.Web.Common.ApiExplorer;
+using Grand.Api.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Grand.Web.Common.Startup
+namespace Grand.Api.Infrastructure
 {
     /// <summary>
     /// Represents object for the configuring api description provider on application 

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing.Template;
 
-namespace Grand.Web.Common.ApiExplorer;
+namespace Grand.Api.ApiExplorer;
 
 public class ApiParameterContext
 {

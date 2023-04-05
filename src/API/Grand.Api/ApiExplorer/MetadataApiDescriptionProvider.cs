@@ -4,7 +4,6 @@
 
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
@@ -19,7 +18,7 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
-namespace Grand.Web.Common.ApiExplorer;
+namespace Grand.Api.ApiExplorer;
 
 public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 {
@@ -66,7 +65,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
         foreach (var action in context.Actions.OfType<ControllerActionDescriptor>())
         {
-            if (action.ControllerTypeInfo.BaseType != typeof(BasePublicController))
+            if (!action.ControllerTypeInfo.GetCustomAttributes<Grand.SharedKernel.Attributes.ApiControllerAttribute>(true).Any())
                 continue;
 
             if (action.MethodInfo.GetCustomAttributes<IgnoreApiAttribute>(true).Any())

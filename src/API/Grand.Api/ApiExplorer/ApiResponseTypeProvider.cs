@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Grand.Web.Common.ApiExplorer;
+namespace Grand.Api.ApiExplorer;
 
 public class ApiResponseTypeProvider
 {
