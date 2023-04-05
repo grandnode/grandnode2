@@ -208,6 +208,9 @@ namespace Grand.Web.Controllers
             if (download == null)
                 return Content("Download is not available any more.");
 
+            if (_workContext.CurrentCustomer == null || download.CustomerId != _workContext.CurrentCustomer.Id)
+                return Challenge();
+            
             if (download.UseDownloadUrl)
                 return new RedirectResult(download.DownloadUrl);
 

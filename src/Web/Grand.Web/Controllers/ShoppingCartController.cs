@@ -172,7 +172,6 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId,
-            IFormFile uploadedFile, 
             [FromServices] IDownloadService downloadService)
         {
             var attribute = await _checkoutAttributeService.GetCheckoutAttributeById(attributeId);
@@ -183,7 +182,9 @@ namespace Grand.Web.Controllers
                     downloadGuid = Guid.Empty
                 });
             }
-            if (uploadedFile == null)
+            var form = await HttpContext.Request.ReadFormAsync();
+            var httpPostedFile = form.Files.FirstOrDefault();
+            if (httpPostedFile == null)
             {
                 return Json(new {
                     success = false,
@@ -192,13 +193,12 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var fileBinary = uploadedFile.GetDownloadBits();
-            var fileName = uploadedFile.FileName;
+            var fileBinary = httpPostedFile.GetDownloadBits();
+            var fileName = httpPostedFile.FileName;
 
-            //remove path (passed in IE)
             fileName = Path.GetFileName(fileName);
 
-            var contentType = uploadedFile.ContentType;
+            var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
             if (!string.IsNullOrEmpty(fileExtension))
@@ -238,11 +238,11 @@ namespace Grand.Web.Controllers
 
             var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
+                CustomerId = _workContext.CurrentCustomer.Id,
                 UseDownloadUrl = false,
                 DownloadUrl = "",
                 DownloadBinary = fileBinary,
                 ContentType = contentType,
-                //we store filename without extension for downloads
                 Filename = Path.GetFileNameWithoutExtension(fileName),
                 Extension = fileExtension,
                 IsNew = true

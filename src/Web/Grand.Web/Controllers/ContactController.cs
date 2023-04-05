@@ -121,7 +121,6 @@ public class ContactController : BasePublicController
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId,
-        IFormFile uploadedFile, 
         [FromServices] IDownloadService downloadService,
         [FromServices] IContactAttributeService contactAttributeService)
     {
@@ -134,7 +133,9 @@ public class ContactController : BasePublicController
             });
         }
 
-        if (uploadedFile == null)
+        var form = await HttpContext.Request.ReadFormAsync();
+        var httpPostedFile = form.Files.FirstOrDefault();
+        if (httpPostedFile == null)
         {
             return Json(new {
                 success = false,
@@ -143,14 +144,13 @@ public class ContactController : BasePublicController
             });
         }
 
-        var fileBinary = uploadedFile.GetDownloadBits();
+        var fileBinary = httpPostedFile.GetDownloadBits();
 
-        var fileName = uploadedFile.FileName;
+        var fileName = httpPostedFile.FileName;
         
-        //remove path (passed in IE)
         fileName = Path.GetFileName(fileName);
 
-        var contentType = uploadedFile.ContentType;
+        var contentType = httpPostedFile.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))
@@ -190,11 +190,11 @@ public class ContactController : BasePublicController
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),
+            CustomerId = _workContext.CurrentCustomer.Id,
             UseDownloadUrl = false,
             DownloadUrl = "",
             DownloadBinary = fileBinary,
             ContentType = contentType,
-            //we store filename without extension for downloads
             Filename = Path.GetFileNameWithoutExtension(fileName),
             Extension = fileExtension,
             IsNew = true

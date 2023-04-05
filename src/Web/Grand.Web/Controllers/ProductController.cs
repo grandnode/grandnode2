@@ -230,13 +230,7 @@ namespace Grand.Web.Controllers
                 });
             }
             var fileBinary = httpPostedFile.GetDownloadBits();
-
-            const string qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
-            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-                fileName = form[qqFileNameParameter].ToString();
-            //remove path (passed in IE)
-            fileName = Path.GetFileName(fileName);
 
             var contentType = httpPostedFile.ContentType;
 
@@ -278,11 +272,11 @@ namespace Grand.Web.Controllers
 
             var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
+                CustomerId = _workContext.CurrentCustomer.Id,
                 UseDownloadUrl = false,
                 DownloadUrl = "",
                 DownloadBinary = fileBinary,
                 ContentType = contentType,
-                //we store filename without extension for downloads
                 Filename = Path.GetFileNameWithoutExtension(fileName),
                 Extension = fileExtension,
                 IsNew = true
