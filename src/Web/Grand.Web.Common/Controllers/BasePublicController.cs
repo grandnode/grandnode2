@@ -8,6 +8,7 @@ namespace Grand.Web.Common.Controllers
     [ClosedStore]
     [Language]
     [Affiliate]
+    [SharedKernel.Attributes.ApiController]
     public abstract class BasePublicController : BaseController
     {
         protected IActionResult InvokeHttp404()
