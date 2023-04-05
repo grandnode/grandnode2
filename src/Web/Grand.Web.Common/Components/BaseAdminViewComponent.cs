@@ -5,10 +5,6 @@ namespace Grand.Web.Common.Components
     [BaseViewComponent(AdminAccess = true)]
     public abstract class BaseAdminViewComponent : ViewComponent
     {
-        public BaseAdminViewComponent()
-        {
-
-        }
         public new IViewComponentResult View<TModel>(string viewName, TModel model)
         {
             return base.View<TModel>(viewName, model);
