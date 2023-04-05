@@ -16,43 +16,53 @@ namespace Grand.Api.Infrastructure
     {
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            var apiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
+            var backendApiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
+            var frontApiConfig = application.ApplicationServices.GetService<FrontendAPIConfig>();
 
-            if(apiConfig.Enabled)
+            if(backendApiConfig.Enabled)
                 application.UseODataQueryRequest();
 
-            if (apiConfig.Enabled && apiConfig.UseSwagger)
+            if (backendApiConfig.UseSwagger)
             {
                 application.UseSwagger();
                 application.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode Backend API");
-                    c.SwaggerEndpoint("/swagger/v2/swagger.json", "Grandnode Frontend API");
+                    if(backendApiConfig.Enabled)
+                        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Grandnode Backend API");
+                    
+                    if(frontApiConfig.Enabled)
+                        c.SwaggerEndpoint("/swagger/v2/swagger.json", "Grandnode Frontend API");
                 });
             }
         }
 
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
-            if (apiConfig.Enabled && apiConfig.UseSwagger)
+            var backendApiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
+            var frontApiConfig = services.BuildServiceProvider().GetService<FrontendAPIConfig>();
+
+            if (backendApiConfig.UseSwagger)
             {
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo
-                    {
-                        Title = "Grandnode Backend API", 
-                        Version = "v1",
-                        Contact = GetOpenApiContact(),
-                        License = GetOpenApiLicense()
-                    });
-                    c.SwaggerDoc("v2", new OpenApiInfo
-                    {
-                        Title = "Grandnode Frontend API", 
-                        Version = "v2",
-                        Contact = GetOpenApiContact(),
-                        License = GetOpenApiLicense()
-                    });
+                    if(backendApiConfig.Enabled)
+                        c.SwaggerDoc("v1", new OpenApiInfo
+                        {
+                            Title = "Grandnode Backend API", 
+                            Version = "v1",
+                            Contact = GetOpenApiContact(),
+                            License = GetOpenApiLicense()
+                        });
+                    
+                    if(frontApiConfig.Enabled)
+                        c.SwaggerDoc("v2", new OpenApiInfo
+                        {
+                            Title = "Grandnode Frontend API", 
+                            Version = "v2",
+                            Contact = GetOpenApiContact(),
+                            License = GetOpenApiLicense()
+                        });
+                    
                     c.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
                     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, //Name the security scheme
                         new OpenApiSecurityScheme
