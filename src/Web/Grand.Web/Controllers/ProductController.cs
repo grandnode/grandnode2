@@ -279,7 +279,8 @@ namespace Grand.Web.Controllers
                 ContentType = contentType,
                 Filename = Path.GetFileNameWithoutExtension(fileName),
                 Extension = fileExtension,
-                IsNew = true
+                DownloadType = DownloadType.ProductAttribute,
+                ReferenceId = attributeId
             };
             await downloadService.InsertDownload(download);
 

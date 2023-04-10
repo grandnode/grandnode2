@@ -1,4 +1,9 @@
 ﻿@model MerchandiseReturnModel
+@{
+    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.MerchandiseReturn;
+    ViewData["ReferenceId"] = Model.Id;
+}
+
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="merchandisereturn_details_notes_top" additional-data="Model" />
     <div class="panel-body">

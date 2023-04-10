@@ -197,7 +197,8 @@ public class ContactController : BasePublicController
             ContentType = contentType,
             Filename = Path.GetFileNameWithoutExtension(fileName),
             Extension = fileExtension,
-            IsNew = true
+            DownloadType = DownloadType.ContactAttribute,
+            ReferenceId = attributeId
         };
 
         await downloadService.InsertDownload(download);

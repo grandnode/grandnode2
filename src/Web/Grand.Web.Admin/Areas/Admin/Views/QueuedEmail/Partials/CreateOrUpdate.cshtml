@@ -1,4 +1,8 @@
 ﻿@model QueuedEmailModel
+@{
+    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.QueuedEmail;
+    ViewData["ReferenceId"] = Model.Id;
+}
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 <div class="form-horizontal">

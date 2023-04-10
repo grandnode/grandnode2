@@ -25,7 +25,7 @@
                 cache: false,
                 type: "POST",
                 url: "@(Url.Action("SaveDownloadUrl", "Download", new { area = Constants.AreaAdmin }))",
-                data: { "downloadUrl": downloadUrl },
+                data: { "downloadUrl": downloadUrl, DownloadType: '@ViewData["DownloadType"]', ReferenceId: '@ViewData["ReferenceId"]' },
                 success: function (data) {
                     if (data.success) {
                         $('#pnlDownloadURLResult@(randomNumber)').fadeIn("slow").delay(1000).fadeOut("slow");
@@ -138,7 +138,11 @@
                         $(document).ready(function () {
                             $("#@clientId").fineUploader({
                                 request: {
-                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area = Constants.AreaAdmin }))'
+                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area = Constants.AreaAdmin }))',
+                                    params: {
+                                        DownloadType: '@ViewData["DownloadType"]',
+                                        ReferenceId: '@ViewData["ReferenceId"]'
+                                    }
                                 },
                                 template: "@(clientId)-qq-template",
                                 multiple: false

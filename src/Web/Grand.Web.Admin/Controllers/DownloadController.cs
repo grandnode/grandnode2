@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Media;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Extensions;
@@ -12,10 +13,11 @@ namespace Grand.Web.Admin.Controllers
     public partial class DownloadController : BaseAdminController
     {
         private readonly IDownloadService _downloadService;
-
-        public DownloadController(IDownloadService downloadService)
+        private readonly IWorkContext _workContext;
+        public DownloadController(IDownloadService downloadService, IWorkContext workContext)
         {
             _downloadService = downloadService;
+            _workContext = workContext;
         }
 
         public async Task<IActionResult> DownloadFile(Guid downloadGuid)
@@ -44,7 +46,7 @@ namespace Grand.Web.Admin.Controllers
 
         //do not validate request token (XSRF)
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> SaveDownloadUrl(string downloadUrl)
+        public async Task<IActionResult> SaveDownloadUrl(string downloadUrl, DownloadType downloadType = DownloadType.None, string referenceId = "")
         {
             if (string.IsNullOrEmpty(downloadUrl))
             {
@@ -55,7 +57,8 @@ namespace Grand.Web.Admin.Controllers
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = true,
                 DownloadUrl = downloadUrl,
-                IsNew = true
+                DownloadType = downloadType,
+                ReferenceId = referenceId
             };
             await _downloadService.InsertDownload(download);
 
@@ -66,7 +69,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         //do not validate request token (XSRF)
         [IgnoreAntiforgeryToken]
-        public virtual async Task<IActionResult> AsyncUpload()
+        public virtual async Task<IActionResult> AsyncUpload(DownloadType downloadType = DownloadType.None, string referenceId = "")
         {
             var form = await HttpContext.Request.ReadFormAsync();
             var httpPostedFile = form.Files.FirstOrDefault();
@@ -84,28 +87,29 @@ namespace Grand.Web.Admin.Controllers
 
             var qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
-            if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();
-            //remove path (passed in IE)
+
             fileName = Path.GetFileName(fileName);
 
             var contentType = httpPostedFile.ContentType;
 
             var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
+            if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
 
             var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
+                CustomerId = _workContext.CurrentCustomer.Id,
                 UseDownloadUrl = false,
                 DownloadUrl = "",
                 DownloadBinary = fileBinary,
                 ContentType = contentType,
-                //we store filename without extension for downloads
                 Filename = Path.GetFileNameWithoutExtension(fileName),
                 Extension = fileExtension,
-                IsNew = true
+                DownloadType = downloadType,
+                ReferenceId = referenceId
             };
             await _downloadService.InsertDownload(download);
 

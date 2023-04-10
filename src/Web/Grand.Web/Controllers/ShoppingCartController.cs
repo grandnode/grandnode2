@@ -245,7 +245,8 @@ namespace Grand.Web.Controllers
                 ContentType = contentType,
                 Filename = Path.GetFileNameWithoutExtension(fileName),
                 Extension = fileExtension,
-                IsNew = true
+                DownloadType = DownloadType.CheckoutAttribute,
+                ReferenceId = attributeId
             };
             await downloadService.InsertDownload(download);
 

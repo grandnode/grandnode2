@@ -1,4 +1,8 @@
 ﻿@model CourseLessonModel
+@{
+    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Course;
+    ViewData["ReferenceId"] = Model.Id;
+}
 <vc:admin-widget widget-zone="course_details_lesson_info_top" additional-data="Model" />
 <div class="form-horizontal">
     <div class="form-body">

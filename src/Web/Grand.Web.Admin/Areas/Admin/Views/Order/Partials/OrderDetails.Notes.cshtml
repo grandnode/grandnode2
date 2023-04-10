@@ -1,4 +1,8 @@
 ﻿@model OrderModel
+@{
+    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Order;
+    ViewData["ReferenceId"] = Model.Id;
+}
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="order_details_notes_top" additional-data="Model" />
     <div class="panel-body">

@@ -1,4 +1,8 @@
 ﻿@model DocumentModel
+@{
+    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Document;
+    ViewData["ReferenceId"] = Model.Id;
+}
 <vc:admin-widget widget-zone="document_details_info_top" additional-data="Model" />
 <div class="form-horizontal">
     <div class="form-body">

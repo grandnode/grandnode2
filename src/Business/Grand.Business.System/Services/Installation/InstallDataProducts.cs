@@ -2453,7 +2453,7 @@ namespace Grand.Business.System.Services.Installation
                 DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cyberpunk_1.zip"),
                 Extension = ".zip",
                 Filename = "Cyberpunk",
-                IsNew = true,
+                DownloadType = DownloadType.Product
             };
             await downloadService.InsertDownload(downloadCyberpunk1);
             var downloadCyberpunk2 = new Download
@@ -2463,7 +2463,7 @@ namespace Grand.Business.System.Services.Installation
                 DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cyberpunk_2.txt"),
                 Extension = ".txt",
                 Filename = "Cyberpunk",
-                IsNew = true,
+                DownloadType = DownloadType.Product
             };
             await downloadService.InsertDownload(downloadCyberpunk2);
             var productCyberpunk = new Product
@@ -2520,7 +2520,7 @@ namespace Grand.Business.System.Services.Installation
                 DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_GTA_1.zip"),
                 Extension = ".zip",
                 Filename = "GTA",
-                IsNew = true,
+                DownloadType = DownloadType.Product
             };
             await downloadService.InsertDownload(downloadGTA1);
             var downloadGTA2 = new Download
@@ -2530,7 +2530,7 @@ namespace Grand.Business.System.Services.Installation
                 DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_GTA_2.txt"),
                 Extension = ".txt",
                 Filename = "GTA",
-                IsNew = true,
+                DownloadType = DownloadType.Product
             };
             await downloadService.InsertDownload(downloadGTA2);
             var productGTA = new Product
@@ -2589,7 +2589,7 @@ namespace Grand.Business.System.Services.Installation
                 DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cod_1.zip"),
                 Extension = ".zip",
                 Filename = "Call of Duty",
-                IsNew = true,
+                DownloadType = DownloadType.Product
             };
             await downloadService.InsertDownload(downloadCod);
             var productCod = new Product

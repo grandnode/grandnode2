@@ -51,9 +51,14 @@ namespace Grand.Domain.Media
         public string Extension { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the download is new
+        /// Gets or sets an download type
         /// </summary>
-        public bool IsNew { get; set; }
+        public DownloadType DownloadType { get; set; }
+
+        /// <summary>
+        /// Gets or sets an object reference identifier
+        /// </summary>
+        public string ReferenceId { get; set; }
     }
 
 }
