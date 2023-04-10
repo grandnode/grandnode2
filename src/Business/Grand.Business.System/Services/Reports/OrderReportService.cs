@@ -396,7 +396,7 @@ namespace Grand.Business.System.Services.Reports
 
             var query = from p in builderquery
                         from item in p.OrderItems
-                        select item;
+                        select new {VendorId = item.VendorId, ProductId = item.ProductId, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
 
             if (!string.IsNullOrEmpty(vendorId))
             {
@@ -405,7 +405,7 @@ namespace Grand.Business.System.Services.Reports
 
             var queryItem = query.GroupBy(x => new { ProductId = x.ProductId }).Select(x => new BestsellersReportLine() {
                 ProductId = x.Key.ProductId,
-                TotalAmount = x.Sum(y => y.PriceInclTax),
+                TotalAmount = x.Sum(y => y.PriceInclTax / y.Rate),
                 TotalQuantity = x.Sum(y => y.Quantity)
             });
 
