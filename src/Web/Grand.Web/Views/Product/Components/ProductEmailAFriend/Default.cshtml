@@ -106,7 +106,6 @@
                                             'Accept': 'application/json'
                                         }
                                     }).then(function (response) {
-                                        console.log(response);
                                         emailafriend.Message.Result = response.data.Result;
                                         emailafriend.Message.SuccessfullySent = response.data.SuccessfullySent;
 
