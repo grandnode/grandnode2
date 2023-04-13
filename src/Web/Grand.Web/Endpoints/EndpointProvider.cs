@@ -663,10 +663,6 @@ namespace Grand.Web.Endpoints
                             pattern + "orderdetails/pdf/{orderId}",
                             new { controller = "Order", action = "GetPdfInvoice" });
 
-            endpointRouteBuilder.MapControllerRoute("PrintOrderDetails",
-                            pattern + "orderdetails/print/{orderId}",
-                            new { controller = "Order", action = "PrintOrderDetails" });
-
             endpointRouteBuilder.MapControllerRoute("CancelOrder",
                             pattern + "orderdetails/cancel/{orderId}",
                             new { controller = "Order", action = "CancelOrder" });

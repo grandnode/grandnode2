@@ -19,8 +19,6 @@ namespace Grand.Web.Models.Orders
             PickupAddress = new AddressModel();
             CustomValues = new Dictionary<string, object>();
         }
-
-        public bool PrintMode { get; set; }
         public bool PdfInvoiceDisabled { get; set; }
 
         public bool UserCanCancelUnpaidOrder { get; set; }

@@ -108,22 +108,6 @@ namespace Grand.Web.Controllers
 
             return View(model);
         }
-
-        //My account / Order details page / Print
-        [IgnoreApi]
-        [HttpGet]
-        public virtual async Task<IActionResult> PrintOrderDetails(string orderId)
-        {
-            var order = await _orderService.GetOrderById(orderId);
-            if (!await order.Access(_workContext.CurrentCustomer, _groupService))
-                return Challenge();
-
-            var model = await _mediator.Send(new GetOrderDetails { Order = order, Language = _workContext.WorkingLanguage });
-            model.PrintMode = true;
-
-            return View("Details", model);
-        }
-
         //My account / Order details page / Cancel Unpaid Order
         [HttpGet]
         public virtual async Task<IActionResult> CancelOrder(string orderId)
