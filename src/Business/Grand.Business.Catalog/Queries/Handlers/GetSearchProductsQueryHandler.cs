@@ -45,6 +45,77 @@ namespace Grand.Business.Catalog.Queries.Handlers
             var query = from p in _productRepository.Table
                 select p;
 
+            query = FilterQueryable(request, query, allowedCustomerGroupsIds);
+
+            var querySpecification = query;
+
+            //search by specs
+            if (request.FilteredSpecs != null && request.FilteredSpecs.Any())
+            {
+                var spec = new HashSet<string>();
+                Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
+                foreach (var key in request.FilteredSpecs)
+                {
+                    var specification = await _specificationAttributeService.GetSpecificationAttributeByOptionId(key);
+                    if (specification == null) continue;
+                    spec.Add(specification.Id);
+                    if (!dictionary.ContainsKey(specification.Id))
+                    {
+                        //add
+                        dictionary.Add(specification.Id, new List<string>());
+                        querySpecification = querySpecification.Where(x =>
+                            x.ProductSpecificationAttributes.Any(y =>
+                                y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
+                    }
+
+                    dictionary[specification.Id].Add(key);
+                }
+
+                foreach (var item in dictionary)
+                {
+                    query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
+                        y.SpecificationAttributeId == item.Key && y.AllowFiltering
+                                                               && item.Value.Contains(
+                                                                   y.SpecificationAttributeOptionId)));
+                }
+            }
+
+            if (request.SpecificationOptions != null && request.SpecificationOptions.Any())
+            {
+                query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
+                    request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
+            }
+
+            query = OrderByQueryable(request, query);
+
+            var products = await PagedList<Product>.Create(query, request.PageIndex, request.PageSize);
+            
+            if (!request.LoadFilterableSpecificationAttributeOptionIds ||
+                _catalogSettings.IgnoreFilterableSpecAttributeOption)
+                return (products, filterableSpecificationAttributeOptionIds);
+            {
+                var filterSpecExists =
+                    querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
+
+                var spec = from p in filterSpecExists
+                    from item in p.ProductSpecificationAttributes
+                    select item;
+
+                var groupQuerySpec = spec.Where(x => x.AllowFiltering).GroupBy(x =>
+                    new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
+                IList<string> specification =
+                    groupQuerySpec.Select(item => item.Key.SpecificationAttributeOptionId).ToList();
+
+                filterableSpecificationAttributeOptionIds = specification.ToList();
+            }
+
+            return (products, filterableSpecificationAttributeOptionIds);
+
+            #endregion
+        }
+
+        private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
+        {
             //category filtering
             if (request.CategoryIds != null && request.CategoryIds.Any())
             {
@@ -107,8 +178,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
             if (request.ProductType.HasValue)
             {
-                var productTypeId = (int)request.ProductType.Value;
-                query = query.Where(p => p.ProductTypeId == (ProductType)productTypeId);
+                query = query.Where(p => p.ProductTypeId == request.ProductType);
             }
 
             if (request.ShowOnHomePage.HasValue)
@@ -116,8 +186,6 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 query = query.Where(p => p.ShowOnHomePage == request.ShowOnHomePage.Value);
             }
 
-            //The function 'CurrentUtcDateTime' is not supported by SQL Server Compact. 
-            //That's why we pass the date value
             var nowUtc = DateTime.UtcNow;
             if (request.PriceMin.HasValue)
             {
@@ -128,6 +196,12 @@ namespace Grand.Business.Catalog.Queries.Handlers
             {
                 //max price
                 query = query.Where(p => p.Price <= request.PriceMax.Value);
+            }
+
+            if (request.Rating.HasValue)
+            {
+                //avg rating
+                query = query.Where(p => p.AvgRating >= request.Rating);
             }
 
             if (!request.ShowHidden && !_catalogSettings.IgnoreFilterableAvailableStartEndDateTime)
@@ -209,45 +283,11 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 query = query.Where(x => x.ProductTags.Any(y => y == request.ProductTag));
             }
 
-            var querySpecification = query;
+            return query;
+        }
 
-            //search by specs
-            if (request.FilteredSpecs != null && request.FilteredSpecs.Any())
-            {
-                var spec = new HashSet<string>();
-                Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
-                foreach (var key in request.FilteredSpecs)
-                {
-                    var specification = await _specificationAttributeService.GetSpecificationAttributeByOptionId(key);
-                    if (specification == null) continue;
-                    spec.Add(specification.Id);
-                    if (!dictionary.ContainsKey(specification.Id))
-                    {
-                        //add
-                        dictionary.Add(specification.Id, new List<string>());
-                        querySpecification = querySpecification.Where(x =>
-                            x.ProductSpecificationAttributes.Any(y =>
-                                y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
-                    }
-
-                    dictionary[specification.Id].Add(key);
-                }
-
-                foreach (var item in dictionary)
-                {
-                    query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
-                        y.SpecificationAttributeId == item.Key && y.AllowFiltering
-                                                               && item.Value.Contains(
-                                                                   y.SpecificationAttributeOptionId)));
-                }
-            }
-
-            if (request.SpecificationOptions != null && request.SpecificationOptions.Any())
-            {
-                query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
-                    request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
-            }
-
+        private IQueryable<Product> OrderByQueryable(GetSearchProductsQuery request, IQueryable<Product> query)
+        {
             switch (request.OrderBy)
             {
                 case ProductSortingEnum.Position when request.CategoryIds != null && request.CategoryIds.Any():
@@ -332,35 +372,9 @@ namespace Grand.Business.Catalog.Queries.Handlers
                         ? query.OrderBy(x => x.LowStock).ThenByDescending(x => x.AvgRating)
                         : query.OrderByDescending(x => x.AvgRating).ThenByDescending(x => x.ApprovedTotalReviews);
                     break;
-                default:
-                    break;
             }
 
-            var products = await PagedList<Product>.Create(query, request.PageIndex, request.PageSize);
-
-
-            if (!request.LoadFilterableSpecificationAttributeOptionIds ||
-                _catalogSettings.IgnoreFilterableSpecAttributeOption)
-                return (products, filterableSpecificationAttributeOptionIds);
-            {
-                var filterSpecExists =
-                    querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
-
-                var qspec = from p in filterSpecExists
-                    from item in p.ProductSpecificationAttributes
-                    select item;
-
-                var groupQuerySpec = qspec.Where(x => x.AllowFiltering).GroupBy(x =>
-                    new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
-                IList<string> specyfication =
-                    groupQuerySpec.Select(item => item.Key.SpecificationAttributeOptionId).ToList();
-
-                filterableSpecificationAttributeOptionIds = specyfication.ToList();
-            }
-
-            return (products, filterableSpecificationAttributeOptionIds);
-
-            #endregion
+            return query;
         }
     }
 }
