@@ -8,28 +8,32 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NUglify.Helpers;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
-    public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOptions, (CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)>
+    public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOptions, (CatalogPagingFilteringModel
+        pagingFilteringModel, CatalogPagingFilteringModel command)>
     {
         private readonly ITranslationService _translationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CatalogSettings _catalogSettings;
 
-        public GetViewSortSizeOptionsHandler(ITranslationService translationService, CatalogSettings catalogSettings, IHttpContextAccessor httpContextAccessor)
+        public GetViewSortSizeOptionsHandler(ITranslationService translationService, CatalogSettings catalogSettings,
+            IHttpContextAccessor httpContextAccessor)
         {
             _translationService = translationService;
             _catalogSettings = catalogSettings;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)> Handle(GetViewSortSizeOptions request, CancellationToken cancellationToken)
+        public async Task<(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)>
+            Handle(GetViewSortSizeOptions request, CancellationToken cancellationToken)
         {
             PrepareSortingOptions(request);
             PrepareViewModes(request);
             PreparePageSizeOptions(request);
-
+            PrepareRatingModes(request);
             return await Task.FromResult((request.PagingFilteringModel, request.Command));
         }
 
@@ -41,12 +45,16 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (request.Command == null)
                 throw new ArgumentNullException(nameof(request.Command));
 
-            var allDisabled = _catalogSettings.ProductSortingEnumDisabled.Count == Enum.GetValues(typeof(ProductSortingEnum)).Length;
+            var allDisabled = _catalogSettings.ProductSortingEnumDisabled.Count ==
+                              Enum.GetValues(typeof(ProductSortingEnum)).Length;
             request.PagingFilteringModel.AllowProductSorting = _catalogSettings.AllowProductSorting && !allDisabled;
 
             var activeOptions = Enum.GetValues(typeof(ProductSortingEnum)).Cast<int>()
                 .Except(_catalogSettings.ProductSortingEnumDisabled)
-                .Select(idOption => new KeyValuePair<int, int>(idOption, _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out var order) ? order : idOption))
+                .Select(idOption => new KeyValuePair<int, int>(idOption,
+                    _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out var order)
+                        ? order
+                        : idOption))
                 .OrderBy(x => x.Value);
             request.Command.OrderBy ??= allDisabled ? 0 : activeOptions.First().Key;
 
@@ -56,7 +64,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
                 var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", option.Key.ToString());
 
-                var sortValue = ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
+                var sortValue =
+                    ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
                 request.PagingFilteringModel.AvailableSortOptions.Add(new SelectListItem {
                     Text = sortValue,
                     Value = sortUrl,
@@ -64,9 +73,9 @@ namespace Grand.Web.Features.Handlers.Catalog
                 });
             }
         }
+
         private void PrepareViewModes(GetViewSortSizeOptions request)
         {
-
             request.PagingFilteringModel.AllowProductViewModeChanging = _catalogSettings.AllowProductViewModeChanging;
 
             var viewMode = !string.IsNullOrEmpty(request.Command.ViewMode)
@@ -74,7 +83,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 : _catalogSettings.DefaultViewMode;
             request.PagingFilteringModel.ViewMode = viewMode;
             if (!request.PagingFilteringModel.AllowProductViewModeChanging) return;
-            
+
             var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
             //grid
             request.PagingFilteringModel.AvailableViewModes.Add(new SelectListItem {
@@ -89,16 +98,19 @@ namespace Grand.Web.Features.Handlers.Catalog
                 Selected = viewMode == "list"
             });
         }
+
         private void PreparePageSizeOptions(GetViewSortSizeOptions request)
         {
             if (request.Command.PageNumber <= 0)
             {
                 request.Command.PageNumber = 1;
             }
+
             request.PagingFilteringModel.AllowCustomersToSelectPageSize = false;
             if (request.AllowCustomersToSelectPageSize && request.PageSizeOptions != null)
             {
-                var pageSizes = request.PageSizeOptions.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var pageSizes =
+                    request.PageSizeOptions.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (pageSizes.Any())
                 {
@@ -122,6 +134,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         {
                             continue;
                         }
+
                         if (temp <= 0)
                         {
                             continue;
@@ -130,18 +143,21 @@ namespace Grand.Web.Features.Handlers.Catalog
                         request.PagingFilteringModel.PageSizeOptions.Add(new SelectListItem {
                             Text = pageSize,
                             Value = CommonExtensions.ModifyQueryString(pageUrl, "pagesize", pageSize),
-                            Selected = pageSize.Equals(request.Command.PageSize.ToString(), StringComparison.OrdinalIgnoreCase)
+                            Selected = pageSize.Equals(request.Command.PageSize.ToString(),
+                                StringComparison.OrdinalIgnoreCase)
                         });
                     }
 
                     if (request.PagingFilteringModel.PageSizeOptions.Any())
                     {
-                        request.PagingFilteringModel.PageSizeOptions = request.PagingFilteringModel.PageSizeOptions.OrderBy(x => int.Parse(x.Text)).ToList();
+                        request.PagingFilteringModel.PageSizeOptions = request.PagingFilteringModel.PageSizeOptions
+                            .OrderBy(x => int.Parse(x.Text)).ToList();
                         request.PagingFilteringModel.AllowCustomersToSelectPageSize = true;
 
                         if (request.Command.PageSize <= 0)
                         {
-                            request.Command.PageSize = int.Parse(request.PagingFilteringModel.PageSizeOptions.FirstOrDefault()!.Text);
+                            request.Command.PageSize =
+                                int.Parse(request.PagingFilteringModel.PageSizeOptions.FirstOrDefault()!.Text);
                         }
                     }
                 }
@@ -159,5 +175,14 @@ namespace Grand.Web.Features.Handlers.Catalog
             }
         }
 
+        private void PrepareRatingModes(GetViewSortSizeOptions request)
+        {
+            if (string.IsNullOrEmpty(_catalogSettings.FilterProductRating)) return;
+            var currentRating = _httpContextAccessor.HttpContext?.Request.Query["rating"];
+            request.PagingFilteringModel.RatingOptions.Add(new SelectListItem("", ""));
+            _catalogSettings.FilterProductRating.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => !string.IsNullOrWhiteSpace(x)).ForEach(x =>
+                request.PagingFilteringModel.RatingOptions.Add(new SelectListItem(x, x, currentRating?.ToString() == x)));
+        }
     }
 }

@@ -193,6 +193,7 @@ namespace Grand.Business.System.Services.Installation
                 ProductReviewsMustBeApproved = false,
                 DefaultProductRatingValue = 5,
                 AllowAnonymousUsersToReviewProduct = false,
+                FilterProductRating = "4.6,4.7,4.8,4.9,5",
                 ProductReviewPossibleOnlyAfterPurchasing = false,
                 ProductReviewPossibleOnlyOnce = false,
                 NotifyStoreOwnerAboutNewProductReviews = false,

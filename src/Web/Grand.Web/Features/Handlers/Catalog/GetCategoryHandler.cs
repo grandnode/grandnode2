@@ -192,7 +192,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                 VisibleIndividuallyOnly = true,
                 FeaturedProducts = _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false,
                 FilteredSpecs = alreadyFilteredSpecOptionIds,
-                OrderBy = (ProductSortingEnum)request.Command.OrderBy,
+                OrderBy = (ProductSortingEnum)request.Command.OrderBy!,
+                Rating = request.Command.Rating,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize
             }, cancellationToken);

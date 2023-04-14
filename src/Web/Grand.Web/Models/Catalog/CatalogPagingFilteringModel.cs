@@ -19,6 +19,7 @@ namespace Grand.Web.Models.Catalog
             AvailableViewModes = new List<SelectListItem>();
             PageSizeOptions = new List<SelectListItem>();
             SpecificationFilter = new SpecificationFilterModel();
+            RatingOptions = new List<SelectListItem>();
         }
 
         #endregion
@@ -44,6 +45,16 @@ namespace Grand.Web.Models.Catalog
         /// </summary>
         public int? OrderBy { get; set; }
 
+        /// <summary>
+        /// Rating
+        /// </summary>
+        public double? Rating { get; set; }
+        
+        /// <summary>
+        /// Rating list options
+        /// </summary>
+        public IList<SelectListItem> RatingOptions { get; set; }
+        
         /// <summary>
         /// View mode
         /// </summary>

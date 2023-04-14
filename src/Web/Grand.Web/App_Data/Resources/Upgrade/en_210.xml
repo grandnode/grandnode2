@@ -78,4 +78,10 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.ProductSortingEnum.Rating" Area="Common">
 		<Value>Rating</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Catalog.FilterProductRating" Area="Admin">
+		<Value>Filtering by product rating - options (comma separator, e.g: 4.8,4.9,5)</Value>
+	</Resource>
+	<Resource Name="Catalog.Rating" Area="Front">
+		<Value>Product rating</Value>
+	</Resource>
 </Language>

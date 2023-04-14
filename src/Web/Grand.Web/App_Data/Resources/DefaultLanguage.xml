@@ -10011,6 +10011,9 @@
 	<Resource Name="Admin.Settings.Catalog.EmailAFriendEnabled" Area="Admin">
 		<Value>'Email a friend' enabled</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Catalog.FilterProductRating" Area="Admin">
+		<Value>Filtering by product rating - options (comma separator, e.g: 4.8,4.9,5)</Value>
+	</Resource>
 	<Resource Name="Admin.Settings.Catalog.General" Area="Admin">
 		<Value>General</Value>
 	</Resource>
@@ -12571,6 +12574,9 @@
 	</Resource>
 	<Resource Name="Catalog.PageSize.PerPage" Area="Front">
 		<Value>per page</Value>
+	</Resource>
+	<Resource Name="Catalog.Rating" Area="Front">
+		<Value>Product rating</Value>
 	</Resource>
 	<Resource Name="Catalog.Selectors.Fiters" Area="Front">
 		<Value>Filters</Value>

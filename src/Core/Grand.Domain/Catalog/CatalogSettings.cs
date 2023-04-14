@@ -130,6 +130,11 @@ namespace Grand.Domain.Catalog
         public bool NotifyStoreOwnerAboutNewProductReviews { get; set; }
 
         /// <summary>
+        /// Gets or sets a value the filtering by product review
+        /// </summary>
+        public string FilterProductRating { get; set; }
+        
+        /// <summary>
         /// Gets or sets a value indicating whether product 'Email a friend' feature is enabled
         /// </summary>
         public bool EmailAFriendEnabled { get; set; }

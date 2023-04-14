@@ -15,6 +15,18 @@
                 stateurl.searchParams.delete('timestamp');
                 window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
             },
+            setRating(rating) {
+                const url = new URL(window.location.href);
+                if (rating === "") {
+                    url.searchParams.delete('rating');
+                }
+                else {
+                    url.searchParams.set('rating', rating);
+                }                
+                url.searchParams.delete('pagenumber');
+
+                this.loadProducts(url.href);
+            },
             getResponse(url) {
                 url = new URL(url);
                 url.searchParams.set('timestamp', new Date().getTime());

@@ -76,6 +76,9 @@ namespace Grand.Web.Admin.Models.Settings
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.NotifyStoreOwnerAboutNewProductReviews")]
         public bool NotifyStoreOwnerAboutNewProductReviews { get; set; }
+        
+        [GrandResourceDisplayName("Admin.Settings.Catalog.FilterProductRating")]
+        public string FilterProductRating { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.EmailAFriendEnabled")]
         public bool EmailAFriendEnabled { get; set; }

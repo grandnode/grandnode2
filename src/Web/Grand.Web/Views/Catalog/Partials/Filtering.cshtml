@@ -65,4 +65,23 @@
             </template>
         </div>
     </template>
+    @*Rating*@
+    <template v-if="catalog.Model.PagingFilteringContext.RatingOptions.length > 0">
+        <div class="block product-filter product-rating-filter">
+            <div class="card mb-3">
+                <h6 class="h6 card-header">
+                    @Loc["Catalog.Rating"]:
+                </h6>
+                <div class="card-body">
+                    <select class="custom-select form-control" id="rating" name="rating" v-on:change="catalog.setRating($event.target.value)" aria-label="@Loc["Catalog.Rating"]">
+                        <template v-for="item in catalog.Model.PagingFilteringContext.RatingOptions">
+                            <option :selected="item.Selected" :value="item.Value" :disabled="false">
+                                {{item.Text}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </template>
 </template>
