@@ -27,7 +27,7 @@ namespace Grand.Business.Catalog.Events.Handlers
         public async Task Handle(EntityDeleted<Collection> notification, CancellationToken cancellationToken)
         {
             //delete url
-            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == "Collection");
+            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == EntityTypes.Collection);
 
             //delete on the product
             await _productRepository.PullFilter(string.Empty, x => x.ProductCollections, z => z.CollectionId, notification.Entity.Id);

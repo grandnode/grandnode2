@@ -29,5 +29,15 @@ namespace Grand.Domain.Seo
         /// Gets or sets the language identifier
         /// </summary>
         public string LanguageId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the controller name
+        /// </summary>
+        public string Controller { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the action name
+        /// </summary>
+        public string Action { get; set; }
     }
 }

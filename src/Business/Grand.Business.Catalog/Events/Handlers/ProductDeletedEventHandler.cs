@@ -64,7 +64,7 @@ namespace Grand.Business.Catalog.Events.Handlers
             await _customerGroupProductRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);
 
             //delete url
-            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == "Product");
+            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == EntityTypes.Product);
 
             //delete product tags
             var existingProductTags = _productTagRepository.Table.Where(x => notification.Entity.ProductTags.ToList().Contains(x.Name)).ToList();
