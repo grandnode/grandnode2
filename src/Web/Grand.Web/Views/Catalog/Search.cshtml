@@ -153,9 +153,6 @@
 @section filters
 {
     @*Rendering filtering section*@
-    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
-    {
-        <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
-    }
+    <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
 }
 <partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
