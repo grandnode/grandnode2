@@ -30,7 +30,7 @@
                         <td class="empty">&nbsp;</td>
                         <template v-for="(product, key) in compareproducts.Products">
                             <td class="same-width">
-                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product, key);">
+                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id, key);">
                                     <b-icon icon="trash" variant="danger" aria-hidden="true"></b-icon>
                                 </button>
                             </td>
