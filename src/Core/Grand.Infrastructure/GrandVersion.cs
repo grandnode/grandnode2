@@ -17,7 +17,7 @@ namespace Grand.Infrastructure
         /// <summary>
         /// Gets the patch version
         /// </summary>
-        public const string PatchVersion = "0-develop";
+        public const string PatchVersion = "0";
 
         /// <summary>
         /// Gets the full version
