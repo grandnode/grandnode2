@@ -18,11 +18,11 @@ namespace Grand.Api.Infrastructure
         {
             var backendApiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
             var frontApiConfig = application.ApplicationServices.GetService<FrontendAPIConfig>();
-
-            if(backendApiConfig.Enabled)
+            var swagger = application.ApplicationServices.GetService<IConfiguration>().GetValue<bool>("UseSwagger");
+            if (backendApiConfig.Enabled)
                 application.UseODataQueryRequest();
 
-            if (backendApiConfig.UseSwagger)
+            if (swagger && (backendApiConfig.Enabled || frontApiConfig.Enabled))
             {
                 application.UseSwagger();
                 application.UseSwaggerUI(c =>
@@ -40,8 +40,8 @@ namespace Grand.Api.Infrastructure
         {
             var backendApiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
             var frontApiConfig = services.BuildServiceProvider().GetService<FrontendAPIConfig>();
-
-            if (backendApiConfig.UseSwagger)
+            var swagger = configuration.GetValue<bool>("UseSwagger");
+            if (swagger && (backendApiConfig.Enabled || frontApiConfig.Enabled))
             {
                 services.AddSwaggerGen(c =>
                 {
