@@ -136,9 +136,6 @@ sudo systemctl start grandnode.service
 ``` 
 Feel free to visit our [detailed guide about GrandNode installation.](https://grandnode.com/how-to-install-grandnode-on-linux-ubuntu-1604/?utm_source=github&utm_medium=link&utm_campaign=readme)
 
-Install GrandNode with one click on [DigitalOcean](https://marketplace.digitalocean.com/apps/grandnode?refcode=8eafb78fb6ae)
-
-
 ### Online demo 
 #### Frontend #### 
 [https://demo.grandnode.com/](https://demo.grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme)
