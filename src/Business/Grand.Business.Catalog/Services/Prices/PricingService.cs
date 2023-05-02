@@ -559,10 +559,10 @@ namespace Grand.Business.Catalog.Services.Prices
                     }
                 }
             }
+            //summarize price of all attributes
+            double attributesTotalPrice = 0;
             if (!finalPrice.HasValue)
-            {
-                //summarize price of all attributes
-                double attributesTotalPrice = 0;
+            {               
                 if (attributes != null && attributes.Any())
                 {
                     var attributeValues = product.ParseProductAttributeValues(attributes);
@@ -587,33 +587,35 @@ namespace Grand.Business.Catalog.Services.Prices
                         }
                     }
                 }
-                if (!product.EnteredPrice)
-                {
-                    var qty = 0;
-                    if (_shoppingCartSettings.GroupTierPrices)
-                    {
-                        qty = customer.ShoppingCartItems
-                            .Where(x => x.ProductId == product.Id)
-                            .Where(x => x.ShoppingCartTypeId == shoppingCartType)
-                            .Sum(x => x.Quantity);
-                    }
-                    if (qty == 0)
-                        qty = quantity;
-
-                    var getfinalPrice = await GetFinalPrice(product,
-                        customer,
-                        currency,
-                        attributesTotalPrice,
-                        includeDiscounts,
-                        qty,
-                        rentalStartDate,
-                        rentalEndDate);
-
-                    finalPrice = getfinalPrice.finalPrice;
-                    discountAmount = getfinalPrice.discountAmount;
-                    appliedDiscounts = getfinalPrice.appliedDiscounts;
-                }
             }
+
+            if (!product.EnteredPrice)
+            {
+                var qty = 0;
+                if (_shoppingCartSettings.GroupTierPrices)
+                {
+                    qty = customer.ShoppingCartItems
+                        .Where(x => x.ProductId == product.Id)
+                        .Where(x => x.ShoppingCartTypeId == shoppingCartType)
+                        .Sum(x => x.Quantity);
+                }
+                if (qty == 0)
+                    qty = quantity;
+
+                var getfinalPrice = await GetFinalPrice(product,
+                    customer,
+                    currency,
+                    finalPrice ??= 0 + attributesTotalPrice,
+                    includeDiscounts,
+                    qty,
+                    rentalStartDate,
+                    rentalEndDate);
+
+                finalPrice = getfinalPrice.finalPrice;
+                discountAmount = getfinalPrice.discountAmount;
+                appliedDiscounts = getfinalPrice.appliedDiscounts;
+            }
+
 
             finalPrice ??= 0;
 
