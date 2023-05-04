@@ -71,7 +71,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites (develop version)
 
-GrandNode requires .NET Core 6.0, MongoDB 4.0+, and OS-specific dependency tools. 
+GrandNode requires Npm, Ng modules, .NET Core 6.0, MongoDB 4.0+, and OS-specific dependency tools. 
 
 ### Installation
 
