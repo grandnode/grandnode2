@@ -1,5 +1,4 @@
-﻿using Amazon.S3;
-using FluentValidation;
+﻿using FluentValidation;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Directory;

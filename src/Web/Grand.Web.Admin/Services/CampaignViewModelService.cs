@@ -51,20 +51,6 @@ namespace Grand.Web.Admin.Services
             _newsletterCategoryService = newsletterCategoryService;
         }
 
-        protected virtual string FormatTokens(string[] tokens)
-        {
-            var sb = new StringBuilder();
-            for (int i = 0; i < tokens.Length; i++)
-            {
-                string token = tokens[i];
-                sb.Append(token);
-                if (i != tokens.Length - 1)
-                    sb.Append(", ");
-            }
-
-            return sb.ToString();
-        }
-
         protected virtual async Task PrepareStoresModel(CampaignModel model)
         {
             if (model == null)

@@ -18,7 +18,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;

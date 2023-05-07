@@ -36,7 +36,6 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
