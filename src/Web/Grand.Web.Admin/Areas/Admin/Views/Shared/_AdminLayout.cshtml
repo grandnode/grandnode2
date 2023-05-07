@@ -1,18 +1,13 @@
 ﻿@inject IWorkContext workContext
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
-@inject CommonSettings commonSettings
 @inject CustomerSettings customerSettings
 @inject LanguageSettings languageSettings
-@inject AdminAreaSettings adminAreaSettings
-@inject Grand.Infrastructure.Configuration.AppConfig appConfig
 @inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
 
 @using System.Text.Encodings.Web
 @using Grand.Domain.Customers
-@using Grand.Infrastructure;
 @using Grand.Domain.Localization
 @using Grand.Business.Core.Utilities.Common.Security;
-@using Grand.Domain.Common;
 @{
     var currentCustomer = workContext.CurrentCustomer;
     var usernamesEnabled = customerSettings.UsernamesEnabled;
@@ -29,7 +24,6 @@
     adminPageTitle += Loc["Admin.PageTitle"];
 
     //has "Manage Maintenance" permission?
-    var canManageMaintenance = await permissionService.Authorize(StandardPermission.ManageMaintenance);
     var canManageSystem = await permissionService.Authorize(StandardPermission.ManageSystem);
 
 }
