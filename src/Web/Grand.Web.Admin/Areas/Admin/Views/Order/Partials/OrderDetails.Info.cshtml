@@ -139,7 +139,7 @@
             <div class="col-9 col-md-9 col-sm-9">
                 @{
                     var labelStatus = "";
-                    switch (@Model.PaymentStatusEnum)
+                    switch (Model.PaymentStatusEnum)
                     {
                         case Grand.Domain.Payments.PaymentStatus.Paid:
                             labelStatus = "success";
