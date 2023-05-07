@@ -1073,7 +1073,7 @@ namespace Grand.Web.Admin.Services
                 Body = model.Body,
                 CreatedOnUtc = DateTime.UtcNow,
                 DontSendBeforeDateUtc = (model.SendImmediately || !model.DontSendBeforeDate.HasValue) ?
-                        null : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
+                        null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
             _ = _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", customer, "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), model.Subject);

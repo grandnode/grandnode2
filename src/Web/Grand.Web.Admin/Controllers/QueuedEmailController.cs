@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Controllers
                 Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
                 {
                     var m = x.ToModel();
-                    m.PriorityName = TranslateExtensions.GetTranslationEnum<QueuedEmailPriority>(x.PriorityId, (ITranslationService)_translationService, (IWorkContext)_workContext);
+                    m.PriorityName = TranslateExtensions.GetTranslationEnum<QueuedEmailPriority>(x.PriorityId, _translationService, _workContext);
                     m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     if (x.DontSendBeforeDateUtc.HasValue)
                         m.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(x.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);
@@ -78,10 +78,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> QueuedEmailList(DataSourceRequest command, QueuedEmailListModel model)
         {
             DateTime? startDateValue = (model.SearchStartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
+                            : _dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
 
             DateTime? endDateValue = (model.SearchEndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+                            : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             var queuedEmails = await _queuedEmailService.SearchEmails(model.SearchFromEmail, model.SearchToEmail, model.SearchText,
                 startDateValue, endDateValue,
@@ -139,7 +139,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 email = model.ToEntity(email);
                 email.DontSendBeforeDateUtc = (model.SendImmediately || !model.DontSendBeforeDate.HasValue) ?
-                    null : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value);
+                    null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value);
                 await _queuedEmailService.UpdateQueuedEmail(email);
 
                 Success(_translationService.GetResource("Admin.System.QueuedEmails.Updated"));
@@ -186,7 +186,7 @@ namespace Grand.Web.Admin.Controllers
                 CreatedOnUtc = DateTime.UtcNow,
                 EmailAccountId = queuedEmail.EmailAccountId,
                 DontSendBeforeDateUtc = (queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue) ?
-                    null : (DateTime?)_dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)
+                    null : _dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)
             };
             await _queuedEmailService.InsertQueuedEmail(requeuedEmail);
 

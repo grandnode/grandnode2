@@ -50,10 +50,10 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<ContactFormModel> contactFormModel, int totalCount)> PrepareContactFormListModel(ContactFormListModel model, int pageIndex, int pageSize)
         {
             DateTime? startDateValue = (model.SearchStartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
+                            : _dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
 
             DateTime? endDateValue = (model.SearchEndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+                            : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             string vendorId = "";
             if (_workContext.CurrentVendor != null)

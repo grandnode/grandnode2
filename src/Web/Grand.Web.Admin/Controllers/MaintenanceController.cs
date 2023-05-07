@@ -95,10 +95,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> MaintenanceDeleteGuests(MaintenanceModel model)
         {
             DateTime? startDateValue = (model.DeleteGuests.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, _dateTimeService.CurrentTimeZone);
+                            : _dateTimeService.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
             DateTime? endDateValue = (model.DeleteGuests.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+                            : _dateTimeService.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             TempData["NumberOfDeletedCustomers"] = await _customerService.DeleteGuestCustomers(startDateValue, endDateValue, model.DeleteGuests.OnlyWithoutShoppingCart);
 

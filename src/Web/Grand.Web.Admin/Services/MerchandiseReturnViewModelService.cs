@@ -150,10 +150,10 @@ namespace Grand.Web.Admin.Services
                     customerId = "00000000-0000-0000-0000-000000000000";
             }
             DateTime? startDateValue = (model.StartDate == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+                : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
             DateTime? endDateValue = (model.EndDate == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
+                : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
             var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(model.StoreId,
                 customerId,

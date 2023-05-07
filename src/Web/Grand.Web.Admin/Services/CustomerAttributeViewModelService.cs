@@ -60,7 +60,7 @@ namespace Grand.Web.Admin.Services
             return customerAttributes.Select((Func<CustomerAttribute, CustomerAttributeModel>)(x =>
             {
                 var attributeModel = x.ToModel();
-                attributeModel.AttributeControlTypeName = TranslateExtensions.GetTranslationEnum<Domain.Catalog.AttributeControlType>(x.AttributeControlTypeId, (ITranslationService)_translationService, (IWorkContext)_workContext);
+                attributeModel.AttributeControlTypeName = TranslateExtensions.GetTranslationEnum<Domain.Catalog.AttributeControlType>(x.AttributeControlTypeId, _translationService, _workContext);
                 return attributeModel;
             }));
         }

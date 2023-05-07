@@ -54,7 +54,7 @@
                 <admin-label asp-for="CustomerSettings.HashedPasswordFormat" class="control-label" />
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="((HashedPasswordFormat)Model.CustomerSettings.HashedPasswordFormat).ToSelectList(Context)" />
+                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="Model.CustomerSettings.HashedPasswordFormat.ToSelectList(Context)" />
                 <span asp-validation-for="CustomerSettings.HashedPasswordFormat"></span>
             </div>
         </div>
