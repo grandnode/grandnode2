@@ -36,7 +36,7 @@
                         }
                         //"Plugins" menu item should be visible when it has some child nodes
                         var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
-                        if (pluginNode != null && pluginNode.Visible)
+                        if (pluginNode is {Visible: true })
                         {
                             var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManagePlugins);
                             pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);

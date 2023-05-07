@@ -341,7 +341,7 @@ else
 }
 
 
-@if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+@if (Model.AvailableDiscounts is {Count: > 0 })
 {
 
     <div class="panel panel-default">

@@ -551,7 +551,7 @@
                 </div>
             </div>
         }
-        @if (Model.CustomValues != null && Model.CustomValues.Count > 0)
+        @if (Model.CustomValues is {Count: > 0 })
         {
             <div class="form-group">
                 <admin-label asp-for="CustomValues" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>

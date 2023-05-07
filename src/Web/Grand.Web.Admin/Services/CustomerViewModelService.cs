@@ -481,7 +481,7 @@ namespace Grand.Web.Admin.Services
                         {
                             var newsletterSubscription = await _newsLetterSubscriptionService
                                 .GetNewsLetterSubscriptionByEmailAndStoreId(customer.Email, store.Id);
-                            if (newsletterSubscription != null && newsletterSubscription.Active)
+                            if (newsletterSubscription is { Active: true })
                                 newsletterSubscriptionStoreIds.Add(store.Id);
                         }
                         model.SelectedNewsletterSubscriptionStoreIds = newsletterSubscriptionStoreIds.ToArray();

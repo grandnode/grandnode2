@@ -436,18 +436,15 @@ namespace Grand.Web.Admin.Controllers
                             {
                                 var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
                                 var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                                if (pluginInfo != null)
+                                if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
                                 {
-                                    if (pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
-                                    {
-                                        supportedVersion = true;
-                                        _fpath = entry.FullName[..entry.FullName.LastIndexOf("/")];
-                                        archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
+                                    supportedVersion = true;
+                                    _fpath = entry.FullName[..entry.FullName.LastIndexOf("/")];
+                                    archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
                                         .ForEach(y => { archive.GetEntry(y.FullName).Delete(); });
 
-                                        _pluginInfo = new PluginInfo();
-                                        break;
-                                    }
+                                    _pluginInfo = new PluginInfo();
+                                    break;
                                 }
                             }
                             catch (Exception ex)

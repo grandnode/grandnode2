@@ -279,7 +279,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                if (importxmlfile != null && importxmlfile.Length > 0)
+                if (importxmlfile is { Length: > 0 })
                 {
                     using (var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8))
                     {

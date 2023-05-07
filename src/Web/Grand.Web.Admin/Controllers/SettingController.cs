@@ -917,7 +917,7 @@ namespace Grand.Web.Admin.Controllers
             await _settingService.SaveSetting(settings);
 
             //order ident
-            if (model.OrderIdent.HasValue && model.OrderIdent.Value > 0)
+            if (model.OrderIdent is > 0)
             {
                 await _mediator.Send(new MaxOrderNumberCommand() { OrderNumber = model.OrderIdent });
             }

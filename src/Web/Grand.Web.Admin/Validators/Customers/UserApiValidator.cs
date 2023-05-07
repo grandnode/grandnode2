@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Validators.Customers
                 if (!string.IsNullOrEmpty(x.Email))
                 {
                     var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
-                    if (customer != null && customer.Active && !customer.IsSystemAccount)
+                    if (customer is { Active: true, IsSystemAccount: false })
                         return true;
                 }
                 return false;

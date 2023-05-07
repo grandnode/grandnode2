@@ -192,7 +192,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                if (importcsvfile != null && importcsvfile.Length > 0)
+                if (importcsvfile is { Length: > 0 })
                 {
                     var count = await _newsLetterSubscriptionService.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream(), _workContext.CurrentStore.Id);
                     Success(string.Format(_translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"), count));

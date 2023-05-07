@@ -360,7 +360,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                if (importexcelfile != null && importexcelfile.Length > 0)
+                if (importexcelfile is { Length: > 0 })
                 {
                     await _importManager.Import(importexcelfile.OpenReadStream());
 

@@ -1,6 +1,6 @@
 ﻿@model VendorModel
 @{
-    if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+    if (Model.AvailableDiscounts is {Count: > 0 })
     {
         <div class="mt-checkbox-list">
             @foreach (var discount in Model.AvailableDiscounts)

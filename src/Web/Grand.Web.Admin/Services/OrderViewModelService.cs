@@ -660,15 +660,12 @@ namespace Grand.Web.Admin.Services
                 }
                 else
                 {
-                    if (order.PickupPoint != null)
+                    if (order.PickupPoint is { Address: not null })
                     {
-                        if (order.PickupPoint.Address != null)
-                        {
-                            model.PickupAddress = await order.PickupPoint.Address.ToModel(_countryService);
-                            var country = await _countryService.GetCountryById(order.PickupPoint.Address.CountryId);
-                            if (country != null)
-                                model.PickupAddress.CountryName = country.Name;
-                        }
+                        model.PickupAddress = await order.PickupPoint.Address.ToModel(_countryService);
+                        var country = await _countryService.GetCountryById(order.PickupPoint.Address.CountryId);
+                        if (country != null)
+                            model.PickupAddress.CountryName = country.Name;
                     }
                 }
                 model.ShippingMethod = order.ShippingMethod;

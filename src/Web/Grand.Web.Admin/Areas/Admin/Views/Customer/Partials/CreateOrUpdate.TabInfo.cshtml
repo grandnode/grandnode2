@@ -397,7 +397,7 @@
                     </div>
                 </div>
             }
-            @if (Model.AvailableNewsletterSubscriptionStores != null && Model.AvailableNewsletterSubscriptionStores.Count > 0)
+            @if (Model.AvailableNewsletterSubscriptionStores is {Count: > 0 })
             {
                 <div class="form-group">
                     <admin-label asp-for="SelectedNewsletterSubscriptionStoreIds" />
