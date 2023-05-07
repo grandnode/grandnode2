@@ -83,13 +83,13 @@ namespace Grand.Web.Admin.Controllers
         {
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
             var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.Address.StateProvinceId) });
             }
 
             model.Address.CountryEnabled = true;
@@ -107,13 +107,13 @@ namespace Grand.Web.Admin.Controllers
         {
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
             var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.Address.StateProvinceId) });
             }
 
             model.Address.CountryEnabled = true;
@@ -128,11 +128,11 @@ namespace Grand.Web.Admin.Controllers
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = "" });
             foreach (var c in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
 
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
             foreach (var c in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
 
         }
 
@@ -316,13 +316,13 @@ namespace Grand.Web.Admin.Controllers
 
             model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (originAddress != null && c.Id == originAddress.CountryId) });
+                model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (originAddress != null && c.Id == originAddress.CountryId) });
 
             var states = originAddress != null && !String.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == originAddress.StateProvinceId) });
+                    model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == originAddress.StateProvinceId) });
             }
 
             model.ShippingOriginAddress.CountryEnabled = true;

@@ -76,7 +76,7 @@ namespace Grand.Web.Admin.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //active
             model.ActiveList.Add(new SelectListItem {
@@ -93,7 +93,7 @@ namespace Grand.Web.Admin.Controllers
             });
 
             foreach (var ca in await _newsletterCategoryService.GetAllNewsletterCategory())
-                model.AvailableCategories.Add(new SelectListItem { Text = ca.Name, Value = ca.Id.ToString() });
+                model.AvailableCategories.Add(new SelectListItem { Text = ca.Name, Value = ca.Id });
 
             return View(model);
         }

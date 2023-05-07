@@ -64,7 +64,7 @@ namespace Grand.Web.Admin.Services
             {
                 activityLogSearchModel.ActivityLogType.Add(new SelectListItem
                 {
-                    Value = at.Id.ToString(),
+                    Value = at.Id,
                     Text = at.Name
                 });
             }

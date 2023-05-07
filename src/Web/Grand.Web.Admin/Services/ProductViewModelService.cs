@@ -253,12 +253,12 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
@@ -341,12 +341,12 @@ namespace Grand.Web.Admin.Services
                 model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
             foreach (var store in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
 
             //customer groups
             model.AvailableCustomerGroups.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var role in await _groupService.GetAllCustomerGroups(showHidden: true))
-                model.AvailableCustomerGroups.Add(new SelectListItem { Text = role.Name, Value = role.Id.ToString() });
+                model.AvailableCustomerGroups.Add(new SelectListItem { Text = role.Name, Value = role.Id });
 
             foreach (var currency in await _currencyService.GetAllCurrencies())
                 model.AvailableCurrencies.Add(new SelectListItem { Text = currency.Name, Value = currency.CurrencyCode });
@@ -485,7 +485,7 @@ namespace Grand.Web.Admin.Services
                 {
                     model.AvailableProductAttributes.Add(new SelectListItem {
                         Text = productAttribute.Name,
-                        Value = productAttribute.Id.ToString()
+                        Value = productAttribute.Id
                     });
                 }
             }
@@ -522,7 +522,7 @@ namespace Grand.Web.Admin.Services
             {
                 model.AvailableDeliveryDates.Add(new SelectListItem {
                     Text = deliveryDate.Name,
-                    Value = deliveryDate.Id.ToString()
+                    Value = deliveryDate.Id
                 });
             }
 
@@ -536,7 +536,7 @@ namespace Grand.Web.Admin.Services
             {
                 model.AvailableWarehouses.Add(new SelectListItem {
                     Text = warehouse.Name,
-                    Value = warehouse.Id.ToString()
+                    Value = warehouse.Id
                 });
             }
 
@@ -583,20 +583,20 @@ namespace Grand.Web.Admin.Services
             var taxCategories = await _taxCategoryService.GetAllTaxCategories();
             model.AvailableTaxCategories.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = "" });
             foreach (var tc in taxCategories)
-                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = product != null && !setPredefinedValues && tc.Id == product.TaxCategoryId });
+                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id, Selected = product != null && !setPredefinedValues && tc.Id == product.TaxCategoryId });
 
             //baseprice units
             var measureWeights = await _measureService.GetAllMeasureWeights();
             foreach (var mw in measureWeights)
-                model.AvailableBasepriceUnits.Add(new SelectListItem { Text = mw.Name, Value = mw.Id.ToString(), Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceUnitId });
+                model.AvailableBasepriceUnits.Add(new SelectListItem { Text = mw.Name, Value = mw.Id, Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceUnitId });
             foreach (var mw in measureWeights)
-                model.AvailableBasepriceBaseUnits.Add(new SelectListItem { Text = mw.Name, Value = mw.Id.ToString(), Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceBaseUnitId });
+                model.AvailableBasepriceBaseUnits.Add(new SelectListItem { Text = mw.Name, Value = mw.Id, Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceBaseUnitId });
 
             //units
             var units = await _measureService.GetAllMeasureUnits();
             model.AvailableUnits.Add(new SelectListItem { Text = "---", Value = "" });
             foreach (var un in units)
-                model.AvailableUnits.Add(new SelectListItem { Text = un.Name, Value = un.Id.ToString(), Selected = product != null && un.Id == product.UnitId });
+                model.AvailableUnits.Add(new SelectListItem { Text = un.Name, Value = un.Id, Selected = product != null && un.Id == product.UnitId });
 
             //discounts
             model.AvailableDiscounts = (await _discountService
@@ -737,15 +737,15 @@ namespace Grand.Web.Admin.Services
                 if (_workContext.CurrentVendor != null && !string.IsNullOrEmpty(_workContext.CurrentVendor.StoreId))
                 {
                     if (s.Id == _workContext.CurrentVendor.StoreId)
-                        model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                        model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
                 }
                 else
-                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
             }
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var wh in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
@@ -1607,7 +1607,7 @@ namespace Grand.Web.Admin.Services
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
                 var store = (await _storeService.GetAllStores()).Where(x => x.Id == storeId).FirstOrDefault();
                 if (store != null)
-                    model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id.ToString() });
+                    model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
             }
             else
             {
@@ -1615,7 +1615,7 @@ namespace Grand.Web.Admin.Services
 
                 foreach (var s in (await _storeService.GetAllStores()))
                 {
-                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
                 }
             }
             return model;
@@ -2101,7 +2101,7 @@ namespace Grand.Web.Admin.Services
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
                                     var anyValueSelected = false;
-                                    foreach (var item in cblAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                    foreach (var item in cblAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         if (!string.IsNullOrEmpty(item))
                                         {
@@ -2429,7 +2429,7 @@ namespace Grand.Web.Admin.Services
                                 form.TryGetValue(controlId, out string cblAttributes);
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
-                                    foreach (var item in cblAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                    foreach (var item in cblAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         if (!string.IsNullOrEmpty(item))
                                             customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,

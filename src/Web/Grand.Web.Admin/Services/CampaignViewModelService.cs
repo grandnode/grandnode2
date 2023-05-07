@@ -76,7 +76,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableStores.Add(new SelectListItem
                 {
                     Text = store.Shortcut,
-                    Value = store.Id.ToString()
+                    Value = store.Id
                 });
             }
         }
@@ -92,7 +92,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableLanguages.Add(new SelectListItem
                 {
                     Text = lang.Name,
-                    Value = lang.Id.ToString()
+                    Value = lang.Id
                 });
             }
         }

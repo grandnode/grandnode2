@@ -59,7 +59,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableCurrencies.Add(new SelectListItem
                 {
                     Text = currency.Name,
-                    Value = currency.Id.ToString()
+                    Value = currency.Id
                 });
             }
         }

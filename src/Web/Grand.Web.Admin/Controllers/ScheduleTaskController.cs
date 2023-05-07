@@ -54,7 +54,7 @@ namespace Grand.Web.Admin.Controllers
         {
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.Select"), Value = "" });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             return model;
         }

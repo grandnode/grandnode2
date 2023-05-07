@@ -136,13 +136,13 @@ namespace Grand.Web.Admin.Services
             //address
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (vendor != null && c.Id == vendor.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (vendor != null && c.Id == vendor.Address.CountryId) });
 
             var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (vendor != null && s.Id == vendor.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (vendor != null && s.Id == vendor.Address.StateProvinceId) });
             }
         }
 
@@ -159,7 +159,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableStores.Add(new SelectListItem
                 {
                     Text = s.Shortcut,
-                    Value = s.Id.ToString()
+                    Value = s.Id
                 });
             }
         }
@@ -364,8 +364,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idVendor = id.Split(':').Last().ToString();
+                string idReview = id.Split(':').First();
+                string idVendor = id.Split(':').Last();
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);
                 if (vendorReview != null)
@@ -385,8 +385,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idVendor = id.Split(':').Last().ToString();
+                string idReview = id.Split(':').First();
+                string idVendor = id.Split(':').Last();
 
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);

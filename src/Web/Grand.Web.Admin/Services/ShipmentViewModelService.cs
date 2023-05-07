@@ -322,14 +322,14 @@ namespace Grand.Web.Admin.Services
             //countries
             model.AvailableCountries.Add(new SelectListItem { Text = "*", Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             //states
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
 
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var w in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id });
 
             return model;
         }

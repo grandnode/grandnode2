@@ -232,17 +232,17 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var w in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id });
 
             //payment methods
             model.AvailablePaymentMethods.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
@@ -252,7 +252,7 @@ namespace Grand.Web.Admin.Services
             //billing countries
             foreach (var c in await _countryService.GetAllCountriesForBilling(showHidden: true))
             {
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             }
             model.AvailableCountries.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
@@ -919,13 +919,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == address.CountryId) });
             //states
             var states = !String.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == address.StateProvinceId) });
             }
 
             //customer attribute services
@@ -1082,7 +1082,7 @@ namespace Grand.Web.Admin.Services
                                 .ToList())
                             {
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
-                                    attribute, selectedAttributeId.ToString()).ToList();
+                                    attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;

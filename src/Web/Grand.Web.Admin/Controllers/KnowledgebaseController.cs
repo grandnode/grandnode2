@@ -284,7 +284,7 @@ namespace Grand.Web.Admin.Controllers
             model.AvailableArticles.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             var articles = await _knowledgebaseService.GetKnowledgebaseArticles();
             foreach (var a in articles)
-                model.AvailableArticles.Add(new SelectListItem { Text = a.Name, Value = a.Id.ToString() });
+                model.AvailableArticles.Add(new SelectListItem { Text = a.Name, Value = a.Id });
 
             return View(model);
         }

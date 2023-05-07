@@ -290,7 +290,7 @@ namespace Grand.Web.Admin.Services
             {
                 model.AvailableStores.Add(new SelectListItem {
                     Text = store.Shortcut,
-                    Value = store.Id.ToString()
+                    Value = store.Id
                 });
             }
         }
@@ -549,7 +549,7 @@ namespace Grand.Web.Admin.Services
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.Name,
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -562,7 +562,7 @@ namespace Grand.Web.Admin.Services
                     if (states != null)
                         foreach (var s in states)
                         {
-                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.StateProvinceId) });
                         }
                 }
             }
@@ -585,7 +585,7 @@ namespace Grand.Web.Admin.Services
                 {
                     model.LoyaltyPointsAvailableStores.Add(new SelectListItem {
                         Text = store.Shortcut,
-                        Value = store.Id.ToString(),
+                        Value = store.Id,
                         Selected = (store.Id == _workContext.CurrentStore.Id)
                     });
                 }
@@ -1202,13 +1202,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
             var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.Address.StateProvinceId) });
             }
 
             //customer attribute services
@@ -1334,12 +1334,12 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();

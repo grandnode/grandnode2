@@ -1451,7 +1451,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 availableSpecificationAttributes.Add(new SelectListItem {
                     Text = sa.Name,
-                    Value = sa.Id.ToString()
+                    Value = sa.Id
                 });
             }
             return availableSpecificationAttributes;

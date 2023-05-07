@@ -127,12 +127,12 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();

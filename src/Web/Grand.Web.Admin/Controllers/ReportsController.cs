@@ -208,7 +208,7 @@ namespace Grand.Web.Admin.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             var status = await _orderStatusService.GetAll();
             //order statuses
@@ -222,7 +222,7 @@ namespace Grand.Web.Admin.Controllers
             //billing countries
             foreach (var c in await _countryService.GetAllCountriesForBilling(showHidden: true))
             {
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             }
             model.AvailableCountries.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
@@ -230,7 +230,7 @@ namespace Grand.Web.Admin.Controllers
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             var vendors = await _vendorService.GetAllVendors(showHidden: true);
             foreach (var v in vendors)
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             return View(model);
         }

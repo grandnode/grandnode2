@@ -12,7 +12,7 @@ namespace Grand.Web.Admin.Models.Vendors
 
         public string Ids {
             get {
-                return Id.ToString() + ":" + VendorId;
+                return Id + ":" + VendorId;
             }
         }
         [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]

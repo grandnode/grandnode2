@@ -70,7 +70,7 @@ namespace Grand.Web.Admin.Services
             var taxCategories = await _taxCategoryService.GetAllTaxCategories();
             model.AvailableTaxCategories.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = "" });
             foreach (var tc in taxCategories)
-                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = checkoutAttribute != null && !excludeProperties && tc.Id == checkoutAttribute.TaxCategoryId });
+                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id, Selected = checkoutAttribute != null && !excludeProperties && tc.Id == checkoutAttribute.TaxCategoryId });
         }
 
         public virtual async Task PrepareConditionAttributes(CheckoutAttributeModel model, CheckoutAttribute checkoutAttribute)

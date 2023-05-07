@@ -140,8 +140,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idProduct = id.Split(':').Last().ToString();
+                string idReview = id.Split(':').First();
+                string idProduct = id.Split(':').Last();
                 var product = await _productService.GetProductById(idProduct);
                 var productReview = await _productReviewService.GetProductReviewById(idReview);
                 if (productReview != null && (string.IsNullOrEmpty(storeId) || productReview.StoreId == storeId))
@@ -164,8 +164,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idProduct = id.Split(':').Last().ToString();
+                string idReview = id.Split(':').First();
+                string idProduct = id.Split(':').Last();
 
                 var product = await _productService.GetProductById(idProduct);
                 var productReview = await _productReviewService.GetProductReviewById(idReview);

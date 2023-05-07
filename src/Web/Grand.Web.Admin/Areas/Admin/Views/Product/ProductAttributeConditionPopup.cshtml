@@ -45,7 +45,7 @@
                                     var attributesList = new List<SelectListItem>();
                                     foreach (var attribute in Model.ProductAttributes)
                                     {
-                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id.ToString() });
+                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id });
                                     }
                                     <div class="form-horizontal">
                                         <div class="form-body">
