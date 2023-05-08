@@ -102,7 +102,7 @@ namespace Grand.Web.Admin.Services
             double unitPriceInclTaxInCustomerCurrency = 0;
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).First();
+                var orderItem = order.OrderItems.First(x => x.Id == item.OrderItemId);
                 unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
             }
 
