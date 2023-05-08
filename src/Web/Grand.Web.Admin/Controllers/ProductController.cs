@@ -355,7 +355,7 @@ namespace Grand.Web.Admin.Controllers
                     picture.AltAttribute,
                     picture.TitleAttribute,
                     false,
-                    Domain.Common.Reference.Product,
+                    Reference.Product,
                     newProduct.Id);
 
                 await _productService.InsertProductPicture(new ProductPicture {

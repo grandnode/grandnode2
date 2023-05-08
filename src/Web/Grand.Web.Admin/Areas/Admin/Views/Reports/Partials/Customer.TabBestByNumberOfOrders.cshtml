@@ -1,6 +1,6 @@
 ﻿@model CustomerReportsModel
 @{
-    var dataDictAttributes = new ViewDataDictionary(this.ViewData);
+    var dataDictAttributes = new ViewDataDictionary(ViewData);
     dataDictAttributes.TemplateInfo.HtmlFieldPrefix = "bestbynumberoforders";
     <partial name="Partials/ReportBestCustomersByNumberOfOrders" model="Model.BestCustomersByOrderTotal" view-data="dataDictAttributes" />
 }

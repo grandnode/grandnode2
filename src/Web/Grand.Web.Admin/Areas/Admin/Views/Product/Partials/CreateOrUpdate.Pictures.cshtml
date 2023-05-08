@@ -123,7 +123,7 @@
                 @{
                     ViewData["Reference"] = "Product";
                     ViewData["ObjectId"] = Model.Id;
-                    ViewData["Endpoint"] = this.Url.Action("ProductPictureAdd", "Product", new { area = Constants.AreaAdmin });
+                    ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = Constants.AreaAdmin });
                     ViewData["Click"] = "btnRefreshProductPictures";
                 }
                 <div class="col-md-9 col-sm-9">
