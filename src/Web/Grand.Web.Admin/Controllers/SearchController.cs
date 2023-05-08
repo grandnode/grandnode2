@@ -387,8 +387,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Stores(string[] stores)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
-
             async Task<IList<SearchModel>> PrepareModel(IList<Store> groups)
             {
                 var model = new List<SearchModel>();

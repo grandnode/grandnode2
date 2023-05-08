@@ -1184,9 +1184,6 @@ namespace Grand.Web.Admin.Services
             #endregion
 
             //warnings
-            var shoppingCartService = _serviceProvider.GetRequiredService<IShoppingCartService>();
-            var inventoryManageService = _serviceProvider.GetRequiredService<IInventoryManageService>();
-
             var shoppingCartItem = new ShoppingCartItem() {
                 ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
                 Quantity = quantity,

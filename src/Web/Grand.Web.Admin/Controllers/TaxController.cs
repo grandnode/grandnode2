@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Providers(DataSourceRequest command)
         {
             var storeScope = await GetActiveStore();
-            var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
+            _settingService.LoadSetting<TaxSettings>(storeScope);
             var taxProviderSettings = _settingService.LoadSetting<TaxProviderSettings>();
 
             var taxProviders = _taxService.LoadAllTaxProviders()

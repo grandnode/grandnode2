@@ -242,7 +242,6 @@ namespace Grand.Web.Admin.Controllers
 
                 //subscribers of certain store?
                 var store = await _storeService.GetStoreById(campaign.StoreId);
-                var storeId = store != null ? store.Id : "";
                 var subscriptions = await _campaignService.CustomerSubscriptions(campaign);
                 var totalEmailsSent = await _campaignService.SendCampaign(campaign, emailAccount, subscriptions);
                 Success(string.Format(_translationService.GetResource("admin.marketing.Campaigns.MassEmailSentToCustomers"), totalEmailsSent), false);

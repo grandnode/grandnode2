@@ -301,7 +301,6 @@ namespace Grand.Web.Admin.Services
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    var existingProductcollections = product.ProductCollections;
                     if (!product.ProductCollections.Any(x => x.CollectionId == model.CollectionId))
                     {
                         await _productCollectionService.InsertProductCollection(

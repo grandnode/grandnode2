@@ -457,8 +457,6 @@ namespace Grand.Web.Admin.Services
             model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId))?.Name;
             model.BaseDimensionIn = (await _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId))?.Name;
 
-            var storeId = _workContext.CurrentCustomer.StaffStoreId;
-
             if (product != null)
             {
                 //date
@@ -1220,7 +1218,6 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            var existingProductcollections = product.ProductCollections;
             if (!product.ProductCollections.Any(x => x.CollectionId == collectionId))
             {
                 var productCollection = new ProductCollection {
@@ -2282,7 +2279,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<IList<ProductModel.ProductAttributeCombinationModel>> PrepareProductAttributeCombinationModel(Product product)
         {
-            var shoppingCartService = _serviceProvider.GetRequiredService<IShoppingCartService>();
+            _serviceProvider.GetRequiredService<IShoppingCartService>();
             var items = new List<ProductModel.ProductAttributeCombinationModel>();
 
             foreach (var x in product.ProductAttributeCombinations)

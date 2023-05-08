@@ -17,7 +17,7 @@ namespace Grand.Web.Admin.Validators.Stores
             {
                 try
                 {
-                    var storeUri = new Uri(x.Url);
+                    new Uri(x.Url);
                     return true;
                 }
                 catch
