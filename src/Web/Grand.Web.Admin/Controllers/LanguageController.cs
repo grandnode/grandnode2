@@ -283,7 +283,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     using (var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8))
                     {
-                        string content = sr.ReadToEnd();
+                        string content = await sr.ReadToEndAsync();
                         await _translationService.ImportResourcesFromXml(language, content);
                     }
                 }

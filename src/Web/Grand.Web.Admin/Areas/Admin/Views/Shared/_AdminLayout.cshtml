@@ -38,7 +38,7 @@
     <resources asp-type="HeadLink" />
     <resources asp-type="HeadScript" />
 </head>
-<body class="nav-sm @if (IsSectionDefined("popupwindow")) { @RenderSection("popupwindow") <text>no-sidebar</text> }">
+<body class="nav-sm @if (IsSectionDefined("popupwindow")) { @await RenderSectionAsync("popupwindow") <text>no-sidebar</text> }">
     @Html.AntiForgeryToken()
     <script>
         if (document.readyState == "loading") {
@@ -55,7 +55,7 @@
             <vc:admin-widget widget-zone="admin_header_before" additional-data="null" />
             @if (IsSectionDefined("headermenu"))
             {
-                @RenderSection("headermenu")
+                @await RenderSectionAsync("headermenu")
             }
             else
             {
@@ -64,11 +64,11 @@
             <vc:admin-widget widget-zone="admin_header_after" additional-data="null" />
             @if (IsSectionDefined("statusbar"))
             {
-                @RenderSection("statusbar")
+                @await RenderSectionAsync("statusbar")
             }
             @if (IsSectionDefined("header"))
             {
-                @RenderSection("header")
+                @await RenderSectionAsync("header")
             }
             else
             {

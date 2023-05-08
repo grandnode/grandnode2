@@ -158,7 +158,7 @@ namespace Grand.Web.Admin.Controllers
                     {
                         using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                         {
-                            httpPostedFile.CopyTo(stream);
+                            await httpPostedFile.CopyToAsync(stream);
                         }
                         return Json(new
                         {
@@ -189,7 +189,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                     {
-                        httpPostedFile.CopyTo(stream);
+                        await httpPostedFile.CopyToAsync(stream);
                     }
                     return Json(new
                     {
