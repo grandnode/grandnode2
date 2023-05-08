@@ -175,7 +175,7 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CollectionBrandDelete(string id)
+        public async Task<IActionResult> BrandLayoutDelete(string id)
         {
             var layout = await _brandLayoutService.GetBrandLayoutById(id);
             if (layout == null)
