@@ -185,7 +185,7 @@ namespace Grand.Web.Admin.Services
                 //update "HasDiscountsApplied" property
                 foreach (var category in categories)
                 {
-                    var item = category.AppliedDiscounts.Where(x => x == discount.Id).FirstOrDefault();
+                    var item = category.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
                     category.AppliedDiscounts.Remove(item);
                 }
             }
@@ -196,7 +196,7 @@ namespace Grand.Web.Admin.Services
                 var collections = await _collectionService.GetAllCollectionsByDiscount(discount.Id);
                 foreach (var collection in collections)
                 {
-                    var item = collection.AppliedDiscounts.Where(x => x == discount.Id).FirstOrDefault();
+                    var item = collection.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
                     collection.AppliedDiscounts.Remove(item);
                 }
             }
@@ -208,7 +208,7 @@ namespace Grand.Web.Admin.Services
 
                 foreach (var p in products)
                 {
-                    var item = p.AppliedDiscounts.Where(x => x == discount.Id).FirstOrDefault();
+                    var item = p.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
                     p.AppliedDiscounts.Remove(item);
                     await _productService.DeleteDiscount(item, p.Id);
                 }

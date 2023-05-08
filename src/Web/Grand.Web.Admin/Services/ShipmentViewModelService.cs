@@ -113,7 +113,7 @@ namespace Grand.Web.Admin.Services
                 foreach (var shipmentItem in shipment.ShipmentItems)
                 {
 
-                    var orderItem = order.OrderItems.Where(x => x.Id == shipmentItem.OrderItemId).FirstOrDefault();
+                    var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                     if (orderItem == null)
                         continue;
 

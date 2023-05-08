@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(string id, string productAttributeId)
         {
-            var ppav = (await _productAttributeService.GetProductAttributeById(productAttributeId)).PredefinedProductAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var ppav = (await _productAttributeService.GetProductAttributeById(productAttributeId)).PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
             if (ppav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
 
@@ -316,7 +316,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(PredefinedProductAttributeValueModel model)
         {
             var productAttribute = await _productAttributeService.GetProductAttributeById(model.ProductAttributeId);
-            var ppav = productAttribute.PredefinedProductAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (ppav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
 
@@ -338,7 +338,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var productAttribute = (await _productAttributeService.GetAllProductAttributes()).FirstOrDefault(x => x.PredefinedProductAttributeValues.Any(y => y.Id == id));
-                var ppav = productAttribute.PredefinedProductAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+                var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
                 if (ppav == null)
                     throw new ArgumentException("No predefined product attribute value found with the specified id");
                 productAttribute.PredefinedProductAttributeValues.Remove(ppav);

@@ -270,7 +270,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> OptionEditPopup(string id)
         {
-            var sao = (await _specificationAttributeService.GetSpecificationAttributeByOptionId(id)).SpecificationAttributeOptions.Where(x => x.Id == id).FirstOrDefault();
+            var sao = (await _specificationAttributeService.GetSpecificationAttributeByOptionId(id)).SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
             if (sao == null)
                 //No specification attribute option found with the specified id
                 return RedirectToAction("List");
@@ -291,7 +291,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OptionEditPopup(SpecificationAttributeOptionModel model)
         {
             var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(model.Id);
-            var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == model.Id).FirstOrDefault();
+            var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == model.Id);
             if (sao == null)
                 //No specification attribute option found with the specified id
                 return RedirectToAction("List");
@@ -321,7 +321,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(id);
-                var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == id).FirstOrDefault();
+                var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
                 if (sao == null)
                     throw new ArgumentException("No specification attribute option found with the specified id");
 

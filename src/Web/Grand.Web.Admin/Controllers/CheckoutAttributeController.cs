@@ -238,7 +238,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueEditPopup(string id, string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 //No checkout attribute value found with the specified id
                 return RedirectToAction("List");
@@ -260,7 +260,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(model.CheckoutAttributeId);
 
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (cav == null)
                 //No checkout attribute value found with the specified id
                 return RedirectToAction("List");
@@ -291,7 +291,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueDelete(string id, string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 throw new ArgumentException("No checkout attribute value found with the specified id");
 

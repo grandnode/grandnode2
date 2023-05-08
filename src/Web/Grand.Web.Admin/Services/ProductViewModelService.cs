@@ -1150,7 +1150,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model)
         {
             var product = await _productService.GetProductById(model.ProductId, true);
-            var productCategory = product.ProductCategories.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == model.Id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
 
@@ -1177,7 +1177,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteProductCategory(string id, string productId)
         {
             var product = await _productService.GetProductById(productId, true);
-            var productCategory = product.ProductCategories.Where(x => x.Id == id).FirstOrDefault();
+            var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
 
@@ -1238,7 +1238,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task UpdateProductCollection(ProductModel.ProductCollectionModel model)
         {
             var product = await _productService.GetProductById(model.ProductId, true);
-            var productCollection = product.ProductCollections.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
@@ -1265,7 +1265,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteProductCollection(string id, string productId)
         {
             var product = await _productService.GetProductById(productId, true);
-            var productCollection = product.ProductCollections.Where(x => x.Id == id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
             //a vendor should have access only to his products
@@ -1308,7 +1308,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task UpdateRelatedProductModel(ProductModel.RelatedProductModel model)
         {
             var product1 = await _productService.GetProductById(model.ProductId1, true);
-            var relatedProduct = product1.RelatedProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var relatedProduct = product1.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
 
@@ -1329,7 +1329,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteRelatedProductModel(ProductModel.RelatedProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId1, true);
-            var relatedProduct = product.RelatedProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var relatedProduct = product.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
 
@@ -1374,7 +1374,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task UpdateSimilarProductModel(ProductModel.SimilarProductModel model)
         {
             var product1 = await _productService.GetProductById(model.ProductId1, true);
-            var similarProduct = product1.SimilarProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var similarProduct = product1.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
             if (similarProduct == null)
                 throw new ArgumentException("No similar product found with the specified id");
 
@@ -1396,7 +1396,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteSimilarProductModel(ProductModel.SimilarProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId1, true);
-            var similarProduct = product.SimilarProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var similarProduct = product.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
             if (similarProduct == null)
                 throw new ArgumentException("No similar product found with the specified id");
 
@@ -1442,7 +1442,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task UpdateBundleProductModel(ProductModel.BundleProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductBundleId, true);
-            var bundleProduct = product.BundleProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
             if (bundleProduct == null)
                 throw new ArgumentException("No bundle product found with the specified id");
 
@@ -1465,7 +1465,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteBundleProductModel(ProductModel.BundleProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductBundleId, true);
-            var bundleProduct = product.BundleProducts.Where(x => x.Id == model.Id).FirstOrDefault();
+            var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
             if (bundleProduct == null)
                 throw new ArgumentException("No bundle product found with the specified id");
 
@@ -1605,7 +1605,7 @@ namespace Grand.Web.Admin.Services
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
-                var store = (await _storeService.GetAllStores()).Where(x => x.Id == storeId).FirstOrDefault();
+                var store = (await _storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
                 if (store != null)
                     model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
             }
@@ -1945,7 +1945,7 @@ namespace Grand.Web.Admin.Services
             var product = await _productService.GetProductById(model.ProductId, true);
             if (product != null)
             {
-                var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == model.Id).FirstOrDefault();
+                var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.Id);
                 if (productAttributeMapping != null)
                 {
                     productAttributeMapping = model.ToEntity(productAttributeMapping);
@@ -2748,7 +2748,7 @@ namespace Grand.Web.Admin.Services
         {
             var product = await _productService.GetProductById(model.ProductId, true);
 
-            var productPicture = product.ProductPictures.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified id");
 
@@ -2780,7 +2780,7 @@ namespace Grand.Web.Admin.Services
         {
             var product = await _productService.GetProductById(model.ProductId, true);
 
-            var productPicture = product.ProductPictures.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified id");
 
@@ -2824,7 +2824,7 @@ namespace Grand.Web.Admin.Services
                         if (specificationAttribute != null)
                         {
                             psaModel.AttributeName = specificationAttribute.Name;
-                            psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(y => y.Id == x.SpecificationAttributeOptionId).FirstOrDefault()?.Name);
+                            psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(y => y.Id == x.SpecificationAttributeOptionId)?.Name);
                         }
                         psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
                         break;

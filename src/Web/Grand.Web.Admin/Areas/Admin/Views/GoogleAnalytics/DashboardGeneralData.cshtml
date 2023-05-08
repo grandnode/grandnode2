@@ -13,12 +13,12 @@
 
         @foreach (var item in Model.Records)
         {
-            var usertype = item.Where(x => x.Key == "ga:userType").FirstOrDefault().Value;
+            var usertype = item.FirstOrDefault(x => x.Key == "ga:userType").Value;
             usertype = usertype.Replace(" ", "");
             
             <a class="list-toggle-container" data-toggle="collapse" href="#@(usertype)" aria-expanded="true">
                 <div class="list-toggle uppercase" >
-                    @item.Where(x => x.Key == "ga:userType").FirstOrDefault().Value
+                    @item.FirstOrDefault(x => x.Key == "ga:userType").Value
                 </div>
             </a>
             <div class="panel-collapse collapse in" id="@(usertype)" aria-expanded="true">

@@ -253,7 +253,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
 
                 items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel
                 {

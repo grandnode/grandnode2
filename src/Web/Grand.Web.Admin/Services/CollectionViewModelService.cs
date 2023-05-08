@@ -272,7 +272,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCollection = product.ProductCollections.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
@@ -287,7 +287,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCollection = product.ProductCollections.Where(x => x.Id == id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 

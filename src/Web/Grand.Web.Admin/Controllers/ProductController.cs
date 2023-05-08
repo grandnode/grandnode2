@@ -919,7 +919,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 throw new ArgumentException("Product not exists");
             }
-            var crossSellProduct = product.CrossSellProduct.Where(x => x == model.Id).FirstOrDefault();
+            var crossSellProduct = product.CrossSellProduct.FirstOrDefault(x => x == model.Id);
             if (string.IsNullOrEmpty(crossSellProduct))
                 throw new ArgumentException("No cross-sell product found with the specified id");
 
@@ -1013,7 +1013,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 throw new ArgumentException("Product not exists");
             }
-            var recommendedProduct = product.RecommendedProduct.Where(x => x == model.Id).FirstOrDefault();
+            var recommendedProduct = product.RecommendedProduct.FirstOrDefault(x => x == model.Id);
             if (string.IsNullOrEmpty(recommendedProduct))
                 throw new ArgumentException("No recommended product found with the specified id");
 
@@ -1430,7 +1430,7 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     return Content("Product not exists");
 
-                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id).FirstOrDefault();
+                var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
                 if (psa == null)
                     await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
                 else
@@ -1467,7 +1467,7 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     return Content("Product not exists");
 
-                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id).FirstOrDefault();
+                var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
                 if (psa == null)
                     throw new ArgumentException("No specification attribute found with the specified id");
 
@@ -1853,7 +1853,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var tierPrice = product.TierPrices.Where(x => x.Id == id).FirstOrDefault();
+            var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == id);
             if (tierPrice == null)
                 return Content("Empty tier price");
 
@@ -1877,7 +1877,7 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     throw new ArgumentException("No product found with the specified id");
 
-                var tierPrice = product.TierPrices.Where(x => x.Id == model.Id).FirstOrDefault();
+                var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
                 if (tierPrice == null)
                     return Content("Empty tier price");
 
@@ -1902,7 +1902,7 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     throw new ArgumentException("No product found with the specified id");
 
-                var tierPrice = product.TierPrices.Where(x => x.Id == model.Id).FirstOrDefault();
+                var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
                 if (tierPrice == null)
                     throw new ArgumentException("No tier price found with the specified id");
 
@@ -1987,7 +1987,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == id).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
 
@@ -2013,7 +2013,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == id).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
             if (productAttributeMapping == null)
                 return Content("No attribute value found with the specified id");
 
@@ -2030,7 +2030,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.Id);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No attribute value found with the specified id");
 
@@ -2057,7 +2057,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 //No attribute value found with the specified id
                 return Content("No attribute value found with the specified id");
@@ -2074,7 +2074,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == model.ProductAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
             if (productAttributeMapping == null)
                 return Content("No attribute value found with the specified id");
 
@@ -2107,7 +2107,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
 
@@ -2141,7 +2141,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return ErrorForKendoGridJson(permission.message);
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
 
@@ -2163,7 +2163,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
 
@@ -2182,7 +2182,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == model.ProductAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
             if (productAttributeMapping == null)
                 //No product attribute found with the specified id
                 return RedirectToAction("List", "Product");
@@ -2221,11 +2221,11 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return ErrorForKendoGridJson(permission.message);
 
-            var pa = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+            var pa = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (pa == null)
                 return RedirectToAction("List", "Product");
 
-            var pav = pa.ProductAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var pav = pa.ProductAttributeValues.FirstOrDefault(x => x.Id == id);
             if (pav == null)
                 //No attribute value found with the specified id
                 return RedirectToAction("List", "Product");
@@ -2249,12 +2249,12 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var pav = product.ProductAttributeMappings.Where(x => x.Id == model.ProductAttributeMappingId).FirstOrDefault().ProductAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId).ProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (pav == null)
                 //No attribute value found with the specified id
                 return RedirectToAction("List", "Product");
 
-            var productAttributeMapping = product.ProductAttributeMappings.Where(x => x.Id == model.ProductAttributeMappingId).FirstOrDefault();
+            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
             if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
@@ -2287,7 +2287,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var pav = product.ProductAttributeMappings.Where(x => x.Id == pam).FirstOrDefault().ProductAttributeValues.Where(x => x.Id == Id).FirstOrDefault();
+            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == pam).ProductAttributeValues.FirstOrDefault(x => x.Id == Id);
             if (pav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
 
@@ -2371,7 +2371,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var combination = product.ProductAttributeCombinations.Where(x => x.Id == id).FirstOrDefault();
+            var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == id);
             if (combination == null)
                 throw new ArgumentException("No product attribute combination found with the specified id");
 

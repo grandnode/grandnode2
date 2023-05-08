@@ -243,7 +243,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueEditPopup(string id, string contactAttributeId)
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(contactAttributeId);
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 //No contact attribute value found with the specified id
                 return RedirectToAction("List");
@@ -264,7 +264,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(model.ContactAttributeId);
 
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (cav == null)
                 //No contact attribute value found with the specified id
                 return RedirectToAction("List");
@@ -293,7 +293,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueDelete(string id, string contactAttributeId)
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(contactAttributeId);
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 throw new ArgumentException("No contact attribute value found with the specified id");
             if (ModelState.IsValid)

@@ -711,7 +711,7 @@ namespace Grand.Web.Admin.Controllers
                 //No customer found with the specified id
                 return RedirectToAction("List");
 
-            var address = customer.Addresses.Where(x => x.Id == addressId).FirstOrDefault();
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
             if (address == null)
                 //No address found with the specified id
                 return RedirectToAction("Edit", new { id = customer.Id });
@@ -731,7 +731,7 @@ namespace Grand.Web.Admin.Controllers
                 //No customer found with the specified id
                 return RedirectToAction("List");
 
-            var address = customer.Addresses.Where(x => x.Id == model.Address.Id).FirstOrDefault();
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == model.Address.Id);
             if (address == null)
                 //No address found with the specified id
                 return RedirectToAction("Edit", new { id = customer.Id });

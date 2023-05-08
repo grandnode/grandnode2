@@ -59,7 +59,7 @@ namespace Grand.Web.Admin.Extensions
             var vendorId = _workContext.CurrentVendor.Id;
             foreach (var shipmentItem in shipment.ShipmentItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == shipmentItem.OrderItemId).FirstOrDefault();
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                 if (orderItem != null)
                 {
                     if (orderItem.VendorId == vendorId)

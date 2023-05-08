@@ -308,7 +308,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCategory = product.ProductCategories.Where(x => x.Id == id).FirstOrDefault();
+            var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
             await _productCategoryService.DeleteProductCategory(productCategory, product.Id);

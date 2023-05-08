@@ -417,7 +417,7 @@ namespace Grand.Web.Admin.Controllers
                 //get directory name (remove the ending /)
                 uploadedItemDirectoryName = rootDirectories.First().FullName.TrimEnd('/');
 
-                var themeDescriptorEntry = archive.Entries.Where(x => x.FullName.Contains("theme.cfg")).FirstOrDefault();
+                var themeDescriptorEntry = archive.Entries.FirstOrDefault(x => x.FullName.Contains("theme.cfg"));
                 if (themeDescriptorEntry != null)
                 {
                     using var unzippedEntryStream = themeDescriptorEntry.Open();
