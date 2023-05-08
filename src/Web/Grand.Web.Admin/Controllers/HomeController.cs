@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
-    public partial class HomeController : BaseAdminController
+    public class HomeController : BaseAdminController
     {
         #region Fields
 

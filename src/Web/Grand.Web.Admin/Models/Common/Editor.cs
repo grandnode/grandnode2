@@ -1,7 +1,7 @@
 ﻿
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class Editor
+    public class Editor
     {
         public string Content { get; set; }
     }

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.OrderStatus)]
-    public partial class OrderStatusController : BaseAdminController
+    public class OrderStatusController : BaseAdminController
     {
         #region Fields
 

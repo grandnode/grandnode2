@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class CustomerReviewModel
+    public class CustomerReviewModel
     {
         public string CustomerId { get; set; }
 

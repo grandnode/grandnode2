@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Affiliates
 {
-    public partial class AffiliatedOrderListModel : BaseModel
+    public class AffiliatedOrderListModel : BaseModel
     {
         public AffiliatedOrderListModel()
         {

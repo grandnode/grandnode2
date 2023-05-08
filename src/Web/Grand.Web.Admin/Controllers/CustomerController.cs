@@ -31,7 +31,7 @@ using Grand.Business.Core.Interfaces.ExportImport;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Customers)]
-    public partial class CustomerController : BaseAdminController
+    public class CustomerController : BaseAdminController
     {
         #region Fields
 

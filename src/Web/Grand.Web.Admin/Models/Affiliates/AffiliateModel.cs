@@ -36,7 +36,7 @@ namespace Grand.Web.Admin.Models.Affiliates
 
         #region Nested classes
         
-        public partial class AffiliatedOrderModel : BaseEntityModel
+        public class AffiliatedOrderModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Affiliates.Orders.Order")]
             public override string Id { get; set; }
@@ -60,7 +60,7 @@ namespace Grand.Web.Admin.Models.Affiliates
             public DateTime CreatedOn { get; set; }
         }
 
-        public partial class AffiliatedCustomerModel : BaseEntityModel
+        public class AffiliatedCustomerModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Affiliates.Customers.Name")]
             public string Name { get; set; }

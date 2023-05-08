@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ActivityLog)]
-    public partial class ActivityLogController : BaseAdminController
+    public class ActivityLogController : BaseAdminController
     {
         #region Fields
 

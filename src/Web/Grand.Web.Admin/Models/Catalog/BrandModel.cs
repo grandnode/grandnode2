@@ -99,7 +99,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
         #region Nested classes
         
-        public partial class ActivityLogModel : BaseEntityModel
+        public class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Brands.ActivityLog.ActivityLogType")]
             public string ActivityLogTypeName { get; set; }
@@ -115,7 +115,7 @@ namespace Grand.Web.Admin.Models.Catalog
         #endregion
     }
 
-    public partial class BrandLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class BrandLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Localization
 {
-    public partial class LanguageModel : BaseEntityModel, IStoreLinkModel
+    public class LanguageModel : BaseEntityModel, IStoreLinkModel
     {
         public LanguageModel()
         {

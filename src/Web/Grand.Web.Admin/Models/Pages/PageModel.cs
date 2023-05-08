@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Pages
 {
-    public partial class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public PageModel()
         {
@@ -99,7 +99,7 @@ namespace Grand.Web.Admin.Models.Pages
         public DateTime? EndDateUtc { get; set; }
     }
 
-    public partial class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

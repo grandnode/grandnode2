@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class LoginModel : BaseModel
+    public class LoginModel : BaseModel
     {
         public LoginModel()
         {

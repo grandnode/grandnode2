@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class BlogViewModelService : IBlogViewModelService
+    public class BlogViewModelService : IBlogViewModelService
     {
         private readonly IBlogService _blogService;
         private readonly IDateTimeService _dateTimeService;

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class SettingModel : BaseEntityModel
+    public class SettingModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.Name")]
 

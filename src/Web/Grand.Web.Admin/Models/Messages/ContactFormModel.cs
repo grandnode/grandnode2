@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class ContactFormModel: BaseEntityModel
+    public class ContactFormModel: BaseEntityModel
     {
         public override string Id { get; set; }
 

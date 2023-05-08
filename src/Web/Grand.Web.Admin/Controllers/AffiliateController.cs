@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Affiliates)]
-    public partial class AffiliateController : BaseAdminController
+    public class AffiliateController : BaseAdminController
     {
         #region Fields
 

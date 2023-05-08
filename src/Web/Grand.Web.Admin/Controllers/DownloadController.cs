@@ -10,7 +10,7 @@ using Grand.Web.Common.Extensions;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Files)]
-    public partial class DownloadController : BaseAdminController
+    public class DownloadController : BaseAdminController
     {
         private readonly IDownloadService _downloadService;
         private readonly IWorkContext _workContext;

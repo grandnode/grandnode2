@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Blogs
 {
-    public partial class BlogCommentModel : BaseEntityModel
+    public class BlogCommentModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Content.Blog.Comments.Fields.BlogPost")]
         public string BlogPostId { get; set; }

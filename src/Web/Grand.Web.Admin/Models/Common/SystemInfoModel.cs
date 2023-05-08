@@ -65,19 +65,19 @@ namespace Grand.Web.Admin.Models.Common
 
         public IList<SystemWarningModel> SystemWarnings { get; set; }
 
-        public partial class ServerVariableModel : BaseModel
+        public class ServerVariableModel : BaseModel
         {
             public string Name { get; set; }
             public string Value { get; set; }
         }
 
-        public partial class LoadedAssembly : BaseModel
+        public class LoadedAssembly : BaseModel
         {
             public string FullName { get; set; }
             public string Location { get; set; }
         }
 
-        public partial class SystemWarningModel : BaseModel
+        public class SystemWarningModel : BaseModel
         {
             public SystemWarningLevel Level { get; set; }
 

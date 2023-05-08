@@ -56,7 +56,7 @@ namespace Grand.Web.Admin.Models.Knowledgebase
         public string[] Stores { get; set; }
         public bool LimitedToStores { get; set; }
 
-        public partial class ActivityLogModel : BaseEntityModel
+        public class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLogType")]
             public string ActivityLogTypeName { get; set; }

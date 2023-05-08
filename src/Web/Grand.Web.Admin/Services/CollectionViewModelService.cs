@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CollectionViewModelService : ICollectionViewModelService
+    public class CollectionViewModelService : ICollectionViewModelService
     {
         #region Fields
 

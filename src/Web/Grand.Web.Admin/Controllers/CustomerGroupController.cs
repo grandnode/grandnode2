@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CustomerGroups)]
-    public partial class CustomerGroupController : BaseAdminController
+    public class CustomerGroupController : BaseAdminController
     {
         #region Fields
 

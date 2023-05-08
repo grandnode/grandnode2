@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ActivityLogViewModelService : IActivityLogViewModelService
+    public class ActivityLogViewModelService : IActivityLogViewModelService
     {
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IDateTimeService _dateTimeService;

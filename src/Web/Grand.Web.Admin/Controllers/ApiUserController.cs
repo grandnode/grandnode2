@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class ApiUserController : BaseAdminController
+    public class ApiUserController : BaseAdminController
     {
         private readonly IUserApiService _userApiService;
         private readonly IEncryptionService _encryptionService;

@@ -21,7 +21,7 @@ using System.Globalization;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Currencies)]
-    public partial class CurrencyController : BaseAdminController
+    public class CurrencyController : BaseAdminController
     {
         #region Fields
 

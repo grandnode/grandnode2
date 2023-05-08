@@ -16,7 +16,7 @@ using Grand.Infrastructure;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.SalesEmployees)]
-    public partial class SalesEmployeeController : BaseAdminController
+    public class SalesEmployeeController : BaseAdminController
     {
         #region Fields
 

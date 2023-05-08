@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class CheckoutAttributeValueModel : BaseEntityModel, ILocalizedModel<CheckoutAttributeValueLocalizedModel>
+    public class CheckoutAttributeValueModel : BaseEntityModel, ILocalizedModel<CheckoutAttributeValueLocalizedModel>
     {
         public CheckoutAttributeValueModel()
         {
@@ -40,7 +40,7 @@ namespace Grand.Web.Admin.Models.Orders
 
     }
 
-    public partial class CheckoutAttributeValueLocalizedModel : ILocalizedModelLocal
+    public class CheckoutAttributeValueLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

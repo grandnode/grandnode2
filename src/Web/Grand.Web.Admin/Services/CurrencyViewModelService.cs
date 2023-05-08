@@ -6,7 +6,7 @@ using Grand.Web.Admin.Models.Directory;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CurrencyViewModelService : ICurrencyViewModelService
+    public class CurrencyViewModelService : ICurrencyViewModelService
     {
         #region Fields
 

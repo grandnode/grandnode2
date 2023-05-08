@@ -6,7 +6,7 @@ using Grand.Web.Admin.Models.Messages;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class EmailAccountViewModelService : IEmailAccountViewModelService
+    public class EmailAccountViewModelService : IEmailAccountViewModelService
     {
         private readonly IEmailAccountService _emailAccountService;
         private readonly IEmailSender _emailSender;

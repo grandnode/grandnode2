@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class DiscountViewModelService : IDiscountViewModelService
+    public class DiscountViewModelService : IDiscountViewModelService
     {
         #region Fields
 

@@ -13,7 +13,7 @@ using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class LogViewModelService: ILogViewModelService
+    public class LogViewModelService: ILogViewModelService
     {
         private readonly ILogger _logger;
         private readonly IWorkContext _workContext;

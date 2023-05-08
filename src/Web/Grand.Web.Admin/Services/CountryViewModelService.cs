@@ -6,7 +6,7 @@ using Grand.Web.Admin.Models.Directory;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CountryViewModelService : ICountryViewModelService
+    public class CountryViewModelService : ICountryViewModelService
     {
         private readonly ICountryService _countryService;
 

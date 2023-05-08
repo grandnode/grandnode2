@@ -12,7 +12,7 @@ using Grand.Web.Common.Extensions;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Pictures)]
-    public partial class PictureController : BaseAdminController
+    public class PictureController : BaseAdminController
     {
         private readonly IPictureService _pictureService;
         private readonly IPermissionService _permissionService;

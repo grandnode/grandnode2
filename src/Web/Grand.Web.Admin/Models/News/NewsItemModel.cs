@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.News
 {
-    public partial class NewsItemModel : BaseEntityModel, ILocalizedModel<NewsLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class NewsItemModel : BaseEntityModel, ILocalizedModel<NewsLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public NewsItemModel()
         {
@@ -72,7 +72,7 @@ namespace Grand.Web.Admin.Models.News
 
     }
 
-    public partial class NewsLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class NewsLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

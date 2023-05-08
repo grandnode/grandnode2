@@ -1,6 +1,6 @@
 ﻿namespace Grand.Web.Admin.Models.Common
 {
-    public partial class UserFieldModel
+    public class UserFieldModel
     {
         public string Id { get; set; }
         public string ObjectType { get; set; }

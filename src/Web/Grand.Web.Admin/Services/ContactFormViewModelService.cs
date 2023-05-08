@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ContactFormViewModelService : IContactFormViewModelService
+    public class ContactFormViewModelService : IContactFormViewModelService
     {
         private readonly IContactUsService _contactUsService;
         private readonly IDateTimeService _dateTimeService;

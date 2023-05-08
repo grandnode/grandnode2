@@ -10,7 +10,7 @@ using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class GoogleAnalyticsViewModelService : IGoogleAnalyticsViewModelService
+    public class GoogleAnalyticsViewModelService : IGoogleAnalyticsViewModelService
     {
         #region Fields
 

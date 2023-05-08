@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class AffiliateViewModelService : IAffiliateViewModelService
+    public class AffiliateViewModelService : IAffiliateViewModelService
     {
         private readonly IWorkContext _workContext;
         private readonly ICountryService _countryService;

@@ -1,6 +1,6 @@
 ﻿namespace Grand.Web.Admin.Models.Common
 {
-    public partial class GoogleAnalyticsResultModel
+    public class GoogleAnalyticsResultModel
     {
         public GoogleAnalyticsResultModel()
         {

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Plugins
 {
-    public partial class PluginListModel : BaseModel
+    public class PluginListModel : BaseModel
     {
         public PluginListModel()
         {

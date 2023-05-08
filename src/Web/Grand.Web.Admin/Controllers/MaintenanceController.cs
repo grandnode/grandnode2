@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class MaintenanceController : BaseAdminController
+    public class MaintenanceController : BaseAdminController
     {
         #region Fields
 

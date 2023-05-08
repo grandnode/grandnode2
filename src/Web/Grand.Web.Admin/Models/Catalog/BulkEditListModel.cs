@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class BulkEditListModel : BaseModel
+    public class BulkEditListModel : BaseModel
     {
         public BulkEditListModel()
         {

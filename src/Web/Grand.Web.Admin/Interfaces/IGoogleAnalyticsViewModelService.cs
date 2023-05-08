@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Interfaces
 {
-    public partial interface IGoogleAnalyticsViewModelService
+    public interface IGoogleAnalyticsViewModelService
     {
         Task<GoogleAnalyticsResultModel> GetDataByGeneral(DateTime startDate, DateTime endDate);
         Task<GoogleAnalyticsResultModel> GetDataByLocalization(DateTime startDate, DateTime endDate);

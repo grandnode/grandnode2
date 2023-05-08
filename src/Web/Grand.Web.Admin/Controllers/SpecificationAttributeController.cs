@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.SpecificationAttributes)]
-    public partial class SpecificationAttributeController : BaseAdminController
+    public class SpecificationAttributeController : BaseAdminController
     {
         #region Fields
 

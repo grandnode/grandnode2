@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.MerchandiseReturns)]
-    public partial class MerchandiseReturnController : BaseAdminController
+    public class MerchandiseReturnController : BaseAdminController
     {
         #region Fields
 

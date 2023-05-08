@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.ExternalAuthentication
 {
-    public partial class AuthenticationMethodModel : BaseModel
+    public class AuthenticationMethodModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Plugins.ExternalAuthenticationMethods.Fields.FriendlyName")]
         public string FriendlyName { get; set; }

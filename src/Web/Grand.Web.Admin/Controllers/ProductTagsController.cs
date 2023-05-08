@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ProductTags)]
-    public partial class ProductTagsController : BaseAdminController
+    public class ProductTagsController : BaseAdminController
     {
         private readonly IProductTagService _productTagService;
         private readonly IProductService _productService;

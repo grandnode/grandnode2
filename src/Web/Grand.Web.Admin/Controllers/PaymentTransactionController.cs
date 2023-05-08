@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.PaymentTransactions)]
-    public partial class PaymentTransactionController : BaseAdminController
+    public class PaymentTransactionController : BaseAdminController
     {
         #region Fields
 

@@ -30,7 +30,7 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Products)]
-    public partial class ProductController : BaseAdminController
+    public class ProductController : BaseAdminController
     {
         #region Fields
 

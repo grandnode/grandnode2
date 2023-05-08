@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Languages)]
-    public partial class LanguageController : BaseAdminController
+    public class LanguageController : BaseAdminController
     {
         #region Fields
         

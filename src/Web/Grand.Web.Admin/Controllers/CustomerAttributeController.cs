@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Settings)]
-    public partial class CustomerAttributeController : BaseAdminController
+    public class CustomerAttributeController : BaseAdminController
     {
         #region Fields
         private readonly ICustomerAttributeService _customerAttributeService;

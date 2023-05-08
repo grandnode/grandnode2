@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class BulkEditProductModel : BaseEntityModel
+    public class BulkEditProductModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Name")]
 

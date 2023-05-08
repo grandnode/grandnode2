@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class PickupPointModel : BaseEntityModel
+    public class PickupPointModel : BaseEntityModel
     {
         public PickupPointModel()
         {

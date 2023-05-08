@@ -9,7 +9,7 @@ using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class LanguageViewModelService : ILanguageViewModelService
+    public class LanguageViewModelService : ILanguageViewModelService
     {
         #region Fields
 

@@ -42,7 +42,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Settings)]
-    public partial class SettingController : BaseAdminController
+    public class SettingController : BaseAdminController
     {
         #region Fields
 

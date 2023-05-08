@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.MessageContactForm)]
-    public partial class ContactFormController : BaseAdminController
+    public class ContactFormController : BaseAdminController
     {
         private readonly IContactUsService _contactUsService;
         private readonly IContactFormViewModelService _contactFormViewModelService;

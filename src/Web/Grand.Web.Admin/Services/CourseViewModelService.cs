@@ -23,7 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CourseViewModelService : ICourseViewModelService
+    public class CourseViewModelService : ICourseViewModelService
     {
         private readonly ICourseService _courseService;
         private readonly ICourseLevelService _courseLevelService;

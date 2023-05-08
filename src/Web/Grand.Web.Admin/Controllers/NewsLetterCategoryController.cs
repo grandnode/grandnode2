@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.NewsletterCategories)]
-    public partial class NewsletterCategoryController : BaseAdminController
+    public class NewsletterCategoryController : BaseAdminController
     {
         #region Fields 
 

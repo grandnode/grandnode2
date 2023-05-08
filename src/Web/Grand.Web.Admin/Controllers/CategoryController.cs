@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Categories)]
-    public partial class CategoryController : BaseAdminController
+    public class CategoryController : BaseAdminController
     {
         #region Fields
 

@@ -61,7 +61,7 @@ namespace Grand.Web.Admin.Models.Knowledgebase
         [UIHint("Stores")]
         public string[] Stores { get; set; }
 
-        public partial class ActivityLogModel : BaseEntityModel
+        public class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLogType")]
             public string ActivityLogTypeName { get; set; }
@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Models.Knowledgebase
             public string CustomerEmail { get; set; }
         }
 
-        public partial class AddRelatedArticleModel : BaseEntityModel
+        public class AddRelatedArticleModel : BaseEntityModel
         {
             public AddRelatedArticleModel()
             {

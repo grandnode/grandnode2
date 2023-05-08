@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ContactAttributeViewModelService : IContactAttributeViewModelService
+    public class ContactAttributeViewModelService : IContactAttributeViewModelService
     {
 
         private readonly IContactAttributeService _contactAttributeService;

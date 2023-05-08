@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductListModel : BaseModel
+    public class ProductListModel : BaseModel
     {
         public ProductListModel()
         {

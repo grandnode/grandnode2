@@ -3,7 +3,7 @@ using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class StoreScopeModel : BaseModel
+    public class StoreScopeModel : BaseModel
     {
         public StoreScopeModel()
         {

@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Brands)]
-    public partial class BrandController : BaseAdminController
+    public class BrandController : BaseAdminController
     {
         #region Fields
 

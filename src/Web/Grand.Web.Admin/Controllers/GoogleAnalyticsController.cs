@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
-    public partial class GoogleAnalyticsController : BaseAdminController
+    public class GoogleAnalyticsController : BaseAdminController
     {
         private readonly IGoogleAnalyticsViewModelService _googleAnalyticsService;
 

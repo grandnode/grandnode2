@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Payments
 {
-    public partial class PaymentSettingsModel : BaseModel
+    public class PaymentSettingsModel : BaseModel
     {
 
         [GrandResourceDisplayName("Admin.Configuration.Payment.Settings.AllowRePostingPayments")]

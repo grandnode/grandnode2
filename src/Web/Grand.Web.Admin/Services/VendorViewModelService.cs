@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class VendorViewModelService : IVendorViewModelService
+    public class VendorViewModelService : IVendorViewModelService
     {
         private readonly IDiscountService _discountService;
         private readonly IVendorService _vendorService;

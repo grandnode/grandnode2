@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class BrandViewModelService : IBrandViewModelService
+    public class BrandViewModelService : IBrandViewModelService
     {
         #region Fields
 

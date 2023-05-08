@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class ShippingRateComputationMethodModel : BaseModel
+    public class ShippingRateComputationMethodModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.FriendlyName")]
         

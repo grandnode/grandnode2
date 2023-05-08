@@ -35,7 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ProductViewModelService : IProductViewModelService
+    public class ProductViewModelService : IProductViewModelService
     {
         private readonly IProductService _productService;
         private readonly IInventoryManageService _inventoryManageService;

@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ExternalAuthenticationMethods)]
-    public partial class ExternalAuthenticationController : BaseAdminController
+    public class ExternalAuthenticationController : BaseAdminController
     {
         #region Fields
 

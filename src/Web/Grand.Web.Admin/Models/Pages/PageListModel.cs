@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Pages
 {
-    public partial class PageListModel : BaseModel
+    public class PageListModel : BaseModel
     {
         public PageListModel()
         {

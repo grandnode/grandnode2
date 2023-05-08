@@ -9,7 +9,7 @@ using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerAttributeViewModelService : ICustomerAttributeViewModelService
+    public class CustomerAttributeViewModelService : ICustomerAttributeViewModelService
     {
         private readonly ICustomerAttributeService _customerAttributeService;
         private readonly ITranslationService _translationService;

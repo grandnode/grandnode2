@@ -21,7 +21,7 @@ using System.Reflection;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Plugins)]
-    public partial class PluginController : BaseAdminController
+    public class PluginController : BaseAdminController
     {
         #region Fields
 

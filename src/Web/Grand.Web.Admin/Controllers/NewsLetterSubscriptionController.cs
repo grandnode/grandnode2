@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.NewsletterSubscribers)]
-    public partial class NewsLetterSubscriptionController : BaseAdminController
+    public class NewsLetterSubscriptionController : BaseAdminController
     {
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly INewsletterCategoryService _newsletterCategoryService;

@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ProductReviewViewModelService : IProductReviewViewModelService
+    public class ProductReviewViewModelService : IProductReviewViewModelService
     {
         private readonly IProductService _productService;
         private readonly IProductReviewService _productReviewService;

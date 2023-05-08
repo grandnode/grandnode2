@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Directory
 {
-    public partial class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
+    public class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
     {
         public StateProvinceModel()
         {
@@ -29,7 +29,7 @@ namespace Grand.Web.Admin.Models.Directory
         public IList<StateProvinceLocalizedModel> Locales { get; set; }
     }
 
-    public partial class StateProvinceLocalizedModel : ILocalizedModelLocal
+    public class StateProvinceLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

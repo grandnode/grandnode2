@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>
+    public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>
     {
         public MerchandiseReturnActionModel()
         {
@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Models.Settings
         public IList<MerchandiseReturnActionLocalizedModel> Locales { get; set; }
     }
 
-    public partial class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal
+    public class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

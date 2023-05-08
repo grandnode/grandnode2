@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ProductAttributes)]
-    public partial class ProductAttributeController : BaseAdminController
+    public class ProductAttributeController : BaseAdminController
     {
         #region Fields
         private readonly IProductService _productService;

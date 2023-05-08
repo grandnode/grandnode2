@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Tax
 {
-    public partial class TaxProviderModel : BaseModel
+    public class TaxProviderModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Tax.Providers.Fields.FriendlyName")]
         

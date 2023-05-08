@@ -15,7 +15,7 @@ namespace Grand.Web.Admin.Models.Blogs
         [GrandResourceDisplayName("Admin.Content.Blog.Product.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public partial class AddProductModel : BaseModel
+        public class AddProductModel : BaseModel
         {
             public AddProductModel()
             {

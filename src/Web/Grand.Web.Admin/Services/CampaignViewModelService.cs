@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CampaignViewModelService : ICampaignViewModelService
+    public class CampaignViewModelService : ICampaignViewModelService
     {
 
         private readonly ICampaignService _campaignService;

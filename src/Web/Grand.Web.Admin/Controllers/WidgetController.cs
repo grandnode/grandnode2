@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Widgets)]
-    public partial class WidgetController : BaseAdminController
+    public class WidgetController : BaseAdminController
     {
         #region Fields
 

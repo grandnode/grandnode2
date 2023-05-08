@@ -16,7 +16,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class LayoutController : BaseAdminController
+    public class LayoutController : BaseAdminController
     {
         #region Fields
 

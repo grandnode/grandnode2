@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ScheduleTasks)]
-    public partial class ScheduleTaskController : BaseAdminController
+    public class ScheduleTaskController : BaseAdminController
     {
         #region Fields
 

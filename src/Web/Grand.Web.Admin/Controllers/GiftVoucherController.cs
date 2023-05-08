@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.GiftVouchers)]
-    public partial class GiftVoucherController : BaseAdminController
+    public class GiftVoucherController : BaseAdminController
     {
         #region Fields
         private readonly IGiftVoucherViewModelService _giftVoucherViewModelService;

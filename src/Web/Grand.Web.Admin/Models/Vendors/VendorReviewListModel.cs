@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class VendorReviewListModel : BaseModel
+    public class VendorReviewListModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.VendorReviews.List.CreatedOnFrom")]
         [UIHint("DateNullable")]

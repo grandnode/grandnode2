@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
+    public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     {
         private readonly ITranslationService _translationService;
         private readonly IKnowledgebaseService _knowledgebaseService;

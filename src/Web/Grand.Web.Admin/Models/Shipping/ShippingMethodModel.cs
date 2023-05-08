@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMethodLocalizedModel>
+    public class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMethodLocalizedModel>
     {
         public ShippingMethodModel()
         {
@@ -24,7 +24,7 @@ namespace Grand.Web.Admin.Models.Shipping
         public IList<ShippingMethodLocalizedModel> Locales { get; set; }
     }
 
-    public partial class ShippingMethodLocalizedModel : ILocalizedModelLocal
+    public class ShippingMethodLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CustomerTags)]
-    public partial class CustomerTagController : BaseAdminController
+    public class CustomerTagController : BaseAdminController
     {
         #region Fields
         private readonly ICustomerTagViewModelService _customerTagViewModelService;

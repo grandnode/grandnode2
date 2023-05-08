@@ -3,7 +3,7 @@ using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Permissions
 {
-    public partial class PermissionMappingModel : BaseModel
+    public class PermissionMappingModel : BaseModel
     {
         public PermissionMappingModel()
         {

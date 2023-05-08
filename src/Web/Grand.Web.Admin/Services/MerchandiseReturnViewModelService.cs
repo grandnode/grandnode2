@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelService
+    public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelService
     {
         #region Fields
 

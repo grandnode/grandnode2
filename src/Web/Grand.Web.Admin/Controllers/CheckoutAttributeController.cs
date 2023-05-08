@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CheckoutAttributes)]
-    public partial class CheckoutAttributeController : BaseAdminController
+    public class CheckoutAttributeController : BaseAdminController
     {
         #region Fields
 

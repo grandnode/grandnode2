@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerTagViewModelService : ICustomerTagViewModelService
+    public class CustomerTagViewModelService : ICustomerTagViewModelService
     {
         private readonly ITranslationService _translationService;
         private readonly ICustomerActivityService _customerActivityService;

@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Countries)]
-    public partial class CountryController : BaseAdminController
+    public class CountryController : BaseAdminController
     {
         #region Fields
 

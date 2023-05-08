@@ -39,7 +39,7 @@ using System.Net;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerViewModelService : ICustomerViewModelService
+    public class CustomerViewModelService : ICustomerViewModelService
     {
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;

@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.News)]
-    public partial class NewsController : BaseAdminController
+    public class NewsController : BaseAdminController
     {
         #region Fields
         private readonly INewsViewModelService _newsViewModelService;

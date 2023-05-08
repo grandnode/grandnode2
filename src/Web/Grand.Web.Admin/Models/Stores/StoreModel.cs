@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Stores
 {
-    public partial class StoreModel : BaseEntityModel, ILocalizedModel<StoreLocalizedModel>
+    public class StoreModel : BaseEntityModel, ILocalizedModel<StoreLocalizedModel>
     {
         public StoreModel()
         {
@@ -96,7 +96,7 @@ namespace Grand.Web.Admin.Models.Stores
         }
     }
 
-    public partial class StoreLocalizedModel : ILocalizedModelLocal
+    public class StoreLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

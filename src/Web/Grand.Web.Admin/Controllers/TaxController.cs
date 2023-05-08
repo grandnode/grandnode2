@@ -22,7 +22,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.TaxSettings)]
-    public partial class TaxController : BaseAdminController
+    public class TaxController : BaseAdminController
     {
         #region Fields
 

@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Pages)]
-    public partial class PageController : BaseAdminController
+    public class PageController : BaseAdminController
     {
         #region Fields
 

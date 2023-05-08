@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Models.Common
 
         public IList<PictureLocalizedModel> Locales { get; set; }
 
-        public partial class PictureLocalizedModel : ILocalizedModelLocal
+        public class PictureLocalizedModel : ILocalizedModelLocal
         {
             public string LanguageId { get; set; }
 

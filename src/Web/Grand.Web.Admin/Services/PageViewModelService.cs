@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class PageViewModelService : IPageViewModelService
+    public class PageViewModelService : IPageViewModelService
     {
         private readonly IPageLayoutService _pageLayoutService;
         private readonly IPageService _pageService;

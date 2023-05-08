@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Campaigns)]
-    public partial class CampaignController : BaseAdminController
+    public class CampaignController : BaseAdminController
     {
         private readonly ICampaignService _campaignService;
         private readonly ICampaignViewModelService _campaignViewModelService;

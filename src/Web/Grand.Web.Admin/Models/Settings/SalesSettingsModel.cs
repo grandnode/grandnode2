@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Models.Settings
         public ShoppingCartSettingsModel ShoppingCartSettings { get; set; }
         public LoyaltyPointsSettingsModel LoyaltyPointsSettings { get; set; }
 
-        public partial class OrderSettingsModel : BaseModel
+        public class OrderSettingsModel : BaseModel
         {
             public OrderSettingsModel()
             {
@@ -114,7 +114,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         }
 
-        public partial class ShoppingCartSettingsModel : BaseModel
+        public class ShoppingCartSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.ShoppingCart.DisplayCartAfterAddingProduct")]
             public bool DisplayCartAfterAddingProduct { get; set; }
@@ -186,7 +186,7 @@ namespace Grand.Web.Admin.Models.Settings
             public string ReservationDateFormat { get; set; }
         }
 
-        public partial class LoyaltyPointsSettingsModel : BaseModel
+        public class LoyaltyPointsSettingsModel : BaseModel
         {
             public LoyaltyPointsSettingsModel()
             {

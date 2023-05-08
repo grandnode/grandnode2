@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class PaymentTransactionModel : BaseEntityModel
+    public class PaymentTransactionModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PaymentMethodSystemName")]
         public string PaymentMethodSystemName { get; set; }

@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Shipments)]
-    public partial class ShipmentController : BaseAdminController
+    public class ShipmentController : BaseAdminController
     {
         #region Fields
         private readonly IShipmentViewModelService _shipmentViewModelService;

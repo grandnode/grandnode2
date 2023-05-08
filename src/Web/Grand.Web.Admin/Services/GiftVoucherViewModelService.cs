@@ -17,7 +17,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class GiftVoucherViewModelService : IGiftVoucherViewModelService
+    public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     {
         #region Fields
 

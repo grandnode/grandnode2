@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Localization
 {
-    public partial class LanguageResourceFilterModel : BaseEntityModel
+    public class LanguageResourceFilterModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Languages.ResourcesFilter.Fields.ResourceName")]
         public string ResourceName { get; set; }

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Payments
 {
-    public partial class PaymentMethodModel : BaseModel
+    public class PaymentMethodModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.FriendlyName")]
         

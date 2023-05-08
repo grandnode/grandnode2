@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Directory
 {
-    public partial class MeasureWeightModel : BaseEntityModel
+    public class MeasureWeightModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Measures.Weights.Fields.Name")]
         public string Name { get; set; }

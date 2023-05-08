@@ -4,7 +4,7 @@ using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class WarehouseModel : BaseEntityModel
+    public class WarehouseModel : BaseEntityModel
     {
         public WarehouseModel()
         {

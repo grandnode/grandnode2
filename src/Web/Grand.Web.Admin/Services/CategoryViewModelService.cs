@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CategoryViewModelService : ICategoryViewModelService
+    public class CategoryViewModelService : ICategoryViewModelService
     {
         private readonly ICategoryService _categoryService;
         private readonly IProductCategoryService _productCategoryService;

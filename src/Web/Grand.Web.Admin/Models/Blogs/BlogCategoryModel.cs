@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Blogs
 {
-    public partial class BlogCategoryModel : BaseEntityModel, ILocalizedModel<BlogCategoryLocalizedModel>, IStoreLinkModel
+    public class BlogCategoryModel : BaseEntityModel, ILocalizedModel<BlogCategoryLocalizedModel>, IStoreLinkModel
     {
         public BlogCategoryModel()
         {
@@ -27,14 +27,14 @@ namespace Grand.Web.Admin.Models.Blogs
         [UIHint("Stores")]
         public string[] Stores { get; set; }
     }
-    public partial class BlogCategoryLocalizedModel : ILocalizedModelLocal
+    public class BlogCategoryLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
         [GrandResourceDisplayName("Admin.Content.Blog.BlogCategory.Fields.Name")]
         public string Name { get; set; }
     }
 
-    public partial class AddBlogPostCategoryModel : BaseModel
+    public class AddBlogPostCategoryModel : BaseModel
     {
         public AddBlogPostCategoryModel()
         {

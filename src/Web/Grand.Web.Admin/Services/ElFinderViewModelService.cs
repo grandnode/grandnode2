@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ElFinderViewModelService : IElFinderViewModelService
+    public class ElFinderViewModelService : IElFinderViewModelService
     {
         private readonly IDriver _driver;
         private readonly IConnector _connector;

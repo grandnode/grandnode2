@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.System)]
-    public partial class SystemController : BaseAdminController
+    public class SystemController : BaseAdminController
     {
         #region Fields
 

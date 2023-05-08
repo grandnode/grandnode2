@@ -9,7 +9,7 @@ using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class AddressAttributeViewModelService : IAddressAttributeViewModelService
+    public class AddressAttributeViewModelService : IAddressAttributeViewModelService
     {
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly ITranslationService _translationService;

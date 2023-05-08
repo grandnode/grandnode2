@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Vendors)]
-    public partial class VendorController : BaseAdminController
+    public class VendorController : BaseAdminController
     {
         #region Fields
 

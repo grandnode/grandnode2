@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Stores)]
-    public partial class StoreController : BaseAdminController
+    public class StoreController : BaseAdminController
     {
         private readonly IStoreViewModelService _storeViewModelService;
         private readonly IStoreService _storeService;

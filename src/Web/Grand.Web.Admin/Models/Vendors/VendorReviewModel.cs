@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Vendors
 {
-    public partial class VendorReviewModel : BaseEntityModel
+    public class VendorReviewModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
         public string VendorId { get; set; }

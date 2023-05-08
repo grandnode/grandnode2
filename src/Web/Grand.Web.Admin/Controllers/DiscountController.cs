@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Discounts)]
-    public partial class DiscountController : BaseAdminController
+    public class DiscountController : BaseAdminController
     {
         #region Fields
 

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Logging
 {
-    public partial class LogListModel : BaseModel
+    public class LogListModel : BaseModel
     {
         public LogListModel()
         {

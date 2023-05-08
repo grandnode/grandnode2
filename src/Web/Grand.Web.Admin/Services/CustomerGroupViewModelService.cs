@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerGroupViewModelService : ICustomerGroupViewModelService
+    public class CustomerGroupViewModelService : ICustomerGroupViewModelService
     {
         private readonly IGroupService _groupService;
         private readonly ICustomerGroupProductService _customerGroupProductService;

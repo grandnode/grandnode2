@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class CatalogSettingsModel : BaseModel
+    public class CatalogSettingsModel : BaseModel
     {
         public CatalogSettingsModel()
         {

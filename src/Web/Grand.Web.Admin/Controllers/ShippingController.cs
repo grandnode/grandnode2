@@ -24,7 +24,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-    public partial class ShippingController : BaseAdminController
+    public class ShippingController : BaseAdminController
     {
         #region Fields
 

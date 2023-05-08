@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.MessageQueue)]
-    public partial class QueuedEmailController : BaseAdminController
+    public class QueuedEmailController : BaseAdminController
     {
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly IEmailAccountService _emailAccountService;

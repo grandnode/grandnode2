@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Tax
 {
-    public partial class TaxSettingsModel : BaseModel
+    public class TaxSettingsModel : BaseModel
     {
         public TaxSettingsModel()
         {

@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.MessageTemplates)]
-    public partial class MessageTemplateController : BaseAdminController
+    public class MessageTemplateController : BaseAdminController
     {
         #region Fields
 

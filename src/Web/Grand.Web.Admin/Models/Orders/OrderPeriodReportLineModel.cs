@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class OrderPeriodReportLineModel : BaseModel
+    public class OrderPeriodReportLineModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Reports.Period.Name")]
         public string Period { get; set; }

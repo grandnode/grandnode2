@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Blog)]
-    public partial class BlogController : BaseAdminController
+    public class BlogController : BaseAdminController
     {
         #region Fields
 

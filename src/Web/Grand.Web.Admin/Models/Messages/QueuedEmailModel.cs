@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class QueuedEmailModel : BaseEntityModel
+    public class QueuedEmailModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Id")]
         public override string Id { get; set; }

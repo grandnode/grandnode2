@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductReviewModel : BaseEntityModel
+    public class ProductReviewModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
         public string ProductId { get; set; }

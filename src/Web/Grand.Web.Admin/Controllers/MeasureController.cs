@@ -14,7 +14,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Measures)]
-    public partial class MeasureController : BaseAdminController
+    public class MeasureController : BaseAdminController
     {
         #region Fields
 

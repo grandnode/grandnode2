@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ProductReviews)]
-    public partial class ProductReviewController : BaseAdminController
+    public class ProductReviewController : BaseAdminController
     {
         #region Fields
 

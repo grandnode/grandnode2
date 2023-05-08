@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class UrlEntityModel : BaseEntityModel
+    public class UrlEntityModel : BaseEntityModel
     {
         [GrandResourceDisplayName("admin.configuration.senames.Name")]
         

@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductTagModel : BaseEntityModel, ILocalizedModel<ProductTagLocalizedModel>
+    public class ProductTagModel : BaseEntityModel, ILocalizedModel<ProductTagLocalizedModel>
     {
         public ProductTagModel()
         {
@@ -20,7 +20,7 @@ namespace Grand.Web.Admin.Models.Catalog
         public IList<ProductTagLocalizedModel> Locales { get; set; }
     }
 
-    public partial class ProductTagLocalizedModel : ILocalizedModelLocal
+    public class ProductTagLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

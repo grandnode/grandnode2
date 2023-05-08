@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ShipmentViewModelService : IShipmentViewModelService
+    public class ShipmentViewModelService : IShipmentViewModelService
     {
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;

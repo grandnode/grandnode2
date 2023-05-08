@@ -18,7 +18,7 @@ using Grand.Infrastructure;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ContactAttributes)]
-    public partial class ContactAttributeController : BaseAdminController
+    public class ContactAttributeController : BaseAdminController
     {
         #region Fields
         private readonly IContactAttributeViewModelService _contactAttributeViewModelService;

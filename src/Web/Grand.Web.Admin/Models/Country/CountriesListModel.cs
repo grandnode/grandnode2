@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Country
 {
-    public partial class CountriesListModel : BaseModel
+    public class CountriesListModel : BaseModel
     {
         public CountriesListModel() { }
 

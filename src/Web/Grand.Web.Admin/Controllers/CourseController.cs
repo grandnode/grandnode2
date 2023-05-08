@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Courses)]
-    public partial class CourseController : BaseAdminController
+    public class CourseController : BaseAdminController
     {
 
         private readonly ITranslationService _translationService;

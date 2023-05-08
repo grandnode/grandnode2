@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Directory
 {
-    public partial class MeasureDimensionModel : BaseEntityModel
+    public class MeasureDimensionModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Measures.Dimensions.Fields.Name")]
 

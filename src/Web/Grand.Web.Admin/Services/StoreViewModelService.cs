@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class StoreViewModelService : IStoreViewModelService
+    public class StoreViewModelService : IStoreViewModelService
     {
         private readonly ILanguageService _languageService;
         private readonly IWarehouseService _warehouseService;

@@ -14,7 +14,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Customers)]
-    public partial class OnlineCustomerController : BaseAdminController
+    public class OnlineCustomerController : BaseAdminController
     {
         #region Fields
 

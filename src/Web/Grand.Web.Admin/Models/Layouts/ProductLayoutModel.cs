@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Layouts
 {
-    public partial class ProductLayoutModel : BaseEntityModel
+    public class ProductLayoutModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Layouts.Product.Name")]
 

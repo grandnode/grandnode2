@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class NewsViewModelService : INewsViewModelService
+    public class NewsViewModelService : INewsViewModelService
     {
         #region Fields
 

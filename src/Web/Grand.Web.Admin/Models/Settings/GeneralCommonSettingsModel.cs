@@ -86,7 +86,7 @@ namespace Grand.Web.Admin.Models.Settings
 
             #region Nested classes
 
-            public partial class ThemeConfigurationModel
+            public class ThemeConfigurationModel
             {
                 public string ThemeName { get; set; }
                 public string ThemeVersion { get; set; }
@@ -100,7 +100,7 @@ namespace Grand.Web.Admin.Models.Settings
             #endregion
         }
 
-        public partial class CommonSettingsModel : BaseModel
+        public class CommonSettingsModel : BaseModel
         {
            
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.StoreInDatabaseContactUsForm")]
@@ -141,7 +141,7 @@ namespace Grand.Web.Admin.Models.Settings
 
 
         }
-        public partial class DateTimeSettingsModel : BaseModel
+        public class DateTimeSettingsModel : BaseModel
         {
             public DateTimeSettingsModel()
             {
@@ -155,7 +155,7 @@ namespace Grand.Web.Admin.Models.Settings
             public IList<SelectListItem> AvailableTimeZones { get; set; }
         }
 
-        public partial class SeoSettingsModel : BaseModel
+        public class SeoSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PageTitleSeparator")]
 
@@ -212,7 +212,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         }
 
-        public partial class SecuritySettingsModel : BaseModel
+        public class SecuritySettingsModel : BaseModel
         {
             public SecuritySettingsModel()
             {
@@ -282,7 +282,7 @@ namespace Grand.Web.Admin.Models.Settings
             public IList<SelectListItem> AvailableReCaptchaVersions { get; set; }
         }
 
-        public partial class PdfSettingsModel : BaseModel
+        public class PdfSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PdfLogo")]
             [UIHint("Picture")]
@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Models.Settings
             public string InvoiceFooterText { get; set; }
         }
 
-        public partial class GoogleAnalyticsSettingsModel : BaseModel
+        public class GoogleAnalyticsSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsPrivateKey")]
             public string GaprivateKey { get; set; }
@@ -311,7 +311,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         }
 
-        public partial class DisplayMenuSettingsModel : BaseModel
+        public class DisplayMenuSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DisplayMenuSettings.DisplayHomePageMenu")]
             public bool DisplayHomePageMenu { get; set; }

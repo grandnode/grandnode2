@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Permissions
 {
-    public partial class PermissionRecordModel : BaseModel
+    public class PermissionRecordModel : BaseModel
     {
         public string Name { get; set; }
         public string SystemName { get; set; }

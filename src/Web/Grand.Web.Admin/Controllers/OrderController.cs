@@ -25,7 +25,7 @@ using Grand.Business.Core.Interfaces.ExportImport;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Orders)]
-    public partial class OrderController : BaseAdminController
+    public class OrderController : BaseAdminController
     {
         #region Fields
 

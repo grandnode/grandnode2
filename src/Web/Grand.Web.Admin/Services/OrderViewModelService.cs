@@ -36,7 +36,7 @@ using System.Net;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class OrderViewModelService : IOrderViewModelService
+    public class OrderViewModelService : IOrderViewModelService
     {
         #region Fields
 

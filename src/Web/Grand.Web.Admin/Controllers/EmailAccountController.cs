@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.EmailAccounts)]
-    public partial class EmailAccountController : BaseAdminController
+    public class EmailAccountController : BaseAdminController
     {
         private readonly IEmailAccountViewModelService _emailAccountViewModelService;
         private readonly IEmailAccountService _emailAccountService;
