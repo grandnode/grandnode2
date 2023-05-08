@@ -56,7 +56,7 @@ namespace Grand.Web.Admin.Extensions
             }
             if (picture == null)
             {
-                var pp = product.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault();
+                var pp = product.ProductPictures.MinBy(x => x.DisplayOrder);
                 if (pp != null)
                     picture = await pictureService.GetPictureById(pp.PictureId);
             }
