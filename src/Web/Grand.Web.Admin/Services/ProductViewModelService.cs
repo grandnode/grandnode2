@@ -1133,7 +1133,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            if (product.ProductCategories.Where(x => x.CategoryId == model.CategoryId).Count() == 0)
+            if (!product.ProductCategories.Any(x => x.CategoryId == model.CategoryId))
             {
                 var productCategory = new ProductCategory {
                     CategoryId = model.CategoryId,
@@ -1154,7 +1154,7 @@ namespace Grand.Web.Admin.Services
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
 
-            if (product.ProductCategories.Where(x => x.Id != model.Id && x.CategoryId == model.CategoryId).Any())
+            if (product.ProductCategories.Any(x => x.Id != model.Id && x.CategoryId == model.CategoryId))
                 throw new ArgumentException("This category is already mapped with this product");
 
             //a vendor should have access only to his products
@@ -1221,7 +1221,7 @@ namespace Grand.Web.Admin.Services
             }
 
             var existingProductcollections = product.ProductCollections;
-            if (product.ProductCollections.Where(x => x.CollectionId == collectionId).Count() == 0)
+            if (!product.ProductCollections.Any(x => x.CollectionId == collectionId))
             {
                 var productCollection = new ProductCollection {
                     CollectionId = collectionId,
@@ -1242,7 +1242,7 @@ namespace Grand.Web.Admin.Services
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
-            if (product.ProductCollections.Where(x => x.Id != model.Id && x.CollectionId == model.CollectionId).Any())
+            if (product.ProductCollections.Any(x => x.Id != model.Id && x.CollectionId == model.CollectionId))
                 throw new ArgumentException("This collection is already mapped with this product");
 
             //a vendor should have access only to his products
@@ -1293,7 +1293,7 @@ namespace Grand.Web.Admin.Services
 
                     var existingRelatedProducts = productId1.RelatedProducts;
                     if (model.ProductId != id)
-                        if (existingRelatedProducts.Where(x => x.ProductId2 == id).Count() == 0)
+                        if (!existingRelatedProducts.Any(x => x.ProductId2 == id))
                         {
                             var related = new RelatedProduct {
                                 ProductId2 = id,
@@ -1358,7 +1358,7 @@ namespace Grand.Web.Admin.Services
 
                     var existingSimilarProducts = productId1.SimilarProducts;
                     if (model.ProductId != id)
-                        if (existingSimilarProducts.Where(x => x.ProductId2 == id).Count() == 0)
+                        if (!existingSimilarProducts.Any(x => x.ProductId2 == id))
                         {
                             var similar = new SimilarProduct {
                                 ProductId1 = model.ProductId,
@@ -1426,7 +1426,7 @@ namespace Grand.Web.Admin.Services
 
                     var existingBundleProducts = productId1.BundleProducts;
                     if (model.ProductId != id)
-                        if (existingBundleProducts.Where(x => x.ProductId == id).Count() == 0)
+                        if (!existingBundleProducts.Any(x => x.ProductId == id))
                         {
                             var bundle = new BundleProduct {
                                 ProductId = id,
@@ -1491,7 +1491,7 @@ namespace Grand.Web.Admin.Services
                     if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
                         continue;
 
-                    if (crossSellProduct.CrossSellProduct.Where(x => x == id).Count() == 0)
+                    if (!crossSellProduct.CrossSellProduct.Any(x => x == id))
                     {
                         if (model.ProductId != id)
                             await _productService.InsertCrossSellProduct(
@@ -1524,7 +1524,7 @@ namespace Grand.Web.Admin.Services
                     if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
                         continue;
 
-                    if (mainproduct.RecommendedProduct.Where(x => x == id).Count() == 0)
+                    if (!mainproduct.RecommendedProduct.Any(x => x == id))
                     {
                         if (model.ProductId != id)
                             await _productService.InsertRecommendedProduct(model.ProductId, id);

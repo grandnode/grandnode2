@@ -340,7 +340,7 @@ namespace Grand.Web.Admin.Services
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    if (product.ProductCategories.Where(x => x.CategoryId == model.CategoryId).Count() == 0)
+                    if (!product.ProductCategories.Any(x => x.CategoryId == model.CategoryId))
                     {
                         await _productCategoryService.InsertProductCategory(
                             new ProductCategory {

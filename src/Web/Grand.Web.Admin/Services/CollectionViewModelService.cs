@@ -302,7 +302,7 @@ namespace Grand.Web.Admin.Services
                 if (product != null)
                 {
                     var existingProductcollections = product.ProductCollections;
-                    if (product.ProductCollections.Where(x => x.CollectionId == model.CollectionId).Count() == 0)
+                    if (!product.ProductCollections.Any(x => x.CollectionId == model.CollectionId))
                     {
                         await _productCollectionService.InsertProductCollection(
                             new ProductCollection {

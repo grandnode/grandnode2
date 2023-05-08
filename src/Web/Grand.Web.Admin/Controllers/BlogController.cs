@@ -528,7 +528,7 @@ namespace Grand.Web.Admin.Controllers
                         var post = _blogService.GetBlogPostById(id);
                         if (post != null)
                         {
-                            if (blogCategory.BlogPosts.Where(x => x.BlogPostId == id).Count() == 0)
+                            if (!blogCategory.BlogPosts.Any(x => x.BlogPostId == id))
                             {
                                 blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost() { BlogPostId = id });
                                 await _blogService.UpdateBlogCategory(blogCategory);

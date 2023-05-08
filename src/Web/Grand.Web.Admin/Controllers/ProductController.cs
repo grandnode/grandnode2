@@ -1711,7 +1711,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            if (product.ProductPrices.Where(x => x.CurrencyCode == model.CurrencyCode).Any())
+            if (product.ProductPrices.Any(x => x.CurrencyCode == model.CurrencyCode))
                 ModelState.AddModelError("", "Currency code exists");
 
             if (ModelState.IsValid)
@@ -1745,7 +1745,7 @@ namespace Grand.Web.Admin.Controllers
             if (productPrice == null)
                 ModelState.AddModelError("", "Product price model not exists");
 
-            if (product.ProductPrices.Where(x => x.Id != model.Id && x.CurrencyCode == model.CurrencyCode).Any())
+            if (product.ProductPrices.Any(x => x.Id != model.Id && x.CurrencyCode == model.CurrencyCode))
                 ModelState.AddModelError("", "You can't use this currency code");
 
             if (ModelState.IsValid)
@@ -2773,7 +2773,7 @@ namespace Grand.Web.Admin.Controllers
                         var insert = true;
                         if (((IntervalUnit)model.IntervalUnit) == IntervalUnit.Day)
                         {
-                            if (reservations.Where(x => x.Resource == model.Resource && x.Date == iterator).Any())
+                            if (reservations.Any(x => x.Resource == model.Resource && x.Date == iterator))
                                 insert = false;
                         }
                         if (insert)
