@@ -119,7 +119,7 @@
                                         <select name="warehouse_@(item.OrderItemId)" id="warehouse_@(item.OrderItemId)">
                                             @foreach (var warehouse in item.AvailableWarehouses)
                                             {
-                                                var selected = warehouse.WarehouseId == item.WarehouseId ? true : false;
+                                                var selected = warehouse.WarehouseId == item.WarehouseId;
                                                 <option value="@(warehouse.WarehouseId)" data-stock-qty="@(warehouse.StockQuantity)"
                                                         data-reserved-qty="@(warehouse.ReservedQuantity)"
                                                         selected="@selected">
