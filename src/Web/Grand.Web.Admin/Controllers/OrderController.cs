@@ -1077,9 +1077,6 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
-            if (order == null)
-                return RedirectToAction("List");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");

@@ -46,7 +46,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> SaveTypes(IFormCollection form)
         {
             string formKey = "checkbox_activity_types";
-            var checkedActivityTypes = form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x).ToList() : new List<string>();
+            var checkedActivityTypes = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x).ToList();
 
             await _activityLogViewModelService.SaveTypes(checkedActivityTypes);
 

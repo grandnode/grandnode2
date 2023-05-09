@@ -634,7 +634,7 @@ namespace Grand.Web.Admin.Services
             if (!isInGuestsGroup && !isInRegisteredGroup)
                 return "Add the customer to 'Guests' or 'Registered' customer group";
 
-            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && ((isInGuestsGroup && !isInRegisteredGroup) || customerGroups.Count != 1))
+            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && ((isInGuestsGroup) || customerGroups.Count != 1))
                 return "Sales manager can assign role 'Registered' only";
 
             if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && isAdminGroup)

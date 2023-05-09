@@ -398,7 +398,7 @@ namespace Grand.Web.Admin.Services
             model.IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer);
 
             //order's tags
-            if (order != null && order.OrderTags.Any())
+            if (order.OrderTags.Any())
             {
                 var tagsName = new List<string>();
                 foreach (var item in order.OrderTags)

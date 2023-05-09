@@ -92,7 +92,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var cr in customerGroups)
             {
                 string formKey = "allow_" + cr.Id;
-                var permissionRecordSystemNamesToRestrict = form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>();
+                var permissionRecordSystemNamesToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 foreach (var pr in permissionRecords)
                 {
 

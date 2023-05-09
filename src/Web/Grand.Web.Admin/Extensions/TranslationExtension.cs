@@ -83,7 +83,7 @@ namespace Grand.Web.Admin.Extensions
                             else
                             {
                                 var itemvalue = prop.GetValue(item) ?? "";
-                                if (itemvalue != null && !string.IsNullOrEmpty(itemvalue.ToString()))
+                                if (!string.IsNullOrEmpty(itemvalue.ToString()))
                                 {
                                     var seName = await entity.ValidateSeName(itemvalue.ToString(), "", false, _seoSettings, _slugService, _languageService);
                                     prop.SetValue(item, seName);

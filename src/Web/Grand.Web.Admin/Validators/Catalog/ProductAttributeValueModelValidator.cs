@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Validators.Catalog
                 {
                     var product = await productService.GetProductById(x.ProductId);
                     if (product != null)
-                        if (product != null && product.VendorId != workContext.CurrentVendor.Id)
+                        if (product.VendorId != workContext.CurrentVendor.Id)
                             return false;
 
                     return true;

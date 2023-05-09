@@ -724,11 +724,9 @@ namespace Grand.Web.Admin.Controllers
             foreach (var shippingMethod in shippingMethods)
             {
                 string formKey = "restrict_" + shippingMethod.Id;
-                var countryIdsToRestrict = form[formKey].ToString() != null
-                    ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
-                    .ToList()
-                    : new List<string>();
+                    .ToList();
 
                 foreach (var country in countries)
                 {
@@ -753,11 +751,9 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 formKey = "restrictgroup_" + shippingMethod.Id;
-                var roleIdsToRestrict = form[formKey].ToString() != null
-                    ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                var roleIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
-                    .ToList()
-                    : new List<string>();
+                    .ToList();
 
 
                 foreach (var role in customerGroups)

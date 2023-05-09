@@ -95,7 +95,7 @@ namespace Grand.Web.Admin.Controllers
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
-                if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
+                if (product.VendorId != _workContext.CurrentVendor.Id)
                 {
                     return (false, "This is not your product");
                 }

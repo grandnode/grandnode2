@@ -129,7 +129,7 @@ namespace Grand.Web.Admin.Services
             if (!excludeProperties)
             {
                 var addr = new AddressModel();
-                model.PickupAddress = await PrepareAddressModel(addr, merchandiseReturn.PickupAddress, excludeProperties);
+                model.PickupAddress = await PrepareAddressModel(addr, merchandiseReturn.PickupAddress, false);
                 model.CustomerComments = merchandiseReturn.CustomerComments;
                 model.ExternalId = merchandiseReturn.ExternalId;
                 model.StaffNotes = merchandiseReturn.StaffNotes;

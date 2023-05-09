@@ -196,7 +196,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var pm in paymentMethods)
             {
                 string formKey = "restrict_" + pm.SystemName;
-                var countryIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
+                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     .Select(x => x).ToList();
 
                 var newCountryIds = new List<string>();
@@ -210,7 +210,7 @@ namespace Grand.Web.Admin.Controllers
                 await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
 
                 formKey = "restrictship_" + pm.SystemName;
-                var shipIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
+                var shipIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     .Select(x => x).ToList();
 
                 var newShipIds = new List<string>();

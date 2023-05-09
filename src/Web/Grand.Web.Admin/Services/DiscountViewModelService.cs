@@ -87,17 +87,22 @@ namespace Grand.Web.Admin.Services
         public virtual DiscountListModel PrepareDiscountListModel()
         {
             var model = new DiscountListModel {
-                AvailableDiscountTypes = DiscountType.AssignedToOrderTotal.ToSelectList(_translationService, _workContext, false).ToList()
+                AvailableDiscountTypes = DiscountType.AssignedToOrderTotal
+                    .ToSelectList(_translationService, _workContext, false).ToList()
             };
-            model.AvailableDiscountTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+            model.AvailableDiscountTypes.Insert(0,
+                new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             return model;
         }
-        public virtual async Task<(IEnumerable<DiscountModel> discountModel, int totalCount)> PrepareDiscountModel(DiscountListModel model, int pageIndex, int pageSize)
+
+        public virtual async Task<(IEnumerable<DiscountModel> discountModel, int totalCount)> PrepareDiscountModel(
+            DiscountListModel model, int pageIndex, int pageSize)
         {
             DiscountType? discountType = null;
             if (model.SearchDiscountTypeId > 0)
                 discountType = (DiscountType)model.SearchDiscountTypeId;
-            var discounts = await _discountService.GetAllDiscounts(discountType, _workContext.CurrentCustomer.StaffStoreId,
+            var discounts = await _discountService.GetAllDiscounts(discountType,
+                _workContext.CurrentCustomer.StaffStoreId,
                 null,
                 model.SearchDiscountCouponCode,
                 model.SearchDiscountName,
@@ -107,9 +112,12 @@ namespace Grand.Web.Admin.Services
             {
                 var discountModel = x.ToModel(_dateTimeService);
                 discountModel.DiscountTypeName = x.DiscountTypeId.GetTranslationEnum(_translationService, _workContext);
-                discountModel.TimesUsed = (await _discountService.GetAllDiscountUsageHistory(x.Id, pageSize: 1)).TotalCount;
+                discountModel.TimesUsed =
+                    (await _discountService.GetAllDiscountUsageHistory(x.Id, pageSize: 1)).TotalCount;
                 items.Add(discountModel);
-            };
+            }
+
+            ;
             return (items, discounts.Count);
         }
 
@@ -118,20 +126,27 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            model.AvailableDiscountRequirementRules.Add(new SelectListItem { Text = _translationService.GetResource("admin.marketing.discounts.Requirements.DiscountRequirementType.Select"), Value = "" });
+            model.AvailableDiscountRequirementRules.Add(new SelectListItem {
+                Text = _translationService.GetResource(
+                    "admin.marketing.discounts.Requirements.DiscountRequirementType.Select"),
+                Value = ""
+            });
             var discountPlugins = _discountService.LoadAllDiscountProviders();
             foreach (var discountPlugin in discountPlugins)
-                foreach (var discountRule in discountPlugin.GetRequirementRules())
-                    model.AvailableDiscountRequirementRules.Add(new SelectListItem { Text = discountRule.FriendlyName, Value = discountRule.SystemName });
+            foreach (var discountRule in discountPlugin.GetRequirementRules())
+                model.AvailableDiscountRequirementRules.Add(new SelectListItem
+                    { Text = discountRule.FriendlyName, Value = discountRule.SystemName });
             var currencies = await _currencyService.GetAllCurrencies();
             foreach (var item in currencies)
             {
                 model.AvailableCurrencies.Add(new SelectListItem() { Text = item.Name, Value = item.CurrencyCode });
             }
+
             //discount amount providers
             foreach (var item in _discountService.LoadDiscountAmountProviders())
             {
-                model.AvailableDiscountAmountProviders.Add(new SelectListItem() { Value = item.SystemName, Text = item.FriendlyName });
+                model.AvailableDiscountAmountProviders.Add(new SelectListItem()
+                    { Value = item.SystemName, Text = item.FriendlyName });
             }
 
             if (discount != null)
@@ -139,23 +154,23 @@ namespace Grand.Web.Admin.Services
                 //requirements
                 foreach (var dr in discount.DiscountRules.OrderBy(dr => dr.Id))
                 {
-                    var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
-                    var discountRequirement = discountPlugin.GetRequirementRules().Single(x => x.SystemName == dr.DiscountRequirementRuleSystemName);
+                    var discountPlugin =
+                        _discountService.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
+                    var discountRequirement = discountPlugin.GetRequirementRules()
+                        .Single(x => x.SystemName == dr.DiscountRequirementRuleSystemName);
                     {
-                        if (discountPlugin != null)
-                        {
-                            model.DiscountRequirementMetaInfos.Add(new DiscountModel.DiscountRequirementMetaInfo {
-                                DiscountRequirementId = dr.Id,
-                                RuleName = discountRequirement.FriendlyName,
-                                ConfigurationUrl = GetRequirementUrlInternal(discountRequirement, discount, dr.Id)
-                            });
-                        }
+                        model.DiscountRequirementMetaInfos.Add(new DiscountModel.DiscountRequirementMetaInfo {
+                            DiscountRequirementId = dr.Id,
+                            RuleName = discountRequirement.FriendlyName,
+                            ConfigurationUrl = GetRequirementUrlInternal(discountRequirement, discount, dr.Id)
+                        });
                     }
                 }
             }
             else
                 model.IsEnabled = true;
         }
+
         public virtual async Task<Discount> InsertDiscountModel(DiscountModel model)
         {
             var discount = model.ToEntity(_dateTimeService);
@@ -189,6 +204,7 @@ namespace Grand.Web.Admin.Services
                     category.AppliedDiscounts.Remove(item);
                 }
             }
+
             if (prevDiscountType == DiscountType.AssignedToCollections
                 && discount.DiscountTypeId != DiscountType.AssignedToCollections)
             {
@@ -200,6 +216,7 @@ namespace Grand.Web.Admin.Services
                     collection.AppliedDiscounts.Remove(item);
                 }
             }
+
             if (prevDiscountType == DiscountType.AssignedToSkus
                 && discount.DiscountTypeId != DiscountType.AssignedToSkus)
             {
@@ -219,8 +236,8 @@ namespace Grand.Web.Admin.Services
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditDiscount"), discount.Name);
             return discount;
-
         }
+
         public virtual async Task DeleteDiscount(Discount discount)
         {
             await _discountService.DeleteDiscount(discount);
@@ -229,6 +246,7 @@ namespace Grand.Web.Admin.Services
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteDiscount"), discount.Name);
         }
+
         public virtual async Task InsertCouponCode(string discountId, string couponCode)
         {
             var coupon = new DiscountCoupon {
@@ -237,7 +255,9 @@ namespace Grand.Web.Admin.Services
             };
             await _discountService.InsertDiscountCoupon(coupon);
         }
-        public virtual string GetRequirementUrlInternal(IDiscountRule discountRequirementRule, Discount discount, string discountRequirementId)
+
+        public virtual string GetRequirementUrlInternal(IDiscountRule discountRequirementRule, Discount discount,
+            string discountRequirementId)
         {
             if (discountRequirementRule == null)
                 throw new ArgumentNullException(nameof(discountRequirementRule));
@@ -262,25 +282,33 @@ namespace Grand.Web.Admin.Services
         {
             var model = new DiscountModel.AddProductToDiscountModel();
             //stores
-            model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+            model.AvailableStores.Add(new SelectListItem
+                { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await _storeService.GetAllStores())
                 model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
-            model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+            model.AvailableVendors.Add(new SelectListItem
+                { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
                 model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
-            model.AvailableProductTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+            model.AvailableProductTypes.Insert(0,
+                new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             return model;
         }
-        public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(DiscountModel.AddProductToDiscountModel model, int pageIndex, int pageSize)
+
+        public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
+            DiscountModel.AddProductToDiscountModel model, int pageIndex, int pageSize)
         {
-            var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
+            var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
+                model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
+                model.SearchProductName, pageIndex, pageSize);
             return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
         }
+
         public virtual async Task InsertProductToDiscountModel(DiscountModel.AddProductToDiscountModel model)
         {
             foreach (string id in model.SelectedProductIds)
@@ -296,6 +324,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+
         public virtual async Task DeleteProduct(Discount discount, Product product)
         {
             //remove discount
@@ -305,6 +334,7 @@ namespace Grand.Web.Admin.Services
                 await _productService.DeleteDiscount(discount.Id, product.Id);
             }
         }
+
         public virtual async Task DeleteCategory(Discount discount, Category category)
         {
             //remove discount
@@ -313,6 +343,7 @@ namespace Grand.Web.Admin.Services
 
             await _categoryService.UpdateCategory(category);
         }
+
         public virtual async Task InsertCategoryToDiscountModel(DiscountModel.AddCategoryToDiscountModel model)
         {
             foreach (string id in model.SelectedCategoryIds)
@@ -327,6 +358,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+
         public virtual async Task DeleteCollection(Discount discount, Collection collection)
         {
             //remove discount
@@ -335,6 +367,7 @@ namespace Grand.Web.Admin.Services
 
             await _collectionService.UpdateCollection(collection);
         }
+
         public virtual async Task InsertBrandToDiscountModel(DiscountModel.AddBrandToDiscountModel model)
         {
             foreach (string id in model.SelectedBrandIds)
@@ -349,6 +382,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+
         public virtual async Task DeleteBrand(Discount discount, Brand brand)
         {
             //remove discount
@@ -357,6 +391,7 @@ namespace Grand.Web.Admin.Services
 
             await _brandService.UpdateBrand(brand);
         }
+
         public virtual async Task InsertCollectionToDiscountModel(DiscountModel.AddCollectionToDiscountModel model)
         {
             foreach (string id in model.SelectedCollectionIds)
@@ -371,6 +406,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+
         public virtual async Task DeleteVendor(Discount discount, Vendor vendor)
         {
             //remove discount
@@ -379,6 +415,7 @@ namespace Grand.Web.Admin.Services
 
             await _vendorService.UpdateVendor(vendor);
         }
+
         public virtual async Task InsertVendorToDiscountModel(DiscountModel.AddVendorToDiscountModel model)
         {
             foreach (string id in model.SelectedVendorIds)
@@ -394,9 +431,12 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task<(IEnumerable<DiscountModel.DiscountUsageHistoryModel> usageHistoryModels, int totalCount)> PrepareDiscountUsageHistoryModel(Discount discount, int pageIndex, int pageSize)
+        public virtual async
+            Task<(IEnumerable<DiscountModel.DiscountUsageHistoryModel> usageHistoryModels, int totalCount)>
+            PrepareDiscountUsageHistoryModel(Discount discount, int pageIndex, int pageSize)
         {
-            var duh = await _discountService.GetAllDiscountUsageHistory(discount.Id, null, null, null, pageIndex - 1, pageSize);
+            var duh = await _discountService.GetAllDiscountUsageHistory(discount.Id, null, null, null, pageIndex - 1,
+                pageSize);
             var items = new List<DiscountModel.DiscountUsageHistoryModel>();
 
             foreach (var x in duh)
@@ -412,8 +452,8 @@ namespace Grand.Web.Admin.Services
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 items.Add(duhModel);
-
             }
+
             return (items, duh.TotalCount);
         }
     }
