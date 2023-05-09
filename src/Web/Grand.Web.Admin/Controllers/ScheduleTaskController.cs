@@ -147,7 +147,7 @@ namespace Grand.Web.Admin.Controllers
                 else
                 {
 
-                    Error($"Task {typeofTask.Name} has not been registered");
+                    Error($"Task {typeofTask?.Name} has not been registered");
                 }
             }
             catch (Exception exc)

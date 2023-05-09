@@ -1752,7 +1752,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    productPrice.CurrencyCode = model.CurrencyCode;
+                    productPrice!.CurrencyCode = model.CurrencyCode;
                     productPrice.Price = model.Price;
                     productPrice.ProductId = productId;
 
@@ -1782,7 +1782,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                productPrice.ProductId = productId;
+                productPrice!.ProductId = productId;
                 await _productService.DeleteProductPrice(productPrice);
 
                 return new JsonResult("");
@@ -2249,13 +2249,13 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId).ProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
+            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId)?.ProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (pav == null)
                 //No attribute value found with the specified id
                 return RedirectToAction("List", "Product");
 
             var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
-            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ColorSquares)
+            if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
                 if (string.IsNullOrEmpty(model.ColorSquaresRgb))
@@ -2263,7 +2263,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //ensure a picture is uploaded
-            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(model.ImageSquaresPictureId))
+            if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(model.ImageSquaresPictureId))
             {
                 ModelState.AddModelError("", "Image is required");
             }
@@ -2281,13 +2281,13 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeValueDelete(string Id, string pam, string productId, [FromServices] IProductAttributeService productAttributeService)
+        public async Task<IActionResult> ProductAttributeValueDelete(string id, string pam, string productId, [FromServices] IProductAttributeService productAttributeService)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == pam).ProductAttributeValues.FirstOrDefault(x => x.Id == Id);
+            var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == pam)?.ProductAttributeValues.FirstOrDefault(x => x.Id == id);
             if (pav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
 

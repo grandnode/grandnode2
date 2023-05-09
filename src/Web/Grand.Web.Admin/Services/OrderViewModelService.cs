@@ -919,7 +919,7 @@ namespace Grand.Web.Admin.Services
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == address.CountryId) });
             //states
             var states = !string.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == address.StateProvinceId) });

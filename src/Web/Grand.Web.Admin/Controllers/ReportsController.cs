@@ -282,7 +282,7 @@ namespace Grand.Web.Admin.Controllers
                     m.ProductName = product.Name;
                 if (_workContext.CurrentVendor != null)
                 {
-                    if (product.VendorId == _workContext.CurrentVendor.Id)
+                    if (product?.VendorId == _workContext.CurrentVendor.Id)
                         result.Add(m);
                 }
                 else
