@@ -247,7 +247,8 @@ namespace Grand.Web.Admin.Services
 
             var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 
-            string url = string.Format("{0}/{1}", storeLocation, discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId));
+            string url =
+                $"{storeLocation}/{discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId)}";
             return url;
         }
 

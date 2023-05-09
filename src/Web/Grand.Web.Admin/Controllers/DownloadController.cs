@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
             string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
             string contentType = !string.IsNullOrWhiteSpace(download.ContentType)

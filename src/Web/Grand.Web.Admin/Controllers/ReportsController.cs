@@ -445,7 +445,7 @@ namespace Grand.Web.Admin.Controllers
                     PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
                     ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
                     CustomerEmail = x.BillingAddress.Email,
-                    CustomerFullName = string.Format("{0} {1}", x.BillingAddress.FirstName, x.BillingAddress.LastName),
+                    CustomerFullName = $"{x.BillingAddress.FirstName} {x.BillingAddress.LastName}",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }

@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Services
             }
             _fullPathToThumbs = thumbs.PhysicalPath;
 
-            _urlThumb = $"{_linkGenerator.GetPathByAction(_httpContextAccessor.HttpContext, "Thumb", "ElFinder", new { area = "Admin" })}/";
+            _urlThumb = $"{_linkGenerator.GetPathByAction(_httpContextAccessor.HttpContext!, "Thumb", "ElFinder", new { area = "Admin" })}/";
         }
 
         protected virtual bool NotAllowedExtensions(string extensions)

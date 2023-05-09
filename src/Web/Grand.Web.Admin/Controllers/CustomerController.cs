@@ -113,7 +113,7 @@ namespace Grand.Web.Admin.Controllers
             var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
             foreach (var attribute in customerAttributes)
             {
-                string controlId = string.Format("customer_attribute_{0}", attribute.Id);
+                string controlId = $"customer_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:

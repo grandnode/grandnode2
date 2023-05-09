@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Extensions
             var attributes = await addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
             {
-                string controlId = string.Format("address_attribute_{0}", attribute.Id);
+                string controlId = $"address_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:

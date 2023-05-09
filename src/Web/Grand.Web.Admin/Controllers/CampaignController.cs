@@ -109,7 +109,8 @@ namespace Grand.Web.Admin.Controllers
                     sb.Append(subscription);
                     sb.Append(Environment.NewLine);  //new line
                 }
-                var fileName = string.Format("newsletter_emails_campaign_{0}_{1}.txt", campaign.Name, CommonHelper.GenerateRandomDigitCode(4));
+                var fileName =
+                    $"newsletter_emails_campaign_{campaign.Name}_{CommonHelper.GenerateRandomDigitCode(4)}.txt";
                 return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", fileName);
             }
             catch (Exception exc)

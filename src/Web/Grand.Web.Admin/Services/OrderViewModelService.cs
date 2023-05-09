@@ -333,7 +333,7 @@ namespace Grand.Web.Admin.Services
                     ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
                     CustomerEmail = x.BillingAddress?.Email,
                     CustomerId = x.CustomerId,
-                    CustomerFullName = string.Format("{0} {1}", x.BillingAddress?.FirstName, x.BillingAddress?.LastName),
+                    CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
@@ -654,7 +654,8 @@ namespace Grand.Web.Admin.Services
                         model.ShippingAddress.FaxRequired = _addressSettings.FaxRequired;
                         model.ShippingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-                        model.ShippingAddressGoogleMapsUrl = string.Format("http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={0}", WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : "")));
+                        model.ShippingAddressGoogleMapsUrl =
+                            $"http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : ""))}";
                     }
                 }
                 else
@@ -1039,7 +1040,7 @@ namespace Grand.Web.Admin.Services
             var attributes = product.ProductAttributeMappings;
             foreach (var attribute in attributes)
             {
-                string controlId = string.Format("product_attribute_{0}", attribute.Id);
+                string controlId = $"product_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:

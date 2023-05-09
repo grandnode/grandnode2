@@ -1902,9 +1902,8 @@ namespace Grand.Web.Admin.Services
                 {
                     var productAttribute = await _productAttributeService.GetProductAttributeById(conditionAttribute.ProductAttributeId);
                     var _paname = productAttribute != null ? productAttribute.Name : "";
-                    attributeModel.ConditionString = string.Format("{0}: {1}",
-                        System.Net.WebUtility.HtmlEncode(_paname),
-                        System.Net.WebUtility.HtmlEncode(conditionValue.Name));
+                    attributeModel.ConditionString =
+                        $"{System.Net.WebUtility.HtmlEncode(_paname)}: {System.Net.WebUtility.HtmlEncode(conditionValue.Name)}";
                 }
                 else
                     attributeModel.ConditionString = string.Empty;
@@ -2071,7 +2070,7 @@ namespace Grand.Web.Admin.Services
                 var attribute = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.SelectedProductAttributeId);
                 if (attribute != null)
                 {
-                    var controlId = string.Format("product_attribute_{0}", attribute.Id);
+                    var controlId = $"product_attribute_{attribute.Id}";
                     switch (attribute.AttributeControlTypeId)
                     {
                         case AttributeControlType.DropdownList:
@@ -2186,7 +2185,7 @@ namespace Grand.Web.Admin.Services
                     AttributeValueTypeName = x.AttributeValueTypeId.GetTranslationEnum(_translationService, _workContext),
                     AssociatedProductId = x.AssociatedProductId,
                     AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "",
-                    Name = productAttributeMapping.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : string.Format("{0} - {1}", x.Name, x.ColorSquaresRgb),
+                    Name = productAttributeMapping.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                     ColorSquaresRgb = x.ColorSquaresRgb,
                     ImageSquaresPictureId = x.ImageSquaresPictureId,
                     PriceAdjustment = x.PriceAdjustment,
@@ -2405,7 +2404,7 @@ namespace Grand.Web.Admin.Services
                 }
                 foreach (var attribute in attributes)
                 {
-                    var controlId = string.Format("product_attribute_{0}", attribute.Id);
+                    var controlId = $"product_attribute_{attribute.Id}";
                     switch (attribute.AttributeControlTypeId)
                     {
                         case AttributeControlType.DropdownList:

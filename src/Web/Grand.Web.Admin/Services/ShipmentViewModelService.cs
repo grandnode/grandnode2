@@ -97,7 +97,7 @@ namespace Grand.Web.Admin.Services
                 OrderNumber = order != null ? order.OrderNumber : 0,
                 OrderCode = order != null ? order.Code : "",
                 TrackingNumber = shipment.TrackingNumber,
-                TotalWeight = shipment.TotalWeight.HasValue ? string.Format("{0:F2} [{1}]", shipment.TotalWeight, baseWeightIn) : "",
+                TotalWeight = shipment.TotalWeight.HasValue ? $"{shipment.TotalWeight:F2} [{baseWeightIn}]" : "",
                 ShippedDate = shipment.ShippedDateUtc.HasValue ? _dateTimeService.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc) : new DateTime?(),
                 ShippedDateUtc = shipment.ShippedDateUtc,
                 CanShip = !shipment.ShippedDateUtc.HasValue,
@@ -139,8 +139,9 @@ namespace Grand.Web.Admin.Services
                             AttributeInfo = orderItem.AttributeDescription,
                             ShippedFromWarehouse = warehouse != null ? warehouse.Name : null,
                             ShipSeparately = product.ShipSeparately,
-                            ItemWeight = orderItem.ItemWeight.HasValue ? string.Format("{0:F2} [{1}]", orderItem.ItemWeight, baseWeightIn) : "",
-                            ItemDimensions = string.Format("{0:F2} x {1:F2} x {2:F2} [{3}]", product.Length, product.Width, product.Height, baseDimensionIn),
+                            ItemWeight = orderItem.ItemWeight.HasValue ? $"{orderItem.ItemWeight:F2} [{baseWeightIn}]" : "",
+                            ItemDimensions =
+                                $"{product.Length:F2} x {product.Width:F2} x {product.Height:F2} [{baseDimensionIn}]",
                             QuantityOrdered = qtyOrdered,
                             QuantityInThisShipment = qtyInThisShipment,
                             QuantityInAllShipments = qtyInAllShipments,
@@ -378,8 +379,9 @@ namespace Grand.Web.Admin.Services
                     Sku = product.FormatSku(orderItem.Attributes),
                     AttributeInfo = orderItem.AttributeDescription,
                     ShipSeparately = product.ShipSeparately,
-                    ItemWeight = orderItem.ItemWeight.HasValue ? string.Format("{0:F2} [{1}]", orderItem.ItemWeight, baseWeightIn) : "",
-                    ItemDimensions = string.Format("{0:F2} x {1:F2} x {2:F2} [{3}]", product.Length, product.Width, product.Height, baseDimensionIn),
+                    ItemWeight = orderItem.ItemWeight.HasValue ? $"{orderItem.ItemWeight:F2} [{baseWeightIn}]" : "",
+                    ItemDimensions =
+                        $"{product.Length:F2} x {product.Width:F2} x {product.Height:F2} [{baseDimensionIn}]",
                     QuantityOrdered = qtyOrdered,
                     QuantityInThisShipment = qtyInThisShipment,
                     QuantityInAllShipments = qtyInAllShipments,
@@ -552,7 +554,7 @@ namespace Grand.Web.Admin.Services
 
                 int qtyToAdd = 0; //parse quantity
                 foreach (string formKey in form.Keys)
-                    if (formKey.Equals(string.Format("qtyToAdd{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
+                    if (formKey.Equals($"qtyToAdd{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                     {
                         _ = int.TryParse(form[formKey], out qtyToAdd);
                         break;
@@ -566,7 +568,7 @@ namespace Grand.Web.Admin.Services
                     //multiple warehouses supported
                     //warehouse is chosen by a store owner
                     foreach (string formKey in form.Keys)
-                        if (formKey.Equals(string.Format("warehouse_{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
+                        if (formKey.Equals($"warehouse_{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                         {
                             warehouseId = form[formKey];
                             break;
@@ -579,7 +581,7 @@ namespace Grand.Web.Admin.Services
                 }
 
                 foreach (string formKey in form.Keys)
-                    if (formKey.Equals(string.Format("qtyToAdd{0}", orderItem.Id), StringComparison.OrdinalIgnoreCase))
+                    if (formKey.Equals($"qtyToAdd{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                     {
                         _ = int.TryParse(form[formKey], out qtyToAdd);
                         break;

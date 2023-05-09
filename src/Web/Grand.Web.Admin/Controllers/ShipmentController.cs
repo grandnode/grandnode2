@@ -637,7 +637,7 @@ namespace Grand.Web.Admin.Controllers
                 await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
-            return File(bytes, "application/pdf", string.Format("packagingslip_{0}.pdf", shipment.Id));
+            return File(bytes, "application/pdf", $"packagingslip_{shipment.Id}.pdf");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]

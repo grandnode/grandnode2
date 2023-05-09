@@ -479,7 +479,7 @@ namespace Grand.Web.Admin.Controllers
                 await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, vendorId);
                 bytes = stream.ToArray();
             }
-            return File(bytes, "application/pdf", string.Format("order_{0}.pdf", order.Id));
+            return File(bytes, "application/pdf", $"order_{order.Id}.pdf");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]

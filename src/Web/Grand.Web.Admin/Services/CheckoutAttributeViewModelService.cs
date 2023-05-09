@@ -182,7 +182,7 @@ namespace Grand.Web.Admin.Services
             {
                 Id = x.Id,
                 CheckoutAttributeId = x.CheckoutAttributeId,
-                Name = checkoutAttribute.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : string.Format("{0} - {1}", x.Name, x.ColorSquaresRgb),
+                Name = checkoutAttribute.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                 ColorSquaresRgb = x.ColorSquaresRgb,
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,

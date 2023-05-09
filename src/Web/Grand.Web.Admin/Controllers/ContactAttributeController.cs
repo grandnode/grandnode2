@@ -189,7 +189,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     Id = x.Id,
                     ContactAttributeId = x.ContactAttributeId,
-                    Name = contactAttribute.AttributeControlType != AttributeControlType.ColorSquares ? x.Name : string.Format("{0} - {1}", x.Name, x.ColorSquaresRgb),
+                    Name = contactAttribute.AttributeControlType != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                     ColorSquaresRgb = x.ColorSquaresRgb,
                     IsPreSelected = x.IsPreSelected,
                     DisplayOrder = x.DisplayOrder,

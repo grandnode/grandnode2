@@ -1464,7 +1464,7 @@ namespace Grand.Web.Admin.Services
                         StoreName = store != null ? store.Shortcut : "Unknown",
                         ProductId = x.ProductId,
                         ProductName = product != null ? product.Name : "Unknown",
-                        AttributeDescription = x.Attributes != null || !x.Attributes.Any() ? "" : await productAttributeFormatter.FormatAttributes(product, x.Attributes),
+                        AttributeDescription = x.Attributes != null || !x.Attributes!.Any() ? "" : await productAttributeFormatter.FormatAttributes(product, x.Attributes),
                         CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                     };
                     items.Add(m);
