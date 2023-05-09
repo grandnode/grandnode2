@@ -37,7 +37,7 @@
         <div class="form-body">
             @if (Model.UsernamesEnabled)
             {
-                if (String.IsNullOrEmpty(Model.Id) || Model.AllowUsersToChangeUsernames)
+                if (string.IsNullOrEmpty(Model.Id) || Model.AllowUsersToChangeUsernames)
                 {
                     <div class="form-group">
                         <admin-label asp-for="Username" />
@@ -93,7 +93,7 @@
                     <span asp-validation-for="CustomerTags"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
+            @if (!string.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
             {
                 <div class="form-group">
                     <admin-label asp-for="AssociatedExternalAuthRecords" />
@@ -370,7 +370,7 @@
                     <span asp-validation-for="TwoFactorEnabled"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.AffiliateId))
+            @if (!string.IsNullOrEmpty(Model.AffiliateId))
             {
                 <div class="form-group">
                     <admin-label asp-for="AffiliateId" />
@@ -432,7 +432,7 @@
                     <span asp-validation-for="Active"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastIpAddress" />
@@ -441,7 +441,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.UrlReferrer))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.UrlReferrer))
             {
                 <div class="form-group">
                     <admin-label asp-for="UrlReferrer" />
@@ -450,7 +450,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="CreatedOn" />
@@ -459,7 +459,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastActivityDate" />
@@ -468,7 +468,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.LastVisitedPage))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastVisitedPage))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastVisitedPage" />
@@ -477,7 +477,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.LastUrlReferrer))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastUrlReferrer))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastUrlReferrer" />
@@ -486,7 +486,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && Model.LastPurchaseDate.HasValue)
+            @if (!string.IsNullOrEmpty(Model.Id) && Model.LastPurchaseDate.HasValue)
             {
                 <div class="form-group">
                     <admin-label asp-for="LastPurchaseDate" />

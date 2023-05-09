@@ -29,7 +29,7 @@
                 <span asp-validation-for="GiftVoucherTypeId"></span>
             </div>
         </div>
-        @if (!String.IsNullOrEmpty(Model.PurchasedWithOrderId))
+        @if (!string.IsNullOrEmpty(Model.PurchasedWithOrderId))
         {
             <div class="form-group">
                 <admin-label asp-for="PurchasedWithOrderId" />
@@ -42,14 +42,14 @@
             <admin-label asp-for="Amount" />
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Amount" />
-                @if (!String.IsNullOrEmpty(Model.Id))
+                @if (!string.IsNullOrEmpty(Model.Id))
                 {
                     <text>[@Model.CurrencyCode]</text>
                 }
                 <span asp-validation-for="Amount"></span>
             </div>
         </div>
-        @if (String.IsNullOrEmpty(Model.Id))
+        @if (string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
                 <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label" />
@@ -59,7 +59,7 @@
                 </div>
             </div>
         }
-        @if (!String.IsNullOrEmpty(Model.Id))
+        @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
                 <admin-label asp-for="RemainingAmountStr" />
@@ -164,7 +164,7 @@
                 <span asp-validation-for="ValidTo"></span>
             </div>
         </div>
-        @if (!String.IsNullOrEmpty(Model.Id))
+        @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group" id="pnlNotifyRecipient">
                 <admin-label asp-for="IsRecipientNotified" />
@@ -174,7 +174,7 @@
                 </div>
             </div>
         }
-        @if (!String.IsNullOrEmpty(Model.Id))
+        @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
                 <admin-label asp-for="CreatedOn" />

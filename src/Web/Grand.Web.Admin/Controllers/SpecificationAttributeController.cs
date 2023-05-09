@@ -276,7 +276,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
 
             var model = sao.ToModel();
-            model.EnableColorSquaresRgb = !String.IsNullOrEmpty(sao.ColorSquaresRgb);
+            model.EnableColorSquaresRgb = !string.IsNullOrEmpty(sao.ColorSquaresRgb);
             //locales
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
             {

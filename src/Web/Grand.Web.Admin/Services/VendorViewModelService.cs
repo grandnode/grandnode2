@@ -138,7 +138,7 @@ namespace Grand.Web.Admin.Services
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (vendor != null && c.Id == vendor.Address.CountryId) });
 
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -256,7 +256,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(vendor, model.SeName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != vendor.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != vendor.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)

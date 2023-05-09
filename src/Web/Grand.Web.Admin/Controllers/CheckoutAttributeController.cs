@@ -219,7 +219,7 @@ namespace Grand.Web.Admin.Controllers
             if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 
@@ -271,7 +271,7 @@ namespace Grand.Web.Admin.Controllers
             if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 

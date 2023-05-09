@@ -1,12 +1,12 @@
 ﻿@model CustomerTagModel
 @{
-    if (String.IsNullOrEmpty(Model.Id))
+    if (string.IsNullOrEmpty(Model.Id))
     {
         <div class="note note-info">
             @Loc["Admin.Customers.CustomerTags.Products.SaveBeforeEdit"]
         </div>
     }
-    if (!String.IsNullOrEmpty(Model.Id))
+    if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="note note-info">
             @Html.Raw(Loc["Admin.Customers.CustomerTags.Products.Info"])

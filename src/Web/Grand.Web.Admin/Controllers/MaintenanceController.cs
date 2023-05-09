@@ -202,7 +202,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 //language
                 string languageName;
-                if (String.IsNullOrEmpty(x.LanguageId))
+                if (string.IsNullOrEmpty(x.LanguageId))
                 {
                     languageName = _translationService.GetResource("admin.configuration.senames.Language.Standard");
                 }

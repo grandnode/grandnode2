@@ -178,7 +178,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(brand, model.SeName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)

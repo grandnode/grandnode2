@@ -47,10 +47,10 @@
                         <div class="form-group">
                             <admin-label asp-for="CustomerId" />
                             <div class="col-md-9 col-sm-9">
-                                @if (!String.IsNullOrEmpty(Model.CustomerId))
+                                @if (!string.IsNullOrEmpty(Model.CustomerId))
                                 {
                                     <label class="control-label">
-                                        @Html.ActionLink(!String.IsNullOrEmpty(Model.CustomerEmail) ? Model.CustomerEmail : Loc["Admin.Customers.Guest"], "Edit", "Customer", new { id = Model.CustomerId }, new { })
+                                        @Html.ActionLink(!string.IsNullOrEmpty(Model.CustomerEmail) ? Model.CustomerEmail : Loc["Admin.Customers.Guest"], "Edit", "Customer", new { id = Model.CustomerId }, new { })
                                     </label>
                                 }
                             </div>

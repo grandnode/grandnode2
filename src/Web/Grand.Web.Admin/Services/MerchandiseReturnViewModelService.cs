@@ -217,7 +217,7 @@ namespace Grand.Web.Admin.Services
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.CountryId) });
             //states
-            var states = !String.IsNullOrEmpty(model.CountryId) ? (await _countryService.GetCountryById(model.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.CountryId) ? (await _countryService.GetCountryById(model.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -316,7 +316,7 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = merchandiseReturnNote.Id,
                     MerchandiseReturnId = merchandiseReturn.Id,
-                    DownloadId = String.IsNullOrEmpty(merchandiseReturnNote.DownloadId) ? "" : merchandiseReturnNote.DownloadId,
+                    DownloadId = string.IsNullOrEmpty(merchandiseReturnNote.DownloadId) ? "" : merchandiseReturnNote.DownloadId,
                     DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
                     DisplayToCustomer = merchandiseReturnNote.DisplayToCustomer,
                     Note = merchandiseReturnNote.Note,

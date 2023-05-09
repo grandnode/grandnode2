@@ -85,7 +85,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -109,7 +109,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -318,7 +318,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (originAddress != null && c.Id == originAddress.CountryId) });
 
-            var states = originAddress != null && !String.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -411,7 +411,7 @@ namespace Grand.Web.Admin.Controllers
 
             var model = deliveryDate.ToModel();
 
-            if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+            if (string.IsNullOrEmpty(model.ColorSquaresRgb))
             {
                 model.ColorSquaresRgb = "#000000";
             }

@@ -106,7 +106,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var taxProviderettings = _settingService.LoadSetting<TaxProviderSettings>();
 
-            if (String.IsNullOrEmpty(systemName))
+            if (string.IsNullOrEmpty(systemName))
             {
                 return RedirectToAction("Providers");
             }
@@ -161,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (defaultAddress != null && c.Id == defaultAddress.CountryId) });
 
-            var states = defaultAddress != null && !String.IsNullOrEmpty(defaultAddress.CountryId) ? (await _countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = defaultAddress != null && !string.IsNullOrEmpty(defaultAddress.CountryId) ? (await _countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)

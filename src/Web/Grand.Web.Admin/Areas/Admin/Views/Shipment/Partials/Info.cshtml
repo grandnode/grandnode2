@@ -140,13 +140,13 @@
                             <td>
                                 <div style="padding-left: 10px; padding-right: 10px;">
                                     <em><a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = Constants.AreaAdmin })">@item.ProductName</a></em>
-                                    @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                     {
                                         <p>
                                             @Html.Raw(item.AttributeInfo)
                                         </p>
                                     }
-                                    @if (!String.IsNullOrEmpty(item.RentalInfo))
+                                    @if (!string.IsNullOrEmpty(item.RentalInfo))
                                     {
                                         <p>
                                             @Html.Raw(item.RentalInfo)

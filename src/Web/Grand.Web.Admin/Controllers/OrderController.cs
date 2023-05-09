@@ -928,7 +928,7 @@ namespace Grand.Web.Admin.Controllers
 
             var model = new OrderModel.UploadLicenseModel
             {
-                LicenseDownloadId = !String.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "",
+                LicenseDownloadId = !string.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "",
                 OrderId = order.Id,
                 OrderItemId = orderItem.Id
             };

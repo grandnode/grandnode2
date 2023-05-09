@@ -336,7 +336,7 @@
 </div>
 <vc:admin-widget widget-zone="order_details_products_bottom" additional-data="Model" />
 
-@if (!String.IsNullOrEmpty(Model.CheckoutAttributeInfo) && !Model.IsLoggedInAsVendor)
+@if (!string.IsNullOrEmpty(Model.CheckoutAttributeInfo) && !Model.IsLoggedInAsVendor)
 {
     <div class="note note-info">
         @Html.Raw(Model.CheckoutAttributeInfo)

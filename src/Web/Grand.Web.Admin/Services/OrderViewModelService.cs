@@ -654,7 +654,7 @@ namespace Grand.Web.Admin.Services
                         model.ShippingAddress.FaxRequired = _addressSettings.FaxRequired;
                         model.ShippingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-                        model.ShippingAddressGoogleMapsUrl = string.Format("http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={0}", WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!String.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : "")));
+                        model.ShippingAddressGoogleMapsUrl = string.Format("http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={0}", WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : "")));
                     }
                 }
                 else
@@ -917,7 +917,7 @@ namespace Grand.Web.Admin.Services
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == address.CountryId) });
             //states
-            var states = !String.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
@@ -942,7 +942,7 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = orderNote.Id,
                     OrderId = order.Id,
-                    DownloadId = String.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
+                    DownloadId = string.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
                     DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
                     DisplayToCustomer = orderNote.DisplayToCustomer,
                     Note = orderNote.Note,
@@ -1086,7 +1086,7 @@ namespace Grand.Web.Admin.Services
                     case AttributeControlType.MultilineTextbox:
                         {
                             form.TryGetValue(controlId, out var ctrlAttributes);
-                            if (!String.IsNullOrEmpty(ctrlAttributes))
+                            if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 string enteredText = ctrlAttributes.ToString().Trim();
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
@@ -1102,7 +1102,7 @@ namespace Grand.Web.Admin.Services
                             DateTime? selectedDate = null;
                             try
                             {
-                                selectedDate = new DateTime(Int32.Parse(year), Int32.Parse(month), Int32.Parse(day));
+                                selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
                             }
                             catch { }
                             if (selectedDate.HasValue)

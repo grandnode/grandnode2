@@ -550,7 +550,7 @@ namespace Grand.Web.Admin.Controllers
             var result = new List<CountryReportLineModel>();
             foreach (var x in items)
             {
-                var country = await _countryService.GetCountryById(!String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
+                var country = await _countryService.GetCountryById(!string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
                 var m = new CountryReportLineModel {
                     CountryName = country != null ? country.Name : "Unknown",
                     SumOrders = _priceFormatter.FormatPrice(x.SumOrders, false),

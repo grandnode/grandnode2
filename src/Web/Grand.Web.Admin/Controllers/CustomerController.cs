@@ -563,13 +563,13 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                if (String.IsNullOrWhiteSpace(customer.Email))
+                if (string.IsNullOrWhiteSpace(customer.Email))
                     throw new GrandException("Customer email is empty");
                 if (!CommonHelper.IsValidEmail(customer.Email))
                     throw new GrandException("Customer email is not valid");
-                if (String.IsNullOrWhiteSpace(model.SendEmail.Subject))
+                if (string.IsNullOrWhiteSpace(model.SendEmail.Subject))
                     throw new GrandException("Email subject is empty");
-                if (String.IsNullOrWhiteSpace(model.SendEmail.Body))
+                if (string.IsNullOrWhiteSpace(model.SendEmail.Body))
                     throw new GrandException("Email body is empty");
 
                 await _customerViewModelService.SendEmail(customer, model.SendEmail);

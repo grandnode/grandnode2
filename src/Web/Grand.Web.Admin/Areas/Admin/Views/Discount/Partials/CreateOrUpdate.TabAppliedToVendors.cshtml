@@ -1,6 +1,6 @@
 ﻿@model DiscountModel
 @{
-    if (!String.IsNullOrEmpty(Model.Id))
+    if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
             <vc:admin-widget widget-zone="discount_details_applied_to_vendors_top" additional-data="Model" />

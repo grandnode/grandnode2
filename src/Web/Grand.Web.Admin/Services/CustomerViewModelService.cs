@@ -142,11 +142,11 @@ namespace Grand.Web.Admin.Services
         protected virtual string[] ParseCustomerTags(string customerTags)
         {
             var result = new List<string>();
-            if (!String.IsNullOrWhiteSpace(customerTags))
+            if (!string.IsNullOrWhiteSpace(customerTags))
             {
                 string[] values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string val1 in values)
-                    if (!String.IsNullOrEmpty(val1.Trim()))
+                    if (!string.IsNullOrEmpty(val1.Trim()))
                         result.Add(val1.Trim());
             }
             return result.ToArray();
@@ -474,7 +474,7 @@ namespace Grand.Web.Admin.Services
 
                     model.CustomerGroups = customer.Groups.ToArray();
                     //newsletter subscriptions
-                    if (!String.IsNullOrEmpty(customer.Email))
+                    if (!string.IsNullOrEmpty(customer.Email))
                     {
                         var newsletterSubscriptionStoreIds = new List<string>();
                         foreach (var store in allStores)
@@ -753,7 +753,7 @@ namespace Grand.Web.Admin.Services
 
             //ensure that a customer with a vendor associated is not in "Administrators" role
             //otherwise, he won't be have access to the other functionality in admin area
-            if (await _groupService.IsAdmin(customer) && !String.IsNullOrEmpty(customer.VendorId))
+            if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.VendorId))
             {
                 customer.VendorId = "";
                 await _customerService.UpdateCustomerField(customer.Id, x => x.VendorId, customer.VendorId);
@@ -853,7 +853,7 @@ namespace Grand.Web.Admin.Services
 
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
                 //set VAT number status
-                if (!String.IsNullOrEmpty(model.VatNumber))
+                if (!string.IsNullOrEmpty(model.VatNumber))
                 {
                     if (!model.VatNumber.Equals(prevVatNumber, StringComparison.OrdinalIgnoreCase))
                     {
@@ -1112,19 +1112,19 @@ namespace Grand.Web.Admin.Services
             {
                 var model = await x.ToModel(_countryService);
                 var addressHtmlSb = new StringBuilder("<div>");
-                if (_addressSettings.CompanyEnabled && !String.IsNullOrEmpty(model.Company))
+                if (_addressSettings.CompanyEnabled && !string.IsNullOrEmpty(model.Company))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Company));
-                if (_addressSettings.StreetAddressEnabled && !String.IsNullOrEmpty(model.Address1))
+                if (_addressSettings.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address1));
-                if (_addressSettings.StreetAddress2Enabled && !String.IsNullOrEmpty(model.Address2))
+                if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address2));
-                if (_addressSettings.CityEnabled && !String.IsNullOrEmpty(model.City))
+                if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(model.City))
                     addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.City));
-                if (_addressSettings.StateProvinceEnabled && !String.IsNullOrEmpty(model.StateProvinceName))
+                if (_addressSettings.StateProvinceEnabled && !string.IsNullOrEmpty(model.StateProvinceName))
                     addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.StateProvinceName));
-                if (_addressSettings.ZipPostalCodeEnabled && !String.IsNullOrEmpty(model.ZipPostalCode))
+                if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(model.ZipPostalCode))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.ZipPostalCode));
-                if (_addressSettings.CountryEnabled && !String.IsNullOrEmpty(model.CountryName))
+                if (_addressSettings.CountryEnabled && !string.IsNullOrEmpty(model.CountryName))
                     addressHtmlSb.AppendFormat("{0}", WebUtility.HtmlEncode(model.CountryName));
                 var customAttributesFormatted = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, x.Attributes);
                 if (!string.IsNullOrEmpty(customAttributesFormatted))
@@ -1204,7 +1204,7 @@ namespace Grand.Web.Admin.Services
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)

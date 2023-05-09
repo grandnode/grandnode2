@@ -137,7 +137,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //home page
-            if (String.IsNullOrEmpty(returnUrl))
+            if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
             //prevent open redirection attack
             if (!Url.IsLocalUrl(returnUrl))
@@ -175,7 +175,7 @@ namespace Grand.Web.Admin.Controllers
             string countryId, bool? addSelectStateItem, bool? addAsterisk)
         {
             // This action method gets called via an ajax request
-            if (String.IsNullOrEmpty(countryId))
+            if (string.IsNullOrEmpty(countryId))
                 return Json(new List<dynamic>() { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
 
             var country = await countryService.GetCountryById(countryId);

@@ -90,7 +90,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(newsItem, seName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != newsItem.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != newsItem.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -104,7 +104,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<NewsCommentModel> newsCommentModels, int totalCount)> PrepareNewsCommentModel(string filterByNewsItemId, int pageIndex, int pageSize)
         {
             IList<NewsComment> comments;
-            if (!String.IsNullOrEmpty(filterByNewsItemId))
+            if (!string.IsNullOrEmpty(filterByNewsItemId))
             {
                 //filter comments by news item
                 var newsItem = await _newsService.GetNewsById(filterByNewsItemId);

@@ -140,7 +140,7 @@
                                                 @foreach (var assembly in Model.LoadedAssemblies)
                                                 {
                                                     @assembly.FullName
-                                                    if (!String.IsNullOrEmpty(assembly.Location))
+                                                    if (!string.IsNullOrEmpty(assembly.Location))
                                                     {
                                                         <br/>
                                                         <em>@assembly.Location</em>

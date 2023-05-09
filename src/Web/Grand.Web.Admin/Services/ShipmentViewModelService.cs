@@ -241,7 +241,7 @@ namespace Grand.Web.Admin.Services
                 shipmentNoteModels.Add(new ShipmentModel.ShipmentNote {
                     Id = shipmentNote.Id,
                     ShipmentId = shipment.Id,
-                    DownloadId = String.IsNullOrEmpty(shipmentNote.DownloadId) ? "" : shipmentNote.DownloadId,
+                    DownloadId = string.IsNullOrEmpty(shipmentNote.DownloadId) ? "" : shipmentNote.DownloadId,
                     DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
                     DisplayToCustomer = shipmentNote.DisplayToCustomer,
                     Note = shipmentNote.Note,

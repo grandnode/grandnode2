@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Extensions
             string searchProductName, int pageIndex, int pageSize)
         {
             var searchCategoryIds = new List<string>();
-            if (!String.IsNullOrEmpty(searchCategoryId))
+            if (!string.IsNullOrEmpty(searchCategoryId))
                 searchCategoryIds.Add(searchCategoryId);
 
             var products = (await productService.SearchProducts(

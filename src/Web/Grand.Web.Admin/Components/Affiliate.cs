@@ -33,7 +33,7 @@ namespace Grand.Web.Admin.Components
             if (!await _permissionService.Authorize(StandardPermission.ManageAffiliates))
                 return Content("");
 
-            if (String.IsNullOrEmpty(affiliateId))
+            if (string.IsNullOrEmpty(affiliateId))
                 throw new Exception("Affliate ID cannot be empty");
 
             var model = new AffiliatedOrderListModel();

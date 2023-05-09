@@ -149,7 +149,7 @@ namespace Grand.Web.Admin.Controllers
 
 
             //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
@@ -168,7 +168,7 @@ namespace Grand.Web.Admin.Controllers
 
             var model = messageTemplate.ToModel();
             model.SendImmediately = !model.DelayBeforeSend.HasValue;
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
@@ -182,7 +182,7 @@ namespace Grand.Web.Admin.Controllers
                 locale.Body = messageTemplate.GetTranslation(x => x.Body, languageId, false);
 
                 var emailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
-                locale.EmailAccountId = !String.IsNullOrEmpty(emailAccountId) ? emailAccountId : _emailAccountSettings.DefaultEmailAccountId;
+                locale.EmailAccountId = !string.IsNullOrEmpty(emailAccountId) ? emailAccountId : _emailAccountSettings.DefaultEmailAccountId;
             });
 
             return View(model);
@@ -231,7 +231,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())

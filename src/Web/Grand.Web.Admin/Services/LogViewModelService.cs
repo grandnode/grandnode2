@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Services
                 FullMessage = log.FullMessage,
                 IpAddress = log.IpAddress,
                 CustomerId = log.CustomerId,
-                CustomerEmail = !String.IsNullOrEmpty(log.CustomerId) ? (await _serviceProvider.GetRequiredService<ICustomerService>().GetCustomerById(log.CustomerId))?.Email : "",
+                CustomerEmail = !string.IsNullOrEmpty(log.CustomerId) ? (await _serviceProvider.GetRequiredService<ICustomerService>().GetCustomerById(log.CustomerId))?.Email : "",
                 PageUrl = log.PageUrl,
                 ReferrerUrl = log.ReferrerUrl,
                 CreatedOn = _dateTimeService.ConvertToUserTime(log.CreatedOnUtc, DateTimeKind.Utc)

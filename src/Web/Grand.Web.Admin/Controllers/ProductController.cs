@@ -376,7 +376,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var result = "";
 
-            if (!String.IsNullOrWhiteSpace(productIds))
+            if (!string.IsNullOrWhiteSpace(productIds))
             {
                 var ids = new List<string>();
                 var rangeArray = productIds
@@ -2263,7 +2263,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //ensure a picture is uploaded
-            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares && String.IsNullOrEmpty(model.ImageSquaresPictureId))
+            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(model.ImageSquaresPictureId))
             {
                 ModelState.AddModelError("", "Image is required");
             }

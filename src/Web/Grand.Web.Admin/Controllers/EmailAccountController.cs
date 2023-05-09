@@ -133,7 +133,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             try
             {
-                if (String.IsNullOrWhiteSpace(model.SendTestEmailTo))
+                if (string.IsNullOrWhiteSpace(model.SendTestEmailTo))
                     throw new GrandException("Enter test email address");
                 if (ModelState.IsValid)
                 {

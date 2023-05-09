@@ -3,7 +3,7 @@
 @inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model" />
 <div class="panel panel-default">
-    @if (String.IsNullOrEmpty(Model.Id))
+    @if (string.IsNullOrEmpty(Model.Id))
     {
         <div class="note note-info">
             @Loc["Admin.Configuration.Languages.Resources.SaveBeforeEdit"]
@@ -38,7 +38,7 @@
     </div>
 </div>
 <vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model" />
-@if (!String.IsNullOrEmpty(Model.Id))
+@if (!string.IsNullOrEmpty(Model.Id))
 {
     <script>
             @{
