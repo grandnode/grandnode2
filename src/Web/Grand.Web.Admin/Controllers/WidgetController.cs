@@ -5,6 +5,7 @@ using Grand.Domain.Cms;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Cms;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;

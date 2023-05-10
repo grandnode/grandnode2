@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Courses;
 
-namespace Grand.Web.Admin.Validators.Courses
+namespace Grand.Web.Admin.Validators.Course
 {
     public class CourseSubjectValidator : BaseGrandValidator<CourseSubjectModel>
     {

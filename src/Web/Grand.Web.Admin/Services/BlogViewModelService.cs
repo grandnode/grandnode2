@@ -14,6 +14,7 @@ using Grand.Domain.Seo;
 using Grand.Web.Common.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Blogs;
 using Grand.Web.Admin.Models.Catalog;

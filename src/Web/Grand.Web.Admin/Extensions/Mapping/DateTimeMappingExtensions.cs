@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class DateTimeMappingExtensions
     {

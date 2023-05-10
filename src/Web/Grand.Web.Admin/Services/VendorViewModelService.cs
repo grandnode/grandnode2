@@ -14,6 +14,7 @@ using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;

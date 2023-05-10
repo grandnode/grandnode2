@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Directory;
+﻿using Grand.Domain.Directory;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Directory;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class MeasureWeightMappingExtensions
     {

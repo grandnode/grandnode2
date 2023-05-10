@@ -8,6 +8,7 @@ using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Common.DataSource;

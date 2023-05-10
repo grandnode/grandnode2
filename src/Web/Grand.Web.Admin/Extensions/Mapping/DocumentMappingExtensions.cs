@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Documents;
+﻿using Grand.Domain.Documents;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Documents;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class DocumentMappingExtensions
     {

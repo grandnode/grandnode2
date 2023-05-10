@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Web.Admin.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
 
 namespace Grand.Web.Admin.Controllers
 {

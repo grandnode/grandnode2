@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Vendors;
+﻿using Grand.Domain.Vendors;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Vendors;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class VendorMappingExtensions
     {

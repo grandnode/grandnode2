@@ -12,6 +12,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Layouts;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Web.Admin.Extensions.Mapping.Layouts;
 
 namespace Grand.Web.Admin.Controllers
 {

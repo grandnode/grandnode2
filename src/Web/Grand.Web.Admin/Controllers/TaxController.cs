@@ -18,6 +18,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Admin.Models.Common;
 using Grand.Domain.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
 
 namespace Grand.Web.Admin.Controllers
 {

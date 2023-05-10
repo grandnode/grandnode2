@@ -7,6 +7,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Plugins;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;

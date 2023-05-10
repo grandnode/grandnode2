@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Stores;
+﻿using Grand.Domain.Stores;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Stores;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class StoreMappingExtensions
     {

@@ -12,6 +12,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Courses;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Courses;
 using Microsoft.AspNetCore.Mvc;

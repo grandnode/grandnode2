@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Customers
+namespace Grand.Web.Admin.Models.Vendors
 {
     public class VendorReviewListModel : BaseModel
     {

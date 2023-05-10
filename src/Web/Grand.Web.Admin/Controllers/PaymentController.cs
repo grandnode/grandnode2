@@ -10,6 +10,8 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Payments;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;

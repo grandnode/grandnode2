@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Tax;
+﻿using Grand.Domain.Tax;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Tax;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class TaxCategoryMappingExtensions
     {

@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Affiliates;
 
-namespace Grand.Web.Admin.Validators.Blogs
+namespace Grand.Web.Admin.Validators.Affiliate
 {
     public class AffiliateValidator : BaseGrandValidator<AffiliateModel>
     {

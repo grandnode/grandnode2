@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Models.Plugins;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class PluginDescriptorMappingExtensions
     {
