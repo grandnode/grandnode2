@@ -16,7 +16,6 @@ namespace Grand.Web.Admin.Models.Settings
             SeoSettings = new SeoSettingsModel();
             SecuritySettings = new SecuritySettingsModel();
             PdfSettings = new PdfSettingsModel();
-            GoogleAnalyticsSettings = new GoogleAnalyticsSettingsModel();
             DisplayMenuSettings = new DisplayMenuSettingsModel();
         }
         public string ActiveStore { get; set; }
@@ -26,7 +25,6 @@ namespace Grand.Web.Admin.Models.Settings
         public SeoSettingsModel SeoSettings { get; set; }
         public SecuritySettingsModel SecuritySettings { get; set; }
         public PdfSettingsModel PdfSettings { get; set; }
-        public GoogleAnalyticsSettingsModel GoogleAnalyticsSettings { get; set; }
         public DisplayMenuSettingsModel DisplayMenuSettings { get; set; }
         
 
@@ -296,19 +294,6 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InvoiceFooterText")]
             public string InvoiceFooterText { get; set; }
-        }
-
-        public class GoogleAnalyticsSettingsModel : BaseModel
-        {
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsPrivateKey")]
-            public string GaprivateKey { get; set; }
-
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsServiceAccountEmail")]
-            public string GaserviceAccountEmail { get; set; }
-
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsViewID")]
-            public string GaviewID { get; set; }
-
         }
 
         public class DisplayMenuSettingsModel : BaseModel

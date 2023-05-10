@@ -7164,21 +7164,6 @@
 	<Resource Name="Admin.Dashboard.ActivityOverview.TodayRegisteredCustomers" Area="Admin">
 		<Value>Today Registered Customers</Value>
 	</Resource>
-	<Resource Name="Admin.Dashboard.GoogleAnalytics" Area="Admin">
-		<Value>Google Analytics</Value>
-	</Resource>
-	<Resource Name="Admin.Dashboard.GoogleAnalytics.Device" Area="Admin">
-		<Value>Google Analytics - Device</Value>
-	</Resource>
-	<Resource Name="Admin.Dashboard.GoogleAnalytics.Exit" Area="Admin">
-		<Value>Google Analytics - Exit Pages</Value>
-	</Resource>
-	<Resource Name="Admin.Dashboard.GoogleAnalytics.Localization" Area="Admin">
-		<Value>Google Analytics - Localization</Value>
-	</Resource>
-	<Resource Name="Admin.Dashboard.GoogleAnalytics.Source" Area="Admin">
-		<Value>Google Analytics - All Traffic</Value>
-	</Resource>
 	<Resource Name="Admin.Dashboard.OnlineCustomerMinutes" Area="Admin">
 		<Value>in the last {0} minutes</Value>
 	</Resource>
@@ -10652,59 +10637,6 @@
 	</Resource>
 	<Resource Name="Admin.Settings.GeneralCommon.GenerateProductMetaDescription" Area="Admin">
 		<Value>If not provided, generate product META description automatically</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics" Area="Admin">
-		<Value>Google Analytics</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics.help" Area="Admin">
-		<Value>Please configure the settings: Configuration -&gt; Settings -&gt; General settings -&gt; Tab Google Analytics</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics.help2" Area="Admin">
-		<Value>An error occurred, please check logs</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help1" Area="Admin">
-		<Value>
-			1. Register a Google Analytics account. Keep in mind that you need to wait 24h before GA can obtain some data to display.
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help2" Area="Admin">
-		<Value>
-			2. Go to https://console.cloud.google.com/apis/credentials &gt; select credentials for your project &gt; New Credentials &gt; Service account key &gt; download a .json file from your account, and open it with text editor.
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help3" Area="Admin">
-		<Value>
-			3. Copy the value of "private_key" e.g. -----BEGIN PRIVATE KEY-----\n ... -----END PRIVATE KEY-----\n
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help4" Area="Admin">
-		<Value>
-			4. Copy the value of "client_email" e.g. asymmetric-rite-000000@appspot.gserviceaccount.com
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help5" Area="Admin">
-		<Value>
-			5. Get your view ID, https://analytics.google.com/analytics/web/ &gt; Admin &gt; View Settings &gt; View ID. e.g. 412390048
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help6" Area="Admin">
-		<Value>
-			6. Enable Google Analytics API in your Google Cloud Platform here - https://console.developers.google.com/apis/api/analyticsreporting.googleapis.com/
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalytics_help7" Area="Admin">
-		<Value>
-			7. The last step is to add client email to your Google Analytics account.
-		</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalyticsPrivateKey" Area="Admin">
-		<Value>Private Key</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalyticsServiceAccountEmail" Area="Admin">
-		<Value>Service AccountEmail</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.GoogleAnalyticsViewID" Area="Admin">
-		<Value>ViewID</Value>
 	</Resource>
 	<Resource Name="Admin.Settings.GeneralCommon.InstagramLink" Area="Admin">
 		<Value>Instagram page URL</Value>

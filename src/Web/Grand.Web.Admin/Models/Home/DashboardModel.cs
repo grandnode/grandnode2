@@ -5,8 +5,6 @@ namespace Grand.Web.Admin.Models.Home
     public class DashboardModel : BaseModel
     {
         public bool IsLoggedInAsVendor { get; set; }
-        public bool HideReportGA { get; set; }
-
     }
     public class DashboardActivityModel : BaseModel
     {

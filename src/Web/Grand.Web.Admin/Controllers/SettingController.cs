@@ -678,10 +678,6 @@ namespace Grand.Web.Admin.Controllers
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
             model.PdfSettings = pdfSettings.ToModel();
 
-            //google analytics
-            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            model.GoogleAnalyticsSettings = googleAnalyticsSettings.ToModel();
-
             //display menu settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
             model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
@@ -743,12 +739,7 @@ namespace Grand.Web.Admin.Controllers
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
             pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
             await _settingService.SaveSetting(pdfSettings, storeScope);
-
-            //googleanalytics settings
-            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            googleAnalyticsSettings = model.GoogleAnalyticsSettings.ToEntity(googleAnalyticsSettings);
-            await _settingService.SaveSetting(googleAnalyticsSettings, storeScope);
-
+            
             //menu item settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
             displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);

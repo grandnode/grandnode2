@@ -26,7 +26,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
         private readonly IUserFieldService _userFieldService;
-        private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IOrderReportService _orderReportService;
@@ -43,7 +42,6 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IStoreService storeService,
             IUserFieldService userFieldService,
-            GoogleAnalyticsSettings googleAnalyticsSettings,
             IWorkContext workContext,
             IGroupService groupService,
             IOrderReportService orderReportService,
@@ -55,7 +53,6 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _storeService = storeService;
             _userFieldService = userFieldService;
-            _googleAnalyticsSettings = googleAnalyticsSettings;
             _workContext = workContext;
             _groupService = groupService;
             _orderReportService = orderReportService;
@@ -106,11 +103,6 @@ namespace Grand.Web.Admin.Controllers
             var model = new DashboardModel {
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
-            if (string.IsNullOrEmpty(_googleAnalyticsSettings.gaprivateKey) ||
-                string.IsNullOrEmpty(_googleAnalyticsSettings.gaserviceAccountEmail) ||
-                string.IsNullOrEmpty(_googleAnalyticsSettings.gaviewID))
-                model.HideReportGA = true;
-
             return View(model);
         }
 
