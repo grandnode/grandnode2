@@ -1195,7 +1195,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
-                return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId, BillingAddress = model.BillingAddress });
+                return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
             }
 
             //If we got this far, something failed, redisplay form

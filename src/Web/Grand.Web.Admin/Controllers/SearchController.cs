@@ -206,8 +206,8 @@ namespace Grand.Web.Admin.Controllers
 
                         result.Add(new Tuple<object, int>(new
                         {
-                            title = menuItem.title,
-                            link = menuItem.link,
+                            menuItem.title,
+                            menuItem.link,
                             source = formatted
                         }, _adminSearchSettings.MenuDisplayOrder));
                     }

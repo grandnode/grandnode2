@@ -224,7 +224,7 @@ namespace Grand.Web.Admin.Controllers
             if (!valid)
             {
                 Error(message);
-                return RedirectToAction("AddShipment", new { orderId = orderId });
+                return RedirectToAction("AddShipment", new { orderId });
             }
                 //if we have at least one item in the shipment, then save it
             if (shipment != null && shipment.ShipmentItems.Count > 0)
@@ -250,7 +250,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             Error(_translationService.GetResource("Admin.Orders.Shipments.NoProductsSelected"));
-            return RedirectToAction("AddShipment", new { orderId = orderId });
+            return RedirectToAction("AddShipment", new { orderId });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -326,7 +326,7 @@ namespace Grand.Web.Admin.Controllers
 
             Success(_translationService.GetResource("Admin.Orders.Shipments.Deleted"));
 
-            return RedirectToAction("Edit", "Order", new { Id = order.Id });
+            return RedirectToAction("Edit", "Order", new { order.Id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]

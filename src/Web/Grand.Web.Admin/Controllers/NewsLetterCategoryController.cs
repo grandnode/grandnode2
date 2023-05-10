@@ -54,10 +54,10 @@ namespace Grand.Web.Admin.Controllers
                 {
                     return new
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Selected = x.Selected,
-                        DisplayOrder = x.DisplayOrder
+                        x.Id,
+                        x.Name,
+                        x.Selected,
+                        x.DisplayOrder
                     };
                 }).OrderBy(x => x.DisplayOrder),
                 Total = newslettercategories.Count

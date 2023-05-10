@@ -77,8 +77,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 Data = orders.Select(x => new
                 {
-                    Id = x.Id,
-                    OrderNumber = x.OrderNumber
+                    x.Id, x.OrderNumber
                 }),
                 Total = orders.Count
             };

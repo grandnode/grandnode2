@@ -227,7 +227,12 @@ namespace Grand.Web.Admin.Controllers
             var states = country.StateProvinces.ToList();
 
             var gridModel = new DataSourceResult {
-                Data = states.Select(x => new { Id = x.Id, Name = x.Name, Abbreviation = x.Abbreviation, Published = x.Published, DisplayOrder = x.DisplayOrder }),
+                Data = states.Select(x => new {
+                    x.Id,
+                    x.Name,
+                    x.Abbreviation,
+                    x.Published,
+                    x.DisplayOrder }),
                 Total = states.Count
             };
             return Json(gridModel);

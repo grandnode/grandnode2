@@ -510,7 +510,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var posts = await _blogService.GetAllBlogPosts(storeId: model.SearchStoreId, blogPostName: model.SearchBlogTitle, pageIndex: command.Page - 1, pageSize: command.PageSize);
-            gridModel.Data = posts.Select(x => new { Id = x.Id, Name = x.Title });
+            gridModel.Data = posts.Select(x => new { x.Id, Name = x.Title });
             gridModel.Total = posts.TotalCount;
 
             return Json(gridModel);

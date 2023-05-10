@@ -323,7 +323,7 @@ namespace Grand.Web.Admin.Controllers
                     return new
                     {
                         FileName = x.OriginalFile,
-                        IsCompiled = x.IsCompiled,
+                        x.IsCompiled,
                         Errors = string.Join(",", x.ErrorInfo)
                     };
                 }),

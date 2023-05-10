@@ -109,7 +109,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 vendorReview = await _vendorViewModelService.UpdateVendorReviewModel(vendorReview, model);
                 Success(_translationService.GetResource("Admin.VendorReviews.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = vendorReview.Id, VendorId = vendorReview.VendorId }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction("Edit", new { id = vendorReview.Id, vendorReview.VendorId }) : RedirectToAction("List");
             }
 
             //If we got this far, something failed, redisplay form

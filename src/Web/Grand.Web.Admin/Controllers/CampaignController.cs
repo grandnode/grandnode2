@@ -87,7 +87,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult {
                 Data = history.Select(x => new
                 {
-                    Email = x.Email,
+                    x.Email,
                     SentDate = x.CreatedDateUtc,
                 }),
                 Total = history.TotalCount

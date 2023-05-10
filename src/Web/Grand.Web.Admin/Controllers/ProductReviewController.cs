@@ -109,7 +109,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 productReview = await _productReviewViewModelService.UpdateProductReview(productReview, model);
                 Success(_translationService.GetResource("Admin.Catalog.ProductReviews.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = productReview.Id, ProductId = productReview.ProductId }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction("Edit", new { id = productReview.Id, productReview.ProductId }) : RedirectToAction("List");
             }
 
             //If we got this far, something failed, redisplay form

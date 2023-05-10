@@ -227,9 +227,9 @@ namespace Grand.Web.Admin.Controllers
             {
                 Data = couponcodes.Select(x => new
                 {
-                    Id = x.Id,
-                    CouponCode = x.CouponCode,
-                    Used = x.Used
+                    x.Id,
+                    x.CouponCode,
+                    x.Used
                 }),
                 Total = couponcodes.TotalCount
             };
@@ -301,7 +301,7 @@ namespace Grand.Web.Admin.Controllers
 
             var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
             string url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
-            return Json(new { url = url });
+            return Json(new { url });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -323,7 +323,7 @@ namespace Grand.Web.Admin.Controllers
             string url = _discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount, discountRequirementId);
             string ruleName = discountRequirementRule.FriendlyName;
 
-            return Json(new { url = url, ruleName = ruleName });
+            return Json(new { url, ruleName });
         }
 
         [HttpPost]

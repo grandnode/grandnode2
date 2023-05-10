@@ -54,7 +54,7 @@ namespace Grand.Web.Admin.Controllers
             }
             var gridModel = new DataSourceResult
             {
-                Data = items.Select(x => new { Id = x.Id, Name = x.Name, Count = x.Count }),
+                Data = items.Select(x => new { x.Id, x.Name, x.Count }),
                 Total = customertags.Count()
             };
             return Json(gridModel);
