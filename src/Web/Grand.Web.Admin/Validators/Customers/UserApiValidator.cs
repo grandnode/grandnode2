@@ -23,7 +23,7 @@ namespace Grand.Web.Admin.Validators.Customers
                         return true;
                 }
                 return false;
-            }).WithMessage(translationService.GetResource("Admin.System.UserApi.Email.CustomerNotExist")); ;
+            }).WithMessage(translationService.GetResource("Admin.System.UserApi.Email.CustomerNotExist")); 
         }
     }
 }

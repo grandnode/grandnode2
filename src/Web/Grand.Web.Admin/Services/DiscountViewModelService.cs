@@ -118,7 +118,6 @@ namespace Grand.Web.Admin.Services
                 items.Add(discountModel);
             }
 
-            ;
             return (items, discounts.Count);
         }
 

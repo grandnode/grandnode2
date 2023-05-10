@@ -95,7 +95,7 @@ namespace Grand.Web.Admin.Validators.Common
             {
                 RuleFor(x => x.Captcha).NotNull()
                     .WithMessage(translationService.GetResource("Account.Captcha.Required"));
-                ;
+                
                 RuleFor(x => x.Captcha)
                     .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
             }

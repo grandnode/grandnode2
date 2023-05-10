@@ -1762,7 +1762,7 @@ namespace Grand.Web.Admin.Services
                     StartDateTime = x.StartDateTimeUtc.HasValue ? _dateTimeService.ConvertToUserTime(x.StartDateTimeUtc.Value, DateTimeKind.Utc) : new DateTime?(),
                     EndDateTime = x.EndDateTimeUtc.HasValue ? _dateTimeService.ConvertToUserTime(x.EndDateTimeUtc.Value, DateTimeKind.Utc) : new DateTime?()
                 });
-            };
+            }
             return items;
         }
         public virtual async Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex, int pageSize)
