@@ -440,9 +440,9 @@ namespace Grand.Web.Admin.Controllers
                                 if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
                                 {
                                     supportedVersion = true;
-                                    _fpath = entry.FullName[..entry.FullName.LastIndexOf("/")];
+                                    _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
                                     archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
-                                        .ForEach(y => { archive.GetEntry(y.FullName).Delete(); });
+                                        .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
 
                                     _pluginInfo = new PluginInfo();
                                     break;
