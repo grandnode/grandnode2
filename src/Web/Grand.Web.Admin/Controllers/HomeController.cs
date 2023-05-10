@@ -87,7 +87,7 @@ namespace Grand.Web.Admin.Controllers
             model.TodayRegisteredCustomers =
                 (await _mediator.Send(new GetCustomerQuery() {
                     StoreId = storeId,
-                    CustomerGroupIds = new string[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
+                    CustomerGroupIds = new[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
                     CreatedFromUtc = DateTime.UtcNow.Date
                 })).Count();
             return model;

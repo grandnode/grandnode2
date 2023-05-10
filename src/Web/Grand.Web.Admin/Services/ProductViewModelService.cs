@@ -627,7 +627,7 @@ namespace Grand.Web.Admin.Services
             }
             if (_workContext.CurrentVendor != null && !string.IsNullOrEmpty(_workContext.CurrentVendor.StoreId))
             {
-                model.Stores = new string[] { _workContext.CurrentVendor.StoreId };
+                model.Stores = new[] { _workContext.CurrentVendor.StoreId };
             }
         }
 
@@ -830,7 +830,7 @@ namespace Grand.Web.Admin.Services
                 var defaultProductPicture = x.ProductPictures.FirstOrDefault();
                 if (defaultProductPicture == null)
                     defaultProductPicture = new ProductPicture();
-                productModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100, true);
+                productModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
                 //product type
                 productModel.ProductTypeName = x.ProductTypeId.GetTranslationEnum(_translationService, _workContext);
                 //friendly stock qantity
@@ -891,13 +891,13 @@ namespace Grand.Web.Admin.Services
                 model.VendorId = _workContext.CurrentVendor.Id;
                 if (!string.IsNullOrEmpty(_workContext.CurrentVendor.StoreId))
                 {
-                    model.Stores = new string[] { _workContext.CurrentVendor.StoreId };
+                    model.Stores = new[] { _workContext.CurrentVendor.StoreId };
                 }
             }
             //a staff should have access only to his products
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
-                model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
             }
 
             //vendors cannot edit "Show on home page" property
@@ -951,7 +951,7 @@ namespace Grand.Web.Admin.Services
                 model.VendorId = _workContext.CurrentVendor.Id;
                 if (!string.IsNullOrEmpty(_workContext.CurrentVendor.StoreId))
                 {
-                    model.Stores = new string[] { _workContext.CurrentVendor.StoreId };
+                    model.Stores = new[] { _workContext.CurrentVendor.StoreId };
                 }
             }
             //vendors cannot edit "Show on home page" property
@@ -968,7 +968,7 @@ namespace Grand.Web.Admin.Services
             //a staff should have access only to his products
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
-                model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
             }
 
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
@@ -2177,7 +2177,7 @@ namespace Grand.Web.Admin.Services
                 var pictureThumbnailUrl = await _pictureService.GetPictureUrl(string.IsNullOrEmpty(x.PictureId) ? x.ImageSquaresPictureId : x.PictureId, 100, false);
 
                 if (string.IsNullOrEmpty(pictureThumbnailUrl))
-                    pictureThumbnailUrl = await _pictureService.GetPictureUrl("", 1, true);
+                    pictureThumbnailUrl = await _pictureService.GetPictureUrl("", 1);
 
                 items.Add(new ProductModel.ProductAttributeValueModel {
                     Id = x.Id,

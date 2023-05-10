@@ -729,7 +729,7 @@ namespace Grand.Web.Admin.Services
                     };
                     //picture
                     var orderItemPicture = await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
-                    orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75, true);
+                    orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75);
 
                     //license file
                     if (!string.IsNullOrEmpty(orderItem.LicenseDownloadId))

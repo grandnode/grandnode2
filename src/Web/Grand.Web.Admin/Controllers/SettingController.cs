@@ -283,7 +283,7 @@ namespace Grand.Web.Admin.Controllers
                 ActiveStore = storeScope
             };
 
-            var currencySettings = _settingService.LoadSetting<CurrencySettings>("");
+            var currencySettings = _settingService.LoadSetting<CurrencySettings>();
             var currency = await _currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
 
             //loyal

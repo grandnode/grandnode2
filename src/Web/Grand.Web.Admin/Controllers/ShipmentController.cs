@@ -433,7 +433,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -479,7 +479,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -520,7 +520,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -568,7 +568,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }

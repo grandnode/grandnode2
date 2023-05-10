@@ -269,7 +269,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("Edit", "Order", new { id });
             }
         }
@@ -811,7 +811,7 @@ namespace Grand.Web.Admin.Controllers
             if (result.error)
                 Error(result.message);
             else
-                Success("The order item was successfully canceled", true);
+                Success("The order item was successfully canceled");
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
