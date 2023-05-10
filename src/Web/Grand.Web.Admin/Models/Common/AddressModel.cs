@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class AddressModel : BaseEntityModel
+    public class AddressModel : BaseEntityModel
     {
         public AddressModel()
         {

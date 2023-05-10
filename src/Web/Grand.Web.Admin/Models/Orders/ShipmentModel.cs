@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class ShipmentModel : BaseEntityModel
+    public class ShipmentModel : BaseEntityModel
     {
         public ShipmentModel()
         {

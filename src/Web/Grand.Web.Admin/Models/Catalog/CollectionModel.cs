@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public CollectionModel()
         {

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class SystemInfoModel : BaseModel
+    public class SystemInfoModel : BaseModel
     {
         public SystemInfoModel()
         {

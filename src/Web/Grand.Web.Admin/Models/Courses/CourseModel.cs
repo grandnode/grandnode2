@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Courses
 {
-    public partial class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public CourseModel()
         {

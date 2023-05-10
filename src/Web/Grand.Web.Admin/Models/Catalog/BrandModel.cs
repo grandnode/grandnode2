@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public BrandModel()
         {

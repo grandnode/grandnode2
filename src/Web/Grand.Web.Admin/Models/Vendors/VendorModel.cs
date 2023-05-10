@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Vendors
 {
-    public partial class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel>
+    public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel>
     {
         public VendorModel()
         {

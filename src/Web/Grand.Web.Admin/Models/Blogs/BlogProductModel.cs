@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Blogs
 {
-    public partial class BlogProductModel : BaseEntityModel
+    public class BlogProductModel : BaseEntityModel
     {
         public string ProductId { get; set; }
 

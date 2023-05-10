@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class CustomerSettingsModel : BaseModel
+    public class CustomerSettingsModel : BaseModel
     {
         public CustomerSettingsModel()
         {

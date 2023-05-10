@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Discounts
 {
-    public partial class DiscountModel : BaseEntityModel, IStoreLinkModel
+    public class DiscountModel : BaseEntityModel, IStoreLinkModel
     {
         public DiscountModel()
         {

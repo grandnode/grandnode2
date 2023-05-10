@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductAttributeConditionModel : BaseModel
+    public class ProductAttributeConditionModel : BaseModel
     {
         public ProductAttributeConditionModel()
         {

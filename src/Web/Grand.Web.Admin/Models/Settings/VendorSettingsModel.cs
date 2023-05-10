@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class VendorSettingsModel : BaseModel
+    public class VendorSettingsModel : BaseModel
     {
 
         public VendorSettingsModel()

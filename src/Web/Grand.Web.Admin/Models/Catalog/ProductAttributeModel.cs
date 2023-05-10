@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
+    public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
     {
         public ProductAttributeModel()
         {

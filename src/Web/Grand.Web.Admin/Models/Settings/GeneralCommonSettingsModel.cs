@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         #region Nested classes
 
-        public partial class StoreInformationSettingsModel : BaseModel
+        public class StoreInformationSettingsModel : BaseModel
         {
             public StoreInformationSettingsModel()
             {

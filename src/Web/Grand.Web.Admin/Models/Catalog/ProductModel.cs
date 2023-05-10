@@ -492,7 +492,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public IList<SelectListItem> AvailableOptions { get; set; }
         }
 
-        public partial class ProductPictureModel : BaseEntityModel, ILocalizedModel<ProductPictureModel.ProductPictureLocalizedModel>
+        public class ProductPictureModel : BaseEntityModel, ILocalizedModel<ProductPictureModel.ProductPictureLocalizedModel>
         {
             public ProductPictureModel()
             {
@@ -898,7 +898,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public string ProductAttributeName { get; set; }
         }
 
-        public partial class ProductAttributeValueModel : BaseEntityModel, ILocalizedModel<ProductAttributeValueLocalizedModel>
+        public class ProductAttributeValueModel : BaseEntityModel, ILocalizedModel<ProductAttributeValueLocalizedModel>
         {
             public ProductAttributeValueModel()
             {

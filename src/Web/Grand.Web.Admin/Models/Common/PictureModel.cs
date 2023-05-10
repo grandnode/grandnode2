@@ -4,7 +4,7 @@ using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
+    public class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
     {
         public PictureModel()
         {

@@ -8,7 +8,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class CustomerModel : BaseEntityModel
+    public class CustomerModel : BaseEntityModel
     {
         public CustomerModel()
         {

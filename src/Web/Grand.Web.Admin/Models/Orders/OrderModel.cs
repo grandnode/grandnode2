@@ -309,7 +309,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         }
 
-        public partial class AddOrderProductModel : BaseModel
+        public class AddOrderProductModel : BaseModel
         {
             public AddOrderProductModel()
             {

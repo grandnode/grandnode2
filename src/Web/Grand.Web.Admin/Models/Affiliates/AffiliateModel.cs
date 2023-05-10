@@ -4,7 +4,7 @@ using Grand.Infrastructure.ModelBinding;
 
 namespace Grand.Web.Admin.Models.Affiliates
 {
-    public partial class AffiliateModel : BaseEntityModel
+    public class AffiliateModel : BaseEntityModel
     {
         public AffiliateModel()
         {
