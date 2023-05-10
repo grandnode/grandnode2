@@ -5,8 +5,6 @@ namespace Grand.Web.Admin.Models.Country
 {
     public class CountriesListModel : BaseModel
     {
-        public CountriesListModel() { }
-
         [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.Name")]
         public string CountryName { get; set; }
 

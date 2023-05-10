@@ -5,9 +5,6 @@ namespace Grand.Web.Admin.Models.Plugins
 {
     public class PluginModel : BaseModel
     {
-        public PluginModel()
-        {
-        }
         [GrandResourceDisplayName("Admin.Plugins.Fields.Group")]
         public string Group { get; set; }
 
