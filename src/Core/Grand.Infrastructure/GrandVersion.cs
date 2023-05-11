@@ -12,12 +12,12 @@ namespace Grand.Infrastructure
         /// <summary>
         /// Gets the minor version
         /// </summary>
-        public const string MinorVersion = "1";
+        public const string MinorVersion = "2";
 
         /// <summary>
         /// Gets the patch version
         /// </summary>
-        public const string PatchVersion = "0";
+        public const string PatchVersion = "0-develop";
 
         /// <summary>
         /// Gets the full version
