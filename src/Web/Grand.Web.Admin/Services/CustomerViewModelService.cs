@@ -1057,9 +1057,8 @@ namespace Grand.Web.Admin.Services
             var emailAccountSettings = _serviceProvider.GetRequiredService<EmailAccountSettings>();
             var queuedEmailService = _serviceProvider.GetRequiredService<IQueuedEmailService>();
 
-            var emailAccount = await emailAccountService.GetEmailAccountById(emailAccountSettings.DefaultEmailAccountId);
-            if (emailAccount == null)
-                emailAccount = (await emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
+            var emailAccount = await emailAccountService.GetEmailAccountById(emailAccountSettings.DefaultEmailAccountId) ??
+                               (await emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
             if (emailAccount == null)
                 throw new GrandException("Email account can't be loaded");
 

@@ -413,10 +413,7 @@ namespace Grand.Web.Admin.Services
 
             #region Order totals
 
-            var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode);
-
-            if (primaryStoreCurrency == null)
-                primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+            var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ?? await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
 
             if (primaryStoreCurrency == null)
                 throw new Exception("Cannot load primary store currency");

@@ -827,13 +827,11 @@ namespace Grand.Web.Admin.Services
                 productModel.FullDescription = "";
 
                 //picture
-                var defaultProductPicture = x.ProductPictures.FirstOrDefault();
-                if (defaultProductPicture == null)
-                    defaultProductPicture = new ProductPicture();
+                var defaultProductPicture = x.ProductPictures.FirstOrDefault() ?? new ProductPicture();
                 productModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
                 //product type
                 productModel.ProductTypeName = x.ProductTypeId.GetTranslationEnum(_translationService, _workContext);
-                //friendly stock qantity
+                //friendly stock quantity
                 //if a simple product AND "manage inventory" is "Track inventory", then display
                 if (x.ProductTypeId == ProductType.SimpleProduct && x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
                     productModel.StockQuantityStr = _stockQuantityService.GetTotalStockQuantity(x, total: true).ToString();
