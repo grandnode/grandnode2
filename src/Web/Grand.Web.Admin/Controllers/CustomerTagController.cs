@@ -49,7 +49,7 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<(string Id, string Name, int Count)>();
             foreach (var item in customertags)
             {
-                items.Add((Id: item.Id, Name: item.Name, Count: await _customerTagService.GetCustomerCount(item.Id)));
+                items.Add((item.Id, item.Name, Count: await _customerTagService.GetCustomerCount(item.Id)));
             }
             var gridModel = new DataSourceResult
             {
