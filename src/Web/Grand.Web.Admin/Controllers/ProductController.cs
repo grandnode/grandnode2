@@ -1238,7 +1238,6 @@ namespace Grand.Web.Admin.Controllers
                     });
 
             var values = new List<(string pictureUrl, string pictureId)>();
-            var message = string.Empty;
             foreach (var file in httpPostedFiles)
             {
                 var qqFileNameParameter = "qqfilename";
@@ -1268,10 +1267,7 @@ namespace Grand.Web.Admin.Controllers
                     values.Add((pictureUrl, picture.Id));
                     //assign picture to the product
                     await _productViewModelService.InsertProductPicture(product, picture, 0);
-
                 }
-                else
-                    message += $"Not allowed file types to import {fileName}";
             }
 
             return Json(new { success = values.Any(), data = values });
