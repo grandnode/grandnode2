@@ -156,7 +156,7 @@ namespace Grand.Web.Admin.Controllers
                     var filepath = _mediaFileStore.GetDirectoryInfo("");
                     if (filepath != null)
                     {
-                        using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
+                        await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                         {
                             await httpPostedFile.CopyToAsync(stream);
                         }
@@ -187,7 +187,7 @@ namespace Grand.Web.Admin.Controllers
                 var filepath = _mediaFileStore.GetDirectoryInfo("");
                 if (filepath != null)
                 {
-                    using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
+                    await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                     {
                         await httpPostedFile.CopyToAsync(stream);
                     }
