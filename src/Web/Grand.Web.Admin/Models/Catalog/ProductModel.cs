@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public ProductModel()
         {

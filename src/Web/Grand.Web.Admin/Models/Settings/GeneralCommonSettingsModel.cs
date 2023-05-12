@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class GeneralCommonSettingsModel : BaseModel
+    public class GeneralCommonSettingsModel : BaseModel
     {
         public GeneralCommonSettingsModel()
         {
