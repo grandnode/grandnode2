@@ -47,10 +47,11 @@ namespace Grand.Web.Admin.Controllers
             var productTags = new List<ProductTagModel>();
             foreach (var item in tags)
             {
-                var ptag = new ProductTagModel();
-                ptag.Id = item.Id;
-                ptag.Name = item.Name;
-                ptag.ProductCount = await _productTagService.GetProductCount(item.Id, "");
+                var ptag = new ProductTagModel {
+                    Id = item.Id,
+                    Name = item.Name,
+                    ProductCount = await _productTagService.GetProductCount(item.Id, "")
+                };
                 productTags.Add(ptag);
             }
 

@@ -800,11 +800,11 @@ namespace Grand.Web.Admin.Services
             var model = new OrderModel.AddOrderProductModel
             {
                 OrderId = order.Id,
-                OrderNumber = order.OrderNumber
+                OrderNumber = order.OrderNumber,
+                //product types
+                AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList()
             };
 
-            //product types
-            model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
             model.AvailableProductTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "0" });
 
             return await Task.FromResult(model);

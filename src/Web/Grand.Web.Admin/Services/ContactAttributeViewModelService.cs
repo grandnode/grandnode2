@@ -167,12 +167,13 @@ namespace Grand.Web.Admin.Services
 
         public virtual ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute)
         {
-            var model = new ContactAttributeValueModel();
-            model.ContactAttributeId = contactAttribute.Id;
+            var model = new ContactAttributeValueModel {
+                ContactAttributeId = contactAttribute.Id,
+                //color squares
+                DisplayColorSquaresRgb = contactAttribute.AttributeControlType == AttributeControlType.ColorSquares,
+                ColorSquaresRgb = "#000000"
+            };
 
-            //color squares
-            model.DisplayColorSquaresRgb = contactAttribute.AttributeControlType == AttributeControlType.ColorSquares;
-            model.ColorSquaresRgb = "#000000";
             return model;
         }
         public virtual ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute, ContactAttributeValue contactAttributeValue)

@@ -81,8 +81,9 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
             {
-                model = new CourseModel();
-                model.Published = true;
+                model = new CourseModel {
+                    Published = true
+                };
             }
 
             foreach (var item in await _courseLevelService.GetAll())
@@ -184,8 +185,9 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
             {
-                model = new CourseLessonModel();
-                model.Published = true;
+                model = new CourseLessonModel {
+                    Published = true
+                };
             }
             model.CourseId = courseId;
 

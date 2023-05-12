@@ -88,9 +88,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-            var model = new BlogPostModel();
-            //default values
-            model.AllowComments = true;
+            var model = new BlogPostModel {
+                //default values
+                AllowComments = true
+            };
             //locales
             await AddLocales(_languageService, model.Locales);
 
@@ -442,9 +443,10 @@ namespace Grand.Web.Admin.Controllers
             var blogposts = new List<BlogCategoryPost>();
             foreach (var item in blogCategory.BlogPosts)
             {
-                var post = new BlogCategoryPost();
-                post.Id = item.Id;
-                post.BlogPostId = item.BlogPostId;
+                var post = new BlogCategoryPost {
+                    Id = item.Id,
+                    BlogPostId = item.BlogPostId
+                };
                 var _post = await _blogService.GetBlogPostById(item.BlogPostId);
                 if (_post != null)
                     post.Name = _post.Title;

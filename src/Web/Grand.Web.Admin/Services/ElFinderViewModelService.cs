@@ -91,24 +91,24 @@ namespace Grand.Web.Admin.Services
                 _urlThumb) {
                 Name = "Volume",
                 MaxUploadConnections = 3,
-                MaxUploadSizeInMb = 4
-            };
-            volume.ObjectAttributes = new List<FilteredObjectAttribute>() {
-                new FilteredObjectAttribute()
-                {
-                    FileFilter = (file) => {
-                        return NotAllowedExtensions(file.Extension);
-                    },
-                    ObjectFilter = (obj) =>
+                MaxUploadSizeInMb = 4,
+                ObjectAttributes = new List<FilteredObjectAttribute>() {
+                    new FilteredObjectAttribute()
                     {
-                        var extensions = Path.GetExtension(obj.FullName);
-                        if(!string.IsNullOrEmpty(extensions))
-                            return NotAllowedExtensions(extensions);
+                        FileFilter = (file) => {
+                            return NotAllowedExtensions(file.Extension);
+                        },
+                        ObjectFilter = (obj) =>
+                        {
+                            var extensions = Path.GetExtension(obj.FullName);
+                            if(!string.IsNullOrEmpty(extensions))
+                                return NotAllowedExtensions(extensions);
 
-                        return false;
+                            return false;
+                        },
+                        ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
                     },
-                    ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
-                },
+                }
             };
             _connector.AddVolume(volume);
             await volume.Driver.SetupVolumeAsync(volume);

@@ -65,8 +65,13 @@
                                 }
                                 @{
 
-                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
-                                    dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = "giftvoucher";
+                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData)
+                                    {
+                                        TemplateInfo =
+                                        {
+                                            HtmlFieldPrefix = "giftvoucher"
+                                        }
+                                    };
                                     <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
                                 }
                                 <div class="form-actions">

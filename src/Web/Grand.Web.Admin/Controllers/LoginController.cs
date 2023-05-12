@@ -54,9 +54,10 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Index()
         {
-            var model = new LoginModel();
-            model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
+            var model = new LoginModel {
+                UsernamesEnabled = _customerSettings.UsernamesEnabled,
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
+            };
             return View(model);
         }
 

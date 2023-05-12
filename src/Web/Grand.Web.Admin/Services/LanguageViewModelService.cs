@@ -87,10 +87,12 @@ namespace Grand.Web.Admin.Services
             var res = await _translationService.GetTranslateResourceByName(model.Name, model.LanguageId);
             if (res == null)
             {
-                var resource = new TranslationResource { LanguageId = model.LanguageId };
-                resource.Name = model.Name;
-                resource.Value = model.Value;
-                resource.Area = (TranslationResourceArea)model.Area;
+                var resource = new TranslationResource {
+                    LanguageId = model.LanguageId,
+                    Name = model.Name,
+                    Value = model.Value,
+                    Area = (TranslationResourceArea)model.Area
+                };
                 await _translationService.InsertTranslateResource(resource);
             }
             else

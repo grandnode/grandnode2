@@ -41,10 +41,11 @@ namespace Grand.Web.Admin.Controllers
             var orderTagsList = new List<OrderTagModel>();
             foreach (var tag in tags)
             {
-                var item = new OrderTagModel();
-                item.Id = tag.Id;
-                item.Name = tag.Name;
-                item.OrderCount = await _orderTagService.GetOrderCount(tag.Id, "");
+                var item = new OrderTagModel {
+                    Id = tag.Id,
+                    Name = tag.Name,
+                    OrderCount = await _orderTagService.GetOrderCount(tag.Id, "")
+                };
                 orderTagsList.Add(item);
             }
 

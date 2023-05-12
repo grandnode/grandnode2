@@ -203,14 +203,15 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var model = new CheckoutAttributeValueModel();
-            model.CheckoutAttributeId = checkoutAttributeId;
-            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
+            var model = new CheckoutAttributeValueModel {
+                CheckoutAttributeId = checkoutAttributeId,
+                PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode,
+                BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
+                //color squares
+                DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares,
+                ColorSquaresRgb = "#000000"
+            };
 
-            //color squares
-            model.DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares;
-            model.ColorSquaresRgb = "#000000";
             return model;
         }
         public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(CheckoutAttribute checkoutAttribute, CheckoutAttributeValue checkoutAttributeValue)

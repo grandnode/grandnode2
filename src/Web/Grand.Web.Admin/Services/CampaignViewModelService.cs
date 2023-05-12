@@ -116,8 +116,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<CampaignModel> PrepareCampaignModel()
         {
-            var model = new CampaignModel();
-            model.AllowedTokens = _messageTokenProvider.GetListOfCampaignAllowedTokens();
+            var model = new CampaignModel {
+                AllowedTokens = _messageTokenProvider.GetListOfCampaignAllowedTokens()
+            };
             //stores
             await PrepareStoresModel(model);
             //languages

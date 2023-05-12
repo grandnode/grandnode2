@@ -170,8 +170,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<BlogProductModel.AddProductModel> PrepareBlogModelAddProductModel(string blogPostId)
         {
-            var model = new BlogProductModel.AddProductModel();
-            model.BlogPostId = blogPostId;
+            var model = new BlogProductModel.AddProductModel {
+                BlogPostId = blogPostId
+            };
 
             //stores
             var storeId = _workContext.CurrentCustomer.StaffStoreId;

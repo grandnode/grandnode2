@@ -66,8 +66,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual AddressAttributeValueModel PrepareAddressAttributeValueModel(string addressAttributeId)
         {
-            var model = new AddressAttributeValueModel();
-            model.AddressAttributeId = addressAttributeId;
+            var model = new AddressAttributeValueModel {
+                AddressAttributeId = addressAttributeId
+            };
             return model;
         }
 

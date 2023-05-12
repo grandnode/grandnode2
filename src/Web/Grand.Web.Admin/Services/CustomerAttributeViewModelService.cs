@@ -67,8 +67,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual CustomerAttributeValueModel PrepareCustomerAttributeValueModel(string customerAttributeId)
         {
-            var model = new CustomerAttributeValueModel();
-            model.CustomerAttributeId = customerAttributeId;
+            var model = new CustomerAttributeValueModel {
+                CustomerAttributeId = customerAttributeId
+            };
             return model;
         }
 

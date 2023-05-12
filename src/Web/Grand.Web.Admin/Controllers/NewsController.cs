@@ -83,11 +83,12 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.AllLanguages = _languageService.GetAllLanguages(true);
-            var model = new NewsItemModel();
+            var model = new NewsItemModel {
+                //default values
+                Published = true,
+                AllowComments = true
+            };
 
-            //default values
-            model.Published = true;
-            model.AllowComments = true;
             //locales
             await AddLocales(_languageService, model.Locales);
             return View(model);

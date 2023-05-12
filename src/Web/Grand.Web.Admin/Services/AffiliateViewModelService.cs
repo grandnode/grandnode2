@@ -124,10 +124,11 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<Affiliate> InsertAffiliateModel(AffiliateModel model)
         {
-            var affiliate = new Affiliate();
-            affiliate.Active = model.Active;
-            affiliate.AdminComment = model.AdminComment;
-            affiliate.Name = model.Name;
+            var affiliate = new Affiliate {
+                Active = model.Active,
+                AdminComment = model.AdminComment,
+                Name = model.Name
+            };
             //validate friendly URL name
             var friendlyUrlName = await affiliate.ValidateFriendlyUrlName(_affiliateService, _seoSettings, model.FriendlyUrlName, model.Name);
             affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();

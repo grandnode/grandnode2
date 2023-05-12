@@ -101,8 +101,9 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<CustomerTagProductModel.AddProductModel> PrepareProductModel(string customerTagId)
         {
-            var model = new CustomerTagProductModel.AddProductModel();
-            model.CustomerTagId = customerTagId;
+            var model = new CustomerTagProductModel.AddProductModel {
+                CustomerTagId = customerTagId
+            };
 
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
@@ -134,10 +135,11 @@ namespace Grand.Web.Admin.Services
                     var customerTagProduct = await _customerTagService.GetCustomerTagProduct(model.CustomerTagId, id);
                     if (customerTagProduct == null)
                     {
-                        customerTagProduct = new CustomerTagProduct();
-                        customerTagProduct.CustomerTagId = model.CustomerTagId;
-                        customerTagProduct.ProductId = id;
-                        customerTagProduct.DisplayOrder = 0;
+                        customerTagProduct = new CustomerTagProduct {
+                            CustomerTagId = model.CustomerTagId,
+                            ProductId = id,
+                            DisplayOrder = 0
+                        };
                         await _customerTagService.InsertCustomerTagProduct(customerTagProduct);
                     }
                 }

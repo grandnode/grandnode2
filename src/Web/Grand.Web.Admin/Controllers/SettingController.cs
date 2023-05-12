@@ -110,13 +110,13 @@ namespace Grand.Web.Admin.Controllers
             var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
             var newsSettings = _settingService.LoadSetting<NewsSettings>(storeScope);
             var knowledgebaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
-            var model = new ContentSettingsModel() {
+            var model = new ContentSettingsModel {
                 BlogSettings = blogSettings.ToModel(),
                 NewsSettings = newsSettings.ToModel(),
-                KnowledgebaseSettings = knowledgebaseSettings.ToModel()
+                KnowledgebaseSettings = knowledgebaseSettings.ToModel(),
+                ActiveStore = storeScope
             };
 
-            model.ActiveStore = storeScope;
             return View(model);
         }
 

@@ -36,8 +36,9 @@ namespace Grand.Web.Admin.Components
             if (string.IsNullOrEmpty(affiliateId))
                 throw new Exception("Affliate ID cannot be empty");
 
-            var model = new AffiliatedOrderListModel();
-            model.AffliateId = affiliateId;
+            var model = new AffiliatedOrderListModel {
+                AffliateId = affiliateId
+            };
             var status = await _orderStatusService.GetAll();
 
             //order statuses

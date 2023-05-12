@@ -109,10 +109,11 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Create)]
         public async Task<IActionResult> Create()
         {
-            var model = new MessageTemplateModel();
+            var model = new MessageTemplateModel {
+                //Stores
+                AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens()
+            };
 
-            //Stores
-            model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
                 model.AvailableEmailAccounts.Add(ea.ToModel());

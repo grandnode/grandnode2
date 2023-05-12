@@ -17,11 +17,12 @@ namespace Grand.Web.Admin.Services
 
         public virtual CountryModel PrepareCountryModel()
         {
-            var model = new CountryModel();
-            //default values
-            model.Published = true;
-            model.AllowsBilling = true;
-            model.AllowsShipping = true;
+            var model = new CountryModel {
+                //default values
+                Published = true,
+                AllowsBilling = true,
+                AllowsShipping = true
+            };
             return model;
         }
 
@@ -41,10 +42,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual StateProvinceModel PrepareStateProvinceModel(string countryId)
         {
-            var model = new StateProvinceModel();
-            model.CountryId = countryId;
-            //default value
-            model.Published = true;
+            var model = new StateProvinceModel {
+                CountryId = countryId,
+                //default value
+                Published = true
+            };
             return model;
         }
 

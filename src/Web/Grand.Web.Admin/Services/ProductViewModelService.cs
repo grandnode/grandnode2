@@ -2250,8 +2250,8 @@ namespace Grand.Web.Admin.Services
                 IsPreSelected = model.IsPreSelected,
                 DisplayOrder = model.DisplayOrder,
                 PictureId = model.PictureId,
+                Locales = model.Locales.ToTranslationProperty()
             };
-            pav.Locales = model.Locales.ToTranslationProperty();
             await _productAttributeService.InsertProductAttributeValue(pav, model.ProductId, model.ProductAttributeMappingId);
         }
         public virtual async Task UpdateProductAttributeValueModel(ProductAttributeValue pav, ProductModel.ProductAttributeValueModel model)
