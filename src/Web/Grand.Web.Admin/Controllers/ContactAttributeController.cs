@@ -194,7 +194,7 @@ namespace Grand.Web.Admin.Controllers
                     IsPreSelected = x.IsPreSelected,
                     DisplayOrder = x.DisplayOrder,
                 }),
-                Total = values.Count()
+                Total = values.Count
             };
             return Json(gridModel);
         }

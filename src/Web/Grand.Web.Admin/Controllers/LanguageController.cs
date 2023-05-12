@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = languages.Select(x => x.ToModel()),
-                Total = languages.Count()
+                Total = languages.Count
             };
             return Json(gridModel);
         }

@@ -79,9 +79,9 @@ namespace Grand.Web.Admin.Controllers
 
             if (searchTerm.Length >= _adminSearchSettings.MinSearchTermLength)
             {
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
                 {
-                    var products = (await _productService.SearchProducts(keywords: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true)).products;
+                    var products = (await _productService.SearchProducts(keywords: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true)).products;
                     foreach (var product in products)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -93,9 +93,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
                 {
-                    var categories = await _categoryService.GetAllCategories(categoryName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden:
+                    var categories = await _categoryService.GetAllCategories(categoryName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
                         await _groupService.IsAdmin(_workContext.CurrentCustomer));
                     foreach (var category in categories)
                     {
@@ -108,9 +108,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
                 {
-                    var collections = await _collectionService.GetAllCollections(searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var collections = await _collectionService.GetAllCollections(searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var collection in collections)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -122,7 +122,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
                 {
                     var pages = (await _pageService.GetAllPages("")).Where(x => (x.SystemName != null && x.SystemName.ToLower().Contains(searchTerm.ToLower())) ||
                     (x.Title != null && x.Title.ToLower().Contains(searchTerm.ToLower())));
@@ -137,9 +137,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
                 {
-                    var news = await _newsService.GetAllNews(newsTitle: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var news = await _newsService.GetAllNews(newsTitle: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var signleNews in news)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -151,9 +151,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInBlogs)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInBlogs)
                 {
-                    var blogPosts = await _blogService.GetAllBlogPosts(blogPostName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var blogPosts = await _blogService.GetAllBlogPosts(blogPostName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var blogPost in blogPosts)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -165,14 +165,14 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCustomers)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCustomers)
                 {
-                    var customersByEmail = await _customerService.GetAllCustomers(email: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count());
+                    var customersByEmail = await _customerService.GetAllCustomers(email: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count);
                     IPagedList<Customer> customersByUsername = new PagedList<Customer>();
-                    if (_adminSearchSettings.MaxSearchResultsCount - result.Count() - customersByEmail.Count() > 0)
+                    if (_adminSearchSettings.MaxSearchResultsCount - result.Count - customersByEmail.Count > 0)
                     {
                         customersByUsername = await _customerService.GetAllCustomers(username: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount
-                            - result.Count() - customersByEmail.Count());
+                            - result.Count - customersByEmail.Count);
                     }
                     var combined = customersByEmail.Union(customersByUsername).GroupBy(x => x.Email).Select(x => x.First());
 
@@ -187,11 +187,11 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInMenu && foundMenuItems != null && foundMenuItems.Any())
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInMenu && foundMenuItems != null && foundMenuItems.Any())
                 {
                     foreach (var menuItem in foundMenuItems)
                     {
-                        if (result.Count() >= _adminSearchSettings.MaxSearchResultsCount)
+                        if (result.Count >= _adminSearchSettings.MaxSearchResultsCount)
                             break;
 
                         string formatted = _translationService.GetResource("Admin.AdminSearch.Menu") + " > ";
@@ -214,7 +214,7 @@ namespace Grand.Web.Admin.Controllers
                 }
             }
 
-            if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInOrders)
+            if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInOrders)
             {
                 int.TryParse(searchTerm, out int orderNumber);
                 if (orderNumber > 0)

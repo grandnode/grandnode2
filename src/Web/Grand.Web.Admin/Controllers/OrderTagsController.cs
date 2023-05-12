@@ -51,7 +51,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = orderTagsList.OrderByDescending(x => x.OrderCount).PagedForCommand(command),
-                Total = tags.Count()
+                Total = tags.Count
             };
 
             return Json(gridModel);

@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult {
                 Data = storeModels,
-                Total = storeModels.Count()
+                Total = storeModels.Count
             };
 
             return Json(gridModel);

@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = emailAccountModels,
-                Total = emailAccountModels.Count()
+                Total = emailAccountModels.Count
             };
 
             return Json(gridModel);

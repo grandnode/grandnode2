@@ -161,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = shippingProvidersModel,
-                Total = shippingProvidersModel.Count()
+                Total = shippingProvidersModel.Count
             };
 
             return Json(gridModel);

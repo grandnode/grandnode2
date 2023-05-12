@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Services
                     var attributeModel = x.ToModel();
                     attributeModel.AttributeControlTypeName = x.AttributeControlType.GetTranslationEnum(_translationService, _workContext);
                     return attributeModel;
-                }), addressAttributes.Count());
+                }), addressAttributes.Count);
         }
 
         public virtual AddressAttributeModel PrepareAddressAttributeModel()
@@ -61,7 +61,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<AddressAttributeValueModel> addressAttributeValues, int totalCount)> PrepareAddressAttributeValues(string addressAttributeId)
         {
             var values = (await _addressAttributeService.GetAddressAttributeById(addressAttributeId)).AddressAttributeValues;
-            return (values.Select(x => x.ToModel()), values.Count());
+            return (values.Select(x => x.ToModel()), values.Count);
         }
 
         public virtual AddressAttributeValueModel PrepareAddressAttributeValueModel(string addressAttributeId)

@@ -2145,7 +2145,7 @@ namespace Grand.Web.Admin.Controllers
             var values = await _productViewModelService.PrepareProductAttributeValueModels(product, productAttributeMapping);
             var gridModel = new DataSourceResult {
                 Data = values,
-                Total = values.Count()
+                Total = values.Count
             };
             return Json(gridModel);
         }

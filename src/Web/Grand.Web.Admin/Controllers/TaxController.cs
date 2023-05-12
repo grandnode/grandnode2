@@ -97,7 +97,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = taxProvidersModel,
-                Total = taxProvidersModel.Count()
+                Total = taxProvidersModel.Count
             };
 
             return Json(gridModel);

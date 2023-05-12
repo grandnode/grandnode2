@@ -152,7 +152,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = pluginInfos.Count()
+                Total = pluginInfos.Count
             };
             return Json(gridModel);
         }
