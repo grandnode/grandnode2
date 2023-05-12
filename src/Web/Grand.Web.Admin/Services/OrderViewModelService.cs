@@ -1144,14 +1144,14 @@ namespace Grand.Web.Admin.Services
 
             #region Gift vouchers
 
-            string recipientName = "";
-            string recipientEmail = "";
-            string senderName = "";
-            string senderEmail = "";
-            string giftVoucherMessage = "";
+            var recipientName = "";
+            var recipientEmail = "";
+            var senderName = "";
+            var senderEmail = "";
+            var giftVoucherMessage = "";
             if (product.IsGiftVoucher)
             {
-                foreach (string formKey in form.Keys)
+                foreach (var formKey in form.Keys)
                 {
                     if (formKey.Equals("giftvoucher.RecipientName", StringComparison.OrdinalIgnoreCase))
                     {
@@ -1176,7 +1176,6 @@ namespace Grand.Web.Admin.Services
                     if (formKey.Equals("giftvoucher.Message", StringComparison.OrdinalIgnoreCase))
                     {
                         giftVoucherMessage = form[formKey];
-                        continue;
                     }
                 }
                 customattributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customattributes,
