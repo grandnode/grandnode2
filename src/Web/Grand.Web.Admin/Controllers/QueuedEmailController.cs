@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Controllers
                 Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
                 {
                     var m = x.ToModel();
-                    m.PriorityName = TranslateExtensions.GetTranslationEnum<QueuedEmailPriority>(x.PriorityId, _translationService, _workContext);
+                    m.PriorityName = x.PriorityId.GetTranslationEnum(_translationService, _workContext);
                     m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     if (x.DontSendBeforeDateUtc.HasValue)
                         m.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(x.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);

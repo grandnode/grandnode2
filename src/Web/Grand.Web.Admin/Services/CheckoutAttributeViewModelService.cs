@@ -170,7 +170,7 @@ namespace Grand.Web.Admin.Services
             return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
                 {
                     var attributeModel = x.ToModel();
-                    attributeModel.AttributeControlTypeName = TranslateExtensions.GetTranslationEnum<AttributeControlType>(x.AttributeControlTypeId, _translationService, _workContext);
+                    attributeModel.AttributeControlTypeName = x.AttributeControlTypeId.GetTranslationEnum(_translationService, _workContext);
                     return attributeModel;
                 }));
         }
