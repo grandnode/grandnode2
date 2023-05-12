@@ -431,27 +431,25 @@ namespace Grand.Web.Admin.Controllers
                     var _fpath = "";
                     foreach (var entry in archive.Entries.Where(x => x.FullName.Contains(".dll")))
                     {
-                        using (var unzippedEntryStream = entry.Open())
+                        using var unzippedEntryStream = entry.Open();
+                        try
                         {
-                            try
+                            var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
+                            var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
+                            if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
                             {
-                                var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
-                                var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                                if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
-                                {
-                                    supportedVersion = true;
-                                    _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
-                                    archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
-                                        .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
+                                supportedVersion = true;
+                                _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
+                                archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
+                                    .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
 
-                                    _pluginInfo = new PluginInfo();
-                                    break;
-                                }
+                                _pluginInfo = new PluginInfo();
+                                break;
                             }
-                            catch (Exception ex)
-                            {
-                                _ = _logger.Error(ex.Message);
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _ = _logger.Error(ex.Message);
                         }
                     }
                     if (!supportedVersion)
