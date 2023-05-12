@@ -193,8 +193,6 @@ namespace Grand.Web.Admin.Controllers
                 case 2:
                     active = false;
                     break;
-                default:
-                    break;
             }
             var entityUrls = await _slugService.GetAllEntityUrl(model.SeName, active, command.Page - 1, command.PageSize);
             var items = new List<UrlEntityModel>();
@@ -249,8 +247,6 @@ namespace Grand.Web.Admin.Controllers
                         break;
                     case "knowledgebasearticle":
                         detailsUrl = Url.Action("EditArticle", "Knowledgebase", new { id = x.EntityId, area = Constants.AreaAdmin });
-                        break;
-                    default:
                         break;
                 }
 

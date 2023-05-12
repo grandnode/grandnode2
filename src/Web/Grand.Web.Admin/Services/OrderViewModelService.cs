@@ -1123,8 +1123,6 @@ namespace Grand.Web.Admin.Services
                             }
                         }
                         break;
-                    default:
-                        break;
                 }
             }
             //validate conditional attributes (if specified)

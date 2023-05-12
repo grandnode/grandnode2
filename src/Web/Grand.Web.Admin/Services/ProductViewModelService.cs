@@ -2447,8 +2447,6 @@ namespace Grand.Web.Admin.Services
                                 }
                             }
                             break;
-                        default:
-                            break;
                     }
                 }
 
@@ -2832,8 +2830,6 @@ namespace Grand.Web.Admin.Services
                         break;
                     case SpecificationAttributeType.Hyperlink:
                         psaModel.ValueRaw = x.CustomValue;
-                        break;
-                    default:
                         break;
                 }
                 items.Add(psaModel);
