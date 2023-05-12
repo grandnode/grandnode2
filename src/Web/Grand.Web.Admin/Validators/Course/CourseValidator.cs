@@ -16,7 +16,7 @@ namespace Grand.Web.Admin.Validators.Course
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Courses.Course.Fields.Name.Required"));
-            RuleFor(x => x.ProductId).MustAsync(async (x, y, context) =>
+            RuleFor(x => x.ProductId).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ProductId))
                 {

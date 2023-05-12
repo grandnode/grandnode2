@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Validators.Stores
             : base(validators)
         {
             RuleFor(x => x.Url).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Stores.Domains.Fields.Url.Required"));
-            RuleFor(x => x.Url).Must((x, y, context) =>
+            RuleFor(x => x.Url).Must((x, _, _) =>
             {
                 try
                 {

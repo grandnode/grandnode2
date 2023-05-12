@@ -17,7 +17,7 @@ namespace Grand.Web.Admin.Validators.Catalog
         {
             if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
             {
-                RuleFor(x => x).MustAsync(async (x, y, context) =>
+                RuleFor(x => x).MustAsync(async (x, _, _) =>
                 {
                     var category = await categoryService.GetCategoryById(x.CategoryId);
                     if (category != null)

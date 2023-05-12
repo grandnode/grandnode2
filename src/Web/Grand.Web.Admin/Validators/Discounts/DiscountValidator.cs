@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Validators.Discounts
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("admin.marketing.discounts.Fields.Name.Required"));
-            RuleFor(x => x).Must((x, context) =>
+            RuleFor(x => x).Must((x, _) =>
             {
                 if (x.CalculateByPlugin && string.IsNullOrEmpty(x.DiscountPluginName))
                 {

@@ -14,7 +14,7 @@ namespace Grand.Web.Admin.Validators.Customers
             : base(validators)
         {
             RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Admin.System.UserApi.Email.Required"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Email))
                 {

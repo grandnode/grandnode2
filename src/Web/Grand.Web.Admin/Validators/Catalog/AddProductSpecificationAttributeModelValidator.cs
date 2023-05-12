@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Validators.Catalog
         {
             if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
             {
-                RuleFor(x => x).MustAsync(async (x, y, context) =>
+                RuleFor(x => x).MustAsync(async (x, _, _) =>
                 {
                     var product = await productService.GetProductById(x.ProductId);
                     if (product != null)
@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Validators.Catalog
             }
             else if (workContext.CurrentVendor != null)
             {
-                RuleFor(x => x).MustAsync(async (x, y, context) =>
+                RuleFor(x => x).MustAsync(async (x, _, _) =>
                 {
                     var product = await productService.GetProductById(x.ProductId);
                     if (product != null)
@@ -41,7 +41,7 @@ namespace Grand.Web.Admin.Validators.Catalog
                 }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permisions"));
             }
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (x.AttributeTypeId == Domain.Catalog.SpecificationAttributeType.Option)
                 {
