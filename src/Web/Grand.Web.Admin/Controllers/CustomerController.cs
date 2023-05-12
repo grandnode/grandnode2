@@ -182,8 +182,8 @@ namespace Grand.Web.Admin.Controllers
 
         protected virtual async Task<bool> CheckSalesManager(Customer customer)
         {
-            return (await _groupService.IsSalesManager(_workContext.CurrentCustomer)
-                && (_workContext.CurrentCustomer.SeId != customer.SeId));
+            return await _groupService.IsSalesManager(_workContext.CurrentCustomer)
+                   && _workContext.CurrentCustomer.SeId != customer.SeId;
         }
 
         #region Customers

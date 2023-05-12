@@ -1609,7 +1609,7 @@ namespace Grand.Web.Admin.Services
             {
                 model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
-                foreach (var s in (await _storeService.GetAllStores()))
+                foreach (var s in await _storeService.GetAllStores())
                 {
                     model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
                 }

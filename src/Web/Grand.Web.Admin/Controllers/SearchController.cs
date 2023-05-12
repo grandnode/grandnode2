@@ -281,10 +281,10 @@ namespace Grand.Web.Admin.Controllers
             }
             var storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var categories = (await _categoryService.GetAllCategories(
-                   storeId: storeId,
-                   categoryName: value,
-                   pageSize: _adminSearchSettings.CategorySizeLimit));
+            var categories = await _categoryService.GetAllCategories(
+                storeId: storeId,
+                categoryName: value,
+                pageSize: _adminSearchSettings.CategorySizeLimit);
             var gridModel = new DataSourceResult
             {
                 Data = await PrepareModel(categories)
@@ -326,10 +326,10 @@ namespace Grand.Web.Admin.Controllers
 
             var storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var collections = (await _collectionService.GetAllCollections(
-                    storeId: storeId,
-                    collectionName: value,
-                    pageSize: _adminSearchSettings.CollectionSizeLimit));
+            var collections = await _collectionService.GetAllCollections(
+                storeId: storeId,
+                collectionName: value,
+                pageSize: _adminSearchSettings.CollectionSizeLimit);
 
             var gridModel = new DataSourceResult
             {
@@ -373,9 +373,9 @@ namespace Grand.Web.Admin.Controllers
                 return model;
             }
 
-            var groups = (await _groupService.GetAllCustomerGroups(
-                     name: value,
-                     pageSize: _adminSearchSettings.CustomerGroupSizeLimit));
+            var groups = await _groupService.GetAllCustomerGroups(
+                name: value,
+                pageSize: _adminSearchSettings.CustomerGroupSizeLimit);
 
             var gridModel = new DataSourceResult
             {
@@ -461,9 +461,9 @@ namespace Grand.Web.Admin.Controllers
                 }
                 return model;
             }
-            var vendors = (await _vendorService.GetAllVendors(
-                   name: value,
-                   pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true));
+            var vendors = await _vendorService.GetAllVendors(
+                name: value,
+                pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true);
             var gridModel = new DataSourceResult
             {
                 Data = await PrepareModel(vendors)
@@ -501,9 +501,9 @@ namespace Grand.Web.Admin.Controllers
                 }
                 return model;
             }
-            var brands = (await _brandService.GetAllBrands(
-                   brandName: value,
-                   pageSize: _adminSearchSettings.BrandSizeLimit));
+            var brands = await _brandService.GetAllBrands(
+                brandName: value,
+                pageSize: _adminSearchSettings.BrandSizeLimit);
             var gridModel = new DataSourceResult
             {
                 Data = await PrepareModel(brands)

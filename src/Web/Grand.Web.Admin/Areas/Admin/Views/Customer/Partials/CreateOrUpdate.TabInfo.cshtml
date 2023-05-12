@@ -203,11 +203,11 @@
                     <admin-label asp-for="Gender" />
                     <div class="col-md-9 col-sm-9">
                         <div class="gender">
-                            @Html.RadioButton("Gender", "M", (Model.Gender == "M"), new { id = "Gender_Male" })
+                            @Html.RadioButton("Gender", "M", Model.Gender == "M", new { id = "Gender_Male" })
                             <label class="forcheckbox" for="Gender_Male">@Loc["Admin.Customers.Customers.Fields.Gender.Male"]</label>
                         </div>
                         <div class="gender">
-                            @Html.RadioButton("Gender", "F", (Model.Gender == "F"), new { id = "Gender_Female" })
+                            @Html.RadioButton("Gender", "F", Model.Gender == "F", new { id = "Gender_Female" })
                             <label class="forcheckbox" for="Gender_Female">@Loc["Admin.Customers.Customers.Fields.Gender.Female"]</label>
                         </div>
                     </div>

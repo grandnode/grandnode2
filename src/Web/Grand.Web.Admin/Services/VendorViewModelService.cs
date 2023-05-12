@@ -136,13 +136,13 @@ namespace Grand.Web.Admin.Services
             //address
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (vendor != null && c.Id == vendor.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = vendor != null && c.Id == vendor.Address.CountryId });
 
             var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (vendor != null && s.Id == vendor.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = vendor != null && s.Id == vendor.Address.StateProvinceId });
             }
         }
 
@@ -323,10 +323,10 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<VendorReviewModel> vendorReviewModels, int totalCount)> PrepareVendorReviewModel(VendorReviewListModel model, int pageIndex, int pageSize)
         {
-            DateTime? createdOnFromValue = (model.CreatedOnFrom == null) ? null
+            DateTime? createdOnFromValue = model.CreatedOnFrom == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? createdToFromValue = (model.CreatedOnTo == null) ? null
+            DateTime? createdToFromValue = model.CreatedOnTo == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             IPagedList<VendorReview> vendorReviews = await _vendorService.GetAllVendorReviews("", null,

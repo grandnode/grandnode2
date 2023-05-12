@@ -213,7 +213,7 @@ namespace Grand.Web.Admin.Services
 
             //order's tags
             model.AvailableOrderTags.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-            foreach (var s in (await _orderTagService.GetAllOrderTags()))
+            foreach (var s in await _orderTagService.GetAllOrderTags())
             {
                 model.AvailableOrderTags.Add(new SelectListItem { Text = s.Name, Value = s.Id });
             }
@@ -268,15 +268,15 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<OrderModel> orderModels, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
+            DateTime? startDateValue = model.StartDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
+            DateTime? endDateValue = model.EndDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)(model.ShippingStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
 
             var filterByProductId = "";
@@ -530,7 +530,7 @@ namespace Grand.Web.Admin.Services
                 var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
                 if (order.CurrencyRate > 0)
                 {
-                    var profit = Convert.ToDouble((order.OrderTotal / order.CurrencyRate) - (order.OrderShippingExclTax / order.CurrencyRate) - (order.OrderTax / order.CurrencyRate) - productCost);
+                    var profit = Convert.ToDouble(order.OrderTotal / order.CurrencyRate - order.OrderShippingExclTax / order.CurrencyRate - order.OrderTax / order.CurrencyRate - productCost);
                     model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
                 }
             }
@@ -914,13 +914,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
             //states
             var states = !string.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
             }
 
             //customer attribute services
@@ -1234,15 +1234,15 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IList<Order>> PrepareOrders(OrderListModel model)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
+            DateTime? startDateValue = model.StartDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
+            DateTime? endDateValue = model.EndDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)(model.ShippingStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
             var filterByProductId = "";
             var product = await _productService.GetProductById(model.ProductId);

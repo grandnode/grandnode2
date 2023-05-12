@@ -83,10 +83,10 @@ namespace Grand.Web.Admin.Controllers
             {
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
             }
-            DateTime? startDateValue = (model.StartDate == null) ? null
+            DateTime? startDateValue = model.StartDate == null ? null
                 : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
+            DateTime? endDateValue = model.EndDate == null ? null
                 : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
             Guid? orderGuid = null;

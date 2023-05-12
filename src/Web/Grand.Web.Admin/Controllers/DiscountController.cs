@@ -270,7 +270,7 @@ namespace Grand.Web.Admin.Controllers
 
             couponCode = couponCode.ToUpper();
 
-            if ((await _discountService.GetDiscountByCouponCode(couponCode)) != null)
+            if (await _discountService.GetDiscountByCouponCode(couponCode) != null)
                 return new JsonResult(new DataSourceResult() { Errors = "Coupon code exists" });
             if (ModelState.IsValid)
             {
@@ -743,7 +743,7 @@ namespace Grand.Web.Admin.Controllers
             var vendors = await vendorService.GetAllVendors(model.SearchVendorName, command.Page - 1, command.PageSize, true);
 
             //search for emails
-            if (!(string.IsNullOrEmpty(model.SearchVendorEmail)))
+            if (!string.IsNullOrEmpty(model.SearchVendorEmail))
             {
                 var tempVendors = vendors.Where(x => x.Email.ToLowerInvariant().Contains(model.SearchVendorEmail.Trim()));
                 vendors = new PagedList<Domain.Vendors.Vendor>(tempVendors, command.Page - 1, command.PageSize);

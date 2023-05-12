@@ -391,7 +391,7 @@ namespace Grand.Web.Admin.Services
                 CompanyEnabled = _customerSettings.CompanyEnabled,
                 PhoneEnabled = _customerSettings.PhoneEnabled,
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
-                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem() { Text = cr.Name, Value = cr.Id.ToString(), Selected = (cr.Id == registered.Id) }).ToList(),
+                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem() { Text = cr.Name, Value = cr.Id.ToString(), Selected = cr.Id == registered.Id }).ToList(),
                 AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
                 SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id }
             };
@@ -563,7 +563,7 @@ namespace Grand.Web.Admin.Services
                     if (states != null)
                         foreach (var s in states)
                         {
-                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.StateProvinceId) });
+                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
                         }
                 }
             }
@@ -587,7 +587,7 @@ namespace Grand.Web.Admin.Services
                     model.LoyaltyPointsAvailableStores.Add(new SelectListItem {
                         Text = store.Shortcut,
                         Value = store.Id,
-                        Selected = (store.Id == _workContext.CurrentStore.Id)
+                        Selected = store.Id == _workContext.CurrentStore.Id
                     });
                 }
 
@@ -635,7 +635,7 @@ namespace Grand.Web.Admin.Services
             if (!isInGuestsGroup && !isInRegisteredGroup)
                 return "Add the customer to 'Guests' or 'Registered' customer group";
 
-            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && ((isInGuestsGroup) || customerGroups.Count != 1))
+            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && (isInGuestsGroup || customerGroups.Count != 1))
                 return "Sales manager can assign role 'Registered' only";
 
             if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && isAdminGroup)
@@ -1072,7 +1072,7 @@ namespace Grand.Web.Admin.Services
                 Subject = model.Subject,
                 Body = model.Body,
                 CreatedOnUtc = DateTime.UtcNow,
-                DontSendBeforeDateUtc = (model.SendImmediately || !model.DontSendBeforeDate.HasValue) ?
+                DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
                         null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
@@ -1202,13 +1202,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
             //states
             var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
             }
 
             //customer attribute services

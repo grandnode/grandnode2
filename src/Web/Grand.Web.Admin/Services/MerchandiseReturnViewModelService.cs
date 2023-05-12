@@ -149,10 +149,10 @@ namespace Grand.Web.Admin.Services
                 else
                     customerId = "00000000-0000-0000-0000-000000000000";
             }
-            DateTime? startDateValue = (model.StartDate == null) ? null
+            DateTime? startDateValue = model.StartDate == null ? null
                 : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
+            DateTime? endDateValue = model.EndDate == null ? null
                 : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
             var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(model.StoreId,
@@ -160,7 +160,7 @@ namespace Grand.Web.Admin.Services
                 "",
                 _workContext.CurrentVendor?.Id,
                 "",
-                (model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null),
+                model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null,
                 pageIndex - 1,
                 pageSize,
                 startDateValue,
@@ -215,13 +215,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = (c.Id == model.CountryId) });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.CountryId });
             //states
             var states = !string.IsNullOrEmpty(model.CountryId) ? (await _countryService.GetCountryById(model.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = (s.Id == model.StateProvinceId) });
+                    model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
             }
             //customer attribute services
             await model.PrepareCustomAddressAttributes(address, _addressAttributeService, _addressAttributeParser);

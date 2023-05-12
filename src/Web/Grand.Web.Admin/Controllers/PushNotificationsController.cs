@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Controllers
                 _pushNotificationsSettings.ClickUrl = model.ClickUrl;
                 await _settingService.SaveSetting(_pushNotificationsSettings);
                 var pictureUrl = await _pictureService.GetPictureUrl(model.PictureId);
-                var result = (await _pushNotificationsService.SendPushNotification(model.Title, model.MessageText, pictureUrl, model.ClickUrl));
+                var result = await _pushNotificationsService.SendPushNotification(model.Title, model.MessageText, pictureUrl, model.ClickUrl);
                 if (result.Item1)
                 {
                     Success(result.Item2);

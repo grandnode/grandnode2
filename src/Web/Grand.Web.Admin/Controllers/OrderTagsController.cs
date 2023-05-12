@@ -37,7 +37,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public async Task<IActionResult> List(DataSourceRequest command)
         {
-            var tags = (await _orderTagService.GetAllOrderTags());
+            var tags = await _orderTagService.GetAllOrderTags();
             var orderTagsList = new List<OrderTagModel>();
             foreach (var tag in tags)
             {

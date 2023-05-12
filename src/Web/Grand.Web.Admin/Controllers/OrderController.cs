@@ -71,8 +71,8 @@ namespace Grand.Web.Admin.Controllers
 
         protected virtual async Task<bool> CheckSalesManager(Order order)
         {
-            return (await _groupService.IsSalesManager(_workContext.CurrentCustomer)
-                && (_workContext.CurrentCustomer.SeId != order.SeId));
+            return await _groupService.IsSalesManager(_workContext.CurrentCustomer)
+                   && _workContext.CurrentCustomer.SeId != order.SeId;
         }
 
         #endregion
@@ -403,7 +403,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return RedirectToAction("Edit", "Order", new { id });
 
-            var shipments = (await shipmentService.GetShipmentsByOrder(order.Id));
+            var shipments = await shipmentService.GetShipmentsByOrder(order.Id);
             if (shipments.Any())
                 ModelState.AddModelError("", "This order is in associated with shipment. Please delete it first.");
 
@@ -436,7 +436,7 @@ namespace Grand.Web.Admin.Controllers
                 for (var i = 0; i < orders.Count; i++)
                 {
                     var order = orders[i];
-                    var shipments = (await shipmentService.GetShipmentsByOrder(order.Id));
+                    var shipments = await shipmentService.GetShipmentsByOrder(order.Id);
                     if (shipments.Any())
                         Error("Some orders is in associated with shipments. Please delete it first.");
 
@@ -717,7 +717,7 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem.UnitPriceExclTax != unitPriceExclTax)
             {
                 orderItem.UnitPriceExclTax = unitPriceExclTax;
-                orderItem.UnitPriceInclTax = Math.Round((orderItem.UnitPriceExclTax * orderItem.TaxRate / 100) + orderItem.UnitPriceExclTax, 2);
+                orderItem.UnitPriceInclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.TaxRate / 100 + orderItem.UnitPriceExclTax, 2);
                 orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
                 orderItem.PriceExclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.Quantity, 2);
 

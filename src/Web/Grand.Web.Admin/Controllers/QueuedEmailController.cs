@@ -77,10 +77,10 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> QueuedEmailList(DataSourceRequest command, QueuedEmailListModel model)
         {
-            DateTime? startDateValue = (model.SearchStartDate == null) ? null
+            DateTime? startDateValue = model.SearchStartDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.SearchEndDate == null) ? null
+            DateTime? endDateValue = model.SearchEndDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             var queuedEmails = await _queuedEmailService.SearchEmails(model.SearchFromEmail, model.SearchToEmail, model.SearchText,
@@ -138,7 +138,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 email = model.ToEntity(email);
-                email.DontSendBeforeDateUtc = (model.SendImmediately || !model.DontSendBeforeDate.HasValue) ?
+                email.DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
                     null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value);
                 await _queuedEmailService.UpdateQueuedEmail(email);
 
@@ -185,7 +185,7 @@ namespace Grand.Web.Admin.Controllers
                 AttachedDownloads = queuedEmail.AttachedDownloads,
                 CreatedOnUtc = DateTime.UtcNow,
                 EmailAccountId = queuedEmail.EmailAccountId,
-                DontSendBeforeDateUtc = (queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue) ?
+                DontSendBeforeDateUtc = queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue ?
                     null : _dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)
             };
             await _queuedEmailService.InsertQueuedEmail(requeuedEmail);

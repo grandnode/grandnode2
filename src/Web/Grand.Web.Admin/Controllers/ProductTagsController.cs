@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> List(DataSourceRequest command)
         {
-            var tags = (await _productTagService.GetAllProductTags());
+            var tags = await _productTagService.GetAllProductTags();
             var productTags = new List<ProductTagModel>();
             foreach (var item in tags)
             {

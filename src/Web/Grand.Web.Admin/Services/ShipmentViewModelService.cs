@@ -294,10 +294,10 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
+            DateTime? startDateValue = model.StartDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
+            DateTime? endDateValue = model.EndDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             //load shipments
@@ -563,7 +563,7 @@ namespace Grand.Web.Admin.Services
                 var product = await _productService.GetProductById(orderItem.ProductId);
                 var warehouseId = "";
                 if (product != null && (((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
-                    product.UseMultipleWarehouses) || (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)))
+                    product.UseMultipleWarehouses) || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts))
                 {
                     //multiple warehouses supported
                     //warehouse is chosen by a store owner

@@ -125,7 +125,7 @@ namespace Grand.Web.Admin.Controllers
 
             //current host
             var currenthostName = _workContext.CurrentHost.HostName;
-            if (!string.IsNullOrEmpty(currenthostName) && (currenthostName.Equals(HttpContext.Request.Host.Value, StringComparison.OrdinalIgnoreCase)))
+            if (!string.IsNullOrEmpty(currenthostName) && currenthostName.Equals(HttpContext.Request.Host.Value, StringComparison.OrdinalIgnoreCase))
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.URL.Match")
