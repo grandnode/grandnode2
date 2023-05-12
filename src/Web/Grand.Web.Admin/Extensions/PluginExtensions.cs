@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Extensions
             if (workContext == null)
                 throw new ArgumentNullException(nameof(workContext));
 
-            if (pluginDescriptor.OriginalAssemblyFile == null || pluginDescriptor.OriginalAssemblyFile.Directory == null)
+            if (pluginDescriptor.OriginalAssemblyFile?.Directory == null)
             {
                 return null;
             }
