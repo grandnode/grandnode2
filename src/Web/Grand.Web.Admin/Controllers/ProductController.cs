@@ -900,7 +900,7 @@ namespace Grand.Web.Admin.Controllers
                 crossSellProductsModel.Add(new ProductModel.CrossSellProductModel {
                     Id = x,
                     ProductId = product.Id,
-                    Product2Name = (await _productService.GetProductById(x))?.Name,
+                    Product2Name = (await _productService.GetProductById(x))?.Name
                 });
             }
             var gridModel = new DataSourceResult {
@@ -994,7 +994,7 @@ namespace Grand.Web.Admin.Controllers
                 recommendedProductsModel.Add(new ProductModel.RecommendedProductModel {
                     Id = x,
                     ProductId = product.Id,
-                    Product2Name = (await _productService.GetProductById(x))?.Name,
+                    Product2Name = (await _productService.GetProductById(x))?.Name
                 });
             }
             var gridModel = new DataSourceResult {
@@ -1197,14 +1197,14 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Access denied - picture permissions",
+                    message = "Access denied - picture permissions"
                 });
 
             if (reference != Reference.Product || string.IsNullOrEmpty(objectId))
                 return Json(new
                 {
                     success = false,
-                    message = "Please save form before upload new pictures",
+                    message = "Please save form before upload new pictures"
                 });
 
             var form = await HttpContext.Request.ReadFormAsync();
@@ -1214,7 +1214,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "No files uploaded",
+                    message = "No files uploaded"
                 });
             }
 
@@ -1225,7 +1225,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Access denied - vendor permissions",
+                    message = "Access denied - vendor permissions"
                 });
 
 
@@ -1234,7 +1234,7 @@ namespace Grand.Web.Admin.Controllers
                     return Json(new
                     {
                         success = false,
-                        message = "Access denied - staff permissions",
+                        message = "Access denied - staff permissions"
                     });
 
             var values = new List<(string pictureUrl, string pictureId)>();
@@ -1543,7 +1543,7 @@ namespace Grand.Web.Admin.Controllers
             }
             var gridModel = new DataSourceResult {
                 Data = items,
-                Total = productReviews.Count,
+                Total = productReviews.Count
             };
 
             return Json(gridModel);
@@ -1718,7 +1718,7 @@ namespace Grand.Web.Admin.Controllers
                     await _productService.InsertProductPrice(new ProductPrice() {
                         ProductId = product.Id,
                         CurrencyCode = model.CurrencyCode,
-                        Price = model.Price,
+                        Price = model.Price
                     });
                     return new JsonResult("");
                 }
@@ -2122,7 +2122,7 @@ namespace Grand.Web.Admin.Controllers
                 ProductName = product.Name,
                 ProductId = product.Id,
                 ProductAttributeName = productAttribute.Name,
-                ProductAttributeMappingId = productAttributeMappingId,
+                ProductAttributeMappingId = productAttributeMappingId
             };
 
             return View(model);
@@ -2784,7 +2784,7 @@ namespace Grand.Web.Admin.Controllers
                                 ProductId = productId,
                                 Resource = model.Resource,
                                 Parameter = model.Parameter,
-                                Duration = model.Interval + " " + ((IntervalUnit)model.IntervalUnit).GetTranslationEnum(_translationService, _workContext),
+                                Duration = model.Interval + " " + ((IntervalUnit)model.IntervalUnit).GetTranslationEnum(_translationService, _workContext)
                             });
                         }
                     }

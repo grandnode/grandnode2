@@ -58,7 +58,7 @@ namespace Grand.Web.Admin.Services
             return new CustomerModel
             {
                 Id = customer.Id,
-                Email = !string.IsNullOrEmpty(customer.Email) ? customer.Email : _translationService.GetResource("Admin.Customers.Guest"),
+                Email = !string.IsNullOrEmpty(customer.Email) ? customer.Email : _translationService.GetResource("Admin.Customers.Guest")
             };
         }
         public virtual CustomerTagModel PrepareCustomerTagModel()

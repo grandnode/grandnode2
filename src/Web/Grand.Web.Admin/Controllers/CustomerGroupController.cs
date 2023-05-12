@@ -68,7 +68,7 @@ namespace Grand.Web.Admin.Controllers
                     var rolesModel = x.ToModel();
                     return rolesModel;
                 }),
-                Total = customerGroups.TotalCount,
+                Total = customerGroups.TotalCount
             };
             return Json(gridModel);
         }

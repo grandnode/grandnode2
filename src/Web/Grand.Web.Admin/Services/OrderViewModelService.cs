@@ -461,7 +461,7 @@ namespace Grand.Web.Admin.Services
                 model.TaxRates.Add(new OrderModel.TaxRate
                 {
                     Rate = _priceFormatter.FormatTaxRate(tr.Percent),
-                    Value = await _priceFormatter.FormatPrice(tr.Amount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage),
+                    Value = await _priceFormatter.FormatPrice(tr.Amount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage)
                 });
             }
             model.DisplayTaxRates = displayTaxRates;
@@ -483,7 +483,7 @@ namespace Grand.Web.Admin.Services
                     model.GiftVouchers.Add(new OrderModel.GiftVoucher
                     {
                         CouponCode = giftVoucher.Code,
-                        Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage),
+                        Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage)
                     });
                 }
             }
@@ -519,7 +519,7 @@ namespace Grand.Web.Admin.Services
                     model.UsedDiscounts.Add(new OrderModel.UsedDiscountModel
                     {
                         DiscountId = d.DiscountId,
-                        DiscountName = discount.Name,
+                        DiscountName = discount.Name
                     });
                 }
             }
@@ -722,7 +722,7 @@ namespace Grand.Web.Admin.Services
                         IsDownload = product.IsDownload,
                         DownloadCount = orderItem.DownloadCount,
                         DownloadActivationType = product.DownloadActivationTypeId,
-                        IsDownloadActivated = orderItem.IsDownloadActivated,
+                        IsDownloadActivated = orderItem.IsDownloadActivated
                     };
                     //picture
                     var orderItemPicture = await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
@@ -960,7 +960,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 OrderId = order.Id,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _orderService.InsertOrderNote(orderNote);
 
@@ -1010,7 +1010,7 @@ namespace Grand.Web.Admin.Services
                 Note = "Address has been edited",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
             });
             _ = LogEditOrder(order.Id);
             return address;
@@ -1221,7 +1221,7 @@ namespace Grand.Web.Admin.Services
                     IsDownloadActivated = false,
                     LicenseDownloadId = "",
                     IsShipEnabled = product.IsShipEnabled,
-                    CreatedOnUtc = DateTime.UtcNow,
+                    CreatedOnUtc = DateTime.UtcNow
                 };
 
                 await _mediator.Send(new InsertOrderItemCommand() { Order = order, OrderItem = orderItem, Product = product });

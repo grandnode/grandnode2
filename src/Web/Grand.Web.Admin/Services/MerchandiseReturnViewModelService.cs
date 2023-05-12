@@ -335,7 +335,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 MerchandiseReturnId = merchandiseReturn.Id,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 

@@ -187,7 +187,7 @@ namespace Grand.Web.Admin.Services
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,
                 IsPreSelected = x.IsPreSelected,
-                DisplayOrder = x.DisplayOrder,
+                DisplayOrder = x.DisplayOrder
             });
         }
         public virtual async Task<CheckoutAttributeModel> PrepareCheckoutAttributeModel()

@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Controllers
             var (vendorReviewModels, totalCount) = await _vendorViewModelService.PrepareVendorReviewModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
                 Data = vendorReviewModels.ToList(),
-                Total = totalCount,
+                Total = totalCount
             };
 
             return Json(gridModel);

@@ -308,7 +308,7 @@ namespace Grand.Web.Admin.Services
                             new ProductCollection {
                                 CollectionId = model.CollectionId,
                                 IsFeaturedProduct = false,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             }, product.Id);
                     }
                 }

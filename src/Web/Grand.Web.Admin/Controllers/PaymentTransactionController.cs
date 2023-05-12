@@ -136,7 +136,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = dataModel.ToList(),
-                Total = paymentTransactions.TotalCount,
+                Total = paymentTransactions.TotalCount
             };
 
             return Json(gridModel);

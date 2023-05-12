@@ -347,7 +347,7 @@ namespace Grand.Web.Admin.Services
                             new ProductCategory {
                                 CategoryId = model.CategoryId,
                                 IsFeaturedProduct = false,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             }, product.Id);
                     }
                 }

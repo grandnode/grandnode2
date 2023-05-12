@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = merchandiseReturnModels.merchandiseReturnModels,
-                Total = merchandiseReturnModels.totalCount,
+                Total = merchandiseReturnModels.totalCount
             };
 
             return Json(gridModel);
@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = items.Count,
+                Total = items.Count
             };
 
             return Json(gridModel);

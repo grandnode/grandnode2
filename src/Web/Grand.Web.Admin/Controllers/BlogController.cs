@@ -561,7 +561,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = model.blogComments,
-                Total = model.totalCount,
+                Total = model.totalCount
             };
             return Json(gridModel);
         }
@@ -603,7 +603,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = model.blogProducts,
-                Total = model.totalCount,
+                Total = model.totalCount
             };
             return Json(gridModel);
         }

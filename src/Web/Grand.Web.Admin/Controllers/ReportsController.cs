@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
-                    TotalQuantity = x.TotalQuantity,
+                    TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
                 if (product != null)
@@ -275,7 +275,7 @@ namespace Grand.Web.Admin.Controllers
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
-                    TotalQuantity = x.TotalQuantity,
+                    TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
                 if (product != null)
@@ -359,7 +359,7 @@ namespace Grand.Web.Admin.Controllers
                 Data = items.Select(x =>
                     new NeverSoldReportLineModel {
                         ProductId = x.Id,
-                        ProductName = x.Name,
+                        ProductName = x.Name
                     }),
                 Total = items.TotalCount
             };
@@ -397,7 +397,7 @@ namespace Grand.Web.Admin.Controllers
                 SumThisWeekOrders = _priceFormatter.FormatPrice(x.SumThisWeekOrders, false),
                 SumThisMonthOrders = _priceFormatter.FormatPrice(x.SumThisMonthOrders, false),
                 SumThisYearOrders = _priceFormatter.FormatPrice(x.SumThisYearOrders, false),
-                SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false),
+                SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false)
             }).ToList();
 
             var gridModel = new DataSourceResult {
@@ -554,7 +554,7 @@ namespace Grand.Web.Admin.Controllers
                 var m = new CountryReportLineModel {
                     CountryName = country != null ? country.Name : "Unknown",
                     SumOrders = _priceFormatter.FormatPrice(x.SumOrders, false),
-                    TotalOrders = x.TotalOrders,
+                    TotalOrders = x.TotalOrders
                 };
                 result.Add(m);
             }
@@ -633,7 +633,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult {
                 Data = searchTermRecordLines.Select(x => new SearchTermReportLineModel {
                     Keyword = x.Keyword,
-                    Count = x.Count,
+                    Count = x.Count
                 }),
                 Total = searchTermRecordLines.TotalCount
             };

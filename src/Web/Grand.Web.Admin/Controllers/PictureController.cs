@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             if (reference != Reference.None && string.IsNullOrEmpty(objectId))
@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "Please save form before upload new picture",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
 
             var qqFileNameParameter = "qqfilename";
@@ -108,7 +108,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "No file uploaded",
+                    message = "No file uploaded"
                 });
             }
 

@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 Data = products.Select(x => new
                 {
-                    x.Id, x.Name,
+                    x.Id, x.Name
                 }),
                 Total = products.TotalCount
             };

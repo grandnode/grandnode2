@@ -107,7 +107,7 @@ namespace Grand.Web.Admin.Services
                             return false;
                         },
                         ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
-                    },
+                    }
                 }
             };
             _connector.AddVolume(volume);

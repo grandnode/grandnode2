@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Controllers
                 Data = history.Select(x => new
                 {
                     x.Email,
-                    SentDate = x.CreatedDateUtc,
+                    SentDate = x.CreatedDateUtc
                 }),
                 Total = history.TotalCount
             };

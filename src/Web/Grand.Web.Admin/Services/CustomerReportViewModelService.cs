@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Services
                 var m = new BestCustomerReportLineModel {
                     CustomerId = x.CustomerId,
                     OrderTotal = _priceFormatter.FormatPrice(x.OrderTotal, false),
-                    OrderCount = x.OrderCount,
+                    OrderCount = x.OrderCount
                 };
                 var customer = await _customerService.GetCustomerById(x.CustomerId);
                 if (customer != null)

@@ -852,7 +852,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = productReviews.TotalCount,
+                Total = productReviews.TotalCount
             };
             return Json(gridModel);
         }

@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Controllers
             var (productReviewModels, totalCount) = await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
                 Data = productReviewModels.ToList(),
-                Total = totalCount,
+                Total = totalCount
             };
 
             return Json(gridModel);

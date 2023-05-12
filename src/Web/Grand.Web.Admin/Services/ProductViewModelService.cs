@@ -227,7 +227,7 @@ namespace Grand.Web.Admin.Services
                     productTag = new ProductTag {
                         Name = productTagName,
                         SeName = SeoExtensions.GetSeName(productTagName, seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls, seoSettings.SeoCharConversion),
-                        Count = 0,
+                        Count = 0
                     };
                     await _productTagService.InsertProductTag(productTag);
                 }
@@ -305,7 +305,7 @@ namespace Grand.Web.Admin.Services
                             var attributeValueModel = new ProductAttributeCombinationModel.ProductAttributeValueModel {
                                 Id = attributeValue.Id,
                                 Name = attributeValue.Name,
-                                IsPreSelected = attributeValue.IsPreSelected,
+                                IsPreSelected = attributeValue.IsPreSelected
                             };
                             attributeModel.Values.Add(attributeValueModel);
                         }
@@ -1134,7 +1134,7 @@ namespace Grand.Web.Admin.Services
             {
                 var productCategory = new ProductCategory {
                     CategoryId = model.CategoryId,
-                    DisplayOrder = model.DisplayOrder,
+                    DisplayOrder = model.DisplayOrder
                 };
                 //a vendor cannot edit "IsFeaturedProduct" property
                 if (_workContext.CurrentVendor == null)
@@ -1221,7 +1221,7 @@ namespace Grand.Web.Admin.Services
             {
                 var productCollection = new ProductCollection {
                     CollectionId = collectionId,
-                    DisplayOrder = model.DisplayOrder,
+                    DisplayOrder = model.DisplayOrder
                 };
                 //a vendor cannot edit "IsFeaturedProduct" property
                 if (_workContext.CurrentVendor == null)
@@ -1293,7 +1293,7 @@ namespace Grand.Web.Admin.Services
                         {
                             var related = new RelatedProduct {
                                 ProductId2 = id,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             };
                             productId1.RelatedProducts.Add(related);
                             await _productService.InsertRelatedProduct(related, model.ProductId);
@@ -1359,7 +1359,7 @@ namespace Grand.Web.Admin.Services
                             var similar = new SimilarProduct {
                                 ProductId1 = model.ProductId,
                                 ProductId2 = id,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             };
                             productId1.SimilarProducts.Add(similar);
                             await _productService.InsertSimilarProduct(similar);
@@ -1427,7 +1427,7 @@ namespace Grand.Web.Admin.Services
                             var bundle = new BundleProduct {
                                 ProductId = id,
                                 DisplayOrder = 1,
-                                Quantity = 1,
+                                Quantity = 1
                             };
                             productId1.BundleProducts.Add(bundle);
                             await _productService.InsertBundleProduct(bundle, model.ProductId);
@@ -1493,7 +1493,7 @@ namespace Grand.Web.Admin.Services
                             await _productService.InsertCrossSellProduct(
                                 new CrossSellProduct {
                                     ProductId1 = model.ProductId,
-                                    ProductId2 = id,
+                                    ProductId2 = id
                                 });
                     }
                 }
@@ -1959,7 +1959,7 @@ namespace Grand.Web.Admin.Services
                 ValidationMaxLength = productAttributeMapping.ValidationMaxLength,
                 ValidationFileAllowedExtensions = productAttributeMapping.ValidationFileAllowedExtensions,
                 ValidationFileMaximumSize = productAttributeMapping.ValidationFileMaximumSize,
-                DefaultValue = productAttributeMapping.DefaultValue,
+                DefaultValue = productAttributeMapping.DefaultValue
             };
             return await Task.FromResult(model);
         }
@@ -2198,7 +2198,7 @@ namespace Grand.Web.Admin.Services
                     DisplayOrder = x.DisplayOrder,
                     PictureId = x.PictureId,
                     PictureThumbnailUrl = pictureThumbnailUrl,
-                    ProductId = product.Id,
+                    ProductId = product.Id
                 });
             }
             return items;
@@ -2576,7 +2576,7 @@ namespace Grand.Web.Admin.Services
                     Mpn = null,
                     Gtin = null,
                     OverriddenPrice = null,
-                    NotifyAdminForQuantityBelow = 1,
+                    NotifyAdminForQuantityBelow = 1
                 };
                 await _productAttributeService.InsertProductAttributeCombination(combination, product.Id);
             }
@@ -2732,7 +2732,7 @@ namespace Grand.Web.Admin.Services
 
             await _productService.InsertProductPicture(new ProductPicture {
                 PictureId = picture.Id,
-                DisplayOrder = displayOrder,
+                DisplayOrder = displayOrder
             }, product.Id);
 
             await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(product.Name));

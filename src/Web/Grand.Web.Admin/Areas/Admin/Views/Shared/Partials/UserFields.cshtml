@@ -5,7 +5,7 @@
     var stores = (await storeService.GetAllStores()).Select(store => new SelectListItem
     {
         Text = store.Shortcut,
-        Value = store.Id,
+        Value = store.Id
     }).ToList();
 }
 <vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model" />

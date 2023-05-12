@@ -145,7 +145,7 @@ namespace Grand.Web.Admin.Services
                             QuantityOrdered = qtyOrdered,
                             QuantityInThisShipment = qtyInThisShipment,
                             QuantityInAllShipments = qtyInAllShipments,
-                            QuantityToAdd = maxQtyToAdd,
+                            QuantityToAdd = maxQtyToAdd
                         };
 
                         model.Items.Add(shipmentItemModel);
@@ -260,7 +260,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 ShipmentId = shipment.Id,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _shipmentService.InsertShipmentNote(shipmentNote);
 
@@ -385,7 +385,7 @@ namespace Grand.Web.Admin.Services
                     QuantityOrdered = qtyOrdered,
                     QuantityInThisShipment = qtyInThisShipment,
                     QuantityInAllShipments = qtyInAllShipments,
-                    QuantityToAdd = maxQtyToAdd,
+                    QuantityToAdd = maxQtyToAdd
                 };
 
                 if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
@@ -499,7 +499,7 @@ namespace Grand.Web.Admin.Services
                                     WarehouseName = warehouse.Name,
                                     WarehouseCode = warehouse.Code,
                                     StockQuantity = await GetStockQty(product, warehouse.Id),
-                                    ReservedQuantity = await GetReservedQty(product, warehouse.Id),
+                                    ReservedQuantity = await GetReservedQty(product, warehouse.Id)
                                 });
                             }
                         }
@@ -614,7 +614,7 @@ namespace Grand.Web.Admin.Services
                         DeliveryDateUtc = null,
                         AdminComment = adminComment,
                         CreatedOnUtc = DateTime.UtcNow,
-                        StoreId = order.StoreId,
+                        StoreId = order.StoreId
                     };
                     if (_workContext.CurrentVendor != null)
                     {

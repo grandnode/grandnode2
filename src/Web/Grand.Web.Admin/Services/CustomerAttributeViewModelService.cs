@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Services
                 CustomerAttributeId = x.CustomerAttributeId,
                 Name = x.Name,
                 IsPreSelected = x.IsPreSelected,
-                DisplayOrder = x.DisplayOrder,
+                DisplayOrder = x.DisplayOrder
             });
         }
 

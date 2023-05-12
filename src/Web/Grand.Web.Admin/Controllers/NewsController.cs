@@ -202,7 +202,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = comments.newsCommentModels.ToList(),
-                Total = comments.totalCount,
+                Total = comments.totalCount
             };
             return Json(gridModel);
         }

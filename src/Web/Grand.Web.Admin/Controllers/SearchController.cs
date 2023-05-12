@@ -264,7 +264,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = currentCategory.Id,
-                            Name = await _categoryService.GetFormattedBreadCrumb(currentCategory),
+                            Name = await _categoryService.GetFormattedBreadCrumb(currentCategory)
                         });
                     }
                 }
@@ -274,7 +274,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = await _categoryService.GetFormattedBreadCrumb(item),
+                            Name = await _categoryService.GetFormattedBreadCrumb(item)
                         });
                 }
                 return model;
@@ -287,7 +287,7 @@ namespace Grand.Web.Admin.Controllers
                    pageSize: _adminSearchSettings.CategorySizeLimit));
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(categories),
+                Data = await PrepareModel(categories)
             };
             return Json(gridModel);
         }
@@ -308,7 +308,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = currentCollection.Id,
-                            Name = currentCollection.Name,
+                            Name = currentCollection.Name
                         });
                     }
                 }
@@ -318,7 +318,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
@@ -333,7 +333,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(collections),
+                Data = await PrepareModel(collections)
             };
             return Json(gridModel);
         }
@@ -354,7 +354,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
 
                         });
                     }
@@ -366,7 +366,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                     }
                 }
@@ -379,7 +379,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(groups),
+                Data = await PrepareModel(groups)
             };
             return Json(gridModel);
         }
@@ -399,7 +399,7 @@ namespace Grand.Web.Admin.Controllers
                             model.Add(new SearchModel()
                             {
                                 Id = currentStore.Id,
-                                Name = currentStore.Name,
+                                Name = currentStore.Name
                             });
 
                     }
@@ -411,7 +411,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                     }
                 }
@@ -425,7 +425,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(groups),
+                Data = await PrepareModel(groups)
             };
             return Json(gridModel);
         }
@@ -446,7 +446,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = currentVendor.Id,
-                            Name = currentVendor.Name,
+                            Name = currentVendor.Name
                         });
                     }
                 }
@@ -456,7 +456,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
@@ -466,7 +466,7 @@ namespace Grand.Web.Admin.Controllers
                    pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true));
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(vendors),
+                Data = await PrepareModel(vendors)
             };
             return Json(gridModel);
         }
@@ -486,7 +486,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = currentBrand.Id,
-                            Name = currentBrand.Name,
+                            Name = currentBrand.Name
                         });
                     }
                 }
@@ -496,7 +496,7 @@ namespace Grand.Web.Admin.Controllers
                         model.Add(new SearchModel()
                         {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
@@ -506,7 +506,7 @@ namespace Grand.Web.Admin.Controllers
                    pageSize: _adminSearchSettings.BrandSizeLimit));
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(brands),
+                Data = await PrepareModel(brands)
             };
             return Json(gridModel);
         }

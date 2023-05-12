@@ -69,7 +69,7 @@ namespace Grand.Web.Admin.Controllers
                     var vendorModel = x.ToModel();
                     return vendorModel;
                 }),
-                Total = vendors.TotalCount,
+                Total = vendors.TotalCount
             };
             return Json(gridModel);
         }
@@ -299,7 +299,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = vendorReviews.TotalCount,
+                Total = vendorReviews.TotalCount
             };
 
             return Json(gridModel);

@@ -79,7 +79,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 

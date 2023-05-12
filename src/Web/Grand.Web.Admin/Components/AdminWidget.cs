@@ -37,7 +37,7 @@ namespace Grand.Web.Admin.Components
                 var viewComponentName = await item.GetPublicViewComponentName(widgetZone);
                 var widgetModel = new AdminWidgetModel {
                     WidgetZone = widgetZone,
-                    ViewComponentName = viewComponentName,
+                    ViewComponentName = viewComponentName
                 };
                 model.Add(widgetModel);
             }

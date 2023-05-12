@@ -302,7 +302,7 @@ namespace Grand.Web.Admin.Services
             var vendorNote = new VendorNote
             {
                 Note = message,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             vendor.VendorNotes.Add(vendorNote);
             await _vendorService.UpdateVendor(vendor);

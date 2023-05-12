@@ -55,7 +55,7 @@ namespace Grand.Web.Admin.Extensions.Mapping
                     Id = attribute.Id,
                     Name = attribute.Name,
                     IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlType,
+                    AttributeControlType = attribute.AttributeControlType
                 };
 
                 if (attribute.ShouldHaveValues())

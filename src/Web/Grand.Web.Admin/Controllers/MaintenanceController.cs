@@ -68,8 +68,8 @@ namespace Grand.Web.Admin.Controllers
             var model = new MaintenanceModel() {
                 DeleteGuests = new MaintenanceModel.DeleteGuestsModel() {
                     EndDate = DateTime.UtcNow.AddDays(-7),
-                    OnlyWithoutShoppingCart = true,
-                },
+                    OnlyWithoutShoppingCart = true
+                }
 
             };
 

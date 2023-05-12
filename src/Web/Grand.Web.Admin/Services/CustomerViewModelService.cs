@@ -187,7 +187,7 @@ namespace Grand.Web.Admin.Services
                 if (customerTag2 == null)
                 {
                     customerTag = new CustomerTag {
-                        Name = customerTagName,
+                        Name = customerTagName
                     };
                     await _customerTagService.InsertCustomerTag(customerTag);
                 }
@@ -253,7 +253,7 @@ namespace Grand.Web.Admin.Services
                 CustomerGroupNames = GetCustomerGroupsNames(await _groupService.GetAllByIds(customer.Groups.ToArray())),
                 Active = customer.Active,
                 CreatedOn = _dateTimeService.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
-                LastActivityDate = _dateTimeService.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
+                LastActivityDate = _dateTimeService.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc)
             };
         }
 
@@ -305,7 +305,7 @@ namespace Grand.Web.Admin.Services
                     Id = attribute.Id,
                     Name = attribute.Name,
                     IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlTypeId,
+                    AttributeControlType = attribute.AttributeControlTypeId
                 };
 
                 if (attribute.ShouldHaveValues())
@@ -393,7 +393,7 @@ namespace Grand.Web.Admin.Services
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
                 AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem() { Text = cr.Name, Value = cr.Id.ToString(), Selected = (cr.Id == registered.Id) }).ToList(),
                 AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
-                SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id },
+                SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id }
             };
             return model;
         }
@@ -670,7 +670,7 @@ namespace Grand.Web.Admin.Services
                 OwnerId = ownerId,
                 Attributes = model.Attributes,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
 
             //user fields
@@ -1501,7 +1501,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 CustomerId = customerId,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _customerNoteService.InsertCustomerNote(customerNote);
 

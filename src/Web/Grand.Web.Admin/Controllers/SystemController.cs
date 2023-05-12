@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().ToList().OrderBy(x => x.FullName))
             {
                 model.LoadedAssemblies.Add(new SystemInfoModel.LoadedAssembly {
-                    FullName = assembly.FullName,
+                    FullName = assembly.FullName
                 });
             }
 
@@ -143,7 +143,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
-                    Text = _translationService.GetResource("Admin.System.Warnings.ExchangeCurrency.Set"),
+                    Text = _translationService.GetResource("Admin.System.Warnings.ExchangeCurrency.Set")
                 });
                 if (perCurrency.Rate != 1)
                 {
@@ -167,7 +167,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
-                    Text = _translationService.GetResource("Admin.System.Warnings.PrimaryCurrency.Set"),
+                    Text = _translationService.GetResource("Admin.System.Warnings.PrimaryCurrency.Set")
                 });
             }
             else
@@ -185,7 +185,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
-                    Text = _translationService.GetResource("Admin.System.Warnings.DefaultWeight.Set"),
+                    Text = _translationService.GetResource("Admin.System.Warnings.DefaultWeight.Set")
                 });
 
                 if (bWeight.Ratio != 1)
@@ -211,7 +211,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
-                    Text = _translationService.GetResource("Admin.System.Warnings.DefaultDimension.Set"),
+                    Text = _translationService.GetResource("Admin.System.Warnings.DefaultDimension.Set")
                 });
 
                 if (bDimension.Ratio != 1)

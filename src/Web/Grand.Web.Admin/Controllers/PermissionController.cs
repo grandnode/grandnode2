@@ -125,7 +125,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var model = new PermissionActionModel() {
                 SystemName = systemName,
-                CustomerGroupId = customeGroupId,
+                CustomerGroupId = customeGroupId
             };
 
             var customerGroup = await _groupService.GetCustomerGroupById(customeGroupId);

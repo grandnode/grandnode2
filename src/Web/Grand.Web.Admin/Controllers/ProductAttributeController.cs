@@ -250,7 +250,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = values.Select(x => x.ToModel()),
-                Total = values.Count,
+                Total = values.Count
             };
 
             return Json(gridModel);

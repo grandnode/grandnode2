@@ -62,7 +62,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = affiliatesModel.affiliateModels,
-                Total = affiliatesModel.totalCount,
+                Total = affiliatesModel.totalCount
             };
             return Json(gridModel);
         }
@@ -150,7 +150,7 @@ namespace Grand.Web.Admin.Controllers
             var customers = new GetCustomerQuery()
             {
                 AffiliateId = affiliate.Id,
-                PageSize = 1,
+                PageSize = 1
             };
             var query_customer = (await _mediator.Send(customers)).Count();
             if (query_customer > 0)
@@ -159,7 +159,7 @@ namespace Grand.Web.Admin.Controllers
             var orders = new GetOrderQuery()
             {
                 AffiliateId = affiliate.Id,
-                PageSize = 1,
+                PageSize = 1
             };
 
             var query_order = (await _mediator.Send(orders)).Count();

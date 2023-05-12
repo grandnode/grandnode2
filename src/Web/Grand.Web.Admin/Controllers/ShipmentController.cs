@@ -238,7 +238,7 @@ namespace Grand.Web.Admin.Controllers
                     Note = $"A shipment #{shipment.ShipmentNumber} has been added",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
+                    OrderId = order.Id
                 });
 
                 _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been added");
@@ -319,7 +319,7 @@ namespace Grand.Web.Admin.Controllers
                 Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
             });
 
             _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been deleted");

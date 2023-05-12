@@ -192,7 +192,7 @@ namespace Grand.Web.Admin.Controllers
                     Name = contactAttribute.AttributeControlType != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                     ColorSquaresRgb = x.ColorSquaresRgb,
                     IsPreSelected = x.IsPreSelected,
-                    DisplayOrder = x.DisplayOrder,
+                    DisplayOrder = x.DisplayOrder
                 }),
                 Total = values.Count
             };
