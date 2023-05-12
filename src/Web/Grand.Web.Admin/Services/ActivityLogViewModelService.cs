@@ -108,7 +108,7 @@ namespace Grand.Web.Admin.Services
             foreach (var x in activityStat)
             {
                 var activityLogType = await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId);
-                string _name = "-empty-";
+                var _name = "-empty-";
                 if (activityLogType != null)
                 {
                     IList<string> systemKeywordsCategory = new List<string>();

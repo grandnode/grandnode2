@@ -216,7 +216,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Category> UpdateCategoryModel(Category category, CategoryModel model)
         {
-            string prevPictureId = category.PictureId;
+            var prevPictureId = category.PictureId;
             category = model.ToEntity(category);
             category.UpdatedOnUtc = DateTime.UtcNow;
             model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService, _languageService);
@@ -336,7 +336,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCategoryProductModel(CategoryModel.AddCategoryProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)

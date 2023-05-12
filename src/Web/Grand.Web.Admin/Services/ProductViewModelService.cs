@@ -797,7 +797,7 @@ namespace Grand.Web.Admin.Services
             if (model.SearchPublishedId == 3)
                 showOnHomePage = true;
 
-            bool markedAsNewOnly = false;
+            var markedAsNewOnly = false;
             if (model.SearchPublishedId == 4)
                 markedAsNewOnly = true;
 
@@ -1343,7 +1343,7 @@ namespace Grand.Web.Admin.Services
         {
             var productId1 = await _productService.GetProductById(model.ProductId, true);
 
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
@@ -2092,7 +2092,7 @@ namespace Grand.Web.Admin.Services
                             break;
                         case AttributeControlType.Checkboxes:
                             {
-                                form.TryGetValue(controlId, out string cblAttributes);
+                                form.TryGetValue(controlId, out var cblAttributes);
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
                                     var anyValueSelected = false;
@@ -2421,7 +2421,7 @@ namespace Grand.Web.Admin.Services
                             break;
                         case AttributeControlType.Checkboxes:
                             {
-                                form.TryGetValue(controlId, out string cblAttributes);
+                                form.TryGetValue(controlId, out var cblAttributes);
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
                                     foreach (var item in cblAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))

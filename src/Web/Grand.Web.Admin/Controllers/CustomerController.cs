@@ -113,7 +113,7 @@ namespace Grand.Web.Admin.Controllers
             var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
             foreach (var attribute in customerAttributes)
             {
-                string controlId = $"customer_attribute_{attribute.Id}";
+                var controlId = $"customer_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
@@ -161,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
                             form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -1026,7 +1026,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ContactFormList(DataSourceRequest command, string customerId)
         {
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
             {
                 vendorId = _workContext.CurrentVendor.Id;
@@ -1141,7 +1141,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                byte[] bytes = await _exportManager.Export(customers);
+                var bytes = await _exportManager.Export(customers);
                 return File(bytes, "text/xls", "customers.xlsx");
             }
             catch (Exception exc)
@@ -1165,7 +1165,7 @@ namespace Grand.Web.Admin.Controllers
                 customers.AddRange(await _customerService.GetCustomersByIds(ids));
             }
 
-            byte[] bytes = await _exportManager.Export(customers);
+            var bytes = await _exportManager.Export(customers);
             return File(bytes, "text/xls", "customers.xlsx");
         }
 

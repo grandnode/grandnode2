@@ -211,7 +211,7 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 //details URL
-                string detailsUrl = "";
+                var detailsUrl = "";
                 var entityName = x.EntityName != null ? x.EntityName.ToLowerInvariant() : "";
                 switch (entityName)
                 {

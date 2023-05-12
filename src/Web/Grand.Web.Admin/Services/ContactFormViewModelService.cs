@@ -55,7 +55,7 @@ namespace Grand.Web.Admin.Services
             DateTime? endDateValue = (model.SearchEndDate == null) ? null
                             : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
             {
                 vendorId = _workContext.CurrentVendor.Id;

@@ -164,7 +164,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Collection> UpdateCollectionModel(Collection collection, CollectionModel model)
         {
-            string prevPictureId = collection.PictureId;
+            var prevPictureId = collection.PictureId;
             collection = model.ToEntity(collection);
             collection.UpdatedOnUtc = DateTime.UtcNow;
             collection.Locales = await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService, _languageService);
@@ -297,7 +297,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task InsertCollectionProductModel(CollectionModel.AddCollectionProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)

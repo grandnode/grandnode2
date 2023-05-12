@@ -48,7 +48,7 @@ namespace Grand.Web.Admin.Controllers
         protected virtual async Task<string> GetCategoryNames(IList<string> categoryNames, string separator = ",")
         {
             var sb = new StringBuilder();
-            for (int i = 0; i < categoryNames.Count; i++)
+            for (var i = 0; i < categoryNames.Count; i++)
             {
                 var category = await _newsletterCategoryService.GetNewsletterCategoryById(categoryNames[i]);
                 if (category != null)
@@ -180,9 +180,9 @@ namespace Grand.Web.Admin.Controllers
             var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(model.SearchEmail,
                 model.StoreId, isActive, searchCategoryIds);
 
-            string result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
+            var result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
 
-            string fileName =
+            var fileName =
                 $"newsletter_emails_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}_{CommonHelper.GenerateRandomDigitCode(4)}.txt";
             return File(Encoding.UTF8.GetBytes(result), "text/csv", fileName);
         }

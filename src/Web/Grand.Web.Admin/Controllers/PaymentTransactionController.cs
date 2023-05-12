@@ -424,11 +424,11 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                double amountToRefund = model.AmountToRefund;
+                var amountToRefund = model.AmountToRefund;
                 if (amountToRefund <= 0)
                     throw new GrandException("Enter amount to refund");
 
-                double maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+                var maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
                 if (amountToRefund > maxAmountToRefund)
                     amountToRefund = maxAmountToRefund;
 
@@ -494,11 +494,11 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                double amountToPaid = model.AmountToPaid;
+                var amountToPaid = model.AmountToPaid;
                 if (amountToPaid <= 0)
                     throw new GrandException("Enter amount to refund");
 
-                double maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+                var maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
                 if (amountToPaid > maxAmountToPaid)
                     amountToPaid = maxAmountToPaid;
 

@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var pr in permissionRecords)
                 foreach (var cr in customerGroups)
                 {
-                    bool allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
+                    var allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
                     if (!model.Allowed.ContainsKey(pr.SystemName))
                         model.Allowed[pr.SystemName] = new Dictionary<string, bool>();
                     model.Allowed[pr.SystemName][cr.Id] = allowed;
@@ -91,12 +91,12 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var cr in customerGroups)
             {
-                string formKey = "allow_" + cr.Id;
+                var formKey = "allow_" + cr.Id;
                 var permissionRecordSystemNamesToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 foreach (var pr in permissionRecords)
                 {
 
-                    bool allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
+                    var allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
                     if (allow)
                     {
 

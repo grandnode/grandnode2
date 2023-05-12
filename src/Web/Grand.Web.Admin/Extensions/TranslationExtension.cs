@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Extensions
                 PropertyInfo[] props = item.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                 foreach (var prop in props)
                 {
-                    bool insert = true;
+                    var insert = true;
 
                     foreach (var i in interfaces)
                     {

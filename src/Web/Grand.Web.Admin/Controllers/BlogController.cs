@@ -526,7 +526,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 var blogCategory = await _blogService.GetBlogCategoryById(model.CategoryId);
                 if (blogCategory != null)
-                    foreach (string id in model.SelectedBlogPostIds)
+                    foreach (var id in model.SelectedBlogPostIds)
                     {
                         var post = _blogService.GetBlogPostById(id);
                         if (post != null)

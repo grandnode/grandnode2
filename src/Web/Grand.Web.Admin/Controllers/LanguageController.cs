@@ -282,7 +282,7 @@ namespace Grand.Web.Admin.Controllers
                 if (importxmlfile is { Length: > 0 })
                 {
                     using var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8);
-                    string content = await sr.ReadToEndAsync();
+                    var content = await sr.ReadToEndAsync();
                     await _translationService.ImportResourcesFromXml(language, content);
                 }
                 else

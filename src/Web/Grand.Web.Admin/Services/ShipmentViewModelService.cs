@@ -552,8 +552,8 @@ namespace Grand.Web.Admin.Services
                 if (orderItem.OpenQty <= 0)
                     continue;
 
-                int qtyToAdd = 0; //parse quantity
-                foreach (string formKey in form.Keys)
+                var qtyToAdd = 0; //parse quantity
+                foreach (var formKey in form.Keys)
                     if (formKey.Equals($"qtyToAdd{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                     {
                         _ = int.TryParse(form[formKey], out qtyToAdd);
@@ -561,13 +561,13 @@ namespace Grand.Web.Admin.Services
                     }
 
                 var product = await _productService.GetProductById(orderItem.ProductId);
-                string warehouseId = "";
+                var warehouseId = "";
                 if (product != null && (((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
                     product.UseMultipleWarehouses) || (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)))
                 {
                     //multiple warehouses supported
                     //warehouse is chosen by a store owner
-                    foreach (string formKey in form.Keys)
+                    foreach (var formKey in form.Keys)
                         if (formKey.Equals($"warehouse_{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                         {
                             warehouseId = form[formKey];
@@ -580,7 +580,7 @@ namespace Grand.Web.Admin.Services
                     warehouseId = orderItem.WarehouseId;
                 }
 
-                foreach (string formKey in form.Keys)
+                foreach (var formKey in form.Keys)
                     if (formKey.Equals($"qtyToAdd{orderItem.Id}", StringComparison.OrdinalIgnoreCase))
                     {
                         _ = int.TryParse(form[formKey], out qtyToAdd);

@@ -45,8 +45,8 @@ namespace Grand.Web.Admin.Services
         
         public virtual async Task SendTestEmail(EmailAccount emailAccount, EmailAccountModel model)
         {
-            string subject = "Testing email functionality.";
-            string body = "Email works fine.";
+            var subject = "Testing email functionality.";
+            var body = "Email works fine.";
             await _emailSender.SendEmail(emailAccount, subject, body, emailAccount.Email, emailAccount.DisplayName, model.SendTestEmailTo, null);
         }
     }

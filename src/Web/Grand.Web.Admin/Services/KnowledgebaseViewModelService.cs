@@ -296,7 +296,7 @@ namespace Grand.Web.Admin.Services
             if (article == null || related == null)
                 throw new ArgumentNullException("No article found with specified id");
 
-            string toDelete = "";
+            var toDelete = "";
             foreach (var item in article.RelatedArticles)
             {
                 if (item == related.Id)

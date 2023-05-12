@@ -5,8 +5,8 @@
     {
                 <div class="form-group">
                 @{
-                    string controlId = $"product_attribute_{attribute.Id}";
-                    string textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
+                    var controlId = $"product_attribute_{attribute.Id}";
+                    var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
                 }
                 <label class="control-label col-md-3">                        
                         @textPrompt

@@ -98,11 +98,11 @@ namespace Grand.Web.Admin.Controllers
             int pageSize, int orderBy)
         {
             //a vendor should have access only to his products
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 vendorId = _workContext.CurrentVendor.Id;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -201,7 +201,7 @@ namespace Grand.Web.Admin.Controllers
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -317,7 +317,7 @@ namespace Grand.Web.Admin.Controllers
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -338,7 +338,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> NeverSoldReportList(DataSourceRequest command, NeverSoldReportModel model)
         {
             //a vendor should have access only to his products
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
                 vendorId = _workContext.CurrentVendor.Id;
 
@@ -348,7 +348,7 @@ namespace Grand.Web.Admin.Controllers
             DateTime? endDateValue = (model.EndDate == null) ? null
                             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -377,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -418,7 +418,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null)
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -466,7 +466,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -537,7 +537,7 @@ namespace Grand.Web.Admin.Controllers
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -576,12 +576,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
         {
-            string vendorId = "";
+            var vendorId = "";
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 vendorId = _workContext.CurrentVendor.Id;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -682,7 +682,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
         {
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -698,7 +698,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ReportCustomerTimeChart(DataSourceRequest command, DateTime? startDate, DateTime? endDate)
         {
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 

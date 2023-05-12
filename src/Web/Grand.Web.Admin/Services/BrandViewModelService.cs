@@ -150,7 +150,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Brand> UpdateBrandModel(Brand brand, BrandModel model)
         {
-            string prevPictureId = brand.PictureId;
+            var prevPictureId = brand.PictureId;
             brand = model.ToEntity(brand);
             brand.UpdatedOnUtc = DateTime.UtcNow;
             brand.Locales = await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);

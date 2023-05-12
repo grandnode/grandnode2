@@ -80,7 +80,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<NewsItem> UpdateNewsItemModel(NewsItem newsItem, NewsItemModel model)
         {
-            string prevPictureId = newsItem.PictureId;
+            var prevPictureId = newsItem.PictureId;
             newsItem = model.ToEntity(newsItem, _dateTimeService);
             var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
             newsItem.SeName = seName;

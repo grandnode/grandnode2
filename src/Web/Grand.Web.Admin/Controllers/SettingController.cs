@@ -236,7 +236,7 @@ namespace Grand.Web.Admin.Controllers
                     Id = option,
                     Name = ((ProductSortingEnum)option).GetTranslationEnum(_translationService, _workContext),
                     IsActive = !catalogSettings.ProductSortingEnumDisabled.Contains(option),
-                    DisplayOrder = catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(option, out int value) ? value : option
+                    DisplayOrder = catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(option, out var value) ? value : option
                 });
             }
             var gridModel = new DataSourceResult {
@@ -666,7 +666,7 @@ namespace Grand.Web.Admin.Controllers
             model.SecuritySettings = captchaSettings.ToModel();
 
             if (securitySettings.AdminAreaAllowedIpAddresses != null)
-                for (int i = 0; i < securitySettings.AdminAreaAllowedIpAddresses.Count; i++)
+                for (var i = 0; i < securitySettings.AdminAreaAllowedIpAddresses.Count; i++)
                 {
                     model.SecuritySettings.AdminAreaAllowedIpAddresses += securitySettings.AdminAreaAllowedIpAddresses[i];
                     if (i != securitySettings.AdminAreaAllowedIpAddresses.Count - 1)
@@ -798,8 +798,8 @@ namespace Grand.Web.Admin.Controllers
             var savedFilePath = CommonPath.WebMapPath(filename);
             if (System.IO.File.Exists(oryginalFilePath))
             {
-                string[] lines = System.IO.File.ReadAllLines(oryginalFilePath);
-                int i = 0;
+                var lines = System.IO.File.ReadAllLines(oryginalFilePath);
+                var i = 0;
                 foreach (var line in lines)
                 {
                     if (line.Contains("apiKey"))
@@ -968,7 +968,7 @@ namespace Grand.Web.Admin.Controllers
 
         private async Task SavePictureStorage(bool storeIdDb)
         {
-            int pageIndex = 0;
+            var pageIndex = 0;
             const int pageSize = 100;
             try
             {

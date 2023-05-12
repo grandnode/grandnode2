@@ -267,7 +267,7 @@ namespace Grand.Web.Admin.Services
 
             var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 
-            string url =
+            var url =
                 $"{storeLocation}/{discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId)}";
             return url;
         }
@@ -311,7 +311,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertProductToDiscountModel(DiscountModel.AddProductToDiscountModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
@@ -346,7 +346,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCategoryToDiscountModel(DiscountModel.AddCategoryToDiscountModel model)
         {
-            foreach (string id in model.SelectedCategoryIds)
+            foreach (var id in model.SelectedCategoryIds)
             {
                 var category = await _categoryService.GetCategoryById(id);
                 if (category != null)
@@ -370,7 +370,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertBrandToDiscountModel(DiscountModel.AddBrandToDiscountModel model)
         {
-            foreach (string id in model.SelectedBrandIds)
+            foreach (var id in model.SelectedBrandIds)
             {
                 var brand = await _brandService.GetBrandById(id);
                 if (brand != null)
@@ -394,7 +394,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCollectionToDiscountModel(DiscountModel.AddCollectionToDiscountModel model)
         {
-            foreach (string id in model.SelectedCollectionIds)
+            foreach (var id in model.SelectedCollectionIds)
             {
                 var collection = await _collectionService.GetCollectionById(id);
                 if (collection != null)
@@ -418,7 +418,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertVendorToDiscountModel(DiscountModel.AddVendorToDiscountModel model)
         {
-            foreach (string id in model.SelectedVendorIds)
+            foreach (var id in model.SelectedVendorIds)
             {
                 var vendor = await _vendorService.GetVendorById(id);
                 if (vendor != null)

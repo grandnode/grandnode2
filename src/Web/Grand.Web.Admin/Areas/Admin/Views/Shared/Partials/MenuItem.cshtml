@@ -2,7 +2,7 @@
 @using Grand.Web.Common.Menu
 
 @{
-    string url = "javascript:;";
+    var url = "javascript:;";
     if (!string.IsNullOrEmpty(Model.ControllerName) && !string.IsNullOrEmpty(Model.ActionName))
     {
         url = Url.Action(Model.ActionName, Model.ControllerName, new { area = Constants.AreaAdmin });

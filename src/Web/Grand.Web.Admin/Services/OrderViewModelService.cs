@@ -428,8 +428,8 @@ namespace Grand.Web.Admin.Services
             model.OrderSubtotalInclTaxValue = order.OrderSubtotalInclTax;
             model.OrderSubtotalExclTaxValue = order.OrderSubtotalExclTax;
             //discount (applied to order subtotal)
-            string orderSubtotalDiscountInclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency, _workContext.WorkingLanguage, true);
-            string orderSubtotalDiscountExclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency, _workContext.WorkingLanguage, false);
+            var orderSubtotalDiscountInclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency, _workContext.WorkingLanguage, true);
+            var orderSubtotalDiscountExclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency, _workContext.WorkingLanguage, false);
             if (order.OrderSubTotalDiscountInclTax > 0)
                 model.OrderSubTotalDiscountInclTax = orderSubtotalDiscountInclTaxStr;
             if (order.OrderSubTotalDiscountExclTax > 0)
@@ -454,8 +454,8 @@ namespace Grand.Web.Admin.Services
 
             //tax
             model.Tax = await _priceFormatter.FormatPrice(order.OrderTax, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
-            bool displayTaxRates = _taxSettings.DisplayTaxRates && order.OrderTaxes.Any();
-            bool displayTax = !displayTaxRates;
+            var displayTaxRates = _taxSettings.DisplayTaxRates && order.OrderTaxes.Any();
+            var displayTax = !displayTaxRates;
             foreach (var tr in order.OrderTaxes)
             {
                 model.TaxRates.Add(new OrderModel.TaxRate
@@ -689,7 +689,7 @@ namespace Grand.Web.Admin.Services
             #region Products
 
             model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
-            bool hasDownloadableItems = false;
+            var hasDownloadableItems = false;
             var products = order.OrderItems;
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -818,8 +818,8 @@ namespace Grand.Web.Admin.Services
             var presetQty = 1;
             var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty)).finalPrice;
             var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
-            double presetPriceInclTax = productPrice.productprice;
-            double presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
+            var presetPriceInclTax = productPrice.productprice;
+            var presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
 
             var model = new OrderModel.AddOrderProductModel.ProductDetailsModel
             {
@@ -1023,10 +1023,10 @@ namespace Grand.Web.Admin.Services
             //save order item
 
             //basic properties
-            double.TryParse(form["UnitPriceInclTax"], out double unitPriceInclTax);
-            double.TryParse(form["UnitPriceExclTax"], out double unitPriceExclTax);
-            int.TryParse(form["Quantity"], out int quantity);
-            int.TryParse(form["TaxRate"], out int taxRate);
+            double.TryParse(form["UnitPriceInclTax"], out var unitPriceInclTax);
+            double.TryParse(form["UnitPriceExclTax"], out var unitPriceExclTax);
+            int.TryParse(form["Quantity"], out var quantity);
+            int.TryParse(form["TaxRate"], out var taxRate);
 
             //attributes
             //warnings
@@ -1038,7 +1038,7 @@ namespace Grand.Web.Admin.Services
             var attributes = product.ProductAttributeMappings;
             foreach (var attribute in attributes)
             {
-                string controlId = $"product_attribute_{attribute.Id}";
+                var controlId = $"product_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
@@ -1087,7 +1087,7 @@ namespace Grand.Web.Admin.Services
                             form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, enteredText).ToList();
                             }
@@ -1194,7 +1194,7 @@ namespace Grand.Web.Admin.Services
                 //no errors
                 var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
                 //attributes
-                string attributeDescription = await productAttributeFormatter.FormatAttributes(product, customattributes, customer);
+                var attributeDescription = await productAttributeFormatter.FormatAttributes(product, customattributes, customer);
 
                 //save item
                 var orderItem = new OrderItem

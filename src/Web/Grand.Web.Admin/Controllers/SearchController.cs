@@ -194,7 +194,7 @@ namespace Grand.Web.Admin.Controllers
                         if (result.Count >= _adminSearchSettings.MaxSearchResultsCount)
                             break;
 
-                        string formatted = _translationService.GetResource("Admin.AdminSearch.Menu") + " > ";
+                        var formatted = _translationService.GetResource("Admin.AdminSearch.Menu") + " > ";
                         if (string.IsNullOrEmpty(menuItem.grandParent))
                         {
                             formatted += menuItem.parent;
@@ -216,7 +216,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInOrders)
             {
-                int.TryParse(searchTerm, out int orderNumber);
+                int.TryParse(searchTerm, out var orderNumber);
                 if (orderNumber > 0)
                 {
                     var order = await _orderService.GetOrderByNumber(orderNumber);
@@ -251,7 +251,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Category(string categoryId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
             async Task<IList<SearchModel>> PrepareModel(IList<Category> categories)
             {
@@ -295,7 +295,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Collection(string collectionId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
             async Task<IList<SearchModel>> PrepareModel(IList<Collection> collections)
             {
@@ -341,7 +341,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> CustomerGroup(string[] customerGroups)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
             async Task<IList<SearchModel>> PrepareModel(IList<CustomerGroup> groups)
             {
@@ -433,7 +433,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Vendor(string vendorId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
             async Task<IList<SearchModel>> PrepareModel(IList<Vendor> vendors)
             {
@@ -473,7 +473,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Brand(string brandId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
             async Task<IList<SearchModel>> PrepareModel(IList<Brand> brands)
             {

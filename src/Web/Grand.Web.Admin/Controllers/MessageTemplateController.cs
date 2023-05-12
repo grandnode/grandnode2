@@ -89,7 +89,7 @@ namespace Grand.Web.Admin.Controllers
                         .GetAllStores())
                         .Where(s => !x.LimitedToStores || templateModel.Stores.Contains(s.Id))
                         .ToList();
-                for (int i = 0; i < stores.Count; i++)
+                for (var i = 0; i < stores.Count; i++)
                 {
                     templateModel.ListOfStores += stores[i].Shortcut;
                     if (i != stores.Count - 1)

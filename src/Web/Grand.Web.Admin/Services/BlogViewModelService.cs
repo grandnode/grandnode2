@@ -93,7 +93,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<BlogPost> UpdateBlogPostModel(BlogPostModel model, BlogPost blogPost)
         {
-            string prevPictureId = blogPost.PictureId;
+            var prevPictureId = blogPost.PictureId;
             blogPost = model.ToEntity(blogPost, _dateTimeService);
             await _blogService.UpdateBlogPost(blogPost);
 

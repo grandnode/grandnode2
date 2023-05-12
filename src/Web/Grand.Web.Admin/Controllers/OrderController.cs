@@ -98,7 +98,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            string vendorId = string.Empty;
+            var vendorId = string.Empty;
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null)
             {
@@ -199,7 +199,7 @@ namespace Grand.Web.Admin.Controllers
             var orders = await _orderViewModelService.PrepareOrders(model);
             try
             {
-                byte[] bytes = await _exportManager.Export(orders);
+                var bytes = await _exportManager.Export(orders);
                 return File(bytes, "text/xls", "orders.xlsx");
             }
             catch (Exception exc)
@@ -230,7 +230,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
             }
-            byte[] bytes = await _exportManager.Export(orders);
+            var bytes = await _exportManager.Export(orders);
             return File(bytes, "text/xls", "orders.xlsx");
         }
 
@@ -685,7 +685,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //get order item identifier
-            string orderItemId = "";
+            var orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnSaveOrderItem", StringComparison.OrdinalIgnoreCase))
                     orderItemId = formValue["btnSaveOrderItem".Length..];
@@ -694,9 +694,9 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            if (!double.TryParse(form["pvUnitPriceExclTax" + orderItemId], out double unitPriceExclTax))
+            if (!double.TryParse(form["pvUnitPriceExclTax" + orderItemId], out var unitPriceExclTax))
                 unitPriceExclTax = orderItem.UnitPriceExclTax;
-            if (!int.TryParse(form["pvQuantity" + orderItemId], out int quantity))
+            if (!int.TryParse(form["pvQuantity" + orderItemId], out var quantity))
                 quantity = orderItem.Quantity;
 
             if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
@@ -759,7 +759,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", "Order", new { id });
             }
             //get order item identifier
-            string orderItemId = "";
+            var orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnDeleteOrderItem", StringComparison.OrdinalIgnoreCase))
                     orderItemId = formValue["btnDeleteOrderItem".Length..];
@@ -797,7 +797,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", "Order", new { id });
             }
             //get order item identifier
-            string orderItemId = "";
+            var orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnCancelOrderItem", StringComparison.OrdinalIgnoreCase))
                     orderItemId = formValue["btnCancelOrderItem".Length..];
@@ -834,7 +834,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //get order item identifier
-            string orderItemId = "";
+            var orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnResetDownloadCount", StringComparison.OrdinalIgnoreCase))
                     orderItemId = formValue["btnResetDownloadCount".Length..];
@@ -875,7 +875,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //get order item identifier
-            string orderItemId = "";
+            var orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnPvActivateDownload", StringComparison.OrdinalIgnoreCase))
                     orderItemId = formValue["btnPvActivateDownload".Length..];

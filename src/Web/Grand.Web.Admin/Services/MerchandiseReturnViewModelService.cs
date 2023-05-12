@@ -140,7 +140,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IList<MerchandiseReturnModel> merchandiseReturnModels, int totalCount)> PrepareMerchandiseReturnModel(MerchandiseReturnListModel model, int pageIndex, int pageSize)
         {
-            string customerId = string.Empty;
+            var customerId = string.Empty;
             if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
             {
                 var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant());

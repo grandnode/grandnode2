@@ -33,8 +33,8 @@ namespace Grand.Web.Admin.Controllers
             if (download.DownloadBinary == null)
                 return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
-            string contentType = !string.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) {

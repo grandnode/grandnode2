@@ -68,7 +68,7 @@ namespace Grand.Web.Admin.Controllers
         private async Task<DashboardActivityModel> PrepareActivityModel()
         {
             var model = new DashboardActivityModel();
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
                 vendorId = _workContext.CurrentVendor.Id;
 

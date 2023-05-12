@@ -135,7 +135,7 @@
                                         {
                                             <p>
                                                 @Loc["Admin.Orders.Products.MerchandiseReturns"]<text>:</text>
-                                                @for (int i = 0; i < item.MerchandiseReturnIds.Count; i++)
+                                                @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
                                                 {
                                                     <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = Constants.AreaAdmin })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.MerchandiseReturns.View"]</a>
                                                     if (i != item.MerchandiseReturnIds.Count - 1)
@@ -149,7 +149,7 @@
                                         {
                                             <p>
                                                 @Loc["Admin.Orders.Products.GiftVouchers"]<text>:</text>
-                                                @for (int i = 0; i < item.PurchasedGiftVoucherIds.Count; i++)
+                                                @for (var i = 0; i < item.PurchasedGiftVoucherIds.Count; i++)
                                                 {
                                                     <a href="@Url.Action("Edit", "GiftVoucher", new { id = item.PurchasedGiftVoucherIds[i], area = Constants.AreaAdmin })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.Products.GiftVoucher.View"]</a>
                                                     if (i != item.PurchasedGiftVoucherIds.Count - 1)

@@ -225,7 +225,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<Vendor> UpdateVendorModel(Vendor vendor, VendorModel model)
         {
-            string prevPictureId = vendor.PictureId;
+            var prevPictureId = vendor.PictureId;
             vendor = model.ToEntity(vendor);
             vendor.Locales = await model.Locales.ToTranslationProperty(vendor, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await vendor.ValidateSeName(model.SeName, vendor.Name, true, _seoSettings, _slugService, _languageService);
@@ -364,8 +364,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First();
-                string idVendor = id.Split(':').Last();
+                var idReview = id.Split(':').First();
+                var idVendor = id.Split(':').Last();
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);
                 if (vendorReview != null)
@@ -385,8 +385,8 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First();
-                string idVendor = id.Split(':').Last();
+                var idReview = id.Split(':').First();
+                var idVendor = id.Split(':').Last();
 
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);

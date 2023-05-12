@@ -13,7 +13,7 @@
     var orderTags = await orderTagService.GetAllOrderTags();
     var orderTagsSB = new StringBuilder();
     orderTagsSB.Append("var initialOrderTags = [");
-    for (int i = 0; i < orderTags.Count; i++)
+    for (var i = 0; i < orderTags.Count; i++)
     {
         var tag = orderTags[i];
         orderTagsSB.Append("'");
@@ -436,7 +436,7 @@
                 <div class="form-group">
                     <admin-label asp-for="UsedDiscounts" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
                     <div class="col-9 col-md-9 col-sm-9">
-                        @for (int i = 0; i < Model.UsedDiscounts.Count; i++)
+                        @for (var i = 0; i < Model.UsedDiscounts.Count; i++)
                         {
                             var discount = Model.UsedDiscounts[i];
                             <label class="control-label">

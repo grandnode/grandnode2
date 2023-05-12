@@ -137,7 +137,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> GoToSku(ProductListModel model)
         {
-            string sku = model.GoDirectlyToSku;
+            var sku = model.GoDirectlyToSku;
 
             //try to load a product entity
             var product = await _productService.GetProductBySku(sku);
@@ -385,13 +385,13 @@ namespace Grand.Web.Admin.Controllers
                     .Select(x => x.Trim())
                     .ToList();
 
-                foreach (string str1 in rangeArray)
+                foreach (var str1 in rangeArray)
                 {
                     ids.Add(str1);
                 }
 
                 var products = await _productService.GetProductsByIds(ids.ToArray(), true);
-                for (int i = 0; i <= products.Count - 1; i++)
+                for (var i = 0; i <= products.Count - 1; i++)
                 {
                     result += products[i].Name;
                     if (i != products.Count - 1)
@@ -1560,7 +1560,7 @@ namespace Grand.Web.Admin.Controllers
             var products = await _productViewModelService.PrepareProducts(model);
             try
             {
-                byte[] bytes = await exportManager.Export(products);
+                var bytes = await exportManager.Export(products);
                 return File(bytes, "text/xls", "products.xlsx");
             }
             catch (Exception exc)
@@ -1589,7 +1589,7 @@ namespace Grand.Web.Admin.Controllers
                 products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
             }
 
-            byte[] bytes = await exportManager.Export(products);
+            var bytes = await exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
 
@@ -2674,12 +2674,12 @@ namespace Grand.Web.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 Dictionary<string, Dictionary<string, object>> error = (Dictionary<string, Dictionary<string, object>>)ModelState.SerializeErrors();
-                string s = "";
+                var s = "";
                 foreach (var error1 in error)
                 {
                     foreach (var error2 in error1.Value)
                     {
-                        string[] v = (string[])error2.Value;
+                        var v = (string[])error2.Value;
                         s += v[0] + "\n";
                     }
                 }
@@ -2692,7 +2692,7 @@ namespace Grand.Web.Admin.Controllers
             await _productService.UpdateProductField(product, x => x.IntervalUnitId, (IntervalUnit)model.IntervalUnit);
             await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
-            int minutesToAdd = 0;
+            var minutesToAdd = 0;
             if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute)
             {
                 minutesToAdd = model.Interval;
@@ -2706,10 +2706,10 @@ namespace Grand.Web.Admin.Controllers
                 minutesToAdd = model.Interval * 60 * 24;
             }
 
-            int _hourFrom = model.StartTime.Hour;
-            int _minutesFrom = model.StartTime.Minute;
-            int _hourTo = model.EndTime.Hour;
-            int _minutesTo = model.EndTime.Minute;
+            var _hourFrom = model.StartTime.Hour;
+            var _minutesFrom = model.StartTime.Minute;
+            var _hourTo = model.EndTime.Hour;
+            var _minutesTo = model.EndTime.Minute;
             DateTime _dateFrom = new DateTime(model.StartDate.Value.Year, model.StartDate.Value.Month, model.StartDate.Value.Day, 0, 0, 0, 0);
             DateTime _dateTo = new DateTime(model.EndDate.Value.Year, model.EndDate.Value.Month, model.EndDate.Value.Day, 23, 59, 59, 999);
             if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Day)
@@ -2723,7 +2723,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             List<DateTime> dates = new List<DateTime>();
-            int counter = 0;
+            var counter = 0;
             for (DateTime iterator = _dateFrom; iterator <= _dateTo; iterator += new TimeSpan(0, minutesToAdd, 0))
             {
                 if ((IntervalUnit)model.IntervalUnit != IntervalUnit.Day)
@@ -2762,7 +2762,7 @@ namespace Grand.Web.Admin.Controllers
                     continue;
                 }
 
-                for (int i = 0; i < model.Quantity; i++)
+                for (var i = 0; i < model.Quantity; i++)
                 {
                     dates.Add(iterator);
                     try

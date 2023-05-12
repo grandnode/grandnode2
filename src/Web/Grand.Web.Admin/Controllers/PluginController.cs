@@ -312,7 +312,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
 
-            string zipFilePath = "";
+            var zipFilePath = "";
             try
             {
                 if (!Path.GetExtension(zippedFile.FileName)?.Equals(".zip", StringComparison.InvariantCultureIgnoreCase) ?? true)
@@ -362,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("GeneralCommon", "Setting");
             }
 
-            string zipFilePath = "";
+            var zipFilePath = "";
 
             try
             {

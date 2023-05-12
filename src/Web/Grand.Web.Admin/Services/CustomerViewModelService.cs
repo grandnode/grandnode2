@@ -145,8 +145,8 @@ namespace Grand.Web.Admin.Services
             var result = new List<string>();
             if (!string.IsNullOrWhiteSpace(customerTags))
             {
-                string[] values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string val1 in values)
+                var values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var val1 in values)
                     if (!string.IsNullOrEmpty(val1.Trim()))
                         result.Add(val1.Trim());
             }
@@ -163,9 +163,9 @@ namespace Grand.Web.Admin.Services
             var customerTagsToRemove = new List<CustomerTag>();
             foreach (var existingCustomerTag in existingCustomerTags)
             {
-                bool found = false;
+                var found = false;
                 var existingCustomerTagName = await _customerTagService.GetCustomerTagById(existingCustomerTag);
-                foreach (string newCustomerTag in customerTags)
+                foreach (var newCustomerTag in customerTags)
                 {
                     if (existingCustomerTagName.Name.Equals(newCustomerTag, StringComparison.OrdinalIgnoreCase))
                     {
@@ -180,7 +180,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            foreach (string customerTagName in customerTags)
+            foreach (var customerTagName in customerTags)
             {
                 CustomerTag customerTag;
                 var customerTag2 = await _customerTagService.GetCustomerTagByName(customerTagName);
@@ -205,7 +205,7 @@ namespace Grand.Web.Admin.Services
         protected virtual string GetCustomerGroupsNames(IList<CustomerGroup> customerGroups, string separator = ",")
         {
             var sb = new StringBuilder();
-            for (int i = 0; i < customerGroups.Count; i++)
+            for (var i = 0; i < customerGroups.Count; i++)
             {
                 sb.Append(customerGroups[i].Name);
                 if (i != customerGroups.Count - 1)
@@ -1356,7 +1356,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCustomerAddProductModel(string customerId, bool personalized, CustomerModel.AddProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)

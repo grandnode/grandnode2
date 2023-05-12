@@ -135,8 +135,8 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Course> UpdateCourseModel(Course course, CourseModel model)
         {
-            string prevPictureId = course.PictureId;
-            string prevProductId = course.ProductId;
+            var prevPictureId = course.PictureId;
+            var prevProductId = course.ProductId;
 
             course = model.ToEntity(course);
             course.UpdatedOnUtc = DateTime.UtcNow;
@@ -219,7 +219,7 @@ namespace Grand.Web.Admin.Services
             var prevAttachmentId = lesson.AttachmentId;
             var prevVideoFile = lesson.VideoFile;
 
-            string prevPictureId = lesson.PictureId;
+            var prevPictureId = lesson.PictureId;
             lesson = model.ToEntity(lesson);
             await _courseLessonService.Update(lesson);
 
