@@ -182,7 +182,8 @@ namespace Grand.Web.Admin.Controllers
 
             string result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
 
-            string fileName = string.Format("newsletter_emails_{0}_{1}.txt", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"), CommonHelper.GenerateRandomDigitCode(4));
+            string fileName =
+                $"newsletter_emails_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}_{CommonHelper.GenerateRandomDigitCode(4)}.txt";
             return File(Encoding.UTF8.GetBytes(result), "text/csv", fileName);
         }
 
