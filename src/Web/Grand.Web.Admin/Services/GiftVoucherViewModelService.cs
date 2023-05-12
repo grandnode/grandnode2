@@ -239,7 +239,7 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = x.Id,
                     OrderId = x.UsedWithOrderId,
-                    OrderNumber = order != null ? order.OrderNumber : 0,
+                    OrderNumber = order?.OrderNumber ?? 0,
                     UsedValue = _priceFormatter.FormatPrice(x.UsedValue, currency, _workContext.WorkingLanguage, true, false),
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });

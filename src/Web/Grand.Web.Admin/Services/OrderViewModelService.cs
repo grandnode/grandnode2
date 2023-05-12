@@ -945,7 +945,7 @@ namespace Grand.Web.Admin.Services
                     Id = orderNote.Id,
                     OrderId = order.Id,
                     DownloadId = string.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = orderNote.DisplayToCustomer,
                     Note = orderNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc),

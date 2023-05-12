@@ -128,7 +128,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValue = selectedAttribute != null ? selectedAttribute.SelectedValueId : null;
+                                var selectedValue = selectedAttribute?.SelectedValueId;
                                 if (!string.IsNullOrEmpty(selectedValue))
                                     conditionAttributes = _checkoutAttributeParser.AddCheckoutAttribute(conditionAttributes, attribute, selectedValue).ToList();
                                 else
@@ -139,7 +139,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValues = selectedAttribute != null ? selectedAttribute.Values.Where(x => x.Selected).Select(x => x.Value) : null;
+                                var selectedValues = selectedAttribute?.Values.Where(x => x.Selected).Select(x => x.Value);
                                 if (selectedValues.Any())
                                     foreach (var value in selectedValues)
                                         conditionAttributes = _checkoutAttributeParser.AddCheckoutAttribute(conditionAttributes, attribute, value).ToList();

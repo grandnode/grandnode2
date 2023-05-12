@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
             model.AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.CustomerTags.Contains(ct.Id) }).ToList();
-            model.CustomerTags = model.CustomerTags == null ? new List<string>() : model.CustomerTags;
+            model.CustomerTags = model.CustomerTags ?? new List<string>();
         }
 
         protected virtual async Task PrepareCustomerGroupsModel(CampaignModel model)
@@ -96,7 +96,7 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
             model.AvailableCustomerGroups = (await _groupService.GetAllCustomerGroups()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.CustomerGroups.Contains(ct.Id) }).ToList();
-            model.CustomerGroups = model.CustomerGroups == null ? new List<string>() : model.CustomerGroups;
+            model.CustomerGroups = model.CustomerGroups ?? new List<string>();
         }
 
         protected virtual async Task PrepareNewsletterCategoriesModel(CampaignModel model)
@@ -104,7 +104,7 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
             model.AvailableNewsletterCategories = (await _newsletterCategoryService.GetAllNewsletterCategory()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.NewsletterCategories.Contains(ct.Id) }).ToList();
-            model.NewsletterCategories = model.NewsletterCategories == null ? new List<string>() : model.NewsletterCategories;
+            model.NewsletterCategories = model.NewsletterCategories ?? new List<string>();
         }
 
         protected virtual async Task PrepareEmailAccounts(CampaignModel model)

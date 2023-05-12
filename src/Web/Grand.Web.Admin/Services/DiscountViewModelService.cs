@@ -446,7 +446,7 @@ namespace Grand.Web.Admin.Services
                     Id = x.Id,
                     DiscountId = x.DiscountId,
                     OrderId = x.OrderId,
-                    OrderNumber = order != null ? order.OrderNumber : 0,
+                    OrderNumber = order?.OrderNumber ?? 0,
                     OrderCode = order != null ? order.Code : "",
                     OrderTotal = order != null ? _priceFormatter.FormatPrice(order.OrderTotal, false) : "",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)

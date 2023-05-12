@@ -58,7 +58,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValue = selectedAttribute != null ? selectedAttribute.SelectedValueId : null;
+                                var selectedValue = selectedAttribute?.SelectedValueId;
                                 if (!string.IsNullOrEmpty(selectedValue))
                                     customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, selectedValue).ToList();
                                 else

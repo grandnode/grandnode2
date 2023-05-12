@@ -1485,7 +1485,7 @@ namespace Grand.Web.Admin.Services
                     Id = customerNote.Id,
                     CustomerId = customerId,
                     DownloadId = string.IsNullOrEmpty(customerNote.DownloadId) ? "" : customerNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = customerNote.DisplayToCustomer,
                     Title = customerNote.Title,
                     Note = customerNote.Note,

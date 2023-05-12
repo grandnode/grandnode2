@@ -94,7 +94,7 @@ namespace Grand.Web.Admin.Services
                 Id = shipment.Id,
                 ShipmentNumber = shipment.ShipmentNumber,
                 OrderId = shipment.OrderId,
-                OrderNumber = order != null ? order.OrderNumber : 0,
+                OrderNumber = order?.OrderNumber ?? 0,
                 OrderCode = order != null ? order.Code : "",
                 TrackingNumber = shipment.TrackingNumber,
                 TotalWeight = shipment.TotalWeight.HasValue ? $"{shipment.TotalWeight:F2} [{baseWeightIn}]" : "",
@@ -137,7 +137,7 @@ namespace Grand.Web.Admin.Services
                             ProductName = product.Name,
                             Sku = product.FormatSku(orderItem.Attributes),
                             AttributeInfo = orderItem.AttributeDescription,
-                            ShippedFromWarehouse = warehouse != null ? warehouse.Name : null,
+                            ShippedFromWarehouse = warehouse?.Name,
                             ShipSeparately = product.ShipSeparately,
                             ItemWeight = orderItem.ItemWeight.HasValue ? $"{orderItem.ItemWeight:F2} [{baseWeightIn}]" : "",
                             ItemDimensions =
@@ -243,7 +243,7 @@ namespace Grand.Web.Admin.Services
                     Id = shipmentNote.Id,
                     ShipmentId = shipment.Id,
                     DownloadId = string.IsNullOrEmpty(shipmentNote.DownloadId) ? "" : shipmentNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = shipmentNote.DisplayToCustomer,
                     Note = shipmentNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(shipmentNote.CreatedOnUtc, DateTimeKind.Utc),
@@ -594,7 +594,7 @@ namespace Grand.Web.Admin.Services
                     qtyToAdd = orderItem.OpenQty;
 
                 //ok. we have at least one item. create a shipment (if it does not exist)
-                var orderItemTotalWeight = orderItem.ItemWeight.HasValue ? orderItem.ItemWeight * qtyToAdd : null;
+                var orderItemTotalWeight = orderItem.ItemWeight * qtyToAdd;
                 if (orderItemTotalWeight.HasValue)
                 {
                     if (!totalWeight.HasValue)

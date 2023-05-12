@@ -317,7 +317,7 @@ namespace Grand.Web.Admin.Services
                     Id = merchandiseReturnNote.Id,
                     MerchandiseReturnId = merchandiseReturn.Id,
                     DownloadId = string.IsNullOrEmpty(merchandiseReturnNote.DownloadId) ? "" : merchandiseReturnNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = merchandiseReturnNote.DisplayToCustomer,
                     Note = merchandiseReturnNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc),
