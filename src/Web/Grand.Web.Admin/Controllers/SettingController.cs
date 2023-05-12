@@ -27,7 +27,6 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Settings;

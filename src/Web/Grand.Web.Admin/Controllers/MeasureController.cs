@@ -6,7 +6,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.Catalog.Directory;

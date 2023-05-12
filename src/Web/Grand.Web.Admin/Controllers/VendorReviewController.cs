@@ -4,7 +4,6 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;

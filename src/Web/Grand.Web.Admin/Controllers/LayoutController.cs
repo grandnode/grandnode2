@@ -8,7 +8,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Pages;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Layouts;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.Catalog.Brands;

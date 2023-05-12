@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;

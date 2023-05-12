@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Vendors;
-using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;
 
 namespace Grand.Web.Admin.Interfaces

@@ -8,7 +8,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Customers;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Infrastructure;

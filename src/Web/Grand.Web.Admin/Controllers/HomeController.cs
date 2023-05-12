@@ -10,7 +10,6 @@ using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
