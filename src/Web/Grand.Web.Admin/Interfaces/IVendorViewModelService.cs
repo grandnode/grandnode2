@@ -21,8 +21,8 @@ namespace Grand.Web.Admin.Interfaces
         Task<(IEnumerable<VendorReviewModel> vendorReviewModels, int totalCount)> PrepareVendorReviewModel(VendorReviewListModel model, int pageIndex, int pageSize);
         Task<VendorReview> UpdateVendorReviewModel(VendorReview vendorReview, VendorReviewModel model);
         Task DeleteVendorReview(VendorReview vendorReview);
-        Task ApproveVendorReviews(IList<string> selectedIds);
-        Task DisapproveVendorReviews(IList<string> selectedIds);
+        Task ApproveVendorReviews(IEnumerable<string> selectedIds);
+        Task DisapproveVendorReviews(IEnumerable<string> selectedIds);
 
     }
 }

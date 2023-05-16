@@ -360,7 +360,7 @@ namespace Grand.Web.Admin.Services
             //update vendor totals
             await _vendorService.UpdateVendorReviewTotals(vendor);
         }
-        public virtual async Task ApproveVendorReviews(IList<string> selectedIds)
+        public virtual async Task ApproveVendorReviews(IEnumerable<string> selectedIds)
         {
             foreach (var id in selectedIds)
             {
@@ -381,7 +381,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
-        public virtual async Task DisapproveVendorReviews(IList<string> selectedIds)
+        public virtual async Task DisapproveVendorReviews(IEnumerable<string> selectedIds)
         {
             foreach (var id in selectedIds)
             {

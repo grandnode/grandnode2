@@ -1035,7 +1035,7 @@ namespace Grand.Web.Admin.Services
             _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
         }
 
-        public virtual async Task DeleteSelected(IList<string> selectedIds)
+        public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
         {
             var customers = new List<Customer>();
             customers.AddRange(await _customerService.GetCustomersByIds(selectedIds.ToArray()));

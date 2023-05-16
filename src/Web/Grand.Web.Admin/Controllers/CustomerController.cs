@@ -344,7 +344,7 @@ namespace Grand.Web.Admin.Controllers
                 if (custowner == null)
                     ModelState.AddModelError("", "Owner email is not exists");
 
-                if (model.Owner.ToLower() == model.Email.ToLower())
+                if (string.Equals(model.Owner, model.Email, StringComparison.CurrentCultureIgnoreCase))
                     ModelState.AddModelError("", "You can't assign own email");
             }
 

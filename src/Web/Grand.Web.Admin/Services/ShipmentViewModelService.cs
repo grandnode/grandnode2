@@ -538,7 +538,7 @@ namespace Grand.Web.Admin.Services
             return (true, string.Empty);
         }
 
-        public virtual async Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form)
+        public virtual async Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order, IEnumerable<OrderItem> orderItems, IFormCollection form)
         {
             Shipment shipment = null;
             double? totalWeight = null;

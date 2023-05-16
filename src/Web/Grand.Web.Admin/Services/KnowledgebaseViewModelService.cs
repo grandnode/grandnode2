@@ -54,9 +54,10 @@ namespace Grand.Web.Admin.Services
             _seoSettings = seoSettings;
         }
 
-        protected virtual void FillChildNodes(TreeNode parentNode, List<ITreeNode> nodes)
+        protected virtual void FillChildNodes(TreeNode parentNode, IEnumerable<ITreeNode> nodes)
         {
-            var children = nodes.Where(x => x.ParentCategoryId == parentNode.id);
+            var treeNodes = nodes.ToList();
+            var children = treeNodes.Where(x => x.ParentCategoryId == parentNode.id);
             foreach (var child in children)
             {
                 var newNode = new TreeNode
@@ -67,7 +68,7 @@ namespace Grand.Web.Admin.Services
                     nodes = new List<TreeNode>()
                 };
 
-                FillChildNodes(newNode, nodes);
+                FillChildNodes(newNode, treeNodes);
 
                 parentNode.nodes.Add(newNode);
             }

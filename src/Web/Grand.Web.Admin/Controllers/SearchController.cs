@@ -253,7 +253,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Category> categories)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(categoryId))
@@ -297,7 +297,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Collection> collections)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(collectionId))
@@ -343,7 +343,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<CustomerGroup> groups)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<CustomerGroup> groups)
             {
                 var model = new List<SearchModel>();
                 if (customerGroups != null && customerGroups.Any())
@@ -387,7 +387,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Stores(string[] stores)
         {
-            async Task<IList<SearchModel>> PrepareModel(IList<Store> groups)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Store> groups)
             {
                 var model = new List<SearchModel>();
                 if (stores != null && stores.Any())
@@ -435,7 +435,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Vendor> vendors)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Vendor> vendors)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(vendorId))
@@ -475,7 +475,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Brand> brands)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(brandId))

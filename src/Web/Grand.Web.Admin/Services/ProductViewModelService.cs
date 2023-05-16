@@ -1062,7 +1062,7 @@ namespace Grand.Web.Admin.Services
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
         }
-        public virtual async Task DeleteSelected(IList<string> selectedIds)
+        public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
         {
             var products = new List<Product>();
             products.AddRange(await _productService.GetProductsByIds(selectedIds.ToArray(), true));
@@ -1658,7 +1658,7 @@ namespace Grand.Web.Admin.Services
                 return productModel;
             })), products.TotalCount);
         }
-        public virtual async Task UpdateBulkEdit(IList<BulkEditProductModel> products)
+        public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
         {
             foreach (var pModel in products)
             {
@@ -1702,7 +1702,7 @@ namespace Grand.Web.Admin.Services
             }
 
         }
-        public virtual async Task DeleteBulkEdit(IList<BulkEditProductModel> products)
+        public virtual async Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products)
         {
             foreach (var pModel in products)
             {

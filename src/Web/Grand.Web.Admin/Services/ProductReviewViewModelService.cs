@@ -136,7 +136,7 @@ namespace Grand.Web.Admin.Services
             await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
         }
 
-        public virtual async Task ApproveSelected(IList<string> selectedIds, string storeId)
+        public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId)
         {
             foreach (var id in selectedIds)
             {
@@ -160,7 +160,7 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task DisapproveSelected(IList<string> selectedIds, string storeId)
+        public virtual async Task DisapproveSelected(IEnumerable<string> selectedIds, string storeId)
         {
             foreach (var id in selectedIds)
             {

@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<Customer> InsertCustomerModel(CustomerModel model);
         Task<Customer> UpdateCustomerModel(Customer customer, CustomerModel model);
         Task DeleteCustomer(Customer customer);
-        Task DeleteSelected(IList<string> selectedIds);
+        Task DeleteSelected(IEnumerable<string> selectedIds);
         Task SendEmail(Customer customer, CustomerModel.SendEmailModel model);
         Task<IEnumerable<CustomerModel.LoyaltyPointsHistoryModel>> PrepareLoyaltyPointsHistoryModel(string customerId);
         Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(Customer customer, string storeId, int addLoyaltyPointsValue, string addLoyaltyPointsMessage);

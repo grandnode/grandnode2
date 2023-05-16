@@ -59,11 +59,11 @@ namespace Grand.Web.Admin.Components
 
         #region Methods
 
-        private async Task<string> GetActiveStore(IList<Store> stores)
+        private async Task<string> GetActiveStore(ICollection<Store> stores)
         {
             //ensure that we have 2 (or more) stores
             if (stores.Count < 2)
-                return stores.FirstOrDefault().Id;
+                return stores.FirstOrDefault()!.Id;
 
             var storeId = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
             var store = await _storeService.GetStoreById(storeId);
