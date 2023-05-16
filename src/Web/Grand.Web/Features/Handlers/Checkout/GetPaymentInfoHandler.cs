@@ -18,7 +18,8 @@ namespace Grand.Web.Features.Handlers.Checkout
         {
             var url = _linkGenerator.GetPathByRouteValues(routeName: await request.PaymentMethod.GetControllerRouteName(), values: null);
             var model = new CheckoutPaymentInfoModel {
-                PaymentUrl = url
+                PaymentUrl = url,
+                SystemName = request.PaymentMethod.SystemName
             };
             return await Task.FromResult(model);
         }

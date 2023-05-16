@@ -36,6 +36,7 @@ var vmorder = new Vue({
             UseLoyaltyPoints: null,
             // payment info
             PaymentUrl: null,
+            PaymentMethodSystemName: null,
             // confirm order
             OrderReviewData: null,
             MinOrderTotalWarning: null,
@@ -240,6 +241,7 @@ var vmorder = new Vue({
                         if (response.data.goto_section == "payment_info") {
                             var model = response.data.update_section.model;
                             vmorder.PaymentUrl = model.PaymentUrl;
+                            vmorder.PaymentMethodSystemName = model.SystemName;
                             vmorder.PaymentInfo = true;
                             vmorder.paymentBusy = true;
                             vmorder.validPayment = true;
@@ -658,8 +660,9 @@ var vmorder = new Vue({
                             }
                             if (response.data.update_section !== undefined && response.data.update_section.name == 'payment-info') {
                                 var model = response.data.update_section.model;
-                                vm.PaymentUrl = model.PaymentUrl,
-                                    vm.PaymentInfo = true;
+                                vm.PaymentUrl = model.PaymentUrl;
+                                vm.PaymentMethodSystemName = model.SystemName;
+                                vm.PaymentInfo = true;
 
                                 axios({
                                     baseURL: model.PaymentUrl,
