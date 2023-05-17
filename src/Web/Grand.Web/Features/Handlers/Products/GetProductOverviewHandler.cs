@@ -234,76 +234,69 @@ namespace Grand.Web.Features.Handlers.Products
                             _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
                     }
 
-                    switch (associatedProducts.Count)
+                    if (associatedProducts.Any())
                     {
-                        case 0:
+                        //we have at least one associated product
+                        //compare products
+                        priceModel.DisableAddToCompareListButton = !_catalogSettings.CompareProductsEnabled;
+                        if (displayPrices)
                         {
-                        }
-                            break;
-                        default:
-                        {
-                            //we have at least one associated product
-                            //compare products
-                            priceModel.DisableAddToCompareListButton = !_catalogSettings.CompareProductsEnabled;
-                            if (displayPrices)
+                            //find a minimum possible price
+                            double? minPossiblePrice = null;
+                            Product minPriceProduct = null;
+                            foreach (var associatedProduct in associatedProducts)
                             {
-                                //find a minimum possible price
-                                double? minPossiblePrice = null;
-                                Product minPriceProduct = null;
-                                foreach (var associatedProduct in associatedProducts)
+                                //calculate for the maximum quantity (in case if we have tier prices)
+                                var tmpPrice = (await _pricingService.GetFinalPrice(associatedProduct,
+                                    _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true,
+                                    int.MaxValue)).finalPrice;
+                                if (minPossiblePrice.HasValue && !(tmpPrice < minPossiblePrice.Value)) continue;
+                                minPriceProduct = associatedProduct;
+                                minPossiblePrice = tmpPrice;
+                            }
+
+                            if (minPriceProduct is { EnteredPrice: false })
+                            {
+                                if (minPriceProduct.CallForPrice)
                                 {
-                                    //calculate for the maximum quantity (in case if we have tier prices)
-                                    var tmpPrice = (await _pricingService.GetFinalPrice(associatedProduct,
-                                        _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true,
-                                        int.MaxValue)).finalPrice;
-                                    if (minPossiblePrice.HasValue && !(tmpPrice < minPossiblePrice.Value)) continue;
-                                    minPriceProduct = associatedProduct;
-                                    minPossiblePrice = tmpPrice;
+                                    priceModel.OldPrice = null;
+                                    priceModel.Price = res["Products.CallForPrice"];
                                 }
-
-                                if (minPriceProduct is { EnteredPrice: false })
+                                else if (minPossiblePrice.HasValue)
                                 {
-                                    if (minPriceProduct.CallForPrice)
-                                    {
-                                        priceModel.OldPrice = null;
-                                        priceModel.Price = res["Products.CallForPrice"];
-                                    }
-                                    else if (minPossiblePrice.HasValue)
-                                    {
-                                        //calculate prices
-                                        var finalPrice = (await _taxService.GetProductPrice(minPriceProduct,
-                                                minPossiblePrice.Value, priceIncludesTax, _workContext.CurrentCustomer))
-                                            .productprice;
+                                    //calculate prices
+                                    var finalPrice = (await _taxService.GetProductPrice(minPriceProduct,
+                                            minPossiblePrice.Value, priceIncludesTax,
+                                            _workContext.CurrentCustomer))
+                                        .productprice;
 
-                                        priceModel.OldPrice = null;
-                                        priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
-                                            _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency,
-                                                _workContext.WorkingLanguage, priceIncludesTax));
-                                        priceModel.PriceValue = finalPrice;
+                                    priceModel.OldPrice = null;
+                                    priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
+                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency,
+                                            _workContext.WorkingLanguage, priceIncludesTax));
+                                    priceModel.PriceValue = finalPrice;
 
-                                        //PAngV base price (used in Germany)
-                                        if (product.BasepriceEnabled)
-                                            priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
-                                                Currency = _workContext.WorkingCurrency, Product = product,
-                                                ProductPrice = finalPrice
-                                            });
-                                    }
-                                    else
-                                    {
-                                        //Actually it's not possible (we presume that minimalPrice always has a value)
-                                        //We never should get here
-                                        Debug.WriteLine("Cannot calculate minPrice for product #{0}", product.Id);
-                                    }
+                                    //PAngV base price (used in Germany)
+                                    if (product.BasepriceEnabled)
+                                        priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
+                                            Currency = _workContext.WorkingCurrency, Product = product,
+                                            ProductPrice = finalPrice
+                                        });
+                                }
+                                else
+                                {
+                                    //Actually it's not possible (we presume that minimalPrice always has a value)
+                                    //We never should get here
+                                    Debug.WriteLine("Cannot calculate minPrice for product #{0}", product.Id);
                                 }
                             }
-                            else
-                            {
-                                //hide prices
-                                priceModel.OldPrice = null;
-                                priceModel.Price = null;
-                            }
                         }
-                            break;
+                        else
+                        {
+                            //hide prices
+                            priceModel.OldPrice = null;
+                            priceModel.Price = null;
+                        }
                     }
 
                     #endregion
@@ -311,6 +304,8 @@ namespace Grand.Web.Features.Handlers.Products
                     break;
                 case ProductType.SimpleProduct:
                 case ProductType.Reservation:
+                case ProductType.BundledProduct:
+                case ProductType.Auction:
                 default:
                 {
                     #region Simple product
@@ -527,7 +522,7 @@ namespace Grand.Web.Features.Handlers.Products
                 .FirstOrDefault();
             if (secondPicture != null)
                 result.Add(await PreparePictureModel(secondPicture));
-            
+
             return result;
 
             #endregion
