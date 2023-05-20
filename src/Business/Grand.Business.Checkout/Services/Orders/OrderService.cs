@@ -152,6 +152,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="orderTagId">Order tag identifier</param>
+        /// <param name="orderNumber">Order number</param>
         /// <returns>Orders</returns>
         public virtual async Task<IPagedList<Order>> SearchOrders(string storeId = "",
             string vendorId = "", string customerId = "",
@@ -160,10 +161,9 @@ namespace Grand.Business.Checkout.Services.Orders
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             string billingEmail = null, string billingLastName = "", string orderGuid = null,
-            string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "")
+            string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "", string orderNumber = "")
         {
-            var queryModel = new GetOrderQuery
-            {
+            var queryModel = new GetOrderQuery {
                 AffiliateId = affiliateId,
                 BillingCountryId = billingCountryId,
                 BillingEmail = billingEmail,
@@ -185,7 +185,8 @@ namespace Grand.Business.Checkout.Services.Orders
                 WarehouseId = warehouseId,
                 OrderTagId = orderTagId,
                 OwnerId = ownerId,
-                SalesEmployeeId = salesEmployeeId
+                SalesEmployeeId = salesEmployeeId,
+                OrderNumber = orderNumber
             };
             var query = await _mediator.Send(queryModel);
             return await PagedList<Order>.Create(query, pageIndex, pageSize);
@@ -232,7 +233,7 @@ namespace Grand.Business.Checkout.Services.Orders
         {
             var orders = _orderRepository.Table
               .Where(o => o.CreatedOnUtc < expirationDateUtc && o.PaymentStatusId == PaymentStatus.Pending &&
-              o.OrderStatusId == (int)OrderStatusSystem.Pending && (o.ShippingStatusId == ShippingStatus.Pending 
+              o.OrderStatusId == (int)OrderStatusSystem.Pending && (o.ShippingStatusId == ShippingStatus.Pending
               || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))
               .ToList();
 

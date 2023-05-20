@@ -87,7 +87,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             string billingEmail = null, string billingLastName = "", string orderGuid = null,
-            string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "");
+            string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",string orderNumber = "");
         
         /// <summary>
         /// Inserts an order
