@@ -139,14 +139,13 @@ namespace Grand.Web.Admin.Services
             var currencies = await _currencyService.GetAllCurrencies();
             foreach (var item in currencies)
             {
-                model.AvailableCurrencies.Add(new SelectListItem() { Text = item.Name, Value = item.CurrencyCode });
+                model.AvailableCurrencies.Add(new SelectListItem { Text = item.Name, Value = item.CurrencyCode });
             }
 
             //discount amount providers
             foreach (var item in _discountService.LoadDiscountAmountProviders())
             {
-                model.AvailableDiscountAmountProviders.Add(new SelectListItem()
-                    { Value = item.SystemName, Text = item.FriendlyName });
+                model.AvailableDiscountAmountProviders.Add(new SelectListItem { Value = item.SystemName, Text = item.FriendlyName });
             }
 
             if (discount != null)

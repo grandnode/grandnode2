@@ -391,8 +391,8 @@ namespace Grand.Web.Admin.Services
                 CompanyEnabled = _customerSettings.CompanyEnabled,
                 PhoneEnabled = _customerSettings.PhoneEnabled,
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
-                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem() { Text = cr.Name, Value = cr.Id.ToString(), Selected = cr.Id == registered.Id }).ToList(),
-                AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
+                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem { Text = cr.Name, Value = cr.Id.ToString(), Selected = cr.Id == registered.Id }).ToList(),
+                AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
                 SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id }
             };
             return model;
@@ -570,7 +570,7 @@ namespace Grand.Web.Admin.Services
 
             //newsletter subscriptions
             model.AvailableNewsletterSubscriptionStores = allStores
-                .Select(s => new StoreModel() { Id = s.Id, Name = s.Shortcut })
+                .Select(s => new StoreModel { Id = s.Id, Name = s.Shortcut })
                 .ToList();
 
 
@@ -1365,14 +1365,14 @@ namespace Grand.Web.Admin.Services
                     {
                         if (!(await _customerProductService.GetPriceByCustomerProduct(customerId, id)).HasValue)
                         {
-                            await _customerProductService.InsertCustomerProductPrice(new CustomerProductPrice() { CustomerId = customerId, ProductId = id, Price = product.Price });
+                            await _customerProductService.InsertCustomerProductPrice(new CustomerProductPrice { CustomerId = customerId, ProductId = id, Price = product.Price });
                         }
                     }
                     else
                     {
                         if (await _customerProductService.GetCustomerProduct(customerId, id) == null)
                         {
-                            await _customerProductService.InsertCustomerProduct(new CustomerProduct() { CustomerId = customerId, ProductId = id, DisplayOrder = 0 });
+                            await _customerProductService.InsertCustomerProduct(new CustomerProduct { CustomerId = customerId, ProductId = id, DisplayOrder = 0 });
                         }
 
                     }

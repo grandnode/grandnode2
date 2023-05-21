@@ -157,8 +157,7 @@ namespace Grand.Web.Admin.Services
             var blogproducts = await _blogService.GetProductsByBlogPostId(filterByBlogPostId);
             foreach (var item in blogproducts.Skip((pageIndex - 1) * pageSize).Take(pageSize))
             {
-                productModels.Add(new BlogProductModel()
-                {
+                productModels.Add(new BlogProductModel {
                     Id = item.Id,
                     DisplayOrder = item.DisplayOrder,
                     ProductId = item.ProductId,
@@ -209,8 +208,7 @@ namespace Grand.Web.Admin.Services
                 {
                     if (products.FirstOrDefault(x => x.ProductId == id) == null)
                     {
-                        await _blogService.InsertBlogProduct(new BlogProduct()
-                        {
+                        await _blogService.InsertBlogProduct(new BlogProduct {
                             BlogPostId = blogPostId,
                             ProductId = id,
                             DisplayOrder = 0

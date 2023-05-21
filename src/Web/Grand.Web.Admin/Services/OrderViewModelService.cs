@@ -189,7 +189,7 @@ namespace Grand.Web.Admin.Services
             var statuses = await _orderStatusService.GetAll();
             var model = new OrderListModel
             {
-                AvailableOrderStatuses = statuses.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
+                AvailableOrderStatuses = statuses.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
             };
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             if (orderStatusId.HasValue)
@@ -357,7 +357,7 @@ namespace Grand.Web.Admin.Services
             model.OrderGuid = order.OrderGuid;
 
             var status = await _orderStatusService.GetAll();
-            model.OrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
 
             var store = await _storeService.GetStoreById(order.StoreId);
@@ -1180,7 +1180,7 @@ namespace Grand.Web.Admin.Services
             #endregion
 
             //warnings
-            var shoppingCartItem = new ShoppingCartItem() {
+            var shoppingCartItem = new ShoppingCartItem {
                 ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
                 Quantity = quantity,
                 WarehouseId = product.WarehouseId,
@@ -1224,7 +1224,7 @@ namespace Grand.Web.Admin.Services
                     CreatedOnUtc = DateTime.UtcNow
                 };
 
-                await _mediator.Send(new InsertOrderItemCommand() { Order = order, OrderItem = orderItem, Product = product });
+                await _mediator.Send(new InsertOrderItemCommand { Order = order, OrderItem = orderItem, Product = product });
 
                 _ = LogEditOrder(order.Id);
 

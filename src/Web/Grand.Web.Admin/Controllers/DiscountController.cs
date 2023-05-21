@@ -251,7 +251,7 @@ namespace Grand.Web.Admin.Controllers
                 if (!coupon.Used)
                     await _discountService.DeleteDiscountCoupon(coupon);
                 else
-                    return new JsonResult(new DataSourceResult() { Errors = "You can't delete coupon code, it was used" });
+                    return new JsonResult(new DataSourceResult { Errors = "You can't delete coupon code, it was used" });
 
                 return new JsonResult("");
             }
@@ -271,7 +271,7 @@ namespace Grand.Web.Admin.Controllers
             couponCode = couponCode.ToUpper();
 
             if (await _discountService.GetDiscountByCouponCode(couponCode) != null)
-                return new JsonResult(new DataSourceResult() { Errors = "Coupon code exists" });
+                return new JsonResult(new DataSourceResult { Errors = "Coupon code exists" });
             if (ModelState.IsValid)
             {
                 await _discountViewModelService.InsertCouponCode(discountId, couponCode);

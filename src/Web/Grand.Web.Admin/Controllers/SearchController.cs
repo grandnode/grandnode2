@@ -261,8 +261,7 @@ namespace Grand.Web.Admin.Controllers
                     var currentCategory = await _categoryService.GetCategoryById(categoryId);
                     if (currentCategory != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentCategory.Id,
                             Name = await _categoryService.GetFormattedBreadCrumb(currentCategory)
                         });
@@ -271,8 +270,7 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var item in categories)
                 {
                     if (item.Id != categoryId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = await _categoryService.GetFormattedBreadCrumb(item)
                         });
@@ -305,8 +303,7 @@ namespace Grand.Web.Admin.Controllers
                     var currentCollection = await _collectionService.GetCollectionById(collectionId);
                     if (currentCollection != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentCollection.Id,
                             Name = currentCollection.Name
                         });
@@ -315,8 +312,7 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var item in collections)
                 {
                     if (item.Id != collectionId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
                         });
@@ -351,8 +347,7 @@ namespace Grand.Web.Admin.Controllers
                     var currentGroups = await _groupService.GetAllByIds(customerGroups);
                     foreach (var item in currentGroups)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
 
@@ -363,8 +358,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     if (model.FirstOrDefault(x => x.Id == item.Id) == null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
                         });
@@ -396,8 +390,7 @@ namespace Grand.Web.Admin.Controllers
                     {
                         var currentStore = await _storeService.GetStoreById(item);
                         if (currentStore != null)
-                            model.Add(new SearchModel()
-                            {
+                            model.Add(new SearchModel {
                                 Id = currentStore.Id,
                                 Name = currentStore.Name
                             });
@@ -408,8 +401,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     if (model.FirstOrDefault(x => x.Id == item.Id) == null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
                         });
@@ -443,8 +435,7 @@ namespace Grand.Web.Admin.Controllers
                     var currentVendor = await _vendorService.GetVendorById(vendorId);
                     if (currentVendor != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentVendor.Id,
                             Name = currentVendor.Name
                         });
@@ -453,8 +444,7 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var item in vendors)
                 {
                     if (item.Id != vendorId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
                         });
@@ -483,8 +473,7 @@ namespace Grand.Web.Admin.Controllers
                     var currentBrand = await _brandService.GetBrandById(brandId);
                     if (currentBrand != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentBrand.Id,
                             Name = currentBrand.Name
                         });
@@ -493,8 +482,7 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var item in brands)
                 {
                     if (item.Id != brandId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
                             Name = item.Name
                         });

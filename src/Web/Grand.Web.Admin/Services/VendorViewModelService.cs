@@ -188,8 +188,7 @@ namespace Grand.Web.Admin.Services
         {
             return (await _customerService
                 .GetAllCustomers(vendorId: vendorId))
-                .Select(c => new VendorModel.AssociatedCustomerInfo()
-                {
+                .Select(c => new VendorModel.AssociatedCustomerInfo {
                     Id = c.Id,
                     Email = c.Email
                 })

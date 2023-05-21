@@ -685,7 +685,7 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var r in customerGroups)
             {
-                model.AvailableCustomerGroups.Add(new CustomerGroupModel() { Id = r.Id, Name = r.Name });
+                model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = r.Id, Name = r.Name });
             }
 
             foreach (var country in countries)

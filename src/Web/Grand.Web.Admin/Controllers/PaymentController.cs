@@ -156,7 +156,7 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var s in shippings)
             {
-                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel() {
+                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel {
                     Id = s.Id,
                     Name = s.Name
                 });

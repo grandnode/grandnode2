@@ -232,7 +232,7 @@ namespace Grand.Web.Admin.Controllers
             var model = new List<SortOptionModel>();
             foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
             {
-                model.Add(new SortOptionModel() {
+                model.Add(new SortOptionModel {
                     Id = option,
                     Name = ((ProductSortingEnum)option).GetTranslationEnum(_translationService, _workContext),
                     IsActive = !catalogSettings.ProductSortingEnumDisabled.Contains(option),
@@ -275,7 +275,7 @@ namespace Grand.Web.Admin.Controllers
             var orderSettings = _settingService.LoadSetting<OrderSettings>(storeScope);
             var shoppingCartSettings = _settingService.LoadSetting<ShoppingCartSettings>(storeScope);
 
-            var model = new SalesSettingsModel() {
+            var model = new SalesSettingsModel {
                 LoyaltyPointsSettings = loyaltyPointsSettings.ToModel(),
                 OrderSettings = orderSettings.ToModel(),
                 ShoppingCartSettings = shoppingCartSettings.ToModel(),
@@ -289,13 +289,13 @@ namespace Grand.Web.Admin.Controllers
             model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
             //order statuses
             var status = await _orderStatusService.GetAll();
-            model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
 
             //orders
             model.OrderSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
 
             //gift voucher activation
-            model.OrderSettings.GiftVouchers_Activated_OrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderSettings.GiftVouchers_Activated_OrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.OrderSettings.GiftVouchers_Activated_OrderStatuses.Insert(0, new SelectListItem { Text = "---", Value = "0" });
 
             return View(model);
@@ -910,7 +910,7 @@ namespace Grand.Web.Admin.Controllers
             //order ident
             if (model.OrderIdent is > 0)
             {
-                await _mediator.Send(new MaxOrderNumberCommand() { OrderNumber = model.OrderIdent });
+                await _mediator.Send(new MaxOrderNumberCommand { OrderNumber = model.OrderIdent });
             }
 
             //admin area

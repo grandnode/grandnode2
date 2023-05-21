@@ -192,8 +192,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", new { id = vendor.Id });
             }
 
-            var activate = await _mediator.Send(new ActiveVendorCommand()
-            {
+            var activate = await _mediator.Send(new ActiveVendorCommand {
                 Vendor = vendor,
                 Active = activatevendor == "active",
                 CustomerIds = associatedCustomers.Select(x => x.Id).ToList()

@@ -1685,7 +1685,7 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<ProductModel.ProductPriceModel>();
             foreach (var item in product.ProductPrices)
             {
-                items.Add(new ProductModel.ProductPriceModel() {
+                items.Add(new ProductModel.ProductPriceModel {
                     Id = item.Id,
                     CurrencyCode = item.CurrencyCode,
                     Price = item.Price
@@ -1715,7 +1715,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    await _productService.InsertProductPrice(new ProductPrice() {
+                    await _productService.InsertProductPrice(new ProductPrice {
                         ProductId = product.Id,
                         CurrencyCode = model.CurrencyCode,
                         Price = model.Price

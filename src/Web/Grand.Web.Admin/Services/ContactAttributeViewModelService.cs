@@ -117,22 +117,19 @@ namespace Grand.Web.Admin.Services
             var selectedAttribute = (await _contactAttributeParser.ParseContactAttributes(contactAttribute.ConditionAttribute)).FirstOrDefault();
             var selectedValues = await _contactAttributeParser.ParseContactAttributeValues(contactAttribute.ConditionAttribute);
 
-            model.ConditionModel = new ConditionModel()
-            {
+            model.ConditionModel = new ConditionModel {
                 EnableCondition = contactAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
                 ConditionAttributes = (await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
-                        new AttributeConditionModel()
-                        {
+                        new AttributeConditionModel {
                             Id = x.Id,
                             Name = x.Name,
                             AttributeControlType = x.AttributeControlType,
                             Values = x.ContactAttributeValues
-                                .Select(v => new SelectListItem()
-                                {
+                                .Select(v => new SelectListItem {
                                     Text = v.Name,
                                     Value = v.Id.ToString(),
                                     Selected = selectedAttribute != null && selectedAttribute.Id == x.Id && selectedValues.Any(sv => sv.Id == v.Id)

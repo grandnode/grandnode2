@@ -87,22 +87,19 @@ namespace Grand.Web.Admin.Services
             var selectedAttribute = (await _checkoutAttributeParser.ParseCheckoutAttributes(checkoutAttribute.ConditionAttribute)).FirstOrDefault();
             var selectedValues = await _checkoutAttributeParser.ParseCheckoutAttributeValues(checkoutAttribute.ConditionAttribute);
 
-            model.ConditionModel = new ConditionModel()
-            {
+            model.ConditionModel = new ConditionModel {
                 EnableCondition = checkoutAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
                 ConditionAttributes = (await _checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: false))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != checkoutAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
-                        new AttributeConditionModel()
-                        {
+                        new AttributeConditionModel {
                             Id = x.Id,
                             Name = x.Name,
                             AttributeControlType = x.AttributeControlTypeId,
                             Values = x.CheckoutAttributeValues
-                                .Select(v => new SelectListItem()
-                                {
+                                .Select(v => new SelectListItem {
                                     Text = v.Name,
                                     Value = v.Id.ToString(),
                                     Selected = selectedAttribute != null && selectedAttribute.Id == x.Id && selectedValues.Any(sv => sv.Id == v.Id)

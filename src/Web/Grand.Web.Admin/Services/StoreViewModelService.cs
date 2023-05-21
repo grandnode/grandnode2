@@ -126,7 +126,7 @@ namespace Grand.Web.Admin.Services
 
             var storeUri = new Uri(store.Url);
 
-            store.Domains.Add(new DomainHost() {
+            store.Domains.Add(new DomainHost {
                 HostName = storeUri.Host,
                 Url = store.SslEnabled ? store.SecureUrl : store.Url,
                 Primary = true
@@ -149,7 +149,7 @@ namespace Grand.Web.Admin.Services
             if (domain == null)
             {
                 var storeUri = new Uri(store.Url);
-                store.Domains.Add(new DomainHost() {
+                store.Domains.Add(new DomainHost {
                     HostName = storeUri.Host,
                     Url = store.SslEnabled ? store.SecureUrl : store.Url,
                     Primary = true
@@ -203,7 +203,7 @@ namespace Grand.Web.Admin.Services
 
             var storeUri = new Uri(model.Url);
 
-            store.Domains.Add(new DomainHost() {
+            store.Domains.Add(new DomainHost {
                 HostName = storeUri.Host,
                 Url = model.Url
             });

@@ -212,7 +212,7 @@ namespace Grand.Web.Admin.Controllers
 
             var status = await _orderStatusService.GetAll();
             //order statuses
-            model.AvailableOrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.AvailableOrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
             //payment statuses
@@ -513,7 +513,7 @@ namespace Grand.Web.Admin.Controllers
             var status = await _orderStatusService.GetAll();
             var model = new CountryReportModel {
                 //order statuses
-                AvailableOrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
+                AvailableOrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
             };
 
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });

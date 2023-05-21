@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Models.Common
             DeleteGuests = new DeleteGuestsModel();
             DeleteAbandonedCarts = new DeleteAbandonedCartsModel();
             DeleteExportedFiles = new DeleteExportedFilesModel();
-            ConvertedPictureModel = new ConvertPictureModel() { NumberOfConvertItems = -1 };
+            ConvertedPictureModel = new ConvertPictureModel { NumberOfConvertItems = -1 };
         }
 
         public DeleteGuestsModel DeleteGuests { get; set; }

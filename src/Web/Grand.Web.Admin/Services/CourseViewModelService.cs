@@ -88,8 +88,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in await _courseLevelService.GetAll())
             {
-                model.AvailableLevels.Add(new SelectListItem()
-                {
+                model.AvailableLevels.Add(new SelectListItem {
                     Text = item.Name,
                     Value = item.Id
                 });
@@ -193,8 +192,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in await _courseSubjectService.GetByCourseId(courseId))
             {
-                model.AvailableSubjects.Add(new SelectListItem()
-                {
+                model.AvailableSubjects.Add(new SelectListItem {
                     Text = item.Name,
                     Value = item.Id
                 });

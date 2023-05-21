@@ -427,7 +427,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new ShipCommand() { Shipment = shipment, NotifyCustomer = true });
+                await _mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
             catch (Exception exc)
@@ -514,7 +514,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new DeliveryCommand() { Shipment = shipment, NotifyCustomer = true });
+                await _mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
             catch (Exception exc)
@@ -757,7 +757,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    await _mediator.Send(new ShipCommand() { Shipment = shipment, NotifyCustomer = true });
+                    await _mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
                 }
                 catch
                 {
@@ -802,7 +802,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    await _mediator.Send(new DeliveryCommand() { Shipment = shipment, NotifyCustomer = true });
+                    await _mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
                 }
                 catch
                 {

@@ -533,7 +533,7 @@ namespace Grand.Web.Admin.Controllers
                         {
                             if (!blogCategory.BlogPosts.Any(x => x.BlogPostId == id))
                             {
-                                blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost() { BlogPostId = id });
+                                blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost { BlogPostId = id });
                                 await _blogService.UpdateBlogCategory(blogCategory);
                             }
                         }

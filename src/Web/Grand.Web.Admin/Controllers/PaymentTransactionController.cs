@@ -203,15 +203,15 @@ namespace Grand.Web.Admin.Controllers
                 AuthorizationTransactionId = paymentTransaction.AuthorizationTransactionId,
                 //payment method buttons
                 //model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery() { Order = order });
-                CanCapture = await _mediator.Send(new CanCaptureQuery() { PaymentTransaction = paymentTransaction }),
-                CanMarkAsPaid = await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery() { PaymentTransaction = paymentTransaction }),
-                CanRefund = await _mediator.Send(new CanRefundQuery() { PaymentTransaction = paymentTransaction }),
-                CanRefundOffline = await _mediator.Send(new CanRefundOfflineQuery() { PaymentTransaction = paymentTransaction }),
-                CanPartiallyRefund = await _mediator.Send(new CanPartiallyRefundQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
-                CanPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
-                CanPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToPaid = 0 }),
-                CanVoid = await _mediator.Send(new CanVoidQuery() { PaymentTransaction = paymentTransaction }),
-                CanVoidOffline = await _mediator.Send(new CanVoidOfflineQuery() { PaymentTransaction = paymentTransaction }),
+                CanCapture = await _mediator.Send(new CanCaptureQuery { PaymentTransaction = paymentTransaction }),
+                CanMarkAsPaid = await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }),
+                CanRefund = await _mediator.Send(new CanRefundQuery { PaymentTransaction = paymentTransaction }),
+                CanRefundOffline = await _mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction }),
+                CanPartiallyRefund = await _mediator.Send(new CanPartiallyRefundQuery { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
+                CanPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
+                CanPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery { PaymentTransaction = paymentTransaction, AmountToPaid = 0 }),
+                CanVoid = await _mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction }),
+                CanVoidOffline = await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
                 MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
                 MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
             };
@@ -236,7 +236,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                var errors = await _mediator.Send(new CaptureCommand() { PaymentTransaction = paymentTransaction });
+                var errors = await _mediator.Send(new CaptureCommand { PaymentTransaction = paymentTransaction });
 
                 foreach (var error in errors)
                     Error(error);
@@ -267,7 +267,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new MarkAsPaidCommand() { PaymentTransaction = paymentTransaction });
+                await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
                 return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
@@ -293,7 +293,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                var errors = await _mediator.Send(new RefundCommand() { PaymentTransaction = paymentTransaction });
+                var errors = await _mediator.Send(new RefundCommand { PaymentTransaction = paymentTransaction });
                 foreach (var error in errors)
                     Error(error);
 
@@ -322,7 +322,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new RefundOfflineCommand() { PaymentTransaction = paymentTransaction });
+                await _mediator.Send(new RefundOfflineCommand { PaymentTransaction = paymentTransaction });
                 return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
@@ -348,7 +348,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                var errors = await _mediator.Send(new VoidCommand() { PaymentTransaction = paymentTransaction });
+                var errors = await _mediator.Send(new VoidCommand { PaymentTransaction = paymentTransaction });
                 foreach (var error in errors)
                     Error(error);
 
@@ -377,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new VoidOfflineCommand() { PaymentTransaction = paymentTransaction });
+                await _mediator.Send(new VoidOfflineCommand { PaymentTransaction = paymentTransaction });
                 return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)

@@ -90,7 +90,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<DocumentModel> PrepareDocumentModel(DocumentModel documentModel, Document document, SimpleDocumentModel simpleModel)
         {
-            var model = documentModel ?? new DocumentModel() { Published = true };
+            var model = documentModel ?? new DocumentModel { Published = true };
             if (document != null)
                 model = document.ToModel();
             else

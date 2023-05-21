@@ -92,13 +92,12 @@ namespace Grand.Web.Admin.Services
                 Name = "Volume",
                 MaxUploadConnections = 3,
                 MaxUploadSizeInMb = 4,
-                ObjectAttributes = new List<FilteredObjectAttribute>() {
-                    new FilteredObjectAttribute()
-                    {
-                        FileFilter = (file) => {
+                ObjectAttributes = new List<FilteredObjectAttribute> {
+                    new FilteredObjectAttribute {
+                        FileFilter = file => {
                             return NotAllowedExtensions(file.Extension);
                         },
-                        ObjectFilter = (obj) =>
+                        ObjectFilter = obj =>
                         {
                             var extensions = Path.GetExtension(obj.FullName);
                             if(!string.IsNullOrEmpty(extensions))

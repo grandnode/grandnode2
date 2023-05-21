@@ -77,14 +77,14 @@ namespace Grand.Web.Admin.Controllers
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             model.OrdersPending = (await _orderReportService.GetOrderAverageReportLine(storeId: storeId, os: (int)OrderStatusSystem.Pending)).CountOrders;
-            model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery() { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
+            model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
 
             var lowStockProducts = await _productsReportService.LowStockProducts(vendorId, storeId);
             model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
 
-            model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery() { RequestStatusId = 0, StoreId = storeId });
+            model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery { RequestStatusId = 0, StoreId = storeId });
             model.TodayRegisteredCustomers =
-                (await _mediator.Send(new GetCustomerQuery() {
+                (await _mediator.Send(new GetCustomerQuery {
                     StoreId = storeId,
                     CustomerGroupIds = new[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
                     CreatedFromUtc = DateTime.UtcNow.Date
@@ -167,7 +167,7 @@ namespace Grand.Web.Admin.Controllers
         {
             // This action method gets called via an ajax request
             if (string.IsNullOrEmpty(countryId))
-                return Json(new List<dynamic>() { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
+                return Json(new List<dynamic> { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
 
             var country = await countryService.GetCountryById(countryId);
             var states = country != null ? country.StateProvinces.ToList() : new List<StateProvince>();

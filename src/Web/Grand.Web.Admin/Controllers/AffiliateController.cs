@@ -147,8 +147,7 @@ namespace Grand.Web.Admin.Controllers
                 //No affiliate found with the specified id
                 return RedirectToAction("List");
 
-            var customers = new GetCustomerQuery()
-            {
+            var customers = new GetCustomerQuery {
                 AffiliateId = affiliate.Id,
                 PageSize = 1
             };
@@ -156,8 +155,7 @@ namespace Grand.Web.Admin.Controllers
             if (query_customer > 0)
                 ModelState.AddModelError("", "There are exist customers related with affiliate");
 
-            var orders = new GetOrderQuery()
-            {
+            var orders = new GetOrderQuery {
                 AffiliateId = affiliate.Id,
                 PageSize = 1
             };

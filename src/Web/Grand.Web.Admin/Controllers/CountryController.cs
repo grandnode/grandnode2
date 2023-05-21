@@ -347,7 +347,7 @@ namespace Grand.Web.Admin.Controllers
             var countries = await _countryService.GetAllCountries();
             var query = from p in countries
                         from s in p.StateProvinces
-                        select new CountryStates() {
+                        select new CountryStates {
                             Country = p.TwoLetterIsoCode,
                             StateProvinceName = s.Name,
                             Abbreviation = s.Abbreviation,

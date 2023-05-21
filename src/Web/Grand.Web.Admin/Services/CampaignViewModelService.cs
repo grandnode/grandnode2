@@ -87,7 +87,7 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
-            model.AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.CustomerTags.Contains(ct.Id) }).ToList();
+            model.AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.CustomerTags.Contains(ct.Id) }).ToList();
             model.CustomerTags ??= new List<string>();
         }
 
@@ -95,7 +95,7 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
-            model.AvailableCustomerGroups = (await _groupService.GetAllCustomerGroups()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.CustomerGroups.Contains(ct.Id) }).ToList();
+            model.AvailableCustomerGroups = (await _groupService.GetAllCustomerGroups()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.CustomerGroups.Contains(ct.Id) }).ToList();
             model.CustomerGroups ??= new List<string>();
         }
 
@@ -103,7 +103,7 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
-            model.AvailableNewsletterCategories = (await _newsletterCategoryService.GetAllNewsletterCategory()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id, Selected = model.NewsletterCategories.Contains(ct.Id) }).ToList();
+            model.AvailableNewsletterCategories = (await _newsletterCategoryService.GetAllNewsletterCategory()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.NewsletterCategories.Contains(ct.Id) }).ToList();
             model.NewsletterCategories ??= new List<string>();
         }
 

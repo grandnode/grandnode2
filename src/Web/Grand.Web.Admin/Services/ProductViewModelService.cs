@@ -970,7 +970,7 @@ namespace Grand.Web.Admin.Services
             }
 
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
-            var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory() { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity }).ToList();
+            var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity }).ToList();
 
             var prevDownloadId = product.DownloadId;
             var prevSampleDownloadId = product.SampleDownloadId;
@@ -1501,7 +1501,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
         {
-            var crosssell = new CrossSellProduct() {
+            var crosssell = new CrossSellProduct {
                 ProductId1 = productId,
                 ProductId2 = crossSellProductId
             };
@@ -1809,7 +1809,7 @@ namespace Grand.Web.Admin.Services
             };
             foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
             {
-                model.AvailableProductAttribute.Add(new SelectListItem() {
+                model.AvailableProductAttribute.Add(new SelectListItem {
                     Value = attribute.Id,
                     Text = attribute.Name
                 });
@@ -1821,7 +1821,7 @@ namespace Grand.Web.Admin.Services
             var model = productAttributeMapping.ToModel();
             foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
             {
-                model.AvailableProductAttribute.Add(new SelectListItem() {
+                model.AvailableProductAttribute.Add(new SelectListItem {
                     Value = attribute.Id,
                     Text = attribute.Name,
                     Selected = attribute.Id == model.ProductAttributeId
@@ -1833,7 +1833,7 @@ namespace Grand.Web.Admin.Services
         {
             foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
             {
-                model.AvailableProductAttribute.Add(new SelectListItem() {
+                model.AvailableProductAttribute.Add(new SelectListItem {
                     Value = attribute.Id,
                     Text = attribute.Name
                 });
@@ -1928,7 +1928,7 @@ namespace Grand.Web.Admin.Services
                 {
                     var name = predefinedValue.GetTranslation(x => x.Name, lang.Id, false);
                     if (!string.IsNullOrEmpty(name))
-                        pav.Locales.Add(new TranslationEntity() { LanguageId = lang.Id, LocaleKey = "Name", LocaleValue = name });
+                        pav.Locales.Add(new TranslationEntity { LanguageId = lang.Id, LocaleKey = "Name", LocaleValue = name });
                 }
 
                 productAttributeMapping.ProductAttributeValues.Add(pav);

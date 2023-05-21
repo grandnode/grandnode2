@@ -259,7 +259,7 @@ namespace Grand.Web.Admin.Controllers
             }
             try
             {
-                await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true });
+                await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
 
                 _ = _orderViewModelService.LogEditOrder(order.Id);
 
@@ -409,7 +409,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new DeleteOrderCommand() { Order = order });
+                await _mediator.Send(new DeleteOrderCommand { Order = order });
                 _ = customerActivityService.InsertActivity("DeleteOrder", id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
@@ -442,7 +442,7 @@ namespace Grand.Web.Admin.Controllers
 
                     if (!shipments.Any())
                     {
-                        await _mediator.Send(new DeleteOrderCommand() { Order = order });
+                        await _mediator.Send(new DeleteOrderCommand { Order = order });
                         _ = customerActivityService.InsertActivity("DeleteOrder", order.Id,
                             _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                             _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
@@ -733,7 +733,7 @@ namespace Grand.Web.Admin.Controllers
                 orderItem.DiscountAmountExclTax = 0;
             }
 
-            await _mediator.Send(new UpdateOrderItemCommand() { Order = order, OrderItem = orderItem });
+            await _mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -768,7 +768,7 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            var result = await _mediator.Send(new DeleteOrderItemCommand() { Order = order, OrderItem = orderItem });
+            var result = await _mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
             if (result.error)
                 Error(result.message);
 
@@ -807,7 +807,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No order item found with the specified id");
 
 
-            var result = await _mediator.Send(new CancelOrderItemCommand() { Order = order, OrderItem = orderItem });
+            var result = await _mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
             if (result.error)
                 Error(result.message);
             else

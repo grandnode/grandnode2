@@ -69,7 +69,7 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var cr in customerGroups)
             {
-                model.AvailableCustomerGroups.Add(new CustomerGroupModel() { Id = cr.Id, Name = cr.Name });
+                model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = cr.Id, Name = cr.Name });
             }
             foreach (var pr in permissionRecords)
                 foreach (var cr in customerGroups)
@@ -123,7 +123,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> PermissionsAction(string systemName, string customeGroupId)
         {
-            var model = new PermissionActionModel() {
+            var model = new PermissionActionModel {
                 SystemName = systemName,
                 CustomerGroupId = customeGroupId
             };
@@ -177,7 +177,7 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var item in insertActions)
             {
-                await _permissionService.InsertPermissionAction(new PermissionAction() {
+                await _permissionService.InsertPermissionAction(new PermissionAction {
                     Action = item,
                     CustomerGroupId = customergroupId,
                     SystemName = systemname

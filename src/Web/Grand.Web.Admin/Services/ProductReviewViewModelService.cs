@@ -86,7 +86,7 @@ namespace Grand.Web.Admin.Services
             var model = new ProductReviewListModel();
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-            var stores = (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)).Select(st => new SelectListItem() { Text = st.Shortcut, Value = st.Id.ToString() });
+            var stores = (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)).Select(st => new SelectListItem { Text = st.Shortcut, Value = st.Id.ToString() });
             foreach (var selectListItem in stores)
                 model.AvailableStores.Add(selectListItem);
             return model;
@@ -122,7 +122,7 @@ namespace Grand.Web.Admin.Services
             var product = await _productService.GetProductById(productReview.ProductId);
 
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
             return productReview;
         }
@@ -133,7 +133,7 @@ namespace Grand.Web.Admin.Services
 
             var product = await _productService.GetProductById(productReview.ProductId);
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
         }
 
         public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId)
@@ -150,7 +150,7 @@ namespace Grand.Web.Admin.Services
                     productReview.IsApproved = true;
                     await _productReviewService.UpdateProductReview(productReview);
                     //update product totals
-                    await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+                    await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
 
                     //raise event (only if it wasn't approved before)
@@ -174,7 +174,7 @@ namespace Grand.Web.Admin.Services
                     productReview.IsApproved = false;
                     await _productReviewService.UpdateProductReview(productReview);
                     //update product totals
-                    await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+                    await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
                 }
             }
         }

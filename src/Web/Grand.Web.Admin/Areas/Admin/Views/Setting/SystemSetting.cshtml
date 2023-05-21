@@ -7,7 +7,8 @@
     var languages = new List<SelectListItem>();
     foreach (var item in await languageService.GetAllLanguages(true))
     {
-        languages.Add(new SelectListItem() { 
+        languages.Add(new SelectListItem 
+        { 
             Value = item.Id,
             Text = item.Name,
             Selected = item.Id == Model.DefaultAdminLanguageId

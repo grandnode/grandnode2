@@ -12,7 +12,7 @@ namespace Grand.Web.Admin.Models.Customers
     {
         public CustomerModel()
         {
-            SendEmail = new SendEmailModel() { SendImmediately = true };
+            SendEmail = new SendEmailModel { SendImmediately = true };
             AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
             AvailableCountries = new List<SelectListItem>();
             AvailableStates = new List<SelectListItem>();
