@@ -61,16 +61,24 @@
             termsCheck(guest) {
                 if (vmorder.cart.MinOrderSubtotalWarning == null) {
                     if (this.terms) {
-                        if (guest) {
-                            window.location = '@Url.RouteUrl("Checkout")';
-                        } else {
-                            document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
-                            document.getElementById('shopping-cart-form').submit();
-                        }
+                        vmorder.checkout(guest);
                         vmorder.acceptTerms = false;
                     }
                     else {
                         vmorder.acceptTerms = true;
+                    }
+                }
+            },
+            checkout(guest) {
+                if (guest) {
+                    window.location = '@Url.RouteUrl("Checkout")';
+                } else {
+                    if (!vmorder.cart.ShowCheckoutAsGuestButton && vmorder.cart.IsGuest) {
+                        window.location = '@Url.RouteUrl("Login")?returnurl=@Url.RouteUrl("ShoppingCart")';
+                    }
+                    else {
+                        document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
+                        document.getElementById('shopping-cart-form').submit();
                     }
                 }
             },
