@@ -34,7 +34,6 @@ steps:
     command: 'restore'
     restoreSolution: '**/*.sln'
     feedsToUse: 'select'
-    vstsFeed: 'ac9ef43d-5e52-40a8-a3ae-09d4d3dd8a78'
 
 - task: DotNetCoreCLI@2
   inputs:
