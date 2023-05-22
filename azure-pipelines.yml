@@ -29,6 +29,12 @@ steps:
   inputs:
     version: '6.0.x'
 
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet >=6.3.0-0'
+  inputs:
+    versionSpec: '>=6.3.0-0'
+    checkLatest: true
+
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
