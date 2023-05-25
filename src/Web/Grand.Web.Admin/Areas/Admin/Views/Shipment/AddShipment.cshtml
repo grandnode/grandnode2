@@ -90,7 +90,7 @@
                         <td>
                             <div style="padding-left:10px;padding-right:10px;">
                                 <em><a href="@Url.Action("Edit", "Product", new {id = item.ProductId, area = Constants.AreaAdmin})">@item.ProductName</a></em>
-                                @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                 {
                                     <p>
                                         @Html.Raw(item.AttributeInfo)
@@ -119,7 +119,7 @@
                                         <select name="warehouse_@(item.OrderItemId)" id="warehouse_@(item.OrderItemId)">
                                             @foreach (var warehouse in item.AvailableWarehouses)
                                             {
-                                                var selected = warehouse.WarehouseId == item.WarehouseId ? true : false;
+                                                var selected = warehouse.WarehouseId == item.WarehouseId;
                                                 <option value="@(warehouse.WarehouseId)" data-stock-qty="@(warehouse.StockQuantity)"
                                                         data-reserved-qty="@(warehouse.ReservedQuantity)"
                                                         selected="@selected">
@@ -136,7 +136,7 @@
                                 else
                                 {
                                     //display warehouses
-                                    for (int i = 0; i < item.AvailableWarehouses.Count; i++)
+                                    for (var i = 0; i < item.AvailableWarehouses.Count; i++)
                                     {
                                         var warehouse = item.AvailableWarehouses[i];
                                         @warehouse.WarehouseName

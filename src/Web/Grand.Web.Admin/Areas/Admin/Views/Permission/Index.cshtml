@@ -76,7 +76,7 @@
                                                     <tbody>
 
                                                         @{
-                                                            bool altRow = true;
+                                                            var altRow = true;
                                                             var group = Model.AvailablePermissions.GroupBy(x => x.Category);
                                                         }
                                                         @foreach (var pr in group)

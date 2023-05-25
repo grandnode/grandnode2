@@ -1,7 +1,4 @@
-﻿
-@using Grand.Domain.Catalog;
-
-@model ProductModel
+﻿@model ProductModel
 <vc:admin-widget widget-zone="product_details_inventory_top" additional-data="Model" />
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-inventory">
     <div class="form-body">
@@ -52,7 +49,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for (int i = 0; i < Model.ProductWarehouseInventoryModels.Count; i++)
+                            @for (var i = 0; i < Model.ProductWarehouseInventoryModels.Count; i++)
                             {
                                 var item = Model.ProductWarehouseInventoryModels[i];
                                 <tr>

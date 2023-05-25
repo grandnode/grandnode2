@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class VendorSettingsModel : BaseModel
+    public class VendorSettingsModel : BaseModel
     {
 
         public VendorSettingsModel()
@@ -73,7 +73,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         #region Nested classes
 
-        public partial class AddressSettingsModel : BaseModel
+        public class AddressSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.Vendor.AddressFormFields.CompanyEnabled")]
             public bool CompanyEnabled { get; set; }

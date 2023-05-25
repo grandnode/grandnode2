@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Courses
 {
-    public partial class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public CourseModel()
         {
@@ -71,7 +71,7 @@ namespace Grand.Web.Admin.Models.Courses
 
         #region Nested classes
 
-        public partial class AssociateProductToCourseModel : BaseModel
+        public class AssociateProductToCourseModel : BaseModel
         {
             public AssociateProductToCourseModel()
             {
@@ -112,7 +112,7 @@ namespace Grand.Web.Admin.Models.Courses
         #endregion
     }
 
-    public partial class CourseLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class CourseLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

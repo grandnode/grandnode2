@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Directory;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Directory;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CountryViewModelService : ICountryViewModelService
+    public class CountryViewModelService : ICountryViewModelService
     {
         private readonly ICountryService _countryService;
 
@@ -17,11 +17,12 @@ namespace Grand.Web.Admin.Services
 
         public virtual CountryModel PrepareCountryModel()
         {
-            var model = new CountryModel();
-            //default values
-            model.Published = true;
-            model.AllowsBilling = true;
-            model.AllowsShipping = true;
+            var model = new CountryModel {
+                //default values
+                Published = true,
+                AllowsBilling = true,
+                AllowsShipping = true
+            };
             return model;
         }
 
@@ -41,10 +42,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual StateProvinceModel PrepareStateProvinceModel(string countryId)
         {
-            var model = new StateProvinceModel();
-            model.CountryId = countryId;
-            //default value
-            model.Published = true;
+            var model = new StateProvinceModel {
+                CountryId = countryId,
+                //default value
+                Published = true
+            };
             return model;
         }
 

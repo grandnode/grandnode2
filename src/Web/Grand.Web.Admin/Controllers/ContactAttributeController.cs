@@ -9,16 +9,16 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Catalog;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Infrastructure;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ContactAttributes)]
-    public partial class ContactAttributeController : BaseAdminController
+    public class ContactAttributeController : BaseAdminController
     {
         #region Fields
         private readonly IContactAttributeViewModelService _contactAttributeViewModelService;
@@ -189,12 +189,12 @@ namespace Grand.Web.Admin.Controllers
                 {
                     Id = x.Id,
                     ContactAttributeId = x.ContactAttributeId,
-                    Name = contactAttribute.AttributeControlType != AttributeControlType.ColorSquares ? x.Name : string.Format("{0} - {1}", x.Name, x.ColorSquaresRgb),
+                    Name = contactAttribute.AttributeControlType != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                     ColorSquaresRgb = x.ColorSquaresRgb,
                     IsPreSelected = x.IsPreSelected,
-                    DisplayOrder = x.DisplayOrder,
+                    DisplayOrder = x.DisplayOrder
                 }),
-                Total = values.Count()
+                Total = values.Count
             };
             return Json(gridModel);
         }
@@ -223,7 +223,7 @@ namespace Grand.Web.Admin.Controllers
             if (contactAttribute.AttributeControlType == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 
@@ -243,7 +243,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueEditPopup(string id, string contactAttributeId)
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(contactAttributeId);
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 //No contact attribute value found with the specified id
                 return RedirectToAction("List");
@@ -264,7 +264,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(model.ContactAttributeId);
 
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (cav == null)
                 //No contact attribute value found with the specified id
                 return RedirectToAction("List");
@@ -272,7 +272,7 @@ namespace Grand.Web.Admin.Controllers
             if (contactAttribute.AttributeControlType == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 
@@ -293,7 +293,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueDelete(string id, string contactAttributeId)
         {
             var contactAttribute = await _contactAttributeService.GetContactAttributeById(contactAttributeId);
-            var cav = contactAttribute.ContactAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 throw new ArgumentException("No contact attribute value found with the specified id");
             if (ModelState.IsValid)

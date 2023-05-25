@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Permissions
 {
-    public partial class PermissionActionModel : BaseModel
+    public class PermissionActionModel : BaseModel
     {
         public PermissionActionModel()
         {

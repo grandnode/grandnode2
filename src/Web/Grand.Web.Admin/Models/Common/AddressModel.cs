@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class AddressModel : BaseEntityModel
+    public class AddressModel : BaseEntityModel
     {
         public AddressModel()
         {
@@ -113,7 +113,7 @@ namespace Grand.Web.Admin.Models.Common
 
         #region Nested classes
 
-        public partial class AddressAttributeModel : BaseEntityModel
+        public class AddressAttributeModel : BaseEntityModel
         {
             public AddressAttributeModel()
             {
@@ -134,7 +134,7 @@ namespace Grand.Web.Admin.Models.Common
             public IList<AddressAttributeValueModel> Values { get; set; }
         }
 
-        public partial class AddressAttributeValueModel : BaseEntityModel
+        public class AddressAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
 

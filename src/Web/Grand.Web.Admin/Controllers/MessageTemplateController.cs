@@ -5,7 +5,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Messages;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.MessageTemplates)]
-    public partial class MessageTemplateController : BaseAdminController
+    public class MessageTemplateController : BaseAdminController
     {
         #region Fields
 
@@ -64,7 +64,7 @@ namespace Grand.Web.Admin.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             return View(model);
         }
@@ -89,7 +89,7 @@ namespace Grand.Web.Admin.Controllers
                         .GetAllStores())
                         .Where(s => !x.LimitedToStores || templateModel.Stores.Contains(s.Id))
                         .ToList();
-                for (int i = 0; i < stores.Count; i++)
+                for (var i = 0; i < stores.Count; i++)
                 {
                     templateModel.ListOfStores += stores[i].Shortcut;
                     if (i != stores.Count - 1)
@@ -109,10 +109,11 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Create)]
         public async Task<IActionResult> Create()
         {
-            var model = new MessageTemplateModel();
+            var model = new MessageTemplateModel {
+                //Stores
+                AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens()
+            };
 
-            //Stores
-            model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
                 model.AvailableEmailAccounts.Add(ea.ToModel());
@@ -149,7 +150,7 @@ namespace Grand.Web.Admin.Controllers
 
 
             //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
@@ -168,7 +169,7 @@ namespace Grand.Web.Admin.Controllers
 
             var model = messageTemplate.ToModel();
             model.SendImmediately = !model.DelayBeforeSend.HasValue;
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
@@ -182,7 +183,7 @@ namespace Grand.Web.Admin.Controllers
                 locale.Body = messageTemplate.GetTranslation(x => x.Body, languageId, false);
 
                 var emailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
-                locale.EmailAccountId = !String.IsNullOrEmpty(emailAccountId) ? emailAccountId : _emailAccountSettings.DefaultEmailAccountId;
+                locale.EmailAccountId = !string.IsNullOrEmpty(emailAccountId) ? emailAccountId : _emailAccountSettings.DefaultEmailAccountId;
             });
 
             return View(model);
@@ -231,7 +232,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !String.IsNullOrEmpty(model.AttachedDownloadId);
+            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
             model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
             //available email accounts
             foreach (var ea in await _emailAccountService.GetAllEmailAccounts())

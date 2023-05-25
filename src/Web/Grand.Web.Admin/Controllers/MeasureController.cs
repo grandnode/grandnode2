@@ -6,15 +6,15 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Measures)]
-    public partial class MeasureController : BaseAdminController
+    public class MeasureController : BaseAdminController
     {
         #region Fields
 

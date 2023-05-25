@@ -1,18 +1,13 @@
 ﻿@inject IWorkContext workContext
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
-@inject CommonSettings commonSettings
 @inject CustomerSettings customerSettings
 @inject LanguageSettings languageSettings
-@inject AdminAreaSettings adminAreaSettings
-@inject Grand.Infrastructure.Configuration.AppConfig appConfig
 @inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
 
 @using System.Text.Encodings.Web
 @using Grand.Domain.Customers
-@using Grand.Infrastructure;
 @using Grand.Domain.Localization
 @using Grand.Business.Core.Utilities.Common.Security;
-@using Grand.Domain.Common;
 @{
     var currentCustomer = workContext.CurrentCustomer;
     var usernamesEnabled = customerSettings.UsernamesEnabled;
@@ -21,15 +16,14 @@
         !languageSettings.IgnoreRtlPropertyForAdminArea;
 
     //page title
-    string adminPageTitle = "";
-    if (!String.IsNullOrWhiteSpace(ViewBag.Title))
+    var adminPageTitle = "";
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
     {
         adminPageTitle = ViewBag.Title + " / ";
     }
     adminPageTitle += Loc["Admin.PageTitle"];
 
     //has "Manage Maintenance" permission?
-    var canManageMaintenance = await permissionService.Authorize(StandardPermission.ManageMaintenance);
     var canManageSystem = await permissionService.Authorize(StandardPermission.ManageSystem);
 
 }
@@ -44,7 +38,7 @@
     <resources asp-type="HeadLink" />
     <resources asp-type="HeadScript" />
 </head>
-<body class="nav-sm @if (IsSectionDefined("popupwindow")) { @RenderSection("popupwindow") <text>no-sidebar</text> }">
+<body class="nav-sm @if (IsSectionDefined("popupwindow")) { @await RenderSectionAsync("popupwindow") <text>no-sidebar</text> }">
     @Html.AntiForgeryToken()
     <script>
         if (document.readyState == "loading") {
@@ -61,7 +55,7 @@
             <vc:admin-widget widget-zone="admin_header_before" additional-data="null" />
             @if (IsSectionDefined("headermenu"))
             {
-                @RenderSection("headermenu")
+                @await RenderSectionAsync("headermenu")
             }
             else
             {
@@ -70,11 +64,11 @@
             <vc:admin-widget widget-zone="admin_header_after" additional-data="null" />
             @if (IsSectionDefined("statusbar"))
             {
-                @RenderSection("statusbar")
+                @await RenderSectionAsync("statusbar")
             }
             @if (IsSectionDefined("header"))
             {
-                @RenderSection("header")
+                @await RenderSectionAsync("header")
             }
             else
             {
@@ -142,14 +136,14 @@
                                         </a>
                                         <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
                                             <li>
-                                                <a href="@Url.Action("ClearCache", "System", new { memory = true, returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
+                                                <a href="@Url.Action("ClearCache", "System", new { memory = true, returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
                                                     <i class="icon-refresh"></i>
                                                     @Loc["Admin.Header.ClearCacheMemory"]
                                                 </a>
                                             </li>
 
                                             <li>
-                                                <a href="@Url.Action("RestartApplication", "System", new { returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
+                                                <a href="@Url.Action("RestartApplication", "System", new { returnurl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
                                                     <i class="icon-reload"></i>
                                                     @Loc["Admin.Header.RestartApplication"]
                                                 </a>

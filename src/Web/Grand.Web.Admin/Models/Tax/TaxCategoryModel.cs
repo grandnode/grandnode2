@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Tax
 {
-    public partial class TaxCategoryModel : BaseEntityModel
+    public class TaxCategoryModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Tax.Categories.Fields.Name")]
 

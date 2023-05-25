@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class SpecificationAttributeOptionModel : BaseEntityModel, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
+    public class SpecificationAttributeOptionModel : BaseEntityModel, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
     {
         public SpecificationAttributeOptionModel()
         {
@@ -34,7 +34,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
     }
 
-    public partial class SpecificationAttributeOptionLocalizedModel : ILocalizedModelLocal
+    public class SpecificationAttributeOptionLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

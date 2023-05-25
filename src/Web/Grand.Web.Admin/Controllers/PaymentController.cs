@@ -10,6 +10,8 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Payments;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -19,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.PaymentMethods)]
-    public partial class PaymentController : BaseAdminController
+    public class PaymentController : BaseAdminController
     {
         #region Fields
 
@@ -154,7 +156,7 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var s in shippings)
             {
-                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel() {
+                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel {
                     Id = s.Id,
                     Name = s.Name
                 });
@@ -165,7 +167,7 @@ namespace Grand.Web.Admin.Controllers
                 var restictedCountries = _paymentService.GetRestrictedCountryIds(pm);
                 foreach (var c in countries)
                 {
-                    bool resticted = restictedCountries.Contains(c.Id);
+                    var resticted = restictedCountries.Contains(c.Id);
                     if (!model.Resticted.ContainsKey(pm.SystemName))
                         model.Resticted[pm.SystemName] = new Dictionary<string, bool>();
                     model.Resticted[pm.SystemName][c.Id] = resticted;
@@ -174,7 +176,7 @@ namespace Grand.Web.Admin.Controllers
                 var restictedShipping = _paymentService.GetRestrictedShippingIds(pm);
                 foreach (var s in shippings)
                 {
-                    bool resticted = restictedShipping.Contains(s.Name);
+                    var resticted = restictedShipping.Contains(s.Name);
                     if (!model.RestictedShipping.ContainsKey(pm.SystemName))
                         model.RestictedShipping[pm.SystemName] = new Dictionary<string, bool>();
                     model.RestictedShipping[pm.SystemName][s.Name] = resticted;
@@ -195,8 +197,8 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var pm in paymentMethods)
             {
-                string formKey = "restrict_" + pm.SystemName;
-                var countryIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
+                var formKey = "restrict_" + pm.SystemName;
+                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     .Select(x => x).ToList();
 
                 var newCountryIds = new List<string>();
@@ -210,7 +212,7 @@ namespace Grand.Web.Admin.Controllers
                 await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
 
                 formKey = "restrictship_" + pm.SystemName;
-                var shipIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
+                var shipIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     .Select(x => x).ToList();
 
                 var newShipIds = new List<string>();

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.SystemLog)]
-    public partial class LoggerController : BaseAdminController
+    public class LoggerController : BaseAdminController
     {
         private readonly ILogViewModelService _logViewModelService;
         private readonly ILogger _logger;

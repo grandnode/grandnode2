@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Common;
@@ -20,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Categories)]
-    public partial class CategoryController : BaseAdminController
+    public class CategoryController : BaseAdminController
     {
         #region Fields
 
@@ -122,7 +123,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 var category = await _categoryViewModelService.InsertCategoryModel(model);
@@ -192,7 +193,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 category = await _categoryViewModelService.UpdateCategoryModel(category, model);
@@ -315,7 +316,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                if (importexcelfile != null && importexcelfile.Length > 0)
+                if (importexcelfile is { Length: > 0 })
                 {
                     await importManager.Import(importexcelfile.OpenReadStream());
                 }

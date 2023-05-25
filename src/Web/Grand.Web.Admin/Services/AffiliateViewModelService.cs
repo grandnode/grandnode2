@@ -10,14 +10,14 @@ using Grand.Domain.Payments;
 using Grand.Domain.Seo;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Affiliates;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class AffiliateViewModelService : IAffiliateViewModelService
+    public class AffiliateViewModelService : IAffiliateViewModelService
     {
         private readonly IWorkContext _workContext;
         private readonly ICountryService _countryService;
@@ -95,13 +95,13 @@ namespace Grand.Web.Admin.Services
                 //address
                 model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
                 foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                    model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (affiliate != null && c.Id == affiliate.Address.CountryId) });
+                    model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = affiliate != null && c.Id == affiliate.Address.CountryId });
 
-                var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+                var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
                 if (states.Count > 0)
                 {
                     foreach (var s in states)
-                        model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (affiliate != null && s.Id == affiliate.Address.StateProvinceId) });
+                        model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = affiliate != null && s.Id == affiliate.Address.StateProvinceId });
                 }
             }
         }
@@ -124,10 +124,11 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<Affiliate> InsertAffiliateModel(AffiliateModel model)
         {
-            var affiliate = new Affiliate();
-            affiliate.Active = model.Active;
-            affiliate.AdminComment = model.AdminComment;
-            affiliate.Name = model.Name;
+            var affiliate = new Affiliate {
+                Active = model.Active,
+                AdminComment = model.AdminComment,
+                Name = model.Name
+            };
             //validate friendly URL name
             var friendlyUrlName = await affiliate.ValidateFriendlyUrlName(_affiliateService, _seoSettings, model.FriendlyUrlName, model.Name);
             affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();
@@ -151,15 +152,15 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<AffiliateModel.AffiliatedOrderModel> affiliateOrderModels, int totalCount)> PrepareAffiliatedOrderList(Affiliate affiliate, AffiliatedOrderListModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)(model.ShippingStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
             var orders = await _orderService.SearchOrders(
                 createdFromUtc: startDateValue,

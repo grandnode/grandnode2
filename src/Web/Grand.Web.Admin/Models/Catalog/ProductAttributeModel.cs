@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
+    public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
     {
         public ProductAttributeModel()
         {
@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
         #region Nested classes
 
-        public partial class UsedByProductModel : BaseEntityModel
+        public class UsedByProductModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Product")]
             public string ProductName { get; set; }
@@ -42,7 +42,7 @@ namespace Grand.Web.Admin.Models.Catalog
         #endregion
     }
 
-    public partial class ProductAttributeLocalizedModel : ILocalizedModelLocal
+    public class ProductAttributeLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 
@@ -55,7 +55,7 @@ namespace Grand.Web.Admin.Models.Catalog
         public string Description { get; set; }
     }
 
-    public partial class PredefinedProductAttributeValueModel : BaseEntityModel, ILocalizedModel<PredefinedProductAttributeValueLocalizedModel>
+    public class PredefinedProductAttributeValueModel : BaseEntityModel, ILocalizedModel<PredefinedProductAttributeValueLocalizedModel>
     {
         public PredefinedProductAttributeValueModel()
         {
@@ -91,7 +91,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
         public IList<PredefinedProductAttributeValueLocalizedModel> Locales { get; set; }
     }
-    public partial class PredefinedProductAttributeValueLocalizedModel : ILocalizedModelLocal
+    public class PredefinedProductAttributeValueLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

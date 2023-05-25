@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Courses
 {
-    public partial class CourseSubjectModel : BaseEntityModel
+    public class CourseSubjectModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Courses.Course.Subject.Fields.Name")]
         public string Name { get; set; }

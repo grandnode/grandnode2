@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Payments;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class IPaymentMethodMappingExtensions
     {

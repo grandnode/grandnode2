@@ -2,7 +2,7 @@
 @using Grand.Web.Common.Menu
 
 @{
-    string url = "javascript:;";
+    var url = "javascript:;";
     if (!string.IsNullOrEmpty(Model.ControllerName) && !string.IsNullOrEmpty(Model.ActionName))
     {
         url = Url.Action(Model.ActionName, Model.ControllerName, new { area = Constants.AreaAdmin });
@@ -17,7 +17,7 @@
         @if (childNodes.Any())
         {
             <a class="nav-link">
-                @if (!String.IsNullOrEmpty(Model.IconClass))
+                @if (!string.IsNullOrEmpty(Model.IconClass))
                 {
                     <i class="@Model.IconClass"></i>
                 }
@@ -27,7 +27,7 @@
         else
         {
             <a href="@url" class="nav-link" @(Model.OpenUrlInNewTab ? Html.Raw(" target=\"_blank\"") : null)>
-                @if (!String.IsNullOrEmpty(Model.IconClass))
+                @if (!string.IsNullOrEmpty(Model.IconClass))
                 {
                     <i class="@Model.IconClass"></i>
                 }

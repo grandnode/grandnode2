@@ -4,7 +4,7 @@ using Grand.Web.Admin.Models.Directory;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class ShippingMethodRestrictionModel : BaseModel
+    public class ShippingMethodRestrictionModel : BaseModel
     {
         public ShippingMethodRestrictionModel()
         {

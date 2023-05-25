@@ -9,6 +9,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;
@@ -18,7 +19,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerTagViewModelService : ICustomerTagViewModelService
+    public class CustomerTagViewModelService : ICustomerTagViewModelService
     {
         private readonly ITranslationService _translationService;
         private readonly ICustomerActivityService _customerActivityService;
@@ -57,7 +58,7 @@ namespace Grand.Web.Admin.Services
             return new CustomerModel
             {
                 Id = customer.Id,
-                Email = !string.IsNullOrEmpty(customer.Email) ? customer.Email : _translationService.GetResource("Admin.Customers.Guest"),
+                Email = !string.IsNullOrEmpty(customer.Email) ? customer.Email : _translationService.GetResource("Admin.Customers.Guest")
             };
         }
         public virtual CustomerTagModel PrepareCustomerTagModel()
@@ -100,18 +101,19 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<CustomerTagProductModel.AddProductModel> PrepareProductModel(string customerTagId)
         {
-            var model = new CustomerTagProductModel.AddProductModel();
-            model.CustomerTagId = customerTagId;
+            var model = new CustomerTagProductModel.AddProductModel {
+                CustomerTagId = customerTagId
+            };
 
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
@@ -125,7 +127,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task InsertProductModel(CustomerTagProductModel.AddProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
@@ -133,10 +135,11 @@ namespace Grand.Web.Admin.Services
                     var customerTagProduct = await _customerTagService.GetCustomerTagProduct(model.CustomerTagId, id);
                     if (customerTagProduct == null)
                     {
-                        customerTagProduct = new CustomerTagProduct();
-                        customerTagProduct.CustomerTagId = model.CustomerTagId;
-                        customerTagProduct.ProductId = id;
-                        customerTagProduct.DisplayOrder = 0;
+                        customerTagProduct = new CustomerTagProduct {
+                            CustomerTagId = model.CustomerTagId,
+                            ProductId = id,
+                            DisplayOrder = 0
+                        };
                         await _customerTagService.InsertCustomerTagProduct(customerTagProduct);
                     }
                 }

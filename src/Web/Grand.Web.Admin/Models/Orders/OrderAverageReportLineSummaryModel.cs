@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class OrderAverageReportLineSummaryModel : BaseModel
+    public class OrderAverageReportLineSummaryModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Reports.Average.OrderStatus")]
         public string OrderStatus { get; set; }

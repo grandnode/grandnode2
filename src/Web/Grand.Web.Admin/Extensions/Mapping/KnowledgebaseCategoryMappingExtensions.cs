@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Knowledgebase;
+﻿using Grand.Domain.Knowledgebase;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Knowledgebase;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class KnowledgebaseCategoryMappingExtensions
     {

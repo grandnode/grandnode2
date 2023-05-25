@@ -12,7 +12,6 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Shipping;
 using Microsoft.AspNetCore.Http;
@@ -20,11 +19,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Web.Admin.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-    public partial class ShippingController : BaseAdminController
+    public class ShippingController : BaseAdminController
     {
         #region Fields
 
@@ -83,13 +84,13 @@ namespace Grand.Web.Admin.Controllers
         {
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
             }
 
             model.Address.CountryEnabled = true;
@@ -107,13 +108,13 @@ namespace Grand.Web.Admin.Controllers
         {
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
             }
 
             model.Address.CountryEnabled = true;
@@ -128,11 +129,11 @@ namespace Grand.Web.Admin.Controllers
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = "" });
             foreach (var c in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
 
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
             foreach (var c in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
 
         }
 
@@ -160,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = shippingProvidersModel,
-                Total = shippingProvidersModel.Count()
+                Total = shippingProvidersModel.Count
             };
 
             return Json(gridModel);
@@ -316,13 +317,13 @@ namespace Grand.Web.Admin.Controllers
 
             model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (originAddress != null && c.Id == originAddress.CountryId) });
+                model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = originAddress != null && c.Id == originAddress.CountryId });
 
-            var states = originAddress != null && !String.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == originAddress.StateProvinceId) });
+                    model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress?.StateProvinceId });
             }
 
             model.ShippingOriginAddress.CountryEnabled = true;
@@ -411,7 +412,7 @@ namespace Grand.Web.Admin.Controllers
 
             var model = deliveryDate.ToModel();
 
-            if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+            if (string.IsNullOrEmpty(model.ColorSquaresRgb))
             {
                 model.ColorSquaresRgb = "#000000";
             }
@@ -684,14 +685,14 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var r in customerGroups)
             {
-                model.AvailableCustomerGroups.Add(new CustomerGroupModel() { Id = r.Id, Name = r.Name });
+                model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = r.Id, Name = r.Name });
             }
 
             foreach (var country in countries)
             {
                 foreach (var shippingMethod in shippingMethods)
                 {
-                    bool restricted = shippingMethod.CountryRestrictionExists(country.Id);
+                    var restricted = shippingMethod.CountryRestrictionExists(country.Id);
                     if (!model.Restricted.ContainsKey(country.Id))
                         model.Restricted[country.Id] = new Dictionary<string, bool>();
                     model.Restricted[country.Id][shippingMethod.Id] = restricted;
@@ -702,7 +703,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 foreach (var shippingMethod in shippingMethods)
                 {
-                    bool restricted = shippingMethod.CustomerGroupRestrictionExists(role.Id);
+                    var restricted = shippingMethod.CustomerGroupRestrictionExists(role.Id);
                     if (!model.RestictedGroup.ContainsKey(role.Id))
                         model.RestictedGroup[role.Id] = new Dictionary<string, bool>();
                     model.RestictedGroup[role.Id][shippingMethod.Id] = restricted;
@@ -723,17 +724,15 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var shippingMethod in shippingMethods)
             {
-                string formKey = "restrict_" + shippingMethod.Id;
-                var countryIdsToRestrict = form[formKey].ToString() != null
-                    ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                var formKey = "restrict_" + shippingMethod.Id;
+                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
-                    .ToList()
-                    : new List<string>();
+                    .ToList();
 
                 foreach (var country in countries)
                 {
 
-                    bool restrict = countryIdsToRestrict.Contains(country.Id);
+                    var restrict = countryIdsToRestrict.Contains(country.Id);
                     if (restrict)
                     {
                         if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
@@ -753,17 +752,15 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 formKey = "restrictgroup_" + shippingMethod.Id;
-                var roleIdsToRestrict = form[formKey].ToString() != null
-                    ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                var roleIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
-                    .ToList()
-                    : new List<string>();
+                    .ToList();
 
 
                 foreach (var role in customerGroups)
                 {
 
-                    bool restrict = roleIdsToRestrict.Contains(role.Id);
+                    var restrict = roleIdsToRestrict.Contains(role.Id);
                     if (restrict)
                     {
                         if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) == null)

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class CustomerSettingsModel : BaseModel
+    public class CustomerSettingsModel : BaseModel
     {
         public CustomerSettingsModel()
         {
@@ -17,7 +17,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         #region Nested classes
 
-        public partial class CustomersSettingsModel : BaseModel
+        public class CustomersSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.Customer.FirstLastNameRequired")]
             public bool FirstLastNameRequired { get; set; }
@@ -192,7 +192,7 @@ namespace Grand.Web.Admin.Models.Settings
             public HashedPasswordFormat HashedPasswordFormat { get; set; }
         }
 
-        public partial class AddressSettingsModel : BaseModel
+        public class AddressSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.Customer.AddressFormFields.NameEnabled")]
             public bool NameEnabled { get; set; }

@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Common;
+﻿using Grand.Domain.Common;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Common;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class AddressAttributeMappingExtensions
     {

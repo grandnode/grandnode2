@@ -9,6 +9,7 @@ using Grand.Domain.Knowledgebase;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
+    public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     {
         private readonly ITranslationService _translationService;
         private readonly IKnowledgebaseService _knowledgebaseService;
@@ -53,9 +54,10 @@ namespace Grand.Web.Admin.Services
             _seoSettings = seoSettings;
         }
 
-        protected virtual void FillChildNodes(TreeNode parentNode, List<ITreeNode> nodes)
+        protected virtual void FillChildNodes(TreeNode parentNode, IEnumerable<ITreeNode> nodes)
         {
-            var children = nodes.Where(x => x.ParentCategoryId == parentNode.id);
+            var treeNodes = nodes.ToList();
+            var children = treeNodes.Where(x => x.ParentCategoryId == parentNode.id);
             foreach (var child in children)
             {
                 var newNode = new TreeNode
@@ -66,7 +68,7 @@ namespace Grand.Web.Admin.Services
                     nodes = new List<TreeNode>()
                 };
 
-                FillChildNodes(newNode, nodes);
+                FillChildNodes(newNode, treeNodes);
 
                 parentNode.nodes.Add(newNode);
             }
@@ -180,8 +182,9 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<KnowledgebaseCategoryModel> PrepareKnowledgebaseCategoryModel()
         {
-            var model = new KnowledgebaseCategoryModel();
-            model.Published = true;
+            var model = new KnowledgebaseCategoryModel {
+                Published = true
+            };
             await PrepareCategory(model);
             return model;
         }
@@ -294,7 +297,7 @@ namespace Grand.Web.Admin.Services
             if (article == null || related == null)
                 throw new ArgumentNullException("No article found with specified id");
 
-            string toDelete = "";
+            var toDelete = "";
             foreach (var item in article.RelatedArticles)
             {
                 if (item == related.Id)

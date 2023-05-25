@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Stores;
 using Grand.Web.Common.DataSource;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Stores)]
-    public partial class StoreController : BaseAdminController
+    public class StoreController : BaseAdminController
     {
         private readonly IStoreViewModelService _storeViewModelService;
         private readonly IStoreService _storeService;
@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult {
                 Data = storeModels,
-                Total = storeModels.Count()
+                Total = storeModels.Count
             };
 
             return Json(gridModel);

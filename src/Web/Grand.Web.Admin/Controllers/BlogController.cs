@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Blogs;
 using Grand.Web.Admin.Models.Common;
@@ -19,7 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Blog)]
-    public partial class BlogController : BaseAdminController
+    public class BlogController : BaseAdminController
     {
         #region Fields
 
@@ -87,9 +88,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-            var model = new BlogPostModel();
-            //default values
-            model.AllowComments = true;
+            var model = new BlogPostModel {
+                //default values
+                AllowComments = true
+            };
             //locales
             await AddLocales(_languageService, model.Locales);
 
@@ -104,7 +106,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 var blogPost = await _blogViewModelService.InsertBlogPostModel(model);
                 Success(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Added"));
@@ -170,7 +172,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 blogPost = await _blogViewModelService.UpdateBlogPostModel(model, blogPost);
@@ -309,7 +311,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 var blogCategory = model.ToEntity();
@@ -375,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 blogCategory = model.ToEntity(blogCategory);
@@ -441,9 +443,10 @@ namespace Grand.Web.Admin.Controllers
             var blogposts = new List<BlogCategoryPost>();
             foreach (var item in blogCategory.BlogPosts)
             {
-                var post = new BlogCategoryPost();
-                post.Id = item.Id;
-                post.BlogPostId = item.BlogPostId;
+                var post = new BlogCategoryPost {
+                    Id = item.Id,
+                    BlogPostId = item.BlogPostId
+                };
                 var _post = await _blogService.GetBlogPostById(item.BlogPostId);
                 if (_post != null)
                     post.Name = _post.Title;
@@ -493,7 +496,7 @@ namespace Grand.Web.Admin.Controllers
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
             model.CategoryId = categoryId;
             return View(model);
         }
@@ -509,7 +512,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var posts = await _blogService.GetAllBlogPosts(storeId: model.SearchStoreId, blogPostName: model.SearchBlogTitle, pageIndex: command.Page - 1, pageSize: command.PageSize);
-            gridModel.Data = posts.Select(x => new { Id = x.Id, Name = x.Title });
+            gridModel.Data = posts.Select(x => new { x.Id, Name = x.Title });
             gridModel.Total = posts.TotalCount;
 
             return Json(gridModel);
@@ -523,14 +526,14 @@ namespace Grand.Web.Admin.Controllers
             {
                 var blogCategory = await _blogService.GetBlogCategoryById(model.CategoryId);
                 if (blogCategory != null)
-                    foreach (string id in model.SelectedBlogPostIds)
+                    foreach (var id in model.SelectedBlogPostIds)
                     {
                         var post = _blogService.GetBlogPostById(id);
                         if (post != null)
                         {
-                            if (blogCategory.BlogPosts.Where(x => x.BlogPostId == id).Count() == 0)
+                            if (!blogCategory.BlogPosts.Any(x => x.BlogPostId == id))
                             {
-                                blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost() { BlogPostId = id });
+                                blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost { BlogPostId = id });
                                 await _blogService.UpdateBlogCategory(blogCategory);
                             }
                         }
@@ -558,7 +561,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = model.blogComments,
-                Total = model.totalCount,
+                Total = model.totalCount
             };
             return Json(gridModel);
         }
@@ -600,7 +603,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = model.blogProducts,
-                Total = model.totalCount,
+                Total = model.totalCount
             };
             return Json(gridModel);
         }

@@ -11,6 +11,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
@@ -22,7 +23,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Discounts)]
-    public partial class DiscountController : BaseAdminController
+    public class DiscountController : BaseAdminController
     {
         #region Fields
 
@@ -102,7 +103,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 var discount = await _discountViewModelService.InsertDiscountModel(model);
@@ -160,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 discount = await _discountViewModelService.UpdateDiscountModel(discount, model);
                 Success(_translationService.GetResource("admin.marketing.discounts.Updated"));
@@ -226,9 +227,9 @@ namespace Grand.Web.Admin.Controllers
             {
                 Data = couponcodes.Select(x => new
                 {
-                    Id = x.Id,
-                    CouponCode = x.CouponCode,
-                    Used = x.Used
+                    x.Id,
+                    x.CouponCode,
+                    x.Used
                 }),
                 Total = couponcodes.TotalCount
             };
@@ -250,7 +251,7 @@ namespace Grand.Web.Admin.Controllers
                 if (!coupon.Used)
                     await _discountService.DeleteDiscountCoupon(coupon);
                 else
-                    return new JsonResult(new DataSourceResult() { Errors = "You can't delete coupon code, it was used" });
+                    return new JsonResult(new DataSourceResult { Errors = "You can't delete coupon code, it was used" });
 
                 return new JsonResult("");
             }
@@ -269,8 +270,8 @@ namespace Grand.Web.Admin.Controllers
 
             couponCode = couponCode.ToUpper();
 
-            if ((await _discountService.GetDiscountByCouponCode(couponCode)) != null)
-                return new JsonResult(new DataSourceResult() { Errors = "Coupon code exists" });
+            if (await _discountService.GetDiscountByCouponCode(couponCode) != null)
+                return new JsonResult(new DataSourceResult { Errors = "Coupon code exists" });
             if (ModelState.IsValid)
             {
                 await _discountViewModelService.InsertCouponCode(discountId, couponCode);
@@ -299,8 +300,8 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("Discount could not be loaded");
 
             var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
-            string url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
-            return Json(new { url = url });
+            var url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
+            return Json(new { url });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -319,10 +320,10 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("Discount requirement rule could not be loaded");
 
             var discountRequirementRule = discountPlugin.GetRequirementRules().First(x => x.SystemName == discountRequirement.DiscountRequirementRuleSystemName);
-            string url = _discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount, discountRequirementId);
-            string ruleName = discountRequirementRule.FriendlyName;
+            var url = _discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount, discountRequirementId);
+            var ruleName = discountRequirementRule.FriendlyName;
 
-            return Json(new { url = url, ruleName = ruleName });
+            return Json(new { url, ruleName });
         }
 
         [HttpPost]
@@ -742,7 +743,7 @@ namespace Grand.Web.Admin.Controllers
             var vendors = await vendorService.GetAllVendors(model.SearchVendorName, command.Page - 1, command.PageSize, true);
 
             //search for emails
-            if (!(string.IsNullOrEmpty(model.SearchVendorEmail)))
+            if (!string.IsNullOrEmpty(model.SearchVendorEmail))
             {
                 var tempVendors = vendors.Where(x => x.Email.ToLowerInvariant().Contains(model.SearchVendorEmail.Trim()));
                 vendors = new PagedList<Domain.Vendors.Vendor>(tempVendors, command.Page - 1, command.PageSize);

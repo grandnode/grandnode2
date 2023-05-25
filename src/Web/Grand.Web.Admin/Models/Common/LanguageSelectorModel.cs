@@ -3,7 +3,7 @@ using Grand.Web.Admin.Models.Localization;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class LanguageSelectorModel : BaseModel
+    public class LanguageSelectorModel : BaseModel
     {
         public LanguageSelectorModel()
         {

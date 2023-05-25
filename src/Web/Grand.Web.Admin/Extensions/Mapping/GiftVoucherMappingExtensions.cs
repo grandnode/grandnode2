@@ -1,9 +1,9 @@
-﻿using Grand.Infrastructure.Mapper;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Orders;
-using Grand.Business.Core.Interfaces.Common.Directory;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class GiftVoucherMappingExtensions
     {

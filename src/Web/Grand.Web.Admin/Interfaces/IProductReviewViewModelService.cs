@@ -11,8 +11,8 @@ namespace Grand.Web.Admin.Interfaces
         Task<ProductReview> UpdateProductReview(ProductReview productReview, ProductReviewModel model);
         Task<ProductReviewListModel> PrepareProductReviewListModel(string storeId);
         Task DeleteProductReview(ProductReview productReview);
-        Task ApproveSelected(IList<string> selectedIds, string storeId);
-        Task DisapproveSelected(IList<string> selectedIds, string storeId);
+        Task ApproveSelected(IEnumerable<string> selectedIds, string storeId);
+        Task DisapproveSelected(IEnumerable<string> selectedIds, string storeId);
 
     }
 }

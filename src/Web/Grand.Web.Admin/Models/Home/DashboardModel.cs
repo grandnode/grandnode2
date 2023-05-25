@@ -2,13 +2,11 @@
 
 namespace Grand.Web.Admin.Models.Home
 {
-    public partial class DashboardModel : BaseModel
+    public class DashboardModel : BaseModel
     {
         public bool IsLoggedInAsVendor { get; set; }
-        public bool HideReportGA { get; set; }
-
     }
-    public partial class DashboardActivityModel : BaseModel
+    public class DashboardActivityModel : BaseModel
     {
         public int OrdersPending { get; set; }
         public int AbandonedCarts { get; set; }

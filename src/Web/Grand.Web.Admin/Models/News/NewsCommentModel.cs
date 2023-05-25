@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.News
 {
-    public partial class NewsCommentModel : BaseEntityModel
+    public class NewsCommentModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.NewsItem")]
         public string NewsItemId { get; set; }

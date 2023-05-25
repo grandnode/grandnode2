@@ -3,11 +3,8 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Plugins
 {
-    public partial class PluginModel : BaseModel
+    public class PluginModel : BaseModel
     {
-        public PluginModel()
-        {
-        }
         [GrandResourceDisplayName("Admin.Plugins.Fields.Group")]
         public string Group { get; set; }
 

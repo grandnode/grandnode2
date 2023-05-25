@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ElFinderViewModelService : IElFinderViewModelService
+    public class ElFinderViewModelService : IElFinderViewModelService
     {
         private readonly IDriver _driver;
         private readonly IConnector _connector;
@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Services
             }
             _fullPathToThumbs = thumbs.PhysicalPath;
 
-            _urlThumb = $"{_linkGenerator.GetPathByAction(_httpContextAccessor.HttpContext, "Thumb", "ElFinder", new { area = "Admin" })}/";
+            _urlThumb = $"{_linkGenerator.GetPathByAction(_httpContextAccessor.HttpContext!, "Thumb", "ElFinder", new { area = "Admin" })}/";
         }
 
         protected virtual bool NotAllowedExtensions(string extensions)
@@ -91,24 +91,23 @@ namespace Grand.Web.Admin.Services
                 _urlThumb) {
                 Name = "Volume",
                 MaxUploadConnections = 3,
-                MaxUploadSizeInMb = 4
-            };
-            volume.ObjectAttributes = new List<FilteredObjectAttribute>() {
-                new FilteredObjectAttribute()
-                {
-                    FileFilter = (file) => {
-                        return NotAllowedExtensions(file.Extension);
-                    },
-                    ObjectFilter = (obj) =>
-                    {
-                        var extensions = Path.GetExtension(obj.FullName);
-                        if(!string.IsNullOrEmpty(extensions))
-                            return NotAllowedExtensions(extensions);
+                MaxUploadSizeInMb = 4,
+                ObjectAttributes = new List<FilteredObjectAttribute> {
+                    new FilteredObjectAttribute {
+                        FileFilter = file => {
+                            return NotAllowedExtensions(file.Extension);
+                        },
+                        ObjectFilter = obj =>
+                        {
+                            var extensions = Path.GetExtension(obj.FullName);
+                            if(!string.IsNullOrEmpty(extensions))
+                                return NotAllowedExtensions(extensions);
 
-                        return false;
-                    },
-                    ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
-                },
+                            return false;
+                        },
+                        ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
+                    }
+                }
             };
             _connector.AddVolume(volume);
             await volume.Driver.SetupVolumeAsync(volume);

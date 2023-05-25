@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.News
 {
-    public partial class NewsItemListModel : BaseModel
+    public class NewsItemListModel : BaseModel
     {
         public NewsItemListModel()
         {

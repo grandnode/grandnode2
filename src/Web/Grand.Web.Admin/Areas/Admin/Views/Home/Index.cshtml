@@ -5,7 +5,7 @@
 @inject Grand.Business.Core.Interfaces.Customers.ICustomerService customerService
 @inject Grand.Business.Core.Interfaces.System.Reports.IOrderReportService orderReportService
 @inject Grand.Business.Core.Interfaces.Catalog.Prices.IPriceFormatter priceFormatter
-@inject Grand.Infrastructure.IWorkContext workContext
+@inject IWorkContext workContext
 @inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
 @{
     //page title
@@ -19,13 +19,15 @@
     var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, false);
 }
 
-<vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null" />
+<vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>
 @if (!Model.IsLoggedInAsVendor && canManageOrders)
 {
     <div class="form-row top_tiles">
         <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
             <div class="tile-stats">
-                <div class="icon"><i class="fa fa-user"></i></div>
+                <div class="icon">
+                    <i class="fa fa-user"></i>
+                </div>
                 <div class="count">@customersOnline</div>
                 <h3>
                     <a href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaAdmin })">
@@ -37,7 +39,9 @@
         </div>
         <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
             <div class="tile-stats">
-                <div class="icon"><i class="fa fa-shopping-cart"></i></div>
+                <div class="icon">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
                 <div class="count">@customersShoppingCart</div>
                 <h3>
                     <a href="@Url.Action("CurrentCarts", "ShoppingCart", new { area = Constants.AreaAdmin })">
@@ -49,7 +53,9 @@
         </div>
         <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
             <div class="tile-stats">
-                <div class="icon"><i class="fa fa-money"></i></div>
+                <div class="icon">
+                    <i class="fa fa-money"></i>
+                </div>
                 <div class="count"> @ordersAmount / @ordersToday.Count</div>
                 <h3>
                     <a href="@Url.Action("List", "Order", new { startDate = DateTime.UtcNow.ToUniversalTime(), area = Constants.AreaAdmin })">
@@ -114,7 +120,7 @@
                                 </div>
                                 <div class="x_content-body">
                                     <div class="partialContents" data-url="@Url.Action("DashboardActivity", new { area = Constants.AreaAdmin })">
-                                        <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
+                                        <img src="@(Common.WwwRoot)/administration/build/images/loading.gif"/> Loading ...
                                     </div>
                                 </div>
                             </div>
@@ -127,112 +133,14 @@
 
     <div class="row">
         <div class="col-md-12">
-            @if (!Model.HideReportGA)
+            @if (canAccessReports)
             {
-                <div class="col-12 col-sm-12 col-lg-4 col-md-12 whiteBg">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <i class="fa fa-line-chart font-blue"></i>
-                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardGeneralData", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-sm-12 col-lg-12 col-md-12">
+                    @await Component.InvokeAsync("OrderTimeChart")
                 </div>
-                @if (canAccessReports)
-                {
-                    <div class="col-sm-12 col-lg-8 col-md-12">
-                        @await Component.InvokeAsync("OrderTimeChart")
-                    </div>
-                }
-            }
-            else
-            {
-                @if (canAccessReports)
-                {
-                    <div class="col-sm-12 col-lg-12 col-md-12">
-                        @await Component.InvokeAsync("OrderTimeChart")
-                    </div>
-                }
             }
         </div>
     </div>
-    if (!Model.HideReportGA)
-    {
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <i class="fa fa-sign-in font-blue"></i>
-                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Source"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataBySource", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <i class="fa fa-sign-out font-blue"></i>
-                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Exit"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByExit", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <i class="fa fa-laptop font-blue"></i>
-                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Device"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByDevice", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <div class="caption level-caption">
-                                <i class="fa fa-map-marker font-blue"></i>
-                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Localization"]</span>
-                            </div>
-                        </div>
-                        <div class="x_content">
-                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByLocalization", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
-                                <img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
 }
 @if (Model.IsLoggedInAsVendor)
 {
@@ -274,7 +182,7 @@
         </div>
     </div>
 }
-<vc:admin-widget widget-zone="admin_dashboard_bottom" additional-data="null" />
+<vc:admin-widget widget-zone="admin_dashboard_bottom" additional-data="null"/>
 <script>
     $(document).ready(function (e) {
         var site = site || {};
@@ -366,12 +274,4 @@
         if (gridOrders != undefined) {
             gridOrders.dataSource.read();
         }
-
-        $(".Dashboard_GoogleAnalytics_Data").each(function (index, item) {
-            $(item).html('<img src="@(Common.WwwRoot)/administration/build/images/loading.gif" /> Loading ...');
-            var url = $(item).data("url") + '?startDate=' + $('#dashboard-report-range').data('daterangepicker').startDate.format('YYYY-MM-DD') + '&endDate=' + $('#dashboard-report-range').data('daterangepicker').endDate.format('YYYY-MM-DD');
-            if (url && url.length > 0) {
-                $(item).load(url);
-            }
-        });
     });</script>

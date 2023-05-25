@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Acl)]
-    public partial class PermissionController : BaseAdminController
+    public class PermissionController : BaseAdminController
     {
         #region Fields
 
@@ -69,12 +69,12 @@ namespace Grand.Web.Admin.Controllers
             }
             foreach (var cr in customerGroups)
             {
-                model.AvailableCustomerGroups.Add(new CustomerGroupModel() { Id = cr.Id, Name = cr.Name });
+                model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = cr.Id, Name = cr.Name });
             }
             foreach (var pr in permissionRecords)
                 foreach (var cr in customerGroups)
                 {
-                    bool allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
+                    var allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
                     if (!model.Allowed.ContainsKey(pr.SystemName))
                         model.Allowed[pr.SystemName] = new Dictionary<string, bool>();
                     model.Allowed[pr.SystemName][cr.Id] = allowed;
@@ -91,12 +91,12 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var cr in customerGroups)
             {
-                string formKey = "allow_" + cr.Id;
-                var permissionRecordSystemNamesToRestrict = form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>();
+                var formKey = "allow_" + cr.Id;
+                var permissionRecordSystemNamesToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 foreach (var pr in permissionRecords)
                 {
 
-                    bool allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
+                    var allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
                     if (allow)
                     {
 
@@ -123,9 +123,9 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> PermissionsAction(string systemName, string customeGroupId)
         {
-            var model = new PermissionActionModel() {
+            var model = new PermissionActionModel {
                 SystemName = systemName,
-                CustomerGroupId = customeGroupId,
+                CustomerGroupId = customeGroupId
             };
 
             var customerGroup = await _groupService.GetCustomerGroupById(customeGroupId);
@@ -177,7 +177,7 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var item in insertActions)
             {
-                await _permissionService.InsertPermissionAction(new PermissionAction() {
+                await _permissionService.InsertPermissionAction(new PermissionAction {
                     Action = item,
                     CustomerGroupId = customergroupId,
                     SystemName = systemname

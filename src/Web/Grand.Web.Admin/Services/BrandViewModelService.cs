@@ -12,6 +12,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
@@ -20,7 +21,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class BrandViewModelService : IBrandViewModelService
+    public class BrandViewModelService : IBrandViewModelService
     {
         #region Fields
 
@@ -149,7 +150,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Brand> UpdateBrandModel(Brand brand, BrandModel model)
         {
-            string prevPictureId = brand.PictureId;
+            var prevPictureId = brand.PictureId;
             brand = model.ToEntity(brand);
             brand.UpdatedOnUtc = DateTime.UtcNow;
             brand.Locales = await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);
@@ -178,7 +179,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(brand, model.SeName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)

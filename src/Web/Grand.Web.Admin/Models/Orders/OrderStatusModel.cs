@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class OrderStatusModel : BaseEntityModel
+    public class OrderStatusModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Orders.OrderStatus.Fields.Name")]
         public string Name { get; set; }

@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class DeliveryDateModel : BaseEntityModel, ILocalizedModel<DeliveryDateLocalizedModel>
+    public class DeliveryDateModel : BaseEntityModel, ILocalizedModel<DeliveryDateLocalizedModel>
     {
         public DeliveryDateModel()
         {
@@ -24,7 +24,7 @@ namespace Grand.Web.Admin.Models.Shipping
         public IList<DeliveryDateLocalizedModel> Locales { get; set; }
     }
 
-    public partial class DeliveryDateLocalizedModel : ILocalizedModelLocal
+    public class DeliveryDateLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿@model CustomerSettingsModel
-@using Grand.Domain.Customers;
 <script>
     $(document).ready(function () {
         $("#@Html.IdFor(model => model.CustomerSettings.DateOfBirthEnabled)").click(toggleCustomerRequiredFormField);

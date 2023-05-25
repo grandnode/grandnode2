@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Cms;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class IWidgetPluginMappingExtensions
     {

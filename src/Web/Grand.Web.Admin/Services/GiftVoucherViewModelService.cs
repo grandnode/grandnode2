@@ -8,16 +8,16 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class GiftVoucherViewModelService : IGiftVoucherViewModelService
+    public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     {
         #region Fields
 
@@ -75,8 +75,8 @@ namespace Grand.Web.Admin.Services
                 model.AvailableCurrencies.Add(new SelectListItem { Text = currency.Name, Value = currency.CurrencyCode });
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-            foreach (var s in (await _storeService.GetAllStores()))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+            foreach (var s in await _storeService.GetAllStores())
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             return model;
         }
@@ -117,9 +117,7 @@ namespace Grand.Web.Admin.Services
             foreach (var item in giftVouchers)
             {
                 var gift = item.ToModel(_dateTimeService);
-                var currency = await _currencyService.GetCurrencyByCode(item.CurrencyCode);
-                if (currency == null)
-                    currency = await _currencyService.GetPrimaryStoreCurrency();
+                var currency = await _currencyService.GetCurrencyByCode(item.CurrencyCode) ?? await _currencyService.GetPrimaryStoreCurrency();
 
                 gift.RemainingAmountStr = _priceFormatter.FormatPrice(item.GetGiftVoucherRemainingAmount(), currency, _workContext.WorkingLanguage, true, false);
                 gift.AmountStr = _priceFormatter.FormatPrice(item.Amount, currency, _workContext.WorkingLanguage, true, false);
@@ -148,11 +146,9 @@ namespace Grand.Web.Admin.Services
             if (giftVoucher.PurchasedWithOrderItem != null)
                 order = await _orderService.GetOrderByOrderItemId(giftVoucher.PurchasedWithOrderItem.Id);
 
-            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode);
-            if (currency == null)
-                currency = await _currencyService.GetPrimaryStoreCurrency();
+            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode) ?? await _currencyService.GetPrimaryStoreCurrency();
 
-            model.PurchasedWithOrderId = giftVoucher.PurchasedWithOrderItem != null ? order.Id : null;
+            model.PurchasedWithOrderId = giftVoucher.PurchasedWithOrderItem != null ? order?.Id : null;
             model.RemainingAmountStr = _priceFormatter.FormatPrice(giftVoucher.GetGiftVoucherRemainingAmount(), currency, _workContext.WorkingLanguage, true, false);
             model.AmountStr = _priceFormatter.FormatPrice(giftVoucher.Amount, currency, _workContext.WorkingLanguage, true, false);
             model.CreatedOn = _dateTimeService.ConvertToUserTime(giftVoucher.CreatedOnUtc, DateTimeKind.Utc);
@@ -166,9 +162,7 @@ namespace Grand.Web.Admin.Services
             var languageId = "";
             if (order != null)
             {
-                var customerLang = await _languageService.GetLanguageById(order.CustomerLanguageId);
-                if (customerLang == null)
-                    customerLang = (await _languageService.GetAllLanguages()).FirstOrDefault();
+                var customerLang = await _languageService.GetLanguageById(order.CustomerLanguageId) ?? (await _languageService.GetAllLanguages()).FirstOrDefault();
                 if (customerLang != null)
                     languageId = customerLang.Id;
             }
@@ -176,7 +170,7 @@ namespace Grand.Web.Admin.Services
             {
                 languageId = _languageSettings.DefaultAdminLanguageId;
             }
-            int queuedEmailId = await _messageProviderService.SendGiftVoucherMessage(giftVoucher, order, languageId);
+            var queuedEmailId = await _messageProviderService.SendGiftVoucherMessage(giftVoucher, order, languageId);
             if (queuedEmailId > 0)
             {
                 giftVoucher.IsRecipientNotified = true;
@@ -213,9 +207,7 @@ namespace Grand.Web.Admin.Services
             if (giftVoucher.PurchasedWithOrderItem != null)
                 order = await _orderService.GetOrderByOrderItemId(giftVoucher.PurchasedWithOrderItem.Id);
 
-            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode);
-            if (currency == null)
-                currency = await _currencyService.GetPrimaryStoreCurrency();
+            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode) ?? await _currencyService.GetPrimaryStoreCurrency();
 
             model.PurchasedWithOrderId = giftVoucher.PurchasedWithOrderItem != null ? order?.Id : null;
             model.PurchasedWithOrderNumber = order?.OrderNumber ?? 0;
@@ -227,9 +219,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<GiftVoucherModel.GiftVoucherUsageHistoryModel> giftVoucherUsageHistoryModels, int totalCount)> PrepareGiftVoucherUsageHistoryModels(GiftVoucher giftVoucher, int pageIndex, int pageSize)
         {
-            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode);
-            if (currency == null)
-                currency = await _currencyService.GetPrimaryStoreCurrency();
+            var currency = await _currencyService.GetCurrencyByCode(giftVoucher.CurrencyCode) ?? await _currencyService.GetPrimaryStoreCurrency();
 
             var items = new List<GiftVoucherModel.GiftVoucherUsageHistoryModel>();
             foreach (var x in giftVoucher.GiftVoucherUsageHistory.OrderByDescending(gcuh => gcuh.CreatedOnUtc))
@@ -239,7 +229,7 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = x.Id,
                     OrderId = x.UsedWithOrderId,
-                    OrderNumber = order != null ? order.OrderNumber : 0,
+                    OrderNumber = order?.OrderNumber ?? 0,
                     UsedValue = _priceFormatter.FormatPrice(x.UsedValue, currency, _workContext.WorkingLanguage, true, false),
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });

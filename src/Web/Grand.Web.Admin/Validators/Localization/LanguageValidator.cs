@@ -20,7 +20,7 @@ namespace Grand.Web.Admin.Validators.Localization
                               try
                               {
                                   //create a CultureInfo object
-                                  var culture = new CultureInfo(x);
+                                  new CultureInfo(x);
                                   return true;
                               }
                               catch

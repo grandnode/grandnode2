@@ -16,7 +16,7 @@ namespace Grand.Web.Admin.Extensions
 
             if (widgetSettings.ActiveWidgetSystemNames == null)
                 return false;
-            foreach (string activeMethodSystemName in widgetSettings.ActiveWidgetSystemNames)
+            foreach (var activeMethodSystemName in widgetSettings.ActiveWidgetSystemNames)
                 if (widget.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase))
                     return true;
             return false;

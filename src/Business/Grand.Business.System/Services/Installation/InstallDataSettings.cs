@@ -559,12 +559,6 @@ namespace Grand.Business.System.Services.Installation
             await _settingService.SaveSetting(new WidgetSettings {
                 ActiveWidgetSystemNames = new List<string> { "Widgets.Slider" },
             });
-
-            await _settingService.SaveSetting(new GoogleAnalyticsSettings() {
-                gaprivateKey = "",
-                gaserviceAccountEmail = "",
-                gaviewID = ""
-            });
         }
     }
 }

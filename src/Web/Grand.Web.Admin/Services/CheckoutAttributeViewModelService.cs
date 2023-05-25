@@ -9,12 +9,12 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Services
 {
@@ -70,7 +70,7 @@ namespace Grand.Web.Admin.Services
             var taxCategories = await _taxCategoryService.GetAllTaxCategories();
             model.AvailableTaxCategories.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = "" });
             foreach (var tc in taxCategories)
-                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = checkoutAttribute != null && !excludeProperties && tc.Id == checkoutAttribute.TaxCategoryId });
+                model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id, Selected = checkoutAttribute != null && !excludeProperties && tc.Id == checkoutAttribute.TaxCategoryId });
         }
 
         public virtual async Task PrepareConditionAttributes(CheckoutAttributeModel model, CheckoutAttribute checkoutAttribute)
@@ -87,22 +87,19 @@ namespace Grand.Web.Admin.Services
             var selectedAttribute = (await _checkoutAttributeParser.ParseCheckoutAttributes(checkoutAttribute.ConditionAttribute)).FirstOrDefault();
             var selectedValues = await _checkoutAttributeParser.ParseCheckoutAttributeValues(checkoutAttribute.ConditionAttribute);
 
-            model.ConditionModel = new ConditionModel()
-            {
+            model.ConditionModel = new ConditionModel {
                 EnableCondition = checkoutAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
                 ConditionAttributes = (await _checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: false))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != checkoutAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
-                        new AttributeConditionModel()
-                        {
+                        new AttributeConditionModel {
                             Id = x.Id,
                             Name = x.Name,
                             AttributeControlType = x.AttributeControlTypeId,
                             Values = x.CheckoutAttributeValues
-                                .Select(v => new SelectListItem()
-                                {
+                                .Select(v => new SelectListItem {
                                     Text = v.Name,
                                     Value = v.Id.ToString(),
                                     Selected = selectedAttribute != null && selectedAttribute.Id == x.Id && selectedValues.Any(sv => sv.Id == v.Id)
@@ -128,7 +125,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValue = selectedAttribute != null ? selectedAttribute.SelectedValueId : null;
+                                var selectedValue = selectedAttribute?.SelectedValueId;
                                 if (!string.IsNullOrEmpty(selectedValue))
                                     conditionAttributes = _checkoutAttributeParser.AddCheckoutAttribute(conditionAttributes, attribute, selectedValue).ToList();
                                 else
@@ -139,7 +136,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValues = selectedAttribute != null ? selectedAttribute.Values.Where(x => x.Selected).Select(x => x.Value) : null;
+                                var selectedValues = selectedAttribute?.Values.Where(x => x.Selected).Select(x => x.Value);
                                 if (selectedValues.Any())
                                     foreach (var value in selectedValues)
                                         conditionAttributes = _checkoutAttributeParser.AddCheckoutAttribute(conditionAttributes, attribute, value).ToList();
@@ -170,7 +167,7 @@ namespace Grand.Web.Admin.Services
             return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
                 {
                     var attributeModel = x.ToModel();
-                    attributeModel.AttributeControlTypeName = TranslateExtensions.GetTranslationEnum<AttributeControlType>(x.AttributeControlTypeId, (ITranslationService)_translationService, (IWorkContext)_workContext);
+                    attributeModel.AttributeControlTypeName = x.AttributeControlTypeId.GetTranslationEnum(_translationService, _workContext);
                     return attributeModel;
                 }));
         }
@@ -182,12 +179,12 @@ namespace Grand.Web.Admin.Services
             {
                 Id = x.Id,
                 CheckoutAttributeId = x.CheckoutAttributeId,
-                Name = checkoutAttribute.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : string.Format("{0} - {1}", x.Name, x.ColorSquaresRgb),
+                Name = checkoutAttribute.AttributeControlTypeId != AttributeControlType.ColorSquares ? x.Name : $"{x.Name} - {x.ColorSquaresRgb}",
                 ColorSquaresRgb = x.ColorSquaresRgb,
                 PriceAdjustment = x.PriceAdjustment,
                 WeightAdjustment = x.WeightAdjustment,
                 IsPreSelected = x.IsPreSelected,
-                DisplayOrder = x.DisplayOrder,
+                DisplayOrder = x.DisplayOrder
             });
         }
         public virtual async Task<CheckoutAttributeModel> PrepareCheckoutAttributeModel()
@@ -203,14 +200,15 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var model = new CheckoutAttributeValueModel();
-            model.CheckoutAttributeId = checkoutAttributeId;
-            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
+            var model = new CheckoutAttributeValueModel {
+                CheckoutAttributeId = checkoutAttributeId,
+                PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode,
+                BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
+                //color squares
+                DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares,
+                ColorSquaresRgb = "#000000"
+            };
 
-            //color squares
-            model.DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares;
-            model.ColorSquaresRgb = "#000000";
             return model;
         }
         public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(CheckoutAttribute checkoutAttribute, CheckoutAttributeValue checkoutAttributeValue)

@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Layouts
 {
-    public partial class CollectionLayoutModel : BaseEntityModel
+    public class CollectionLayoutModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.Name")]
 

@@ -2,7 +2,7 @@
 
 @{
 <vc:admin-widget widget-zone="discount_details_requirements_top" additional-data="Model" />
-    if (!String.IsNullOrEmpty(Model.Id))
+    if (!string.IsNullOrEmpty(Model.Id))
     {
 
         <script>
@@ -98,7 +98,7 @@
 
             //array of exisiting discount requirements
             var discountRequirements = [
-                     @for (int i = 0; i < Model.DiscountRequirementMetaInfos.Count; i++)
+                     @for (var i = 0; i < Model.DiscountRequirementMetaInfos.Count; i++)
                     {
                         var drmi = Model.DiscountRequirementMetaInfos[i];
                         <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(drmi.ConfigurationUrl))" } </text> if (i != Model.DiscountRequirementMetaInfos.Count - 1)

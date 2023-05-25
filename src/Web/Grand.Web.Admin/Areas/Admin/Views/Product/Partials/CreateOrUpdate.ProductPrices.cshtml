@@ -5,7 +5,7 @@
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
 }
-@if (!String.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
+@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
 {
     if (currencies.Count > 0)
     { 
@@ -117,7 +117,7 @@
 
             //local datasource
             var allCurrencies = [
-                @for (int i = 0; i < currencies.Count; i++)
+                @for (var i = 0; i < currencies.Count; i++)
                 {
                     var currencyItem = currencies[i];
                     <text>

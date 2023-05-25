@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Messages;
+﻿using Grand.Domain.Messages;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Messages;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class NewsletterCategoryMappingExtensions
     {

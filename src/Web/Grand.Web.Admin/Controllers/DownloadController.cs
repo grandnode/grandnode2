@@ -10,7 +10,7 @@ using Grand.Web.Common.Extensions;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Files)]
-    public partial class DownloadController : BaseAdminController
+    public class DownloadController : BaseAdminController
     {
         private readonly IDownloadService _downloadService;
         private readonly IWorkContext _workContext;
@@ -31,10 +31,10 @@ namespace Grand.Web.Admin.Controllers
 
             //use stored data
             if (download.DownloadBinary == null)
-                return Content(string.Format("Download data is not available any more. Download GD={0}", download.Id));
+                return Content($"Download data is not available any more. Download GD={download.Id}");
 
-            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id.ToString();
-            string contentType = !String.IsNullOrWhiteSpace(download.ContentType)
+            var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+            var contentType = !string.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
             return new FileContentResult(download.DownloadBinary, contentType) {
@@ -79,7 +79,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
 

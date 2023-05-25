@@ -79,9 +79,9 @@ namespace Grand.Web.Admin.Controllers
 
             if (searchTerm.Length >= _adminSearchSettings.MinSearchTermLength)
             {
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInProducts)
                 {
-                    var products = (await _productService.SearchProducts(keywords: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true)).products;
+                    var products = (await _productService.SearchProducts(keywords: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true)).products;
                     foreach (var product in products)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -93,9 +93,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
                 {
-                    var categories = await _categoryService.GetAllCategories(categoryName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden:
+                    var categories = await _categoryService.GetAllCategories(categoryName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
                         await _groupService.IsAdmin(_workContext.CurrentCustomer));
                     foreach (var category in categories)
                     {
@@ -108,9 +108,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
                 {
-                    var collections = await _collectionService.GetAllCollections(searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var collections = await _collectionService.GetAllCollections(searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var collection in collections)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -122,7 +122,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInPages)
                 {
                     var pages = (await _pageService.GetAllPages("")).Where(x => (x.SystemName != null && x.SystemName.ToLower().Contains(searchTerm.ToLower())) ||
                     (x.Title != null && x.Title.ToLower().Contains(searchTerm.ToLower())));
@@ -137,9 +137,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
                 {
-                    var news = await _newsService.GetAllNews(newsTitle: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var news = await _newsService.GetAllNews(newsTitle: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var signleNews in news)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -151,9 +151,9 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInBlogs)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInBlogs)
                 {
-                    var blogPosts = await _blogService.GetAllBlogPosts(blogPostName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden: true);
+                    var blogPosts = await _blogService.GetAllBlogPosts(blogPostName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                     foreach (var blogPost in blogPosts)
                     {
                         result.Add(new Tuple<object, int>(new
@@ -165,14 +165,14 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCustomers)
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCustomers)
                 {
-                    var customersByEmail = await _customerService.GetAllCustomers(email: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count());
+                    var customersByEmail = await _customerService.GetAllCustomers(email: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count);
                     IPagedList<Customer> customersByUsername = new PagedList<Customer>();
-                    if (_adminSearchSettings.MaxSearchResultsCount - result.Count() - customersByEmail.Count() > 0)
+                    if (_adminSearchSettings.MaxSearchResultsCount - result.Count - customersByEmail.Count > 0)
                     {
                         customersByUsername = await _customerService.GetAllCustomers(username: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount
-                            - result.Count() - customersByEmail.Count());
+                            - result.Count - customersByEmail.Count);
                     }
                     var combined = customersByEmail.Union(customersByUsername).GroupBy(x => x.Email).Select(x => x.First());
 
@@ -187,14 +187,14 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
 
-                if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInMenu && foundMenuItems != null && foundMenuItems.Any())
+                if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInMenu && foundMenuItems != null && foundMenuItems.Any())
                 {
                     foreach (var menuItem in foundMenuItems)
                     {
-                        if (result.Count() >= _adminSearchSettings.MaxSearchResultsCount)
+                        if (result.Count >= _adminSearchSettings.MaxSearchResultsCount)
                             break;
 
-                        string formatted = _translationService.GetResource("Admin.AdminSearch.Menu") + " > ";
+                        var formatted = _translationService.GetResource("Admin.AdminSearch.Menu") + " > ";
                         if (string.IsNullOrEmpty(menuItem.grandParent))
                         {
                             formatted += menuItem.parent;
@@ -206,17 +206,17 @@ namespace Grand.Web.Admin.Controllers
 
                         result.Add(new Tuple<object, int>(new
                         {
-                            title = menuItem.title,
-                            link = menuItem.link,
+                            menuItem.title,
+                            menuItem.link,
                             source = formatted
                         }, _adminSearchSettings.MenuDisplayOrder));
                     }
                 }
             }
 
-            if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInOrders)
+            if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInOrders)
             {
-                int.TryParse(searchTerm, out int orderNumber);
+                int.TryParse(searchTerm, out var orderNumber);
                 if (orderNumber > 0)
                 {
                     var order = await _orderService.GetOrderByNumber(orderNumber);
@@ -251,9 +251,9 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Category(string categoryId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Category> categories)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(categoryId))
@@ -261,33 +261,31 @@ namespace Grand.Web.Admin.Controllers
                     var currentCategory = await _categoryService.GetCategoryById(categoryId);
                     if (currentCategory != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentCategory.Id,
-                            Name = await _categoryService.GetFormattedBreadCrumb(currentCategory),
+                            Name = await _categoryService.GetFormattedBreadCrumb(currentCategory)
                         });
                     }
                 }
                 foreach (var item in categories)
                 {
                     if (item.Id != categoryId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = await _categoryService.GetFormattedBreadCrumb(item),
+                            Name = await _categoryService.GetFormattedBreadCrumb(item)
                         });
                 }
                 return model;
             }
             var storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var categories = (await _categoryService.GetAllCategories(
-                   storeId: storeId,
-                   categoryName: value,
-                   pageSize: _adminSearchSettings.CategorySizeLimit));
+            var categories = await _categoryService.GetAllCategories(
+                storeId: storeId,
+                categoryName: value,
+                pageSize: _adminSearchSettings.CategorySizeLimit);
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(categories),
+                Data = await PrepareModel(categories)
             };
             return Json(gridModel);
         }
@@ -295,9 +293,9 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Collection(string collectionId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Collection> collections)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(collectionId))
@@ -305,20 +303,18 @@ namespace Grand.Web.Admin.Controllers
                     var currentCollection = await _collectionService.GetCollectionById(collectionId);
                     if (currentCollection != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentCollection.Id,
-                            Name = currentCollection.Name,
+                            Name = currentCollection.Name
                         });
                     }
                 }
                 foreach (var item in collections)
                 {
                     if (item.Id != collectionId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
@@ -326,14 +322,14 @@ namespace Grand.Web.Admin.Controllers
 
             var storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var collections = (await _collectionService.GetAllCollections(
-                    storeId: storeId,
-                    collectionName: value,
-                    pageSize: _adminSearchSettings.CollectionSizeLimit));
+            var collections = await _collectionService.GetAllCollections(
+                storeId: storeId,
+                collectionName: value,
+                pageSize: _adminSearchSettings.CollectionSizeLimit);
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(collections),
+                Data = await PrepareModel(collections)
             };
             return Json(gridModel);
         }
@@ -341,9 +337,9 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> CustomerGroup(string[] customerGroups)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<CustomerGroup> groups)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<CustomerGroup> groups)
             {
                 var model = new List<SearchModel>();
                 if (customerGroups != null && customerGroups.Any())
@@ -351,10 +347,9 @@ namespace Grand.Web.Admin.Controllers
                     var currentGroups = await _groupService.GetAllByIds(customerGroups);
                     foreach (var item in currentGroups)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
 
                         });
                     }
@@ -363,23 +358,22 @@ namespace Grand.Web.Admin.Controllers
                 {
                     if (model.FirstOrDefault(x => x.Id == item.Id) == null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                     }
                 }
                 return model;
             }
 
-            var groups = (await _groupService.GetAllCustomerGroups(
-                     name: value,
-                     pageSize: _adminSearchSettings.CustomerGroupSizeLimit));
+            var groups = await _groupService.GetAllCustomerGroups(
+                name: value,
+                pageSize: _adminSearchSettings.CustomerGroupSizeLimit);
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(groups),
+                Data = await PrepareModel(groups)
             };
             return Json(gridModel);
         }
@@ -387,9 +381,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Stores(string[] stores)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
-
-            async Task<IList<SearchModel>> PrepareModel(IList<Store> groups)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Store> groups)
             {
                 var model = new List<SearchModel>();
                 if (stores != null && stores.Any())
@@ -398,10 +390,9 @@ namespace Grand.Web.Admin.Controllers
                     {
                         var currentStore = await _storeService.GetStoreById(item);
                         if (currentStore != null)
-                            model.Add(new SearchModel()
-                            {
+                            model.Add(new SearchModel {
                                 Id = currentStore.Id,
-                                Name = currentStore.Name,
+                                Name = currentStore.Name
                             });
 
                     }
@@ -410,10 +401,9 @@ namespace Grand.Web.Admin.Controllers
                 {
                     if (model.FirstOrDefault(x => x.Id == item.Id) == null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                     }
                 }
@@ -427,7 +417,7 @@ namespace Grand.Web.Admin.Controllers
 
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(groups),
+                Data = await PrepareModel(groups)
             };
             return Json(gridModel);
         }
@@ -435,9 +425,9 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Vendor(string vendorId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Vendor> vendors)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Vendor> vendors)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(vendorId))
@@ -445,39 +435,37 @@ namespace Grand.Web.Admin.Controllers
                     var currentVendor = await _vendorService.GetVendorById(vendorId);
                     if (currentVendor != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentVendor.Id,
-                            Name = currentVendor.Name,
+                            Name = currentVendor.Name
                         });
                     }
                 }
                 foreach (var item in vendors)
                 {
                     if (item.Id != vendorId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
             }
-            var vendors = (await _vendorService.GetAllVendors(
-                   name: value,
-                   pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true));
+            var vendors = await _vendorService.GetAllVendors(
+                name: value,
+                pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true);
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(vendors),
+                Data = await PrepareModel(vendors)
             };
             return Json(gridModel);
         }
         [HttpGet]
         public async Task<IActionResult> Brand(string brandId)
         {
-            string value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+            var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
 
-            async Task<IList<SearchModel>> PrepareModel(IList<Brand> brands)
+            async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
             {
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(brandId))
@@ -485,30 +473,28 @@ namespace Grand.Web.Admin.Controllers
                     var currentBrand = await _brandService.GetBrandById(brandId);
                     if (currentBrand != null)
                     {
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = currentBrand.Id,
-                            Name = currentBrand.Name,
+                            Name = currentBrand.Name
                         });
                     }
                 }
                 foreach (var item in brands)
                 {
                     if (item.Id != brandId)
-                        model.Add(new SearchModel()
-                        {
+                        model.Add(new SearchModel {
                             Id = item.Id,
-                            Name = item.Name,
+                            Name = item.Name
                         });
                 }
                 return model;
             }
-            var brands = (await _brandService.GetAllBrands(
-                   brandName: value,
-                   pageSize: _adminSearchSettings.BrandSizeLimit));
+            var brands = await _brandService.GetAllBrands(
+                brandName: value,
+                pageSize: _adminSearchSettings.BrandSizeLimit);
             var gridModel = new DataSourceResult
             {
-                Data = await PrepareModel(brands),
+                Data = await PrepareModel(brands)
             };
             return Json(gridModel);
         }

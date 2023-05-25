@@ -98,11 +98,11 @@ namespace Grand.Web.Admin.Controllers
             int pageSize, int orderBy)
         {
             //a vendor should have access only to his products
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 vendorId = _workContext.CurrentVendor.Id;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
-                    TotalQuantity = x.TotalQuantity,
+                    TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
                 if (product != null)
@@ -201,18 +201,18 @@ namespace Grand.Web.Admin.Controllers
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             var status = await _orderStatusService.GetAll();
             //order statuses
-            model.AvailableOrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.AvailableOrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
             //payment statuses
@@ -222,7 +222,7 @@ namespace Grand.Web.Admin.Controllers
             //billing countries
             foreach (var c in await _countryService.GetAllCountriesForBilling(showHidden: true))
             {
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             }
             model.AvailableCountries.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
@@ -230,7 +230,7 @@ namespace Grand.Web.Admin.Controllers
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             var vendors = await _vendorService.GetAllVendors(showHidden: true);
             foreach (var v in vendors)
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             return View(model);
         }
@@ -247,14 +247,14 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
 
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
             var items = await _orderReportService.BestSellersReport(
                 createdFromUtc: startDateValue,
@@ -275,14 +275,14 @@ namespace Grand.Web.Admin.Controllers
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
-                    TotalQuantity = x.TotalQuantity,
+                    TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
                 if (product != null)
                     m.ProductName = product.Name;
                 if (_workContext.CurrentVendor != null)
                 {
-                    if (product.VendorId == _workContext.CurrentVendor.Id)
+                    if (product?.VendorId == _workContext.CurrentVendor.Id)
                         result.Add(m);
                 }
                 else
@@ -317,7 +317,7 @@ namespace Grand.Web.Admin.Controllers
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -338,17 +338,17 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> NeverSoldReportList(DataSourceRequest command, NeverSoldReportModel model)
         {
             //a vendor should have access only to his products
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
                 vendorId = _workContext.CurrentVendor.Id;
 
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -359,7 +359,7 @@ namespace Grand.Web.Admin.Controllers
                 Data = items.Select(x =>
                     new NeverSoldReportLineModel {
                         ProductId = x.Id,
-                        ProductName = x.Name,
+                        ProductName = x.Name
                     }),
                 Total = items.TotalCount
             };
@@ -377,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -397,7 +397,7 @@ namespace Grand.Web.Admin.Controllers
                 SumThisWeekOrders = _priceFormatter.FormatPrice(x.SumThisWeekOrders, false),
                 SumThisMonthOrders = _priceFormatter.FormatPrice(x.SumThisMonthOrders, false),
                 SumThisYearOrders = _priceFormatter.FormatPrice(x.SumThisYearOrders, false),
-                SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false),
+                SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false)
             }).ToList();
 
             var gridModel = new DataSourceResult {
@@ -418,7 +418,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null)
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -445,7 +445,7 @@ namespace Grand.Web.Admin.Controllers
                     PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
                     ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
                     CustomerEmail = x.BillingAddress.Email,
-                    CustomerFullName = string.Format("{0} {1}", x.BillingAddress.FirstName, x.BillingAddress.LastName),
+                    CustomerFullName = $"{x.BillingAddress.FirstName} {x.BillingAddress.LastName}",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
@@ -466,7 +466,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -513,7 +513,7 @@ namespace Grand.Web.Admin.Controllers
             var status = await _orderStatusService.GetAll();
             var model = new CountryReportModel {
                 //order statuses
-                AvailableOrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
+                AvailableOrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
             };
 
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
@@ -528,16 +528,16 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CountryReportList(DataSourceRequest command, CountryReportModel model)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -550,11 +550,11 @@ namespace Grand.Web.Admin.Controllers
             var result = new List<CountryReportLineModel>();
             foreach (var x in items)
             {
-                var country = await _countryService.GetCountryById(!String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
+                var country = await _countryService.GetCountryById(!string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
                 var m = new CountryReportLineModel {
                     CountryName = country != null ? country.Name : "Unknown",
                     SumOrders = _priceFormatter.FormatPrice(x.SumOrders, false),
-                    TotalOrders = x.TotalOrders,
+                    TotalOrders = x.TotalOrders
                 };
                 result.Add(m);
             }
@@ -576,12 +576,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
         {
-            string vendorId = "";
+            var vendorId = "";
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 vendorId = _workContext.CurrentVendor.Id;
 
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -633,7 +633,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult {
                 Data = searchTermRecordLines.Select(x => new SearchTermReportLineModel {
                     Keyword = x.Keyword,
-                    Count = x.Count,
+                    Count = x.Count
                 }),
                 Total = searchTermRecordLines.TotalCount
             };
@@ -682,7 +682,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
         {
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -698,7 +698,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ReportCustomerTimeChart(DataSourceRequest command, DateTime? startDate, DateTime? endDate)
         {
-            string storeId = "";
+            var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 

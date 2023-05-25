@@ -1,5 +1,5 @@
 ﻿@{
-    List<Grand.Domain.Directory.ExchangeRate> rates = ViewBag.Rates;
+    List<ExchangeRate> rates = ViewBag.Rates;
     bool autoUpdateEnabled = ViewBag.AutoUpdateEnabled ?? false;
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Currencies"];
@@ -185,7 +185,7 @@
             <script>
                         //local datasource
                         var rates = [
-                            @for (int i = 0; i < rates.Count; i++)
+                            @for (var i = 0; i < rates.Count; i++)
                             {
                                 var rate = rates[i];
                                 <text>

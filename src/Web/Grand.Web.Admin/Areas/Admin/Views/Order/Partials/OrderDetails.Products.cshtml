@@ -1,6 +1,5 @@
 ﻿@model OrderModel
 @using Grand.Domain.Tax;
-@using Grand.Domain.Catalog;
 <vc:admin-widget widget-zone="order_details_products_top" additional-data="Model" />
 <div class="table-responsive order-table">
     <table class="table table-bordered table-striped table-hover">
@@ -136,7 +135,7 @@
                                         {
                                             <p>
                                                 @Loc["Admin.Orders.Products.MerchandiseReturns"]<text>:</text>
-                                                @for (int i = 0; i < item.MerchandiseReturnIds.Count; i++)
+                                                @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
                                                 {
                                                     <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = Constants.AreaAdmin })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.MerchandiseReturns.View"]</a>
                                                     if (i != item.MerchandiseReturnIds.Count - 1)
@@ -150,7 +149,7 @@
                                         {
                                             <p>
                                                 @Loc["Admin.Orders.Products.GiftVouchers"]<text>:</text>
-                                                @for (int i = 0; i < item.PurchasedGiftVoucherIds.Count; i++)
+                                                @for (var i = 0; i < item.PurchasedGiftVoucherIds.Count; i++)
                                                 {
                                                     <a href="@Url.Action("Edit", "GiftVoucher", new { id = item.PurchasedGiftVoucherIds[i], area = Constants.AreaAdmin })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Orders.Products.GiftVoucher.View"]</a>
                                                     if (i != item.PurchasedGiftVoucherIds.Count - 1)
@@ -227,8 +226,6 @@
                                                     @item.UnitPriceInclTax
                                                 }
                                                 break;
-                                            default:
-                                                break;
                                         }
                                     
                                     <div id="pnlEditPvUnitPrice@(item.Id)">
@@ -283,8 +280,6 @@
                                                         @item.DiscountInclTax
                                                     }
                                                     break;
-                                                default:
-                                                    break;
                                             }
                                         
                                     </td>
@@ -308,8 +303,6 @@
                                                 {
                                                     @item.SubTotalInclTax
                                                 }
-                                                break;
-                                            default:
                                                 break;
                                         }
                                     
@@ -337,7 +330,7 @@
 </div>
 <vc:admin-widget widget-zone="order_details_products_bottom" additional-data="Model" />
 
-@if (!String.IsNullOrEmpty(Model.CheckoutAttributeInfo) && !Model.IsLoggedInAsVendor)
+@if (!string.IsNullOrEmpty(Model.CheckoutAttributeInfo) && !Model.IsLoggedInAsVendor)
 {
     <div class="note note-info">
         @Html.Raw(Model.CheckoutAttributeInfo)

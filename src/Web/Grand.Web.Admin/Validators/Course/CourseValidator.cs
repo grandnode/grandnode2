@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Courses;
 
-namespace Grand.Web.Admin.Validators.Courses
+namespace Grand.Web.Admin.Validators.Course
 {
     public class CourseValidator : BaseGrandValidator<CourseModel>
     {
@@ -16,7 +16,7 @@ namespace Grand.Web.Admin.Validators.Courses
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Courses.Course.Fields.Name.Required"));
-            RuleFor(x => x.ProductId).MustAsync(async (x, y, context) =>
+            RuleFor(x => x.ProductId).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ProductId))
                 {

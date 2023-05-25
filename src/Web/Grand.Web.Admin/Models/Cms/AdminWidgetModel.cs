@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Cms
 {
-    public partial class AdminWidgetModel : BaseModel
+    public class AdminWidgetModel : BaseModel
     {
         public string WidgetZone { get; set; }
         public string ViewComponentName { get; set; }

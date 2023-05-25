@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class AddressAttributeValueModel : BaseEntityModel, ILocalizedModel<AddressAttributeValueLocalizedModel>
+    public class AddressAttributeValueModel : BaseEntityModel, ILocalizedModel<AddressAttributeValueLocalizedModel>
     {
         public AddressAttributeValueModel()
         {
@@ -27,7 +27,7 @@ namespace Grand.Web.Admin.Models.Common
 
     }
 
-    public partial class AddressAttributeValueLocalizedModel : ILocalizedModelLocal
+    public class AddressAttributeValueLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

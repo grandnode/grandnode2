@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Logging
 {
-    public partial class ActivityLogSearchModel : BaseModel
+    public class ActivityLogSearchModel : BaseModel
     {
         public ActivityLogSearchModel()
         {

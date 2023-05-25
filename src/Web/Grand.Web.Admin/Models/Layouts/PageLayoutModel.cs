@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Layouts
 {
-    public partial class PageLayoutModel : BaseEntityModel
+    public class PageLayoutModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.Name")]
 

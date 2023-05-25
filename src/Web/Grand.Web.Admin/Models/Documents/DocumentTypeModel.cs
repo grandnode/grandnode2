@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Documents
 {
-    public partial class DocumentTypeModel : BaseEntityModel
+    public class DocumentTypeModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Documents.Type.Fields.Name")]
 

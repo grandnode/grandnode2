@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductSpecificationAttributeModel : BaseEntityModel
+    public class ProductSpecificationAttributeModel : BaseEntityModel
     {
         public int AttributeTypeId { get; set; }
 

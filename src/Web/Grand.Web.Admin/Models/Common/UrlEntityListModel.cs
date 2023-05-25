@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class UrlEntityListModel : BaseModel
+    public class UrlEntityListModel : BaseModel
     {
         public UrlEntityListModel()
         {

@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Logging;
+﻿using Grand.Domain.Logging;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Logging;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class LogMappingExtensions
     {

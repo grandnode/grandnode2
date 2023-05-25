@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Plugins
 {
-    public partial class MiscPluginModel : BaseModel
+    public class MiscPluginModel : BaseModel
     {
         public string FriendlyName { get; set; }
 

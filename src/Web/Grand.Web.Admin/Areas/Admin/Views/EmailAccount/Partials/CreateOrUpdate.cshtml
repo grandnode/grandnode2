@@ -67,7 +67,7 @@
                 <admin-select asp-for="SecureSocketOptionsId" asp-items="((Grand.Business.Core.Enums.Messages.SecureSocketOptions)Model.SecureSocketOptionsId).ToSelectList(Context)" />
             </div>
         </div>
-        @if (!String.IsNullOrEmpty(Model.Id))
+        @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
                 <div class="note note-info">

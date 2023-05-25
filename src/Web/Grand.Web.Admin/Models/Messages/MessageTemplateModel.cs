@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
+    public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
     {
         public MessageTemplateModel()
         {
@@ -67,7 +67,7 @@ namespace Grand.Web.Admin.Models.Messages
         public IList<MessageTemplateLocalizedModel> Locales { get; set; }
     }
 
-    public partial class MessageTemplateLocalizedModel : ILocalizedModelLocal
+    public class MessageTemplateLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

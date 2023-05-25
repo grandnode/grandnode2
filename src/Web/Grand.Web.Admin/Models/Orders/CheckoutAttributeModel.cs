@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public CheckoutAttributeModel()
         {
@@ -81,7 +81,7 @@ namespace Grand.Web.Admin.Models.Orders
         public string[] CustomerGroups { get; set; }
     }
 
-    public partial class ConditionModel : BaseEntityModel
+    public class ConditionModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Condition.EnableCondition")]
         public bool EnableCondition { get; set; }
@@ -91,7 +91,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         public IList<AttributeConditionModel> ConditionAttributes { get; set; }
     }
-    public partial class AttributeConditionModel : BaseEntityModel
+    public class AttributeConditionModel : BaseEntityModel
     {
         public string Name { get; set; }
 
@@ -101,7 +101,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         public string SelectedValueId { get; set; }
     }
-    public partial class CheckoutAttributeLocalizedModel : ILocalizedModelLocal
+    public class CheckoutAttributeLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

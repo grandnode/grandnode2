@@ -1,9 +1,7 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Security
-@using Grand.Business.Core.Interfaces.Common.Localization
 @using Grand.Web.Common.Menu
 @using Grand.Business.Core.Interfaces.System.Admin
 @inject IPermissionService permissionService
-@inject ITranslationService translationService
 @inject IAdminSiteMapService adminSiteMapService
 @inject IEnumerable<IAdminMenuProvider> _adminMenuProviders
 @{
@@ -36,7 +34,7 @@
                         }
                         //"Plugins" menu item should be visible when it has some child nodes
                         var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
-                        if (pluginNode != null && pluginNode.Visible)
+                        if (pluginNode is {Visible: true })
                         {
                             var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManagePlugins);
                             pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);

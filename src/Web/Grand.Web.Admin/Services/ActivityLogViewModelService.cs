@@ -5,14 +5,14 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Logging;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ActivityLogViewModelService : IActivityLogViewModelService
+    public class ActivityLogViewModelService : IActivityLogViewModelService
     {
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IDateTimeService _dateTimeService;
@@ -64,7 +64,7 @@ namespace Grand.Web.Admin.Services
             {
                 activityLogSearchModel.ActivityLogType.Add(new SelectListItem
                 {
-                    Value = at.Id.ToString(),
+                    Value = at.Id,
                     Text = at.Name
                 });
             }
@@ -73,11 +73,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<ActivityLogModel> activityLogs, int totalCount)> PrepareActivityLogModel(ActivityLogSearchModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.CreatedOnFrom == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.CreatedOnFrom == null ? null
+                : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.CreatedOnTo == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.CreatedOnTo == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             var activityLog = await _customerActivityService.GetAllActivities(model.Comment, startDateValue, endDateValue, null, model.ActivityLogTypeId, model.IpAddress, pageIndex - 1, pageSize);
             var activityLogModel = new List<ActivityLogModel>();
@@ -97,18 +97,18 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<ActivityStatsModel> activityStats, int totalCount)> PrepareActivityStatModel(ActivityLogSearchModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.CreatedOnFrom == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.CreatedOnFrom == null ? null
+                : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.CreatedOnTo == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.CreatedOnTo == null ? null
+                : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             var activityStat = await _customerActivityService.GetStatsActivities(startDateValue, endDateValue, model.ActivityLogTypeId, pageIndex - 1, pageSize);
             var activityStatModel = new List<ActivityStatsModel>();
             foreach (var x in activityStat)
             {
                 var activityLogType = await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId);
-                string _name = "-empty-";
+                var _name = "-empty-";
                 if (activityLogType != null)
                 {
                     IList<string> systemKeywordsCategory = new List<string>();

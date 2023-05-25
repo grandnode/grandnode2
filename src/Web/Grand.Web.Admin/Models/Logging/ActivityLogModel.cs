@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Logging
 {
-    public partial class ActivityLogModel : BaseEntityModel
+    public class ActivityLogModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.ActivityLogType")]
         public string ActivityLogTypeName { get; set; }
@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Models.Logging
         public DateTime CreatedOn { get; set; }
     }
 
-    public partial class ActivityStatsModel : BaseEntityModel
+    public class ActivityStatsModel : BaseEntityModel
     {
         [GrandResourceDisplayName("admin.reports.activitylog.activitystats.Fields.ActivityLogType")]
         public string ActivityLogTypeName { get; set; }

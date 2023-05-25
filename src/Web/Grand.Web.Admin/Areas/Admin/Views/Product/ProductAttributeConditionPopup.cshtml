@@ -1,5 +1,4 @@
-﻿@using Grand.Domain.Catalog
-@model ProductAttributeConditionModel
+﻿@model ProductAttributeConditionModel
 @{
     Layout = "";
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"];
@@ -45,7 +44,7 @@
                                     var attributesList = new List<SelectListItem>();
                                     foreach (var attribute in Model.ProductAttributes)
                                     {
-                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id.ToString() });
+                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id });
                                     }
                                     <div class="form-horizontal">
                                         <div class="form-body">
@@ -73,8 +72,8 @@
                                                 <div class="col-md-9 col-sm-9">
                                                     @foreach (var attribute in Model.ProductAttributes)
                                                     {
-                                                        string controlId = string.Format("product_attribute_{0}", attribute.Id);
-                                                        <div id="@string.Format("pnl_attribute_values_{0}", attribute.Id)">
+                                                        var controlId = $"product_attribute_{attribute.Id}";
+                                                        <div id="@($"pnl_attribute_values_{attribute.Id}")">
                                                             @switch (attribute.AttributeControlType)
                                                             {
                                                                 case AttributeControlType.DropdownList:

@@ -14,16 +14,16 @@ namespace Grand.Web.Admin.Validators.Customers
             : base(validators)
         {
             RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Admin.System.UserApi.Email.Required"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Email))
                 {
                     var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
-                    if (customer != null && customer.Active && !customer.IsSystemAccount)
+                    if (customer is { Active: true, IsSystemAccount: false })
                         return true;
                 }
                 return false;
-            }).WithMessage(translationService.GetResource("Admin.System.UserApi.Email.CustomerNotExist")); ;
+            }).WithMessage(translationService.GetResource("Admin.System.UserApi.Email.CustomerNotExist")); 
         }
     }
 }

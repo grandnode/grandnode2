@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Cms
 {
-    public partial class WidgetModel : BaseModel
+    public class WidgetModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.FriendlyName")]
         

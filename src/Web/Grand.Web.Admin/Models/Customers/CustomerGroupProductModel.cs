@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class CustomerGroupProductModel: BaseEntityModel
+    public class CustomerGroupProductModel: BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Products.Fields.Name")]
         
@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Models.Customers
 
 
 
-        public partial class AddProductModel : BaseModel
+        public class AddProductModel : BaseModel
         {
             public AddProductModel()
             {

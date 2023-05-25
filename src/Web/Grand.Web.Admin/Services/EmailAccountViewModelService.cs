@@ -1,12 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class EmailAccountViewModelService : IEmailAccountViewModelService
+    public class EmailAccountViewModelService : IEmailAccountViewModelService
     {
         private readonly IEmailAccountService _emailAccountService;
         private readonly IEmailSender _emailSender;
@@ -45,8 +45,8 @@ namespace Grand.Web.Admin.Services
         
         public virtual async Task SendTestEmail(EmailAccount emailAccount, EmailAccountModel model)
         {
-            string subject = "Testing email functionality.";
-            string body = "Email works fine.";
+            var subject = "Testing email functionality.";
+            var body = "Email works fine.";
             await _emailSender.SendEmail(emailAccount, subject, body, emailAccount.Email, emailAccount.DisplayName, model.SendTestEmailTo, null);
         }
     }

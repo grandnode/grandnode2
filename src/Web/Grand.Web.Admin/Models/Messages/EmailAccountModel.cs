@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class EmailAccountModel : BaseEntityModel
+    public class EmailAccountModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Email")]
         public string Email { get; set; }

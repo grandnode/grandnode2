@@ -1,9 +1,9 @@
-﻿using Grand.Infrastructure.Mapper;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Pages;
-using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Pages;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class PageMappingExtensions
     {

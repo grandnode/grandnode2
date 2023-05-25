@@ -18,7 +18,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -26,6 +25,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.Extensions;
@@ -37,7 +37,7 @@ using System.Net;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class OrderViewModelService : IOrderViewModelService
+    public class OrderViewModelService : IOrderViewModelService
     {
         #region Fields
 
@@ -189,7 +189,7 @@ namespace Grand.Web.Admin.Services
             var statuses = await _orderStatusService.GetAll();
             var model = new OrderListModel
             {
-                AvailableOrderStatuses = statuses.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
+                AvailableOrderStatuses = statuses.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
             };
             model.AvailableOrderStatuses.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             if (orderStatusId.HasValue)
@@ -213,7 +213,7 @@ namespace Grand.Web.Admin.Services
 
             //order's tags
             model.AvailableOrderTags.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-            foreach (var s in (await _orderTagService.GetAllOrderTags()))
+            foreach (var s in await _orderTagService.GetAllOrderTags())
             {
                 model.AvailableOrderTags.Add(new SelectListItem { Text = s.Name, Value = s.Id });
             }
@@ -232,17 +232,17 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var w in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id.ToString() });
+                model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id });
 
             //payment methods
             model.AvailablePaymentMethods.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
@@ -252,7 +252,7 @@ namespace Grand.Web.Admin.Services
             //billing countries
             foreach (var c in await _countryService.GetAllCountriesForBilling(showHidden: true))
             {
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
             }
             model.AvailableCountries.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
@@ -268,15 +268,15 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<OrderModel> orderModels, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)(model.ShippingStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
 
             var filterByProductId = "";
@@ -334,7 +334,7 @@ namespace Grand.Web.Admin.Services
                     ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
                     CustomerEmail = x.BillingAddress?.Email,
                     CustomerId = x.CustomerId,
-                    CustomerFullName = string.Format("{0} {1}", x.BillingAddress?.FirstName, x.BillingAddress?.LastName),
+                    CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
@@ -357,7 +357,7 @@ namespace Grand.Web.Admin.Services
             model.OrderGuid = order.OrderGuid;
 
             var status = await _orderStatusService.GetAll();
-            model.OrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
 
             var store = await _storeService.GetStoreById(order.StoreId);
@@ -399,7 +399,7 @@ namespace Grand.Web.Admin.Services
             model.IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer);
 
             //order's tags
-            if (order != null && order.OrderTags.Any())
+            if (order.OrderTags.Any())
             {
                 var tagsName = new List<string>();
                 foreach (var item in order.OrderTags)
@@ -413,10 +413,7 @@ namespace Grand.Web.Admin.Services
 
             #region Order totals
 
-            var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode);
-
-            if (primaryStoreCurrency == null)
-                primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+            var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ?? await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
 
             if (primaryStoreCurrency == null)
                 throw new Exception("Cannot load primary store currency");
@@ -431,8 +428,8 @@ namespace Grand.Web.Admin.Services
             model.OrderSubtotalInclTaxValue = order.OrderSubtotalInclTax;
             model.OrderSubtotalExclTaxValue = order.OrderSubtotalExclTax;
             //discount (applied to order subtotal)
-            string orderSubtotalDiscountInclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency, _workContext.WorkingLanguage, true);
-            string orderSubtotalDiscountExclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency, _workContext.WorkingLanguage, false);
+            var orderSubtotalDiscountInclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency, _workContext.WorkingLanguage, true);
+            var orderSubtotalDiscountExclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency, _workContext.WorkingLanguage, false);
             if (order.OrderSubTotalDiscountInclTax > 0)
                 model.OrderSubTotalDiscountInclTax = orderSubtotalDiscountInclTaxStr;
             if (order.OrderSubTotalDiscountExclTax > 0)
@@ -457,14 +454,14 @@ namespace Grand.Web.Admin.Services
 
             //tax
             model.Tax = await _priceFormatter.FormatPrice(order.OrderTax, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
-            bool displayTaxRates = _taxSettings.DisplayTaxRates && order.OrderTaxes.Any();
-            bool displayTax = !displayTaxRates;
+            var displayTaxRates = _taxSettings.DisplayTaxRates && order.OrderTaxes.Any();
+            var displayTax = !displayTaxRates;
             foreach (var tr in order.OrderTaxes)
             {
                 model.TaxRates.Add(new OrderModel.TaxRate
                 {
                     Rate = _priceFormatter.FormatTaxRate(tr.Percent),
-                    Value = await _priceFormatter.FormatPrice(tr.Amount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage),
+                    Value = await _priceFormatter.FormatPrice(tr.Amount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage)
                 });
             }
             model.DisplayTaxRates = displayTaxRates;
@@ -486,7 +483,7 @@ namespace Grand.Web.Admin.Services
                     model.GiftVouchers.Add(new OrderModel.GiftVoucher
                     {
                         CouponCode = giftVoucher.Code,
-                        Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage),
+                        Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage)
                     });
                 }
             }
@@ -522,7 +519,7 @@ namespace Grand.Web.Admin.Services
                     model.UsedDiscounts.Add(new OrderModel.UsedDiscountModel
                     {
                         DiscountId = d.DiscountId,
-                        DiscountName = discount.Name,
+                        DiscountName = discount.Name
                     });
                 }
             }
@@ -533,7 +530,7 @@ namespace Grand.Web.Admin.Services
                 var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
                 if (order.CurrencyRate > 0)
                 {
-                    var profit = Convert.ToDouble((order.OrderTotal / order.CurrencyRate) - (order.OrderShippingExclTax / order.CurrencyRate) - (order.OrderTax / order.CurrencyRate) - productCost);
+                    var profit = Convert.ToDouble(order.OrderTotal / order.CurrencyRate - order.OrderShippingExclTax / order.CurrencyRate - order.OrderTax / order.CurrencyRate - productCost);
                     model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
                 }
             }
@@ -655,20 +652,18 @@ namespace Grand.Web.Admin.Services
                         model.ShippingAddress.FaxRequired = _addressSettings.FaxRequired;
                         model.ShippingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-                        model.ShippingAddressGoogleMapsUrl = string.Format("http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={0}", WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!String.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : "")));
+                        model.ShippingAddressGoogleMapsUrl =
+                            $"http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : ""))}";
                     }
                 }
                 else
                 {
-                    if (order.PickupPoint != null)
+                    if (order.PickupPoint is { Address: not null })
                     {
-                        if (order.PickupPoint.Address != null)
-                        {
-                            model.PickupAddress = await order.PickupPoint.Address.ToModel(_countryService);
-                            var country = await _countryService.GetCountryById(order.PickupPoint.Address.CountryId);
-                            if (country != null)
-                                model.PickupAddress.CountryName = country.Name;
-                        }
+                        model.PickupAddress = await order.PickupPoint.Address.ToModel(_countryService);
+                        var country = await _countryService.GetCountryById(order.PickupPoint.Address.CountryId);
+                        if (country != null)
+                            model.PickupAddress.CountryName = country.Name;
                     }
                 }
                 model.ShippingMethod = order.ShippingMethod;
@@ -694,7 +689,7 @@ namespace Grand.Web.Admin.Services
             #region Products
 
             model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
-            bool hasDownloadableItems = false;
+            var hasDownloadableItems = false;
             var products = order.OrderItems;
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -727,11 +722,11 @@ namespace Grand.Web.Admin.Services
                         IsDownload = product.IsDownload,
                         DownloadCount = orderItem.DownloadCount,
                         DownloadActivationType = product.DownloadActivationTypeId,
-                        IsDownloadActivated = orderItem.IsDownloadActivated,
+                        IsDownloadActivated = orderItem.IsDownloadActivated
                     };
                     //picture
                     var orderItemPicture = await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
-                    orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75, true);
+                    orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75);
 
                     //license file
                     if (!string.IsNullOrEmpty(orderItem.LicenseDownloadId))
@@ -802,11 +797,11 @@ namespace Grand.Web.Admin.Services
             var model = new OrderModel.AddOrderProductModel
             {
                 OrderId = order.Id,
-                OrderNumber = order.OrderNumber
+                OrderNumber = order.OrderNumber,
+                //product types
+                AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList()
             };
 
-            //product types
-            model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
             model.AvailableProductTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "0" });
 
             return await Task.FromResult(model);
@@ -823,8 +818,8 @@ namespace Grand.Web.Admin.Services
             var presetQty = 1;
             var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty)).finalPrice;
             var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
-            double presetPriceInclTax = productPrice.productprice;
-            double presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
+            var presetPriceInclTax = productPrice.productprice;
+            var presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
 
             var model = new OrderModel.AddOrderProductModel.ProductDetailsModel
             {
@@ -919,13 +914,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
             //states
-            var states = !String.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            var states = !string.IsNullOrEmpty(address.CountryId) ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces : new List<StateProvince>();
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
             }
 
             //customer attribute services
@@ -946,8 +941,8 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = orderNote.Id,
                     OrderId = order.Id,
-                    DownloadId = String.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadId = string.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = orderNote.DisplayToCustomer,
                     Note = orderNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc),
@@ -965,7 +960,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 OrderId = order.Id,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _orderService.InsertOrderNote(orderNote);
 
@@ -1015,7 +1010,7 @@ namespace Grand.Web.Admin.Services
                 Note = "Address has been edited",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
             });
             _ = LogEditOrder(order.Id);
             return address;
@@ -1028,10 +1023,10 @@ namespace Grand.Web.Admin.Services
             //save order item
 
             //basic properties
-            double.TryParse(form["UnitPriceInclTax"], out double unitPriceInclTax);
-            double.TryParse(form["UnitPriceExclTax"], out double unitPriceExclTax);
-            int.TryParse(form["Quantity"], out int quantity);
-            int.TryParse(form["TaxRate"], out int taxRate);
+            double.TryParse(form["UnitPriceInclTax"], out var unitPriceInclTax);
+            double.TryParse(form["UnitPriceExclTax"], out var unitPriceExclTax);
+            int.TryParse(form["Quantity"], out var quantity);
+            int.TryParse(form["TaxRate"], out var taxRate);
 
             //attributes
             //warnings
@@ -1043,7 +1038,7 @@ namespace Grand.Web.Admin.Services
             var attributes = product.ProductAttributeMappings;
             foreach (var attribute in attributes)
             {
-                string controlId = string.Format("product_attribute_{0}", attribute.Id);
+                var controlId = $"product_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlTypeId)
                 {
                     case AttributeControlType.DropdownList:
@@ -1082,7 +1077,7 @@ namespace Grand.Web.Admin.Services
                                 .ToList())
                             {
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
-                                    attribute, selectedAttributeId.ToString()).ToList();
+                                    attribute, selectedAttributeId).ToList();
                             }
                         }
                         break;
@@ -1090,9 +1085,9 @@ namespace Grand.Web.Admin.Services
                     case AttributeControlType.MultilineTextbox:
                         {
                             form.TryGetValue(controlId, out var ctrlAttributes);
-                            if (!String.IsNullOrEmpty(ctrlAttributes))
+                            if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                     attribute, enteredText).ToList();
                             }
@@ -1106,7 +1101,7 @@ namespace Grand.Web.Admin.Services
                             DateTime? selectedDate = null;
                             try
                             {
-                                selectedDate = new DateTime(Int32.Parse(year), Int32.Parse(month), Int32.Parse(day));
+                                selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
                             }
                             catch { }
                             if (selectedDate.HasValue)
@@ -1128,8 +1123,6 @@ namespace Grand.Web.Admin.Services
                             }
                         }
                         break;
-                    default:
-                        break;
                 }
             }
             //validate conditional attributes (if specified)
@@ -1146,14 +1139,14 @@ namespace Grand.Web.Admin.Services
 
             #region Gift vouchers
 
-            string recipientName = "";
-            string recipientEmail = "";
-            string senderName = "";
-            string senderEmail = "";
-            string giftVoucherMessage = "";
+            var recipientName = "";
+            var recipientEmail = "";
+            var senderName = "";
+            var senderEmail = "";
+            var giftVoucherMessage = "";
             if (product.IsGiftVoucher)
             {
-                foreach (string formKey in form.Keys)
+                foreach (var formKey in form.Keys)
                 {
                     if (formKey.Equals("giftvoucher.RecipientName", StringComparison.OrdinalIgnoreCase))
                     {
@@ -1178,7 +1171,6 @@ namespace Grand.Web.Admin.Services
                     if (formKey.Equals("giftvoucher.Message", StringComparison.OrdinalIgnoreCase))
                     {
                         giftVoucherMessage = form[formKey];
-                        continue;
                     }
                 }
                 customattributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customattributes,
@@ -1188,10 +1180,7 @@ namespace Grand.Web.Admin.Services
             #endregion
 
             //warnings
-            var shoppingCartService = _serviceProvider.GetRequiredService<IShoppingCartService>();
-            var inventoryManageService = _serviceProvider.GetRequiredService<IInventoryManageService>();
-
-            var shoppingCartItem = new ShoppingCartItem() {
+            var shoppingCartItem = new ShoppingCartItem {
                 ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
                 Quantity = quantity,
                 WarehouseId = product.WarehouseId,
@@ -1205,7 +1194,7 @@ namespace Grand.Web.Admin.Services
                 //no errors
                 var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
                 //attributes
-                string attributeDescription = await productAttributeFormatter.FormatAttributes(product, customattributes, customer);
+                var attributeDescription = await productAttributeFormatter.FormatAttributes(product, customattributes, customer);
 
                 //save item
                 var orderItem = new OrderItem
@@ -1232,10 +1221,10 @@ namespace Grand.Web.Admin.Services
                     IsDownloadActivated = false,
                     LicenseDownloadId = "",
                     IsShipEnabled = product.IsShipEnabled,
-                    CreatedOnUtc = DateTime.UtcNow,
+                    CreatedOnUtc = DateTime.UtcNow
                 };
 
-                await _mediator.Send(new InsertOrderItemCommand() { Order = order, OrderItem = orderItem, Product = product });
+                await _mediator.Send(new InsertOrderItemCommand { Order = order, OrderItem = orderItem, Product = product });
 
                 _ = LogEditOrder(order.Id);
 
@@ -1245,15 +1234,15 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IList<Order>> PrepareOrders(OrderListModel model)
         {
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)(model.PaymentStatusId) : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)(model.ShippingStatusId) : null;
+            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
             var filterByProductId = "";
             var product = await _productService.GetProductById(model.ProductId);

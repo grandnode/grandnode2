@@ -10,7 +10,6 @@ using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
@@ -19,14 +18,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
-    public partial class HomeController : BaseAdminController
+    public class HomeController : BaseAdminController
     {
         #region Fields
 
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
         private readonly IUserFieldService _userFieldService;
-        private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IOrderReportService _orderReportService;
@@ -43,7 +41,6 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IStoreService storeService,
             IUserFieldService userFieldService,
-            GoogleAnalyticsSettings googleAnalyticsSettings,
             IWorkContext workContext,
             IGroupService groupService,
             IOrderReportService orderReportService,
@@ -55,7 +52,6 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _storeService = storeService;
             _userFieldService = userFieldService;
-            _googleAnalyticsSettings = googleAnalyticsSettings;
             _workContext = workContext;
             _groupService = groupService;
             _orderReportService = orderReportService;
@@ -72,7 +68,7 @@ namespace Grand.Web.Admin.Controllers
         private async Task<DashboardActivityModel> PrepareActivityModel()
         {
             var model = new DashboardActivityModel();
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
                 vendorId = _workContext.CurrentVendor.Id;
 
@@ -81,16 +77,16 @@ namespace Grand.Web.Admin.Controllers
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             model.OrdersPending = (await _orderReportService.GetOrderAverageReportLine(storeId: storeId, os: (int)OrderStatusSystem.Pending)).CountOrders;
-            model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery() { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
+            model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
 
             var lowStockProducts = await _productsReportService.LowStockProducts(vendorId, storeId);
             model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
 
-            model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery() { RequestStatusId = 0, StoreId = storeId });
+            model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery { RequestStatusId = 0, StoreId = storeId });
             model.TodayRegisteredCustomers =
-                (await _mediator.Send(new GetCustomerQuery() {
+                (await _mediator.Send(new GetCustomerQuery {
                     StoreId = storeId,
-                    CustomerGroupIds = new string[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
+                    CustomerGroupIds = new[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
                     CreatedFromUtc = DateTime.UtcNow.Date
                 })).Count();
             return model;
@@ -106,11 +102,6 @@ namespace Grand.Web.Admin.Controllers
             var model = new DashboardModel {
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
-            if (string.IsNullOrEmpty(_googleAnalyticsSettings.gaprivateKey) ||
-                string.IsNullOrEmpty(_googleAnalyticsSettings.gaserviceAccountEmail) ||
-                string.IsNullOrEmpty(_googleAnalyticsSettings.gaviewID))
-                model.HideReportGA = true;
-
             return View(model);
         }
 
@@ -137,7 +128,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //home page
-            if (String.IsNullOrEmpty(returnUrl))
+            if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
             //prevent open redirection attack
             if (!Url.IsLocalUrl(returnUrl))
@@ -175,8 +166,8 @@ namespace Grand.Web.Admin.Controllers
             string countryId, bool? addSelectStateItem, bool? addAsterisk)
         {
             // This action method gets called via an ajax request
-            if (String.IsNullOrEmpty(countryId))
-                return Json(new List<dynamic>() { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
+            if (string.IsNullOrEmpty(countryId))
+                return Json(new List<dynamic> { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
 
             var country = await countryService.GetCountryById(countryId);
             var states = country != null ? country.StateProvinces.ToList() : new List<StateProvince>();
@@ -218,11 +209,12 @@ namespace Grand.Web.Admin.Controllers
             var currentCustomer = _workContext.CurrentCustomer;
             if (currentCustomer == null || await _groupService.IsGuest(currentCustomer))
             {
-                _ = _logger.Information(string.Format("Access denied to anonymous request on {0}", pageUrl));
+                _ = _logger.Information($"Access denied to anonymous request on {pageUrl}");
                 return View();
             }
 
-            _ = _logger.Information(string.Format("Access denied to user #{0} '{1}' on {2}", currentCustomer.Email, currentCustomer.Email, pageUrl));
+            _ = _logger.Information(
+                $"Access denied to user #{currentCustomer.Email} '{currentCustomer.Email}' on {pageUrl}");
 
 
             return View();

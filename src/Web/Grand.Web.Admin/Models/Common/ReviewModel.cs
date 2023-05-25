@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class ReviewModel : BaseEntityModel
+    public class ReviewModel : BaseEntityModel
     {
         /// <summary>
         /// Gets or sets the title

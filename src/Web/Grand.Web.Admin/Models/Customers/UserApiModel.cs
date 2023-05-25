@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class UserApiModel : BaseEntityModel
+    public class UserApiModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.System.UserApi.Email")]
         public string Email { get; set; }

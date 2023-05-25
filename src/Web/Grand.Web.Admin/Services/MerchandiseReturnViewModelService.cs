@@ -14,7 +14,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Orders;
@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelService
+    public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelService
     {
         #region Fields
 
@@ -102,7 +102,7 @@ namespace Grand.Web.Admin.Services
             double unitPriceInclTaxInCustomerCurrency = 0;
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).First();
+                var orderItem = order.OrderItems.First(x => x.Id == item.OrderItemId);
                 unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
             }
 
@@ -129,7 +129,7 @@ namespace Grand.Web.Admin.Services
             if (!excludeProperties)
             {
                 var addr = new AddressModel();
-                model.PickupAddress = await PrepareAddressModel(addr, merchandiseReturn.PickupAddress, excludeProperties);
+                model.PickupAddress = await PrepareAddressModel(addr, merchandiseReturn.PickupAddress, false);
                 model.CustomerComments = merchandiseReturn.CustomerComments;
                 model.ExternalId = merchandiseReturn.ExternalId;
                 model.StaffNotes = merchandiseReturn.StaffNotes;
@@ -140,7 +140,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IList<MerchandiseReturnModel> merchandiseReturnModels, int totalCount)> PrepareMerchandiseReturnModel(MerchandiseReturnListModel model, int pageIndex, int pageSize)
         {
-            string customerId = string.Empty;
+            var customerId = string.Empty;
             if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
             {
                 var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant());
@@ -149,18 +149,18 @@ namespace Grand.Web.Admin.Services
                 else
                     customerId = "00000000-0000-0000-0000-000000000000";
             }
-            DateTime? startDateValue = (model.StartDate == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.StartDate == null ? null
+                : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.EndDate == null) ? null
-                : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? endDateValue = model.EndDate == null ? null
+                : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
             var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(model.StoreId,
                 customerId,
                 "",
                 _workContext.CurrentVendor?.Id,
                 "",
-                (model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null),
+                model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null,
                 pageIndex - 1,
                 pageSize,
                 startDateValue,
@@ -215,13 +215,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.CountryId) });
+                model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.CountryId });
             //states
-            var states = !String.IsNullOrEmpty(model.CountryId) ? (await _countryService.GetCountryById(model.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.CountryId) ? (await _countryService.GetCountryById(model.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                    model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
             }
             //customer attribute services
             await model.PrepareCustomAddressAttributes(address, _addressAttributeService, _addressAttributeParser);
@@ -253,7 +253,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
-                var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).FirstOrDefault();
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
 
                 items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel
                 {
@@ -316,8 +316,8 @@ namespace Grand.Web.Admin.Services
                 {
                     Id = merchandiseReturnNote.Id,
                     MerchandiseReturnId = merchandiseReturn.Id,
-                    DownloadId = String.IsNullOrEmpty(merchandiseReturnNote.DownloadId) ? "" : merchandiseReturnNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadId = string.IsNullOrEmpty(merchandiseReturnNote.DownloadId) ? "" : merchandiseReturnNote.DownloadId,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = merchandiseReturnNote.DisplayToCustomer,
                     Note = merchandiseReturnNote.Note,
                     CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc),
@@ -335,7 +335,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 MerchandiseReturnId = merchandiseReturn.Id,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 

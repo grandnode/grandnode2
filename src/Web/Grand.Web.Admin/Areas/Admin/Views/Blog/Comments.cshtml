@@ -28,10 +28,10 @@
 </div>
 
 @{
-    string readUrl = "";
+    var readUrl = "";
     if (!string.IsNullOrEmpty(filterByBlogPostId))
     {
-        readUrl = Url.Action("Comments", "Blog", new { filterByBlogPostId = filterByBlogPostId, area = Constants.AreaAdmin });
+        readUrl = Url.Action("Comments", "Blog", new { filterByBlogPostId, area = Constants.AreaAdmin });
     }
     else
     {

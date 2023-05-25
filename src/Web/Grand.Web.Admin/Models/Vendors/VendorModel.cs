@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Vendors
 {
-    public partial class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel>
+    public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel>
     {
         public VendorModel()
         {
@@ -106,7 +106,7 @@ namespace Grand.Web.Admin.Models.Vendors
         }
 
 
-        public partial class VendorNote : BaseEntityModel
+        public class VendorNote : BaseEntityModel
         {
             public string VendorId { get; set; }
             [GrandResourceDisplayName("Admin.Vendors.VendorNotes.Fields.Note")]
@@ -118,7 +118,7 @@ namespace Grand.Web.Admin.Models.Vendors
 
     }
 
-    public partial class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Directory
 {
-    public partial class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedModel>, IStoreLinkModel
+    public class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedModel>, IStoreLinkModel
     {
         public CurrencyModel()
         {
@@ -64,7 +64,7 @@ namespace Grand.Web.Admin.Models.Directory
 
     }
 
-    public partial class CurrencyLocalizedModel : ILocalizedModelLocal
+    public class CurrencyLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

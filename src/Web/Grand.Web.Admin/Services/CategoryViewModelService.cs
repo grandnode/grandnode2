@@ -14,6 +14,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
@@ -22,7 +23,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CategoryViewModelService : ICategoryViewModelService
+    public class CategoryViewModelService : ICategoryViewModelService
     {
         private readonly ICategoryService _categoryService;
         private readonly IProductCategoryService _productCategoryService;
@@ -128,7 +129,7 @@ namespace Grand.Web.Admin.Services
             var model = new CategoryListModel();
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
             return model;
         }
 
@@ -215,7 +216,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Category> UpdateCategoryModel(Category category, CategoryModel model)
         {
-            string prevPictureId = category.PictureId;
+            var prevPictureId = category.PictureId;
             category = model.ToEntity(category);
             category.UpdatedOnUtc = DateTime.UtcNow;
             model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService, _languageService);
@@ -308,7 +309,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCategory = product.ProductCategories.Where(x => x.Id == id).FirstOrDefault();
+            var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
             await _productCategoryService.DeleteProductCategory(productCategory, product.Id);
@@ -320,12 +321,12 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
@@ -335,18 +336,18 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCategoryProductModel(CategoryModel.AddCategoryProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    if (product.ProductCategories.Where(x => x.CategoryId == model.CategoryId).Count() == 0)
+                    if (!product.ProductCategories.Any(x => x.CategoryId == model.CategoryId))
                     {
                         await _productCategoryService.InsertProductCategory(
                             new ProductCategory {
                                 CategoryId = model.CategoryId,
                                 IsFeaturedProduct = false,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             }, product.Id);
                     }
                 }

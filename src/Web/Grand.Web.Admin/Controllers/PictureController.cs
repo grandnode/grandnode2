@@ -12,7 +12,7 @@ using Grand.Web.Common.Extensions;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Pictures)]
-    public partial class PictureController : BaseAdminController
+    public class PictureController : BaseAdminController
     {
         private readonly IPictureService _pictureService;
         private readonly IPermissionService _permissionService;
@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "No file uploaded",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
             }
             if (reference != Reference.None && string.IsNullOrEmpty(objectId))
@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     success = false,
                     message = "Please save form before upload new picture",
-                    downloadGuid = Guid.Empty,
+                    downloadGuid = Guid.Empty
                 });
 
             var qqFileNameParameter = "qqfilename";
@@ -108,7 +108,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "No file uploaded",
+                    message = "No file uploaded"
                 });
             }
 
@@ -156,9 +156,9 @@ namespace Grand.Web.Admin.Controllers
                     var filepath = _mediaFileStore.GetDirectoryInfo("");
                     if (filepath != null)
                     {
-                        using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
+                        await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                         {
-                            httpPostedFile.CopyTo(stream);
+                            await httpPostedFile.CopyToAsync(stream);
                         }
                         return Json(new
                         {
@@ -187,9 +187,9 @@ namespace Grand.Web.Admin.Controllers
                 var filepath = _mediaFileStore.GetDirectoryInfo("");
                 if (filepath != null)
                 {
-                    using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
+                    await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
                     {
-                        httpPostedFile.CopyTo(stream);
+                        await httpPostedFile.CopyToAsync(stream);
                     }
                     return Json(new
                     {

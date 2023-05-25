@@ -6,7 +6,7 @@ using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Blogs
 {
-    public partial class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel>, IStoreLinkModel
+    public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel>, IStoreLinkModel
     {
         public BlogPostModel()
         {
@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Models.Blogs
 
     }
 
-    public partial class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

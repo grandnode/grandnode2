@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Campaigns)]
-    public partial class CampaignController : BaseAdminController
+    public class CampaignController : BaseAdminController
     {
         private readonly ICampaignService _campaignService;
         private readonly ICampaignViewModelService _campaignViewModelService;
@@ -87,8 +87,8 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult {
                 Data = history.Select(x => new
                 {
-                    Email = x.Email,
-                    SentDate = x.CreatedDateUtc,
+                    x.Email,
+                    SentDate = x.CreatedDateUtc
                 }),
                 Total = history.TotalCount
             };
@@ -109,7 +109,8 @@ namespace Grand.Web.Admin.Controllers
                     sb.Append(subscription);
                     sb.Append(Environment.NewLine);  //new line
                 }
-                var fileName = string.Format("newsletter_emails_campaign_{0}_{1}.txt", campaign.Name, CommonHelper.GenerateRandomDigitCode(4));
+                var fileName =
+                    $"newsletter_emails_campaign_{campaign.Name}_{CommonHelper.GenerateRandomDigitCode(4)}.txt";
                 return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", fileName);
             }
             catch (Exception exc)
@@ -242,7 +243,6 @@ namespace Grand.Web.Admin.Controllers
 
                 //subscribers of certain store?
                 var store = await _storeService.GetStoreById(campaign.StoreId);
-                var storeId = store != null ? store.Id : "";
                 var subscriptions = await _campaignService.CustomerSubscriptions(campaign);
                 var totalEmailsSent = await _campaignService.SendCampaign(campaign, emailAccount, subscriptions);
                 Success(string.Format(_translationService.GetResource("admin.marketing.Campaigns.MassEmailSentToCustomers"), totalEmailsSent), false);

@@ -60,13 +60,7 @@
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
-                    },
-                    update: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationUpdate", "Product", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
+                    },                    
                     destroy: {
                         url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product", new { area = Constants.AreaAdmin }))",
                         type: "POST",

@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class OrderModel : BaseEntityModel
+    public class OrderModel : BaseEntityModel
     {
         public OrderModel()
         {
@@ -217,7 +217,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         #region Nested Classes
 
-        public partial class OrderItemModel : BaseEntityModel
+        public class OrderItemModel : BaseEntityModel
         {
             public OrderItemModel()
             {
@@ -268,20 +268,20 @@ namespace Grand.Web.Admin.Models.Orders
             public double CommissionValue { get; set; }
         }
 
-        public partial class TaxRate : BaseModel
+        public class TaxRate : BaseModel
         {
             public string Rate { get; set; }
             public string Value { get; set; }
         }
 
-        public partial class GiftVoucher : BaseModel
+        public class GiftVoucher : BaseModel
         {
             [GrandResourceDisplayName("Admin.Orders.Fields.GiftVoucherInfo")]
             public string CouponCode { get; set; }
             public string Amount { get; set; }
         }
 
-        public partial class OrderNote : BaseEntityModel
+        public class OrderNote : BaseEntityModel
         {
             public string OrderId { get; set; }
             [GrandResourceDisplayName("Admin.Orders.OrderNotes.Fields.DisplayToCustomer")]
@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Models.Orders
             public bool CreatedByCustomer { get; set; }
         }
 
-        public partial class UploadLicenseModel : BaseModel
+        public class UploadLicenseModel : BaseModel
         {
             public string OrderId { get; set; }
 
@@ -309,7 +309,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         }
 
-        public partial class AddOrderProductModel : BaseModel
+        public class AddOrderProductModel : BaseModel
         {
             public AddOrderProductModel()
             {
@@ -338,7 +338,7 @@ namespace Grand.Web.Admin.Models.Orders
             public int OrderNumber { get; set; }
             #region Nested classes
 
-            public partial class ProductModel : BaseEntityModel
+            public class ProductModel : BaseEntityModel
             {
                 [GrandResourceDisplayName("Admin.Orders.Products.AddNew.Name")]
 
@@ -349,7 +349,7 @@ namespace Grand.Web.Admin.Models.Orders
                 public string Sku { get; set; }
             }
 
-            public partial class ProductDetailsModel : BaseModel
+            public class ProductDetailsModel : BaseModel
             {
                 public ProductDetailsModel()
                 {
@@ -387,7 +387,7 @@ namespace Grand.Web.Admin.Models.Orders
 
             }
 
-            public partial class ProductAttributeModel : BaseEntityModel
+            public class ProductAttributeModel : BaseEntityModel
             {
                 public ProductAttributeModel()
                 {
@@ -407,7 +407,7 @@ namespace Grand.Web.Admin.Models.Orders
                 public IList<ProductAttributeValueModel> Values { get; set; }
             }
 
-            public partial class ProductAttributeValueModel : BaseEntityModel
+            public class ProductAttributeValueModel : BaseEntityModel
             {
                 public string Name { get; set; }
 
@@ -415,7 +415,7 @@ namespace Grand.Web.Admin.Models.Orders
             }
 
 
-            public partial class GiftVoucherModel : BaseModel
+            public class GiftVoucherModel : BaseModel
             {
                 public bool IsGiftVoucher { get; set; }
 
@@ -440,7 +440,7 @@ namespace Grand.Web.Admin.Models.Orders
             #endregion
         }
 
-        public partial class UsedDiscountModel : BaseModel
+        public class UsedDiscountModel : BaseModel
         {
             public string DiscountId { get; set; }
             public string DiscountName { get; set; }

@@ -14,7 +14,7 @@ namespace Grand.Web.Admin.Validators.Knowledgebase
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name.Required"));
-            RuleFor(x => x.ParentCategoryId).MustAsync(async (x, y, context) =>
+            RuleFor(x => x.ParentCategoryId).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ParentCategoryId))
                 {

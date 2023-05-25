@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class GiftVoucherListModel : BaseModel
+    public class GiftVoucherListModel : BaseModel
     {
         public GiftVoucherListModel()
         {

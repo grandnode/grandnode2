@@ -13,6 +13,7 @@ using Grand.Domain.Courses;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Courses;
@@ -23,7 +24,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CourseViewModelService : ICourseViewModelService
+    public class CourseViewModelService : ICourseViewModelService
     {
         private readonly ICourseService _courseService;
         private readonly ICourseLevelService _courseLevelService;
@@ -80,14 +81,14 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
             {
-                model = new CourseModel();
-                model.Published = true;
+                model = new CourseModel {
+                    Published = true
+                };
             }
 
             foreach (var item in await _courseLevelService.GetAll())
             {
-                model.AvailableLevels.Add(new SelectListItem()
-                {
+                model.AvailableLevels.Add(new SelectListItem {
                     Text = item.Name,
                     Value = item.Id
                 });
@@ -133,8 +134,8 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Course> UpdateCourseModel(Course course, CourseModel model)
         {
-            string prevPictureId = course.PictureId;
-            string prevProductId = course.ProductId;
+            var prevPictureId = course.PictureId;
+            var prevProductId = course.ProductId;
 
             course = model.ToEntity(course);
             course.UpdatedOnUtc = DateTime.UtcNow;
@@ -183,15 +184,15 @@ namespace Grand.Web.Admin.Services
         {
             if (model == null)
             {
-                model = new CourseLessonModel();
-                model.Published = true;
+                model = new CourseLessonModel {
+                    Published = true
+                };
             }
             model.CourseId = courseId;
 
             foreach (var item in await _courseSubjectService.GetByCourseId(courseId))
             {
-                model.AvailableSubjects.Add(new SelectListItem()
-                {
+                model.AvailableSubjects.Add(new SelectListItem {
                     Text = item.Name,
                     Value = item.Id
                 });
@@ -216,7 +217,7 @@ namespace Grand.Web.Admin.Services
             var prevAttachmentId = lesson.AttachmentId;
             var prevVideoFile = lesson.VideoFile;
 
-            string prevPictureId = lesson.PictureId;
+            var prevPictureId = lesson.PictureId;
             lesson = model.ToEntity(lesson);
             await _courseLessonService.Update(lesson);
 
@@ -286,13 +287,13 @@ namespace Grand.Web.Admin.Services
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             var storeService = _serviceProvider.GetRequiredService<IStoreService>();
             foreach (var s in await storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             var vendorService = _serviceProvider.GetRequiredService<IVendorService>();
             foreach (var v in await vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();

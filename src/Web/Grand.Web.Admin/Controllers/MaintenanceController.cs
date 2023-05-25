@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class MaintenanceController : BaseAdminController
+    public class MaintenanceController : BaseAdminController
     {
         #region Fields
 
@@ -65,11 +65,11 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Maintenance()
         {
-            var model = new MaintenanceModel() {
-                DeleteGuests = new MaintenanceModel.DeleteGuestsModel() {
+            var model = new MaintenanceModel {
+                DeleteGuests = new MaintenanceModel.DeleteGuestsModel {
                     EndDate = DateTime.UtcNow.AddDays(-7),
-                    OnlyWithoutShoppingCart = true,
-                },
+                    OnlyWithoutShoppingCart = true
+                }
 
             };
 
@@ -94,11 +94,11 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MaintenanceDeleteGuests(MaintenanceModel model)
         {
-            DateTime? startDateValue = (model.DeleteGuests.StartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.DeleteGuests.StartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.DeleteGuests.EndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.DeleteGuests.EndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             TempData["NumberOfDeletedCustomers"] = await _customerService.DeleteGuestCustomers(startDateValue, endDateValue, model.DeleteGuests.OnlyWithoutShoppingCart);
 
@@ -193,8 +193,6 @@ namespace Grand.Web.Admin.Controllers
                 case 2:
                     active = false;
                     break;
-                default:
-                    break;
             }
             var entityUrls = await _slugService.GetAllEntityUrl(model.SeName, active, command.Page - 1, command.PageSize);
             var items = new List<UrlEntityModel>();
@@ -202,7 +200,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 //language
                 string languageName;
-                if (String.IsNullOrEmpty(x.LanguageId))
+                if (string.IsNullOrEmpty(x.LanguageId))
                 {
                     languageName = _translationService.GetResource("admin.configuration.senames.Language.Standard");
                 }
@@ -213,7 +211,7 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 //details URL
-                string detailsUrl = "";
+                var detailsUrl = "";
                 var entityName = x.EntityName != null ? x.EntityName.ToLowerInvariant() : "";
                 switch (entityName)
                 {
@@ -249,8 +247,6 @@ namespace Grand.Web.Admin.Controllers
                         break;
                     case "knowledgebasearticle":
                         detailsUrl = Url.Action("EditArticle", "Knowledgebase", new { id = x.EntityId, area = Constants.AreaAdmin });
-                        break;
-                    default:
                         break;
                 }
 
@@ -368,7 +364,7 @@ namespace Grand.Web.Admin.Controllers
                 var robotsTxt = await _robotsTxtService.GetRobotsTxt(storeScope);
                 if (robotsTxt == null)
                 {
-                    await _robotsTxtService.InsertRobotsTxt(new Domain.Common.RobotsTxt() {
+                    await _robotsTxtService.InsertRobotsTxt(new Domain.Common.RobotsTxt {
                         Name = model.Name,
                         Text = model.Text,
                         StoreId = storeScope

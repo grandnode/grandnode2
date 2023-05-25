@@ -25,6 +25,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Common;
@@ -39,7 +40,7 @@ using System.Net;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerViewModelService : ICustomerViewModelService
+    public class CustomerViewModelService : ICustomerViewModelService
     {
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
@@ -142,11 +143,11 @@ namespace Grand.Web.Admin.Services
         protected virtual string[] ParseCustomerTags(string customerTags)
         {
             var result = new List<string>();
-            if (!String.IsNullOrWhiteSpace(customerTags))
+            if (!string.IsNullOrWhiteSpace(customerTags))
             {
-                string[] values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string val1 in values)
-                    if (!String.IsNullOrEmpty(val1.Trim()))
+                var values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var val1 in values)
+                    if (!string.IsNullOrEmpty(val1.Trim()))
                         result.Add(val1.Trim());
             }
             return result.ToArray();
@@ -162,9 +163,9 @@ namespace Grand.Web.Admin.Services
             var customerTagsToRemove = new List<CustomerTag>();
             foreach (var existingCustomerTag in existingCustomerTags)
             {
-                bool found = false;
+                var found = false;
                 var existingCustomerTagName = await _customerTagService.GetCustomerTagById(existingCustomerTag);
-                foreach (string newCustomerTag in customerTags)
+                foreach (var newCustomerTag in customerTags)
                 {
                     if (existingCustomerTagName.Name.Equals(newCustomerTag, StringComparison.OrdinalIgnoreCase))
                     {
@@ -179,14 +180,14 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            foreach (string customerTagName in customerTags)
+            foreach (var customerTagName in customerTags)
             {
                 CustomerTag customerTag;
                 var customerTag2 = await _customerTagService.GetCustomerTagByName(customerTagName);
                 if (customerTag2 == null)
                 {
                     customerTag = new CustomerTag {
-                        Name = customerTagName,
+                        Name = customerTagName
                     };
                     await _customerTagService.InsertCustomerTag(customerTag);
                 }
@@ -204,7 +205,7 @@ namespace Grand.Web.Admin.Services
         protected virtual string GetCustomerGroupsNames(IList<CustomerGroup> customerGroups, string separator = ",")
         {
             var sb = new StringBuilder();
-            for (int i = 0; i < customerGroups.Count; i++)
+            for (var i = 0; i < customerGroups.Count; i++)
             {
                 sb.Append(customerGroups[i].Name);
                 if (i != customerGroups.Count - 1)
@@ -252,7 +253,7 @@ namespace Grand.Web.Admin.Services
                 CustomerGroupNames = GetCustomerGroupsNames(await _groupService.GetAllByIds(customer.Groups.ToArray())),
                 Active = customer.Active,
                 CreatedOn = _dateTimeService.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
-                LastActivityDate = _dateTimeService.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
+                LastActivityDate = _dateTimeService.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc)
             };
         }
 
@@ -290,7 +291,7 @@ namespace Grand.Web.Admin.Services
             {
                 model.AvailableStores.Add(new SelectListItem {
                     Text = store.Shortcut,
-                    Value = store.Id.ToString()
+                    Value = store.Id
                 });
             }
         }
@@ -304,7 +305,7 @@ namespace Grand.Web.Admin.Services
                     Id = attribute.Id,
                     Name = attribute.Name,
                     IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlTypeId,
+                    AttributeControlType = attribute.AttributeControlTypeId
                 };
 
                 if (attribute.ShouldHaveValues())
@@ -390,9 +391,9 @@ namespace Grand.Web.Admin.Services
                 CompanyEnabled = _customerSettings.CompanyEnabled,
                 PhoneEnabled = _customerSettings.PhoneEnabled,
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
-                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem() { Text = cr.Name, Value = cr.Id.ToString(), Selected = (cr.Id == registered.Id) }).ToList(),
-                AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem() { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
-                SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id).Id },
+                AvailableCustomerGroups = customerGroups.Select(cr => new SelectListItem { Text = cr.Name, Value = cr.Id.ToString(), Selected = cr.Id == registered.Id }).ToList(),
+                AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
+                SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id }
             };
             return model;
         }
@@ -474,14 +475,14 @@ namespace Grand.Web.Admin.Services
 
                     model.CustomerGroups = customer.Groups.ToArray();
                     //newsletter subscriptions
-                    if (!String.IsNullOrEmpty(customer.Email))
+                    if (!string.IsNullOrEmpty(customer.Email))
                     {
                         var newsletterSubscriptionStoreIds = new List<string>();
                         foreach (var store in allStores)
                         {
                             var newsletterSubscription = await _newsLetterSubscriptionService
                                 .GetNewsLetterSubscriptionByEmailAndStoreId(customer.Email, store.Id);
-                            if (newsletterSubscription != null && newsletterSubscription.Active)
+                            if (newsletterSubscription is { Active: true })
                                 newsletterSubscriptionStoreIds.Add(store.Id);
                         }
                         model.SelectedNewsletterSubscriptionStoreIds = newsletterSubscriptionStoreIds.ToArray();
@@ -549,7 +550,7 @@ namespace Grand.Web.Admin.Services
                 {
                     model.AvailableCountries.Add(new SelectListItem {
                         Text = c.Name,
-                        Value = c.Id.ToString(),
+                        Value = c.Id,
                         Selected = c.Id == model.CountryId
                     });
                 }
@@ -562,14 +563,14 @@ namespace Grand.Web.Admin.Services
                     if (states != null)
                         foreach (var s in states)
                         {
-                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
                         }
                 }
             }
 
             //newsletter subscriptions
             model.AvailableNewsletterSubscriptionStores = allStores
-                .Select(s => new StoreModel() { Id = s.Id, Name = s.Shortcut })
+                .Select(s => new StoreModel { Id = s.Id, Name = s.Shortcut })
                 .ToList();
 
 
@@ -585,8 +586,8 @@ namespace Grand.Web.Admin.Services
                 {
                     model.LoyaltyPointsAvailableStores.Add(new SelectListItem {
                         Text = store.Shortcut,
-                        Value = store.Id.ToString(),
-                        Selected = (store.Id == _workContext.CurrentStore.Id)
+                        Value = store.Id,
+                        Selected = store.Id == _workContext.CurrentStore.Id
                     });
                 }
 
@@ -634,7 +635,7 @@ namespace Grand.Web.Admin.Services
             if (!isInGuestsGroup && !isInRegisteredGroup)
                 return "Add the customer to 'Guests' or 'Registered' customer group";
 
-            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && ((isInGuestsGroup && !isInRegisteredGroup) || customerGroups.Count != 1))
+            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && (isInGuestsGroup || customerGroups.Count != 1))
                 return "Sales manager can assign role 'Registered' only";
 
             if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && isAdminGroup)
@@ -669,7 +670,7 @@ namespace Grand.Web.Admin.Services
                 OwnerId = ownerId,
                 Attributes = model.Attributes,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
 
             //user fields
@@ -753,7 +754,7 @@ namespace Grand.Web.Admin.Services
 
             //ensure that a customer with a vendor associated is not in "Administrators" role
             //otherwise, he won't be have access to the other functionality in admin area
-            if (await _groupService.IsAdmin(customer) && !String.IsNullOrEmpty(customer.VendorId))
+            if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.VendorId))
             {
                 customer.VendorId = "";
                 await _customerService.UpdateCustomerField(customer.Id, x => x.VendorId, customer.VendorId);
@@ -853,7 +854,7 @@ namespace Grand.Web.Admin.Services
 
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
                 //set VAT number status
-                if (!String.IsNullOrEmpty(model.VatNumber))
+                if (!string.IsNullOrEmpty(model.VatNumber))
                 {
                     if (!model.VatNumber.Equals(prevVatNumber, StringComparison.OrdinalIgnoreCase))
                     {
@@ -1034,7 +1035,7 @@ namespace Grand.Web.Admin.Services
             _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
         }
 
-        public virtual async Task DeleteSelected(IList<string> selectedIds)
+        public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
         {
             var customers = new List<Customer>();
             customers.AddRange(await _customerService.GetCustomersByIds(selectedIds.ToArray()));
@@ -1056,9 +1057,8 @@ namespace Grand.Web.Admin.Services
             var emailAccountSettings = _serviceProvider.GetRequiredService<EmailAccountSettings>();
             var queuedEmailService = _serviceProvider.GetRequiredService<IQueuedEmailService>();
 
-            var emailAccount = await emailAccountService.GetEmailAccountById(emailAccountSettings.DefaultEmailAccountId);
-            if (emailAccount == null)
-                emailAccount = (await emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
+            var emailAccount = await emailAccountService.GetEmailAccountById(emailAccountSettings.DefaultEmailAccountId) ??
+                               (await emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
             if (emailAccount == null)
                 throw new GrandException("Email account can't be loaded");
 
@@ -1072,8 +1072,8 @@ namespace Grand.Web.Admin.Services
                 Subject = model.Subject,
                 Body = model.Body,
                 CreatedOnUtc = DateTime.UtcNow,
-                DontSendBeforeDateUtc = (model.SendImmediately || !model.DontSendBeforeDate.HasValue) ?
-                        null : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
+                DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
+                        null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
             _ = _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", customer, "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), model.Subject);
@@ -1112,19 +1112,19 @@ namespace Grand.Web.Admin.Services
             {
                 var model = await x.ToModel(_countryService);
                 var addressHtmlSb = new StringBuilder("<div>");
-                if (_addressSettings.CompanyEnabled && !String.IsNullOrEmpty(model.Company))
+                if (_addressSettings.CompanyEnabled && !string.IsNullOrEmpty(model.Company))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Company));
-                if (_addressSettings.StreetAddressEnabled && !String.IsNullOrEmpty(model.Address1))
+                if (_addressSettings.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address1));
-                if (_addressSettings.StreetAddress2Enabled && !String.IsNullOrEmpty(model.Address2))
+                if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address2));
-                if (_addressSettings.CityEnabled && !String.IsNullOrEmpty(model.City))
+                if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(model.City))
                     addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.City));
-                if (_addressSettings.StateProvinceEnabled && !String.IsNullOrEmpty(model.StateProvinceName))
+                if (_addressSettings.StateProvinceEnabled && !string.IsNullOrEmpty(model.StateProvinceName))
                     addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.StateProvinceName));
-                if (_addressSettings.ZipPostalCodeEnabled && !String.IsNullOrEmpty(model.ZipPostalCode))
+                if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(model.ZipPostalCode))
                     addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.ZipPostalCode));
-                if (_addressSettings.CountryEnabled && !String.IsNullOrEmpty(model.CountryName))
+                if (_addressSettings.CountryEnabled && !string.IsNullOrEmpty(model.CountryName))
                     addressHtmlSb.AppendFormat("{0}", WebUtility.HtmlEncode(model.CountryName));
                 var customAttributesFormatted = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, x.Attributes);
                 if (!string.IsNullOrEmpty(customAttributesFormatted))
@@ -1202,13 +1202,13 @@ namespace Grand.Web.Admin.Services
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (c.Id == model.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
             //states
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
             }
 
             //customer attribute services
@@ -1334,12 +1334,12 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
@@ -1356,7 +1356,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertCustomerAddProductModel(string customerId, bool personalized, CustomerModel.AddProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
@@ -1365,14 +1365,14 @@ namespace Grand.Web.Admin.Services
                     {
                         if (!(await _customerProductService.GetPriceByCustomerProduct(customerId, id)).HasValue)
                         {
-                            await _customerProductService.InsertCustomerProductPrice(new CustomerProductPrice() { CustomerId = customerId, ProductId = id, Price = product.Price });
+                            await _customerProductService.InsertCustomerProductPrice(new CustomerProductPrice { CustomerId = customerId, ProductId = id, Price = product.Price });
                         }
                     }
                     else
                     {
                         if (await _customerProductService.GetCustomerProduct(customerId, id) == null)
                         {
-                            await _customerProductService.InsertCustomerProduct(new CustomerProduct() { CustomerId = customerId, ProductId = id, DisplayOrder = 0 });
+                            await _customerProductService.InsertCustomerProduct(new CustomerProduct { CustomerId = customerId, ProductId = id, DisplayOrder = 0 });
                         }
 
                     }
@@ -1464,7 +1464,7 @@ namespace Grand.Web.Admin.Services
                         StoreName = store != null ? store.Shortcut : "Unknown",
                         ProductId = x.ProductId,
                         ProductName = product != null ? product.Name : "Unknown",
-                        AttributeDescription = x.Attributes != null || !x.Attributes.Any() ? "" : await productAttributeFormatter.FormatAttributes(product, x.Attributes),
+                        AttributeDescription = x.Attributes != null || !x.Attributes!.Any() ? "" : await productAttributeFormatter.FormatAttributes(product, x.Attributes),
                         CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                     };
                     items.Add(m);
@@ -1484,7 +1484,7 @@ namespace Grand.Web.Admin.Services
                     Id = customerNote.Id,
                     CustomerId = customerId,
                     DownloadId = string.IsNullOrEmpty(customerNote.DownloadId) ? "" : customerNote.DownloadId,
-                    DownloadGuid = download != null ? download.DownloadGuid : Guid.Empty,
+                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
                     DisplayToCustomer = customerNote.DisplayToCustomer,
                     Title = customerNote.Title,
                     Note = customerNote.Note,
@@ -1501,7 +1501,7 @@ namespace Grand.Web.Admin.Services
                 Note = message,
                 DownloadId = downloadId,
                 CustomerId = customerId,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             await _customerNoteService.InsertCustomerNote(customerNote);
 

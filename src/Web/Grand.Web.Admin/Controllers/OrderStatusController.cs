@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Orders;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.OrderStatus)]
-    public partial class OrderStatusController : BaseAdminController
+    public class OrderStatusController : BaseAdminController
     {
         #region Fields
 

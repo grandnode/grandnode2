@@ -37,21 +37,22 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public async Task<IActionResult> List(DataSourceRequest command)
         {
-            var tags = (await _orderTagService.GetAllOrderTags());
+            var tags = await _orderTagService.GetAllOrderTags();
             var orderTagsList = new List<OrderTagModel>();
             foreach (var tag in tags)
             {
-                var item = new OrderTagModel();
-                item.Id = tag.Id;
-                item.Name = tag.Name;
-                item.OrderCount = await _orderTagService.GetOrderCount(tag.Id, "");
+                var item = new OrderTagModel {
+                    Id = tag.Id,
+                    Name = tag.Name,
+                    OrderCount = await _orderTagService.GetOrderCount(tag.Id, "")
+                };
                 orderTagsList.Add(item);
             }
 
             var gridModel = new DataSourceResult
             {
                 Data = orderTagsList.OrderByDescending(x => x.OrderCount).PagedForCommand(command),
-                Total = tags.Count()
+                Total = tags.Count
             };
 
             return Json(gridModel);
@@ -77,8 +78,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 Data = orders.Select(x => new
                 {
-                    Id = x.Id,
-                    OrderNumber = x.OrderNumber
+                    x.Id, x.OrderNumber
                 }),
                 Total = orders.Count
             };

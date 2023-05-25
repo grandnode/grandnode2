@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class QueuedEmailListModel : BaseModel
+    public class QueuedEmailListModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.System.QueuedEmails.List.StartDate")]
         [UIHint("DateNullable")]

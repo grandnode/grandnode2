@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class ContactAttributeValueModel : BaseEntityModel, ILocalizedModel<ContactAttributeValueLocalizedModel>
+    public class ContactAttributeValueModel : BaseEntityModel, ILocalizedModel<ContactAttributeValueLocalizedModel>
     {
         public ContactAttributeValueModel()
         {
@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Models.Messages
 
     }
 
-    public partial class ContactAttributeValueLocalizedModel : ILocalizedModelLocal
+    public class ContactAttributeValueLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

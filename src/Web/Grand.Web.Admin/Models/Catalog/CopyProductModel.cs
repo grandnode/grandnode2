@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class CopyProductModel : BaseEntityModel
+    public class CopyProductModel : BaseEntityModel
     {
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Copy.Name")]

@@ -37,7 +37,7 @@
         <div class="form-body">
             @if (Model.UsernamesEnabled)
             {
-                if (String.IsNullOrEmpty(Model.Id) || Model.AllowUsersToChangeUsernames)
+                if (string.IsNullOrEmpty(Model.Id) || Model.AllowUsersToChangeUsernames)
                 {
                     <div class="form-group">
                         <admin-label asp-for="Username" />
@@ -93,7 +93,7 @@
                     <span asp-validation-for="CustomerTags"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
+            @if (!string.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
             {
                 <div class="form-group">
                     <admin-label asp-for="AssociatedExternalAuthRecords" />
@@ -103,7 +103,7 @@
 
                             //local datasource
                             var externalauthrecords = [
-                            @for (int i = 0; i < Model.AssociatedExternalAuthRecords.Count; i++)
+                            @for (var i = 0; i < Model.AssociatedExternalAuthRecords.Count; i++)
                             {
                                 var aear = Model.AssociatedExternalAuthRecords[i];
                                 <text>
@@ -203,11 +203,11 @@
                     <admin-label asp-for="Gender" />
                     <div class="col-md-9 col-sm-9">
                         <div class="gender">
-                            @Html.RadioButton("Gender", "M", (Model.Gender == "M"), new { id = "Gender_Male" })
+                            @Html.RadioButton("Gender", "M", Model.Gender == "M", new { id = "Gender_Male" })
                             <label class="forcheckbox" for="Gender_Male">@Loc["Admin.Customers.Customers.Fields.Gender.Male"]</label>
                         </div>
                         <div class="gender">
-                            @Html.RadioButton("Gender", "F", (Model.Gender == "F"), new { id = "Gender_Female" })
+                            @Html.RadioButton("Gender", "F", Model.Gender == "F", new { id = "Gender_Female" })
                             <label class="forcheckbox" for="Gender_Female">@Loc["Admin.Customers.Customers.Fields.Gender.Female"]</label>
                         </div>
                     </div>
@@ -370,7 +370,7 @@
                     <span asp-validation-for="TwoFactorEnabled"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.AffiliateId))
+            @if (!string.IsNullOrEmpty(Model.AffiliateId))
             {
                 <div class="form-group">
                     <admin-label asp-for="AffiliateId" />
@@ -397,7 +397,7 @@
                     </div>
                 </div>
             }
-            @if (Model.AvailableNewsletterSubscriptionStores != null && Model.AvailableNewsletterSubscriptionStores.Count > 0)
+            @if (Model.AvailableNewsletterSubscriptionStores is {Count: > 0 })
             {
                 <div class="form-group">
                     <admin-label asp-for="SelectedNewsletterSubscriptionStoreIds" />
@@ -432,7 +432,7 @@
                     <span asp-validation-for="Active"></span>
                 </div>
             </div>
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastIpAddress" />
@@ -441,7 +441,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.UrlReferrer))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.UrlReferrer))
             {
                 <div class="form-group">
                     <admin-label asp-for="UrlReferrer" />
@@ -450,7 +450,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="CreatedOn" />
@@ -459,7 +459,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id))
+            @if (!string.IsNullOrEmpty(Model.Id))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastActivityDate" />
@@ -468,7 +468,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.LastVisitedPage))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastVisitedPage))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastVisitedPage" />
@@ -477,7 +477,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && !String.IsNullOrEmpty(Model.LastUrlReferrer))
+            @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastUrlReferrer))
             {
                 <div class="form-group">
                     <admin-label asp-for="LastUrlReferrer" />
@@ -486,7 +486,7 @@
                     </div>
                 </div>
             }
-            @if (!String.IsNullOrEmpty(Model.Id) && Model.LastPurchaseDate.HasValue)
+            @if (!string.IsNullOrEmpty(Model.Id) && Model.LastPurchaseDate.HasValue)
             {
                 <div class="form-group">
                     <admin-label asp-for="LastPurchaseDate" />

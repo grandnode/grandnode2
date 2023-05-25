@@ -12,11 +12,12 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Pages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Infrastructure;
+using Grand.Web.Admin.Extensions.Mapping;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class PageViewModelService : IPageViewModelService
+    public class PageViewModelService : IPageViewModelService
     {
         private readonly IPageLayoutService _pageLayoutService;
         private readonly IPageService _pageService;
@@ -62,7 +63,7 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
             return model;
         }
 

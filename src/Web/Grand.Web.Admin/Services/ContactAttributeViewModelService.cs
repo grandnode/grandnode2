@@ -6,7 +6,7 @@ using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Messages;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ContactAttributeViewModelService : IContactAttributeViewModelService
+    public class ContactAttributeViewModelService : IContactAttributeViewModelService
     {
 
         private readonly IContactAttributeService _contactAttributeService;
@@ -58,7 +58,7 @@ namespace Grand.Web.Admin.Services
                             {
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
-                                var selectedValue = selectedAttribute != null ? selectedAttribute.SelectedValueId : null;
+                                var selectedValue = selectedAttribute?.SelectedValueId;
                                 if (!string.IsNullOrEmpty(selectedValue))
                                     customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, selectedValue).ToList();
                                 else
@@ -117,22 +117,19 @@ namespace Grand.Web.Admin.Services
             var selectedAttribute = (await _contactAttributeParser.ParseContactAttributes(contactAttribute.ConditionAttribute)).FirstOrDefault();
             var selectedValues = await _contactAttributeParser.ParseContactAttributeValues(contactAttribute.ConditionAttribute);
 
-            model.ConditionModel = new ConditionModel()
-            {
+            model.ConditionModel = new ConditionModel {
                 EnableCondition = contactAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
                 ConditionAttributes = (await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
-                        new AttributeConditionModel()
-                        {
+                        new AttributeConditionModel {
                             Id = x.Id,
                             Name = x.Name,
                             AttributeControlType = x.AttributeControlType,
                             Values = x.ContactAttributeValues
-                                .Select(v => new SelectListItem()
-                                {
+                                .Select(v => new SelectListItem {
                                     Text = v.Name,
                                     Value = v.Id.ToString(),
                                     Selected = selectedAttribute != null && selectedAttribute.Id == x.Id && selectedValues.Any(sv => sv.Id == v.Id)
@@ -167,12 +164,13 @@ namespace Grand.Web.Admin.Services
 
         public virtual ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute)
         {
-            var model = new ContactAttributeValueModel();
-            model.ContactAttributeId = contactAttribute.Id;
+            var model = new ContactAttributeValueModel {
+                ContactAttributeId = contactAttribute.Id,
+                //color squares
+                DisplayColorSquaresRgb = contactAttribute.AttributeControlType == AttributeControlType.ColorSquares,
+                ColorSquaresRgb = "#000000"
+            };
 
-            //color squares
-            model.DisplayColorSquaresRgb = contactAttribute.AttributeControlType == AttributeControlType.ColorSquares;
-            model.ColorSquaresRgb = "#000000";
             return model;
         }
         public virtual ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute, ContactAttributeValue contactAttributeValue)

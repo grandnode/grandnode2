@@ -51,7 +51,7 @@
                         .Select(x => new SelectListItem
                         {
                             Value = x.IetfLanguageTag,
-                            Text = string.Format("{0}. {1}", x.EnglishName, x.IetfLanguageTag)
+                            Text = $"{x.EnglishName}. {x.IetfLanguageTag}"
                         })
                         .ToList();
                     cultures.Insert(0, new SelectListItem
@@ -116,7 +116,7 @@
                 <span asp-validation-for="Stores"></span>
             </div>
         </div>
-        @if (!String.IsNullOrEmpty(Model.Id))
+        @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
                 <admin-label asp-for="CreatedOn" />

@@ -14,15 +14,15 @@ using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class VendorViewModelService : IVendorViewModelService
+    public class VendorViewModelService : IVendorViewModelService
     {
         private readonly IDiscountService _discountService;
         private readonly IVendorService _vendorService;
@@ -136,13 +136,13 @@ namespace Grand.Web.Admin.Services
             //address
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (vendor != null && c.Id == vendor.Address.CountryId) });
+                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = vendor != null && c.Id == vendor.Address.CountryId });
 
-            var states = !String.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
+            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
             if (states.Count > 0)
             {
                 foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (vendor != null && s.Id == vendor.Address.StateProvinceId) });
+                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = vendor != null && s.Id == vendor.Address.StateProvinceId });
             }
         }
 
@@ -159,7 +159,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableStores.Add(new SelectListItem
                 {
                     Text = s.Shortcut,
-                    Value = s.Id.ToString()
+                    Value = s.Id
                 });
             }
         }
@@ -188,8 +188,7 @@ namespace Grand.Web.Admin.Services
         {
             return (await _customerService
                 .GetAllCustomers(vendorId: vendorId))
-                .Select(c => new VendorModel.AssociatedCustomerInfo()
-                {
+                .Select(c => new VendorModel.AssociatedCustomerInfo {
                     Id = c.Id,
                     Email = c.Email
                 })
@@ -225,7 +224,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<Vendor> UpdateVendorModel(Vendor vendor, VendorModel model)
         {
-            string prevPictureId = vendor.PictureId;
+            var prevPictureId = vendor.PictureId;
             vendor = model.ToEntity(vendor);
             vendor.Locales = await model.Locales.ToTranslationProperty(vendor, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await vendor.ValidateSeName(model.SeName, vendor.Name, true, _seoSettings, _slugService, _languageService);
@@ -256,7 +255,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(vendor, model.SeName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != vendor.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != vendor.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -302,7 +301,7 @@ namespace Grand.Web.Admin.Services
             var vendorNote = new VendorNote
             {
                 Note = message,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             vendor.VendorNotes.Add(vendorNote);
             await _vendorService.UpdateVendor(vendor);
@@ -323,11 +322,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<VendorReviewModel> vendorReviewModels, int totalCount)> PrepareVendorReviewModel(VendorReviewListModel model, int pageIndex, int pageSize)
         {
-            DateTime? createdOnFromValue = (model.CreatedOnFrom == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? createdOnFromValue = model.CreatedOnFrom == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? createdToFromValue = (model.CreatedOnTo == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? createdToFromValue = model.CreatedOnTo == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             IPagedList<VendorReview> vendorReviews = await _vendorService.GetAllVendorReviews("", null,
                      createdOnFromValue, createdToFromValue, model.SearchText, model.SearchVendorId, pageIndex - 1, pageSize);
@@ -360,12 +359,12 @@ namespace Grand.Web.Admin.Services
             //update vendor totals
             await _vendorService.UpdateVendorReviewTotals(vendor);
         }
-        public virtual async Task ApproveVendorReviews(IList<string> selectedIds)
+        public virtual async Task ApproveVendorReviews(IEnumerable<string> selectedIds)
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idVendor = id.Split(':').Last().ToString();
+                var idReview = id.Split(':').First();
+                var idVendor = id.Split(':').Last();
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);
                 if (vendorReview != null)
@@ -381,12 +380,12 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
-        public virtual async Task DisapproveVendorReviews(IList<string> selectedIds)
+        public virtual async Task DisapproveVendorReviews(IEnumerable<string> selectedIds)
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idVendor = id.Split(':').Last().ToString();
+                var idReview = id.Split(':').First();
+                var idVendor = id.Split(':').Last();
 
                 var vendor = await _vendorService.GetVendorById(idVendor);
                 var vendorReview = await _vendorService.GetVendorReviewById(idReview);

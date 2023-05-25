@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public CollectionModel()
         {
@@ -101,7 +101,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
 
         #region Nested classes
-        public partial class CollectionProductModel : BaseEntityModel
+        public class CollectionProductModel : BaseEntityModel
         {
             public string CollectionId { get; set; }
 
@@ -117,7 +117,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public partial class AddCollectionProductModel : BaseModel
+        public class AddCollectionProductModel : BaseModel
         {
             public AddCollectionProductModel()
             {
@@ -155,7 +155,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public string[] SelectedProductIds { get; set; }
         }
 
-        public partial class ActivityLogModel : BaseEntityModel
+        public class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Collections.ActivityLog.ActivityLogType")]
             public string ActivityLogTypeName { get; set; }
@@ -173,7 +173,7 @@ namespace Grand.Web.Admin.Models.Catalog
         #endregion
     }
 
-    public partial class CollectionLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+    public class CollectionLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 

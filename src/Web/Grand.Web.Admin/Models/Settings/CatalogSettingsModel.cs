@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class CatalogSettingsModel : BaseModel
+    public class CatalogSettingsModel : BaseModel
     {
         public CatalogSettingsModel()
         {
             DefaultViewModes = new List<SelectListItem>();
-            DefaultViewModes.Add(new SelectListItem() { Text = "grid", Value = "grid" });
-            DefaultViewModes.Add(new SelectListItem() { Text = "list", Value = "list" });
+            DefaultViewModes.Add(new SelectListItem { Text = "grid", Value = "grid" });
+            DefaultViewModes.Add(new SelectListItem { Text = "list", Value = "list" });
         }
 
         

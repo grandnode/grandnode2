@@ -8,7 +8,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CheckoutAttributes)]
-    public partial class CheckoutAttributeController : BaseAdminController
+    public class CheckoutAttributeController : BaseAdminController
     {
         #region Fields
 
@@ -219,7 +219,7 @@ namespace Grand.Web.Admin.Controllers
             if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 
@@ -238,7 +238,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueEditPopup(string id, string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 //No checkout attribute value found with the specified id
                 return RedirectToAction("List");
@@ -260,7 +260,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(model.CheckoutAttributeId);
 
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == model.Id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == model.Id);
             if (cav == null)
                 //No checkout attribute value found with the specified id
                 return RedirectToAction("List");
@@ -271,7 +271,7 @@ namespace Grand.Web.Admin.Controllers
             if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
             {
                 //ensure valid color is chosen/entered
-                if (String.IsNullOrEmpty(model.ColorSquaresRgb))
+                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
                     ModelState.AddModelError("", "Color is required");
             }
 
@@ -291,7 +291,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ValueDelete(string id, string checkoutAttributeId)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-            var cav = checkoutAttribute.CheckoutAttributeValues.Where(x => x.Id == id).FirstOrDefault();
+            var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);
             if (cav == null)
                 throw new ArgumentException("No checkout attribute value found with the specified id");
 

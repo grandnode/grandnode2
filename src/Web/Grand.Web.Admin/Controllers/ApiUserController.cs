@@ -5,14 +5,14 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class ApiUserController : BaseAdminController
+    public class ApiUserController : BaseAdminController
     {
         private readonly IUserApiService _userApiService;
         private readonly IEncryptionService _encryptionService;

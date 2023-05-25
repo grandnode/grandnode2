@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Affiliates
 {
-    public partial class AffiliateListModel : BaseModel
+    public class AffiliateListModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Affiliates.List.SearchFirstName")]
         

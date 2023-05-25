@@ -28,11 +28,11 @@ namespace Grand.Web.Admin.Validators.Directory
                 {
                     try
                     {
-                        if (String.IsNullOrEmpty(x))
+                        if (string.IsNullOrEmpty(x))
                             return true;
                         //create a CultureInfo object
                         //if "DisplayLocale" is wrong, then exception will be thrown
-                        var culture = new CultureInfo(x);
+                        new CultureInfo(x);
                         return true;
                     }
                     catch

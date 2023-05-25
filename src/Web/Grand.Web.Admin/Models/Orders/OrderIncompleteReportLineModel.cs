@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class OrderIncompleteReportLineModel : BaseModel
+    public class OrderIncompleteReportLineModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Reports.Incomplete.Item")]
         public string Item { get; set; }

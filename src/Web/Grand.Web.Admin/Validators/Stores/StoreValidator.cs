@@ -15,11 +15,11 @@ namespace Grand.Web.Admin.Validators.Stores
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Name.Required"));
             RuleFor(x => x.Shortcut).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Shortcut.Required"));
             RuleFor(x => x.Url).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Url.Required"));
-            RuleFor(x => x.Url).Must((x, y, context) =>
+            RuleFor(x => x.Url).Must((x, _, _) =>
             {
                 try
                 {
-                    var storeUri = new Uri(x.Url);
+                    new Uri(x.Url);
                     return true;
                 }
                 catch
@@ -27,7 +27,7 @@ namespace Grand.Web.Admin.Validators.Stores
                     return false;
                 }
             }).WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Url.WrongFormat"));
-            RuleFor(x => x.SecureUrl).Must((x, y, context) =>
+            RuleFor(x => x.SecureUrl).Must((x, _, _) =>
             {
                 try
                 {

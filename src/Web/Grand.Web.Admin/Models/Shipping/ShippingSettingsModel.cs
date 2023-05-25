@@ -4,7 +4,7 @@ using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Models.Shipping
 {
-    public partial class ShippingSettingsModel : BaseModel
+    public class ShippingSettingsModel : BaseModel
     {
         public string ActiveStore { get; set; }
 

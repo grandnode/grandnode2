@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Vendors
 {
-    public partial class VendorListModel : BaseModel
+    public class VendorListModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Vendors.List.SearchName")]
         

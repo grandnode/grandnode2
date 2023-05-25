@@ -1,5 +1,4 @@
 ﻿@model OrderModel
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permisionService;
 <vc:admin-widget widget-zone="order_details_address_top" additional-data="Model" />
 <div class="card col-md-6">
     <div class="card-body">
@@ -138,7 +137,7 @@
                         </td>
                     </tr>
                 }
-                @if (!String.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
+                @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
                 {
                     <tr class="custom-attributes-view">
                         <td colspan="2">
@@ -291,7 +290,7 @@
                                 </td>
                             </tr>
                         }
-                        @if (!String.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
+                        @if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
                         {
                             <tr class="custom-attributes-view">
                                 <td colspan="2">
@@ -320,7 +319,7 @@
                         <admin-label asp-for="PickupAddress" />
                         <div class="col-md-9 col-sm-9">
                             <table class="table table-bordered table-striped table-hover">
-                                @if (!String.IsNullOrEmpty(Model.PickupAddress.Address1))
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
                                 {
                                     <tr>
                                         <td>
@@ -331,7 +330,7 @@
                                         </td>
                                     </tr>
                                 }
-                                @if (!String.IsNullOrEmpty(Model.PickupAddress.City))
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.City))
                                 {
                                     <tr>
                                         <td>
@@ -342,7 +341,7 @@
                                         </td>
                                     </tr>
                                 }
-                                @if (!String.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
                                 {
                                     <tr>
                                         <td>
@@ -353,7 +352,7 @@
                                         </td>
                                     </tr>
                                 }
-                                @if (!String.IsNullOrEmpty(Model.PickupAddress.CountryName))
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.CountryName))
                                 {
                                     <tr>
                                         <td>

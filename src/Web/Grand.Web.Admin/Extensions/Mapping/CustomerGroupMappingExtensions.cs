@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Customers;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class CustomerGroupMappingExtensions
     {

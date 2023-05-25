@@ -2,7 +2,7 @@
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.Security.Captcha;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping.Settings
 {
     public static class SecuritySettingsMappingExtensions
     {

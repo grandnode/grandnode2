@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductAttributeConditionModel : BaseModel
+    public class ProductAttributeConditionModel : BaseModel
     {
         public ProductAttributeConditionModel()
         {
@@ -23,7 +23,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
         #region Nested classes
 
-        public partial class ProductAttributeModel : BaseEntityModel
+        public class ProductAttributeModel : BaseEntityModel
         {
             public ProductAttributeModel()
             {
@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public IList<ProductAttributeValueModel> Values { get; set; }
         }
 
-        public partial class ProductAttributeValueModel : BaseEntityModel
+        public class ProductAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
 

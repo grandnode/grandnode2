@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Directory
 {
-    public partial class CountryModel : BaseEntityModel, ILocalizedModel<CountryLocalizedModel>, IStoreLinkModel
+    public class CountryModel : BaseEntityModel, ILocalizedModel<CountryLocalizedModel>, IStoreLinkModel
     {
         public CountryModel()
         {
@@ -54,7 +54,7 @@ namespace Grand.Web.Admin.Models.Directory
         public string[] Stores { get; set; }
     }
 
-    public partial class CountryLocalizedModel : ILocalizedModelLocal
+    public class CountryLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

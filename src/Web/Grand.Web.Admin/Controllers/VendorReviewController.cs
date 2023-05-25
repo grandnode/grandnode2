@@ -4,7 +4,6 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -14,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.VendorReviews)]
-    public partial class VendorReviewController : BaseAdminController
+    public class VendorReviewController : BaseAdminController
     {
         #region Fields
 
@@ -75,7 +74,7 @@ namespace Grand.Web.Admin.Controllers
             var (vendorReviewModels, totalCount) = await _vendorViewModelService.PrepareVendorReviewModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
                 Data = vendorReviewModels.ToList(),
-                Total = totalCount,
+                Total = totalCount
             };
 
             return Json(gridModel);
@@ -109,7 +108,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 vendorReview = await _vendorViewModelService.UpdateVendorReviewModel(vendorReview, model);
                 Success(_translationService.GetResource("Admin.VendorReviews.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = vendorReview.Id, VendorId = vendorReview.VendorId }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction("Edit", new { id = vendorReview.Id, vendorReview.VendorId }) : RedirectToAction("List");
             }
 
             //If we got this far, something failed, redisplay form
@@ -164,7 +163,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> VendorSearchAutoComplete(string term)
         {
             const int searchTermMinimumLength = 3;
-            if (String.IsNullOrWhiteSpace(term) || term.Length < searchTermMinimumLength)
+            if (string.IsNullOrWhiteSpace(term) || term.Length < searchTermMinimumLength)
                 return Content("");
 
             var vendors = await _vendorService.SearchVendors(

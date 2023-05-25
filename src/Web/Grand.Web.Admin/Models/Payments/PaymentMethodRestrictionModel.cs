@@ -4,7 +4,7 @@ using Grand.Web.Admin.Models.Shipping;
 
 namespace Grand.Web.Admin.Models.Payments
 {
-    public partial class PaymentMethodRestrictionModel : BaseModel
+    public class PaymentMethodRestrictionModel : BaseModel
     {
         public PaymentMethodRestrictionModel()
         {

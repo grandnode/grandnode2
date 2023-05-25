@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class GiftVoucherModel : BaseEntityModel
+    public class GiftVoucherModel : BaseEntityModel
     {
         public GiftVoucherModel()
         {
@@ -77,7 +77,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         #region Nested classes
 
-        public partial class GiftVoucherUsageHistoryModel : BaseEntityModel
+        public class GiftVoucherUsageHistoryModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.GiftVouchers.History.UsedValue")]
             public string UsedValue { get; set; }

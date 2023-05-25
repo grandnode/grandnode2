@@ -1,8 +1,8 @@
 ﻿@model IList<CustomerModel.CustomerAttributeModel>
 @foreach (var attribute in Model)
 {
-    string controlId = string.Format("customer_attribute_{0}", attribute.Id);
-    string textPrompt = attribute.Name;
+    var controlId = $"customer_attribute_{attribute.Id}";
+    var textPrompt = attribute.Name;
     <div class="form-horizontal">
         <div class="form-body">
             <label class="control-label col-md-3">

@@ -1,12 +1,12 @@
 ﻿using Grand.Domain.Directory;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Directory;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CurrencyViewModelService : ICurrencyViewModelService
+    public class CurrencyViewModelService : ICurrencyViewModelService
     {
         #region Fields
 
@@ -25,10 +25,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual CurrencyModel PrepareCurrencyModel()
         {
-            var model = new CurrencyModel();
-            //default values
-            model.Published = true;
-            model.Rate = 1;
+            var model = new CurrencyModel {
+                //default values
+                Published = true,
+                Rate = 1
+            };
             return model;
         }
 

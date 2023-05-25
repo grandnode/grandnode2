@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Tasks
 {
-    public partial class ScheduleTaskModel : BaseEntityModel
+    public class ScheduleTaskModel : BaseEntityModel
     {
         public ScheduleTaskModel()
         {

@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.DataSource;
@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CustomerGroups)]
-    public partial class CustomerGroupController : BaseAdminController
+    public class CustomerGroupController : BaseAdminController
     {
         #region Fields
 
@@ -68,7 +68,7 @@ namespace Grand.Web.Admin.Controllers
                     var rolesModel = x.ToModel();
                     return rolesModel;
                 }),
-                Total = customerGroups.TotalCount,
+                Total = customerGroups.TotalCount
             };
             return Json(gridModel);
         }
@@ -178,7 +178,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = products,
-                Total = products.Count()
+                Total = products.Count
             };
             return Json(gridModel);
         }
@@ -270,7 +270,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = model,
-                Total = model.Count()
+                Total = model.Count
             };
             return Json(gridModel);
         }

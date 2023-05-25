@@ -7,6 +7,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Plugins;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -21,7 +22,7 @@ using System.Reflection;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Plugins)]
-    public partial class PluginController : BaseAdminController
+    public class PluginController : BaseAdminController
     {
         #region Fields
 
@@ -151,7 +152,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = pluginInfos.Count()
+                Total = pluginInfos.Count
             };
             return Json(gridModel);
         }
@@ -311,7 +312,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
 
-            string zipFilePath = "";
+            var zipFilePath = "";
             try
             {
                 if (!Path.GetExtension(zippedFile.FileName)?.Equals(".zip", StringComparison.InvariantCultureIgnoreCase) ?? true)
@@ -361,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("GeneralCommon", "Setting");
             }
 
-            string zipFilePath = "";
+            var zipFilePath = "";
 
             try
             {
@@ -417,7 +418,7 @@ namespace Grand.Web.Admin.Controllers
                 //get directory name (remove the ending /)
                 uploadedItemDirectoryName = rootDirectories.First().FullName.TrimEnd('/');
 
-                var themeDescriptorEntry = archive.Entries.Where(x => x.FullName.Contains("theme.cfg")).FirstOrDefault();
+                var themeDescriptorEntry = archive.Entries.FirstOrDefault(x => x.FullName.Contains("theme.cfg"));
                 if (themeDescriptorEntry != null)
                 {
                     using var unzippedEntryStream = themeDescriptorEntry.Open();
@@ -430,30 +431,25 @@ namespace Grand.Web.Admin.Controllers
                     var _fpath = "";
                     foreach (var entry in archive.Entries.Where(x => x.FullName.Contains(".dll")))
                     {
-                        using (var unzippedEntryStream = entry.Open())
+                        using var unzippedEntryStream = entry.Open();
+                        try
                         {
-                            try
+                            var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
+                            var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
+                            if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
                             {
-                                var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
-                                var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                                if (pluginInfo != null)
-                                {
-                                    if (pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
-                                    {
-                                        supportedVersion = true;
-                                        _fpath = entry.FullName[..entry.FullName.LastIndexOf("/")];
-                                        archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
-                                        .ForEach(y => { archive.GetEntry(y.FullName).Delete(); });
+                                supportedVersion = true;
+                                _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
+                                archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
+                                    .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
 
-                                        _pluginInfo = new PluginInfo();
-                                        break;
-                                    }
-                                }
+                                _pluginInfo = new PluginInfo();
+                                break;
                             }
-                            catch (Exception ex)
-                            {
-                                _ = _logger.Error(ex.Message);
-                            };
+                        }
+                        catch (Exception ex)
+                        {
+                            _ = _logger.Error(ex.Message);
                         }
                     }
                     if (!supportedVersion)

@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.DataSource;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CustomerTags)]
-    public partial class CustomerTagController : BaseAdminController
+    public class CustomerTagController : BaseAdminController
     {
         #region Fields
         private readonly ICustomerTagViewModelService _customerTagViewModelService;
@@ -49,12 +49,12 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<(string Id, string Name, int Count)>();
             foreach (var item in customertags)
             {
-                items.Add((Id: item.Id, Name: item.Name, Count: await _customerTagService.GetCustomerCount(item.Id)));
+                items.Add((item.Id, item.Name, Count: await _customerTagService.GetCustomerCount(item.Id)));
             }
             var gridModel = new DataSourceResult
             {
-                Data = items.Select(x => new { Id = x.Id, Name = x.Name, Count = x.Count }),
-                Total = customertags.Count()
+                Data = items.Select(x => new { x.Id, x.Name, x.Count }),
+                Total = customertags.Count
             };
             return Json(gridModel);
         }
@@ -205,7 +205,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = products.Count()
+                Total = products.Count
             };
             return Json(gridModel);
         }

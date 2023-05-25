@@ -11,7 +11,7 @@ Common.WwwRoot = "";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseDefaultServiceProvider((context, options) =>
+builder.Host.UseDefaultServiceProvider((_, options) =>
 {
     options.ValidateScopes = false;
     options.ValidateOnBuild = false;
@@ -51,7 +51,7 @@ if (config.AllowNonAsciiCharInHeaders)
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.ResponseHeaderEncodingSelector = (_) => Encoding.UTF8;
+        options.ResponseHeaderEncodingSelector = _ => Encoding.UTF8;
     });
 }
 if (config.MaxRequestBodySize.HasValue)

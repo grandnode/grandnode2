@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class NeverSoldReportModel : BaseModel
+    public class NeverSoldReportModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Reports.NeverSold.StartDate")]
         [UIHint("DateNullable")]

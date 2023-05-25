@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Shipping;
+﻿using Grand.Domain.Shipping;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class PickupPointMappingExtensions
     {

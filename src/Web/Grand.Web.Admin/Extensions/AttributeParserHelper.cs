@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Extensions
             var attributes = await addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
             {
-                string controlId = string.Format("address_attribute_{0}", attribute.Id);
+                var controlId = $"address_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:
@@ -69,7 +69,7 @@ namespace Grand.Web.Admin.Extensions
                             form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customAttributes = addressAttributeParser.AddAddressAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

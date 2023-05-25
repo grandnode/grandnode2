@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Messages
 {
-    public partial class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
+    public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
         public ContactAttributeModel()
         {
@@ -71,7 +71,7 @@ namespace Grand.Web.Admin.Models.Messages
         public string[] CustomerGroups { get; set; }
     }
 
-    public partial class ConditionModel : BaseEntityModel
+    public class ConditionModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Condition.EnableCondition")]
         public bool EnableCondition { get; set; }
@@ -81,7 +81,7 @@ namespace Grand.Web.Admin.Models.Messages
 
         public IList<AttributeConditionModel> ConditionAttributes { get; set; }
     }
-    public partial class AttributeConditionModel : BaseEntityModel
+    public class AttributeConditionModel : BaseEntityModel
     {
         public string Name { get; set; }
 
@@ -91,7 +91,7 @@ namespace Grand.Web.Admin.Models.Messages
 
         public string SelectedValueId { get; set; }
     }
-    public partial class ContactAttributeLocalizedModel : ILocalizedModelLocal
+    public class ContactAttributeLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

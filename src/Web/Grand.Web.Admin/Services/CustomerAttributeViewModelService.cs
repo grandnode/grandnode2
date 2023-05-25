@@ -2,14 +2,14 @@
 using Grand.Domain.Customers;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Business.Core.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CustomerAttributeViewModelService : ICustomerAttributeViewModelService
+    public class CustomerAttributeViewModelService : ICustomerAttributeViewModelService
     {
         private readonly ICustomerAttributeService _customerAttributeService;
         private readonly ITranslationService _translationService;
@@ -60,15 +60,16 @@ namespace Grand.Web.Admin.Services
             return customerAttributes.Select((Func<CustomerAttribute, CustomerAttributeModel>)(x =>
             {
                 var attributeModel = x.ToModel();
-                attributeModel.AttributeControlTypeName = TranslateExtensions.GetTranslationEnum<Domain.Catalog.AttributeControlType>(x.AttributeControlTypeId, (ITranslationService)_translationService, (IWorkContext)_workContext);
+                attributeModel.AttributeControlTypeName = x.AttributeControlTypeId.GetTranslationEnum(_translationService, _workContext);
                 return attributeModel;
             }));
         }
 
         public virtual CustomerAttributeValueModel PrepareCustomerAttributeValueModel(string customerAttributeId)
         {
-            var model = new CustomerAttributeValueModel();
-            model.CustomerAttributeId = customerAttributeId;
+            var model = new CustomerAttributeValueModel {
+                CustomerAttributeId = customerAttributeId
+            };
             return model;
         }
 
@@ -87,7 +88,7 @@ namespace Grand.Web.Admin.Services
                 CustomerAttributeId = x.CustomerAttributeId,
                 Name = x.Name,
                 IsPreSelected = x.IsPreSelected,
-                DisplayOrder = x.DisplayOrder,
+                DisplayOrder = x.DisplayOrder
             });
         }
 

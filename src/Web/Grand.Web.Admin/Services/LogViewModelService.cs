@@ -13,7 +13,7 @@ using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class LogViewModelService: ILogViewModelService
+    public class LogViewModelService: ILogViewModelService
     {
         private readonly ILogger _logger;
         private readonly IWorkContext _workContext;
@@ -43,13 +43,13 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<LogModel> logModels, int totalCount)> PrepareLogModel(LogListModel model, int pageIndex, int pageSize)
         {
-            DateTime? createdOnFromValue = (model.CreatedOnFrom == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? createdOnFromValue = model.CreatedOnFrom == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? createdToFromValue = (model.CreatedOnTo == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? createdToFromValue = model.CreatedOnTo == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            LogLevel? logLevel = model.LogLevelId > 0 ? (LogLevel?)(model.LogLevelId) : null;
+            LogLevel? logLevel = model.LogLevelId > 0 ? (LogLevel?)model.LogLevelId : null;
 
 
             var logItems = await _logger.GetAllLogs(createdOnFromValue, createdToFromValue, model.Message,
@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Services
                 FullMessage = log.FullMessage,
                 IpAddress = log.IpAddress,
                 CustomerId = log.CustomerId,
-                CustomerEmail = !String.IsNullOrEmpty(log.CustomerId) ? (await _serviceProvider.GetRequiredService<ICustomerService>().GetCustomerById(log.CustomerId))?.Email : "",
+                CustomerEmail = !string.IsNullOrEmpty(log.CustomerId) ? (await _serviceProvider.GetRequiredService<ICustomerService>().GetCustomerById(log.CustomerId))?.Email : "",
                 PageUrl = log.PageUrl,
                 ReferrerUrl = log.ReferrerUrl,
                 CreatedOn = _dateTimeService.ConvertToUserTime(log.CreatedOnUtc, DateTimeKind.Utc)

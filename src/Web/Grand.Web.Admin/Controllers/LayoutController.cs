@@ -8,15 +8,15 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Pages;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Layouts;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Web.Admin.Extensions.Mapping.Layouts;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class LayoutController : BaseAdminController
+    public class LayoutController : BaseAdminController
     {
         #region Fields
 
@@ -175,7 +175,7 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CollectionBrandDelete(string id)
+        public async Task<IActionResult> BrandLayoutDelete(string id)
         {
             var layout = await _brandLayoutService.GetBrandLayoutById(id);
             if (layout == null)

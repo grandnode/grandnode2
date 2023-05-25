@@ -14,6 +14,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
@@ -22,7 +23,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class CollectionViewModelService : ICollectionViewModelService
+    public class CollectionViewModelService : ICollectionViewModelService
     {
         #region Fields
 
@@ -163,7 +164,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Collection> UpdateCollectionModel(Collection collection, CollectionModel model)
         {
-            string prevPictureId = collection.PictureId;
+            var prevPictureId = collection.PictureId;
             collection = model.ToEntity(collection);
             collection.UpdatedOnUtc = DateTime.UtcNow;
             collection.Locales = await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService, _languageService);
@@ -192,7 +193,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(collection, model.SeName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != collection.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != collection.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -224,17 +225,17 @@ namespace Grand.Web.Admin.Services
             //collections
             model.AvailableCollections.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var m in await _collectionService.GetAllCollections(showHidden: true))
-                model.AvailableCollections.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
+                model.AvailableCollections.Add(new SelectListItem { Text = m.Name, Value = m.Id });
 
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
@@ -272,7 +273,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCollection = product.ProductCollections.Where(x => x.Id == model.Id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
@@ -287,7 +288,7 @@ namespace Grand.Web.Admin.Services
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var productCollection = product.ProductCollections.Where(x => x.Id == id).FirstOrDefault();
+            var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
@@ -296,19 +297,18 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task InsertCollectionProductModel(CollectionModel.AddCollectionProductModel model)
         {
-            foreach (string id in model.SelectedProductIds)
+            foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    var existingProductcollections = product.ProductCollections;
-                    if (product.ProductCollections.Where(x => x.CollectionId == model.CollectionId).Count() == 0)
+                    if (!product.ProductCollections.Any(x => x.CollectionId == model.CollectionId))
                     {
                         await _productCollectionService.InsertProductCollection(
                             new ProductCollection {
                                 CollectionId = model.CollectionId,
                                 IsFeaturedProduct = false,
-                                DisplayOrder = 1,
+                                DisplayOrder = 1
                             }, product.Id);
                     }
                 }

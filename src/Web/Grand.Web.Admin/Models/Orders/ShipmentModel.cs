@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class ShipmentModel : BaseEntityModel
+    public class ShipmentModel : BaseEntityModel
     {
         public ShipmentModel()
         {
@@ -56,7 +56,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         #region Nested classes
 
-        public partial class ShipmentItemModel : BaseEntityModel
+        public class ShipmentItemModel : BaseEntityModel
         {
             public ShipmentItemModel()
             {
@@ -103,7 +103,7 @@ namespace Grand.Web.Admin.Models.Orders
             #endregion
         }
 
-        public partial class ShipmentNote : BaseEntityModel
+        public class ShipmentNote : BaseEntityModel
         {
             public string ShipmentId { get; set; }
             [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.DisplayToCustomer")]
@@ -120,7 +120,7 @@ namespace Grand.Web.Admin.Models.Orders
             public bool CreatedByCustomer { get; set; }
         }
 
-        public partial class ShipmentStatusEventModel : BaseModel
+        public class ShipmentStatusEventModel : BaseModel
         {
             public string EventName { get; set; }
             public string Location { get; set; }

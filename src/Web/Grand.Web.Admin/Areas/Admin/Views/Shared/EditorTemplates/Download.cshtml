@@ -1,8 +1,5 @@
 ﻿@model string
-@using Grand.SharedKernel.Extensions
-@using Grand.Web.Common.Page
 @inject Grand.Business.Core.Interfaces.Storage.IDownloadService downloadService
-@inject IPageHeadBuilder pagebuilder
 @{
     <link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
     <script asp-location="Footer" asp-src="@(Common.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
@@ -72,7 +69,7 @@
                 <div class="col-md-6 col-sm-6">
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox control control-checkbox">
                         <input type="checkbox" class="check-box" name="cbUseDownloadURL@(randomNumber)" id="cbUseDownloadURL@(randomNumber)"
-                               @if (download != null && download.UseDownloadUrl) { <text> checked="checked" </text> } />
+                               @if (download is {UseDownloadUrl: true }) { <text> checked="checked" </text> } />
                         <div class="control__indicator"></div>
                     </label>
                 </div>

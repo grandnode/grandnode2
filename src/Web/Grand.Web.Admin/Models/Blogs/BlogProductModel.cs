@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Blogs
 {
-    public partial class BlogProductModel : BaseEntityModel
+    public class BlogProductModel : BaseEntityModel
     {
         public string ProductId { get; set; }
 
@@ -15,7 +15,7 @@ namespace Grand.Web.Admin.Models.Blogs
         [GrandResourceDisplayName("Admin.Content.Blog.Product.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public partial class AddProductModel : BaseModel
+        public class AddProductModel : BaseModel
         {
             public AddProductModel()
             {

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.PushNotifications
 {
-    public partial class PushModel : BaseModel
+    public class PushModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.PushNotifications.Fields.PushTitle")]
         public string Title { get; set; }

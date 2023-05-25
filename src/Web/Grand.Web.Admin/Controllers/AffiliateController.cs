@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Affiliates)]
-    public partial class AffiliateController : BaseAdminController
+    public class AffiliateController : BaseAdminController
     {
         #region Fields
 
@@ -62,7 +62,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = affiliatesModel.affiliateModels,
-                Total = affiliatesModel.totalCount,
+                Total = affiliatesModel.totalCount
             };
             return Json(gridModel);
         }
@@ -147,19 +147,17 @@ namespace Grand.Web.Admin.Controllers
                 //No affiliate found with the specified id
                 return RedirectToAction("List");
 
-            var customers = new GetCustomerQuery()
-            {
+            var customers = new GetCustomerQuery {
                 AffiliateId = affiliate.Id,
-                PageSize = 1,
+                PageSize = 1
             };
             var query_customer = (await _mediator.Send(customers)).Count();
             if (query_customer > 0)
                 ModelState.AddModelError("", "There are exist customers related with affiliate");
 
-            var orders = new GetOrderQuery()
-            {
+            var orders = new GetOrderQuery {
                 AffiliateId = affiliate.Id,
-                PageSize = 1,
+                PageSize = 1
             };
 
             var query_order = (await _mediator.Send(orders)).Count();

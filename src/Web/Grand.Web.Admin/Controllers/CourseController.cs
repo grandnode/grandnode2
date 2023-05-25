@@ -12,6 +12,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Courses;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Courses;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Courses)]
-    public partial class CourseController : BaseAdminController
+    public class CourseController : BaseAdminController
     {
 
         private readonly ITranslationService _translationService;
@@ -153,7 +154,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 var course = await _courseViewModelService.InsertCourseModel(model);
@@ -223,7 +224,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
 
                 course = await _courseViewModelService.UpdateCourseModel(course, model);

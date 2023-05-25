@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.AddressAttributes)]
-    public partial class AddressAttributeController : BaseAdminController
+    public class AddressAttributeController : BaseAdminController
     {
         #region Fields
 

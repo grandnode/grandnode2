@@ -1,6 +1,6 @@
 ﻿@model StoreScopeModel
 @{
-    var rawUrl = Context?.Request?.GetEncodedPathAndQuery();
+    var rawUrl = Context.Request.GetEncodedPathAndQuery();
     var stores = Model.Stores.Select(store => new SelectListItem
     {
         Text = store.Name,

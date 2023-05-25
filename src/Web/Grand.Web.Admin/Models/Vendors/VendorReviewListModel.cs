@@ -2,9 +2,9 @@
 using Grand.Infrastructure.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Customers
+namespace Grand.Web.Admin.Models.Vendors
 {
-    public partial class VendorReviewListModel : BaseModel
+    public class VendorReviewListModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.VendorReviews.List.CreatedOnFrom")]
         [UIHint("DateNullable")]

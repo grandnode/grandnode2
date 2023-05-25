@@ -1,6 +1,5 @@
-﻿@model String
+﻿@model string
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
-@using Grand.SharedKernel.Extensions
 @using Grand.Business.Core.Utilities.Common.Security
 @{
     var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);

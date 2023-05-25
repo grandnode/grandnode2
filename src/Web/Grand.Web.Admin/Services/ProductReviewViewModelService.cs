@@ -8,7 +8,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Web.Common.Extensions;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using MediatR;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ProductReviewViewModelService : IProductReviewViewModelService
+    public class ProductReviewViewModelService : IProductReviewViewModelService
     {
         private readonly IProductService _productService;
         private readonly IProductReviewService _productReviewService;
@@ -86,7 +86,7 @@ namespace Grand.Web.Admin.Services
             var model = new ProductReviewListModel();
 
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-            var stores = (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)).Select(st => new SelectListItem() { Text = st.Shortcut, Value = st.Id.ToString() });
+            var stores = (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)).Select(st => new SelectListItem { Text = st.Shortcut, Value = st.Id.ToString() });
             foreach (var selectListItem in stores)
                 model.AvailableStores.Add(selectListItem);
             return model;
@@ -94,11 +94,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<ProductReviewModel> productReviewModels, int totalCount)> PrepareProductReviewsModel(ProductReviewListModel model, int pageIndex, int pageSize)
         {
-            DateTime? createdOnFromValue = (model.CreatedOnFrom == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? createdOnFromValue = model.CreatedOnFrom == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? createdToFromValue = (model.CreatedOnTo == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? createdToFromValue = model.CreatedOnTo == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
             var productReviews = await _productReviewService.GetAllProductReviews("", null,
                 createdOnFromValue, createdToFromValue, model.SearchText, model.SearchStoreId, model.SearchProductId);
@@ -122,7 +122,7 @@ namespace Grand.Web.Admin.Services
             var product = await _productService.GetProductById(productReview.ProductId);
 
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
             return productReview;
         }
@@ -133,15 +133,15 @@ namespace Grand.Web.Admin.Services
 
             var product = await _productService.GetProductById(productReview.ProductId);
             //update product totals
-            await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+            await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
         }
 
-        public virtual async Task ApproveSelected(IList<string> selectedIds, string storeId)
+        public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId)
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idProduct = id.Split(':').Last().ToString();
+                var idReview = id.Split(':').First();
+                var idProduct = id.Split(':').Last();
                 var product = await _productService.GetProductById(idProduct);
                 var productReview = await _productReviewService.GetProductReviewById(idReview);
                 if (productReview != null && (string.IsNullOrEmpty(storeId) || productReview.StoreId == storeId))
@@ -150,7 +150,7 @@ namespace Grand.Web.Admin.Services
                     productReview.IsApproved = true;
                     await _productReviewService.UpdateProductReview(productReview);
                     //update product totals
-                    await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+                    await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
 
                     //raise event (only if it wasn't approved before)
@@ -160,12 +160,12 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task DisapproveSelected(IList<string> selectedIds, string storeId)
+        public virtual async Task DisapproveSelected(IEnumerable<string> selectedIds, string storeId)
         {
             foreach (var id in selectedIds)
             {
-                string idReview = id.Split(':').First().ToString();
-                string idProduct = id.Split(':').Last().ToString();
+                var idReview = id.Split(':').First();
+                var idProduct = id.Split(':').Last();
 
                 var product = await _productService.GetProductById(idProduct);
                 var productReview = await _productReviewService.GetProductReviewById(idReview);
@@ -174,7 +174,7 @@ namespace Grand.Web.Admin.Services
                     productReview.IsApproved = false;
                     await _productReviewService.UpdateProductReview(productReview);
                     //update product totals
-                    await _mediator.Send(new UpdateProductReviewTotalsCommand() { Product = product });
+                    await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
                 }
             }
         }

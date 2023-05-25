@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
 using Grand.Web.Common.DataSource;
@@ -12,6 +11,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -284,7 +284,7 @@ namespace Grand.Web.Admin.Controllers
             model.AvailableArticles.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             var articles = await _knowledgebaseService.GetKnowledgebaseArticles();
             foreach (var a in articles)
-                model.AvailableArticles.Add(new SelectListItem { Text = a.Name, Value = a.Id.ToString() });
+                model.AvailableArticles.Add(new SelectListItem { Text = a.Name, Value = a.Id });
 
             return View(model);
         }

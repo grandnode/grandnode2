@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class BestsellersReportLineModel : BaseModel
+    public class BestsellersReportLineModel : BaseModel
     {
         public string ProductId { get; set; }
         [GrandResourceDisplayName("Admin.Reports.Bestsellers.Fields.Name")]

@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Models.Orders
         public IList<OrderTagLocalizedModel> Locales { get; set; }
     }
 
-    public partial class OrderTagLocalizedModel : ILocalizedModelLocal
+    public class OrderTagLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
         [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.Name")]

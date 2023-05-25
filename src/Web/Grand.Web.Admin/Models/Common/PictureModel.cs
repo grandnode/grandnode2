@@ -4,7 +4,7 @@ using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Common
 {
-    public partial class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
+    public class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
     {
         public PictureModel()
         {
@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Models.Common
 
         public IList<PictureLocalizedModel> Locales { get; set; }
 
-        public partial class PictureLocalizedModel : ILocalizedModelLocal
+        public class PictureLocalizedModel : ILocalizedModelLocal
         {
             public string LanguageId { get; set; }
 

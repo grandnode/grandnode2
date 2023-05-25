@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerAttributeLocalizedModel>
+    public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerAttributeLocalizedModel>
     {
         public CustomerAttributeModel()
         {
@@ -34,7 +34,7 @@ namespace Grand.Web.Admin.Models.Customers
 
     }
 
-    public partial class CustomerAttributeLocalizedModel : ILocalizedModelLocal
+    public class CustomerAttributeLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }
 

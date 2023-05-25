@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Media;
+﻿using Grand.Domain.Media;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping.Settings
 {
     public static class MediaSettingsMappingExtensions
     {

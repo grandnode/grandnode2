@@ -5,8 +5,8 @@
 }
 @{
     //page title
-    string adminPageTitle = "";
-    if (!String.IsNullOrWhiteSpace(ViewBag.Title))
+    var adminPageTitle = "";
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
     {
         adminPageTitle = ViewBag.Title + " / ";
     }
@@ -26,14 +26,13 @@
     <link rel="stylesheet" type="text/css" href="@(Common.WwwRoot)/administration/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="@(Common.WwwRoot)/administration/build/css/custom.css" />
 
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/build/js/jquery.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/build/js/moment.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/jquery.validate.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/jquery-ui/jquery-ui.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/bootstrap/js/popper.min.js"></script>
-    <script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/bootstrap/js/bootstrap.min.js"></script>
-
+    <script src="@(Common.WwwRoot)/administration/build/js/jquery.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/build/js/moment.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/jquery.validate.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/jquery-ui/jquery-ui.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/bootstrap/js/popper.min.js"></script>
+    <script src="@(Common.WwwRoot)/administration/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
     @Html.AntiForgeryToken()

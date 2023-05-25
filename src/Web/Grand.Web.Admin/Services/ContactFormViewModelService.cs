@@ -5,14 +5,14 @@ using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Messages;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class ContactFormViewModelService : IContactFormViewModelService
+    public class ContactFormViewModelService : IContactFormViewModelService
     {
         private readonly IContactUsService _contactUsService;
         private readonly IDateTimeService _dateTimeService;
@@ -42,20 +42,20 @@ namespace Grand.Web.Admin.Services
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
             foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             return model;
         }
 
         public virtual async Task<(IEnumerable<ContactFormModel> contactFormModel, int totalCount)> PrepareContactFormListModel(ContactFormListModel model, int pageIndex, int pageSize)
         {
-            DateTime? startDateValue = (model.SearchStartDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
+            DateTime? startDateValue = model.SearchStartDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.SearchStartDate.Value, _dateTimeService.CurrentTimeZone);
 
-            DateTime? endDateValue = (model.SearchEndDate == null) ? null
-                            : (DateTime?)_dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
+            DateTime? endDateValue = model.SearchEndDate == null ? null
+                            : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            string vendorId = "";
+            var vendorId = "";
             if (_workContext.CurrentVendor != null)
             {
                 vendorId = _workContext.CurrentVendor.Id;

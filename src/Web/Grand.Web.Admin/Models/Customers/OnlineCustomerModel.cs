@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class OnlineCustomerModel : BaseEntityModel
+    public class OnlineCustomerModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo")]
         public string CustomerInfo { get; set; }

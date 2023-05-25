@@ -9,7 +9,7 @@
             @foreach (var lang in Model.AvailableLanguages)
             {
                 <li>
-                    <a href="@Url.Action("SetLanguage", "Home", new { langid = lang.Id, returnUrl = Context?.Request?.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
+                    <a href="@Url.Action("SetLanguage", "Home", new { langid = lang.Id, returnUrl = Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
                         <img src="/assets/images/flags/@(lang.FlagImageFileName)" alt="@lang.Name">
                         @lang.Name
                     </a>

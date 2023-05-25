@@ -35,7 +35,6 @@
         });
     });
 </script>
-<div id="schedule-tasks-grid"></div>
 
 <script>
     $(document).ready(function () {
@@ -44,12 +43,6 @@
                 transport: {
                     read: {
                         url: "@Html.Raw(Url.Action("List", "ScheduleTask", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    update: {
-                        url: "@Html.Raw(Url.Action("TaskUpdate", "ScheduleTask", new { area = Constants.AreaAdmin }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken

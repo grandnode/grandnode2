@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Country;
 using Grand.Web.Admin.Models.Directory;
@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Countries)]
-    public partial class CountryController : BaseAdminController
+    public class CountryController : BaseAdminController
     {
         #region Fields
 
@@ -226,7 +226,12 @@ namespace Grand.Web.Admin.Controllers
             var states = country.StateProvinces.ToList();
 
             var gridModel = new DataSourceResult {
-                Data = states.Select(x => new { Id = x.Id, Name = x.Name, Abbreviation = x.Abbreviation, Published = x.Published, DisplayOrder = x.DisplayOrder }),
+                Data = states.Select(x => new {
+                    x.Id,
+                    x.Name,
+                    x.Abbreviation,
+                    x.Published,
+                    x.DisplayOrder }),
                 Total = states.Count
             };
             return Json(gridModel);
@@ -342,7 +347,7 @@ namespace Grand.Web.Admin.Controllers
             var countries = await _countryService.GetAllCountries();
             var query = from p in countries
                         from s in p.StateProvinces
-                        select new CountryStates() {
+                        select new CountryStates {
                             Country = p.TwoLetterIsoCode,
                             StateProvinceName = s.Name,
                             Abbreviation = s.Abbreviation,
@@ -360,7 +365,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                if (importexcelfile != null && importexcelfile.Length > 0)
+                if (importexcelfile is { Length: > 0 })
                 {
                     await _importManager.Import(importexcelfile.OpenReadStream());
 

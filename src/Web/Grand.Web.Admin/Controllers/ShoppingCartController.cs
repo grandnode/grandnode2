@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.CurrentCarts)]
-    public partial class ShoppingCartController : BaseAdminController
+    public class ShoppingCartController : BaseAdminController
     {
         #region Fields
 

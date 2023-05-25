@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Courses;
+﻿using Grand.Domain.Courses;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Courses;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class CourseSubjectMappingExtensions
     {

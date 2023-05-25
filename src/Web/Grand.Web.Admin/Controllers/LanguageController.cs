@@ -4,7 +4,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Localization;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Languages)]
-    public partial class LanguageController : BaseAdminController
+    public class LanguageController : BaseAdminController
     {
         #region Fields
         
@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = languages.Select(x => x.ToModel()),
-                Total = languages.Count()
+                Total = languages.Count
             };
             return Json(gridModel);
         }
@@ -279,13 +279,11 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                if (importxmlfile != null && importxmlfile.Length > 0)
+                if (importxmlfile is { Length: > 0 })
                 {
-                    using (var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8))
-                    {
-                        string content = sr.ReadToEnd();
-                        await _translationService.ImportResourcesFromXml(language, content);
-                    }
+                    using var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8);
+                    var content = await sr.ReadToEndAsync();
+                    await _translationService.ImportResourcesFromXml(language, content);
                 }
                 else
                 {

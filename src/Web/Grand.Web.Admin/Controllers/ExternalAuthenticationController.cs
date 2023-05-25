@@ -6,14 +6,14 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Plugins;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.ExternalAuthentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.ExternalAuthenticationMethods)]
-    public partial class ExternalAuthenticationController : BaseAdminController
+    public class ExternalAuthenticationController : BaseAdminController
     {
         #region Fields
 

@@ -14,7 +14,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Customers)]
-    public partial class OnlineCustomerController : BaseAdminController
+    public class OnlineCustomerController : BaseAdminController
     {
         #region Fields
 
@@ -57,7 +57,7 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<OnlineCustomerModel>();
             foreach (var x in customers)
             {
-                var item = new OnlineCustomerModel() {
+                var item = new OnlineCustomerModel {
                     Id = x.Id,
                     CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
                     LastIpAddress = x.LastIpAddress,

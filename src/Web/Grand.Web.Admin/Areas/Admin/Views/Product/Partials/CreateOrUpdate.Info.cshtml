@@ -1,7 +1,6 @@
 ﻿@model ProductModel
 @using Microsoft.AspNetCore.Mvc.Razor;
 @inject Grand.Business.Core.Interfaces.Catalog.Products.IProductTagService productTagService
-@inject IPageHeadBuilder pagebuilder
 @{
     //resources for product tags input
     <link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/tagEditor/jquery.tag-editor.css" />
@@ -9,8 +8,6 @@
     <script asp-location="Footer" asp-src="@(Common.WwwRoot)/administration/tagEditor/jquery.tag-editor.min.js"></script>
 
 }
-@using Grand.Domain.Catalog;
-@using System.Text;
 <script>
     $(document).ready(function() {
 
@@ -418,7 +415,7 @@
         var productTags = await productTagService.GetAllProductTags();
         var productTagsSb = new StringBuilder();
         productTagsSb.Append("var initialProductTags = [");
-        for (int i = 0; i < productTags.Count; i++)
+        for (var i = 0; i < productTags.Count; i++)
         {
             var tag = productTags[i];
             productTagsSb.Append("'");

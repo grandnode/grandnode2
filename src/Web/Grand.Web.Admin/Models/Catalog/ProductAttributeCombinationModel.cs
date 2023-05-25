@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class ProductAttributeCombinationModel : BaseModel
+    public class ProductAttributeCombinationModel : BaseModel
     {
         public string Id { get; set; }
 
@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
         #region Nested classes
 
-        public partial class ProductAttributeModel : BaseEntityModel
+        public class ProductAttributeModel : BaseEntityModel
         {
             public ProductAttributeModel()
             {
@@ -80,14 +80,14 @@ namespace Grand.Web.Admin.Models.Catalog
             public IList<ProductAttributeValueModel> Values { get; set; }
         }
 
-        public partial class ProductAttributeValueModel : BaseEntityModel
+        public class ProductAttributeValueModel : BaseEntityModel
         {
             public string Name { get; set; }
 
             public bool IsPreSelected { get; set; }
         }
 
-        public partial class WarehouseInventoryModel : BaseEntityModel
+        public class WarehouseInventoryModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.Warehouse")]
             public string WarehouseId { get; set; }

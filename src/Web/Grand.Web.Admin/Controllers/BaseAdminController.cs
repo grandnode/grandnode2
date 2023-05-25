@@ -16,7 +16,7 @@ namespace Grand.Web.Admin.Controllers
     [AutoValidateAntiforgeryToken]
     [Area(Constants.AreaAdmin)]
     [AuthorizeVendor]
-    public abstract partial class BaseAdminController : BaseController
+    public abstract class BaseAdminController : BaseController
     {
 
         /// <summary>
@@ -28,12 +28,11 @@ namespace Grand.Web.Admin.Controllers
         {
             if (!index.HasValue)
             {
-                int tmp;
                 var form = await HttpContext.Request.ReadFormAsync();
                 var tabindex = form["selected-tab-index"];
                 if (tabindex.Count > 0)
                 {
-                    if (int.TryParse(tabindex[0], out tmp))
+                    if (int.TryParse(tabindex[0], out var tmp))
                     {
                         index = tmp;
                     }
@@ -43,7 +42,7 @@ namespace Grand.Web.Admin.Controllers
             }
             if (index.HasValue)
             {
-                string dataKey = "Grand.selected-tab-index";
+                var dataKey = "Grand.selected-tab-index";
                 if (persistForTheNextRequest)
                 {
                     TempData[dataKey] = index;
@@ -58,10 +57,8 @@ namespace Grand.Web.Admin.Controllers
         /// <summary>
         /// Get active store scope (for multi-store configuration mode)
         /// </summary>
-        /// <param name="storeService">Store service</param>
-        /// <param name="workContext">Work context</param>
         /// <returns>Store ID; 0 if we are in a shared mode</returns>
-        protected virtual async Task<string> GetActiveStore()
+        protected async Task<string> GetActiveStore()
         {
             var storeService = HttpContext.RequestServices.GetRequiredService<IStoreService>();
             var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
@@ -69,7 +66,7 @@ namespace Grand.Web.Admin.Controllers
 
             var stores = await storeService.GetAllStores();
             if (stores.Count < 2)
-                return stores.FirstOrDefault().Id;
+                return stores.FirstOrDefault()?.Id;
 
             if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
@@ -77,14 +74,11 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var storeId = workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
-            if(!string.IsNullOrEmpty(storeId))
-            {
-                var store = await storeService.GetStoreById(storeId);
-                if (store != null)
-                    return store.Id;
-            }
-            return stores.FirstOrDefault().Id;
+            if (string.IsNullOrEmpty(storeId)) return stores.FirstOrDefault()?.Id;
+            var store = await storeService.GetStoreById(storeId);
+            return store != null ? store.Id : stores.FirstOrDefault()?.Id;
         }
+
         /// <summary>
         /// Creates a <see cref="T:System.Web.Mvc.JsonResult"/> object that serializes the specified object to JavaScript Object Notation (JSON) format using the content type, content encoding, and the JSON request behavior.
         /// </summary>
@@ -93,9 +87,6 @@ namespace Grand.Web.Admin.Controllers
         /// The result object that serializes the specified object to JSON format.
         /// </returns>
         /// <param name="data">The JavaScript object graph to serialize.</param>
-        /// <param name="contentType">The content type (MIME type).</param>
-        /// <param name="contentEncoding">The content encoding.</param>
-        /// <param name="behavior">The JSON request behavior</param>
         public override JsonResult Json(object data)
         {
             var serializerSettings = new JsonSerializerSettings {

@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.EmailAccounts)]
-    public partial class EmailAccountController : BaseAdminController
+    public class EmailAccountController : BaseAdminController
     {
         private readonly IEmailAccountViewModelService _emailAccountViewModelService;
         private readonly IEmailAccountService _emailAccountService;
@@ -52,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = emailAccountModels,
-                Total = emailAccountModels.Count()
+                Total = emailAccountModels.Count
             };
 
             return Json(gridModel);
@@ -133,7 +133,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             try
             {
-                if (String.IsNullOrWhiteSpace(model.SendTestEmailTo))
+                if (string.IsNullOrWhiteSpace(model.SendTestEmailTo))
                     throw new GrandException("Enter test email address");
                 if (ModelState.IsValid)
                 {

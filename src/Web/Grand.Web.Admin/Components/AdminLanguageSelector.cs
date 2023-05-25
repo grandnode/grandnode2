@@ -1,7 +1,7 @@
 ﻿using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,14 +22,15 @@ namespace Grand.Web.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = new LanguageSelectorModel();
-            model.CurrentLanguage = _workContext.WorkingLanguage.ToModel();
-            model.AvailableLanguages = (await _languageService
-                .GetAllLanguages(
-                   showHidden: true,
-                   storeId: _workContext.CurrentStore.Id))
-                .Select(x => x.ToModel())
-                .ToList();
+            var model = new LanguageSelectorModel {
+                CurrentLanguage = _workContext.WorkingLanguage.ToModel(),
+                AvailableLanguages = (await _languageService
+                        .GetAllLanguages(
+                            showHidden: true,
+                            storeId: _workContext.CurrentStore.Id))
+                    .Select(x => x.ToModel())
+                    .ToList()
+            };
             return View(model);
         }
     }

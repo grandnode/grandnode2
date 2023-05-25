@@ -181,7 +181,7 @@
     </div>
 </div>
 
-@if (!String.IsNullOrEmpty(Model.Id))
+@if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -341,7 +341,7 @@ else
 }
 
 
-@if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+@if (Model.AvailableDiscounts is {Count: > 0 })
 {
 
     <div class="panel panel-default">
@@ -365,7 +365,7 @@ else
 else
 {
     <div class="note note-info">
-        @Html.Raw(@Loc["Admin.Catalog.Collections.Discounts.NoDiscounts"])
+        @Html.Raw(Loc["Admin.Catalog.Collections.Discounts.NoDiscounts"])
     </div>
 }
 <vc:admin-widget widget-zone="product_details_prices_bottom" additional-data="Model" />

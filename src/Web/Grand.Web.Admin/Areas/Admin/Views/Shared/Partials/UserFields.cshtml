@@ -5,12 +5,12 @@
     var stores = (await storeService.GetAllStores()).Select(store => new SelectListItem
     {
         Text = store.Shortcut,
-        Value = store.Id,
+        Value = store.Id
     }).ToList();
 }
 <vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model" />
 <div class="form-horizontal form-userfield" id="form-userfield">
-    @for (int item = 0; item < userFields.Count; item++)
+    @for (var item = 0; item < userFields.Count; item++)
     {
         <div id="UserFieldsItem_@item" class="form-body">
             <div class="form-group">

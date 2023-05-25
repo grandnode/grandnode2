@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class SortOptionModel
+    public class SortOptionModel
     {
         public virtual int Id { get; set; }
 

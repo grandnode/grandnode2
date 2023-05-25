@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure.Validators;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Validators.Common;
 
-namespace Grand.Web.Admin.Validators.Directory
+namespace Grand.Web.Admin.Validators.Customers
 {
     public class SalesEmployeeValidator : BaseGrandValidator<SalesEmployeeModel>
     {

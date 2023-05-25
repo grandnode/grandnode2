@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class MediaSettingsModel : BaseModel
+    public class MediaSettingsModel : BaseModel
     {
         #region Standard Media Settings
         public string ActiveStore { get; set; }

@@ -4,7 +4,6 @@ using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -55,9 +54,10 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Index()
         {
-            var model = new LoginModel();
-            model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
+            var model = new LoginModel {
+                UsernamesEnabled = _customerSettings.UsernamesEnabled,
+                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
+            };
             return View(model);
         }
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Discounts
 {
-    public partial class DiscountListModel : BaseModel
+    public class DiscountListModel : BaseModel
     {
         public DiscountListModel()
         {

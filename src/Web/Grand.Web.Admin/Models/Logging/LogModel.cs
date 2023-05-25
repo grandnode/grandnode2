@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.Logging
 {
-    public partial class LogModel : BaseEntityModel
+    public class LogModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.System.Log.Fields.LogLevel")]
         public string LogLevel { get; set; }

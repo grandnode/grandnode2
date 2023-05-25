@@ -1,6 +1,6 @@
 ﻿@model ProductModel
 
-@if (!String.IsNullOrEmpty(Model.Id))
+@if (!string.IsNullOrEmpty(Model.Id))
 {
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="product_details_pictures_top" additional-data="Model" />
@@ -34,13 +34,7 @@
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
-                            },
-                            update: {
-                                url:"@Html.Raw(Url.Action("ProductPictureUpdate", "Product", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
+                            },                            
                             destroy: {
                                 url: "@Html.Raw(Url.Action("ProductPictureDelete", "Product", new { area = Constants.AreaAdmin }))",
                                 type: "POST",
@@ -129,7 +123,7 @@
                 @{
                     ViewData["Reference"] = "Product";
                     ViewData["ObjectId"] = Model.Id;
-                    ViewData["Endpoint"] = this.Url.Action("ProductPictureAdd", "Product", new { area = Constants.AreaAdmin });
+                    ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = Constants.AreaAdmin });
                     ViewData["Click"] = "btnRefreshProductPictures";
                 }
                 <div class="col-md-9 col-sm-9">

@@ -4,7 +4,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Commands.Customers;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Vendors;
 using Grand.Web.Common.DataSource;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Vendors)]
-    public partial class VendorController : BaseAdminController
+    public class VendorController : BaseAdminController
     {
         #region Fields
 
@@ -69,7 +69,7 @@ namespace Grand.Web.Admin.Controllers
                     var vendorModel = x.ToModel();
                     return vendorModel;
                 }),
-                Total = vendors.TotalCount,
+                Total = vendors.TotalCount
             };
             return Json(gridModel);
         }
@@ -192,8 +192,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", new { id = vendor.Id });
             }
 
-            var activate = await _mediator.Send(new ActiveVendorCommand()
-            {
+            var activate = await _mediator.Send(new ActiveVendorCommand {
                 Vendor = vendor,
                 Active = activatevendor == "active",
                 CustomerIds = associatedCustomers.Select(x => x.Id).ToList()
@@ -299,7 +298,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = items,
-                Total = vendorReviews.TotalCount,
+                Total = vendorReviews.TotalCount
             };
 
             return Json(gridModel);

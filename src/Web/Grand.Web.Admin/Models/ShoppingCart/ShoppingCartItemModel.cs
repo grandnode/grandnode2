@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 
 namespace Grand.Web.Admin.Models.ShoppingCart
 {
-    public partial class ShoppingCartItemModel : BaseEntityModel
+    public class ShoppingCartItemModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.CurrentCarts.Store")]
         public string Store { get; set; }

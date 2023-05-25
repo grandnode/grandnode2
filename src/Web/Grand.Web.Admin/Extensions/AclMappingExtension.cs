@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Extensions
                 //return true if no store specified/found
                 return true;
 
-            if (entity.LimitedToStores && entity.Stores.Where(x => x == storeId).Any() && entity.Stores.Count == 1)
+            if (entity.LimitedToStores && entity.Stores.Any(x => x == storeId) && entity.Stores.Count == 1)
                 //yes, we have such permission
                 return true;
 

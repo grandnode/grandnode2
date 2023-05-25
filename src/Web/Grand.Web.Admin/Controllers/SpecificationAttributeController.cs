@@ -10,14 +10,14 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Catalog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.SpecificationAttributes)]
-    public partial class SpecificationAttributeController : BaseAdminController
+    public class SpecificationAttributeController : BaseAdminController
     {
         #region Fields
 
@@ -100,7 +100,7 @@ namespace Grand.Web.Admin.Controllers
                 specificationAttribute.SeName = SeoExtensions.GetSeName(string.IsNullOrEmpty(specificationAttribute.SeName) ? specificationAttribute.Name : specificationAttribute.SeName, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
                 //activity log
@@ -149,7 +149,7 @@ namespace Grand.Web.Admin.Controllers
                 specificationAttribute.SeName = SeoExtensions.GetSeName(string.IsNullOrEmpty(specificationAttribute.SeName) ? specificationAttribute.Name : specificationAttribute.SeName, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
-                    model.Stores = new string[] { _workContext.CurrentCustomer.StaffStoreId };
+                    model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
                 //activity log
@@ -270,13 +270,13 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> OptionEditPopup(string id)
         {
-            var sao = (await _specificationAttributeService.GetSpecificationAttributeByOptionId(id)).SpecificationAttributeOptions.Where(x => x.Id == id).FirstOrDefault();
+            var sao = (await _specificationAttributeService.GetSpecificationAttributeByOptionId(id)).SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
             if (sao == null)
                 //No specification attribute option found with the specified id
                 return RedirectToAction("List");
 
             var model = sao.ToModel();
-            model.EnableColorSquaresRgb = !String.IsNullOrEmpty(sao.ColorSquaresRgb);
+            model.EnableColorSquaresRgb = !string.IsNullOrEmpty(sao.ColorSquaresRgb);
             //locales
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
             {
@@ -291,7 +291,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OptionEditPopup(SpecificationAttributeOptionModel model)
         {
             var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(model.Id);
-            var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == model.Id).FirstOrDefault();
+            var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == model.Id);
             if (sao == null)
                 //No specification attribute option found with the specified id
                 return RedirectToAction("List");
@@ -321,7 +321,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(id);
-                var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == id).FirstOrDefault();
+                var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
                 if (sao == null)
                     throw new ArgumentException("No specification attribute option found with the specified id");
 

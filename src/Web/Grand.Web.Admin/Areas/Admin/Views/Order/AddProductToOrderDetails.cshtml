@@ -1,5 +1,4 @@
-﻿@using Grand.Domain.Catalog
-@model OrderModel.AddOrderProductModel.ProductDetailsModel
+﻿@model OrderModel.AddOrderProductModel.ProductDetailsModel
 @{
     ViewBag.Title = string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber);
 }
@@ -66,8 +65,13 @@
                                 }
                                 @{
 
-                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
-                                    dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = "giftvoucher";
+                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData)
+                                    {
+                                        TemplateInfo =
+                                        {
+                                            HtmlFieldPrefix = "giftvoucher"
+                                        }
+                                    };
                                     <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
                                 }
                                 <div class="form-actions">

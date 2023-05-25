@@ -14,6 +14,7 @@ using Grand.Domain.Seo;
 using Grand.Web.Common.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Blogs;
 using Grand.Web.Admin.Models.Catalog;
@@ -21,7 +22,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class BlogViewModelService : IBlogViewModelService
+    public class BlogViewModelService : IBlogViewModelService
     {
         private readonly IBlogService _blogService;
         private readonly IDateTimeService _dateTimeService;
@@ -92,7 +93,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<BlogPost> UpdateBlogPostModel(BlogPostModel model, BlogPost blogPost)
         {
-            string prevPictureId = blogPost.PictureId;
+            var prevPictureId = blogPost.PictureId;
             blogPost = model.ToEntity(blogPost, _dateTimeService);
             await _blogService.UpdateBlogPost(blogPost);
 
@@ -104,7 +105,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(blogPost, seName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != blogPost.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != blogPost.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -156,8 +157,7 @@ namespace Grand.Web.Admin.Services
             var blogproducts = await _blogService.GetProductsByBlogPostId(filterByBlogPostId);
             foreach (var item in blogproducts.Skip((pageIndex - 1) * pageSize).Take(pageSize))
             {
-                productModels.Add(new BlogProductModel()
-                {
+                productModels.Add(new BlogProductModel {
                     Id = item.Id,
                     DisplayOrder = item.DisplayOrder,
                     ProductId = item.ProductId,
@@ -169,19 +169,20 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<BlogProductModel.AddProductModel> PrepareBlogModelAddProductModel(string blogPostId)
         {
-            var model = new BlogProductModel.AddProductModel();
-            model.BlogPostId = blogPostId;
+            var model = new BlogProductModel.AddProductModel {
+                BlogPostId = blogPostId
+            };
 
             //stores
             var storeId = _workContext.CurrentCustomer.StaffStoreId;
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id.ToString() });
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
@@ -207,8 +208,7 @@ namespace Grand.Web.Admin.Services
                 {
                     if (products.FirstOrDefault(x => x.ProductId == id) == null)
                     {
-                        await _blogService.InsertBlogProduct(new BlogProduct()
-                        {
+                        await _blogService.InsertBlogProduct(new BlogProduct {
                             BlogPostId = blogPostId,
                             ProductId = id,
                             DisplayOrder = 0

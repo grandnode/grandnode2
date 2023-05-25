@@ -9,6 +9,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -21,7 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Shipments)]
-    public partial class ShipmentController : BaseAdminController
+    public class ShipmentController : BaseAdminController
     {
         #region Fields
         private readonly IShipmentViewModelService _shipmentViewModelService;
@@ -223,7 +224,7 @@ namespace Grand.Web.Admin.Controllers
             if (!valid)
             {
                 Error(message);
-                return RedirectToAction("AddShipment", new { orderId = orderId });
+                return RedirectToAction("AddShipment", new { orderId });
             }
                 //if we have at least one item in the shipment, then save it
             if (shipment != null && shipment.ShipmentItems.Count > 0)
@@ -237,7 +238,7 @@ namespace Grand.Web.Admin.Controllers
                     Note = $"A shipment #{shipment.ShipmentNumber} has been added",
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
+                    OrderId = order.Id
                 });
 
                 _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been added");
@@ -249,7 +250,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             Error(_translationService.GetResource("Admin.Orders.Shipments.NoProductsSelected"));
-            return RedirectToAction("AddShipment", new { orderId = orderId });
+            return RedirectToAction("AddShipment", new { orderId });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -318,14 +319,14 @@ namespace Grand.Web.Admin.Controllers
                 Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
             });
 
             _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been deleted");
 
             Success(_translationService.GetResource("Admin.Orders.Shipments.Deleted"));
 
-            return RedirectToAction("Edit", "Order", new { Id = order.Id });
+            return RedirectToAction("Edit", "Order", new { order.Id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -426,13 +427,13 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new ShipCommand() { Shipment = shipment, NotifyCustomer = true });
+                await _mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -478,7 +479,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -513,13 +514,13 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                await _mediator.Send(new DeliveryCommand() { Shipment = shipment, NotifyCustomer = true });
+                await _mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -567,7 +568,7 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                Error(exc, true);
+                Error(exc);
                 return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
             }
         }
@@ -637,7 +638,7 @@ namespace Grand.Web.Admin.Controllers
                 await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
-            return File(bytes, "application/pdf", string.Format("packagingslip_{0}.pdf", shipment.Id));
+            return File(bytes, "application/pdf", $"packagingslip_{shipment.Id}.pdf");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
@@ -756,7 +757,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    await _mediator.Send(new ShipCommand() { Shipment = shipment, NotifyCustomer = true });
+                    await _mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
                 }
                 catch
                 {
@@ -801,7 +802,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    await _mediator.Send(new DeliveryCommand() { Shipment = shipment, NotifyCustomer = true });
+                    await _mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
                 }
                 catch
                 {

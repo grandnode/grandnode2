@@ -10,13 +10,14 @@ using Grand.Domain.Seo;
 using Grand.Web.Common.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.News;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class NewsViewModelService : INewsViewModelService
+    public class NewsViewModelService : INewsViewModelService
     {
         #region Fields
 
@@ -79,7 +80,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<NewsItem> UpdateNewsItemModel(NewsItem newsItem, NewsItemModel model)
         {
-            string prevPictureId = newsItem.PictureId;
+            var prevPictureId = newsItem.PictureId;
             newsItem = model.ToEntity(newsItem, _dateTimeService);
             var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
             newsItem.SeName = seName;
@@ -90,7 +91,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(newsItem, seName, "");
 
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != newsItem.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != newsItem.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -104,7 +105,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<NewsCommentModel> newsCommentModels, int totalCount)> PrepareNewsCommentModel(string filterByNewsItemId, int pageIndex, int pageSize)
         {
             IList<NewsComment> comments;
-            if (!String.IsNullOrEmpty(filterByNewsItemId))
+            if (!string.IsNullOrEmpty(filterByNewsItemId))
             {
                 //filter comments by news item
                 var newsItem = await _newsService.GetNewsById(filterByNewsItemId);

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Settings
 {
-    public partial class GeneralCommonSettingsModel : BaseModel
+    public class GeneralCommonSettingsModel : BaseModel
     {
         public GeneralCommonSettingsModel()
         {
@@ -16,7 +16,6 @@ namespace Grand.Web.Admin.Models.Settings
             SeoSettings = new SeoSettingsModel();
             SecuritySettings = new SecuritySettingsModel();
             PdfSettings = new PdfSettingsModel();
-            GoogleAnalyticsSettings = new GoogleAnalyticsSettingsModel();
             DisplayMenuSettings = new DisplayMenuSettingsModel();
         }
         public string ActiveStore { get; set; }
@@ -26,13 +25,12 @@ namespace Grand.Web.Admin.Models.Settings
         public SeoSettingsModel SeoSettings { get; set; }
         public SecuritySettingsModel SecuritySettings { get; set; }
         public PdfSettingsModel PdfSettings { get; set; }
-        public GoogleAnalyticsSettingsModel GoogleAnalyticsSettings { get; set; }
         public DisplayMenuSettingsModel DisplayMenuSettings { get; set; }
         
 
         #region Nested classes
 
-        public partial class StoreInformationSettingsModel : BaseModel
+        public class StoreInformationSettingsModel : BaseModel
         {
             public StoreInformationSettingsModel()
             {
@@ -86,7 +84,7 @@ namespace Grand.Web.Admin.Models.Settings
 
             #region Nested classes
 
-            public partial class ThemeConfigurationModel
+            public class ThemeConfigurationModel
             {
                 public string ThemeName { get; set; }
                 public string ThemeVersion { get; set; }
@@ -100,7 +98,7 @@ namespace Grand.Web.Admin.Models.Settings
             #endregion
         }
 
-        public partial class CommonSettingsModel : BaseModel
+        public class CommonSettingsModel : BaseModel
         {
            
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.StoreInDatabaseContactUsForm")]
@@ -141,7 +139,7 @@ namespace Grand.Web.Admin.Models.Settings
 
 
         }
-        public partial class DateTimeSettingsModel : BaseModel
+        public class DateTimeSettingsModel : BaseModel
         {
             public DateTimeSettingsModel()
             {
@@ -155,7 +153,7 @@ namespace Grand.Web.Admin.Models.Settings
             public IList<SelectListItem> AvailableTimeZones { get; set; }
         }
 
-        public partial class SeoSettingsModel : BaseModel
+        public class SeoSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PageTitleSeparator")]
 
@@ -212,7 +210,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         }
 
-        public partial class SecuritySettingsModel : BaseModel
+        public class SecuritySettingsModel : BaseModel
         {
             public SecuritySettingsModel()
             {
@@ -282,7 +280,7 @@ namespace Grand.Web.Admin.Models.Settings
             public IList<SelectListItem> AvailableReCaptchaVersions { get; set; }
         }
 
-        public partial class PdfSettingsModel : BaseModel
+        public class PdfSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PdfLogo")]
             [UIHint("Picture")]
@@ -298,20 +296,7 @@ namespace Grand.Web.Admin.Models.Settings
             public string InvoiceFooterText { get; set; }
         }
 
-        public partial class GoogleAnalyticsSettingsModel : BaseModel
-        {
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsPrivateKey")]
-            public string GaprivateKey { get; set; }
-
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsServiceAccountEmail")]
-            public string GaserviceAccountEmail { get; set; }
-
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GoogleAnalyticsViewID")]
-            public string GaviewID { get; set; }
-
-        }
-
-        public partial class DisplayMenuSettingsModel : BaseModel
+        public class DisplayMenuSettingsModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DisplayMenuSettings.DisplayHomePageMenu")]
             public bool DisplayHomePageMenu { get; set; }

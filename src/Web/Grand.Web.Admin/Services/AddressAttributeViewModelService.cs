@@ -3,13 +3,13 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
 using Grand.Domain.Common;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class AddressAttributeViewModelService : IAddressAttributeViewModelService
+    public class AddressAttributeViewModelService : IAddressAttributeViewModelService
     {
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly ITranslationService _translationService;
@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Services
                     var attributeModel = x.ToModel();
                     attributeModel.AttributeControlTypeName = x.AttributeControlType.GetTranslationEnum(_translationService, _workContext);
                     return attributeModel;
-                }), addressAttributes.Count());
+                }), addressAttributes.Count);
         }
 
         public virtual AddressAttributeModel PrepareAddressAttributeModel()
@@ -61,13 +61,14 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<AddressAttributeValueModel> addressAttributeValues, int totalCount)> PrepareAddressAttributeValues(string addressAttributeId)
         {
             var values = (await _addressAttributeService.GetAddressAttributeById(addressAttributeId)).AddressAttributeValues;
-            return (values.Select(x => x.ToModel()), values.Count());
+            return (values.Select(x => x.ToModel()), values.Count);
         }
 
         public virtual AddressAttributeValueModel PrepareAddressAttributeValueModel(string addressAttributeId)
         {
-            var model = new AddressAttributeValueModel();
-            model.AddressAttributeId = addressAttributeId;
+            var model = new AddressAttributeValueModel {
+                AddressAttributeId = addressAttributeId
+            };
             return model;
         }
 

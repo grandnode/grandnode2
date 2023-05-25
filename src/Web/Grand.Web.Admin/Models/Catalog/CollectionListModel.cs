@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
-    public partial class CollectionListModel : BaseModel
+    public class CollectionListModel : BaseModel
     {
         public CollectionListModel()
         {

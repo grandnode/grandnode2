@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Customers
 {
-    public partial class BestCustomersReportModel : BaseModel
+    public class BestCustomersReportModel : BaseModel
     {
         public BestCustomersReportModel()
         {

@@ -60,14 +60,14 @@ namespace Grand.Web.Admin.Validators.Common
                     case { Active: false }:
                         context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
                         break;
-                    case { } when !await groupService.IsRegistered(customer):
+                    case not null when !await groupService.IsRegistered(customer):
                         context.AddFailure(
                             translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
                         break;
-                    case { CannotLoginUntilDateUtc: { } } when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
+                    case { CannotLoginUntilDateUtc: not null } when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
                         context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
                         break;
-                    case { }:
+                    case not null:
                     {
                         var pwd = customer.PasswordFormatId switch {
                             PasswordFormat.Clear => x.Password,
@@ -95,7 +95,7 @@ namespace Grand.Web.Admin.Validators.Common
             {
                 RuleFor(x => x.Captcha).NotNull()
                     .WithMessage(translationService.GetResource("Account.Captcha.Required"));
-                ;
+                
                 RuleFor(x => x.Captcha)
                     .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
             }

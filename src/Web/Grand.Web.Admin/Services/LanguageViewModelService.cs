@@ -1,15 +1,15 @@
 ﻿using Grand.Domain.Localization;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Services
 {
-    public partial class LanguageViewModelService : ILanguageViewModelService
+    public class LanguageViewModelService : ILanguageViewModelService
     {
         #region Fields
 
@@ -59,7 +59,7 @@ namespace Grand.Web.Admin.Services
                 model.AvailableCurrencies.Add(new SelectListItem
                 {
                     Text = currency.Name,
-                    Value = currency.Id.ToString()
+                    Value = currency.Id
                 });
             }
         }
@@ -87,10 +87,12 @@ namespace Grand.Web.Admin.Services
             var res = await _translationService.GetTranslateResourceByName(model.Name, model.LanguageId);
             if (res == null)
             {
-                var resource = new TranslationResource { LanguageId = model.LanguageId };
-                resource.Name = model.Name;
-                resource.Value = model.Value;
-                resource.Area = (TranslationResourceArea)model.Area;
+                var resource = new TranslationResource {
+                    LanguageId = model.LanguageId,
+                    Name = model.Name,
+                    Value = model.Value,
+                    Area = (TranslationResourceArea)model.Area
+                };
                 await _translationService.InsertTranslateResource(resource);
             }
             else

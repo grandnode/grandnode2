@@ -11,7 +11,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Documents;
 using Microsoft.AspNetCore.Http;
@@ -90,7 +90,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<DocumentModel> PrepareDocumentModel(DocumentModel documentModel, Document document, SimpleDocumentModel simpleModel)
         {
-            var model = documentModel == null ? new DocumentModel() { Published = true } : documentModel;
+            var model = documentModel ?? new DocumentModel { Published = true };
             if (document != null)
                 model = document.ToModel();
             else
@@ -183,8 +183,6 @@ namespace Grand.Web.Admin.Services
                                         model.CustomerEmail = sorder.CustomerEmail;
                                     }
                                 }
-                                break;
-                            default:
                                 break;
                         }
                 }

@@ -1,7 +1,7 @@
 ﻿@model NewsItemModel
 @inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="news_details_comments_list" additional-data="Model" />
-@if (!String.IsNullOrEmpty(Model.Id))
+@if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
         <vc:admin-widget widget-zone="news_details_comments_top" additional-data="Model" />

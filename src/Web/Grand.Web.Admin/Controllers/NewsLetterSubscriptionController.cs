@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.NewsletterSubscribers)]
-    public partial class NewsLetterSubscriptionController : BaseAdminController
+    public class NewsLetterSubscriptionController : BaseAdminController
     {
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly INewsletterCategoryService _newsletterCategoryService;
@@ -48,7 +48,7 @@ namespace Grand.Web.Admin.Controllers
         protected virtual async Task<string> GetCategoryNames(IList<string> categoryNames, string separator = ",")
         {
             var sb = new StringBuilder();
-            for (int i = 0; i < categoryNames.Count; i++)
+            for (var i = 0; i < categoryNames.Count; i++)
             {
                 var category = await _newsletterCategoryService.GetNewsletterCategoryById(categoryNames[i]);
                 if (category != null)
@@ -76,7 +76,7 @@ namespace Grand.Web.Admin.Controllers
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in (await _storeService.GetAllStores()).Where(x => x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //active
             model.ActiveList.Add(new SelectListItem {
@@ -93,7 +93,7 @@ namespace Grand.Web.Admin.Controllers
             });
 
             foreach (var ca in await _newsletterCategoryService.GetAllNewsletterCategory())
-                model.AvailableCategories.Add(new SelectListItem { Text = ca.Name, Value = ca.Id.ToString() });
+                model.AvailableCategories.Add(new SelectListItem { Text = ca.Name, Value = ca.Id });
 
             return View(model);
         }
@@ -180,9 +180,10 @@ namespace Grand.Web.Admin.Controllers
             var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(model.SearchEmail,
                 model.StoreId, isActive, searchCategoryIds);
 
-            string result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
+            var result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
 
-            string fileName = String.Format("newsletter_emails_{0}_{1}.txt", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"), CommonHelper.GenerateRandomDigitCode(4));
+            var fileName =
+                $"newsletter_emails_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}_{CommonHelper.GenerateRandomDigitCode(4)}.txt";
             return File(Encoding.UTF8.GetBytes(result), "text/csv", fileName);
         }
 
@@ -192,7 +193,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                if (importcsvfile != null && importcsvfile.Length > 0)
+                if (importcsvfile is { Length: > 0 })
                 {
                     var count = await _newsLetterSubscriptionService.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream(), _workContext.CurrentStore.Id);
                     Success(string.Format(_translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"), count));

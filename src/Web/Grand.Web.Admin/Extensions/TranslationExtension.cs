@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Extensions
                 PropertyInfo[] props = item.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                 foreach (var prop in props)
                 {
-                    bool insert = true;
+                    var insert = true;
 
                     foreach (var i in interfaces)
                     {
@@ -32,11 +32,10 @@ namespace Grand.Web.Admin.Extensions
                     }
 
                     if (insert && prop.GetValue(item) != null)
-                        local.Add(new TranslationEntity()
-                        {
+                        local.Add(new TranslationEntity {
                             LanguageId = item.LanguageId,
                             LocaleKey = prop.Name,
-                            LocaleValue = prop.GetValue(item).ToString(),
+                            LocaleValue = prop.GetValue(item)?.ToString()
                         });
                 }
             }
@@ -44,7 +43,7 @@ namespace Grand.Web.Admin.Extensions
         }
 
         public static async Task<List<TranslationEntity>> ToTranslationProperty<T, E>(this IList<T> list, E entity, Expression<Func<T, string>> keySelector,
-            SeoSettings _seoSettings, ISlugService _slugService, ILanguageService _languageService) where T : ILocalizedModelLocal where E : BaseEntity, ISlugEntity
+            SeoSettings seoSettings, ISlugService slugService, ILanguageService languageService) where T : ILocalizedModelLocal where E : BaseEntity, ISlugEntity
         {
             var local = new List<TranslationEntity>();
             foreach (var item in list)
@@ -53,7 +52,7 @@ namespace Grand.Web.Admin.Extensions
                 PropertyInfo[] props = item.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                 foreach (var prop in props)
                 {
-                    bool insert = true;
+                    var insert = true;
 
                     foreach (var i in interfaces)
                     {
@@ -71,23 +70,23 @@ namespace Grand.Web.Admin.Extensions
                             if (propInfo == null)
                                 throw new ArgumentException($"Expression '{keySelector}' refers to a field, not a property.");
 
-                            var value = item.GetType().GetProperty(propInfo.Name).GetValue(item, null);
+                            var value = item.GetType().GetProperty(propInfo.Name)?.GetValue(item, null);
                             if (value != null)
                             {
                                 var name = value.ToString();
                                 var itemvalue = prop.GetValue(item) ?? "";
-                                var seName = await entity.ValidateSeName(itemvalue.ToString(), name, false, _seoSettings, _slugService, _languageService);
+                                var seName = await entity.ValidateSeName(itemvalue.ToString(), name, false, seoSettings, slugService, languageService);
                                 prop.SetValue(item, seName);
-                                await _slugService.SaveSlug(entity, seName, item.LanguageId);
+                                await slugService.SaveSlug(entity, seName, item.LanguageId);
                             }
                             else
                             {
                                 var itemvalue = prop.GetValue(item) ?? "";
-                                if (itemvalue != null && !string.IsNullOrEmpty(itemvalue.ToString()))
+                                if (!string.IsNullOrEmpty(itemvalue.ToString()))
                                 {
-                                    var seName = await entity.ValidateSeName(itemvalue.ToString(), "", false, _seoSettings, _slugService, _languageService);
+                                    var seName = await entity.ValidateSeName(itemvalue.ToString(), "", false, seoSettings, slugService, languageService);
                                     prop.SetValue(item, seName);
-                                    await _slugService.SaveSlug(entity, seName, item.LanguageId);
+                                    await slugService.SaveSlug(entity, seName, item.LanguageId);
                                 }
                                 else
                                     insert = false;
@@ -96,11 +95,10 @@ namespace Grand.Web.Admin.Extensions
                     }
 
                     if (insert && prop.GetValue(item) != null)
-                        local.Add(new TranslationEntity()
-                        {
+                        local.Add(new TranslationEntity {
                             LanguageId = item.LanguageId,
                             LocaleKey = prop.Name,
-                            LocaleValue = prop.GetValue(item).ToString(),
+                            LocaleValue = prop.GetValue(item)?.ToString()
                         });
                 }
             }
@@ -108,7 +106,7 @@ namespace Grand.Web.Admin.Extensions
         }
 
 
-        public static bool HasProperty(this Type obj, string propertyName)
+        private static bool HasProperty(this Type obj, string propertyName)
         {
             return obj.GetProperty(propertyName) != null;
         }

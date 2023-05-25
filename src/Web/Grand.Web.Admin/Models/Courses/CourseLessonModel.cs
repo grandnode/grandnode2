@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Courses
 {
-    public partial class CourseLessonModel : BaseEntityModel
+    public class CourseLessonModel : BaseEntityModel
     {
         public CourseLessonModel()
         {

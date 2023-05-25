@@ -33,7 +33,7 @@ namespace Grand.Web.Admin.Services
             var model = new PictureModel {
                 Id = picture.Id,
                 ObjectId = objectId,
-                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
+                PictureUrl = await _pictureService.GetPictureUrl(picture),
                 AltAttribute = picture?.AltAttribute,
                 TitleAttribute = picture?.TitleAttribute,
                 Style = picture?.Style,

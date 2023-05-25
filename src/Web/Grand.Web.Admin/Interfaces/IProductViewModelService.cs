@@ -20,7 +20,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<Product> InsertProductModel(ProductModel model);
         Task<Product> UpdateProductModel(Product product, ProductModel model);
         Task DeleteProduct(Product product);
-        Task DeleteSelected(IList<string> selectedIds);
+        Task DeleteSelected(IEnumerable<string> selectedIds);
         Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel();
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model, int pageIndex, int pageSize);
         Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product);
@@ -54,8 +54,8 @@ namespace Grand.Web.Admin.Interfaces
         Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
         Task<BulkEditListModel> PrepareBulkEditListModel();
         Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)> PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize);
-        Task UpdateBulkEdit(IList<BulkEditProductModel> products);
-        Task DeleteBulkEdit(IList<BulkEditProductModel> products);
+        Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products);
+        Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
         //tierprices
         Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
         Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex, int pageSize);

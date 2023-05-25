@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Mapper;
-using Grand.Domain.Pages;
+﻿using Grand.Domain.Pages;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Layouts;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping.Layouts
 {
     public static class PageLayoutMappingExtensions
     {

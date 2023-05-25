@@ -1,11 +1,10 @@
 ﻿@model ProductModel.ProductAttributeMappingModel
-@using Grand.Domain.Catalog
 @{
     Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules"];
 
-    var attributeControlType = (AttributeControlType)Model.AttributeControlTypeId;
+    var attributeControlType = Model.AttributeControlTypeId;
 }
 <form id="ProductAttributeValidationRulesPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"

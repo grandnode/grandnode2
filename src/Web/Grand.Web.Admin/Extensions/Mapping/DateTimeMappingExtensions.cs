@@ -1,16 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Admin.Extensions.Mapping
 {
     public static class DateTimeMappingExtensions
     {
         public static DateTime? ConvertToUserTime(this DateTime? datetime, IDateTimeService dateTimeService)
         {
-            if (datetime.HasValue)
-            {           
-                if(datetime.Value.Kind == DateTimeKind.Utc)
-                    datetime = dateTimeService.ConvertToUserTime(datetime.Value, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
-            }
+            if (datetime is { Kind: DateTimeKind.Utc }) datetime = dateTimeService.ConvertToUserTime(datetime.Value, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
             return datetime;
         }
 

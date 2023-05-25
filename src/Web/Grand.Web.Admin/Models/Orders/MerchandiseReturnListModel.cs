@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders
 {
-    public partial class MerchandiseReturnListModel : BaseModel
+    public class MerchandiseReturnListModel : BaseModel
     {
         public MerchandiseReturnListModel()
         {
