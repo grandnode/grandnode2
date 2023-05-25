@@ -4,8 +4,8 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Models.ActivityLog;
 using Grand.Web.Admin.Models.Logging;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
@@ -43,11 +43,9 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> SaveTypes(IFormCollection form)
+        public async Task<IActionResult> SaveTypes(ActivityTypeModel model)
         {
-            var formKey = "checkbox_activity_types";
-            var checkedActivityTypes = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x).ToList();
-
+            var checkedActivityTypes = model.ActivityTypes.ToList();
             await _activityLogViewModelService.SaveTypes(checkedActivityTypes);
 
             Success(_translationService.GetResource("Admin.Settings.ActivityLog.ActivityLogType.Updated"));
