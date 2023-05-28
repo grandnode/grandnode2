@@ -2061,7 +2061,7 @@ namespace Grand.Web.Admin.Services
             }
             return model;
         }
-        public virtual async Task UpdateProductAttributeConditionModel(Product product, ProductAttributeMapping productAttributeMapping, ProductAttributeConditionModel model, Dictionary<string, string> form)
+        public virtual async Task UpdateProductAttributeConditionModel(Product product, ProductAttributeMapping productAttributeMapping, ProductAttributeConditionModel model, IDictionary<string, string> form)
         {
             var customAttributes = new List<CustomAttribute>();
             if (model.EnableCondition)
