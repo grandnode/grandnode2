@@ -107,10 +107,10 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> List(IFormCollection formValues)
+        public async Task<IActionResult> List(ExchangeRateModel model)
         {
-            _currencySettings.ActiveExchangeRateProviderSystemName = formValues["exchangeRateProvider"];
-            _currencySettings.AutoUpdateEnabled = !formValues["autoUpdateEnabled"].Equals("false");
+            _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
+            _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
             await _settingService.SaveSetting(_currencySettings);
             return RedirectToAction("List", "Currency");
         }
