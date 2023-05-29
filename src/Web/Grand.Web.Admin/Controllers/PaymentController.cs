@@ -189,7 +189,7 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost, ActionName("MethodRestrictions")]
         [RequestFormLimits(ValueCountLimit = 2048)]
-        public async Task<IActionResult> MethodRestrictionsSave(IFormCollection form)
+        public async Task<IActionResult> MethodRestrictionsSave(IDictionary<string, string[]> model)
         {
             var paymentMethods = _paymentService.LoadAllPaymentMethods();
             var countries = await _countryService.GetAllCountries(showHidden: true);
@@ -197,35 +197,24 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var pm in paymentMethods)
             {
-                var formKey = "restrict_" + pm.SystemName;
-                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-                    .Select(x => x).ToList();
-
-                var newCountryIds = new List<string>();
-                foreach (var c in countries)
+                if (model.TryGetValue($"restrict_{pm.SystemName.Replace(".", "")}", out var countryIds))
                 {
-                    if (countryIdsToRestrict.Contains(c.Id))
-                    {
-                        newCountryIds.Add(c.Id);
-                    }
+                    var countryIdsToRestrict = countryIds.ToList();
+                    var newCountryIds = (from c in countries where countryIdsToRestrict.Contains(c.Id) select c.Id).ToList();
+                    await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
                 }
-                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
+                else
+                    await _paymentService.SaveRestrictedCountryIds(pm, new List<string>());
 
-                formKey = "restrictship_" + pm.SystemName;
-                var shipIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-                    .Select(x => x).ToList();
-
-                var newShipIds = new List<string>();
-                foreach (var s in shippings)
+                if (model.TryGetValue($"restrictship_{pm.SystemName.Replace(".", "")}", out var shipIds))
                 {
-                    if (shipIdsToRestrict.Contains(s.Name))
-                    {
-                        newShipIds.Add(s.Name);
-                    }
+                    var shipIdsToRestrict = shipIds.ToList();
+                    var newShipIds = (from s in shippings where shipIdsToRestrict.Contains(s.Name) select s.Name).ToList();
+                    await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
                 }
-                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
+                else
+                    await _paymentService.SaveRestrictedShippingIds(pm, new List<string>());
             }
-
             Success(_translationService.GetResource("Admin.Configuration.Payment.MethodRestrictions.Updated"));
             //selected tab
             await SaveSelectedTabIndex();
