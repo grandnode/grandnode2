@@ -676,7 +676,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AddressCreate(CustomerAddressModel model, IFormCollection form)
+        public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
         {
             var customer = await _customerService.GetCustomerById(model.CustomerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -684,7 +684,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
             var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
@@ -724,7 +724,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
 
-        public async Task<IActionResult> AddressEdit(CustomerAddressModel model, IFormCollection form)
+        public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
         {
             var customer = await _customerService.GetCustomerById(model.CustomerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -737,7 +737,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", new { id = customer.Id });
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
             var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {

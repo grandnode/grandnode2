@@ -71,7 +71,7 @@ namespace Grand.Web.Admin.Models.Orders
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download")]
         [UIHint("Download")]
         public string AddMerchandiseReturnNoteDownloadId { get; set; }
-
+        
         public class MerchandiseReturnItemModel : BaseEntityModel
         {
             public string ProductId { get; set; }

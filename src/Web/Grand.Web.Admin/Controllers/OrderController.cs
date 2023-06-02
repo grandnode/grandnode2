@@ -1155,7 +1155,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AddressEdit(OrderAddressModel model, IFormCollection form,
+        public async Task<IActionResult> AddressEdit(OrderAddressModel model, 
             [FromServices] IAddressAttributeService addressAttributeService,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
@@ -1185,7 +1185,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No address found with the specified id");
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {

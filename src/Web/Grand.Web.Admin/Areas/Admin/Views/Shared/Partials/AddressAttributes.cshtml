@@ -1,7 +1,8 @@
 ﻿@model IList<AddressModel.AddressAttributeModel>
 @foreach (var attribute in Model)
 {
-    var controlId = $"address_attribute_{attribute.Id}";
+    //var controlId = $"address_attribute_{attribute.Id}";
+    var controlId = $"attributes[{attribute.Id}]";
     var textPrompt = attribute.Name;
 
     <div class="form-group">

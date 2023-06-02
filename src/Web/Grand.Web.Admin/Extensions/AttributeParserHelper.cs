@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Microsoft.AspNetCore.Http;
+using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Extensions
 {
@@ -10,24 +10,23 @@ namespace Grand.Web.Admin.Extensions
     /// </summary>
     public static class AttributeParserHelper
     {
-        public static async Task<List<CustomAttribute>> ParseCustomAddressAttributes(this IFormCollection form,
+        public static async Task<List<CustomAttribute>> ParseCustomAddressAttributes(this AddressModel address,
             IAddressAttributeParser addressAttributeParser,
             IAddressAttributeService addressAttributeService)
         {
-            if (form == null)
-                throw new ArgumentNullException(nameof(form));
+            if (address == null)
+                throw new ArgumentNullException(nameof(address));
 
             var customAttributes = new List<CustomAttribute>();
             var attributes = await addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
             {
-                var controlId = $"address_attribute_{attribute.Id}";
                 switch (attribute.AttributeControlType)
                 {
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                         {
-                            form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = address.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = addressAttributeParser.AddAddressAttribute(customAttributes,
@@ -37,16 +36,17 @@ namespace Grand.Web.Admin.Extensions
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = address.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                foreach (var item in cblAttributes.Split(','))
                                 {
                                     if (!string.IsNullOrEmpty(item))
                                         customAttributes = addressAttributeParser.AddAddressAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }
                             }
+
                         }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
@@ -66,10 +66,10 @@ namespace Grand.Web.Admin.Extensions
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                         {
-                            form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = address.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = addressAttributeParser.AddAddressAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
@@ -77,8 +77,8 @@ namespace Grand.Web.Admin.Extensions
                         break;
                     case AttributeControlType.Datepicker:
                     case AttributeControlType.ColorSquares:
-                    case AttributeControlType.FileUpload:
                     case AttributeControlType.ImageSquares:
+                    case AttributeControlType.FileUpload:
                     //not supported address attributes
                     default:
                         break;
