@@ -2061,7 +2061,8 @@ namespace Grand.Web.Admin.Services
             }
             return model;
         }
-        public virtual async Task UpdateProductAttributeConditionModel(Product product, ProductAttributeMapping productAttributeMapping, ProductAttributeConditionModel model, IDictionary<string, string> form)
+        public virtual async Task UpdateProductAttributeConditionModel(Product product, ProductAttributeMapping productAttributeMapping, ProductAttributeConditionModel model,
+            IDictionary<string, string> form)
         {
             var customAttributes = new List<CustomAttribute>();
             if (model.EnableCondition)
@@ -2347,7 +2348,7 @@ namespace Grand.Web.Admin.Services
             }
             return model;
         }
-        public virtual async Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model, Dictionary<string, string> form)
+        public virtual async Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model, Dictionary<string, string> productAttributes)
         {
             var customAttributes = new List<CustomAttribute>();
             var warnings = new List<string>();
@@ -2411,7 +2412,7 @@ namespace Grand.Web.Admin.Services
                         case AttributeControlType.ColorSquares:
                         case AttributeControlType.ImageSquares:
                             {
-                                form.TryGetValue(controlId, out var ctrlAttributes);
+                                productAttributes.TryGetValue(controlId, out var ctrlAttributes);
                                 if (!string.IsNullOrEmpty(ctrlAttributes))
                                 {
                                     customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
@@ -2421,7 +2422,7 @@ namespace Grand.Web.Admin.Services
                             break;
                         case AttributeControlType.Checkboxes:
                             {
-                                form.TryGetValue(controlId, out var cblAttributes);
+                                productAttributes.TryGetValue(controlId, out var cblAttributes);
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
                                     foreach (var item in cblAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
