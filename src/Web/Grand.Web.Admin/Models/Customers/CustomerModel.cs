@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using Grand.Web.Common.Models;
 using Grand.Domain.Common;
+using Grand.Web.Common.Binders;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Models.Customers
 {
@@ -128,6 +130,9 @@ namespace Grand.Web.Admin.Models.Customers
         public string Fax { get; set; }
 
         public List<CustomerAttributeModel> CustomerAttributes { get; set; }
+        
+        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
         public string AdminComment { get; set; }
