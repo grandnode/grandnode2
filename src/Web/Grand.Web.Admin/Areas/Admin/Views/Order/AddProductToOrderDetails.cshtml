@@ -4,8 +4,6 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="AddProductToOrderDetails" asp-route-orderId="@Model.OrderId"
       asp-route-productId="@Model.ProductId" enctype="multipart/form-data" method="post" id="product-details-form">
-
-    
     <div asp-validation-summary="All"></div>
     <vc:admin-widget widget-zone="order_add_products_details_top" additional-data="Model" />
     <div class="row">

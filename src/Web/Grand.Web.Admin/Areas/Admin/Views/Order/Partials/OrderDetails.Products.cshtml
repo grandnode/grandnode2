@@ -1,5 +1,6 @@
 ﻿@model OrderModel
 @using Grand.Domain.Tax;
+
 <vc:admin-widget widget-zone="order_details_products_top" additional-data="Model" />
 <div class="table-responsive order-table">
     <table class="table table-bordered table-striped table-hover">
@@ -90,8 +91,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model.Items)
+                        @for (int j = 0; j < Model.Items.Count; j++)
                         {
+                            var item = Model.Items[j];
+                            <input asp-for="@Model.Items[j].Id" type="hidden" />
                             <tr>
                                 <td>
                                     <img src="@item.PictureThumbnailUrl" alt="" title="" />
@@ -166,13 +169,14 @@
                                                 {
                                                     <div>
                                                         @string.Format(Loc["Admin.Orders.Products.Download.DownloadCount"], item.DownloadCount)
-                                                        <input type="submit" asp-action="ResetDownloadCount" name="btnResetDownloadCount@(item.Id)" value="@Loc["Admin.Orders.Products.Download.ResetDownloadCount"]" title="@Loc["Admin.Orders.Products.Download.ResetDownloadCount.Title"]" id="btnResetDownloadCount@(item.Id)" class="k-button" />
+                                                        <input type="submit" asp-action="ResetDownloadCount" asp-route-orderItemId="@(item.Id)" 
+                                                               name="btnResetDownloadCount@(item.Id)" value="@Loc["Admin.Orders.Products.Download.ResetDownloadCount"]" title="@Loc["Admin.Orders.Products.Download.ResetDownloadCount.Title"]" id="btnResetDownloadCount@(item.Id)" class="k-button" />
                                                         <hr />
                                                     </div>
                                                     if (item.DownloadActivationType == DownloadActivationType.Manually)
                                                     {
                                                         <div>
-                                                            <input type="submit" name="btnPvActivateDownload@(item.Id)" @(item.IsDownloadActivated ? " value=" + Loc["Admin.Orders.Products.Download.Deactivate"] : " value=" + Loc["Admin.Orders.Products.Download.Activate"]) id="btnPvActivateDownload@(item.Id)" class="k-button" asp-action="ActivateDownloadItem" />
+                                                            <input type="submit" name="btnPvActivateDownload@(item.Id)" @(item.IsDownloadActivated ? " value=" + Loc["Admin.Orders.Products.Download.Deactivate"] : " value=" + Loc["Admin.Orders.Products.Download.Activate"]) id="btnPvActivateDownload@(item.Id)" class="k-button" asp-action="ActivateDownloadItem" asp-route-orderItemId="@(item.Id)" />
                                                             <hr />
                                                         </div>
                                                     }
@@ -235,7 +239,10 @@
                                                     @Loc["Admin.Orders.Products.Edit.ExclTax"]
                                                 </td>
                                                 <td>
+                                                    @*
                                                     <input name="pvUnitPriceExclTax@(item.Id)" type="text" value="@item.UnitPriceExclTaxValue" id="pvUnitPriceExclTax@(item.Id)" class="adminInput" style="width:80px;" />
+                                                    *@
+                                                    <input asp-for="@Model.Items[j].UnitPriceExclTaxValue" class="adminInput" style="width:40px;" />
                                                 </td>
                                             </tr>
                                         </table>
@@ -247,7 +254,10 @@
                                         <table class="order-edit">
                                             <tr>
                                                 <td colspan="2">
+                                                    @*
                                                     <input name="pvQuantity@(item.Id)" type="text" value="@item.Quantity" id="pvQuantity@(item.Id)" class="adminInput" style="width:40px;" />
+                                                    *@
+                                                    <input asp-for="@Model.Items[j].Quantity" class="adminInput" style="width:40px;" />
                                                 </td>
                                             </tr>
                                         </table>
@@ -313,9 +323,9 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             <button type="submit" name="btnEditOrderItem@(item.Id)" id="btnEditOrderItem@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)(true);return false; " class="k-button" title="@Loc["Admin.Common.Edit"]"><span class="k-icon k-i-edit"></span></button>
-                                            <button type="submit" name="btnDeleteOrderItem@(item.Id)" asp-action="DeleteOrderItem" id="btnDeleteOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Delete"]"><span class="k-icon k-i-delete"></span></button>
-                                            <button type="submit" name="btnCancelOrderItem@(item.Id)" asp-action="CancelOrderItem" id="btnCancelOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Cancel"]"><span class="k-icon k-i-cancel"></span></button>
-                                            <button type="submit" name="btnSaveOrderItem@(item.Id)" asp-action="SaveOrderItem" id="btnSaveOrderItem@(item.Id)" style="display:none;" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Save"]"><span class="k-icon k-i-save"></span></button>
+                                            <button type="submit" name="btnDeleteOrderItem@(item.Id)" asp-action="DeleteOrderItem" asp-route-orderItemId="@(item.Id)" id="btnDeleteOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Delete"]"><span class="k-icon k-i-delete"></span></button>
+                                            <button type="submit" name="btnCancelOrderItem@(item.Id)" asp-action="CancelOrderItem" asp-route-orderItemId="@(item.Id)" id="btnCancelOrderItem@(item.Id)" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Cancel"]"><span class="k-icon k-i-cancel"></span></button>
+                                            <button type="submit" name="btnSaveOrderItem@(item.Id)" asp-action="SaveOrderItem" asp-route-orderItemId="@(item.Id)" id="btnSaveOrderItem@(item.Id)" style="display:none;" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " class="k-button" title="@Loc["Admin.Common.Save"]"><span class="k-icon k-i-save"></span></button>
                                             <button type="submit" name="btnCancel@(item.Id)" id="btnCancel@(item.Id)" onclick="toggleOrderItemEdit@(item.Id)    (false);return false; " class="k-button"><span class="k-icon k-i-cancel" title="@Loc["Admin.Common.Cancel"]"></span></button>
                                         </div>
                                     </td>
