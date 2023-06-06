@@ -1,6 +1,9 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Binders;
+using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
@@ -54,6 +57,9 @@ namespace Grand.Web.Admin.Models.Catalog
 
         public IList<ProductAttributeModel> ProductAttributes { get; set; }
 
+        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+        
         public IList<string> Warnings { get; set; }
 
         public string ProductId { get; set; }

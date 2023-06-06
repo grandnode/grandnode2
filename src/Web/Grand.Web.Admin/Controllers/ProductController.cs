@@ -2405,7 +2405,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> AttributeCombinationPopup(string productId,
-            ProductAttributeCombinationModel model, Dictionary<string, string> values)
+            ProductAttributeCombinationModel model)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -2420,7 +2420,7 @@ namespace Grand.Web.Admin.Controllers
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
             
-            var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model, values);
+            var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model);
             if (!warnings.Any())
             {
                 return Content("");

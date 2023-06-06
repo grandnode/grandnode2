@@ -2348,7 +2348,7 @@ namespace Grand.Web.Admin.Services
             }
             return model;
         }
-        public virtual async Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model, Dictionary<string, string> productAttributes)
+        public virtual async Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model)
         {
             var customAttributes = new List<CustomAttribute>();
             var warnings = new List<string>();
@@ -2404,7 +2404,6 @@ namespace Grand.Web.Admin.Services
                 }
                 foreach (var attribute in attributes)
                 {
-                    var controlId = $"product_attribute_{attribute.Id}";
                     switch (attribute.AttributeControlTypeId)
                     {
                         case AttributeControlType.DropdownList:
@@ -2412,7 +2411,7 @@ namespace Grand.Web.Admin.Services
                         case AttributeControlType.ColorSquares:
                         case AttributeControlType.ImageSquares:
                             {
-                                productAttributes.TryGetValue(controlId, out var ctrlAttributes);
+                                var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                                 if (!string.IsNullOrEmpty(ctrlAttributes))
                                 {
                                     customAttributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customAttributes,
@@ -2422,7 +2421,7 @@ namespace Grand.Web.Admin.Services
                             break;
                         case AttributeControlType.Checkboxes:
                             {
-                                productAttributes.TryGetValue(controlId, out var cblAttributes);
+                                var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                                 if (!string.IsNullOrEmpty(cblAttributes))
                                 {
                                     foreach (var item in cblAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))

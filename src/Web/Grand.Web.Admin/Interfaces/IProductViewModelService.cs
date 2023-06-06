@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel();
         Task<IList<ProductModel.ProductAttributeCombinationModel>> PrepareProductAttributeCombinationModel(Product product);
         Task<ProductAttributeCombinationModel> PrepareProductAttributeCombinationModel(Product product, string combinationId);
-        Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model, Dictionary<string, string> productAttributes);
+        Task<IList<string>> InsertOrUpdateProductAttributeCombinationPopup(Product product, ProductAttributeCombinationModel model);
         Task GenerateAllAttributeCombinations(Product product);
 
         Task ClearAllAttributeCombinations(Product product);
