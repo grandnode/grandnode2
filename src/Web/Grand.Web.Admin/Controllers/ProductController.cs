@@ -2065,7 +2065,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model, IDictionary<string, string> form)
+        public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
@@ -2083,7 +2083,7 @@ namespace Grand.Web.Admin.Controllers
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
 
-            await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model, form);
+            await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
             return Content("");
         }
 
