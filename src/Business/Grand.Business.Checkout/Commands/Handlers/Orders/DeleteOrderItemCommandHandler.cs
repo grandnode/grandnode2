@@ -55,7 +55,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             if (product.IsGiftVoucher)
             {
-                return (true, "You can't cancel gift voucher, please delete it.");
+                var giftVouchers = await _giftVoucherService.GetGiftVouchersByPurchasedWithOrderItemId(request.OrderItem.Id);
+                if(giftVouchers.Any())
+                    return (true, "You can't delete item with gift voucher, first go to gift vouchers and delete it");
             }
 
             var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
