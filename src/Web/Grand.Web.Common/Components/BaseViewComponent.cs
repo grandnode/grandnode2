@@ -13,8 +13,7 @@ namespace Grand.Web.Common.Components
 
         public new IViewComponentResult View<TModel>(TModel model)
         {
-            var viewJson = Request?.Headers["X-Response-View"];
-            if ((bool)viewJson?.Equals("Json"))
+            if(Request?.ContentType == "application/json")
             {
                 return new JsonContentViewComponentResult(JsonConvert.SerializeObject(model));
             }
