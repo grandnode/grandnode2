@@ -256,8 +256,8 @@
                                 CustomerGroupId: { editable: true, type: "string" },
                                 Quantity: { editable: true, type: "number" },
                                 Price: { editable: true, type: "number" },
-                                //StartDateTime: { editable: false, type: "date" },
-                                //EndDateTime: { editable: false, type: "date" },
+                                StartDateTime: { editable: false, type: "date" },
+                                EndDateTime: { editable: false, type: "date" },
                                 Id: { editable: false, type: "string" }
                             }
                         }
@@ -311,9 +311,11 @@
                 }, {
                     field: "StartDateTime",
                     title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]",
+                    format: "{0:G}"
                 }, {
                     field: "EndDateTime",
                     title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]",
+                    format: "{0:G}"
                 }, {
                     field: "Id",
                     title: "@Loc["Admin.Common.Edit"]",
