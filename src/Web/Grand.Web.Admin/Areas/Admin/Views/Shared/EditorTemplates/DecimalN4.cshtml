@@ -1,8 +1,11 @@
 @model decimal
-@Html.TextBoxFor(model => model)
-@using System.Globalization
+<input asp-for="@Model"/>
 <script>
     $(document).ready(function() {
+       try {
+        $("#@Html.IdForModel()").rules("remove", 'number');
+       }
+       catch {}
        $("#@Html.IdForModel()").kendoNumericTextBox({
            culture: "@CultureInfo.CurrentCulture.Name",
            format: 'n4',

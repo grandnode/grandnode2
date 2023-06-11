@@ -5,11 +5,6 @@ namespace Grand.Infrastructure.Configuration
     /// </summary>
     public class AppConfig 
     {
-        public AppConfig()
-        {
-            SupportedCultures = new List<string>();
-        }
-
         /// <summary>
         /// Indicates whether we should Disable HostedService - BackgroundServiceTask
         /// </summary>
@@ -37,12 +32,6 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool DisplayFullErrorStack { get; set; }
         public bool UseSessionStateTempDataProvider { get; set; }
-        /// <summary>
-        /// Localization middleware
-        /// </summary>
-        public bool UseRequestLocalization { get; set; }
-        public string DefaultRequestCulture { get; set; }
-        public IList<string> SupportedCultures { get; set; }
 
         /// <summary>
         /// Gets or sets a value custom response header encoding may be needed in some cases

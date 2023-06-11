@@ -108,22 +108,7 @@ namespace Grand.Web.Common.Startup
             {
                 application.UseHtmlMinification();
             }
-
-            //use request localization
-            if (appConfig.UseRequestLocalization)
-            {
-                var supportedCultures = appConfig.SupportedCultures.Select(culture => new CultureInfo(culture)).ToList();
-                application.UseRequestLocalization(new RequestLocalizationOptions
-                {
-                    DefaultRequestCulture = new RequestCulture(appConfig.DefaultRequestCulture),
-                    SupportedCultures = supportedCultures,
-                    SupportedUICultures = supportedCultures
-                });
-            }
-            else
-                //use default request localization
-                application.UseRequestLocalization();
-
+            
             //use static files feature
             application.UseGrandStaticFiles(appConfig);
 

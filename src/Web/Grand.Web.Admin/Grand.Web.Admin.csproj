@@ -6,7 +6,7 @@
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<UseAppHost>false</UseAppHost>
 		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
-		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />

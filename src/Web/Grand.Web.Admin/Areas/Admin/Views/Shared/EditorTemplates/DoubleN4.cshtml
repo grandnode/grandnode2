@@ -1,6 +1,5 @@
 @model double
-@Html.TextBoxFor(model => model)
-@using System.Globalization
+<input asp-for="@Model"/>
 <script>
     $(document).ready(function() {
        $("#@Html.IdForModel()").kendoNumericTextBox({

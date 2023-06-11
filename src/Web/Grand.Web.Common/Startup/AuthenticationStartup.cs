@@ -45,6 +45,8 @@ namespace Grand.Web.Common.Startup
 
             //set work context
             application.UseMiddleware<WorkContextMiddleware>();
+            //set culture
+            application.UseMiddleware<CultureSettingMiddleware>();
 
         }
 

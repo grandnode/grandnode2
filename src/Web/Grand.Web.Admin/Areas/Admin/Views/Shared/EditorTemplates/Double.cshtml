@@ -1,11 +1,15 @@
 @model double
-@Html.TextBoxFor(model => model)
-
+<input asp-for="@Model"/>
 <script>
     $(document).ready(function () {
-        $("#@Html.IdForModel()").kendoNumericTextBox({
-            format: "0.############",
-            decimals: 12,
+       try {
+        $("#@Html.IdForModel()").rules("remove", 'number');
+       }
+       catch {}
+         $("#@Html.IdForModel()").kendoNumericTextBox({
+            culture: "@CultureInfo.CurrentCulture.Name",
+            format: 'n2',
+            decimals: 2
         });
     });
 </script>

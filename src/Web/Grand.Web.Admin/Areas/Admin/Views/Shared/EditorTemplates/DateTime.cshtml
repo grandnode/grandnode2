@@ -1,9 +1,10 @@
 @model DateTime
-<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToString("M/d/yyyy h:mm:ss tt"))" />
+<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@(Model)" />
+
 <script>
     $(document).ready(function () {
         $("#@Html.IdForModel()").kendoDateTimePicker({
-            parseFormats: ["M/d/yyyy h:mm:ss tt"],
+            culture: "@CultureInfo.CurrentCulture.Name"
         });
     });
 </script>
