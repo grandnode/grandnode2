@@ -263,7 +263,10 @@ extend('min', {
         if (text) {
             return text;
         }
-        return 'This ' + fieldName + ' should have at least  characters.'
+        const element = document.getElementsByName(fieldName);
+        let minLength = element[0].minLength;
+
+        return 'This ' + fieldName + ' should be at least ' + minLength + ' characters.'
     }
 });
 
