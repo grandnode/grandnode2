@@ -2065,7 +2065,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model, IFormCollection form)
+        public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
@@ -2083,12 +2083,7 @@ namespace Grand.Web.Admin.Controllers
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
 
-            var formcollection = new Dictionary<string, string>();
-            foreach (var item in form)
-            {
-                formcollection.Add(item.Key, item.Value);
-            }
-            await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model, formcollection);
+            await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
             return Content("");
         }
 
@@ -2410,7 +2405,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> AttributeCombinationPopup(string productId,
-            ProductAttributeCombinationModel model, IFormCollection form)
+            ProductAttributeCombinationModel model)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -2424,13 +2419,8 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
-
-            var formcollection = new Dictionary<string, string>();
-            foreach (var item in form)
-            {
-                formcollection.Add(item.Key, item.Value);
-            }
-            var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model, formcollection);
+            
+            var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model);
             if (!warnings.Any())
             {
                 return Content("");

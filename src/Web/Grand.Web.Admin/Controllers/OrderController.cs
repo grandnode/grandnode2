@@ -663,7 +663,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> SaveOrderItem(string id, IFormCollection form)
+        public async Task<IActionResult> SaveOrderItem(string id, OrderItemsModel model)
         {
             var order = await _orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
@@ -684,39 +684,29 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", "Order", new { id });
             }
 
-            //get order item identifier
-            var orderItemId = "";
-            foreach (var formValue in form.Keys)
-                if (formValue.StartsWith("btnSaveOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue["btnSaveOrderItem".Length..];
-
-            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            if (!double.TryParse(form["pvUnitPriceExclTax" + orderItemId], out var unitPriceExclTax))
-                unitPriceExclTax = orderItem.UnitPriceExclTax;
-            if (!int.TryParse(form["pvQuantity" + orderItemId], out var quantity))
-                quantity = orderItem.Quantity;
-
-            if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+            var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId); 
+            if (itemModel.Quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
             {
                 Error("You can't change quantity");
                 return RedirectToAction("Edit", "Order", new { id });
             }
 
-            if (orderItem.Quantity == quantity && orderItem.UnitPriceExclTax == unitPriceExclTax)
+            if (orderItem.Quantity == itemModel.Quantity && orderItem.UnitPriceExclTax == itemModel.UnitPriceExclTaxValue)
             {
                 Error("Nothing has been changed");
                 return RedirectToAction("Edit", "Order", new { id });
             }
 
-            orderItem.Quantity = quantity;
-            orderItem.OpenQty = quantity;
+            orderItem.Quantity = itemModel.Quantity;
+            orderItem.OpenQty = itemModel.Quantity;
 
-            if (orderItem.UnitPriceExclTax != unitPriceExclTax)
+            if (orderItem.UnitPriceExclTax != itemModel.UnitPriceExclTaxValue)
             {
-                orderItem.UnitPriceExclTax = unitPriceExclTax;
+                orderItem.UnitPriceExclTax = itemModel.UnitPriceExclTaxValue;
                 orderItem.UnitPriceInclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.TaxRate / 100 + orderItem.UnitPriceExclTax, 2);
                 orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
                 orderItem.PriceExclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.Quantity, 2);
@@ -743,7 +733,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> DeleteOrderItem(string id, IFormCollection form)
+        public async Task<IActionResult> DeleteOrderItem(string id, string orderItemId)
         {
             var order = await _orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
@@ -758,11 +748,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
-            //get order item identifier
-            var orderItemId = "";
-            foreach (var formValue in form.Keys)
-                if (formValue.StartsWith("btnDeleteOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue["btnDeleteOrderItem".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -781,7 +766,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> CancelOrderItem(string id, IFormCollection form)
+        public async Task<IActionResult> CancelOrderItem(string id, string orderItemId)
         {
             var order = await _orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
@@ -796,11 +781,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
-            //get order item identifier
-            var orderItemId = "";
-            foreach (var formValue in form.Keys)
-                if (formValue.StartsWith("btnCancelOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue["btnCancelOrderItem".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -821,7 +801,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ResetDownloadCount(string id, IFormCollection form)
+        public async Task<IActionResult> ResetDownloadCount(string id, string orderItemId)
         {
             var order = await _orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
@@ -832,13 +812,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
-
-            //get order item identifier
-            var orderItemId = "";
-            foreach (var formValue in form.Keys)
-                if (formValue.StartsWith("btnResetDownloadCount", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue["btnResetDownloadCount".Length..];
-
+            
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
@@ -862,7 +836,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ActivateDownloadItem(string id, IFormCollection form)
+        public async Task<IActionResult> ActivateDownloadItem(string id, string orderItemId)
         {
             var order = await _orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
@@ -873,12 +847,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
-
-            //get order item identifier
-            var orderItemId = "";
-            foreach (var formValue in form.Keys)
-                if (formValue.StartsWith("btnPvActivateDownload", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue["btnPvActivateDownload".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -1088,13 +1056,13 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId, IFormCollection form)
+        public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
         {
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = orderId });
+                return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await _orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
@@ -1103,15 +1071,15 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
 
-            var warnings = await _orderViewModelService.AddProductToOrderDetails(orderId, productId, form);
+            var warnings = await _orderViewModelService.AddProductToOrderDetails(model);
             if (!warnings.Any())
                 //redirect to order details page
-                return RedirectToAction("Edit", "Order", new { id = orderId });
+                return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
             //errors
-            var model = await _orderViewModelService.PrepareAddProductToOrderModel(order, productId);
-            model.Warnings.AddRange(warnings);
-            return View(model);
+            var result = await _orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+            result.Warnings.AddRange(warnings);
+            return View(result);
         }
 
         #endregion
@@ -1155,7 +1123,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AddressEdit(OrderAddressModel model, IFormCollection form,
+        public async Task<IActionResult> AddressEdit(OrderAddressModel model, 
             [FromServices] IAddressAttributeService addressAttributeService,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
@@ -1185,7 +1153,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No address found with the specified id");
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {

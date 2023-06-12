@@ -14,13 +14,15 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Shipping;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Web.Admin.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Domain;
+using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Extensions.Mapping.Settings;
+using Microsoft.Extensions.Primitives;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -40,7 +42,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly IStoreService _storeService;
         private readonly IGroupService _groupService;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IWorkContext _workContext;
         #endregion
 
@@ -58,7 +59,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             IStoreService storeService,
             IGroupService groupService,
-            IServiceProvider serviceProvider,
             IWorkContext workContext)
         {
             _shippingService = shippingService;
@@ -72,7 +72,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _storeService = storeService;
             _groupService = groupService;
-            _serviceProvider = serviceProvider;
             _workContext = workContext;
         }
 
@@ -716,50 +715,30 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost, ActionName("Restrictions")]
         [RequestFormLimits(ValueCountLimit = 2048)]
-        public async Task<IActionResult> RestrictionSave(IFormCollection form)
+        public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
         {
             var countries = await _countryService.GetAllCountries(showHidden: true);
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
             var customerGroups = await _groupService.GetAllCustomerGroups();
-
             foreach (var shippingMethod in shippingMethods)
             {
-                var formKey = "restrict_" + shippingMethod.Id;
-                var countryIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x)
-                    .ToList();
+                await SaveRestrictedCountries(model, shippingMethod, countries);
+                await SaveRestrictedGroup(model, shippingMethod, customerGroups);
+            }
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.Restrictions.Updated"));
+            //selected tab
+            await SaveSelectedTabIndex();
 
-                foreach (var country in countries)
-                {
+            return RedirectToAction("Restrictions");
+        }
 
-                    var restrict = countryIdsToRestrict.Contains(country.Id);
-                    if (restrict)
-                    {
-                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
-                        {
-                            shippingMethod.RestrictedCountries.Add(country);
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
-                    }
-                    else
-                    {
-                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
-                        {
-                            shippingMethod.RestrictedCountries.Remove(shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
-                    }
-                }
-
-                formKey = "restrictgroup_" + shippingMethod.Id;
-                var roleIdsToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x)
-                    .ToList();
-
-
+        private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod, IPagedList<CustomerGroup> customerGroups)
+        {
+            if (model.TryGetValue($"restrictgroup_{shippingMethod.Id}", out var roleIds))
+            {
+                var roleIdsToRestrict = roleIds.ToList();
                 foreach (var role in customerGroups)
                 {
-
                     var restrict = roleIdsToRestrict.Contains(role.Id);
                     if (restrict)
                     {
@@ -779,12 +758,45 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
             }
+            else
+            {
+                shippingMethod.RestrictedGroups.Clear();
+                await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+            }
+        }
 
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.Restrictions.Updated"));
-            //selected tab
-            await SaveSelectedTabIndex();
-
-            return RedirectToAction("Restrictions");
+        private async Task SaveRestrictedCountries(IDictionary<string, string[]> model, ShippingMethod shippingMethod, IList<Country> countries)
+        {
+            if (model.TryGetValue($"restrict_{shippingMethod.Id}", out var countryIds))
+            {
+                var countryIdsToRestrict = countryIds.ToList();
+                foreach (var country in countries)
+                {
+                    var restrict = countryIdsToRestrict.Contains(country.Id);
+                    if (restrict)
+                    {
+                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
+                        {
+                            shippingMethod.RestrictedCountries.Add(country);
+                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+                        }
+                    }
+                    else
+                    {
+                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
+                        {
+                            shippingMethod.RestrictedCountries.Remove(
+                                shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
+                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                shippingMethod.RestrictedCountries.Clear();
+                await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+            }
         }
 
         #endregion

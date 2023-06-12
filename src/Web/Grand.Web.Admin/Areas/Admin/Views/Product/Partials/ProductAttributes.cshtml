@@ -4,7 +4,7 @@
     <div class="form-group">
             @foreach (var attribute in Model)
             {
-                var controlId = $"product_attribute_{attribute.Id}";
+                var controlId = $"attributes[{attribute.Id}]";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
                 <div class="form-group">
                 <div class="col-md-3 col-sm-3">

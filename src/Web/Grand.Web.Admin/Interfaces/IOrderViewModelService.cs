@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Interfaces
         Task InsertOrderNote(Order order, string downloadId, bool displayToCustomer, string message);
         Task DeleteOrderNote(Order order, string id);
         Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model, List<CustomAttribute> customAttributes);
-        Task<IList<string>> AddProductToOrderDetails(string orderId, string productId, IFormCollection form);
+        Task<IList<string>> AddProductToOrderDetails(AddProductToOrderModel model);
         Task<IList<Order>> PrepareOrders(OrderListModel model);
         Task SaveOrderTags(Order order, string tags);
 

@@ -24,9 +24,9 @@ using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -104,10 +104,10 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
-        protected virtual async Task<IList<CustomAttribute>> ParseCustomCustomerAttributes(IFormCollection form)
+        protected virtual async Task<IList<CustomAttribute>> ParseCustomCustomerAttributes(IList<CustomAttributeModel> model)
         {
-            if (form == null)
-                throw new ArgumentNullException(nameof(form));
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
 
             var customAttributes = new List<CustomAttribute>();
             var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                         {
-                            form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
@@ -129,10 +129,10 @@ namespace Grand.Web.Admin.Controllers
                         break;
                     case AttributeControlType.Checkboxes:
                         {
-                            form.TryGetValue(controlId, out var cblAttributes);
+                            var cblAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(cblAttributes))
                             {
-                                foreach (var item in cblAttributes)
+                                foreach (var item in cblAttributes.Split(','))
                                 {
                                     if (!string.IsNullOrEmpty(item))
                                         customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
@@ -158,7 +158,7 @@ namespace Grand.Web.Admin.Controllers
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                         {
-                            form.TryGetValue(controlId, out var ctrlAttributes);
+                            var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 var enteredText = ctrlAttributes.ToString().Trim();
@@ -223,7 +223,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Create(CustomerModel model, bool continueEditing, IFormCollection form)
+        public async Task<IActionResult> Create(CustomerModel model, bool continueEditing)
         {
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
@@ -264,7 +264,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                model.Attributes = await ParseCustomCustomerAttributes(form);
+                model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
                 var customer = await _customerViewModelService.InsertCustomerModel(model);
 
                 //password
@@ -318,7 +318,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing, IFormCollection form)
+        public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing)
         {
             var customer = await _customerService.GetCustomerById(model.Id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -358,7 +358,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 try
                 {
-                    model.Attributes = await ParseCustomCustomerAttributes(form);
+                    model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
                     customer = await _customerViewModelService.UpdateCustomerModel(customer, model);
                     //change password
                     if (!string.IsNullOrWhiteSpace(model.Password))
@@ -676,7 +676,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AddressCreate(CustomerAddressModel model, IFormCollection form)
+        public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
         {
             var customer = await _customerService.GetCustomerById(model.CustomerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -684,7 +684,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
             var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {
@@ -724,7 +724,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
 
-        public async Task<IActionResult> AddressEdit(CustomerAddressModel model, IFormCollection form)
+        public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
         {
             var customer = await _customerService.GetCustomerById(model.CustomerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -737,7 +737,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("Edit", new { id = customer.Id });
 
             //custom address attributes
-            var customAttributes = await form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
             var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
             foreach (var error in customAttributeWarnings)
             {

@@ -12,7 +12,6 @@ using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
@@ -150,7 +149,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Edit(MerchandiseReturnModel model, bool continueEditing, IFormCollection form,
+        public async Task<IActionResult> Edit(MerchandiseReturnModel model, bool continueEditing, 
             [FromServices] IAddressAttributeService addressAttributeService,
             [FromServices] IAddressAttributeParser addressAttributeParser,
             [FromServices] OrderSettings orderSettings
@@ -173,7 +172,7 @@ namespace Grand.Web.Admin.Controllers
             var customAddressAttributes = new List<CustomAttribute>();
             if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
             {
-                customAddressAttributes = await form.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+                customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
                 var customAddressAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAddressAttributes);
                 foreach (var error in customAddressAttributeWarnings)
                 {

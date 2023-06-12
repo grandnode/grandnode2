@@ -10,7 +10,6 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Models.Permissions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
@@ -67,39 +66,40 @@ namespace Grand.Web.Admin.Controllers
                     Actions = pr.Actions.Any()
                 });
             }
+
             foreach (var cr in customerGroups)
             {
                 model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = cr.Id, Name = cr.Name });
             }
+
             foreach (var pr in permissionRecords)
-                foreach (var cr in customerGroups)
-                {
-                    var allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
-                    if (!model.Allowed.ContainsKey(pr.SystemName))
-                        model.Allowed[pr.SystemName] = new Dictionary<string, bool>();
-                    model.Allowed[pr.SystemName][cr.Id] = allowed;
-                }
+            foreach (var cr in customerGroups)
+            {
+                var allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
+                if (!model.Allowed.ContainsKey(pr.SystemName))
+                    model.Allowed[pr.SystemName] = new Dictionary<string, bool>();
+                model.Allowed[pr.SystemName][cr.Id] = allowed;
+            }
 
             return View(model);
         }
 
         [HttpPost, ActionName("Index")]
-        public async Task<IActionResult> PermissionsSave(IFormCollection form)
+        public async Task<IActionResult> PermissionsSave(IDictionary<string, string[]> model)
         {
             var permissionRecords = await _permissionService.GetAllPermissions();
             var customerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
 
             foreach (var cr in customerGroups)
             {
-                var formKey = "allow_" + cr.Id;
-                var permissionRecordSystemNamesToRestrict = form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                model.TryGetValue($"allow_{cr.Id}", out var permissionIds);
+                var permissionRecordSystemNamesToRestrict =
+                    permissionIds != null ? permissionIds.ToList() : new List<string>();
                 foreach (var pr in permissionRecords)
                 {
-
                     var allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
                     if (allow)
                     {
-
                         if (pr.CustomerGroups.FirstOrDefault(x => x == cr.Id) == null)
                         {
                             pr.CustomerGroups.Add(cr.Id);
@@ -116,6 +116,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                 }
             }
+
             Success(_translationService.GetResource("Admin.Configuration.Permissions.Updated"));
 
             return RedirectToAction("Index");
@@ -151,41 +152,39 @@ namespace Grand.Web.Admin.Controllers
                 return await PermissionsAction(systemName, customeGroupId);
             }
 
-            model.DeniedActions = (await _permissionService.GetPermissionActions(systemName, customeGroupId)).Select(x => x.Action).ToList();
+            model.DeniedActions = (await _permissionService.GetPermissionActions(systemName, customeGroupId))
+                .Select(x => x.Action).ToList();
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PermissionsAction(IFormCollection form)
+        public async Task<IActionResult> PermissionsAction(PermissionActionSaveModel model)
         {
-            var systemname = form["SystemName"].ToString();
-            var customergroupId = form["CustomerGroupId"].ToString();
-
-            var selected = form["SelectedActions"].ToList();
-
             //remove denied actions
-            var deniedActions = await _permissionService.GetPermissionActions(systemname, customergroupId);
+            var deniedActions = await _permissionService.GetPermissionActions(model.SystemName, model.CustomerGroupId);
             foreach (var action in deniedActions)
             {
                 await _permissionService.DeletePermissionAction(action);
             }
 
             //insert denied actions
-            var permissionRecord = await _permissionService.GetPermissionBySystemName(systemname);
-            var insertActions = permissionRecord.Actions.Except(selected);
+            var permissionRecord = await _permissionService.GetPermissionBySystemName(model.SystemName);
+            var insertActions = permissionRecord.Actions.Except(model.SelectedActions ?? new List<string>());
 
             foreach (var item in insertActions)
             {
                 await _permissionService.InsertPermissionAction(new PermissionAction {
                     Action = item,
-                    CustomerGroupId = customergroupId,
-                    SystemName = systemname
+                    CustomerGroupId = model.CustomerGroupId,
+                    SystemName = model.SystemName
                 });
             }
+
             ViewBag.ClosePage = true;
-            return await PermissionsAction(systemname, customergroupId);
+            return await PermissionsAction(model.SystemName, model.CustomerGroupId);
         }
+
         #endregion
     }
 }

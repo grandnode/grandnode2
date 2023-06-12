@@ -158,16 +158,10 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Install(IFormCollection form)
+        public async Task<IActionResult> Install(string systemName)
         {
             try
             {
-                //get plugin system name
-                string systemName = null;
-                foreach (var formValue in form.Keys)
-                    if (formValue.StartsWith("install-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue["install-plugin-link-".Length..];
-
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
                     //No plugin found with the specified id
@@ -202,16 +196,10 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Uninstall(IFormCollection form)
+        public async Task<IActionResult> Uninstall(string systemName)
         {
             try
             {
-                //get plugin system name
-                string systemName = null;
-                foreach (var formValue in form.Keys)
-                    if (formValue.StartsWith("uninstall-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue["uninstall-plugin-link-".Length..];
-
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
                     //No plugin found with the specified id
@@ -241,7 +229,7 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Remove(IFormCollection form)
+        public IActionResult Remove(string systemName)
         {
             if (_extConfig.DisableUploadExtensions)
             {
@@ -251,12 +239,6 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                //get plugin system name
-                string systemName = null;
-                foreach (var formValue in form.Keys)
-                    if (formValue.StartsWith("remove-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue["remove-plugin-link-".Length..];
-
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
                     //No plugin found with the specified id

@@ -72,7 +72,7 @@
                                                 <div class="col-md-9 col-sm-9">
                                                     @foreach (var attribute in Model.ProductAttributes)
                                                     {
-                                                        var controlId = $"product_attribute_{attribute.Id}";
+                                                        var controlId = $"attributes[{attribute.Id}]";
                                                         <div id="@($"pnl_attribute_values_{attribute.Id}")">
                                                             @switch (attribute.AttributeControlType)
                                                             {
