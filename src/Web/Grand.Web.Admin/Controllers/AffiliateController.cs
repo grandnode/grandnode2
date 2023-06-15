@@ -1,15 +1,12 @@
-﻿using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Queries.Customers;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Affiliates;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
@@ -22,7 +19,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IAffiliateService _affiliateService;
         private readonly IAffiliateViewModelService _affiliateViewModelService;
-        private readonly IMediator _mediator;
         private readonly IPermissionService _permissionService;
 
         #endregion
@@ -31,13 +27,11 @@ namespace Grand.Web.Admin.Controllers
 
         public AffiliateController(ITranslationService translationService,
             IAffiliateService affiliateService, IAffiliateViewModelService affiliateViewModelService,
-            IMediator mediator,
             IPermissionService permissionService)
         {
             _translationService = translationService;
             _affiliateService = affiliateService;
             _affiliateViewModelService = affiliateViewModelService;
-            _mediator = mediator;
             _permissionService = permissionService;
         }
 
@@ -46,7 +40,10 @@ namespace Grand.Web.Admin.Controllers
         #region Methods
 
         //list
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public IActionResult List()
         {
@@ -140,30 +137,12 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(AffiliateDeleteModel model)
         {
-            var affiliate = await _affiliateService.GetAffiliateById(id);
+            var affiliate = await _affiliateService.GetAffiliateById(model.Id);
             if (affiliate == null)
                 //No affiliate found with the specified id
                 return RedirectToAction("List");
-
-            var customers = new GetCustomerQuery {
-                AffiliateId = affiliate.Id,
-                PageSize = 1
-            };
-            var query_customer = (await _mediator.Send(customers)).Count();
-            if (query_customer > 0)
-                ModelState.AddModelError("", "There are exist customers related with affiliate");
-
-            var orders = new GetOrderQuery {
-                AffiliateId = affiliate.Id,
-                PageSize = 1
-            };
-
-            var query_order = (await _mediator.Send(orders)).Count();
-            if (query_order > 0)
-                ModelState.AddModelError("", "There are exist orders related with affiliate");
-
 
             if (ModelState.IsValid)
             {
@@ -172,7 +151,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
             Error(ModelState);
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction("Edit", new { model.Id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
