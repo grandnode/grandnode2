@@ -219,18 +219,9 @@ namespace Grand.Web.Admin.Controllers
             if (contactAttribute == null)
                 //No contact attribute found with the specified id
                 return RedirectToAction("List");
-
-            if (contactAttribute.AttributeControlType == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
-
             if (ModelState.IsValid)
             {
                 await _contactAttributeViewModelService.InsertContactAttributeValueModel(contactAttribute, model);
-
                 return Content("");
             }
 
@@ -268,13 +259,6 @@ namespace Grand.Web.Admin.Controllers
             if (cav == null)
                 //No contact attribute value found with the specified id
                 return RedirectToAction("List");
-
-            if (contactAttribute.AttributeControlType == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
 
             if (ModelState.IsValid)
             {
