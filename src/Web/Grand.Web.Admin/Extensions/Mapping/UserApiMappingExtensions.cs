@@ -11,14 +11,15 @@ namespace Grand.Web.Admin.Extensions.Mapping
             return entity.MapTo<UserApi, UserApiModel>();
         }
 
-        public static UserApi ToEntity(this UserApiModel model)
+        public static UserApi ToEntity(this UserApiCreateModel model)
         {
-            return model.MapTo<UserApiModel, UserApi>();
+            return model.MapTo<UserApiCreateModel, UserApi>();
         }
 
         public static UserApi ToEntity(this UserApiModel model, UserApi destination)
         {
             return model.MapTo(destination);
         }
+
     }
 }

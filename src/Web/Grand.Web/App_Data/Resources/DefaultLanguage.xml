@@ -11922,6 +11922,9 @@
 	<Resource Name="Admin.System.UserApi.Password" Area="Admin">
 		<Value>Password</Value>
 	</Resource>
+	<Resource Name="Admin.System.UserApi.Password.Required" Area="Admin">
+		<Value>Password is required</Value>
+	</Resource>
 	<Resource Name="Admin.System.Warnings" Area="Admin">
 		<Value>Warnings</Value>
 	</Resource>

@@ -47,10 +47,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(UserApiModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-            }
             var userapi = await _userApiService.GetUserById(model.Id);
             if (userapi == null)
                 throw new ArgumentException("No user api found with the specified id");
@@ -71,15 +67,8 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Insert(UserApiModel model)
+        public async Task<IActionResult> Insert(UserApiCreateModel model)
         {
-            if (string.IsNullOrEmpty(model.Password))
-                ModelState.AddModelError("", "Password is required");
-
-            if (!ModelState.IsValid)
-            {
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-            }
             if (ModelState.IsValid)
             {
                 var userapi = model.ToEntity();

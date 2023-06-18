@@ -14,6 +14,9 @@ namespace Grand.Web.Admin.Mapper
             CreateMap<UserApiModel, UserApi>()
                 .ForMember(dest => dest.Password, mo => mo.Ignore())
                 .ForMember(dest => dest.Id, mo => mo.Ignore());
+            
+            CreateMap<UserApiCreateModel, UserApi>();
+
         }
 
         public int Order => 0;
