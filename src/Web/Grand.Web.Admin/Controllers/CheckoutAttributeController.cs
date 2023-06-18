@@ -213,23 +213,15 @@ namespace Grand.Web.Admin.Controllers
                 //No checkout attribute found with the specified id
                 return RedirectToAction("List");
 
-            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
-
-            if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
-
             if (ModelState.IsValid)
             {
                 await _checkoutAttributeViewModelService.InsertCheckoutAttributeValueModel(checkoutAttribute, model);
                 return Content("");
             }
-
+            
             //If we got this far, something failed, redisplay form
+            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
+            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
             return View(model);
         }
 
@@ -264,17 +256,7 @@ namespace Grand.Web.Admin.Controllers
             if (cav == null)
                 //No checkout attribute value found with the specified id
                 return RedirectToAction("List");
-
-            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
-
-            if (checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
-
+            
             if (ModelState.IsValid)
             {
                 await _checkoutAttributeViewModelService.UpdateCheckoutAttributeValueModel(checkoutAttribute, cav, model);
@@ -282,6 +264,9 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //If we got this far, something failed, redisplay form
+            model.PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
+            model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name;
+            
             return View(model);
         }
 
