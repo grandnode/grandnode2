@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
-using Grand.SharedKernel;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
@@ -54,15 +53,18 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Index() => RedirectToAction("List");
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
         public async Task<IActionResult> List(DataSourceRequest command)
         {
-            var customerGroups = await _groupService.GetAllCustomerGroups(pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
-            var gridModel = new DataSourceResult
-            {
+            var customerGroups = await _groupService.GetAllCustomerGroups(pageIndex: command.Page - 1,
+                pageSize: command.PageSize, showHidden: true);
+            var gridModel = new DataSourceResult {
                 Data = customerGroups.Select(x =>
                 {
                     var rolesModel = x.ToModel();
@@ -88,8 +90,11 @@ namespace Grand.Web.Admin.Controllers
             {
                 var customerGroup = await _customerGroupViewModelService.InsertCustomerGroupModel(model);
                 Success(_translationService.GetResource("Admin.Customers.CustomerGroups.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = customerGroup.Id }) : RedirectToAction("List");
+                return continueEditing
+                    ? RedirectToAction("Edit", new { id = customerGroup.Id })
+                    : RedirectToAction("List");
             }
+
             //If we got this far, something failed, redisplay form
             return View(model);
         }
@@ -119,15 +124,11 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    if (customerGroup.IsSystem && !model.Active)
-                        throw new GrandException(_translationService.GetResource("Admin.Customers.CustomerGroups.Fields.Active.CantEditSystem"));
-
-                    if (customerGroup.IsSystem && !customerGroup.SystemName.Equals(model.SystemName, StringComparison.OrdinalIgnoreCase))
-                        throw new GrandException(_translationService.GetResource("Admin.Customers.CustomerGroups.Fields.SystemName.CantEditSystem"));
-
                     customerGroup = await _customerGroupViewModelService.UpdateCustomerGroupModel(customerGroup, model);
                     Success(_translationService.GetResource("Admin.Customers.CustomerGroups.Updated"));
-                    return continueEditing ? RedirectToAction("Edit", new { id = customerGroup.Id }) : RedirectToAction("List");
+                    return continueEditing
+                        ? RedirectToAction("Edit", new { id = customerGroup.Id })
+                        : RedirectToAction("List");
                 }
 
                 //If we got this far, something failed, redisplay form
@@ -142,14 +143,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(CustomerGroupDeleteModel model)
         {
-            var customerGroup = await _groupService.GetCustomerGroupById(id);
-            if (customerGroup == null)
-                //No customer group found with the specified id
-                return RedirectToAction("List");
-            if (customerGroup.IsSystem)
-                ModelState.AddModelError("", "You can't delete system group");
+            var customerGroup = await _groupService.GetCustomerGroupById(model.Id);
             try
             {
                 if (ModelState.IsValid)
@@ -158,25 +154,27 @@ namespace Grand.Web.Admin.Controllers
                     Success(_translationService.GetResource("Admin.Customers.CustomerGroups.Deleted"));
                     return RedirectToAction("List");
                 }
+
                 Error(ModelState);
-                return RedirectToAction("Edit", new { id = customerGroup.Id });
+                return RedirectToAction("Edit", new { id = model.Id });
             }
             catch (Exception exc)
             {
                 Error(exc.Message);
-                return RedirectToAction("Edit", new { id = customerGroup.Id });
+                return RedirectToAction("Edit", new { id = model.Id });
             }
         }
+
         #endregion
 
         #region Products
+
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
         public async Task<IActionResult> Products(string customerGroupId, DataSourceRequest command)
         {
             var products = await _customerGroupViewModelService.PrepareCustomerGroupProductModel(customerGroupId);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = products,
                 Total = products.Count
             };
@@ -195,6 +193,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerGroupProductService.DeleteCustomerGroupProduct(crp);
                 return new JsonResult("");
             }
+
             return ErrorForKendoGridJson(ModelState);
         }
 
@@ -211,6 +210,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerGroupProductService.UpdateCustomerGroupProduct(crp);
                 return new JsonResult("");
             }
+
             return ErrorForKendoGridJson(ModelState);
         }
 
@@ -223,11 +223,12 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CustomerGroupProductModel.AddProductModel model)
+        public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
+            CustomerGroupProductModel.AddProductModel model)
         {
-            var products = await _customerGroupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var products =
+                await _customerGroupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            var gridModel = new DataSourceResult {
                 Data = products.products,
                 Total = products.totalCount
             };
@@ -242,8 +243,10 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _customerGroupViewModelService.InsertProductModel(model);
             }
+
             return Content("");
         }
+
         #endregion
 
         #region Acl
@@ -257,8 +260,7 @@ namespace Grand.Web.Admin.Controllers
 
             foreach (var pr in permissionRecords)
             {
-                model.Add(new CustomerGroupPermissionModel
-                {
+                model.Add(new CustomerGroupPermissionModel {
                     Id = pr.Id,
                     Name = pr.GetTranslationPermissionName(_translationService, _workContext),
                     SystemName = pr.SystemName,
@@ -267,8 +269,7 @@ namespace Grand.Web.Admin.Controllers
                 });
             }
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
             };
@@ -277,37 +278,26 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> AclUpdate(string customerGroupId, string id, bool access)
+        public async Task<IActionResult> AclUpdate(CustomerGroupAclUpdateModel model)
         {
-            if (!await _permissionService.Authorize(StandardPermission.ManageAcl))
-                ModelState.AddModelError("", "You don't have permission to the update");
-
-            var cr = await _groupService.GetCustomerGroupById(customerGroupId);
-            if (cr == null)
-                throw new ArgumentException("No customer group found with the specified id");
-
-            var permissionRecord = await _permissionService.GetPermissionById(id);
-            if (permissionRecord == null)
-                throw new ArgumentException("No permission found with the specified id");
-
             if (ModelState.IsValid)
             {
-                if (access)
+                var permissionRecord = await _permissionService.GetPermissionById(model.Id);
+                if (model.Access)
                 {
-                    if (!permissionRecord.CustomerGroups.Contains(customerGroupId))
-                        permissionRecord.CustomerGroups.Add(customerGroupId);
+                    if (!permissionRecord.CustomerGroups.Contains(model.CustomerGroupId))
+                        permissionRecord.CustomerGroups.Add(model.CustomerGroupId);
                 }
-                else
-                    if (permissionRecord.CustomerGroups.Contains(customerGroupId))
-                    permissionRecord.CustomerGroups.Remove(customerGroupId);
+                else if (permissionRecord.CustomerGroups.Contains(model.CustomerGroupId))
+                    permissionRecord.CustomerGroups.Remove(model.CustomerGroupId);
 
                 await _permissionService.UpdatePermission(permissionRecord);
 
                 return new JsonResult("");
             }
+
             return ErrorForKendoGridJson(ModelState);
         }
-
 
         #endregion
     }
