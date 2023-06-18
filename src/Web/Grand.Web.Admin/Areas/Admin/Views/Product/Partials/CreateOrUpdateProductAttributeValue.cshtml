@@ -1,9 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Razor;
 @model ProductModel.ProductAttributeValueModel
 
-<link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/farbtastic/farbtastic.css" />
-<script asp-location="Footer" asp-src="@(Common.WwwRoot)/administration/farbtastic/farbtastic.js"></script>
-
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 <input asp-for="ProductAttributeMappingId" type="hidden" />
