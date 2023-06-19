@@ -150,10 +150,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
         public async Task<IActionResult> Edit(PageModel model, bool continueEditing)
         {
-            if (model.StartDateUtc.HasValue && model.EndDateUtc.HasValue && model.StartDateUtc >= model.EndDateUtc)
-            {
-                ModelState.AddModelError(nameof(model.StartDateUtc), "Start Date cannot be later than End Date");
-            }
             var page = await _pageService.GetPageById(model.Id);
             if (page == null)
                 //No page found with the specified id
@@ -167,7 +163,6 @@ namespace Grand.Web.Admin.Controllers
                 {
                     //selected tab
                     await SaveSelectedTabIndex();
-
                     return RedirectToAction("Edit", new { id = page.Id });
                 }
                 return RedirectToAction("List");

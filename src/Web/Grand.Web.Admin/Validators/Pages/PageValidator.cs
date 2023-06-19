@@ -13,6 +13,13 @@ namespace Grand.Web.Admin.Validators.Pages
             : base(validators)
         {
             RuleFor(x => x.SystemName).NotEmpty().WithMessage(translationService.GetResource("Admin.Content.Pages.Fields.SystemName.Required"));
+            RuleFor(x => x).Custom((model, context)=>
+            {
+                if (model.StartDateUtc.HasValue && model.EndDateUtc.HasValue && model.StartDateUtc >= model.EndDateUtc)
+                {
+                    context.AddFailure(nameof(model.StartDateUtc), "Start Date cannot be later than End Date");
+                }
+            });
         }
     }
 }
