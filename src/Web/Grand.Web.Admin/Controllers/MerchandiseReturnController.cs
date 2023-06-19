@@ -168,19 +168,14 @@ namespace Grand.Web.Admin.Controllers
             //a vendor should have access only to his merchandise return
             if (_workContext.CurrentVendor != null && merchandiseReturn.VendorId != _workContext.CurrentVendor.Id)
                 return RedirectToAction("List", "MerchandiseReturn");
-
-            var customAddressAttributes = new List<CustomAttribute>();
-            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
-            {
-                customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-                var customAddressAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAddressAttributes);
-                foreach (var error in customAddressAttributeWarnings)
-                {
-                    ModelState.AddModelError("", error);
-                }
-            }
+            
             if (ModelState.IsValid)
             {
+                var customAddressAttributes = new List<CustomAttribute>();
+                if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+                {
+                    customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+                }
                 merchandiseReturn = await _merchandiseReturnViewModelService.UpdateMerchandiseReturnModel(merchandiseReturn, model, customAddressAttributes);
 
                 Success(_translationService.GetResource("Admin.Orders.MerchandiseReturns.Updated"));
