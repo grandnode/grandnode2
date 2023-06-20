@@ -132,20 +132,15 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> NotifyRecipient(GiftVoucherModel model)
+        public async Task<IActionResult> NotifyRecipient(GiftVoucherNotifyRecipient model)
         {
             var giftVoucher = await _giftVoucherService.GetGiftVoucherById(model.Id);
-
-            if (!CommonHelper.IsValidEmail(giftVoucher.RecipientEmail))
-                ModelState.AddModelError("", "Recipient email is not valid");
-            if (!CommonHelper.IsValidEmail(giftVoucher.SenderEmail))
-                ModelState.AddModelError("", "Sender email is not valid");
 
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _giftVoucherViewModelService.NotifyRecipient(giftVoucher, model);
+                    await _giftVoucherViewModelService.NotifyRecipient(giftVoucher);
                 }
                 else
                     Error(ModelState);

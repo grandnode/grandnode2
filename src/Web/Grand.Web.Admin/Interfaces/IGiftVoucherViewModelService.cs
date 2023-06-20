@@ -8,8 +8,9 @@ namespace Grand.Web.Admin.Interfaces
         GiftVoucherListModel PrepareGiftVoucherListModel();
         Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null);
         Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)> PrepareGiftVoucherModel(GiftVoucherListModel model, int pageIndex, int pageSize);
-        Task<Order> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
-        Task NotifyRecipient(GiftVoucher giftVoucher, GiftVoucherModel model);
+        Task<GiftVoucherModel> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
+        Task NotifyRecipient(GiftVoucher giftVoucher);
+        Task<Order> GetOrderFromGiftVoucher(GiftVoucher giftVoucher);
         Task<GiftVoucher> InsertGiftVoucherModel(GiftVoucherModel model);
         Task<GiftVoucher> UpdateGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
         Task DeleteGiftVoucher(GiftVoucher giftVoucher);
