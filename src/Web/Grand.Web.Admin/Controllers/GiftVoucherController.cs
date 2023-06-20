@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -155,16 +154,13 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(GiftVoucherDeleteModel model)
         {
-            var giftVoucher = await _giftVoucherService.GetGiftVoucherById(id);
+            var giftVoucher = await _giftVoucherService.GetGiftVoucherById(model.Id);
             if (giftVoucher == null)
                 //No gift voucher found with the specified id
                 return RedirectToAction("List");
-
-            if (giftVoucher.GiftVoucherUsageHistory.Any())
-                ModelState.AddModelError("", _translationService.GetResource("Admin.GiftVouchers.PreventDeleted"));
-
+            
             if (ModelState.IsValid)
             {
                 await _giftVoucherViewModelService.DeleteGiftVoucher(giftVoucher);
