@@ -5,8 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -38,12 +36,10 @@ namespace Grand.Web.Admin.Controllers
         private readonly IProductViewModelService _productViewModelService;
         private readonly IProductService _productService;
         private readonly IInventoryManageService _inventoryManageService;
-        private readonly ICustomerService _customerService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
         private readonly IProductReservationService _productReservationService;
         private readonly IAuctionService _auctionService;
         private readonly IDateTimeService _dateTimeService;
@@ -57,12 +53,10 @@ namespace Grand.Web.Admin.Controllers
             IProductViewModelService productViewModelService,
             IProductService productService,
             IInventoryManageService inventoryManageService,
-            ICustomerService customerService,
             IWorkContext workContext,
             IGroupService groupService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IStoreService storeService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             IDateTimeService dateTimeService,
@@ -71,12 +65,10 @@ namespace Grand.Web.Admin.Controllers
             _productViewModelService = productViewModelService;
             _productService = productService;
             _inventoryManageService = inventoryManageService;
-            _customerService = customerService;
             _workContext = workContext;
             _groupService = groupService;
             _languageService = languageService;
             _translationService = translationService;
-            _storeService = storeService;
             _productReservationService = productReservationService;
             _auctionService = auctionService;
             _dateTimeService = dateTimeService;
