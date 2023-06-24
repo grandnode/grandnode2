@@ -18,7 +18,6 @@ using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Business.Core.Interfaces.ExportImport;
 
@@ -390,33 +389,28 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(string id,
-            [FromServices] ICustomerActivityService customerActivityService,
-            [FromServices] IShipmentService shipmentService)
+        public async Task<IActionResult> Delete(OrderDeleteModel model,
+            [FromServices] ICustomerActivityService customerActivityService)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await _orderService.GetOrderById(model.Id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
             //a vendor or staff does not have access to this functionality
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
-            var shipments = await shipmentService.GetShipmentsByOrder(order.Id);
-            if (shipments.Any())
-                ModelState.AddModelError("", "This order is in associated with shipment. Please delete it first.");
+                return RedirectToAction("Edit", "Order", new { model.Id });
 
             if (ModelState.IsValid)
             {
                 await _mediator.Send(new DeleteOrderCommand { Order = order });
-                _ = customerActivityService.InsertActivity("DeleteOrder", id,
+                _ = customerActivityService.InsertActivity("DeleteOrder", model.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
                 return RedirectToAction("List");
             }
             Error(ModelState);
-            return RedirectToAction("Edit", "Order", new { id });
+            return RedirectToAction("Edit", "Order", new { model.Id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
