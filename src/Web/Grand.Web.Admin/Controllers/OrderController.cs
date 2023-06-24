@@ -1136,26 +1136,25 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var address = new Address();
-            if (model.BillingAddress && order.BillingAddress != null)
-                if (order.BillingAddress.Id == model.Address.Id)
-                    address = order.BillingAddress;
-            if (!model.BillingAddress && order.ShippingAddress != null)
-                if (order.ShippingAddress.Id == model.Address.Id)
-                    address = order.ShippingAddress;
-
-            if (address == null)
-                throw new ArgumentException("No address found with the specified id");
-
-            //custom address attributes
-            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
+            switch (model.BillingAddress)
             {
-                ModelState.AddModelError("", error);
+                case true when order.BillingAddress != null:
+                {
+                    if (order.BillingAddress.Id == model.Address.Id)
+                        address = order.BillingAddress;
+                    break;
+                }
+                case false when order.ShippingAddress != null:
+                {
+                    if (order.ShippingAddress.Id == model.Address.Id)
+                        address = order.ShippingAddress;
+                    break;
+                }
             }
 
             if (ModelState.IsValid)
             {
+                var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
                 await _orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
                 return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
             }
