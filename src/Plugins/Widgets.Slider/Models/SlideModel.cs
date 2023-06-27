@@ -55,6 +55,14 @@ namespace Widgets.Slider.Models
         [GrandResourceDisplayName("Widgets.Slider.Brand")]
         public string BrandId { get; set; }
 
+        [GrandResourceDisplayName("Widgets.Slider.StartDate")]
+        [UIHint("DateTimeNullable")]
+        public DateTime? StartDateUtc { get; set; }
+
+        [GrandResourceDisplayName("Widgets.Slider.EndDate")]
+        [UIHint("DateTimeNullable")]
+        public DateTime? EndDateUtc { get; set; }
+
     }
 
     public class SlideLocalizedModel : ILocalizedModelLocal

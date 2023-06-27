@@ -4,19 +4,26 @@ using Grand.Infrastructure.Mapper;
 using System.Reflection;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
-
+using Grand.Business.Core.Interfaces.Common.Directory;
 namespace Widgets.Slider
 {
     public static class MyExtensions
     {
-        public static SlideModel ToModel(this PictureSlider entity)
+        public static SlideModel ToModel(this PictureSlider entity, IDateTimeService dateTimeService)
         {
+
+            var slideModel = entity.MapTo<PictureSlider, SlideModel>();
+            slideModel.StartDateUtc = entity.StartDateUtc.ConvertToUserTime(dateTimeService);
+            slideModel.EndDateUtc = entity.EndDateUtc.ConvertToUserTime(dateTimeService);            
             return entity.MapTo<PictureSlider, SlideModel>();
         }
 
-        public static PictureSlider ToEntity(this SlideModel model)
+        public static PictureSlider ToEntity(this SlideModel model, IDateTimeService dateTimeService)
         {
-            return model.MapTo<SlideModel, PictureSlider>();
+            var pictureSlider = model.MapTo<SlideModel, PictureSlider>();
+            pictureSlider.StartDateUtc = model.StartDateUtc.ConvertToUtcTime(dateTimeService);
+            pictureSlider.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
+            return pictureSlider;
         }
 
 
@@ -58,6 +65,45 @@ namespace Widgets.Slider
         public static bool HasProperty(this Type obj, string propertyName)
         {
             return obj.GetProperty(propertyName) != null;
+        }
+    }
+
+    public static class DateTimeMappingExtensions
+    {
+        public static DateTime? ConvertToUserTime(this DateTime? datetime, IDateTimeService dateTimeService)
+        {
+            if (datetime.HasValue)
+            {
+                if (datetime.Value.Kind == DateTimeKind.Utc)
+                    datetime = dateTimeService.ConvertToUserTime(datetime.Value, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
+            }
+            return datetime;
+        }
+
+        public static DateTime? ConvertToUtcTime(this DateTime? datetime, IDateTimeService dateTimeService)
+        {
+            if (datetime.HasValue)
+            {
+                if (datetime.Value.Kind != DateTimeKind.Utc)
+                    datetime = dateTimeService.ConvertToUtcTime(datetime.Value, dateTimeService.CurrentTimeZone);
+            }
+            return datetime;
+        }
+
+        public static DateTime ConvertToUserTime(this DateTime datetime, IDateTimeService dateTimeService)
+        {
+            if (datetime.Kind == DateTimeKind.Utc)
+                return dateTimeService.ConvertToUserTime(datetime, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
+
+            return datetime;
+        }
+
+        public static DateTime ConvertToUtcTime(this DateTime datetime, IDateTimeService dateTimeService)
+        {
+            if (datetime.Kind == DateTimeKind.Local)
+                return dateTimeService.ConvertToUtcTime(datetime, dateTimeService.CurrentTimeZone);
+
+            return datetime;
         }
     }
 

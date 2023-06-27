@@ -125,8 +125,9 @@ namespace Widgets.Slider
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.SliderType", "Slider type");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.SliderType.Hint", "Choose the slider type. Home page, category or collection page.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Stores", "Stores");
-
-
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.StartDate", "Start Date");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.EndDate", "End Date");           
+            
             await base.Install();
         }
 
@@ -182,6 +183,8 @@ namespace Widgets.Slider
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.SliderType");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.SliderType.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Stores");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.StartDate");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.EndDate");
 
             await base.Uninstall();
         }
