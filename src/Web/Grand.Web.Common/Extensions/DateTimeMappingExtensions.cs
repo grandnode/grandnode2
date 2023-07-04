@@ -6,8 +6,7 @@ namespace Grand.Web.Common.Extensions
     {
         public static DateTime? ConvertToUserTime(this DateTime? datetime, IDateTimeService dateTimeService)
         {
-            if (datetime is { Kind: DateTimeKind.Utc })
-                datetime = dateTimeService.ConvertToUserTime(datetime.Value, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
+            if (datetime is { Kind: DateTimeKind.Utc }) datetime = dateTimeService.ConvertToUserTime(datetime.Value, TimeZoneInfo.Utc, dateTimeService.CurrentTimeZone);
             return datetime;
         }
 
