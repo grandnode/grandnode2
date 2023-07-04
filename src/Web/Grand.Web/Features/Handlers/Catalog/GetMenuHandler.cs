@@ -67,7 +67,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //top menu pages
             var now = DateTime.UtcNow;
             var pageModel = (await _pageService.GetAllPages(request.Store.Id))
-                .Where(t => t.IncludeInMenu && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) && (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
+                .Where(t => t.Published && t.IncludeInMenu && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) && (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
                 .Select(t => new MenuModel.MenuPageModel
                 {
                     Id = t.Id,
