@@ -2,6 +2,7 @@
 using Grand.Domain.Discounts;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Discounts;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Extensions.Mapping
 {
