@@ -23,5 +23,7 @@ namespace Widgets.Slider.Domain
         public bool LimitedToStores { get; set; }
         public IList<string> Stores { get; set; }
         public IList<TranslationEntity> Locales { get; set; }
+        public DateTime? StartDateUtc { get; set; }
+        public DateTime? EndDateUtc { get; set; }
     }
 }
