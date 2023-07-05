@@ -13,11 +13,10 @@ namespace Widgets.Slider
     {
         public static SlideModel ToModel(this PictureSlider entity, IDateTimeService dateTimeService)
         {
-
             var slideModel = entity.MapTo<PictureSlider, SlideModel>();
             slideModel.StartDateUtc = entity.StartDateUtc.ConvertToUserTime(dateTimeService);
             slideModel.EndDateUtc = entity.EndDateUtc.ConvertToUserTime(dateTimeService);            
-            return entity.MapTo<PictureSlider, SlideModel>();
+            return slideModel;
         }
 
         public static PictureSlider ToEntity(this SlideModel model, IDateTimeService dateTimeService)
@@ -27,7 +26,13 @@ namespace Widgets.Slider
             pictureSlider.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
             return pictureSlider;
         }
-
+        public static PictureSlider ToEntity(this SlideModel model, PictureSlider destination, IDateTimeService dateTimeService)
+        {
+            var pictureSlider = model.MapTo(destination);
+            pictureSlider.StartDateUtc = model.StartDateUtc.ConvertToUtcTime(dateTimeService);
+            pictureSlider.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
+            return pictureSlider;
+        }
 
         public static SlideListModel ToListModel(this PictureSlider entity)
         {

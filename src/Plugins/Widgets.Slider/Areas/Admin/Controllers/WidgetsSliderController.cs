@@ -138,7 +138,7 @@ namespace Widgets.Slider.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                pictureSlider = model.ToEntity(_dateTimeService);
+                pictureSlider = model.ToEntity(pictureSlider, _dateTimeService);
                 pictureSlider.Locales = model.Locales.ToLocalizedProperty();
                 await _sliderService.UpdatePictureSlider(pictureSlider);
                 Success(_translationService.GetResource("Widgets.Slider.Edited"));

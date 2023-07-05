@@ -8,5 +8,5 @@ using Widgets.Slider;
     SystemName = SliderWidgetDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "2.1.1"
+    Version = "2.1.2"
 )]
