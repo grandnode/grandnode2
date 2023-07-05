@@ -2,6 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Catalog;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Extensions.Mapping
 {

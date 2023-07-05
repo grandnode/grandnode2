@@ -4,19 +4,28 @@ using Grand.Infrastructure.Mapper;
 using System.Reflection;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Web.Common.Extensions;
 
 namespace Widgets.Slider
 {
     public static class MyExtensions
     {
-        public static SlideModel ToModel(this PictureSlider entity)
+        public static SlideModel ToModel(this PictureSlider entity, IDateTimeService dateTimeService)
         {
+
+            var slideModel = entity.MapTo<PictureSlider, SlideModel>();
+            slideModel.StartDateUtc = entity.StartDateUtc.ConvertToUserTime(dateTimeService);
+            slideModel.EndDateUtc = entity.EndDateUtc.ConvertToUserTime(dateTimeService);            
             return entity.MapTo<PictureSlider, SlideModel>();
         }
 
-        public static PictureSlider ToEntity(this SlideModel model)
+        public static PictureSlider ToEntity(this SlideModel model, IDateTimeService dateTimeService)
         {
-            return model.MapTo<SlideModel, PictureSlider>();
+            var pictureSlider = model.MapTo<SlideModel, PictureSlider>();
+            pictureSlider.StartDateUtc = model.StartDateUtc.ConvertToUtcTime(dateTimeService);
+            pictureSlider.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
+            return pictureSlider;
         }
 
 
@@ -59,7 +68,5 @@ namespace Widgets.Slider
         {
             return obj.GetProperty(propertyName) != null;
         }
-    }
-
-
+    }    
 }

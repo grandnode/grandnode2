@@ -2,6 +2,7 @@
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Orders;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Extensions.Mapping
 {

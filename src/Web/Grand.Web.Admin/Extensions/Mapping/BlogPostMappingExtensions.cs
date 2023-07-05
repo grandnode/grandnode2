@@ -2,6 +2,7 @@
 using Grand.Domain.Blogs;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Blogs;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Extensions.Mapping
 {

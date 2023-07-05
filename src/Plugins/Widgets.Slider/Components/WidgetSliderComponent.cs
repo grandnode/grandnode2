@@ -38,6 +38,9 @@ namespace Widgets.Slider.ViewComponents
             var i = 1;
             foreach (var item in sliders.OrderBy(x => x.DisplayOrder))
             {
+                if ((item.StartDateUtc.HasValue && item.StartDateUtc > DateTime.UtcNow) || (item.EndDateUtc.HasValue && item.EndDateUtc < DateTime.UtcNow))
+                    continue;
+
                 model.Slide.Add(new PublicInfoModel.Slider() {
                     Link = item.Link,
                     PictureUrl = await GetPictureUrl(item.PictureId),
@@ -48,7 +51,6 @@ namespace Widgets.Slider.ViewComponents
                 });
                 i++;
             }
-
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
