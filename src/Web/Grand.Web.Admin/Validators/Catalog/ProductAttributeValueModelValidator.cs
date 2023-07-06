@@ -49,6 +49,23 @@ namespace Grand.Web.Admin.Validators.Catalog
                     return true;
                 }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permisions"));
             }
+            RuleFor(x => x).CustomAsync(async (x, context, _) =>
+            {
+                var product = await productService.GetProductById(x.ProductId);
+                var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(y => y.Id == x.ProductAttributeMappingId);
+                if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ColorSquares)
+                {
+                    //ensure valid color is chosen/entered
+                    if (string.IsNullOrEmpty(x.ColorSquaresRgb))
+                        context.AddFailure("Color is required");
+                }
+                            
+                //ensure a picture is uploaded
+                if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(x.ImageSquaresPictureId))
+                {
+                    context.AddFailure("Image is required");
+                }
+            });
         }
     }
 }

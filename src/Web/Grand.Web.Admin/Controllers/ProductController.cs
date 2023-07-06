@@ -1701,7 +1701,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No product found with the specified id");
 
             if (product.ProductPrices.Any(x => x.CurrencyCode == model.CurrencyCode))
-                ModelState.AddModelError("", "Currency code exists");
+                throw new ArgumentException("Currency code exists");
 
             if (ModelState.IsValid)
             {
@@ -1732,10 +1732,10 @@ namespace Grand.Web.Admin.Controllers
 
             var productPrice = product.ProductPrices.FirstOrDefault(x => x.Id == model.Id);
             if (productPrice == null)
-                ModelState.AddModelError("", "Product price model not exists");
+                throw new ArgumentException("Product price model not exists");
 
             if (product.ProductPrices.Any(x => x.Id != model.Id && x.CurrencyCode == model.CurrencyCode))
-                ModelState.AddModelError("", "You can't use this currency code");
+                throw new ArgumentException("You can't use this currency code");
 
             if (ModelState.IsValid)
             {
@@ -1767,7 +1767,7 @@ namespace Grand.Web.Admin.Controllers
 
             var productPrice = product.ProductPrices.FirstOrDefault(x => x.Id == model.Id);
             if (productPrice == null)
-                ModelState.AddModelError("", "Product price model not exists");
+                throw new ArgumentException("Product price model not exists");
 
             if (ModelState.IsValid)
             {
@@ -2171,23 +2171,9 @@ namespace Grand.Web.Admin.Controllers
                 //No product attribute found with the specified id
                 return RedirectToAction("List", "Product");
 
-            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
-
-            //ensure a picture is uploaded
-            if (productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(model.ImageSquaresPictureId))
-            {
-                ModelState.AddModelError("", "Image is required");
-            }
-
             if (ModelState.IsValid)
             {
                 await _productViewModelService.InsertProductAttributeValueModel(model);
-
                 return Content("");
             }
             //If we got this far, something failed, redisplay form
@@ -2238,20 +2224,6 @@ namespace Grand.Web.Admin.Controllers
                 //No attribute value found with the specified id
                 return RedirectToAction("List", "Product");
 
-            var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
-            if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ColorSquares)
-            {
-                //ensure valid color is chosen/entered
-                if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-                    ModelState.AddModelError("", "Color is required");
-            }
-
-            //ensure a picture is uploaded
-            if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(model.ImageSquaresPictureId))
-            {
-                ModelState.AddModelError("", "Image is required");
-            }
-
             if (ModelState.IsValid)
             {
                 await _productViewModelService.UpdateProductAttributeValueModel(pav, model);
@@ -2281,7 +2253,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    ModelState.AddModelError("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
 
             if (ModelState.IsValid)
             {
@@ -2458,7 +2430,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    ModelState.AddModelError("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
 
             if (ModelState.IsValid)
             {
