@@ -78,6 +78,8 @@ namespace Grand.Web.Admin.Models.Orders
 
             public string ProductName { get; set; }
 
+            public string ProductSku { get; set; }
+
             public string UnitPrice { get; set; }
 
             public int Quantity { get; set; }

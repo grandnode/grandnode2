@@ -125,6 +125,11 @@
                     width: 200,
                     template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
                 }, {
+                    field: "ProductSku",
+                    title: "@Loc["Admin.Catalog.Products.Fields.Sku"]",
+                    width: 200,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductSku)#</a>'
+                }, {
                     field: "Quantity",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",
                     width: 80

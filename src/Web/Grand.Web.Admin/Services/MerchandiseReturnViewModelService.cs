@@ -254,11 +254,12 @@ namespace Grand.Web.Admin.Services
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
                 var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-
+                var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
                 items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel
                 {
                     ProductId = orderItem.ProductId,
-                    ProductName = (await _productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
+                    ProductName = product.Name,
+                    ProductSku = product.Sku,
                     Quantity = item.Quantity,
                     UnitPrice = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax),
                     ReasonForReturn = item.ReasonForReturn,
