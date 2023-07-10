@@ -618,32 +618,6 @@ namespace Grand.Web.Admin.Services
                 !customer.Active;
         }
 
-        public virtual async Task<string> ValidateCustomerGroups(IList<CustomerGroup> customerGroups)
-        {
-            if (customerGroups == null)
-                throw new ArgumentNullException(nameof(customerGroups));
-
-            //ensure a customer is not added to both 'Guests' and 'Registered' customer groups
-            //ensure that a customer is in at least one required role ('Guests' and 'Registered')
-            var isInGuestsGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Guests) != null;
-            var isInRegisteredGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Registered) != null;
-            var isAdminGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Administrators) != null;
-
-            if (isInGuestsGroup && isInRegisteredGroup)
-                return "The customer cannot be in both 'Guests' and 'Registered' customer groups";
-
-            if (!isInGuestsGroup && !isInRegisteredGroup)
-                return "Add the customer to 'Guests' or 'Registered' customer group";
-
-            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && (isInGuestsGroup || customerGroups.Count != 1))
-                return "Sales manager can assign role 'Registered' only";
-
-            if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && isAdminGroup)
-                return "Only administrators can assign role 'Administrators'";
-
-            //no errors
-            return "";
-        }
         public virtual async Task<Customer> InsertCustomerModel(CustomerModel model)
         {
             var ownerId = string.Empty;
@@ -750,46 +724,7 @@ namespace Grand.Web.Admin.Services
                 customer.Groups.Add(customerGroup.Id);
                 await _customerService.InsertCustomerGroupInCustomer(customerGroup, customer.Id);
             }
-
-
-            //ensure that a customer with a vendor associated is not in "Administrators" role
-            //otherwise, he won't be have access to the other functionality in admin area
-            if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.VendorId))
-            {
-                customer.VendorId = "";
-                await _customerService.UpdateCustomerField(customer.Id, x => x.VendorId, customer.VendorId);
-            }
-
-            //ensure that a customer in the Vendors role has a vendor account associated.
-            //otherwise, he will have access to ALL products
-            if (await _groupService.IsVendor(customer) && string.IsNullOrEmpty(customer.VendorId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var vendorGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Vendors);
-                customer.Groups.Remove(vendorGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(vendorGroup, customer.Id);
-            }
-
-            //ensure that a customer in the Staff role has a staff account associated.
-            //otherwise, he will have access to ALL products
-            if (await _groupService.IsStaff(customer) && string.IsNullOrEmpty(customer.StaffStoreId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var staffGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Staff);
-                customer.Groups.Remove(staffGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(staffGroup, customer.Id);
-            }
-
-            //ensure that a customer in the Sales manager role has a staff employee associated.
-            //otherwise, he will have access to ALL customers
-            if (await _groupService.IsSalesManager(customer) && string.IsNullOrEmpty(customer.SeId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var salesGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.SalesManager);
-                customer.Groups.Remove(salesGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(salesGroup, customer.Id);
-            }
-
+            
             //tags
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
@@ -963,53 +898,6 @@ namespace Grand.Web.Admin.Services
                 }
             }
             await _customerService.UpdateCustomerInAdminPanel(customer);
-
-
-            //ensure that a customer with a vendor associated is not in "Administrators" role
-            //otherwise, he won't have access to the other functionality in admin area
-            if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.VendorId))
-            {
-                customer.VendorId = "";
-                await _customerService.UpdateCustomerInAdminPanel(customer);
-            }
-
-            //ensure that a customer with a staff associated is not in "Administrators" role
-            //otherwise, he won't have access to the other functionality in admin area
-            if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.StaffStoreId))
-            {
-                customer.StaffStoreId = "";
-                await _customerService.UpdateCustomerInAdminPanel(customer);
-            }
-
-            //ensure that a customer in the Vendors role has a vendor account associated.
-            //otherwise, he will have access to ALL products
-            if (await _groupService.IsVendor(customer) && string.IsNullOrEmpty(customer.VendorId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var vendorGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Vendors);
-                customer.Groups.Remove(vendorGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(vendorGroup, customer.Id);
-            }
-
-            //ensure that a customer in the Sales manager role has a staff employee associated.
-            //otherwise, he will have access to ALL customers
-            if (await _groupService.IsSalesManager(customer) && string.IsNullOrEmpty(customer.SeId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var salesGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.SalesManager);
-                customer.Groups.Remove(salesGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(salesGroup, customer.Id);
-            }
-
-            //ensure that a customer in the Staff group has a staff account associated.
-            //otherwise, he will have access to ALL products
-            if (await _groupService.IsStaff(customer) && string.IsNullOrEmpty(customer.StaffStoreId))
-            {
-                var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-                var staffGroup = customerGroups.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Staff);
-                customer.Groups.Remove(staffGroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(staffGroup, customer.Id);
-            }
 
             //tags
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));

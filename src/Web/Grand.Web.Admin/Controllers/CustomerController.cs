@@ -37,7 +37,6 @@ namespace Grand.Web.Admin.Controllers
 
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
-        private readonly IProductService _productService;
         private readonly IProductReviewService _productReviewService;
         private readonly IProductReviewViewModelService _productReviewViewModelService;
         private readonly IProductViewModelService _productViewModelService;
@@ -52,7 +51,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IMessageProviderService _messageProviderService;
-        private readonly IDownloadService _downloadService;
         private readonly IPermissionService _permissionService;
         private readonly CustomerSettings _customerSettings;
         #endregion
@@ -60,7 +58,6 @@ namespace Grand.Web.Admin.Controllers
         #region Constructors
 
         public CustomerController(ICustomerService customerService,
-            IProductService productService,
             IProductReviewService productReviewService,
             IProductReviewViewModelService productReviewViewModelService,
             IProductViewModelService productViewModelService,
@@ -76,12 +73,10 @@ namespace Grand.Web.Admin.Controllers
             IAddressAttributeParser addressAttributeParser,
             IAddressAttributeService addressAttributeService,
             IMessageProviderService messageProviderService,
-            IDownloadService downloadService,
             IPermissionService permissionService,
             CustomerSettings customerSettings)
         {
             _customerService = customerService;
-            _productService = productService;
             _productReviewService = productReviewService;
             _productReviewViewModelService = productReviewViewModelService;
             _productViewModelService = productViewModelService;
@@ -97,7 +92,6 @@ namespace Grand.Web.Admin.Controllers
             _addressAttributeParser = addressAttributeParser;
             _addressAttributeService = addressAttributeService;
             _messageProviderService = messageProviderService;
-            _downloadService = downloadService;
             _permissionService = permissionService;
             _customerSettings = customerSettings;
         }
@@ -225,40 +219,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
         public async Task<IActionResult> Create(CustomerModel model, bool continueEditing)
         {
-            if (!string.IsNullOrWhiteSpace(model.Email))
-            {
-                var cust2 = await _customerService.GetCustomerByEmail(model.Email);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "Email is already registered");
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Owner))
-            {
-                var custowner = await _customerService.GetCustomerByEmail(model.Owner);
-                if (custowner == null)
-                    ModelState.AddModelError("", "Owner email is not exists");
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
-            {
-                var cust2 = await _customerService.GetCustomerByUsername(model.Username);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "Username is already registered");
-            }
-
-            //validate customer groups
-            var allCustomerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
-            var newCustomerGroups = new List<CustomerGroup>();
-            foreach (var customerGroup in allCustomerGroups)
-                if (model.CustomerGroups != null && model.CustomerGroups.Contains(customerGroup.Id))
-                    newCustomerGroups.Add(customerGroup);
-            var customerGroupsError = await _customerViewModelService.ValidateCustomerGroups(newCustomerGroups);
-            if (!string.IsNullOrEmpty(customerGroupsError))
-            {
-                ModelState.AddModelError("", customerGroupsError);
-                Error(customerGroupsError);
-            }
-
             if (model.TwoFactorEnabled)
                 Warning(_translationService.GetResource("Admin.Customers.Customers.CannotTwoFactorEnabled"));
 
@@ -273,27 +233,6 @@ namespace Grand.Web.Admin.Controllers
                     var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat, model.Password);
                     await _customerManagerService.ChangePassword(changePassRequest);
                 }
-                if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(model.VendorId))
-                {
-                    Error(_translationService.GetResource("Admin.Customers.Customers.AdminCouldNotbeVendor"));
-                }
-                if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.Vendors) && string.IsNullOrEmpty(model.VendorId))
-                {
-                    Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated"));
-                }
-                if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.Staff) && string.IsNullOrEmpty(model.StaffStoreId))
-                {
-                    Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInStaffGroupWithoutStaffAssociated"));
-                }
-                if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.SalesManager) && string.IsNullOrEmpty(model.SeId))
-                {
-                    Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInSalesManagerGroupWithoutSalesEmployeeAssociated"));
-                }
-                if (await _groupService.IsStaff(customer) && await _groupService.IsVendor(customer))
-                {
-                    Error(_translationService.GetResource("Admin.Customers.Customers.VendorShouldNotbeStaff"));
-                }
-
                 Success(_translationService.GetResource("Admin.Customers.Customers.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = customer.Id }) : RedirectToAction("List");
             }
@@ -325,32 +264,6 @@ namespace Grand.Web.Admin.Controllers
                 //No customer found with the specified id
                 return RedirectToAction("List");
 
-            //validate customer groups
-            var allCustomerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
-            var newCustomerGroups = new List<CustomerGroup>();
-            foreach (var customerGroup in allCustomerGroups)
-                if (model.CustomerGroups != null && model.CustomerGroups.Contains(customerGroup.Id))
-                    newCustomerGroups.Add(customerGroup);
-
-            var customerGroupsError = await _customerViewModelService.ValidateCustomerGroups(newCustomerGroups);
-            if (!string.IsNullOrEmpty(customerGroupsError))
-            {
-                ModelState.AddModelError("", customerGroupsError);
-                Error(customerGroupsError);
-            }
-            if (!string.IsNullOrWhiteSpace(model.Owner))
-            {
-                var custowner = await _customerService.GetCustomerByEmail(model.Owner);
-                if (custowner == null)
-                    ModelState.AddModelError("", "Owner email is not exists");
-
-                if (string.Equals(model.Owner, model.Email, StringComparison.CurrentCultureIgnoreCase))
-                    ModelState.AddModelError("", "You can't assign own email");
-            }
-
-            if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && customer.Id == _workContext.CurrentCustomer.Id)
-                ModelState.AddModelError("", "You can't edit own data from admin panel");
-
             if(!customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && model.TwoFactorEnabled)
                 Warning(_translationService.GetResource("Admin.Customers.Customers.CannotTwoFactorEnabled"));
 
@@ -365,26 +278,6 @@ namespace Grand.Web.Admin.Controllers
                     {
                         var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat, model.Password);
                         await _customerManagerService.ChangePassword(changePassRequest);
-                    }
-                    if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(model.VendorId))
-                    {
-                        Error(_translationService.GetResource("Admin.Customers.Customers.AdminCouldNotbeVendor"));
-                    }
-                    if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.Vendors) && string.IsNullOrEmpty(model.VendorId))
-                    {
-                        Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated"));
-                    }
-                    if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.Staff) && string.IsNullOrEmpty(model.StaffStoreId))
-                    {
-                        Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInStaffGroupWithoutStaffAssociated"));
-                    }
-                    if (newCustomerGroups.Any(x => x.SystemName == SystemCustomerGroupNames.SalesManager) && string.IsNullOrEmpty(model.SeId))
-                    {
-                        Error(_translationService.GetResource("Admin.Customers.Customers.CannotBeInSalesManagerGroupWithoutSalesEmployeeAssociated"));
-                    }
-                    if (await _groupService.IsStaff(customer) && await _groupService.IsVendor(customer))
-                    {
-                        Warning(_translationService.GetResource("Admin.Customers.Customers.VendorShouldNotbeStaff"));
                     }
                     Success(_translationService.GetResource("Admin.Customers.Customers.Updated"));
                     if (continueEditing)
@@ -683,16 +576,10 @@ namespace Grand.Web.Admin.Controllers
                 //No customer found with the specified id
                 return RedirectToAction("List");
 
-            //custom address attributes
-            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
-            var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                ModelState.AddModelError("", error);
-            }
-
             if (ModelState.IsValid)
             {
+                //custom address attributes
+                var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
                 var address = await _customerViewModelService.InsertAddressModel(customer, model, customAttributes);
                 Success(_translationService.GetResource("Admin.Customers.Customers.Addresses.Added"));
                 return RedirectToAction("AddressEdit", new { addressId = address.Id, customerId = model.CustomerId });
@@ -736,16 +623,10 @@ namespace Grand.Web.Admin.Controllers
                 //No address found with the specified id
                 return RedirectToAction("Edit", new { id = customer.Id });
 
-            //custom address attributes
-            var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
-            var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                ModelState.AddModelError("", error);
-            }
-
             if (ModelState.IsValid)
             {
+                //custom address attributes
+                var customAttributes = await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
                 address = await _customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
                 Success(_translationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));
                 return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, customerId = model.CustomerId });

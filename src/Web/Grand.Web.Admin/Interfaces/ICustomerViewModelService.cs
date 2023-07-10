@@ -15,7 +15,6 @@ namespace Grand.Web.Admin.Interfaces
         Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(CustomerListModel model,
             string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize);
         Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties);
-        Task<string> ValidateCustomerGroups(IList<CustomerGroup> customerGroups);
         Task<Customer> InsertCustomerModel(CustomerModel model);
         Task<Customer> UpdateCustomerModel(Customer customer, CustomerModel model);
         Task DeleteCustomer(Customer customer);
