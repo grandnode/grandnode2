@@ -87,34 +87,33 @@ namespace Grand.Domain.Catalog
         /// <param name="attributes">Attributes</param>
         /// <param name="productAttributeParser">Product attribute service</param>
         /// <param name="sku">SKU</param>
-        /// <param name="Mpn">MPN</param>
+        /// <param name="mpn">MPN</param>
         /// <param name="gtin">GTIN</param>
         private static void GetSkuMpnGtin(this Product product, IList<CustomAttribute> attributes,
-            out string sku, out string Mpn, out string gtin)
+            out string sku, out string mpn, out string gtin)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
             sku = null;
-            Mpn = null;
+            mpn = null;
             gtin = null;
 
-            if (attributes != null &&
-                product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+            if (attributes != null && attributes.Any())
             {
                 var combination = FindProductAttributeCombination(product, attributes);
                 if (combination != null)
                 {
                     sku = combination.Sku;
-                    Mpn = combination.Mpn;
+                    mpn = combination.Mpn;
                     gtin = combination.Gtin;
                 }
             }
 
             if (string.IsNullOrEmpty(sku))
                 sku = product.Sku;
-            if (string.IsNullOrEmpty(Mpn))
-                Mpn = product.Mpn;
+            if (string.IsNullOrEmpty(mpn))
+                mpn = product.Mpn;
             if (string.IsNullOrEmpty(gtin))
                 gtin = product.Gtin;
         }
