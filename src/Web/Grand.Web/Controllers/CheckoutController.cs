@@ -126,8 +126,6 @@ namespace Grand.Web.Controllers
         {
             var warnings = (await GetShippingComputation(model.ShippingOption)
                 .ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
-            foreach (var warning in warnings)
-                ModelState.AddModelError("", warning);
             return warnings;
         }
 
@@ -763,7 +761,7 @@ namespace Grand.Web.Controllers
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.SelectedShippingOption,
                     shippingOption, store.Id);
 
-                if (ModelState.IsValid)
+                if (!warnings.Any())
                 {
                     //load next step
                     return await LoadStepAfterShippingMethod(cart);
@@ -880,9 +878,7 @@ namespace Grand.Web.Controllers
                     throw new Exception("Payment method is not selected");
 
                 var warnings = await paymentMethod.ValidatePaymentForm(model);
-                foreach (var warning in warnings)
-                    ModelState.AddModelError("", warning);
-                if (ModelState.IsValid)
+                if (!warnings.Any())
                 {
                     //save payment info
                     var paymentTransaction = await paymentMethod.SavePaymentInfo(model);
@@ -908,12 +904,13 @@ namespace Grand.Web.Controllers
                 }
 
                 //If we got this far, something failed, redisplay form
-                var paymenInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
+                var paymentInfoModel = await _mediator.Send(new GetPaymentInfo { PaymentMethod = paymentMethod });
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "payment-info",
-                        model = paymenInfoModel
-                    }
+                        model = paymentInfoModel,
+                    },
+                    warnings = warnings.ToArray()
                 });
             }
             catch (Exception exc)
