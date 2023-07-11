@@ -768,107 +768,106 @@ namespace Grand.Web.Admin.Services
             {
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
 
-                if (product != null)
+                if (product == null) continue;
+                
+                if (product.IsDownload)
+                    hasDownloadableItems = true;
+
+                var orderItemModel = new OrderModel.OrderItemModel {
+                    Id = orderItem.Id,
+                    ProductId = orderItem.ProductId,
+                    ProductName = product.Name,
+                    Sku = orderItem.Sku,
+                    Quantity = orderItem.Quantity,
+                    OpenQty = orderItem.OpenQty,
+                    CancelQty = orderItem.CancelQty,
+                    ReturnQty = orderItem.ReturnQty,
+                    ShipQty = orderItem.ShipQty,
+                    IsDownload = product.IsDownload,
+                    DownloadCount = orderItem.DownloadCount,
+                    DownloadActivationType = product.DownloadActivationTypeId,
+                    IsDownloadActivated = orderItem.IsDownloadActivated
+                };
+                //picture
+                var orderItemPicture =
+                    await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
+                orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75);
+
+                //license file
+                if (!string.IsNullOrEmpty(orderItem.LicenseDownloadId))
                 {
-                    if (product.IsDownload)
-                        hasDownloadableItems = true;
-
-                    var orderItemModel = new OrderModel.OrderItemModel {
-                        Id = orderItem.Id,
-                        ProductId = orderItem.ProductId,
-                        ProductName = product.Name,
-                        Sku = product.FormatSku(orderItem.Attributes),
-                        Quantity = orderItem.Quantity,
-                        OpenQty = orderItem.OpenQty,
-                        CancelQty = orderItem.CancelQty,
-                        ReturnQty = orderItem.ReturnQty,
-                        ShipQty = orderItem.ShipQty,
-                        IsDownload = product.IsDownload,
-                        DownloadCount = orderItem.DownloadCount,
-                        DownloadActivationType = product.DownloadActivationTypeId,
-                        IsDownloadActivated = orderItem.IsDownloadActivated
-                    };
-                    //picture
-                    var orderItemPicture =
-                        await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
-                    orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75);
-
-                    //license file
-                    if (!string.IsNullOrEmpty(orderItem.LicenseDownloadId))
+                    var licenseDownload = await _downloadService.GetDownloadById(orderItem.LicenseDownloadId);
+                    if (licenseDownload != null)
                     {
-                        var licenseDownload = await _downloadService.GetDownloadById(orderItem.LicenseDownloadId);
-                        if (licenseDownload != null)
-                        {
-                            orderItemModel.LicenseDownloadGuid = licenseDownload.DownloadGuid;
-                        }
+                        orderItemModel.LicenseDownloadGuid = licenseDownload.DownloadGuid;
                     }
-
-                    //vendor
-                    var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
-                    orderItemModel.VendorName = vendor != null ? vendor.Name : "";
-
-                    //unit price
-                    orderItemModel.UnitPriceInclTaxValue = orderItem.UnitPriceInclTax;
-                    orderItemModel.UnitPriceExclTaxValue = orderItem.UnitPriceExclTax;
-                    orderItemModel.UnitPriceInclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax,
-                        orderCurrency, _workContext.WorkingLanguage, true, true);
-                    orderItemModel.UnitPriceExclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax,
-                        orderCurrency, _workContext.WorkingLanguage, false, true);
-                    //discounts
-                    orderItemModel.DiscountInclTaxValue = orderItem.DiscountAmountInclTax;
-                    orderItemModel.DiscountExclTaxValue = orderItem.DiscountAmountExclTax;
-                    orderItemModel.DiscountInclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax,
-                        orderCurrency, _workContext.WorkingLanguage, true, true);
-                    orderItemModel.DiscountExclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax,
-                        orderCurrency, _workContext.WorkingLanguage, false, true);
-                    //subtotal
-                    orderItemModel.SubTotalInclTaxValue = orderItem.PriceInclTax;
-                    orderItemModel.SubTotalExclTaxValue = orderItem.PriceExclTax;
-                    orderItemModel.SubTotalInclTax = _priceFormatter.FormatPrice(orderItem.PriceInclTax, orderCurrency,
-                        _workContext.WorkingLanguage, false, false);
-                    orderItemModel.SubTotalExclTax = _priceFormatter.FormatPrice(orderItem.PriceExclTax, orderCurrency,
-                        _workContext.WorkingLanguage, false, true);
-
-                    if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
-                    {
-                        orderItemModel.UnitPriceInclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, true, true)})";
-                        orderItemModel.UnitPriceExclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
-                        orderItemModel.DiscountInclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, true, true)})";
-                        orderItemModel.DiscountExclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
-                        orderItemModel.SubTotalInclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.PriceInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, false)})";
-                        orderItemModel.SubTotalExclTax +=
-                            $" ({_priceFormatter.FormatPrice(orderItem.PriceExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
-                    }
-
-                    // commission
-                    orderItemModel.CommissionValue = orderItem.Commission;
-                    orderItemModel.Commission = _priceFormatter.FormatPrice(orderItem.Commission, orderCurrency,
-                        _workContext.WorkingLanguage, false, false);
-
-                    orderItemModel.AttributeInfo = orderItem.AttributeDescription;
-                    if (product.IsRecurring)
-                        orderItemModel.RecurringInfo = string.Format(
-                            _translationService.GetResource("Admin.Orders.Products.RecurringPeriod"),
-                            product.RecurringCycleLength,
-                            product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext),
-                            product.RecurringTotalCycles);
-
-                    //merchandise returns
-                    orderItemModel.MerchandiseReturnIds =
-                        (await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id))
-                        .Select(rr => rr.Id).ToList();
-                    //gift vouchers
-                    orderItemModel.PurchasedGiftVoucherIds =
-                        (await _giftVoucherService.GetGiftVouchersByPurchasedWithOrderItemId(orderItem.Id))
-                        .Select(gc => gc.Id).ToList();
-
-                    model.Items.Add(orderItemModel);
                 }
+
+                //vendor
+                var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
+                orderItemModel.VendorName = vendor != null ? vendor.Name : "";
+
+                //unit price
+                orderItemModel.UnitPriceInclTaxValue = orderItem.UnitPriceInclTax;
+                orderItemModel.UnitPriceExclTaxValue = orderItem.UnitPriceExclTax;
+                orderItemModel.UnitPriceInclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax,
+                    orderCurrency, _workContext.WorkingLanguage, true, true);
+                orderItemModel.UnitPriceExclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax,
+                    orderCurrency, _workContext.WorkingLanguage, false, true);
+                //discounts
+                orderItemModel.DiscountInclTaxValue = orderItem.DiscountAmountInclTax;
+                orderItemModel.DiscountExclTaxValue = orderItem.DiscountAmountExclTax;
+                orderItemModel.DiscountInclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax,
+                    orderCurrency, _workContext.WorkingLanguage, true, true);
+                orderItemModel.DiscountExclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax,
+                    orderCurrency, _workContext.WorkingLanguage, false, true);
+                //subtotal
+                orderItemModel.SubTotalInclTaxValue = orderItem.PriceInclTax;
+                orderItemModel.SubTotalExclTaxValue = orderItem.PriceExclTax;
+                orderItemModel.SubTotalInclTax = _priceFormatter.FormatPrice(orderItem.PriceInclTax, orderCurrency,
+                    _workContext.WorkingLanguage, false, false);
+                orderItemModel.SubTotalExclTax = _priceFormatter.FormatPrice(orderItem.PriceExclTax, orderCurrency,
+                    _workContext.WorkingLanguage, false, true);
+
+                if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
+                {
+                    orderItemModel.UnitPriceInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, true, true)})";
+                    orderItemModel.UnitPriceExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
+                    orderItemModel.DiscountInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, true, true)})";
+                    orderItemModel.DiscountExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
+                    orderItemModel.SubTotalInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.PriceInclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, false)})";
+                    orderItemModel.SubTotalExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.PriceExclTax / order.CurrencyRate, primaryStoreCurrency, _workContext.WorkingLanguage, false, true)})";
+                }
+
+                // commission
+                orderItemModel.CommissionValue = orderItem.Commission;
+                orderItemModel.Commission = _priceFormatter.FormatPrice(orderItem.Commission, orderCurrency,
+                    _workContext.WorkingLanguage, false, false);
+
+                orderItemModel.AttributeInfo = orderItem.AttributeDescription;
+                if (product.IsRecurring)
+                    orderItemModel.RecurringInfo = string.Format(
+                        _translationService.GetResource("Admin.Orders.Products.RecurringPeriod"),
+                        product.RecurringCycleLength,
+                        product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext),
+                        product.RecurringTotalCycles);
+
+                //merchandise returns
+                orderItemModel.MerchandiseReturnIds =
+                    (await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id))
+                    .Select(rr => rr.Id).ToList();
+                //gift vouchers
+                orderItemModel.PurchasedGiftVoucherIds =
+                    (await _giftVoucherService.GetGiftVouchersByPurchasedWithOrderItemId(orderItem.Id))
+                    .Select(gc => gc.Id).ToList();
+
+                model.Items.Add(orderItemModel);
             }
 
             model.HasDownloadableProducts = hasDownloadableItems;
