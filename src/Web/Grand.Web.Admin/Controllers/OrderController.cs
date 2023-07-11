@@ -302,8 +302,6 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exception)
             {
                 //error
-                var model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
                 Error(exception, false);
                 return RedirectToAction("Edit", "Order", new { id = order.Id });
             }
@@ -353,8 +351,6 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception exc)
             {
                 //error
-                model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
                 Error(exc, false);
                 return RedirectToAction("Edit", "Order", new { id });
             }
