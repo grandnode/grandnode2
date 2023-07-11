@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Api.DTOs.Customers
 {
-    public partial class CustomerDto : BaseApiEntityModel
+    public class CustomerDto : BaseApiEntityModel
     {
         public CustomerDto()
         {

@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class CategoryDto : BaseApiEntityModel
+    public class CategoryDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public string Description { get; set; }

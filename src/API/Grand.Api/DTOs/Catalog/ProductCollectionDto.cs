@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductCollectionDto
+    public class ProductCollectionDto
     {
         [Key]
         public string CollectionId { get; set; }

@@ -10,7 +10,7 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    public partial class CountryController : BaseODataController
+    public class CountryController : BaseODataController
     {
         private readonly IMediator _mediator;
         private readonly IPermissionService _permissionService;

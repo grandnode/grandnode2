@@ -3,7 +3,7 @@ using Grand.Api.Models;
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductAttributeMappingDto : BaseApiEntityModel
+    public class ProductAttributeMappingDto : BaseApiEntityModel
     {
         public ProductAttributeMappingDto()
         {
@@ -25,7 +25,7 @@ namespace Grand.Api.DTOs.Catalog
         
 
     }
-    public partial class ProductAttributeValueDto: BaseApiEntityModel
+    public class ProductAttributeValueDto: BaseApiEntityModel
     {
         public string AssociatedProductId { get; set; }
         public string Name { get; set; }

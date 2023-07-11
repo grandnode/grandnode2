@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductDto : BaseApiEntityModel
+    public class ProductDto : BaseApiEntityModel
     {
         public ProductDto()
         {

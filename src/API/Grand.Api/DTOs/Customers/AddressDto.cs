@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Customers
 {
-    public partial class AddressDto : BaseApiEntityModel
+    public class AddressDto : BaseApiEntityModel
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

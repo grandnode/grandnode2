@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class SpecificationAttributeDto : BaseApiEntityModel
+    public class SpecificationAttributeDto : BaseApiEntityModel
     {
         public SpecificationAttributeDto()
         {
@@ -13,7 +13,7 @@ namespace Grand.Api.DTOs.Catalog
         public IList<SpecificationAttributeOptionDto> SpecificationAttributeOptions { get; set; }
 
     }
-    public partial class SpecificationAttributeOptionDto : BaseApiEntityModel
+    public class SpecificationAttributeOptionDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public int DisplayOrder { get; set; }

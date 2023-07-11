@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Shipping
 {
-    public partial class PickupPointDto : BaseApiEntityModel
+    public class PickupPointDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public string Description { get; set; }

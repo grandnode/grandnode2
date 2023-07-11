@@ -3,7 +3,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Api.DTOs.Common
 {
-    public partial class PictureDto : BaseApiEntityModel
+    public class PictureDto : BaseApiEntityModel
     {
         public byte[] PictureBinary { get; set; }
         public string MimeType { get; set; }

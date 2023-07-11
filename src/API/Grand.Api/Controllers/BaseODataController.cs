@@ -14,7 +14,7 @@ namespace Grand.Api.Controllers
     [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     [AuthorizeApiAdmin]
     [ServiceFilter(typeof(ModelValidationAttribute))]
-    public abstract partial class BaseODataController : ODataController
+    public abstract class BaseODataController : ODataController
     {
         public override ForbidResult Forbid()
         {

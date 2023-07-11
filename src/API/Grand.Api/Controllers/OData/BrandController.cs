@@ -13,7 +13,7 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    public partial class BrandController : BaseODataController
+    public class BrandController : BaseODataController
     {
         private readonly IMediator _mediator;
         private readonly IPermissionService _permissionService;

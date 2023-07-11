@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class BrandDto : BaseApiEntityModel
+    public class BrandDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public string SeName { get; set; }

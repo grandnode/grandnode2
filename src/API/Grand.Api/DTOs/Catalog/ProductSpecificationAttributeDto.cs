@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductSpecificationAttributeDto : BaseApiEntityModel
+    public class ProductSpecificationAttributeDto : BaseApiEntityModel
     {
         public string SpecificationAttributeId { get; set; }
         public string SpecificationAttributeOptionId { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductAttributeCombinationDto : BaseApiEntityModel
+    public class ProductAttributeCombinationDto : BaseApiEntityModel
     {        
         public int StockQuantity { get; set; }
         public int ReservedQuantity { get; set; }

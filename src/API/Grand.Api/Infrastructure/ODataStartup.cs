@@ -20,7 +20,7 @@ using Microsoft.OData.ModelBuilder;
 
 namespace Grand.Api.Infrastructure
 {
-    public partial class ODataStartup : IStartupApplication
+    public class ODataStartup : IStartupApplication
     {
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {

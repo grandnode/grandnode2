@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Common
 {
-    public partial class CurrencyDto : BaseApiEntityModel
+    public class CurrencyDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public string CurrencyCode { get; set; }

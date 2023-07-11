@@ -2,7 +2,7 @@
 
 namespace Grand.Api.Models
 {
-    public partial class BaseApiEntityModel
+    public class BaseApiEntityModel
     {
         [Key]
         public string Id { get; set; }

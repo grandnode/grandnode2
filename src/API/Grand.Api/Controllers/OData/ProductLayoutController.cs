@@ -9,7 +9,7 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    public partial class ProductLayoutController : BaseODataController
+    public class ProductLayoutController : BaseODataController
     {
         private readonly IMediator _mediator;
         private readonly IPermissionService _permissionService;

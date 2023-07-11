@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    public partial class PictureController : BaseODataController
+    public class PictureController : BaseODataController
     {
         private readonly IMediator _mediator;
         private readonly IPermissionService _permissionService;

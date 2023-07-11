@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductTierPriceDto : BaseApiEntityModel
+    public class ProductTierPriceDto : BaseApiEntityModel
     {
         public string StoreId { get; set; }
         public string CustomerGroupId { get; set; }

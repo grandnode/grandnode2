@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Customers
 {
-    public partial class CustomerGroupDto : BaseApiEntityModel
+    public class CustomerGroupDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public bool FreeShipping { get; set; }

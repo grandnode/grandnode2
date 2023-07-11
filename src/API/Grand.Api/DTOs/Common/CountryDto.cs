@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Common
 {
-    public partial class CountryDto : BaseApiEntityModel
+    public class CountryDto : BaseApiEntityModel
     {
         private ICollection<StateProvinceDto> _stateProvinces;
 

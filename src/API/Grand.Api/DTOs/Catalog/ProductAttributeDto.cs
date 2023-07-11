@@ -2,7 +2,7 @@
 
 namespace Grand.Api.DTOs.Catalog
 {
-    public partial class ProductAttributeDto : BaseApiEntityModel
+    public class ProductAttributeDto : BaseApiEntityModel
     {
         public ProductAttributeDto()
         {
@@ -13,7 +13,7 @@ namespace Grand.Api.DTOs.Catalog
         public IList<PredefinedProductAttributeValueDto> PredefinedProductAttributeValues { get; set; }
     }
 
-    public partial class PredefinedProductAttributeValueDto : BaseApiEntityModel
+    public class PredefinedProductAttributeValueDto : BaseApiEntityModel
     {
         public string Name { get; set; }
         public double PriceAdjustment { get; set; }
