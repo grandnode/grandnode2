@@ -93,7 +93,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
-            model.ApplyTo(pr, ModelState);
+            model.ApplyTo(pr!, ModelState);
             await _mediator.Send(new UpdateProductCommand() { Model = pr });
             return Ok();
         }
@@ -156,8 +156,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
-            if (pc != null) ModelState.AddModelError("", "Product category mapping found with the specified categoryid");
+            var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
+            if (pc != null) return BadRequest("Product category mapping found with the specified CategoryId");
 
             if (ModelState.IsValid)
             {
@@ -183,8 +183,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
-            if (pc == null) ModelState.AddModelError("", "No product category mapping found with the specified id");
+            var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
+            if (pc == null) return BadRequest("No product category mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -213,12 +213,12 @@ namespace Grand.Api.Controllers.OData
             var categoryId = model.CategoryId;
             if (!string.IsNullOrEmpty(categoryId))
             {
-                var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == categoryId.ToString()).FirstOrDefault();
-                if (pc == null) ModelState.AddModelError("", "No product category mapping found with the specified id");
+                var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == categoryId);
+                if (pc == null) return BadRequest("No product category mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductCategoryCommand() { Product = product.FirstOrDefault(), CategoryId = categoryId.ToString() });
+                    _ = await _mediator.Send(new DeleteProductCategoryCommand() { Product = product.FirstOrDefault(), CategoryId = categoryId });
                     return Ok(true);
                 }
                 return BadRequest(ModelState);
@@ -246,8 +246,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
-            if (pm != null) ModelState.AddModelError("", "Product collection mapping found with the specified collectionid");
+            var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
+            if (pm != null) return BadRequest("Product collection mapping found with the specified CollectionId");
 
             if (ModelState.IsValid)
             {
@@ -273,8 +273,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
-            if (pm == null) ModelState.AddModelError("", "No product collection mapping found with the specified id");
+            var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
+            if (pm == null) return BadRequest("No product collection mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -303,12 +303,12 @@ namespace Grand.Api.Controllers.OData
             var collectionId = model.CollectionId;
             if (!string.IsNullOrEmpty(collectionId))
             {
-                var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == collectionId.ToString()).FirstOrDefault();
-                if (pm == null) ModelState.AddModelError("", "No product collection mapping found with the specified id");
+                var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == collectionId);
+                if (pm == null) return BadRequest("No product collection mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductCollectionCommand() { Product = product.FirstOrDefault(), CollectionId = collectionId.ToString() });
+                    var result = await _mediator.Send(new DeleteProductCollectionCommand() { Product = product.FirstOrDefault(), CollectionId = collectionId });
                     return Ok(true);
                 }
                 return BadRequest(ModelState);
@@ -336,8 +336,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
-            if (pp != null) ModelState.AddModelError("", "Product picture mapping found with the specified pictureid");
+            var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
+            if (pp != null) return BadRequest("Product picture mapping found with the specified pictureid");
 
             if (ModelState.IsValid)
             {
@@ -363,8 +363,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
-            if (pp == null) ModelState.AddModelError("", "No product picture mapping found with the specified id");
+            var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
+            if (pp == null) return BadRequest("No product picture mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -393,12 +393,12 @@ namespace Grand.Api.Controllers.OData
             var pictureId = model.PictureId;
             if (!string.IsNullOrEmpty(pictureId))
             {
-                var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == pictureId.ToString()).FirstOrDefault();
-                if (pp == null) ModelState.AddModelError("", "No product picture mapping found with the specified id");
+                var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == pictureId);
+                if (pp == null) return BadRequest("No product picture mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductPictureCommand() { Product = product.FirstOrDefault(), PictureId = pictureId.ToString() });
+                    var result = await _mediator.Send(new DeleteProductPictureCommand() { Product = product.FirstOrDefault(), PictureId = pictureId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -426,8 +426,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
-            if (psa != null) ModelState.AddModelError("", "Product specification mapping found with the specified id");
+            var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
+            if (psa != null) return BadRequest("Product specification mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -453,8 +453,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
-            if (psa == null) ModelState.AddModelError("", "No product specification mapping found with the specified id");
+            var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
+            if (psa == null) return BadRequest("No product specification mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -483,12 +483,12 @@ namespace Grand.Api.Controllers.OData
             var specificationId = model.Id;
             if (!string.IsNullOrEmpty(specificationId))
             {
-                var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == specificationId.ToString()).FirstOrDefault();
-                if (psa == null) ModelState.AddModelError("", "No product specification mapping found with the specified id");
+                var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == specificationId);
+                if (psa == null) return BadRequest("No product specification mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductSpecificationCommand() { Product = product.FirstOrDefault(), Id = specificationId.ToString() });
+                    var result = await _mediator.Send(new DeleteProductSpecificationCommand() { Product = product.FirstOrDefault(), Id = specificationId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -516,8 +516,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == productTierPrice.Id).FirstOrDefault();
-            if (pt != null) ModelState.AddModelError("", "Product tier price mapping found with the specified id");
+            var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
+            if (pt != null) return BadRequest("Product tier price mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -543,8 +543,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == productTierPrice.Id).FirstOrDefault();
-            if (pt == null) ModelState.AddModelError("", "No product tier price mapping found with the specified id");
+            var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
+            if (pt == null) return BadRequest("No product tier price mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -573,12 +573,12 @@ namespace Grand.Api.Controllers.OData
             var tierPriceId = model.Id;
             if (!string.IsNullOrEmpty(tierPriceId))
             {
-                var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == tierPriceId.ToString()).FirstOrDefault();
-                if (pt == null) ModelState.AddModelError("", "No product tier price mapping found with the specified id");
+                var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == tierPriceId);
+                if (pt == null) return BadRequest("No product tier price mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductTierPriceCommand() { Product = product.FirstOrDefault(), Id = tierPriceId.ToString() });
+                    var result = await _mediator.Send(new DeleteProductTierPriceCommand() { Product = product.FirstOrDefault(), Id = tierPriceId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -606,8 +606,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
-            if (pam != null) ModelState.AddModelError("", "Product attribute mapping found with the specified id");
+            var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
+            if (pam != null) return BadRequest("Product attribute mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -633,8 +633,8 @@ namespace Grand.Api.Controllers.OData
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
-            var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
-            if (pam == null) ModelState.AddModelError("", "No product attribute mapping found with the specified id");
+            var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
+            if (pam == null) return BadRequest("No product attribute mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -663,8 +663,8 @@ namespace Grand.Api.Controllers.OData
             var attrId = model.Id;
             if (!string.IsNullOrEmpty(attrId))
             {
-                var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == attrId.ToString()).FirstOrDefault();
-                if (pam == null) ModelState.AddModelError("", "No product attribute mapping found with the specified id");
+                var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == attrId);
+                if (pam == null) return BadRequest("No product attribute mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
