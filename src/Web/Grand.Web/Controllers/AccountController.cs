@@ -1207,9 +1207,7 @@ namespace Grand.Web.Controllers
                     success = true
                 });
             }
-
             //errors
-            ModelState.AddModelError("", result.error);
             return Json(new
             {
                 redirect = Url.RouteUrl("CustomerSubAccounts"),
