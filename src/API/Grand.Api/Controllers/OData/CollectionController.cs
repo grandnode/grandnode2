@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto>(key));
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any()) return NotFound();
 
             return Ok(collection);
@@ -47,7 +47,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to Collection", OperationId = "InsertCollection")]
@@ -73,7 +73,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto>(model.Id));
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(model.Id));
             if (!collection.Any()) return NotFound();
 
             model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
@@ -90,7 +90,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto>(key));
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any()) return NotFound();
 
             var man = collection.FirstOrDefault();
@@ -108,7 +108,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto>(key));
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any()) return NotFound();
 
             await _mediator.Send(new DeleteCollectionCommand { Model = collection.FirstOrDefault() });

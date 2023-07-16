@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
 
-            var language = await _mediator.Send(new GetGenericQuery<LanguageDto>(key));
+            var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>(key));
             if (!language.Any()) return NotFound();
 
             return Ok(language.FirstOrDefault());
@@ -45,7 +45,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Languages)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>()));
         }
     }
 }

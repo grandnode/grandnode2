@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-            var points = await _mediator.Send(new GetGenericQuery<PickupPointDto>(key));
+            var points = await _mediator.Send(new GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>(key));
             if (!points.Any()) return NotFound();
 
             return Ok(points.FirstOrDefault());
@@ -45,7 +45,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<PickupPointDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>()));
         }
     }
 }

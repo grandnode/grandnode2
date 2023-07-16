@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
 
-            var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto>(key));
+            var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>(key));
             if (!currency.Any()) return NotFound();
 
             return Ok(currency.FirstOrDefault());
@@ -45,7 +45,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Currencies)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<CurrencyDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>()));
         }
     }
 }

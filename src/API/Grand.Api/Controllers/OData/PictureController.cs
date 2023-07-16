@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
-            var picture = await _mediator.Send(new GetGenericQuery<PictureDto>(key));
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
             if (picture == null || !picture.Any()) return NotFound();
 
             return Ok(picture.FirstOrDefault());
@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 
-            var picture = await _mediator.Send(new GetGenericQuery<PictureDto>(model.Id));
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(model.Id));
             if (picture == null || !picture.Any()) return NotFound();
 
             var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
@@ -75,7 +75,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
-            var picture = await _mediator.Send(new GetGenericQuery<PictureDto>(key));
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
             if (picture == null || !picture.Any()) return NotFound();
 
             await _mediator.Send(new DeletePictureCommand { PictureDto = picture.FirstOrDefault() });

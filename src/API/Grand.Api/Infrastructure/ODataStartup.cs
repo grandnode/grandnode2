@@ -91,55 +91,55 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterRequestHandler(IServiceCollection services)
         {
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto, Domain.Directory.Country>,
                 IQueryable<CountryDto>>), typeof(GetGenericQueryHandler<CountryDto, Domain.Directory.Country>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CurrencyDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CurrencyDto, Domain.Directory.Currency>,
                 IQueryable<CurrencyDto>>), typeof(GetGenericQueryHandler<CurrencyDto, Domain.Directory.Currency>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<BrandDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<BrandDto, Domain.Catalog.Brand>,
                 IQueryable<BrandDto>>), typeof(GetGenericQueryHandler<BrandDto, Domain.Catalog.Brand>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CategoryDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CategoryDto, Domain.Catalog.Category>,
                 IQueryable<CategoryDto>>), typeof(GetGenericQueryHandler<CategoryDto, Domain.Catalog.Category>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CollectionDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CollectionDto, Domain.Catalog.Collection>,
                 IQueryable<CollectionDto>>), typeof(GetGenericQueryHandler<CollectionDto, Domain.Catalog.Collection>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductAttributeDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>,
                 IQueryable<ProductAttributeDto>>), typeof(GetGenericQueryHandler<ProductAttributeDto, Domain.Catalog.ProductAttribute>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductDto, Domain.Catalog.Product>,
                 IQueryable<ProductDto>>), typeof(GetGenericQueryHandler<ProductDto, Domain.Catalog.Product>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<SpecificationAttributeDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>,
                 IQueryable<SpecificationAttributeDto>>), typeof(GetGenericQueryHandler<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<WarehouseDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<WarehouseDto, Domain.Shipping.Warehouse>,
                 IQueryable<WarehouseDto>>), typeof(GetGenericQueryHandler<WarehouseDto, Domain.Shipping.Warehouse>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ShippingMethodDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ShippingMethodDto, Domain.Shipping.ShippingMethod>,
                 IQueryable<ShippingMethodDto>>), typeof(GetGenericQueryHandler<ShippingMethodDto, Domain.Shipping.ShippingMethod>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PickupPointDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>,
                 IQueryable<PickupPointDto>>), typeof(GetGenericQueryHandler<PickupPointDto, Domain.Shipping.PickupPoint>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<DeliveryDateDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<DeliveryDateDto, Domain.Shipping.DeliveryDate>,
                 IQueryable<DeliveryDateDto>>), typeof(GetGenericQueryHandler<DeliveryDateDto, Domain.Shipping.DeliveryDate>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<VendorDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<VendorDto, Domain.Vendors.Vendor>,
                 IQueryable<VendorDto>>), typeof(GetGenericQueryHandler<VendorDto, Domain.Vendors.Vendor>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CustomerGroupDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>,
                 IQueryable<CustomerGroupDto>>), typeof(GetGenericQueryHandler<CustomerGroupDto, Domain.Customers.CustomerGroup>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<StoreDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<StoreDto, Domain.Stores.Store>,
                 IQueryable<StoreDto>>), typeof(GetGenericQueryHandler<StoreDto, Domain.Stores.Store>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<LanguageDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<LanguageDto, Domain.Localization.Language>,
                 IQueryable<LanguageDto>>), typeof(GetGenericQueryHandler<LanguageDto, Domain.Localization.Language>));
 
-            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PictureDto>,
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PictureDto, Domain.Media.Picture>,
                 IQueryable<PictureDto>>), typeof(GetGenericQueryHandler<PictureDto, Domain.Media.Picture>));
 
         }

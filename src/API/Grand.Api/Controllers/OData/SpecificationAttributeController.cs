@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
+            var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specificationAttribute.Any()) return NotFound();
 
             return Ok(specificationAttribute.FirstOrDefault());
@@ -47,7 +47,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to SpecificationAttribute", OperationId = "InsertSpecificationAttribute")]
@@ -86,7 +86,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specification.Any()) return NotFound();
 
             var spec = specification.FirstOrDefault();
@@ -104,7 +104,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specification.Any()) return NotFound();
 
             await _mediator.Send(new DeleteSpecificationAttributeCommand { Model = specification.FirstOrDefault() });

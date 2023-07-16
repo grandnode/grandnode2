@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<BrandDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>()));
         }
 
         [SwaggerOperation(summary: "Get entity from Brand by key", OperationId = "GetBrandById")]
@@ -44,7 +44,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            var brand = await _mediator.Send(new GetGenericQuery<BrandDto>(key));
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any()) return NotFound();
 
             return Ok(brand.FirstOrDefault());
@@ -73,7 +73,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            var brand = await _mediator.Send(new GetGenericQuery<BrandDto>(model.Id));
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(model.Id));
             if (!brand.Any()) return NotFound();
 
             model = await _mediator.Send(new UpdateBrandCommand { Model = model });
@@ -90,7 +90,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            var brand = await _mediator.Send(new GetGenericQuery<BrandDto>(key));
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any()) return NotFound();
 
             var man = brand.FirstOrDefault();
@@ -108,7 +108,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            var brand = await _mediator.Send(new GetGenericQuery<BrandDto>(key));
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any()) return NotFound();
 
             await _mediator.Send(new DeleteBrandCommand { Model = brand.FirstOrDefault() });

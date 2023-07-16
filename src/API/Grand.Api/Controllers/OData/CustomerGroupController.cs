@@ -33,7 +33,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto>(key));
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any()) return NotFound();
 
             return Ok(customerGroup.FirstOrDefault());
@@ -48,7 +48,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to CustomerGroup", OperationId = "InsertCustomerGroup")]
@@ -74,7 +74,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto>(model.Id));
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(model.Id));
             if (!customerGroup.Any()) return NotFound();
 
             if (!model.IsSystem)
@@ -95,7 +95,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto>(key));
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any()) return NotFound();
 
             var cr = customerGroup.FirstOrDefault();
@@ -117,10 +117,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto>(key));
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any()) return NotFound();
 
-            if (customerGroup.FirstOrDefault().IsSystem) return Forbid();
+            if (customerGroup.FirstOrDefault()!.IsSystem) return Forbid();
 
             await _mediator.Send(new DeleteCustomerGroupCommand { Model = customerGroup.FirstOrDefault() });
 

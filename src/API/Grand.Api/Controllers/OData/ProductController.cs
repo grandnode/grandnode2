@@ -35,7 +35,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             return Ok(product.FirstOrDefault());
@@ -50,7 +50,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<ProductDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to Product", OperationId = "InsertProduct")]
@@ -89,7 +89,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
@@ -107,7 +107,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             await _mediator.Send(new DeleteProductCommand { Model = product.FirstOrDefault() });
@@ -128,7 +128,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             if (model == null) return BadRequest();
@@ -153,7 +153,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
@@ -180,7 +180,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
@@ -207,7 +207,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var categoryId = model.CategoryId;
@@ -243,7 +243,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
@@ -270,7 +270,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
@@ -297,7 +297,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var collectionId = model.CollectionId;
@@ -333,7 +333,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
@@ -360,7 +360,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
@@ -387,7 +387,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pictureId = model.PictureId;
@@ -423,7 +423,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
@@ -450,7 +450,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
@@ -477,7 +477,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var specificationId = model.Id;
@@ -513,7 +513,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
@@ -540,7 +540,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
@@ -567,7 +567,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var tierPriceId = model.Id;
@@ -603,7 +603,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
@@ -630,7 +630,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
@@ -657,7 +657,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var attrId = model.Id;

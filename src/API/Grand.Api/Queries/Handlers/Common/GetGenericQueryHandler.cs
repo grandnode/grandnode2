@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Grand.Api.Queries.Handlers.Common
 {
-    public class GetGenericQueryHandler<T> : IRequestHandler<GetGenericQuery<T>, IQueryable<T>> 
+    public class GetGenericQueryHandler<T,C> : IRequestHandler<GetGenericQuery<T,C>, IQueryable<T>> 
         where T : BaseApiEntityModel
         where C : BaseEntity
     {
@@ -16,13 +16,14 @@ namespace Grand.Api.Queries.Handlers.Common
         {
             _dbContext = dbContext;
         }
-        public async Task<IQueryable<T>> Handle(GetGenericQuery<T> request, CancellationToken cancellationToken)
+        public async Task<IQueryable<T>> Handle(GetGenericQuery<T,C> request, CancellationToken cancellationToken)
         {
             var query = _dbContext.Table<T>(typeof(C).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;
-            return await Task.FromResult(query.Where(x => x.Id == request.Id));
+            else
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
 
         }
     }
