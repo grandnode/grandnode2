@@ -42,7 +42,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
             if (customer == null) return NotFound();
 
             return Ok(customer);
@@ -57,7 +57,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            model = await _mediator.Send(new AddCustomerCommand() { Model = model });
+            model = await _mediator.Send(new AddCustomerCommand { Model = model });
             return Ok(model);
         }
 
@@ -70,7 +70,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            model = await _mediator.Send(new UpdateCustomerCommand() { Model = model });
+            model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
             return Ok(model);
         }
 
@@ -83,10 +83,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
             if (customer == null) return NotFound();
 
-            await _mediator.Send(new DeleteCustomerCommand() { Email = key });
+            await _mediator.Send(new DeleteCustomerCommand { Email = key });
 
             return Ok();
         }
@@ -103,10 +103,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
             if (customer == null) return NotFound();
 
-            address = await _mediator.Send(new AddCustomerAddressCommand() { Customer = customer, Address = address });
+            address = await _mediator.Send(new AddCustomerAddressCommand { Customer = customer, Address = address });
             return Ok(address);
         }
 
@@ -122,10 +122,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
             if (customer == null) return NotFound();
 
-            address = await _mediator.Send(new UpdateCustomerAddressCommand() { Customer = customer, Address = address });
+            address = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
 
             return Ok(address);
         }
@@ -144,13 +144,13 @@ namespace Grand.Api.Controllers.OData
 
             if (model == null || string.IsNullOrEmpty(model.AddressId)) return NotFound();
 
-            var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
             if (customer == null) return NotFound();
 
-            var address = customer.Addresses.FirstOrDefault(x => x.Id == model.AddressId.ToString());
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == model.AddressId);
             if (address == null) return NotFound();
 
-            await _mediator.Send(new DeleteCustomerAddressCommand() { Customer = customer, Address = address });
+            await _mediator.Send(new DeleteCustomerAddressCommand { Customer = customer, Address = address });
 
             return Ok(true);
         }

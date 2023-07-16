@@ -13,15 +13,13 @@ namespace Grand.Api.Validators.Catalog
             ITranslationService translationService, ISpecificationAttributeService specificationAttributeService)
             : base(validators)
         {
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var specification = await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
-                if (specification == null)
-                    return false;
-                return true;
+                return specification != null;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductSpecificationAttribute.Fields.SpecificationAttributeId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.SpecificationAttributeOptionId))
                 {

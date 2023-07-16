@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
+            var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
             if (!specificationAttribute.Any()) return NotFound();
 
             return Ok(specificationAttribute.FirstOrDefault());
@@ -47,7 +47,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to SpecificationAttribute", OperationId = "InsertSpecificationAttribute")]
@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            model = await _mediator.Send(new AddSpecificationAttributeCommand() { Model = model });
+            model = await _mediator.Send(new AddSpecificationAttributeCommand { Model = model });
             return Ok(model);
         }
 
@@ -72,7 +72,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            model = await _mediator.Send(new UpdateSpecificationAttributeCommand() { Model = model });
+            model = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
             return Ok(model);
         }
 
@@ -86,12 +86,12 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
             if (!specification.Any()) return NotFound();
 
             var spec = specification.FirstOrDefault();
             model.ApplyTo(spec);
-            await _mediator.Send(new UpdateSpecificationAttributeCommand() { Model = spec });
+            await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = spec });
             return Ok();
         }
 
@@ -104,10 +104,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
 
-            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto>(key));
             if (!specification.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteSpecificationAttributeCommand() { Model = specification.FirstOrDefault() });
+            await _mediator.Send(new DeleteSpecificationAttributeCommand { Model = specification.FirstOrDefault() });
 
             return Ok();
         }

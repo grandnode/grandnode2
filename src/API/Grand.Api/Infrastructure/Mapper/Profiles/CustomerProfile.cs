@@ -4,7 +4,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper
+namespace Grand.Api.Infrastructure.Mapper.Profiles
 {
     public class CustomerProfile : Profile, IAutoMapperProfile
     {

@@ -35,7 +35,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             return Ok(product.FirstOrDefault());
@@ -50,7 +50,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<ProductDto>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to Product", OperationId = "InsertProduct")]
@@ -62,7 +62,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            model = await _mediator.Send(new AddProductCommand() { Model = model });
+            model = await _mediator.Send(new AddProductCommand { Model = model });
             return Ok(model);
         }
 
@@ -75,7 +75,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            await _mediator.Send(new UpdateProductCommand() { Model = model });
+            await _mediator.Send(new UpdateProductCommand { Model = model });
             return Ok();
         }
 
@@ -89,12 +89,12 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
             model.ApplyTo(pr!, ModelState);
-            await _mediator.Send(new UpdateProductCommand() { Model = pr });
+            await _mediator.Send(new UpdateProductCommand { Model = pr });
             return Ok();
         }
 
@@ -107,10 +107,10 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteProductCommand() { Model = product.FirstOrDefault() });
+            await _mediator.Send(new DeleteProductCommand { Model = product.FirstOrDefault() });
 
             return Ok();
         }
@@ -128,12 +128,12 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             if (model == null) return BadRequest();
 
-            await _mediator.Send(new UpdateProductStockCommand() { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
+            await _mediator.Send(new UpdateProductStockCommand { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
 
             return Ok(true);
         }
@@ -153,7 +153,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
@@ -161,7 +161,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductCategoryCommand() { Product = product.FirstOrDefault(), Model = productCategory });
+                var result = await _mediator.Send(new AddProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -180,7 +180,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == productCategory.CategoryId);
@@ -188,7 +188,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductCategoryCommand() { Product = product.FirstOrDefault(), Model = productCategory });
+                var result = await _mediator.Send(new UpdateProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -207,7 +207,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var categoryId = model.CategoryId;
@@ -218,7 +218,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    _ = await _mediator.Send(new DeleteProductCategoryCommand() { Product = product.FirstOrDefault(), CategoryId = categoryId });
+                    _ = await _mediator.Send(new DeleteProductCategoryCommand { Product = product.FirstOrDefault(), CategoryId = categoryId });
                     return Ok(true);
                 }
                 return BadRequest(ModelState);
@@ -243,7 +243,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
@@ -251,7 +251,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductCollectionCommand() { Product = product.FirstOrDefault(), Model = productCollection });
+                var result = await _mediator.Send(new AddProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -270,7 +270,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
@@ -278,7 +278,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductCollectionCommand() { Product = product.FirstOrDefault(), Model = productCollection });
+                var result = await _mediator.Send(new UpdateProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -297,7 +297,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var collectionId = model.CollectionId;
@@ -308,7 +308,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductCollectionCommand() { Product = product.FirstOrDefault(), CollectionId = collectionId });
+                    await _mediator.Send(new DeleteProductCollectionCommand { Product = product.FirstOrDefault(), CollectionId = collectionId });
                     return Ok(true);
                 }
                 return BadRequest(ModelState);
@@ -333,7 +333,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
@@ -341,7 +341,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductPictureCommand() { Product = product.FirstOrDefault(), Model = productPicture });
+                var result = await _mediator.Send(new AddProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -360,7 +360,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
@@ -368,7 +368,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductPictureCommand() { Product = product.FirstOrDefault(), Model = productPicture });
+                var result = await _mediator.Send(new UpdateProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -387,7 +387,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pictureId = model.PictureId;
@@ -398,7 +398,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductPictureCommand() { Product = product.FirstOrDefault(), PictureId = pictureId });
+                    var result = await _mediator.Send(new DeleteProductPictureCommand { Product = product.FirstOrDefault(), PictureId = pictureId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -423,7 +423,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
@@ -431,7 +431,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductSpecificationCommand() { Product = product.FirstOrDefault(), Model = productSpecification });
+                var result = await _mediator.Send(new AddProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -450,7 +450,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == productSpecification.Id);
@@ -458,7 +458,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductSpecificationCommand() { Product = product.FirstOrDefault(), Model = productSpecification });
+                var result = await _mediator.Send(new UpdateProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -477,7 +477,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var specificationId = model.Id;
@@ -488,7 +488,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductSpecificationCommand() { Product = product.FirstOrDefault(), Id = specificationId });
+                    var result = await _mediator.Send(new DeleteProductSpecificationCommand { Product = product.FirstOrDefault(), Id = specificationId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -513,7 +513,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
@@ -521,7 +521,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductTierPriceCommand() { Product = product.FirstOrDefault(), Model = productTierPrice });
+                var result = await _mediator.Send(new AddProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -540,7 +540,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
@@ -548,7 +548,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductTierPriceCommand() { Product = product.FirstOrDefault(), Model = productTierPrice });
+                var result = await _mediator.Send(new UpdateProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -567,7 +567,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var tierPriceId = model.Id;
@@ -578,7 +578,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductTierPriceCommand() { Product = product.FirstOrDefault(), Id = tierPriceId });
+                    var result = await _mediator.Send(new DeleteProductTierPriceCommand { Product = product.FirstOrDefault(), Id = tierPriceId });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);
@@ -603,7 +603,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
@@ -611,7 +611,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new AddProductAttributeMappingCommand() { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+                var result = await _mediator.Send(new AddProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -630,7 +630,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMapping.Id);
@@ -638,7 +638,7 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new UpdateProductAttributeMappingCommand() { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+                var result = await _mediator.Send(new UpdateProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
                 return Ok(result);
             }
             return BadRequest(ModelState);
@@ -657,7 +657,7 @@ namespace Grand.Api.Controllers.OData
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
+            var product = await _mediator.Send(new GetGenericQuery<ProductDto>(key));
             if (!product.Any()) return NotFound();
 
             var attrId = model.Id;
@@ -668,7 +668,7 @@ namespace Grand.Api.Controllers.OData
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _mediator.Send(new DeleteProductAttributeMappingCommand() { Product = product.FirstOrDefault(), Model = pam });
+                    var result = await _mediator.Send(new DeleteProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = pam });
                     return Ok(result);
                 }
                 return BadRequest(ModelState);

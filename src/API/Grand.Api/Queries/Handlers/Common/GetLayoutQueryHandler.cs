@@ -20,8 +20,7 @@ namespace Grand.Api.Queries.Handlers.Common
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;
-            else
-                return await Task.FromResult(query.Where(x => x.Id == request.Id));
+            return await Task.FromResult(query.Where(x => x.Id == request.Id));
 
         }
     }

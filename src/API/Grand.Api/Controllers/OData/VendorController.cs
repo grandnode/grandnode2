@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
 
-            var vendor = await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>(key));
+            var vendor = await _mediator.Send(new GetGenericQuery<VendorDto>(key));
             if (!vendor.Any()) return NotFound();
 
             return Ok(vendor.FirstOrDefault());
@@ -46,7 +46,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<VendorDto>()));
         }
     }
 }

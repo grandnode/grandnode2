@@ -1,8 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class UpdateProductSpecificationCommandHandler : IRequestHandler<UpdateProductSpecificationCommand, bool>
     {

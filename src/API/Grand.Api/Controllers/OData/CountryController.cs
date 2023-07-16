@@ -31,7 +31,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
 
             //Domain.Directory.Country
-            var country = await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>(key));
+            var country = await _mediator.Send(new GetGenericQuery<CountryDto>(key));
             if (!country.Any()) return NotFound();
 
             return Ok(country.FirstOrDefault());
@@ -46,7 +46,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CountryDto>()));
         }
     }
 }

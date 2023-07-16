@@ -3,7 +3,7 @@ using Grand.Api.DTOs.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper
+namespace Grand.Api.Infrastructure.Mapper.Profiles
 {
     public class CustomerGroupProfile : Profile, IAutoMapperProfile
     {

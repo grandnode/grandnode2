@@ -9,6 +9,7 @@ namespace Grand.Api.Infrastructure.DependencyManagement
         /// Register edmmodel
         /// </summary>
         /// <param name="builder">OData Convention Model Builder</param>
+        /// <param name="apiConfig">ApiConfig</param>
         void Register(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig);
 
         /// <summary>

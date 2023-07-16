@@ -12,12 +12,10 @@ namespace Grand.Api.Validators.Catalog
             ITranslationService translationService, ICollectionService collectionService)
             : base(validators)
         {
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var collection = await collectionService.GetCollectionById(x.CollectionId);
-                if (collection == null)
-                    return false;
-                return true;
+                return collection != null;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductCollection.Fields.CollectionId.NotExists"));
         }
     }

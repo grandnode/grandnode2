@@ -39,7 +39,7 @@ namespace Grand.Api.Controllers
             if (user != null)
                 claims.Add("Token", user.Token);
 
-            var token = await _mediator.Send(new GenerateTokenCommand() { Claims = claims });
+            var token = await _mediator.Send(new GenerateTokenCommand { Claims = claims });
             return Content(token);
         }
     }

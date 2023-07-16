@@ -15,7 +15,7 @@ namespace Grand.Api.Validators.Catalog
         {
 
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.Name.Required"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.PictureId))
                 {
@@ -26,7 +26,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.PictureId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ParentCategoryId))
                 {
@@ -37,7 +37,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.ParentCategoryId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.CategoryLayoutId))
                 {
@@ -48,7 +48,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Category.Fields.CategoryLayoutId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {

@@ -29,7 +29,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-            var layout = await _mediator.Send(new GetLayoutQuery() { Id = key, LayoutName = typeof(Domain.Catalog.CollectionLayout).Name });
+            var layout = await _mediator.Send(new GetLayoutQuery { Id = key, LayoutName = typeof(Domain.Catalog.CollectionLayout).Name });
             if (!layout.Any()) return NotFound();
 
             return Ok(layout.FirstOrDefault());
@@ -44,7 +44,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-            return Ok(await _mediator.Send(new GetLayoutQuery() { LayoutName = typeof(Domain.Catalog.CollectionLayout).Name }));
+            return Ok(await _mediator.Send(new GetLayoutQuery { LayoutName = typeof(Domain.Catalog.CollectionLayout).Name }));
         }
     }
 }

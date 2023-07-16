@@ -6,7 +6,7 @@ namespace Grand.Api.Jwt
 {
     public sealed class JwtTokenBuilder
     {
-        private SecurityKey securityKey = null;
+        private SecurityKey securityKey;
         private bool useissuer;
         private string issuer = "";
         private bool useaudience;
@@ -17,13 +17,13 @@ namespace Grand.Api.Jwt
         private void EnsureArguments()
         {
             if (this.securityKey == null)
-                throw new ArgumentNullException("Security Key");
+                throw new ArgumentNullException(nameof(securityKey));
 
             if (this.useissuer && string.IsNullOrEmpty(this.issuer))
-                throw new ArgumentNullException("Issuer");
+                throw new ArgumentNullException(nameof(issuer));
 
             if (this.useaudience && string.IsNullOrEmpty(this.audience))
-                throw new ArgumentNullException("Audience");
+                throw new ArgumentNullException(nameof(audience));
         }
 
         public JwtTokenBuilder AddSecurityKey(SecurityKey securityKey)

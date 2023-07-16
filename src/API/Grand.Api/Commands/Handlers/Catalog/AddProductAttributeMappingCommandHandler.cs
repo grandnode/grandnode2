@@ -1,9 +1,10 @@
-﻿using Grand.Api.DTOs.Catalog;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class AddProductAttributeMappingCommandHandler : IRequestHandler<AddProductAttributeMappingCommand, ProductAttributeMappingDto>
     {

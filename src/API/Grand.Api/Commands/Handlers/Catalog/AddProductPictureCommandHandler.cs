@@ -1,9 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class AddProductPictureCommandHandler : IRequestHandler<AddProductPictureCommand, bool>
     {
