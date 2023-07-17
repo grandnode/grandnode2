@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   grand.web:
-    image: ${DOCKER_REGISTRY-}grandnode/grandnode2:latest
+
     ports:
       - 80
       - 443
