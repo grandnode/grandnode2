@@ -13,12 +13,10 @@ namespace Grand.Api.Validators.Catalog
             ITranslationService translationService, IProductAttributeService productAttributeService)
             : base(validators)
         {
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
-                var productattribute = await productAttributeService.GetProductAttributeById(x.ProductAttributeId);
-                if (productattribute == null)
-                    return false;
-                return true;
+                var productAttribute = await productAttributeService.GetProductAttributeById(x.ProductAttributeId);
+                return productAttribute != null;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductAttributeMapping.Fields.ProductAttributeId.NotExists"));
         }
     }

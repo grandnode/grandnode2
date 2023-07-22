@@ -14,7 +14,7 @@ namespace Grand.Api.Validators.Catalog
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.Name.Required"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.PictureId))
                 {
@@ -25,7 +25,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.PictureId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.CollectionLayoutId))
                 {
@@ -36,7 +36,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Collection.Fields.CollectionLayoutId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {

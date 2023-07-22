@@ -1,5 +1,4 @@
-﻿using Grand.Api.Commands.Models.Catalog;
-using Grand.Api.Commands.Models.Common;
+﻿using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -46,7 +45,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
-            model = await _mediator.Send(new AddPictureCommand() { PictureDto = model });
+            model = await _mediator.Send(new AddPictureCommand { PictureDto = model });
             return Ok(model);
         }
 
@@ -63,7 +62,7 @@ namespace Grand.Api.Controllers.OData
             var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(model.Id));
             if (picture == null || !picture.Any()) return NotFound();
 
-            var result = await _mediator.Send(new UpdatePictureCommand() { Model = model });
+            var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
             return Ok(result);
         }
 
@@ -79,7 +78,7 @@ namespace Grand.Api.Controllers.OData
             var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
             if (picture == null || !picture.Any()) return NotFound();
 
-            await _mediator.Send(new DeletePictureCommand() { PictureDto = picture.FirstOrDefault() });
+            await _mediator.Send(new DeletePictureCommand { PictureDto = picture.FirstOrDefault() });
             return Ok();
         }
     }

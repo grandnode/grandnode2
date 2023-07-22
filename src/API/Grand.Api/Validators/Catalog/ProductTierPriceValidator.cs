@@ -17,7 +17,7 @@ namespace Grand.Api.Validators.Catalog
             RuleFor(x => x.Quantity).GreaterThan(0).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Quantity.GreaterThan0"));
             RuleFor(x => x.Price).GreaterThan(0).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.Price.GreaterThan0"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.StoreId))
                 {
@@ -27,7 +27,7 @@ namespace Grand.Api.Validators.Catalog
                 }
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductTierPrice.Fields.StoreId.NotExists"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.CustomerGroupId))
                 {

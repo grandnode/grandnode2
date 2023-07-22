@@ -37,7 +37,7 @@ namespace Grand.Api.Validators.Customers
             }
             if (addressSettings.CountryEnabled && addressSettings.StateProvinceEnabled)
             {
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
@@ -48,7 +48,7 @@ namespace Grand.Api.Validators.Customers
                         {
                             return false;
                         }
-                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                        if (country.StateProvinces.FirstOrDefault(stateProvince => stateProvince.Id == y) != null)
                             return true;
                     }
                     return false;

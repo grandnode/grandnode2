@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-            model = await _mediator.Send(new AddCollectionCommand() { Model = model });
+            model = await _mediator.Send(new AddCollectionCommand { Model = model });
             return Ok(model);
         }
 
@@ -76,7 +76,7 @@ namespace Grand.Api.Controllers.OData
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(model.Id));
             if (!collection.Any()) return NotFound();
 
-            model = await _mediator.Send(new UpdateCollectionCommand() { Model = model });
+            model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
             return Ok(model);
         }
 
@@ -95,7 +95,7 @@ namespace Grand.Api.Controllers.OData
 
             var man = collection.FirstOrDefault();
             model.ApplyTo(man);
-            await _mediator.Send(new UpdateCollectionCommand() { Model = man });
+            await _mediator.Send(new UpdateCollectionCommand { Model = man });
             return Ok();
         }
 
@@ -111,7 +111,7 @@ namespace Grand.Api.Controllers.OData
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteCollectionCommand() { Model = collection.FirstOrDefault() });
+            await _mediator.Send(new DeleteCollectionCommand { Model = collection.FirstOrDefault() });
 
             return Ok();
         }

@@ -1,7 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Storage;
+﻿using Grand.Api.Commands.Models.Common;
+using Grand.Business.Core.Interfaces.Storage;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Common
 {
     public class UpdatePictureCommandHandler : IRequestHandler<UpdatePictureCommand, bool>
     {

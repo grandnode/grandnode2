@@ -57,11 +57,6 @@ public class ApiResponseTypeProvider
 
     private static List<IApiResponseMetadataProvider> GetResponseMetadataAttributes(ControllerActionDescriptor action)
     {
-        if (action.FilterDescriptors == null)
-        {
-            return new List<IApiResponseMetadataProvider>();
-        }
-
         // This technique for enumerating filters will intentionally ignore any filter that is an IFilterFactory
         // while searching for a filter that implements IApiResponseMetadataProvider.
         //
@@ -114,11 +109,7 @@ public class ApiResponseTypeProvider
 
         return responseTypes;
     }
-    
-    private static ApiResponseFormat CreateDefaultApiResponseFormat()
-    {
-        return new ApiResponseFormat { MediaType = "application/json" };
-    }
+
     // Shared with EndpointMetadataApiDescriptionProvider
     internal static List<ApiResponseType> ReadResponseMetadata(
         IReadOnlyList<IApiResponseMetadataProvider> responseMetadataAttributes,
@@ -133,9 +124,7 @@ public class ApiResponseTypeProvider
         // Get the content type that the action explicitly set to support.
         // Walk through all 'filter' attributes in order, and allow each one to see or override
         // the results of the previous ones. This is similar to the execution path for content-negotiation.
-        if (responseMetadataAttributes != null)
-        {
-            foreach (var metadataAttribute in responseMetadataAttributes)
+        foreach (var metadataAttribute in responseMetadataAttributes)
             {
                 // All ProducesXAttributes, except for ProducesResponseTypeAttribute do
                 // not allow multiple instances on the same method/class/etc. For those
@@ -201,8 +190,7 @@ public class ApiResponseTypeProvider
                     results[apiResponseType.StatusCode] = apiResponseType;
                 }
             }
-        }
-
+        
         return results.Values.ToList();
     }
 
@@ -266,7 +254,7 @@ public class ApiResponseTypeProvider
             }
 
 
-            if (!isSupportedContentType && contentType != null)
+            if (!isSupportedContentType)
             {
                 // No output formatter was found that supports this content type. Add the user specified content type as-is to the result.
                 apiResponse.ApiResponseFormats.Add(new ApiResponseFormat {
@@ -325,7 +313,7 @@ public class ApiResponseTypeProvider
         {
             var provider = providers[i];
 
-            if (provider is ProducesAttribute producesAttribute && producesAttribute.Type is null)
+            if (provider is ProducesAttribute { Type: null })
             {
                 // ProducesAttribute that does not specify type is considered not significant.
                 continue;

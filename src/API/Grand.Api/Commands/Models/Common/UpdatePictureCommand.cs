@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Common;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Models.Common
 {
     public class UpdatePictureCommand : IRequest<bool>
     {

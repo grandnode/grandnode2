@@ -3,7 +3,7 @@ using Grand.Api.DTOs.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper
+namespace Grand.Api.Infrastructure.Mapper.Profiles
 {
     public class PictureProfile : Profile, IAutoMapperProfile
     {

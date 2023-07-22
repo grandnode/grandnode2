@@ -1,15 +1,16 @@
-﻿using Grand.Api.DTOs.Catalog;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
-using Grand.Domain.Seo;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using MediatR;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+using Grand.Domain.Seo;
 using Grand.Infrastructure;
+using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class AddProductCommandHandler : IRequestHandler<AddProductCommand, ProductDto>
     {

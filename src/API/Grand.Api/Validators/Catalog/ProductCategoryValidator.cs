@@ -11,12 +11,10 @@ namespace Grand.Api.Validators.Catalog
         public ProductCategoryValidator(IEnumerable<IValidatorConsumer<ProductCategoryDto>> validators, ITranslationService translationService, ICategoryService categoryService)
             : base(validators)
         {
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var category = await categoryService.GetCategoryById(x.CategoryId);
-                if (category == null)
-                    return false;
-                return true;
+                return category != null;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductCategory.Fields.CategoryId.NotExists"));
         }
     }

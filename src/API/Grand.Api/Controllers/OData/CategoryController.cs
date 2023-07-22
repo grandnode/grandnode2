@@ -61,7 +61,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 
-            model = await _mediator.Send(new AddCategoryCommand() { Model = model });
+            model = await _mediator.Send(new AddCategoryCommand { Model = model });
             return Ok(model);
         }
 
@@ -78,7 +78,7 @@ namespace Grand.Api.Controllers.OData
             var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(model.Id));
             if (!category.Any()) return NotFound();
 
-            model = await _mediator.Send(new UpdateCategoryCommand() { Model = model });
+            model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
             return Ok(model);
         }
         [SwaggerOperation(summary: "Update entity in Category (delta)", OperationId = "UpdateCategoryPatch")]
@@ -96,7 +96,7 @@ namespace Grand.Api.Controllers.OData
 
             var cat = category.FirstOrDefault();
             model.ApplyTo(cat);
-            await _mediator.Send(new UpdateCategoryCommand() { Model = cat });
+            await _mediator.Send(new UpdateCategoryCommand { Model = cat });
             return Ok();
         }
         [SwaggerOperation(summary: "Delete entity from Category", OperationId = "DeleteCategory")]
@@ -111,7 +111,7 @@ namespace Grand.Api.Controllers.OData
             var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(key));
             if (!category.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteCategoryCommand() { Model = category.FirstOrDefault() });
+            await _mediator.Send(new DeleteCategoryCommand { Model = category.FirstOrDefault() });
             return Ok();
         }
     }

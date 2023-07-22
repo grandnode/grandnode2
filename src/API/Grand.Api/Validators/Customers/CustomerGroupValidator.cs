@@ -15,7 +15,7 @@ namespace Grand.Api.Validators.Customers
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Api.Customers.CustomerGroup.Fields.Name.Required"));
 
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {
@@ -25,7 +25,7 @@ namespace Grand.Api.Validators.Customers
                 }
                 return true;
             }).WithMessage(translationService.GetResource("Api.Customers.CustomerGroup.Fields.Id.NotExists"));
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {
@@ -37,7 +37,7 @@ namespace Grand.Api.Validators.Customers
                 }
                 return true;
             }).WithMessage(translationService.GetResource("Api.Customers.CustomerGroup.Fields.Active.CantEditSystem"));
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {

@@ -17,25 +17,22 @@ namespace Grand.Api.Validators.Common
             : base(validators)
         {
             if (!apiConfig.Enabled)
-                RuleFor(x => x).Must((x) => false).WithMessage("API is disabled");
+                RuleFor(x => x).Must(_ => false).WithMessage("API is disabled");
             else
             {
                 RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required");
                 RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");
-                RuleFor(x => x).MustAsync(async (x, context) =>
+                RuleFor(x => x).MustAsync(async (x, _) =>
                 {
                     if (!string.IsNullOrEmpty(x.Email))
                     {
                         var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
-                        if (customer != null && customer.Active && !customer.IsSystemAccount())
+                        if (customer is { Active: true } && !customer.IsSystemAccount())
                         {
-                            var base64EncodedBytes = System.Convert.FromBase64String(x.Password);
-                            var password = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                            var base64EncodedBytes = Convert.FromBase64String(x.Password);
+                            var password = Encoding.UTF8.GetString(base64EncodedBytes);
                             var result = await customerManagerService.LoginCustomer(x.Email, password);
-                            if (result == CustomerLoginResults.Successful)
-                                return true;
-
-                            return false;
+                            return result == CustomerLoginResults.Successful;
                         }
                     }
                     return false;

@@ -13,7 +13,7 @@ namespace Grand.Api.Validators.Catalog
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Api.Catalog.ProductAttribute.Fields.Name.Required"));
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {
@@ -23,7 +23,7 @@ namespace Grand.Api.Validators.Catalog
                 }
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductAttribute.Fields.Id.NotExists"));
-            RuleFor(x => x).Must((x, context) =>
+            RuleFor(x => x).Must((x, _) =>
             {
                 foreach (var item in x.PredefinedProductAttributeValues)
                 {

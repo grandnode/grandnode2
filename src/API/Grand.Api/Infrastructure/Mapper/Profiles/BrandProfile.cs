@@ -3,7 +3,7 @@ using Grand.Api.DTOs.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper
+namespace Grand.Api.Infrastructure.Mapper.Profiles
 {
     public class BrandProfile : Profile, IAutoMapperProfile
     {

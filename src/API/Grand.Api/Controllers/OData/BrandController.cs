@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
-            model = await _mediator.Send(new AddBrandCommand() { Model = model });
+            model = await _mediator.Send(new AddBrandCommand { Model = model });
             return Ok(model);
         }
 
@@ -76,7 +76,7 @@ namespace Grand.Api.Controllers.OData
             var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(model.Id));
             if (!brand.Any()) return NotFound();
 
-            model = await _mediator.Send(new UpdateBrandCommand() { Model = model });
+            model = await _mediator.Send(new UpdateBrandCommand { Model = model });
             return Ok(model);
         }
 
@@ -95,7 +95,7 @@ namespace Grand.Api.Controllers.OData
 
             var man = brand.FirstOrDefault();
             model.ApplyTo(man);
-            await _mediator.Send(new UpdateBrandCommand() { Model = man });
+            await _mediator.Send(new UpdateBrandCommand { Model = man });
             return Ok();
         }
 
@@ -111,7 +111,7 @@ namespace Grand.Api.Controllers.OData
             var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteBrandCommand() { Model = brand.FirstOrDefault() });
+            await _mediator.Send(new DeleteBrandCommand { Model = brand.FirstOrDefault() });
             return Ok();
         }
     }

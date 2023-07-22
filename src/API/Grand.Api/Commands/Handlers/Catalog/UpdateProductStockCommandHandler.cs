@@ -1,11 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductStockCommand, bool>
     {
@@ -41,7 +42,7 @@ namespace Grand.Api.Commands.Models.Catalog
             if (product != null)
             {
                 var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product);
-                var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory() { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity }).ToList();
+                var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity }).ToList();
 
                 if (string.IsNullOrEmpty(request.WarehouseId))
                 {

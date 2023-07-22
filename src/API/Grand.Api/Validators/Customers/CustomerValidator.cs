@@ -18,44 +18,28 @@ namespace Grand.Api.Validators.Customers
             : base(validators)
         {
 
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 var customer = await customerService.GetCustomerByEmail(x.Email);
-                if (customer != null && customer.Id != x.Id)
-                {
-                    return false;
-                }
-                return true;
+                return customer == null || customer.Id == x.Id;
             }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Email.Registered"));
 
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 var username = await customerService.GetCustomerByUsername(x.Username);
-                if (username != null && username.Id != x.Id && customerSettings.UsernamesEnabled)
-                {
-                    return false;
-                }
-                return true;
+                return username == null || username.Id == x.Id || !customerSettings.UsernamesEnabled;
             }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Username.Registered"));
 
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 var customer = await customerService.GetCustomerByGuid(x.CustomerGuid);
-                if (customer != null && customer.Id != x.Id)
-                {
-                    return false;
-                }
-                return true;
+                return customer == null || customer.Id == x.Id;
             }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Guid.Exists"));
 
-            RuleFor(x => x).MustAsync(async (x, context) =>
+            RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 var store = await storeService.GetStoreById(x.StoreId);
-                if (store != null)
-                {
-                    return true;
-                }
-                return false;
+                return store != null;
             }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.StoreId.NotExists"));
 
 
@@ -71,7 +55,7 @@ namespace Grand.Api.Validators.Customers
                 customerSettings.StateProvinceRequired)
             {
 
-                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
+                RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, _) =>
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
@@ -82,7 +66,7 @@ namespace Grand.Api.Validators.Customers
                         {
                             return false;
                         }
-                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                        if (country.StateProvinces.FirstOrDefault(stateProvince => stateProvince.Id == y) != null)
                             return true;
                     }
                     return false;

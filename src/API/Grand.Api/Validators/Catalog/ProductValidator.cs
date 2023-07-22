@@ -34,7 +34,7 @@ namespace Grand.Api.Validators.Catalog
 
             RuleFor(x => x.ProductTypeId == ProductType.Auction && !x.AvailableEndDateTimeUtc.HasValue).Equal(false).WithMessage(translationService.GetResource("Api.Catalog.Products.Fields.AvailableEndDateTime.Required"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ParentGroupedProductId))
                 {
@@ -45,7 +45,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ParentGroupedProductId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.ProductLayoutId))
                 {
@@ -56,7 +56,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.ProductLayoutId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.VendorId))
                 {
@@ -67,7 +67,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.VendorId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.BrandId))
                 {
@@ -78,7 +78,7 @@ namespace Grand.Api.Validators.Catalog
                 return true;
             }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.BrandId.NotExists"));
 
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Id))
                 {

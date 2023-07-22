@@ -1,8 +1,9 @@
-﻿using Grand.Api.DTOs.Catalog;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
 using Grand.Business.Core.Events.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -11,7 +12,7 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
     {
@@ -81,10 +82,10 @@ namespace Grand.Api.Commands.Models.Catalog
 
             //raise event 
             if (!prevPublished && product.Published)
-                await _mediator.Publish(new ProductPublishEvent(product));
+                await _mediator.Publish(new ProductPublishEvent(product), cancellationToken);
 
             if (prevPublished && !product.Published)
-                await _mediator.Publish(new ProductUnPublishEvent(product));
+                await _mediator.Publish(new ProductUnPublishEvent(product), cancellationToken);
 
             return product.ToModel();
         }

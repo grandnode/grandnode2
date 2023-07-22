@@ -1,4 +1,5 @@
-﻿using Grand.Api.DTOs.Customers;
+﻿using Grand.Api.Commands.Models.Customers;
+using Grand.Api.DTOs.Customers;
 using Grand.Api.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -6,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Customers
+namespace Grand.Api.Commands.Handlers.Customers
 {
     public class AddCustomerGroupCommandHandler : IRequestHandler<AddCustomerGroupCommand, CustomerGroupDto>
     {

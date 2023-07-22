@@ -1,7 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog
 {
     public class DeleteProductPictureCommandHandler : IRequestHandler<DeleteProductPictureCommand, bool>
     {
@@ -17,7 +18,7 @@ namespace Grand.Api.Commands.Models.Catalog
         {
             var product = await _productService.GetProductById(request.Product.Id);
 
-            var productPicture = product.ProductPictures.Where(x => x.PictureId == request.PictureId).FirstOrDefault();
+            var productPicture = product.ProductPictures.FirstOrDefault(x => x.PictureId == request.PictureId);
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified pictureid");
 

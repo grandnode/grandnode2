@@ -12,12 +12,10 @@ namespace Grand.Api.Validators.Catalog
             ITranslationService translationService, IPictureService pictureService)
             : base(validators)
         {
-            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var picture = await pictureService.GetPictureById(x.PictureId);
-                if (picture == null)
-                    return false;
-                return true;
+                return picture != null;
             }).WithMessage(translationService.GetResource("Api.Catalog.ProductPicture.Fields.PictureId.NotExists"));
         }
     }

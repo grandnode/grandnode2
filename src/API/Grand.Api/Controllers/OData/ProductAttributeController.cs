@@ -62,7 +62,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();
 
-            model = await _mediator.Send(new AddProductAttributeCommand() { Model = model });
+            model = await _mediator.Send(new AddProductAttributeCommand { Model = model });
             return Ok(model);
         }
 
@@ -75,7 +75,7 @@ namespace Grand.Api.Controllers.OData
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();
 
-            model = await _mediator.Send(new UpdateProductAttributeCommand() { Model = model });
+            model = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
             return Ok(model);
         }
 
@@ -94,7 +94,7 @@ namespace Grand.Api.Controllers.OData
 
             var pa = productAttribute.FirstOrDefault();
             model.ApplyTo(pa);
-            pa = await _mediator.Send(new UpdateProductAttributeCommand() { Model = pa });
+            pa = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
             return Ok(pa);
         }
 
@@ -110,7 +110,7 @@ namespace Grand.Api.Controllers.OData
             var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>(key));
             if (!productAttribute.Any()) return NotFound();
 
-            await _mediator.Send(new DeleteProductAttributeCommand() { Model = productAttribute.FirstOrDefault() });
+            await _mediator.Send(new DeleteProductAttributeCommand { Model = productAttribute.FirstOrDefault() });
             return Ok();
         }
     }
