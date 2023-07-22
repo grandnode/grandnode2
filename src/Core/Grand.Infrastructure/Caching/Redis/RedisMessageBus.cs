@@ -33,7 +33,7 @@ namespace Grand.Infrastructure.Caching.Redis
                     MessageType = msg.MessageType
                 };
                 var message = JsonConvert.SerializeObject(client);
-                await _subscriber.PublishAsync(_redisConfig.RedisPubSubChannel, message);
+                await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
             }
             catch(Exception ex)
             {
@@ -43,7 +43,7 @@ namespace Grand.Infrastructure.Caching.Redis
 
         public Task SubscribeAsync()
         {
-            _subscriber.SubscribeAsync(_redisConfig.RedisPubSubChannel,  (_, redisValue) =>
+            _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel),  (_, redisValue) =>
             {
                 try
                 {
