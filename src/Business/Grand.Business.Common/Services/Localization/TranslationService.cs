@@ -1,3 +1,4 @@
+using Grand.Business.Common.Utilities;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Data;
 using Grand.Domain.Localization;
@@ -7,6 +8,7 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace Grand.Business.Common.Services.Localization
 {
@@ -249,9 +251,8 @@ namespace Grand.Business.Common.Services.Localization
                 return;
 
             var translateResources = new List<TranslationResource>();
-            //stored procedures aren't supported
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
+           
+            var xmlDoc = LanguageXmlDocument(xml);
 
             var nodes = xmlDoc.SelectNodes(@"//Language/Resource");
             if (nodes != null)
@@ -312,9 +313,8 @@ namespace Grand.Business.Common.Services.Localization
 
             if (string.IsNullOrEmpty(xml))
                 return;
-
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
+            
+            var xmlDoc = LanguageXmlDocument(xml);
 
             var translateResources = new List<TranslationResource>();
 
@@ -347,6 +347,18 @@ namespace Grand.Business.Common.Services.Localization
 
             //clear cache
             await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+        }
+        private static XmlDocument LanguageXmlDocument(string xml)
+        {
+            var schemas = new XmlSchemaSet();
+            schemas.Add("", XmlReader.Create(new StringReader(LanguageSchema.SchemaXsd)));
+
+            var xmlDoc = new XmlDocument { Schemas = schemas, XmlResolver = null };
+            xmlDoc.LoadXml(xml);
+
+            // Validate XML.
+            xmlDoc.Validate((_, e) => throw new XmlException("XML data does not conform to the schema", e.Exception));
+            return xmlDoc;
         }
 
         #endregion
