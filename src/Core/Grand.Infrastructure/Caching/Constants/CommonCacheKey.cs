@@ -139,11 +139,6 @@
         /// <summary>
         /// Key for caching
         /// </summary>
-        public static string URLEntity_ALL_KEY => "Grand.urlEntity.all";
-
-        /// <summary>
-        /// Key for caching
-        /// </summary>
         /// <remarks>
         /// {0} : slug
         /// </remarks>

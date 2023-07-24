@@ -26,11 +26,6 @@ namespace Grand.Infrastructure.Configuration
         public bool DisplayMiniProfilerInPublicStore { get; set; }
 
         /// <summary>
-        /// A value indicating whether to load all search engine friendly names (slugs) on application startup
-        /// </summary>
-        public bool LoadAllUrlEntitiesOnStartup { get; set; }
-        
-        /// <summary>
         /// Gets or sets a value indicating whether we compress response
         /// </summary>
         public bool UseResponseCompression { get; set; }
