@@ -340,7 +340,7 @@
 		<Value>Username is too long</Value>
 	</Resource>
 	<Resource Name="Account.EnableTwoFactorAuth" Area="Front">
-		<value>Enable Two Factor Authentication</value>
+		<Value>Enable Two Factor Authentication</Value>
 	</Resource>
 	<Resource Name="Account.Fields.AcceptPrivacyPolicy" Area="Front">
 		<Value>I accept privacy policy</Value>
