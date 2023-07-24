@@ -35,12 +35,12 @@ namespace Grand.Infrastructure
         /// </summary>
         private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
         {
-            var advancedConfig = services.StartupConfig<AdvancedConfig>(configuration.GetSection("Advanced"));
-            if (!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
+            var dbConfig = services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
+            if (!string.IsNullOrEmpty(dbConfig.DbConnectionString))
             {
                 DataSettingsManager.LoadDataSettings(new DataSettings {
-                    ConnectionString = advancedConfig.DbConnectionString,
-                    DbProvider = (DbProvider)advancedConfig.DbProvider
+                    ConnectionString = dbConfig.DbConnectionString,
+                    DbProvider = (DbProvider)dbConfig.DbProvider
                 });
             }
         }

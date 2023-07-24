@@ -16,5 +16,12 @@
         /// Gets or sets a value indicating whether use LiteDB database (only for installation process)
         /// </summary>
         public string LiteDbConnectionString { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether use connection string for database (only for installed databases)
+        /// </summary>
+        public string DbConnectionString { get; set; }
+        public int DbProvider { get; set; }
+
     }
 }
