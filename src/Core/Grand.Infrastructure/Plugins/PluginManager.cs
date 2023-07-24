@@ -48,10 +48,7 @@ namespace Grand.Infrastructure.Plugins
         {
             _config = new ExtensionsConfig();
             configuration.GetSection("Extensions").Bind(_config);
-
-            var advConfig = new AdvancedConfig();
-            configuration.GetSection("Advanced").Bind(advConfig);
-
+            
             lock (_synLock)
             {
                 if (mvcCoreBuilder == null)
@@ -64,7 +61,7 @@ namespace Grand.Infrastructure.Plugins
                 try
                 {
                     var installedPluginSystemNames =
-                        !string.IsNullOrEmpty(advConfig.InstalledPlugins) ? advConfig.InstalledPlugins.Split(",").Select(x=>x.Trim()) :
+                        !string.IsNullOrEmpty(_config.InstalledPlugins) ? _config.InstalledPlugins.Split(",").Select(x=>x.Trim()) :
                         PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
 
                     Log.Information("Creating shadow copy folder and querying for dlls");

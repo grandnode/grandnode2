@@ -25,5 +25,9 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool UseRoslynScripts { get; set; }        
         
+        /// <summary>
+        ///List of installed plugins (comma separated) 
+        /// </summary>
+        public string InstalledPlugins { get; set; }
     }
 }
