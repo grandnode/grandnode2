@@ -12,7 +12,7 @@ using Tax.CountryStateZip.Domain;
 using Tax.CountryStateZip.Models;
 using Tax.CountryStateZip.Services;
 
-namespace Tax.CountryStateZip.Controllers
+namespace Tax.CountryStateZip.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]
