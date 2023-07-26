@@ -8,7 +8,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tax.FixedRate.Models;
 
-namespace Tax.FixedRate.Controllers
+namespace Tax.FixedRate.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]
