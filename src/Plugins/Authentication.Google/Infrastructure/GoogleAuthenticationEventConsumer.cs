@@ -6,7 +6,7 @@ using Grand.Infrastructure;
 using MediatR;
 using System.Security.Claims;
 
-namespace Authentication.Google.Infrastructure.Cache
+namespace Authentication.Google.Infrastructure
 {
     /// <summary>
     /// Google authentication event consumer (used for saving customer fields on registration)
