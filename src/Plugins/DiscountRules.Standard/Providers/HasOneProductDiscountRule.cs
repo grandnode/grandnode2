@@ -2,7 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
 
-namespace DiscountRules.Provider
+namespace DiscountRules.Standard.Providers
 {
     public class HasOneProductDiscountRule : IDiscountRule
     {

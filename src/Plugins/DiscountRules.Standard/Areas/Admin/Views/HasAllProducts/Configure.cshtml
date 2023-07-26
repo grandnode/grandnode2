@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "";
 }
-@model DiscountRules.HasAllProducts.Models.RequirementModel
+@model DiscountRules.Standard.Models.RequirementAllProductsModel
 
 <script>
     $(document).ready(function () {
@@ -20,7 +20,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("Configure", "HasAllProducts"))",
+                url: "@Url.Action("Configure", "HasAllProducts")",
                 data: postData,
                 success: function (data) {
                     $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");

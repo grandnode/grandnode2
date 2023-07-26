@@ -1,10 +1,10 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Orders;
 
-namespace DiscountRules.Provider
+namespace DiscountRules.Standard.Providers
 {
     public class HadSpentAmountDiscountRule : IDiscountRule
     {

@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "";
 }
-@model DiscountRules.CustomerGroups.Models.RequirementModel
+@model DiscountRules.Standard.Models.RequirementCustomerGroupsModel
 
 <script>
     $(document).ready(function () {
@@ -22,7 +22,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("Configure", "CustomerGroups"))",
+                url: "@Url.Action("Configure", "CustomerGroups")",
                 data: postData,
                 success: function (data) {
                     $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");

@@ -1,14 +1,14 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+﻿using DiscountRules.Standard.Models;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Discounts;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Domain.Discounts;
-using Grand.Plugin.DiscountRules.ShoppingCart.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
-namespace DiscountRules.Standard.Controllers
+namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]
@@ -43,7 +43,7 @@ namespace DiscountRules.Standard.Controllers
                 spentAmountRequirement = Convert.ToDouble(discountRequirement.Metadata);
             }
 
-            var model = new RequirementModel {
+            var model = new RequirementShoppingCartModel {
                 RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
                 DiscountId = discountId,
                 SpentAmount = spentAmountRequirement
@@ -53,7 +53,7 @@ namespace DiscountRules.Standard.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesShoppingCart{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View(model);
+            return View((object)model);
         }
 
 

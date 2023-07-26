@@ -1,11 +1,11 @@
-﻿using DiscountRules.HasOneProduct.Models;
+﻿using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure;
@@ -16,7 +16,7 @@ using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace DiscountRules.HasOneProduct.Controllers
+namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [AuthorizeAdmin]
@@ -66,7 +66,7 @@ namespace DiscountRules.HasOneProduct.Controllers
                 restrictedProductIds = discountRequirement.Metadata;
             }
 
-            var model = new RequirementModel {
+            var model = new RequirementOneProductModel {
                 RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
                 DiscountId = discountId,
                 Products = restrictedProductIds
@@ -76,7 +76,7 @@ namespace DiscountRules.HasOneProduct.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesHasOneProduct{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View(model);
+            return View((object)model);
         }
 
         [HttpPost]
@@ -119,7 +119,7 @@ namespace DiscountRules.HasOneProduct.Controllers
             if (!await _permissionService.Authorize(StandardPermission.ManageProducts))
                 return Content("Access denied");
 
-            var model = new RequirementModel.AddProductModel {
+            var model = new RequirementOneProductModel.AddProductModel {
                 //a vendor should have access only to his products
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null
             };
@@ -142,12 +142,12 @@ namespace DiscountRules.HasOneProduct.Controllers
             ViewBag.productIdsInput = productIdsInput;
             ViewBag.btnId = btnId;
 
-            return View(model);
+            return View((object)model);
         }
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, RequirementModel.AddProductModel model)
+        public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, RequirementOneProductModel.AddProductModel model)
         {
             if (!await _permissionService.Authorize(StandardPermission.ManageProducts))
                 return Content("Access denied");
@@ -174,7 +174,7 @@ namespace DiscountRules.HasOneProduct.Controllers
                 showHidden: true
                 )).products;
             var gridModel = new DataSourceResult {
-                Data = products.Select(x => new RequirementModel.ProductModel {
+                Data = products.Select(x => new RequirementOneProductModel.ProductModel {
                     Id = x.Id,
                     Name = x.Name,
                     Published = x.Published

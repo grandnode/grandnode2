@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 
-namespace DiscountRules.Provider
+namespace DiscountRules.Standard.Providers
 {
     public class CustomerGroupDiscountRule : IDiscountRule
     {
