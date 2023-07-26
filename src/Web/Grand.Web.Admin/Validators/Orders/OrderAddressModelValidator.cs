@@ -1,13 +1,13 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Orders;
-using Microsoft.AspNetCore.Mvc;
+
+namespace Grand.Web.Admin.Validators.Orders;
 
 public class OrderAddressModelValidator : BaseGrandValidator<OrderAddressModel>
 {
