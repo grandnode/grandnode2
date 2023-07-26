@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ShippingPoint.Models;
 using Shipping.ShippingPoint.Services;
 
-namespace Shipping.ShippingPoint.Controllers
+namespace Shipping.ShippingPoint.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]
