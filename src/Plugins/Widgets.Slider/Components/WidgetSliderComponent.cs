@@ -7,7 +7,7 @@ using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
 using Widgets.Slider.Services;
 
-namespace Widgets.Slider.ViewComponents
+namespace Widgets.Slider.Components
 {
     [ViewComponent(Name = "WidgetSlider")]
     public class WidgetSliderComponent : ViewComponent
