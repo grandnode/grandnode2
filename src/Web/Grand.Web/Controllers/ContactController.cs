@@ -16,6 +16,8 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+namespace Grand.Web.Controllers;
+
 public class ContactController : BasePublicController
 {
     #region Fields
