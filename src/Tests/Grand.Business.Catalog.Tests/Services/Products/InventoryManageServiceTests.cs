@@ -1,6 +1,5 @@
-﻿using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -14,7 +13,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
 
     [TestClass()]

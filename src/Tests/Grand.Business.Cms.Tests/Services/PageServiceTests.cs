@@ -1,4 +1,5 @@
-﻿using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Cms.Services;
+using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
@@ -11,7 +12,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Cms.Services.Tests
+namespace Grand.Business.Cms.Tests.Services
 {
     [TestClass()]
     public class PageServiceTests

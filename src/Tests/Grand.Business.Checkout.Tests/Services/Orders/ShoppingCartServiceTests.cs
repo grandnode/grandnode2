@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -14,7 +15,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Services.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Services.Orders
 {
     [TestClass()]
     public class ShoppingCartServiceTests

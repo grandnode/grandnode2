@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass()]
     public class PrepareOrderCodeCommandHandlerTests

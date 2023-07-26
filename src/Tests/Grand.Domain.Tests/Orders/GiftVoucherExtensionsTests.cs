@@ -1,13 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Domain.Common;
 using Grand.Domain.Orders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Common;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Orders.Tests
+namespace Grand.Domain.Tests.Orders
 {
     [TestClass()]
     public class GiftVoucherExtensionsTests
@@ -74,14 +69,14 @@ namespace Grand.Domain.Orders.Tests
         public void IsGiftVoucherValidTest_ValidTo_True()
         {
             giftVoucher.ValidTo = DateTime.UtcNow.AddDays(1);
-            Assert.IsTrue(giftVoucher.IsGiftVoucherValid(new Directory.Currency() { CurrencyCode = "USD" }, new Stores.Store()));
+            Assert.IsTrue(giftVoucher.IsGiftVoucherValid(new Directory.Currency() { CurrencyCode = "USD" }, new Domain.Stores.Store()));
         }
 
         [TestMethod()]
         public void IsGiftVoucherValidTest_False()
         {
             giftVoucher.ValidTo = DateTime.UtcNow.AddDays(-1);
-            Assert.IsFalse(giftVoucher.IsGiftVoucherValid(new Directory.Currency() { CurrencyCode = "USD" }, new Stores.Store()));
+            Assert.IsFalse(giftVoucher.IsGiftVoucherValid(new Directory.Currency() { CurrencyCode = "USD" }, new Domain.Stores.Store()));
         }
     }
 }

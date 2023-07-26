@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Cms.Services;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Pages;
@@ -9,7 +10,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Cms.Services.Tests
+namespace Grand.Business.Cms.Tests.Services
 {
     [TestClass()]
     public class PageLayoutServiceTests

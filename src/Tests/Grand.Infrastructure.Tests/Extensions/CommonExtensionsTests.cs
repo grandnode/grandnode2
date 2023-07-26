@@ -1,8 +1,7 @@
-﻿using Grand.Domain.Common;
-using Grand.Infrastructure.Extensions;
+﻿using Grand.Infrastructure.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Extensions.Tests
+namespace Grand.Infrastructure.Tests.Extensions
 {
     [TestClass()]
     public class CommonExtensionsTests

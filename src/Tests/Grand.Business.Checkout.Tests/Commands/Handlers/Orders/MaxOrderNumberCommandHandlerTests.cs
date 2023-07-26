@@ -1,9 +1,10 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass()]
     public class MaxOrderNumberCommandHandlerTests

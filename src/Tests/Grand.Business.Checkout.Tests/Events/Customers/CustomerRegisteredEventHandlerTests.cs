@@ -1,9 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Checkout.Events.Customers;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Events.Customers.Tests
+namespace Grand.Business.Checkout.Tests.Events.Customers
 {
     [TestClass()]
     public class CustomerRegisteredEventHandlerTests

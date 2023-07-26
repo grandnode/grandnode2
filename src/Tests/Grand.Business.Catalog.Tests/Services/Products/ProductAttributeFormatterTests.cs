@@ -1,25 +1,20 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Services.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Infrastructure;
-using Moq;
-using MediatR;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Services.Security;
-using Grand.Domain.Customers;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Customers;
+using Grand.Infrastructure;
+using Grand.SharedKernel.Extensions;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class ProductAttributeFormatterTests

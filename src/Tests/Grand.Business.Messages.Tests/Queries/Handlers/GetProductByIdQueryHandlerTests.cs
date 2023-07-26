@@ -1,16 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Messages.Queries.Handlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Catalog;
-using Grand.Domain.Data;
-using Moq;
+﻿using Grand.Business.Messages.Queries.Handlers;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Catalog;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Messages.Queries.Handlers.Tests
+namespace Grand.Business.Messages.Tests.Queries.Handlers
 {
     [TestClass()]
     public class GetProductByIdQueryHandlerTests

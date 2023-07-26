@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text.Json;
 
-namespace Grand.Infrastructure.TypeConverters.Converter.Tests;
+namespace Grand.Infrastructure.Tests.TypeConverters.Converter;
 
 [TestClass()]
 public class CaptchaInterfaceConverter

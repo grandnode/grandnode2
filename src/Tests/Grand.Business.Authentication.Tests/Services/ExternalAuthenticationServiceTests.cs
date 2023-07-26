@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Tests;
+﻿using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -10,7 +10,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Authentication.Services.Tests
+namespace Grand.Business.Authentication.Tests.Services
 {
     [TestClass()]
     public class ExternalAuthenticationServiceTests

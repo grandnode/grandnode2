@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Tests.Services.Discounts;
+﻿using Grand.Business.Catalog.Services.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
@@ -15,7 +15,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.Discounts.Tests
+namespace Grand.Business.Catalog.Tests.Services.Discounts
 {
     [TestClass()]
     public class DiscountServiceTests

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Marketing.Services.Contacts;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
@@ -7,7 +8,7 @@ using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Marketing.Services.Contacts.Tests
+namespace Grand.Business.Marketing.Tests.Services.Contacts
 {
     [TestClass()]
     public class ContactAttributeParserTests

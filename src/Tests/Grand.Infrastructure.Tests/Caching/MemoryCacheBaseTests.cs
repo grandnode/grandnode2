@@ -1,11 +1,12 @@
-﻿using Grand.SharedKernel.Extensions;
+﻿using Grand.Infrastructure.Caching;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Infrastructure.Caching.Tests
+namespace Grand.Infrastructure.Tests.Caching
 {
     [TestClass()]
     public class MemoryCacheBaseTests

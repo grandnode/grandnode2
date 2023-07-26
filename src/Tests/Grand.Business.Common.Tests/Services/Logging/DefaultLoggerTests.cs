@@ -1,9 +1,10 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Common.Services.Logging;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Common.Services.Logging.Tests
+namespace Grand.Business.Common.Tests.Services.Logging
 {
     [TestClass()]
     public class DefaultLoggerTests

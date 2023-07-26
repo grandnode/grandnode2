@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Business.Storage.Services;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Storage.Services.Tests
+namespace Grand.Business.Storage.Tests.Services
 {
     [TestClass()]
     public class FileSystemStoreTests

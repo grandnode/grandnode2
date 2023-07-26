@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Domain.Stores;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Stores.Tests
+namespace Grand.Domain.Tests.Stores
 {
     [TestClass()]
     public class StoreExtensionsTests

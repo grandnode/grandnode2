@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Catalog.Services.Tax;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Caching;
@@ -7,7 +8,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.Tax.Tests
+namespace Grand.Business.Catalog.Tests.Services.Tax
 {
     [TestClass()]
     public class TaxCategoryServiceTests

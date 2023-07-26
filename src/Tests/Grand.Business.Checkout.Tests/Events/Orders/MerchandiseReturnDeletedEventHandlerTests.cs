@@ -1,15 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Checkout.Events.Orders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Business.Checkout.Events.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Moq;
 using Grand.Domain.Orders;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Checkout.Events.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Events.Orders
 {
     [TestClass()]
     public class MerchandiseReturnDeletedEventHandlerTests

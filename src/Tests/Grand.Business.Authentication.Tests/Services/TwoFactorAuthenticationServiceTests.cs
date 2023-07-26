@@ -1,17 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Authentication.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Infrastructure;
-using Moq;
+﻿using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Google.Authenticator;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Authentication.Services.Tests
+namespace Grand.Business.Authentication.Tests.Services
 {
     [TestClass()]
     public class TwoFactorAuthenticationServiceTests

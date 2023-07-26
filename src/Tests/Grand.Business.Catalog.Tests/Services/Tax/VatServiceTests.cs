@@ -1,7 +1,8 @@
-﻿using Grand.Domain.Tax;
+﻿using Grand.Business.Catalog.Services.Tax;
+using Grand.Domain.Tax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Catalog.Services.Tax.Tests
+namespace Grand.Business.Catalog.Tests.Services.Tax
 {
     [TestClass()]
     public class VatServiceTests

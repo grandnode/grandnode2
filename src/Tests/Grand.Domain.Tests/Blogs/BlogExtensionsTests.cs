@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Domain.Blogs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Blogs.Tests
+namespace Grand.Domain.Tests.Blogs
 {
     [TestClass()]
     public class BlogExtensionsTests

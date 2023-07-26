@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
@@ -8,8 +9,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class ProductAttributeServiceTests

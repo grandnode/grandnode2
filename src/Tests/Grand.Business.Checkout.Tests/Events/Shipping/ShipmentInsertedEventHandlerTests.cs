@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Checkout.Events.Shipping;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
@@ -6,7 +7,7 @@ using Grand.Domain.Shipping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Events.Shipping.Tests
+namespace Grand.Business.Checkout.Tests.Events.Shipping
 {
     [TestClass()]
     public class ShipmentInsertedEventHandlerTests

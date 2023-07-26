@@ -1,12 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Domain.Catalog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Domain.Catalog;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Catalog.Tests
+namespace Grand.Domain.Tests.Catalog
 {
     [TestClass()]
     public class TierPriceExtensionsTests
@@ -65,7 +60,7 @@ namespace Grand.Domain.Catalog.Tests
         [TestMethod()]
         public void FilterForCustomerTest()
         {
-            var customer = new Customers.Customer();
+            var customer = new Domain.Customers.Customer();
             customer.Groups.Add("1");
             customer.Groups.Add("2");
             Assert.AreEqual(3, _tierPrices.FilterForCustomer(customer).Count());

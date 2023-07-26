@@ -1,7 +1,8 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Domain.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Messages.Tests
+namespace Grand.Domain.Tests.Messages
 {
     [TestClass()]
     public class ContactAttributeExtensionsTests

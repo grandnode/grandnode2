@@ -1,18 +1,18 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Catalog.Services.Tax;
+﻿using Grand.Business.Catalog.Services.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Grand.Domain.Catalog;
-using Grand.SharedKernel.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
 
-namespace Grand.Business.Catalog.Tests.Service.Tax
+namespace Grand.Business.Catalog.Tests.Services.Tax
 {
     [TestClass()]
     public class TaxServiceTests

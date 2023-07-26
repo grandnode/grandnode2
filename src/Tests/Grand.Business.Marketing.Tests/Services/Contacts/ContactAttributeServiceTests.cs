@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Marketing.Services.Contacts;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
@@ -9,7 +10,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Marketing.Services.Contacts.Tests
+namespace Grand.Business.Marketing.Tests.Services.Contacts
 {
     [TestClass()]
     public class ContactAttributeServiceTests

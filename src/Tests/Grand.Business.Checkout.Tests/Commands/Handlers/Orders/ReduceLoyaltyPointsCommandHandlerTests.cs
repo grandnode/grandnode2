@@ -1,15 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using MediatR;
-using Moq;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass()]
     public class ReduceLoyaltyPointsCommandHandlerTests

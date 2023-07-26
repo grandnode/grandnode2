@@ -1,7 +1,8 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Common.Tests
+namespace Grand.Domain.Tests.Common
 {
     [TestClass()]
     public class AddressAttributeExtensionsTests

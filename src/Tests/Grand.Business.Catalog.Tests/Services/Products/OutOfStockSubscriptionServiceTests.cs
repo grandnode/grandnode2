@@ -1,20 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Services.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Data;
-using Grand.Domain.Catalog;
-using MediatR;
-using Moq;
-using Grand.Data.Tests.MongoDb;
-using Grand.SharedKernel.Extensions;
-using Grand.Domain.Common;
+﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Commands.Catalog;
+using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Data;
+using Grand.SharedKernel.Extensions;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class OutOfStockSubscriptionServiceTests

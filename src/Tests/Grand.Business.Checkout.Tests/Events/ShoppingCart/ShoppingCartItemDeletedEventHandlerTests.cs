@@ -1,16 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Checkout.Events.Shipping;
-using Grand.Business.Checkout.Events.ShoppingCart;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Business.Checkout.Events.ShoppingCart;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Moq;
 using Grand.Domain.Catalog;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Checkout.Events.Shipping.Tests
+namespace Grand.Business.Checkout.Tests.Events.ShoppingCart
 {
     [TestClass()]
     public class ShoppingCartItemDeletedEventHandlerTests

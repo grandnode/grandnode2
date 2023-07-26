@@ -1,12 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Storage.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Business.Storage.Services;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Storage.Services.Tests
+namespace Grand.Business.Storage.Tests.Services
 {
     [TestClass()]
     public class DefaultMediaFileStoreTests

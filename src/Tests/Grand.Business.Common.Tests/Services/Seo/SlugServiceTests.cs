@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Common.Services.Seo;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Seo;
@@ -8,7 +9,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Services.Seo.Tests
+namespace Grand.Business.Common.Tests.Services.Seo
 {
     [TestClass()]
     public class SlugServiceTests

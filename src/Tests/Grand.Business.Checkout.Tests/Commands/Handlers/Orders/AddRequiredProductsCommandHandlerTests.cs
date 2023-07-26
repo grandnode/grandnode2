@@ -1,19 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Checkout.Commands.Handlers.Orders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Moq;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Domain.Orders;
+﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Orders;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass()]
     public class AddRequiredProductsCommandHandlerTests

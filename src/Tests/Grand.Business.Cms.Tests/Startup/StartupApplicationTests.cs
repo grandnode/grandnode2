@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Grand.Business.Cms.Startup;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Cms.Startup.Tests
+namespace Grand.Business.Cms.Tests.Startup
 {
     [TestClass()]
     public class StartupApplicationTests

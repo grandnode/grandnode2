@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Catalog.Services.Prices;
+﻿using Grand.Business.Catalog.Services.Prices;
+using Grand.Business.Common.Services.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Domain.Directory;
@@ -16,7 +16,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Prices
+namespace Grand.Business.Catalog.Tests.Services.Prices
 {
     [TestClass()]
     public class PriceFormatterTests

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Catalog.Services.Collections;
+﻿using Grand.Business.Catalog.Services.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
@@ -10,7 +10,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Collections
+namespace Grand.Business.Catalog.Tests.Services.Collections
 {
     [TestClass()]
     public class CollectionServiceTests

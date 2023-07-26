@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Queries.Checkout.Orders;
+﻿using Grand.Business.Checkout.Services.Orders;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Services.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Services.Orders
 {
     [TestClass()]
     public class OrderTagServiceTests

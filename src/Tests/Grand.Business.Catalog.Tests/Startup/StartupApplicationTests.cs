@@ -1,14 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Startup;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Grand.Business.Catalog.Startup;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Catalog.Startup.Tests
+namespace Grand.Business.Catalog.Tests.Startup
 {
     [TestClass()]
     public class StartupApplicationTests

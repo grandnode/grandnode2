@@ -1,8 +1,9 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Customers.Queries.Handlers;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Customers.Queries.Handlers.Tests
+namespace Grand.Business.Customers.Tests.Queries.Handlers
 {
     [TestClass()]
     public class GetCustomerQueryHandlerTests

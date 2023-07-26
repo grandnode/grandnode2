@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Checkout.Events.ShoppingCart;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Events.ShoppingCart.Tests
+namespace Grand.Business.Checkout.Tests.Events.ShoppingCart
 {
     [TestClass()]
     public class CustomerLoggedInEventHandlerTests

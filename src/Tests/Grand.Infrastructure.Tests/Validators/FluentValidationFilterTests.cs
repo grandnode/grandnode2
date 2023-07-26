@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure.Tests.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Validators.Tests
+namespace Grand.Infrastructure.Tests.Validators
 {
     [TestClass()]
     public class FluentValidationFilterTests

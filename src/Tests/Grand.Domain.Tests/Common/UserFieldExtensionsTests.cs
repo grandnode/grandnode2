@@ -1,15 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Domain.Common;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Common.Tests
+namespace Grand.Domain.Tests.Common
 {
     [TestClass()]
     public class UserFieldExtensionsTests
     {
-        private Customers.Customer entity;
+        private Domain.Customers.Customer entity;
 
         public UserFieldExtensionsTests()
         {
-            entity = new Customers.Customer();
+            entity = new Domain.Customers.Customer();
             entity.UserFields.Add(new UserField() { Key = "FirstName", Value = "Sara", StoreId = "" });
             entity.UserFields.Add(new UserField() { Key = "LastName", Value = "Name", StoreId = "" });
             entity.UserFields.Add(new UserField() { Key = "Registered", Value = "1", StoreId = "1" });
