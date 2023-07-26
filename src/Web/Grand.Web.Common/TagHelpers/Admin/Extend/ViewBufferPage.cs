@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal class ViewBufferPage
     {
