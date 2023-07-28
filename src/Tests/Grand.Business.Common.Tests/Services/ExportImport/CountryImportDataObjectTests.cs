@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.ExportImport;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
@@ -39,9 +40,9 @@ namespace Grand.Business.Common.Tests.Services.ExportImport
             //Arrange
             var country = new Country() { TwoLetterIsoCode = "US", Name = "USA" };
             await _repository.InsertAsync(country);
-            var states = new List<CountryStates>() { 
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
+            var states = new List<CountryStatesDto>() { 
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
             };
             //Act
             await _countryImportDataObject.Execute(states);
@@ -59,9 +60,9 @@ namespace Grand.Business.Common.Tests.Services.ExportImport
             country.StateProvinces.Add(new StateProvince() { Abbreviation = "CA" });
 
             await _repository.InsertAsync(country);
-            var states = new List<CountryStates>() {
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
+            var states = new List<CountryStatesDto>() {
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
             };
             //Act
             await _countryImportDataObject.Execute(states);
@@ -80,10 +81,10 @@ namespace Grand.Business.Common.Tests.Services.ExportImport
             country.StateProvinces.Add(new StateProvince() { Abbreviation = "CA" });
 
             await _repository.InsertAsync(country);
-            var states = new List<CountryStates>() {
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 },
-                new CountryStates() { Country = country.TwoLetterIsoCode, Abbreviation = "HI", StateProvinceName = "Hawaii", Published = true, DisplayOrder = 1 }
+            var states = new List<CountryStatesDto>() {
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 },
+                new CountryStatesDto() { Country = country.TwoLetterIsoCode, Abbreviation = "HI", StateProvinceName = "Hawaii", Published = true, DisplayOrder = 1 }
             };
             //Act
             await _countryImportDataObject.Execute(states);

@@ -8,6 +8,7 @@ using Grand.Business.Common.Services.Pdf;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Common.Services.Seo;
 using Grand.Business.Common.Services.Stores;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -101,7 +102,7 @@ namespace Grand.Business.Common.Startup
 
         private void RegisterExportImportService(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<ISchemaProperty<CountryStates>, CountrySchemaProperty>();
+            serviceCollection.AddScoped<ISchemaProperty<CountryStatesDto>, CountrySchemaProperty>();
 
             serviceCollection.AddScoped<IExportProvider, ExcelExportProvider>();
             serviceCollection.AddScoped(typeof(IExportManager<>), typeof(ExportManager<>));
@@ -109,7 +110,7 @@ namespace Grand.Business.Common.Startup
             serviceCollection.AddScoped<IImportDataProvider, ExcelImportProvider>();
             serviceCollection.AddScoped(typeof(IImportManager<>), typeof(ImportManager<>));
 
-            serviceCollection.AddScoped<IImportDataObject<CountryStates>, CountryImportDataObject>();
+            serviceCollection.AddScoped<IImportDataObject<CountryStatesDto>, CountryImportDataObject>();
         }
     }
 }

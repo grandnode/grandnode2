@@ -1,6 +1,4 @@
-﻿using Grand.Domain.Catalog;
-
-namespace Grand.Business.Catalog.Services.ExportImport.Dto
+﻿namespace Grand.Business.Core.Dto
 {
     public class ProductDto
     {

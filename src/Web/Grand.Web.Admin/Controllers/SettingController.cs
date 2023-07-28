@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.AdminSearch;
+using Grand.Domain.Admin;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
