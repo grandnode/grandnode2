@@ -39,16 +39,16 @@ namespace Grand.Business.Checkout.Validators
                     context.AddFailure(translationService.GetResource("ShoppingCart.ProductUnpublished"));
                 }
 
-                //disabled "add to cart" button
-                if (value.ShoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart && value.Product.DisableBuyButton)
+                switch (value.ShoppingCartItem.ShoppingCartTypeId)
                 {
-                    context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled"));
-                }
-
-                //disabled "add to wishlist" button
-                if (value.ShoppingCartItem.ShoppingCartTypeId == ShoppingCartType.Wishlist && value.Product.DisableWishlistButton)
-                {
-                    context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled"));
+                    //disabled "add to cart" button
+                    case ShoppingCartType.ShoppingCart when value.Product.DisableBuyButton:
+                        context.AddFailure(translationService.GetResource("ShoppingCart.BuyingDisabled"));
+                        break;
+                    //disabled "add to wishlist" button
+                    case ShoppingCartType.Wishlist when value.Product.DisableWishlistButton:
+                        context.AddFailure(translationService.GetResource("ShoppingCart.WishlistDisabled"));
+                        break;
                 }
 
                 //call for price

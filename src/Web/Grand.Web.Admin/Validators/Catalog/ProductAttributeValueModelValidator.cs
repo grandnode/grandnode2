@@ -53,17 +53,19 @@ namespace Grand.Web.Admin.Validators.Catalog
             {
                 var product = await productService.GetProductById(x.ProductId);
                 var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(y => y.Id == x.ProductAttributeMappingId);
-                if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ColorSquares)
+                switch (productAttributeMapping?.AttributeControlTypeId)
                 {
-                    //ensure valid color is chosen/entered
-                    if (string.IsNullOrEmpty(x.ColorSquaresRgb))
-                        context.AddFailure("Color is required");
-                }
-                            
-                //ensure a picture is uploaded
-                if (productAttributeMapping?.AttributeControlTypeId == AttributeControlType.ImageSquares && string.IsNullOrEmpty(x.ImageSquaresPictureId))
-                {
-                    context.AddFailure("Image is required");
+                    case AttributeControlType.ColorSquares:
+                    {
+                        //ensure valid color is chosen/entered
+                        if (string.IsNullOrEmpty(x.ColorSquaresRgb))
+                            context.AddFailure("Color is required");
+                        break;
+                    }
+                    //ensure a picture is uploaded
+                    case AttributeControlType.ImageSquares when string.IsNullOrEmpty(x.ImageSquaresPictureId):
+                        context.AddFailure("Image is required");
+                        break;
                 }
             });
         }

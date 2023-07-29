@@ -80,12 +80,16 @@ namespace Grand.Api.Commands.Handlers.Catalog
             //activity log
             _ = _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
-            //raise event 
-            if (!prevPublished && product.Published)
-                await _mediator.Publish(new ProductPublishEvent(product), cancellationToken);
-
-            if (prevPublished && !product.Published)
-                await _mediator.Publish(new ProductUnPublishEvent(product), cancellationToken);
+            switch (prevPublished)
+            {
+                //raise event 
+                case false when product.Published:
+                    await _mediator.Publish(new ProductPublishEvent(product), cancellationToken);
+                    break;
+                case true when !product.Published:
+                    await _mediator.Publish(new ProductUnPublishEvent(product), cancellationToken);
+                    break;
+            }
 
             return product.ToModel();
         }

@@ -105,10 +105,15 @@ namespace Grand.Web.Admin.Services
             PrepareGiftVoucherModel(GiftVoucherListModel model, int pageIndex, int pageSize)
         {
             bool? isGiftVoucherActivated = null;
-            if (model.ActivatedId == 1)
-                isGiftVoucherActivated = true;
-            else if (model.ActivatedId == 2)
-                isGiftVoucherActivated = false;
+            switch (model.ActivatedId)
+            {
+                case 1:
+                    isGiftVoucherActivated = true;
+                    break;
+                case 2:
+                    isGiftVoucherActivated = false;
+                    break;
+            }
             var giftVouchers = await _giftVoucherService.GetAllGiftVouchers(
                 isGiftVoucherActivated: isGiftVoucherActivated,
                 giftVoucherCouponCode: model.CouponCode,

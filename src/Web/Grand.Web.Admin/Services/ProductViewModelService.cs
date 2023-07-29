@@ -788,10 +788,15 @@ namespace Grand.Web.Admin.Services
             //1 - published only
             //2 - unpublished only
             bool? overridePublished = null;
-            if (model.SearchPublishedId == 1)
-                overridePublished = true;
-            else if (model.SearchPublishedId == 2)
-                overridePublished = false;
+            switch (model.SearchPublishedId)
+            {
+                case 1:
+                    overridePublished = true;
+                    break;
+                case 2:
+                    overridePublished = false;
+                    break;
+            }
 
             bool? showOnHomePage = null;
             if (model.SearchPublishedId == 3)
@@ -861,10 +866,15 @@ namespace Grand.Web.Admin.Services
             //1 - published only
             //2 - unpublished only
             bool? overridePublished = null;
-            if (model.SearchPublishedId == 1)
-                overridePublished = true;
-            else if (model.SearchPublishedId == 2)
-                overridePublished = false;
+            switch (model.SearchPublishedId)
+            {
+                case 1:
+                    overridePublished = true;
+                    break;
+                case 2:
+                    overridePublished = false;
+                    break;
+            }
 
             var products = (await _productService.SearchProducts(
                 categoryIds: categoryIds,

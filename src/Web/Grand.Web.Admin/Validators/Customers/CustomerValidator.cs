@@ -115,11 +115,13 @@ namespace Grand.Web.Admin.Validators.Customers
                 var isStaffGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Staff) != null;
                 var isSalesGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.SalesManager) != null;
                 
-                if (isInGuestsGroup && isInRegisteredGroup)
-                    return "The customer cannot be in both 'Guests' and 'Registered' customer groups";
-
-                if (!isInGuestsGroup && !isInRegisteredGroup)
-                    return "Add the customer to 'Guests' or 'Registered' customer group";
+                switch (isInGuestsGroup)
+                {
+                    case true when isInRegisteredGroup:
+                        return "The customer cannot be in both 'Guests' and 'Registered' customer groups";
+                    case false when !isInRegisteredGroup:
+                        return "Add the customer to 'Guests' or 'Registered' customer group";
+                }
 
                 if (await groupService.IsSalesManager(workContext.CurrentCustomer) &&
                     (isInGuestsGroup || customerGroups.Count != 1))
@@ -128,20 +130,23 @@ namespace Grand.Web.Admin.Validators.Customers
                 if (!await groupService.IsAdmin(workContext.CurrentCustomer) && isAdminGroup)
                     return "Only administrators can assign role 'Administrators'";
 
-                if (isAdminGroup && !string.IsNullOrEmpty(customerModel.VendorId))
-                    return "A customer who is associated with a vendor can't be assigned the 'Administrator' role";
-                
-                if (isAdminGroup && !string.IsNullOrEmpty(customerModel.StaffStoreId))
-                    return "A customer who is associated with a staff can't be assigned the 'Administrator' role";
+                switch (isAdminGroup)
+                {
+                    case true when !string.IsNullOrEmpty(customerModel.VendorId):
+                        return "A customer who is associated with a vendor can't be assigned the 'Administrator' role";
+                    case true when !string.IsNullOrEmpty(customerModel.StaffStoreId):
+                        return "A customer who is associated with a staff can't be assigned the 'Administrator' role";
+                }
 
-                if (isVendorGroup && string.IsNullOrEmpty(customerModel.VendorId))
-                    return translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated");
-
-                if (isVendorGroup && string.IsNullOrEmpty(customerModel.VendorId))
-                    return translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated");
-
-                if (isVendorGroup && isStaffGroup)
-                    return translationService.GetResource("Admin.Customers.Customers.VendorShouldNotbeStaff");
+                switch (isVendorGroup)
+                {
+                    case true when string.IsNullOrEmpty(customerModel.VendorId):
+                        return translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated");
+                    case true when string.IsNullOrEmpty(customerModel.VendorId):
+                        return translationService.GetResource("Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated");
+                    case true when isStaffGroup:
+                        return translationService.GetResource("Admin.Customers.Customers.VendorShouldNotbeStaff");
+                }
 
                 if (isStaffGroup && string.IsNullOrEmpty(customerModel.StaffStoreId))
                     return translationService.GetResource("Admin.Customers.Customers.CannotBeInStaffGroupWithoutStaffAssociated");

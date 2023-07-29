@@ -755,21 +755,26 @@ namespace Grand.Web.Admin.Services
                 customer.Email = model.Email;
             }
 
-            //username
-            if (_customerSettings.UsernamesEnabled && _customerSettings.AllowUsersToChangeUsernames)
+            switch (_customerSettings.UsernamesEnabled)
             {
-                if (!string.IsNullOrWhiteSpace(model.Username))
+                //username
+                case true when _customerSettings.AllowUsersToChangeUsernames:
                 {
-                    await _customerManagerService.SetUsername(customer, model.Username);
-                }
-                else
-                {
-                    customer.Username = model.Username;
-                }
-            }
+                    if (!string.IsNullOrWhiteSpace(model.Username))
+                    {
+                        await _customerManagerService.SetUsername(customer, model.Username);
+                    }
+                    else
+                    {
+                        customer.Username = model.Username;
+                    }
 
-            if (!_customerSettings.UsernamesEnabled)
-                customer.Username = model.Email;
+                    break;
+                }
+                case false:
+                    customer.Username = model.Email;
+                    break;
+            }
 
             if (!string.IsNullOrEmpty(model.Owner))
             {

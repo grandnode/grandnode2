@@ -35,32 +35,38 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 await _orderService.UpdateOrder(request.Order);
             }
 
-            if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending)
+            switch (request.Order.OrderStatusId)
             {
-                if (request.Order.PaymentStatusId is PaymentStatus.Authorized or PaymentStatus.Paid or PaymentStatus.PartiallyPaid)
+                case (int)OrderStatusSystem.Pending:
                 {
-                    await _mediator.Send(new SetOrderStatusCommand
+                    if (request.Order.PaymentStatusId is PaymentStatus.Authorized or PaymentStatus.Paid or PaymentStatus.PartiallyPaid)
                     {
-                        Order = request.Order,
-                        Os = OrderStatusSystem.Processing,
-                        NotifyCustomer = false,
-                        NotifyStoreOwner = false
-                    }, cancellationToken);
-                }
+                        await _mediator.Send(new SetOrderStatusCommand
+                        {
+                            Order = request.Order,
+                            Os = OrderStatusSystem.Processing,
+                            NotifyCustomer = false,
+                            NotifyStoreOwner = false
+                        }, cancellationToken);
+                    }
 
-                if (request.Order.ShippingStatusId is ShippingStatus.PartiallyShipped or ShippingStatus.Shipped or ShippingStatus.Delivered)
-                {
-                    await _mediator.Send(new SetOrderStatusCommand
+                    if (request.Order.ShippingStatusId is ShippingStatus.PartiallyShipped or ShippingStatus.Shipped or ShippingStatus.Delivered)
                     {
-                        Order = request.Order,
-                        Os = OrderStatusSystem.Processing,
-                        NotifyCustomer = false,
-                        NotifyStoreOwner = false
-                    }, cancellationToken);
+                        await _mediator.Send(new SetOrderStatusCommand
+                        {
+                            Order = request.Order,
+                            Os = OrderStatusSystem.Processing,
+                            NotifyCustomer = false,
+                            NotifyStoreOwner = false
+                        }, cancellationToken);
+                    }
+
+                    break;
                 }
+                case (int)OrderStatusSystem.Cancelled or (int)OrderStatusSystem.Complete:
+                    return true;
             }
 
-            if (request.Order.OrderStatusId is (int)OrderStatusSystem.Cancelled or (int)OrderStatusSystem.Complete) return true;
             if (request.Order.PaymentStatusId != PaymentStatus.Paid) return true;
             bool completed;
             if (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired)

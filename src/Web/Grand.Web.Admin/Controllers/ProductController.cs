@@ -2632,17 +2632,17 @@ namespace Grand.Web.Admin.Controllers
             await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
             var minutesToAdd = 0;
-            if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute)
+            switch ((IntervalUnit)model.IntervalUnit)
             {
-                minutesToAdd = model.Interval;
-            }
-            else if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Hour)
-            {
-                minutesToAdd = model.Interval * 60;
-            }
-            else if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Day)
-            {
-                minutesToAdd = model.Interval * 60 * 24;
+                case IntervalUnit.Minute:
+                    minutesToAdd = model.Interval;
+                    break;
+                case IntervalUnit.Hour:
+                    minutesToAdd = model.Interval * 60;
+                    break;
+                case IntervalUnit.Day:
+                    minutesToAdd = model.Interval * 60 * 24;
+                    break;
             }
 
             var _hourFrom = model.StartTime.Hour;

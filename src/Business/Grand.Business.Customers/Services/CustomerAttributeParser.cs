@@ -151,29 +151,32 @@ namespace Grand.Business.Customers.Services
                     var formattedAttribute = "";
                     if (!attribute.ShouldHaveValues())
                     {
-                        //no values
-                        if (attribute.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
+                        switch (attribute.AttributeControlTypeId)
                         {
-                            //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
-                            //encode (if required)
-                            if (htmlEncode)
-                                attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
-                            //we never encode multiline text box input
-                        }
-                        else if (attribute.AttributeControlTypeId == AttributeControlType.FileUpload)
-                        {
-                            //file upload
-                            //not supported for customer attributes
-                        }
-                        else
-                        {
-                            //other attributes (text box, datepicker)
-                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
-                            //encode (if required)
-                            if (htmlEncode)
-                                formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                            //no values
+                            case AttributeControlType.MultilineTextbox:
+                            {
+                                //multiline text box
+                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
+                                //encode (if required)
+                                if (htmlEncode)
+                                    attributeName = WebUtility.HtmlEncode(attributeName);
+                                formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                                break;
+                            }
+                            case AttributeControlType.FileUpload:
+                                //file upload
+                                //not supported for customer attributes
+                                break;
+                            default:
+                            {
+                                //other attributes (text box, datepicker)
+                                formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
+                                //encode (if required)
+                                if (htmlEncode)
+                                    formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                                break;
+                            }
                         }
                     }
                     else

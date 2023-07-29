@@ -139,10 +139,15 @@ namespace Grand.Web.Admin.Controllers
         {
             var pluginInfos = PluginManager.ReferencedPlugins.ToList();
             var loadMode = (LoadPluginsStatus)model.SearchLoadModeId;
-            if (loadMode == LoadPluginsStatus.InstalledOnly)
-                pluginInfos = pluginInfos.Where(x => x.Installed).ToList();
-            if (loadMode == LoadPluginsStatus.NotInstalledOnly)
-                pluginInfos = pluginInfos.Where(x => !x.Installed).ToList();
+            switch (loadMode)
+            {
+                case LoadPluginsStatus.InstalledOnly:
+                    pluginInfos = pluginInfos.Where(x => x.Installed).ToList();
+                    break;
+                case LoadPluginsStatus.NotInstalledOnly:
+                    pluginInfos = pluginInfos.Where(x => !x.Installed).ToList();
+                    break;
+            }
 
             var items = new List<PluginModel>();
             foreach (var item in pluginInfos.OrderBy(x => x.Group))

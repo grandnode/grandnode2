@@ -144,23 +144,27 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             }
 
 
-            if (request.CartType == ShoppingCartType.ShoppingCart)
+            switch (request.CartType)
             {
-                var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
-                var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
-                model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
-                model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
-                if (shoppingCartSubTotal.discountAmount > 0)
+                case ShoppingCartType.ShoppingCart:
                 {
-                    model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency, request.Language, subTotalIncludingTax);
+                    var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
+                    var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
+                    model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
+                    model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
+                    if (shoppingCartSubTotal.discountAmount > 0)
+                    {
+                        model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency, request.Language, subTotalIncludingTax);
+                    }
+
+                    break;
                 }
-            }
-            else if (request.CartType == ShoppingCartType.Auctions)
-            {
-                model.IsAuction = true;
-                model.HighestBidValue = request.Product.HighestBid;
-                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
-                model.EndTime = request.Product.AvailableEndDateTimeUtc;
+                case ShoppingCartType.Auctions:
+                    model.IsAuction = true;
+                    model.HighestBidValue = request.Product.HighestBid;
+                    model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
+                    model.EndTime = request.Product.AvailableEndDateTimeUtc;
+                    break;
             }
 
             return model;

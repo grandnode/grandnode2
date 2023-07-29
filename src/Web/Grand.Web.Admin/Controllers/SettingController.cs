@@ -253,10 +253,15 @@ namespace Grand.Web.Admin.Controllers
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
 
             catalogSettings.ProductSortingEnumDisplayOrder[model.Id] = model.DisplayOrder;
-            if (model.IsActive && catalogSettings.ProductSortingEnumDisabled.Contains(model.Id))
-                catalogSettings.ProductSortingEnumDisabled.Remove(model.Id);
-            if (!model.IsActive && !catalogSettings.ProductSortingEnumDisabled.Contains(model.Id))
-                catalogSettings.ProductSortingEnumDisabled.Add(model.Id);
+            switch (model.IsActive)
+            {
+                case true when catalogSettings.ProductSortingEnumDisabled.Contains(model.Id):
+                    catalogSettings.ProductSortingEnumDisabled.Remove(model.Id);
+                    break;
+                case false when !catalogSettings.ProductSortingEnumDisabled.Contains(model.Id):
+                    catalogSettings.ProductSortingEnumDisabled.Add(model.Id);
+                    break;
+            }
 
             await _settingService.SaveSetting(catalogSettings, storeScope);
 

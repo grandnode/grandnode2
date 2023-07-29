@@ -103,10 +103,15 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> SubscriptionList(DataSourceRequest command, NewsLetterSubscriptionListModel model, string[] searchCategoryIds)
         {
             bool? isActive = null;
-            if (model.ActiveId == 1)
-                isActive = true;
-            else if (model.ActiveId == 2)
-                isActive = false;
+            switch (model.ActiveId)
+            {
+                case 1:
+                    isActive = true;
+                    break;
+                case 2:
+                    isActive = false;
+                    break;
+            }
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
@@ -167,10 +172,15 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ExportCsv(NewsLetterSubscriptionListModel model, string[] searchCategoryIds)
         {
             bool? isActive = null;
-            if (model.ActiveId == 1)
-                isActive = true;
-            else if (model.ActiveId == 2)
-                isActive = false;
+            switch (model.ActiveId)
+            {
+                case 1:
+                    isActive = true;
+                    break;
+                case 2:
+                    isActive = false;
+                    break;
+            }
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {

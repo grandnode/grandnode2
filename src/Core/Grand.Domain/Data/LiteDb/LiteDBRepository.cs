@@ -681,20 +681,21 @@ namespace Grand.Domain.Data.LiteDb
 
             MemberExpression expr = null;
 
-            if (Field.Body is MemberExpression expression)
+            switch (Field.Body)
             {
-                expr = expression;
-            }
-            else if (Field.Body is UnaryExpression)
-            {
-                expr = (MemberExpression)((UnaryExpression)Field.Body).Operand;
-            }
-            else
-            {
-                const string Format = "Expression '{0}' not supported.";
-                var message = string.Format(Format, Field);
+                case MemberExpression expression:
+                    expr = expression;
+                    break;
+                case UnaryExpression expression:
+                    expr = (MemberExpression)expression.Operand;
+                    break;
+                default:
+                {
+                    const string format = "Expression '{0}' not supported.";
+                    var message = string.Format(format, Field);
 
-                throw new ArgumentException(message, "Field");
+                    throw new ArgumentException(message, "Field");
+                }
             }
 
             return expr.Member.Name;

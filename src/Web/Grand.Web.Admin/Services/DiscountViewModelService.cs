@@ -188,45 +188,52 @@ namespace Grand.Web.Admin.Services
             discount = model.ToEntity(discount, _dateTimeService);
             await _discountService.UpdateDiscount(discount);
 
-            //clean up old references (if changed) and update "HasDiscountsApplied" properties
-            if (prevDiscountType == DiscountType.AssignedToCategories
-                && discount.DiscountTypeId != DiscountType.AssignedToCategories)
+            switch (prevDiscountType)
             {
-                //applied to categories
-                //_categoryService.
-                var categories = await _categoryService.GetAllCategoriesByDiscount(discount.Id);
-
-                //update "HasDiscountsApplied" property
-                foreach (var category in categories)
+                //clean up old references (if changed) and update "HasDiscountsApplied" properties
+                case DiscountType.AssignedToCategories 
+                when discount.DiscountTypeId != DiscountType.AssignedToCategories:
                 {
-                    var item = category.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    category.AppliedDiscounts.Remove(item);
+                    //applied to categories
+                    //_categoryService.
+                    var categories = await _categoryService.GetAllCategoriesByDiscount(discount.Id);
+
+                    //update "HasDiscountsApplied" property
+                    foreach (var category in categories)
+                    {
+                        var item = category.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
+                        category.AppliedDiscounts.Remove(item);
+                    }
+
+                    break;
                 }
-            }
-
-            if (prevDiscountType == DiscountType.AssignedToCollections
-                && discount.DiscountTypeId != DiscountType.AssignedToCollections)
-            {
-                //applied to collections
-                var collections = await _collectionService.GetAllCollectionsByDiscount(discount.Id);
-                foreach (var collection in collections)
+                case DiscountType.AssignedToCollections 
+                when discount.DiscountTypeId != DiscountType.AssignedToCollections:
                 {
-                    var item = collection.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    collection.AppliedDiscounts.Remove(item);
+                    //applied to collections
+                    var collections = await _collectionService.GetAllCollectionsByDiscount(discount.Id);
+                    foreach (var collection in collections)
+                    {
+                        var item = collection.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
+                        collection.AppliedDiscounts.Remove(item);
+                    }
+
+                    break;
                 }
-            }
-
-            if (prevDiscountType == DiscountType.AssignedToSkus
-                && discount.DiscountTypeId != DiscountType.AssignedToSkus)
-            {
-                //applied to products
-                var products = await _productService.GetProductsByDiscount(discount.Id);
-
-                foreach (var p in products)
+                case DiscountType.AssignedToSkus 
+                when discount.DiscountTypeId != DiscountType.AssignedToSkus:
                 {
-                    var item = p.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    p.AppliedDiscounts.Remove(item);
-                    await _productService.DeleteDiscount(item, p.Id);
+                    //applied to products
+                    var products = await _productService.GetProductsByDiscount(discount.Id);
+
+                    foreach (var p in products)
+                    {
+                        var item = p.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
+                        p.AppliedDiscounts.Remove(item);
+                        await _productService.DeleteDiscount(item, p.Id);
+                    }
+
+                    break;
                 }
             }
 

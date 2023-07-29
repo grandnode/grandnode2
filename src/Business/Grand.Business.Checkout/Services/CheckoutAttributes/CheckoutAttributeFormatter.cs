@@ -70,43 +70,50 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                     var formattedAttribute = "";
                     if (!attribute.ShouldHaveValues())
                     {
-                        //no values
-                        if (attribute.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
+                        switch (attribute.AttributeControlTypeId)
                         {
-                            //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
-                            //encode (if required)
-                            if (htmlEncode)
-                                attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
-                            //we never encode multiline text box input
-                        }
-                        else if (attribute.AttributeControlTypeId == AttributeControlType.FileUpload)
-                        {
-                            //file upload
-                            if (Guid.TryParse(valueStr, out var downloadGuid))
+                            //no values
+                            case AttributeControlType.MultilineTextbox:
                             {
-                                var attributeText = string.Empty;
+                                //multiline text box
                                 var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
-                                if (allowHyperlinks)
-                                {
-                                    //hyperlinks are allowed
-                                    var downloadLink =
-                                        $"{_workContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
-                                    attributeText =
-                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)}</a>";
-                                }
-                                formattedAttribute = $"{attributeName}: {attributeText}";
+                                //encode (if required)
+                                if (htmlEncode)
+                                    attributeName = WebUtility.HtmlEncode(attributeName);
+                                formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                                //we never encode multiline text box input
+                                break;
                             }
-                        }
-                        else
-                        {
-                            //other attributes (text box, datepicker)
-                            formattedAttribute =
-                                $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {valueStr}";
-                            //encode (if required)
-                            if (htmlEncode)
-                                formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                            case AttributeControlType.FileUpload:
+                            {
+                                //file upload
+                                if (Guid.TryParse(valueStr, out var downloadGuid))
+                                {
+                                    var attributeText = string.Empty;
+                                    var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
+                                    if (allowHyperlinks)
+                                    {
+                                        //hyperlinks are allowed
+                                        var downloadLink =
+                                            $"{_workContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        attributeText =
+                                            $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)}</a>";
+                                    }
+                                    formattedAttribute = $"{attributeName}: {attributeText}";
+                                }
+
+                                break;
+                            }
+                            default:
+                            {
+                                //other attributes (text box, datepicker)
+                                formattedAttribute =
+                                    $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {valueStr}";
+                                //encode (if required)
+                                if (htmlEncode)
+                                    formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                                break;
+                            }
                         }
                     }
                     else
