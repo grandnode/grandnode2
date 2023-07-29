@@ -112,7 +112,7 @@ namespace Grand.SharedKernel.Extensions
 
                 var result = str[..(maxLength - pLen)];
                 if(string.IsNullOrEmpty(result))
-                    return str[..(maxLength)];
+                    return str[..maxLength];
 
                 if (!string.IsNullOrEmpty(postfix))
                 {

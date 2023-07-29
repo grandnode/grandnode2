@@ -154,7 +154,7 @@ namespace Grand.Web.Admin.Validators.Customers
             }
             void CustomerCreateValidator()
             {
-                When(x => (currentAction == "Create" && currentController == "Customer"), () =>
+                When(x => currentAction == "Create" && currentController == "Customer", () =>
                 {
                     RuleFor(x => x).CustomAsync(async (x, context, y) =>
                     {
@@ -194,7 +194,7 @@ namespace Grand.Web.Admin.Validators.Customers
             
             void CustomerEditValidator()
             {
-                When(x => (currentAction == "Edit" && currentController == "Customer"), () =>
+                When(x => currentAction == "Edit" && currentController == "Customer", () =>
                 {
                     RuleFor(x => x).CustomAsync(async (x, context, y) =>
                     {

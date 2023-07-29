@@ -125,7 +125,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// <inheritdoc />
         public string Encode(object value)
         {
-            return (value != null) ? _htmlEncoder.Encode(value.ToString()) : string.Empty;
+            return value != null ? _htmlEncoder.Encode(value.ToString()) : string.Empty;
         }
 
         /// <inheritdoc />
@@ -254,7 +254,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 modelExplorer,
                 expression,
                 value: "true",
-                useViewData: (modelExplorer == null && !isChecked.HasValue),
+                useViewData: modelExplorer == null && !isChecked.HasValue,
                 isChecked: isChecked ?? false,
                 setId: true,
                 isExplicitValue: false,
@@ -765,7 +765,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 modelExplorer,
                 expression,
                 value,
-                useViewData: (modelExplorer == null && value == null),
+                useViewData: modelExplorer == null && value == null,
                 isChecked: false,
                 setId: true,
                 isExplicitValue: true,
@@ -826,7 +826,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
             // Only the style of the span is changed according to the errors if message is null or empty.
             // Otherwise the content and style is handled by the client-side validation.
-            var className = (modelError != null) ?
+            var className = modelError != null ?
                 HtmlHelper.ValidationMessageCssClassName :
                 HtmlHelper.ValidationMessageValidCssClassName;
             tagBuilder.AddCssClass(className);
@@ -1040,7 +1040,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             foreach (var value in rawValues)
             {
                 // Add original or converted string.
-                var stringValue = (value as string) ?? Convert.ToString(value, CultureInfo.CurrentCulture);
+                var stringValue = value as string ?? Convert.ToString(value, CultureInfo.CurrentCulture);
 
                 // Do not add simple names of enum properties here because whitespace isn't relevant for their binding.
                 // Will add matching names just below.

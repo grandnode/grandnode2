@@ -221,7 +221,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             {
                 if (string.IsNullOrEmpty(picturePath))
                     continue;
-                if (!picturePath.ToLower().StartsWith(("http".ToLower())))
+                if (!picturePath.ToLower().StartsWith("http".ToLower()))
                 {
                     var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
                     var newPictureBinary = await File.ReadAllBytesAsync(picturePath);

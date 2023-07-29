@@ -140,7 +140,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
 
             var currency = new Currency { Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = System.MidpointRounding.ToEven, RoundingTypeId = RoundingType.Rounding001 };
             var customer = new Customer();
-            var pr = (await _pricingService.GetFinalPrice(product, customer, currency, 0, false, 1));
+            var pr = await _pricingService.GetFinalPrice(product, customer, currency, 0, false, 1);
             Assert.AreEqual(49.99, pr.finalPrice);
             //returned price FOR ONE UNIT should be the same, even if quantity is different than 1
             Assert.AreEqual(49.99, (await _pricingService.GetFinalPrice(product, customer, _currency, 0, false, 10)).finalPrice);

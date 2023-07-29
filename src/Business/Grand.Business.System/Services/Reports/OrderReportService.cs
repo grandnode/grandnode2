@@ -498,7 +498,7 @@ namespace Grand.Business.System.Services.Reports
                     (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
                     createdFromUtc.Value <= order.CreatedOnUtc &&
                     createdToUtc.Value >= order.CreatedOnUtc &&
-                    (!order.Deleted)
+                    !order.Deleted
                 from orderItem in order.OrderItems
                 select new { orderItem.ProductId }).ToList().Distinct().Select(x => x.ProductId);
 
@@ -506,7 +506,7 @@ namespace Grand.Business.System.Services.Reports
                             orderby p.Name
                             where !query.Contains(p.Id) &&
                                   //include only simple products
-                                  (p.ProductTypeId == ProductType.SimpleProduct) &&
+                                  p.ProductTypeId == ProductType.SimpleProduct &&
                                   (vendorId == "" || p.VendorId == vendorId) &&
                                   (string.IsNullOrEmpty(storeId) || p.Stores.Contains(storeId) || p.LimitedToStores == false) &&
                                   (showHidden || p.Published)

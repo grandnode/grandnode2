@@ -65,8 +65,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             return new List<SelectListItem>
             {
                 new SelectListItem("Not Set", string.Empty, !value.HasValue),
-                new SelectListItem("True", "true", (value == true)),
-                new SelectListItem("False", "false", (value == false)),
+                new SelectListItem("True", "true", value == true),
+                new SelectListItem("False", "false", value == false),
             };
         }
 
@@ -157,10 +157,10 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
         public static async Task<IHtmlContent> EmailAddressTemplate(IHtmlHelper htmlHelper)
         {
-            var uriString = "mailto:" + ((htmlHelper.ViewData.Model == null) ?
+            var uriString = "mailto:" + (htmlHelper.ViewData.Model == null ?
                 string.Empty :
                 htmlHelper.ViewData.Model.ToString());
-            var linkedText = (htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null) ?
+            var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null ?
                 string.Empty :
                 htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
 
@@ -273,8 +273,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
         public static async Task<IHtmlContent> UrlTemplate(IHtmlHelper htmlHelper)
         {
-            var uriString = (htmlHelper.ViewData.Model == null) ? string.Empty : htmlHelper.ViewData.Model.ToString();
-            var linkedText = (htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null) ?
+            var uriString = htmlHelper.ViewData.Model == null ? string.Empty : htmlHelper.ViewData.Model.ToString();
+            var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null ?
                 string.Empty :
                 htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
 

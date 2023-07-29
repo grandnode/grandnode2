@@ -106,7 +106,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            if (count < 0 || (buffer.Length - index < count))
+            if (count < 0 || buffer.Length - index < count)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
@@ -252,7 +252,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
-            if (count < 0 || (buffer.Length - index < count))
+            if (count < 0 || buffer.Length - index < count)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
