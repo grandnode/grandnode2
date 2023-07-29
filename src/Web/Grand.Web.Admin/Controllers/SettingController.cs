@@ -975,37 +975,30 @@ namespace Grand.Web.Admin.Controllers
         {
             var pageIndex = 0;
             const int pageSize = 100;
-            try
+            while (true)
             {
-                while (true)
+                var pictures = _pictureService.GetPictures(pageIndex, pageSize);
+                pageIndex++;
+                if (!pictures.Any())
+                    break;
+
+                foreach (var picture in pictures)
                 {
-                    var pictures = _pictureService.GetPictures(pageIndex, pageSize);
-                    pageIndex++;
-                    if (!pictures.Any())
-                        break;
-
-                    foreach (var picture in pictures)
+                    var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
+                    if (storeIdDb)
+                        await _pictureService.DeletePictureOnFileSystem(picture);
+                    else
                     {
-                        var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
-                        if (storeIdDb)
-                            await _pictureService.DeletePictureOnFileSystem(picture);
-                        else
-                        {
-                            //now on file system
-                            if (pictureBinary != null)
-                                await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
-                        }
-                        picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
-                        picture.IsNew = true;
-
-                        await _pictureService.UpdatePicture(picture);
+                        //now on file system
+                        if (pictureBinary != null)
+                            await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
                     }
+                    picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
+                    picture.IsNew = true;
+
+                    await _pictureService.UpdatePicture(picture);
                 }
             }
-            finally
-            {
-            }
-
         }
         #endregion
 

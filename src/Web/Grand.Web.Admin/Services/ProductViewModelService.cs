@@ -802,9 +802,7 @@ namespace Grand.Web.Admin.Services
             if (model.SearchPublishedId == 3)
                 showOnHomePage = true;
 
-            var markedAsNewOnly = false;
-            if (model.SearchPublishedId == 4)
-                markedAsNewOnly = true;
+            var markedAsNewOnly = model.SearchPublishedId == 4;
 
             var products = (await _productService.SearchProducts(
                 categoryIds: categoryIds,
