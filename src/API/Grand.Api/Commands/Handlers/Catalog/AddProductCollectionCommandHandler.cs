@@ -19,7 +19,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             var productCollection = new ProductCollection
             {
                 CollectionId = request.Model.CollectionId,
-                IsFeaturedProduct = request.Model.IsFeaturedProduct,
+                IsFeaturedProduct = request.Model.IsFeaturedProduct
             };
             await _productcollectionService.InsertProductCollection(productCollection, request.Product.Id);
 

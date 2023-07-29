@@ -31,7 +31,7 @@ namespace Grand.Business.Customers.Tests.Services
                 new CustomAttribute(){Key="key1",Value="value1" },
                 new CustomAttribute(){Key="key2",Value="value2" },
                 new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" },
+                new CustomAttribute(){Key="key4",Value="value4" }
             };
 
             _customerAtr = new List<CustomerAttribute>()
@@ -40,7 +40,7 @@ namespace Grand.Business.Customers.Tests.Services
                 new CustomerAttribute(){Id="key2", Name="name2"},
                 new CustomerAttribute(){Id="key3", Name="name3"},
                 new CustomerAttribute(){Id="key4", Name="name4"},
-                new CustomerAttribute(){Id="key5", Name="name5"},
+                new CustomerAttribute(){Id="key5", Name="name5"}
             };
             _customerAtr.ForEach(c => c.CustomerAttributeValues.Add(new CustomerAttributeValue() { Id = "value" + c.Id.Last() }));
         }

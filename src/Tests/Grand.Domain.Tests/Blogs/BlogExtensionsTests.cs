@@ -22,7 +22,7 @@ namespace Grand.Domain.Tests.Blogs
             var blogPosts = new List<BlogPost>() {
                 new BlogPost(){ StartDateUtc = new DateTime(2010,01,01) },
                 new BlogPost(){ StartDateUtc = new DateTime(2010,02,01) },
-                new BlogPost(){ StartDateUtc = new DateTime(2010,03,01) },
+                new BlogPost(){ StartDateUtc = new DateTime(2010,03,01) }
             };
             Assert.AreEqual(2, blogPosts.GetPostsByDate(new DateTime(2010, 01, 01), new DateTime(2010, 02, 28)).Count());
         }

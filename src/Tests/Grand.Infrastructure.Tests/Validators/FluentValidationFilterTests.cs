@@ -44,7 +44,7 @@ namespace Grand.Infrastructure.Tests.Validators
 
             var source = new SourceTest {
                 FirstName = "ABCD",
-                LastName = "ABCD",
+                LastName = "ABCD"
 
             };
             actionExecutingContext.ActionArguments["model"] = source;
@@ -86,7 +86,7 @@ namespace Grand.Infrastructure.Tests.Validators
                controller: null);
 
             var source = new SourceTest {
-                FirstName = "ABCD",
+                FirstName = "ABCD"
             };
             actionExecutingContext.ActionArguments["model"] = source;
 
@@ -103,7 +103,7 @@ namespace Grand.Infrastructure.Tests.Validators
         private static ActionExecutedContext CreateActionExecutedContext(ActionExecutingContext context)
         {
             return new ActionExecutedContext(context, context.Filters, context.Controller) {
-                Result = context.Result,
+                Result = context.Result
             };
         }
     }

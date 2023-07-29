@@ -16,14 +16,14 @@ namespace Grand.Domain.Tests.Catalog
                 CustomerGroupId = null,
                 Price = 10,
                 Quantity = 1,
-                StoreId = "1",
+                StoreId = "1"
             });
             _tierPrices.Add(new TierPrice() {
                 CurrencyCode = "USD",
                 CustomerGroupId = "1",
                 Price = 12,
                 Quantity = 1,
-                StoreId = "1",
+                StoreId = "1"
             });
             _tierPrices.Add(new TierPrice() {
                 CurrencyCode = "USD",
@@ -31,7 +31,7 @@ namespace Grand.Domain.Tests.Catalog
                 Price = 10,
                 Quantity = 1,
                 StoreId = "2",
-                EndDateTimeUtc = DateTime.UtcNow.AddDays(1),
+                EndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             });
             _tierPrices.Add(new TierPrice() {
                 CurrencyCode = "EUR",
@@ -39,7 +39,7 @@ namespace Grand.Domain.Tests.Catalog
                 Price = 10,
                 Quantity = 1,
                 StoreId = "3",
-                StartDateTimeUtc = DateTime.UtcNow,
+                StartDateTimeUtc = DateTime.UtcNow
             });
 
         }

@@ -142,7 +142,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "US Dollar",
                 CurrencyCode = "USD",
                 DisplayLocale = "en-US",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
 
             };
             var gbp_currency = new Currency {
@@ -150,14 +150,14 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "great british pound",
                 CurrencyCode = "GBP",
                 DisplayLocale = "en-GB",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var euro_currency = new Currency {
                 Id = "3",
                 Name = "Euro",
                 CurrencyCode = "EUR",
                 DisplayLocale = "en_150",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var language = new Language {
                 Id = "1",
@@ -180,7 +180,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "US Dollar",
                 CurrencyCode = "USD",
                 DisplayLocale = "en-US",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var language = new Language {
                 Id = "1",
@@ -206,7 +206,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Id = "1",
                 Name = "US Dollar",
                 CurrencyCode = "USD",
-                DisplayLocale = "en-US",
+                DisplayLocale = "en-US"
             };
             var language = new Language {
                 Id = "1",

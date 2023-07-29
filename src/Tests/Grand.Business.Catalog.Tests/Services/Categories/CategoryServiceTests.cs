@@ -183,7 +183,7 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
                 new Category(){ Id="2" ,Name="cat2",Published=true},
                 new Category(){ Id="3" ,Name="cat3",Published=true},
                 new Category(){ Id="4" ,Name="cat4",Published=true},
-                new Category(){ Id="5" ,Name="cat5",Published=true},
+                new Category(){ Id="5" ,Name="cat5",Published=true}
             };
         }
 

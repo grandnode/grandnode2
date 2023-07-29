@@ -48,7 +48,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "Software",
                     SeName = "software"
-                },
+                }
             };
             await _productAttributeRepository.InsertAsync(productAttributes);
         }

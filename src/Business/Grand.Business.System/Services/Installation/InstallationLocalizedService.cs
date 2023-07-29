@@ -110,7 +110,7 @@ namespace Grand.Business.System.Services.Installation
                     Code = languageCode,
                     Name = languageName,
                     IsDefault = isDefault,
-                    IsRightToLeft = isRightToLeft,
+                    IsRightToLeft = isRightToLeft
                 };
 
                 //load resources
@@ -174,7 +174,7 @@ namespace Grand.Business.System.Services.Installation
 
                 _availableCollation.Add(new InstallationCollation() {
                     Name = resourceName,
-                    Value = resourceValue,
+                    Value = resourceValue
                 });
             }
 

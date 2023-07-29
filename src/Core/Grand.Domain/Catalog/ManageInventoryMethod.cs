@@ -20,6 +20,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Track inventory for product by bundle products
         /// </summary>
-        ManageStockByBundleProducts = 3,
+        ManageStockByBundleProducts = 3
     }
 }

@@ -303,7 +303,7 @@ namespace Grand.Business.System.Services.Installation
                     EntityName = "Category",
                     LanguageId = "",
                     IsActive = true,
-                    Slug = category.SeName,
+                    Slug = category.SeName
                 });
                 await _categoryRepository.UpdateAsync(category);
             }

@@ -20,6 +20,6 @@ namespace Grand.Domain.Customers
         /// <summary>
         /// Registration is disabled
         /// </summary>
-        Disabled = 4,
+        Disabled = 4
     }
 }

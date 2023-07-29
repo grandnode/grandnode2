@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Installation
                                            Name = "Grid or Lines",
                                            ViewPath = "BrandLayout.GridOrLines",
                                            DisplayOrder = 1
-                                       },
+                                       }
                                };
             await _brandLayoutRepository.InsertAsync(brandLayouts);
         }

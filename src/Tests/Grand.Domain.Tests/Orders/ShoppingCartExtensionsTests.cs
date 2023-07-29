@@ -12,7 +12,7 @@ namespace Grand.Domain.Tests.Orders
             var shoppingCartItems = new List<ShoppingCartItem>()
             {
                 new ShoppingCartItem(){IsShipEnabled=false },
-                new ShoppingCartItem(){IsShipEnabled=false },
+                new ShoppingCartItem(){IsShipEnabled=false }
             };
 
             Assert.IsFalse(shoppingCartItems.RequiresShipping());
@@ -26,7 +26,7 @@ namespace Grand.Domain.Tests.Orders
             var shoppingCartItems = new List<ShoppingCartItem>()
             {
                 new ShoppingCartItem(){IsShipEnabled=false },
-                new ShoppingCartItem(){IsShipEnabled=false },
+                new ShoppingCartItem(){IsShipEnabled=false }
             };
             Assert.IsTrue(shoppingCartItems.LimitPerStore(false, "id").ToList().Count == 0);
             shoppingCartItems.Add(new ShoppingCartItem() { StoreId = "id" });

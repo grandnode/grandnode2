@@ -46,7 +46,7 @@ namespace Grand.Business.Authentication.Tests.Services
             {
                  new Claim("Token", "123"),
                  new Claim("Email", "admin@yourstore.com"),
-                 new Claim("RefreshId", "567"),
+                 new Claim("RefreshId", "567")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
             var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
@@ -64,7 +64,7 @@ namespace Grand.Business.Authentication.Tests.Services
             var context = new TokenValidatedContext(httpContext.Object, new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
             IList<Claim> claims = new List<Claim>
             {
-                 new Claim("Email", "admin@yourstore.com"),
+                 new Claim("Email", "admin@yourstore.com")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
             var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
@@ -106,7 +106,7 @@ namespace Grand.Business.Authentication.Tests.Services
             {
                  new Claim("Email", "johny@gmail.com"),
                  new Claim("Token", "123"),
-                 new Claim("RefreshId", "567"),
+                 new Claim("RefreshId", "567")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
             
@@ -128,7 +128,7 @@ namespace Grand.Business.Authentication.Tests.Services
             {
                  new Claim("Email", "johny@gmail.com"),
                  new Claim("Token", "123"),
-                 new Claim("RefreshId", "567"),
+                 new Claim("RefreshId", "567")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 

@@ -61,7 +61,7 @@ namespace Grand.Api.Infrastructure
                         {
                             throw new Exception(ex.Message);
                         }
-                    },
+                    }
                 };
             });
 
@@ -112,7 +112,7 @@ namespace Grand.Api.Infrastructure
                         {
                             throw new Exception(ex.Message);
                         }
-                    },
+                    }
                 };
             });
 

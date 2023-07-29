@@ -199,7 +199,7 @@ namespace Grand.Domain.Vendors
             StreetAddressEnabled = StreetAddressEnabled,
             StreetAddressRequired = StreetAddressRequired,
             ZipPostalCodeEnabled = ZipPostalCodeEnabled,
-            ZipPostalCodeRequired = ZipPostalCodeRequired,
+            ZipPostalCodeRequired = ZipPostalCodeRequired
         };
 
         #endregion

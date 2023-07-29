@@ -204,12 +204,12 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             //Arrange
             var product1 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             };
             _productrepository.Insert(product1);
             var product2 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(-1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(-1)
             };
             _productrepository.Insert(product2);
 
@@ -226,7 +226,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             //Arrange
             var product1 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             };
             _productrepository.Insert(product1);
 

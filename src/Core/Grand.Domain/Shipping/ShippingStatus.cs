@@ -28,6 +28,6 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Delivered
         /// </summary>
-        Delivered = 40,
+        Delivered = 40
     }
 }

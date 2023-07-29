@@ -23,7 +23,7 @@ namespace Grand.Business.System.Services.Installation
                                         {
                                             Name = "1 week",
                                             DisplayOrder = 10
-                                        },
+                                        }
                                 };
             await _deliveryDateRepository.InsertAsync(deliveryDates);
         }

@@ -66,7 +66,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             {
                 new SelectListItem("Not Set", string.Empty, !value.HasValue),
                 new SelectListItem("True", "true", value == true),
-                new SelectListItem("False", "false", value == false),
+                new SelectListItem("False", "false", value == false)
             };
         }
 

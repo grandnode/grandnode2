@@ -63,7 +63,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         {
             //Arrange
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
 
@@ -80,7 +80,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         {
             //Act
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
 
@@ -93,7 +93,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         {
             //Arrange
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
             courseLesson.Name = "test2";

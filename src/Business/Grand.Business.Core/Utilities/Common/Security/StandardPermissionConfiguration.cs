@@ -74,7 +74,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Actions = new List<string> {
                 PermissionActionName.Weights_List, PermissionActionName.Weights_Add, PermissionActionName.Weights_Edit, PermissionActionName.Weights_Delete,
                 PermissionActionName.Units_List, PermissionActionName.Units_Add, PermissionActionName.Units_Edit, PermissionActionName.Units_Delete,
-                PermissionActionName.Dimensions_List, PermissionActionName.Dimensions_Add, PermissionActionName.Dimensions_Edit, PermissionActionName.Dimensions_Delete,
+                PermissionActionName.Dimensions_List, PermissionActionName.Dimensions_Add, PermissionActionName.Dimensions_Edit, PermissionActionName.Dimensions_Delete
             }
         };
         public static readonly Permission ManageActivityLog = new() 

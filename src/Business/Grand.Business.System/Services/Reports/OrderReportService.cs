@@ -141,7 +141,7 @@ namespace Grand.Business.System.Services.Reports
                     report.Add(new OrderByTimeReportLine() {
                         Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
-                        TotalOrders = item.Count,
+                        TotalOrders = item.Count
                     });
                 }
             }
@@ -162,7 +162,7 @@ namespace Grand.Business.System.Services.Reports
                     report.Add(new OrderByTimeReportLine() {
                         Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
-                        TotalOrders = item.Count,
+                        TotalOrders = item.Count
                     });
                 }
             }
@@ -267,7 +267,7 @@ namespace Grand.Business.System.Services.Reports
                 CountOrders = 0,
                 SumShippingExclTax = 0,
                 SumTax = 0,
-                SumOrders = 0,
+                SumOrders = 0
             };
             return await Task.FromResult(item2);
         }
@@ -463,7 +463,7 @@ namespace Grand.Business.System.Services.Reports
                           select new
                           {
                               ProductId = g.Key,
-                              ProductsPurchased = g.Sum(x => x.Quantity),
+                              ProductsPurchased = g.Sum(x => x.Quantity)
                           };
             product = product.OrderByDescending(x => x.ProductsPurchased);
             if (recordsToReturn > 0)

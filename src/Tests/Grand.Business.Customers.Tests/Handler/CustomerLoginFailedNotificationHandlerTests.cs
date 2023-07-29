@@ -28,7 +28,7 @@ namespace Grand.Business.Customers.Tests.Handler
             //Arrange
             var customer = new Customer {
                 FailedLoginAttempts = 1,
-                CannotLoginUntilDateUtc = null,
+                CannotLoginUntilDateUtc = null
             };
             //Act
             await _handler.Handle(new CustomerLoginFailedEvent(customer), CancellationToken.None);
@@ -43,7 +43,7 @@ namespace Grand.Business.Customers.Tests.Handler
             //Arrange
             var customer = new Customer {
                 FailedLoginAttempts = 10,
-                CannotLoginUntilDateUtc = null,
+                CannotLoginUntilDateUtc = null
             };
             //Act
             await _handler.Handle(new CustomerLoginFailedEvent(customer), CancellationToken.None);

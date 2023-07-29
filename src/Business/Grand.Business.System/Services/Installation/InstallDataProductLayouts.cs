@@ -20,7 +20,7 @@ namespace Grand.Business.System.Services.Installation
                                            Name = "Grouped product (with variants)",
                                            ViewPath = "ProductLayout.Grouped",
                                            DisplayOrder = 100
-                                       },
+                                       }
                                };
             await _productLayoutRepository.InsertAsync(productLayouts);
         }

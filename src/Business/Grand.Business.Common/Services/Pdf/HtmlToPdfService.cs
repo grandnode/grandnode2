@@ -103,7 +103,7 @@ namespace Grand.Business.Common.Services.Pdf
             var download = new Download {
                 Filename = fileName,
                 Extension = ".pdf",
-                ContentType = "application/pdf",
+                ContentType = "application/pdf"
             };
 
             download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytes(download.Filename, ms.ToArray());

@@ -102,7 +102,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             ActionDescriptor = action,
             GroupName = groupName,
             HttpMethod = httpMethod,
-            RelativePath = path,
+            RelativePath = path
         };
 
         var templateParameters = parsedTemplate?.Parameters.ToList() ?? new List<TemplatePart>();
@@ -146,7 +146,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     foreach (var contentType in contentTypes)
                     {
                         apiDescription.SupportedRequestFormats.Add(new ApiRequestFormat {
-                            MediaType = contentType,
+                            MediaType = contentType
                         });
                     }
                 }
@@ -284,7 +284,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             context.Results.Add(new ApiParameterDescription {
                 Name = routeParameter.Key,
                 RouteInfo = routeParameter.Value,
-                Source = BindingSource.Path,
+                Source = BindingSource.Path
             });
         }
     }
@@ -349,7 +349,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         return new ApiParameterRouteInfo {
             Constraints = constraints,
             DefaultValue = routeParameter.DefaultValue,
-            IsOptional = routeParameter.IsOptional || routeParameter.DefaultValue != null,
+            IsOptional = routeParameter.IsOptional || routeParameter.DefaultValue != null
         };
     }
 
@@ -402,7 +402,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         if (contentTypes.Count == 0)
         {
             contentTypes = new MediaTypeCollection {
-                "application/json",
+                "application/json"
             };
         }
 
@@ -421,7 +421,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                         {
                             results.Add(new ApiRequestFormat {
                                 Formatter = formatter,
-                                MediaType = supportedType,
+                                MediaType = supportedType
                             });
                         }
                     }

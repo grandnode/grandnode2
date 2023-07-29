@@ -45,7 +45,7 @@ namespace Grand.Business.System.Services.Migrations
         {
             var model = new MigrationResult {
                 Success = migration.UpgradeProcess(_databaseContext, _serviceProvider),
-                Migration = migration,
+                Migration = migration
             };
             return model;
         }

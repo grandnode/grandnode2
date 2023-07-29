@@ -16,6 +16,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Unpublish
         /// </summary>
-        Unpublish = 2,
+        Unpublish = 2
     }
 }

@@ -16,6 +16,6 @@ namespace Grand.Domain.Tax
         /// <summary>
         /// Default address
         /// </summary>
-        DefaultAddress = 3,
+        DefaultAddress = 3
     }
 }

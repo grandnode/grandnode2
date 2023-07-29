@@ -485,7 +485,7 @@ namespace Grand.Business.Checkout.Tests.Validators
 
             var product = new Product() { 
                 Id = "1", 
-                Published = true,
+                Published = true
             };
             var customer = new Domain.Customers.Customer();
             //Act
@@ -508,7 +508,7 @@ namespace Grand.Business.Checkout.Tests.Validators
 
             var product = new Product() {
                 Id = "1",
-                Published = true,
+                Published = true
             };
             var customer = new Domain.Customers.Customer();
             //Act

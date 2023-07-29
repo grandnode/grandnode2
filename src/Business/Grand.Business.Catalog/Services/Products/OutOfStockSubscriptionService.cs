@@ -159,7 +159,7 @@ namespace Grand.Business.Catalog.Services.Products
             var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand()
             {
                 Product = product,
-                Warehouse = warehouse,
+                Warehouse = warehouse
             });
 
             for (var i = 0; i <= subscriptions.Count - 1; i++)

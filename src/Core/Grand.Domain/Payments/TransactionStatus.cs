@@ -33,6 +33,6 @@
         /// <summary>
         /// Canceled
         /// </summary>
-        Canceled = 50,
+        Canceled = 50
     }
 }

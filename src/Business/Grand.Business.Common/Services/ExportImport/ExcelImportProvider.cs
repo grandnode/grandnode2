@@ -8,7 +8,7 @@ namespace Grand.Business.Common.Services.ExportImport
         public async Task<IEnumerable<T>> Convert<T>(Stream stream)
         {
             var excel = new PowerExcelMapper {
-                SkipBlankCells = false,
+                SkipBlankCells = false
 
             };
             return await excel.FetchAsync<T>(stream);

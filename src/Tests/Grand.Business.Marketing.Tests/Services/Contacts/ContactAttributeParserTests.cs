@@ -35,7 +35,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
                 new CustomAttribute(){Key="key1",Value="value1" },
                 new CustomAttribute(){Key="key2",Value="value2" },
                 new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" },
+                new CustomAttribute(){Key="key4",Value="value4" }
             };
 
             _contactAtr = new List<ContactAttribute>()
@@ -44,7 +44,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
                 new ContactAttribute(){Id="key2", Name="name2"},
                 new ContactAttribute(){Id="key3", Name="name3"},
                 new ContactAttribute(){Id="key4", Name="name4"},
-                new ContactAttribute(){Id="key5", Name="name5"},
+                new ContactAttribute(){Id="key5", Name="name5"}
             };
             _contactAtr.ForEach(c => c.ContactAttributeValues.Add(new ContactAttributeValue() { Id = "value" + c.Id.Last() }));
         }

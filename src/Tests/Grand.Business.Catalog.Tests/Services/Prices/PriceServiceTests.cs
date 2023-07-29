@@ -134,7 +134,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
 
@@ -154,7 +154,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             //TierPrice is simply "the more you buy, the less you pay"
@@ -212,7 +212,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             var customer = new Customer();
@@ -257,7 +257,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product001.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);
@@ -285,7 +285,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "product name 01",
                 Price = 55.11,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product001.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 55.11 });
             tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);

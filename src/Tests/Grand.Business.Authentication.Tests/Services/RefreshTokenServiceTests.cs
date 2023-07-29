@@ -27,7 +27,7 @@ namespace Grand.Business.Authentication.Tests.Services
                 ExpiryInMinutes = 1440,
                 RefreshTokenExpiryInMinutes = 1440,
                 Enabled = true,
-                ValidateIssuer = false,
+                ValidateIssuer = false
             });
         }
 

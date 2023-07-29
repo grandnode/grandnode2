@@ -249,7 +249,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                         Domain.Common.Reference.Product, product.Id);
                     var productPicture = new ProductPicture {
                         PictureId = picture.Id,
-                        DisplayOrder = 1,
+                        DisplayOrder = 1
                     };
                     await _productService.InsertProductPicture(productPicture, product.Id);
                 }
@@ -261,7 +261,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                     var picture = await _pictureService.InsertPicture(fileBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false, Domain.Common.Reference.Product, product.Id);
                     var productPicture = new ProductPicture {
                         PictureId = picture.Id,
-                        DisplayOrder = 1,
+                        DisplayOrder = 1
                     };
                     await _productService.InsertProductPicture(productPicture, product.Id);
                 }

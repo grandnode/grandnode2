@@ -37,7 +37,7 @@ namespace Widgets.Slider
                 SliderWidgetDefaults.WidgetZoneHomePage,
                 SliderWidgetDefaults.WidgetZoneCategoryPage,
                 SliderWidgetDefaults.WidgetZoneCollectionPage,
-                SliderWidgetDefaults.WidgetZoneBrandPage,
+                SliderWidgetDefaults.WidgetZoneBrandPage
             });
         }
 

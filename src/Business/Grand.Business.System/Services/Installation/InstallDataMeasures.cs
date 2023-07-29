@@ -14,21 +14,21 @@ namespace Grand.Business.System.Services.Installation
                     Name = "centimetre(s)",
                     SystemKeyword = "centimetres",
                     Ratio = 1,
-                    DisplayOrder = 1,
+                    DisplayOrder = 1
                 },
                 new MeasureDimension
                 {
                     Name = "inch(es)",
                     SystemKeyword = "inches",
                     Ratio = 0.393701,
-                    DisplayOrder = 2,
+                    DisplayOrder = 2
                 },
                 new MeasureDimension
                 {
                     Name = "feet",
                     SystemKeyword = "feet",
                     Ratio = 0.0328084,
-                    DisplayOrder = 3,
+                    DisplayOrder = 3
                 }
             };
 
@@ -41,28 +41,28 @@ namespace Grand.Business.System.Services.Installation
                     Name = "ounce(s)",
                     SystemKeyword = "ounce",
                     Ratio = 16,
-                    DisplayOrder = 1,
+                    DisplayOrder = 1
                 },
                 new MeasureWeight
                 {
                     Name = "lb(s)",
                     SystemKeyword = "lb",
                     Ratio = 1,
-                    DisplayOrder = 2,
+                    DisplayOrder = 2
                 },
                 new MeasureWeight
                 {
                     Name = "kg(s)",
                     SystemKeyword = "kg",
                     Ratio = 0.45359237,
-                    DisplayOrder = 3,
+                    DisplayOrder = 3
                 },
                 new MeasureWeight
                 {
                     Name = "gram(s)",
                     SystemKeyword = "grams",
                     Ratio = 453.59237,
-                    DisplayOrder = 4,
+                    DisplayOrder = 4
                 }
             };
 
@@ -73,17 +73,17 @@ namespace Grand.Business.System.Services.Installation
                 new MeasureUnit
                 {
                     Name = "pcs.",
-                    DisplayOrder = 1,
+                    DisplayOrder = 1
                 },
                 new MeasureUnit
                 {
                     Name = "pair",
-                    DisplayOrder = 2,
+                    DisplayOrder = 2
                 },
                 new MeasureUnit
                 {
                     Name = "set",
-                    DisplayOrder = 3,
+                    DisplayOrder = 3
                 }
             };
 

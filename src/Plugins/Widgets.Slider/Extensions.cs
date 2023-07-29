@@ -63,7 +63,7 @@ namespace Widgets.Slider
                         {
                             LanguageId = item.LanguageId,
                             LocaleKey = prop.Name,
-                            LocaleValue = prop.GetValue(item)?.ToString(),
+                            LocaleValue = prop.GetValue(item)?.ToString()
                         });
                 }
             }

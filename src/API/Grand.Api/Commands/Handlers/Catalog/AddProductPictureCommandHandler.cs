@@ -31,7 +31,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
 
             await _productService.InsertProductPicture(new ProductPicture {
                 PictureId = picture.Id,
-                DisplayOrder = request.Model.DisplayOrder,
+                DisplayOrder = request.Model.DisplayOrder
             }, product.Id);
 
             return true;

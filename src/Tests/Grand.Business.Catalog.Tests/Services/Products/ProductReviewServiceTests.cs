@@ -32,7 +32,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             new ProductReview(){ CustomerId = "1" },
             new ProductReview(){ CustomerId = "1"},
             new ProductReview(){ },
-            new ProductReview(){ },
+            new ProductReview(){ }
             });
 
             //Act

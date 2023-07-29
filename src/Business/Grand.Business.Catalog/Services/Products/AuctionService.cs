@@ -146,7 +146,7 @@ namespace Grand.Business.Catalog.Services.Products
                 CustomerId = customer.Id,
                 ProductId = product.Id,
                 StoreId = store.Id,
-                WarehouseId = warehouseId,
+                WarehouseId = warehouseId
             });
 
             if (latest != null)

@@ -9,6 +9,6 @@
         /// <summary>
         /// Footer
         /// </summary>
-        Footer,
+        Footer
     }
 }

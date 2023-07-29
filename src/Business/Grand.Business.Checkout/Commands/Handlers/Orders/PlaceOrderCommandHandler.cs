@@ -855,7 +855,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     ProductId = product.Id,
                     StoreId = order.StoreId,
                     Win = true,
-                    Bin = true,
+                    Bin = true
                 });
             }
             if (product.ProductTypeId == ProductType.Auction && _orderSettings.UnpublishAuctionProduct)
@@ -981,7 +981,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 RecurringCycleLength = details.RecurringCycleLength,
                 RecurringCyclePeriodId = details.RecurringCyclePeriodId,
                 RecurringTotalCycles = details.RecurringTotalCycles,
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
 
             foreach (var item in details.Taxes)
@@ -1083,7 +1083,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             $"Order placed by a store owner ('{originalCustomerIfImpersonated.Email}'. ID = {originalCustomerIfImpersonated.Id}) impersonating the customer.",
                         DisplayToCustomer = false,
                         CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
+                        OrderId = order.Id
                     });
                 }
                 else
@@ -1092,7 +1092,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         Note = "Order placed",
                         DisplayToCustomer = false,
                         CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
+                        OrderId = order.Id
 
                     });
                 }

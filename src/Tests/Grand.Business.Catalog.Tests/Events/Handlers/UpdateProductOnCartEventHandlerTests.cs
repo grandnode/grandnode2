@@ -34,7 +34,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
                 IsFreeShipping = !product.IsFreeShipping,
                 IsShipEnabled = !product.IsShipEnabled,
                 IsTaxExempt = !product.IsTaxExempt,
-                IsGiftVoucher = !product.IsGiftVoucher,
+                IsGiftVoucher = !product.IsGiftVoucher
             });
             //Act
             await _handler.Handle(new Core.Events.Catalog.UpdateProductOnCartEvent(product), CancellationToken.None);

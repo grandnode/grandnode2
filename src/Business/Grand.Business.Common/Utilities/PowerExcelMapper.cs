@@ -77,7 +77,7 @@ namespace Grand.Business.Common.Utilities
             return cell.CellType switch {
                 CellType.String => string.IsNullOrWhiteSpace(cell.StringCellValue),
                 CellType.Blank => true,
-                _ => false,
+                _ => false
             };
         }
 
@@ -307,7 +307,7 @@ namespace Grand.Business.Common.Utilities
                 CellType.Error => cell.ErrorCellValue,
                 CellType.String => cell.StringCellValue,
                 CellType.Blank => string.Empty,
-                _ => "<unknown>",
+                _ => "<unknown>"
             };
         }
     }

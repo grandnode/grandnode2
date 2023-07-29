@@ -1211,7 +1211,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
             var inputTypeString = GetInputTypeString(inputType);
             var tagBuilder = new TagBuilder("input") {
-                TagRenderMode = TagRenderMode.SelfClosing,
+                TagRenderMode = TagRenderMode.SelfClosing
             };
 
             tagBuilder.MergeAttributes(htmlAttributes);
@@ -1596,7 +1596,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                     new SelectListItem() {
                         Text = optionLabel,
                         Value = string.Empty,
-                        Selected = false,
+                        Selected = false
                     },
                     currentValues: null));
             }

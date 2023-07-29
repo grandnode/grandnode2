@@ -57,7 +57,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             //Arrange
             var product = new Product() {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
-                ReservedQuantity = 5,
+                ReservedQuantity = 5
             };
             await _repository.InsertAsync(product);
             //Act
@@ -73,7 +73,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             //Arrange
             var product = new Product() {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
-                ReservedQuantity = 10,
+                ReservedQuantity = 10
             };
             await _repository.InsertAsync(product);
             //Act
@@ -90,7 +90,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var product = new Product() {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10,
-                ReservedQuantity = 10,
+                ReservedQuantity = 10
             };
             await _repository.InsertAsync(product);
 
@@ -112,7 +112,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var product = new Product() {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10,
-                ReservedQuantity = 10,
+                ReservedQuantity = 10
             };
             await _repository.InsertAsync(product);
 
@@ -137,7 +137,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var product = new Product() {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 0,
-                ReservedQuantity = 0,
+                ReservedQuantity = 0
             };
             await _repository.InsertAsync(product);
 
