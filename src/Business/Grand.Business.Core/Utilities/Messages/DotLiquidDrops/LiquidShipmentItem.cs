@@ -32,7 +32,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string ProductName {
             get {
-                string name = "";
+                var name = "";
                 if (_product != null)
                     name = WebUtility.HtmlEncode(_product.Name);
 
@@ -48,7 +48,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string AttributeDescription {
             get {
-                string attDesc = "";
+                var attDesc = "";
 
                 if (_orderItem != null)
                     attDesc = _orderItem.AttributeDescription;

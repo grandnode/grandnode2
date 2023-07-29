@@ -64,7 +64,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             get
             {
-                string name = "";
+                var name = "";
 
                 if (_product != null)
                     name = WebUtility.HtmlEncode(_product.GetTranslation(x => x.Name, _language.Id));
@@ -77,7 +77,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             get
             {
-                string name = "";
+                var name = "";
 
                 if (_product != null)
                     name = _product.GetTranslation(x => x.SeName, _language.Id);
@@ -88,7 +88,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             get
             {
-                string desc = "";
+                var desc = "";
 
                 if (_product != null)
                     desc = WebUtility.HtmlEncode(_product.GetTranslation(x => x.ShortDescription, _language.Id));
@@ -101,7 +101,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             get
             {
-                string desc = "";
+                var desc = "";
 
                 if (_product != null)
                     desc = WebUtility.HtmlDecode(_product.GetTranslation(x => x.FullDescription, _language.Id));

@@ -37,7 +37,7 @@ namespace Grand.SharedKernel.Extensions
         /// <returns></returns>
         public static string EnsureSubscriberEmailOrThrow(string email)
         {
-            string output = EnsureNotNull(email);
+            var output = EnsureNotNull(email);
             output = output.Trim();
             output = EnsureMaximumLength(output, 255);
 
@@ -153,7 +153,7 @@ namespace Grand.SharedKernel.Extensions
                 return false;
 
             var comparer = EqualityComparer<T>.Default;
-            for (int i = 0; i < a1.Length; i++)
+            for (var i = 0; i < a1.Length; i++)
             {
                 if (!comparer.Equals(a1[i], a2[i])) return false;
             }
@@ -246,7 +246,7 @@ namespace Grand.SharedKernel.Extensions
         {
             var str = value.ToString();
             if (string.IsNullOrEmpty(str)) return string.Empty;
-            string result = string.Empty;
+            var result = string.Empty;
             foreach (var c in str)
                 if (c.ToString() != c.ToString().ToLower())
                     result += " " + c.ToString();
@@ -266,7 +266,7 @@ namespace Grand.SharedKernel.Extensions
         {
             //source: http://stackoverflow.com/questions/9/how-do-i-calculate-someones-age-in-c
             //this assumes you are looking for the western idea of age and not using East Asian reckoning.
-            int age = endDate.Year - startDate.Year;
+            var age = endDate.Year - startDate.Year;
             if (startDate > endDate.AddYears(-age))
                 age--;
             return age;

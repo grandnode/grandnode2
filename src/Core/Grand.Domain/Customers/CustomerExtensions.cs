@@ -70,7 +70,7 @@ namespace Grand.Domain.Customers
             var firstName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
             var lastName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
 
-            string fullName = "";
+            var fullName = "";
             if (!String.IsNullOrWhiteSpace(firstName) && !String.IsNullOrWhiteSpace(lastName))
                 fullName = string.Format("{0} {1}", firstName, lastName);
             else
@@ -98,7 +98,7 @@ namespace Grand.Domain.Customers
                 return "Customer.Guest";
             }
 
-            string result = string.Empty;
+            var result = string.Empty;
             switch (customerNameFormat)
             {
                 case CustomerNameFormat.Emails:

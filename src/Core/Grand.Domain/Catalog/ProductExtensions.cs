@@ -47,7 +47,7 @@ namespace Grand.Domain.Catalog
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            bool result = product.ProductTags.FirstOrDefault(pt => pt == productTagName) != null;
+            var result = product.ProductTags.FirstOrDefault(pt => pt == productTagName) != null;
             return result;
         }
 
@@ -261,10 +261,10 @@ namespace Grand.Domain.Catalog
             if (attributes1.Count != attributes2.Count)
                 return false;
 
-            bool attributesEqual = true;
+            var attributesEqual = true;
             foreach (var a1 in attributes1)
             {
-                bool hasAttribute = false;
+                var hasAttribute = false;
                 foreach (var a2 in attributes2)
                 {
                     if (a1.Id == a2.Id)
@@ -274,10 +274,10 @@ namespace Grand.Domain.Catalog
                         var values2Str = ParseValues(customAttributes2, a2.Id);
                         if (values1Str.Count == values2Str.Count)
                         {
-                            foreach (string str1 in values1Str)
+                            foreach (var str1 in values1Str)
                             {
-                                bool hasValue = false;
-                                foreach (string str2 in values2Str)
+                                var hasValue = false;
+                                foreach (var str2 in values2Str)
                                 {
                                     //case insensitive? 
                                     if (str1.Trim() == str2.Trim())
@@ -347,7 +347,7 @@ namespace Grand.Domain.Catalog
             var allFound = true;
             foreach (var t1 in valuesThatShouldBeSelected)
             {
-                bool found = false;
+                var found = false;
                 foreach (var t2 in selectedValues)
                     if (t1 == t2)
                         found = true;

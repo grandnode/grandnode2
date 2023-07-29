@@ -91,7 +91,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int j = 0; j < Model.Items.Count; j++)
+                        @for (var j = 0; j < Model.Items.Count; j++)
                         {
                             var item = Model.Items[j];
                             <input asp-for="@Model.Items[j].Id" type="hidden" />

@@ -115,7 +115,7 @@ namespace Grand.Business.Customers.Tests.Extensions
         [TestMethod()]
         public async Task ValidateFriendlyUrlName_UrlNameExist_IncreaseUrl()
         {
-            int invokeNumber = 1;
+            var invokeNumber = 1;
             _affiliateServiceMock.Setup(c => c.GetAffiliateByFriendlyUrlName(It.IsAny<string>()))
               .Returns(() =>
               {

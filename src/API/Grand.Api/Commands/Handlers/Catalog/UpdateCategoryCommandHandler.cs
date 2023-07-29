@@ -48,7 +48,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _categoryService.GetCategoryById(request.Model.Id);
-            string prevPictureId = category.PictureId;
+            var prevPictureId = category.PictureId;
             category = request.Model.ToEntity(category);
             category.UpdatedOnUtc = DateTime.UtcNow;
             request.Model.SeName = await category.ValidateSeName(request.Model.SeName, category.Name, true, _seoSettings, _slugService, _languageService);

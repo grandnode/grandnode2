@@ -118,14 +118,14 @@ namespace Grand.Domain.Orders
         /// Indicates whether a order's tag exists
         /// </summary>
         /// <param name="order">Order</param>
-        /// <param name="orderTagId">Order tag identifier</param>
+        /// <param name="orderTag">Order tag identifier</param>
         /// <returns>Result</returns>
         public static bool OrderTagExists(this Order order, OrderTag orderTag)
         {
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            bool result = order.OrderTags.FirstOrDefault(t => t == orderTag.Id) != null;
+            var result = order.OrderTags.FirstOrDefault(t => t == orderTag.Id) != null;
             return result;
         }
     }
