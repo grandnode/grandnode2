@@ -120,7 +120,7 @@ namespace Grand.Business.Customers.Tests.Extensions
               .Returns(() =>
               {
                   if (invokeNumber <= 2) return Task.FromResult(new Affiliate());
-                  else return Task.FromResult<Affiliate>(null);
+                  return Task.FromResult<Affiliate>(null);
 
               }).Callback(() => invokeNumber++);
             var friendlyUrl = "macbool-pro";

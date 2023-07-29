@@ -166,12 +166,12 @@ namespace Grand.Web.Admin.Controllers
                             imageUrl = fileName
                         });
                     }
-                    else
-                        return Json(new
-                        {
-                            success = false,
-                            message = "Physical path not exist"
-                        });
+
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Physical path not exist"
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +182,7 @@ namespace Grand.Web.Admin.Controllers
                     });
                 }
             }
-            else
+
             {
                 var filepath = _mediaFileStore.GetDirectoryInfo("");
                 if (filepath != null)
@@ -197,12 +197,12 @@ namespace Grand.Web.Admin.Controllers
                         imageUrl = fileName
                     });
                 }
-                else
-                    return Json(new
-                    {
-                        success = false,
-                        message = "Physical path not exist"
-                    });
+
+                return Json(new
+                {
+                    success = false,
+                    message = "Physical path not exist"
+                });
             }
 
         }

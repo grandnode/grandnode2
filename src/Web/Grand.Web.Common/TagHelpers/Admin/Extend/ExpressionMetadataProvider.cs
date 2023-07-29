@@ -181,7 +181,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                     Func<object, object> modelAccessor = (ignore) => viewDataInfo.Value;
                     return containerExplorer.GetExplorerForExpression(propertyMetadata, modelAccessor);
                 }
-                else if (viewDataInfo.Value != null)
+
+                if (viewDataInfo.Value != null)
                 {
                     // We have a value, even though we may not know where it came from.
                     var valueMetadata = metadataProvider.GetMetadataForType(viewDataInfo.Value.GetType());
@@ -209,10 +210,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 var model = viewData.Model == null ? null : Convert.ToString(viewData.Model, CultureInfo.CurrentCulture);
                 return metadataProvider.GetModelExplorerForType(typeof(string), model);
             }
-            else
-            {
-                return viewData.ModelExplorer;
-            }
+
+            return viewData.ModelExplorer;
         }
     }
 }

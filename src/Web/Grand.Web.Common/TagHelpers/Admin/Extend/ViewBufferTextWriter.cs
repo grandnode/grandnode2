@@ -236,10 +236,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(value.ToString());
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(value);
-            }
+
+            return _inner.WriteAsync(value);
         }
 
         /// <inheritdoc />
@@ -264,10 +262,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(new string(buffer, index, count));
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(buffer, index, count);
-            }
+
+            return _inner.WriteAsync(buffer, index, count);
         }
 
         /// <inheritdoc />
@@ -278,10 +274,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(value);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(value);
-            }
+
+            return _inner.WriteAsync(value);
         }
 
         /// <inheritdoc />
@@ -320,10 +314,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value);
-            }
+
+            return _inner.WriteLineAsync(value);
         }
 
         /// <inheritdoc />
@@ -335,10 +327,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value, start, offset);
-            }
+
+            return _inner.WriteLineAsync(value, start, offset);
         }
 
         /// <inheritdoc />
@@ -350,10 +340,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value);
-            }
+
+            return _inner.WriteLineAsync(value);
         }
 
         /// <inheritdoc />
@@ -364,10 +352,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync();
-            }
+
+            return _inner.WriteLineAsync();
         }
 
         /// <summary>

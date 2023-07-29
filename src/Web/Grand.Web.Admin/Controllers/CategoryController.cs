@@ -415,11 +415,9 @@ namespace Grand.Web.Admin.Controllers
 
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                return View(model);
-            }
+
+            Error(ModelState);
+            return View(model);
 
 
         }

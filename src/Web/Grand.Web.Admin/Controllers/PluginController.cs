@@ -436,27 +436,25 @@ namespace Grand.Web.Admin.Controllers
                     }
                     if (!supportedVersion)
                         throw new Exception($"This plugin doesn't support the current version - {GrandVersion.SupportedPluginVersion}");
-                    else
+                    
+                    var pluginname = _fpath[(_fpath.LastIndexOf('/') + 1)..];
+                    var _path = "";
+
+                    var entries = archive.Entries.ToArray();
+                    foreach (var y in entries)
                     {
-                        var pluginname = _fpath[(_fpath.LastIndexOf('/') + 1)..];
-                        var _path = "";
+                        if (y.Name.Length > 0)
+                            _path = y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/');
+                        else
+                            _path = y.FullName.Replace(_fpath, pluginname);
 
-                        var entries = archive.Entries.ToArray();
-                        foreach (var y in entries)
-                        {
-                            if (y.Name.Length > 0)
-                                _path = y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/');
-                            else
-                                _path = y.FullName.Replace(_fpath, pluginname);
+                        var _entry = archive.CreateEntry($"{_path}/{y.Name}");
+                        using (var a = y.Open())
+                        using (var b = _entry.Open())
+                            a.CopyTo(b);
 
-                            var _entry = archive.CreateEntry($"{_path}/{y.Name}");
-                            using (var a = y.Open())
-                            using (var b = _entry.Open())
-                                a.CopyTo(b);
+                        archive.GetEntry(y.FullName).Delete();
 
-                            archive.GetEntry(y.FullName).Delete();
-
-                        }
                     }
                 }
             }

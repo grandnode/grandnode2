@@ -276,12 +276,12 @@ namespace Grand.Business.Common.Utilities
                     {
                         return DataFormatter.FormatCellValue(cell);
                     }
-                    else if (cell.NumericCellValue < maxDate && DateUtil.IsCellDateFormatted(cell))
+
+                    if (cell.NumericCellValue < maxDate && DateUtil.IsCellDateFormatted(cell))
                     {
                         return cell.DateCellValue;
                     }
-                    else
-                        return cell.NumericCellValue;
+                    return cell.NumericCellValue;
                 case CellType.Formula:
                     return cell.CellFormula;
                 case CellType.Boolean:
@@ -294,8 +294,7 @@ namespace Grand.Business.Common.Utilities
                 default:
                     if (targetColumn.Json)
                         return JsonSerializer.Deserialize(cell.StringCellValue, targetColumn.PropertyType);
-                    else
-                        return cell.StringCellValue;
+                    return cell.StringCellValue;
             }
         }
 

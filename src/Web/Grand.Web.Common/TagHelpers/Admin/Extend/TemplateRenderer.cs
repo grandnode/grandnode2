@@ -195,7 +195,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 // Nothing more to provide
                 yield break;
             }
-            else if (!modelMetadata.IsComplexType)
+
+            if (!modelMetadata.IsComplexType)
             {
                 // IsEnum is false for the Enum class itself
                 if (fieldTypeInfo.IsEnum)
@@ -211,7 +212,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 yield return "String";
                 yield break;
             }
-            else if (!fieldTypeInfo.IsInterface)
+            if (!fieldTypeInfo.IsInterface)
             {
                 var type = fieldType;
                 while (true)
