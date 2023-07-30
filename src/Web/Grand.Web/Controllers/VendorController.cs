@@ -35,7 +35,6 @@ namespace Grand.Web.Controllers
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
         private readonly IMessageProviderService _messageProviderService;
         private readonly IVendorService _vendorService;
         private readonly ISlugService _slugService;
@@ -55,7 +54,6 @@ namespace Grand.Web.Controllers
             IWorkContext workContext,
             ITranslationService translationService,
             ICustomerService customerService,
-            IGroupService groupService,
             IMessageProviderService messageProviderService,
             IVendorService vendorService,
             ISlugService slugService,
@@ -70,7 +68,6 @@ namespace Grand.Web.Controllers
             _workContext = workContext;
             _translationService = translationService;
             _customerService = customerService;
-            _groupService = groupService;
             _messageProviderService = messageProviderService;
             _vendorService = vendorService;
             _slugService = slugService;
