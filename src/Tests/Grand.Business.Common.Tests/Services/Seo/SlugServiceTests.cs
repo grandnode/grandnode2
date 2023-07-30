@@ -27,7 +27,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
 
             _mediatorMock = new Mock<IMediator>();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
-            _slugService = new SlugService(_cacheBase, _repository, new Infrastructure.Configuration.PerformanceConfig());
+            _slugService = new SlugService(_cacheBase, _repository);
         }
 
         [TestMethod()]
