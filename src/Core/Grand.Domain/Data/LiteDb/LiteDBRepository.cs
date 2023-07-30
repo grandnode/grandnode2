@@ -290,7 +290,7 @@ namespace Grand.Domain.Data.LiteDb
                 var propertyInfo = entity?.GetType().GetProperty(name,
                     BindingFlags.Public | BindingFlags.Instance);
 
-                propertyInfo.SetValue(entity, item.Value);
+                propertyInfo?.SetValue(entity, item.Value);
             }
             _collection.Update(entity);
             return Task.CompletedTask;
@@ -389,11 +389,11 @@ namespace Grand.Domain.Data.LiteDb
                     var propertyField = position.GetType().GetProperty(item.Name,
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    propertyField.SetValue(position, item.GetValue(value));
+                    propertyField?.SetValue(position, item.GetValue(value));
                 }
 
-                var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
-                entity[fieldName] = updatelist;
+                var updateList = BsonMapper.Global.Serialize<IList<U>>(list);
+                entity[fieldName] = updateList;
                 collection.Update(entity);
             }
             return Task.CompletedTask;

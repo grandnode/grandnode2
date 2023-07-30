@@ -650,7 +650,7 @@ namespace Grand.Web.Admin.Services
                 var existingPwI = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
                 if (existingPwI != null)
                 {
-                    if (whim.WarehouseUsed)
+                    if (whim is { WarehouseUsed: true })
                     {
                         //update existing record
                         existingPwI.StockQuantity = whim.StockQuantity;
@@ -665,7 +665,7 @@ namespace Grand.Web.Admin.Services
                 }
                 else
                 {
-                    if (whim.WarehouseUsed)
+                    if (whim is { WarehouseUsed: true })
                     {
                         //no need to insert a record for qty 0
                         existingPwI = new ProductWarehouseInventory {
@@ -1138,7 +1138,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            if (!product.ProductCategories.Any(x => x.CategoryId == model.CategoryId))
+            if (product != null && product.ProductCategories.All(x => x.CategoryId != model.CategoryId))
             {
                 var productCategory = new ProductCategory {
                     CategoryId = model.CategoryId,
@@ -1225,7 +1225,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            if (!product.ProductCollections.Any(x => x.CollectionId == collectionId))
+            if (product != null && product.ProductCollections.All(x => x.CollectionId != collectionId))
             {
                 var productCollection = new ProductCollection {
                     CollectionId = collectionId,
@@ -2012,16 +2012,17 @@ namespace Grand.Web.Admin.Services
                 if (attribute.ShouldHaveValues())
                 {
                     //values
-                    var attributeValues = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attribute.Id).ProductAttributeValues;
-                    foreach (var attributeValue in attributeValues)
-                    {
-                        var attributeValueModel = new ProductAttributeConditionModel.ProductAttributeValueModel {
-                            Id = attributeValue.Id,
-                            Name = attributeValue.Name,
-                            IsPreSelected = attributeValue.IsPreSelected
-                        };
-                        attributeModel.Values.Add(attributeValueModel);
-                    }
+                    var attributeValues = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attribute.Id)?.ProductAttributeValues;
+                    if (attributeValues != null)
+                        foreach (var attributeValue in attributeValues)
+                        {
+                            var attributeValueModel = new ProductAttributeConditionModel.ProductAttributeValueModel {
+                                Id = attributeValue.Id,
+                                Name = attributeValue.Name,
+                                IsPreSelected = attributeValue.IsPreSelected
+                            };
+                            attributeModel.Values.Add(attributeValueModel);
+                        }
 
                     //pre-select attribute and value
                     if (selectedPva != null && attribute.Id == selectedPva.Id)
@@ -2368,7 +2369,7 @@ namespace Grand.Web.Admin.Services
                     var existingPwI = combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
                     if (existingPwI != null)
                     {
-                        if (whim.WarehouseUsed)
+                        if (whim is { WarehouseUsed: true })
                         {
                             //update 
                             existingPwI.StockQuantity = whim.StockQuantity;
@@ -2382,7 +2383,7 @@ namespace Grand.Web.Admin.Services
                     }
                     else
                     {
-                        if (whim.WarehouseUsed)
+                        if (whim is { WarehouseUsed: true })
                         {
                             //no need to insert a record for qty 0
                             existingPwI = new ProductCombinationWarehouseInventory {
@@ -2520,7 +2521,7 @@ namespace Grand.Web.Admin.Services
             else
             {
                 var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == model.Id);
-                var prevcombination = (ProductAttributeCombination)combination.Clone();
+                var prevCombination = (ProductAttributeCombination)combination!.Clone();
 
                 combination.StockQuantity = model.StockQuantity;
                 combination.ReservedQuantity = model.ReservedQuantity;
@@ -2540,7 +2541,7 @@ namespace Grand.Web.Admin.Services
                 }
 
                 //notification - out of stock
-                await OutOfStockNotifications(product, combination, prevcombination);
+                await OutOfStockNotifications(product, combination, prevCombination);
 
                 //update combination
                 await _productAttributeService.UpdateProductAttributeCombination(combination, product.Id);
