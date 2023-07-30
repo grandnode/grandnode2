@@ -2,7 +2,6 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Web.Common.DataSource;
@@ -30,14 +29,19 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICourseLessonService _courseLessonService;
         private readonly ICourseViewModelService _courseViewModelService;
         private readonly IWorkContext _workContext;
-        private readonly IStoreService _storeService;
         private readonly ILanguageService _languageService;
         private readonly IGroupService _groupService;
 
-        public CourseController(ITranslationService translationService, ICourseLevelService courseLevelService, ICourseService courseService,
-            ICourseSubjectService courseSubjectService, ICourseLessonService courseLessonService,
-            ICourseViewModelService courseViewModelService, IWorkContext workContext, IStoreService storeService,
-            ILanguageService languageService, IGroupService groupService)
+        public CourseController(
+            ITranslationService translationService, 
+            ICourseLevelService courseLevelService, 
+            ICourseService courseService,
+            ICourseSubjectService courseSubjectService, 
+            ICourseLessonService courseLessonService,
+            ICourseViewModelService courseViewModelService, 
+            IWorkContext workContext, 
+            ILanguageService languageService, 
+            IGroupService groupService)
         {
             _translationService = translationService;
             _courseLevelService = courseLevelService;
@@ -46,7 +50,6 @@ namespace Grand.Web.Admin.Controllers
             _courseLessonService = courseLessonService;
             _courseViewModelService = courseViewModelService;
             _workContext = workContext;
-            _storeService = storeService;
             _languageService = languageService;
             _groupService = groupService;
         }
