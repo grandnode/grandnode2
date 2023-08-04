@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Grand.Business.Catalog.Services.Collections;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
+using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -20,7 +21,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.ExportImport.Tests
+namespace Grand.Business.Catalog.Tests.Services.ExportImport
 {
     [TestClass()]
     public class CollectionImportDataObjectTests

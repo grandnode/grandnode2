@@ -2,7 +2,7 @@
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Catalog.Tests.Service.Products
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class ProductExtensionsAttributeParserTests
@@ -17,7 +17,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
                 new CustomAttribute(){Key="key1",Value="value1" },
                 new CustomAttribute(){Key="key2",Value="value2" },
                 new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" },
+                new CustomAttribute(){Key="key4",Value="value4" }
             };
         }
 

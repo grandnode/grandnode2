@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Orders;
 
+namespace Grand.Web.Admin.Validators.Orders;
+
 public class OrderDeleteModelValidator : BaseGrandValidator<OrderDeleteModel>
 {
     public OrderDeleteModelValidator(

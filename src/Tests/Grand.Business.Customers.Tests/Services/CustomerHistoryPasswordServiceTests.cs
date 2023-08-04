@@ -1,18 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Customers.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Data;
-using Grand.Domain.Customers;
-using Moq;
-using MediatR;
-using Grand.Domain.Catalog;
+﻿using Grand.Business.Customers.Services;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Customers;
+using Grand.Domain.Data;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Customers.Services.Tests
+namespace Grand.Business.Customers.Tests.Services
 {
     [TestClass()]
     public class CustomerHistoryPasswordServiceTests

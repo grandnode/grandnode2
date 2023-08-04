@@ -9,7 +9,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace Authentication.Facebook.Controllers
+namespace Authentication.Facebook.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

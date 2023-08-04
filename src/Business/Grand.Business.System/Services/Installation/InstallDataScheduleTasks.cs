@@ -75,7 +75,7 @@ namespace Grand.Business.System.Services.Installation
                     Enabled = false,
                     StopOnError = false,
                     TimeInterval = 1440
-                },
+                }
             };
             await _scheduleTaskRepository.InsertAsync(tasks);
         }

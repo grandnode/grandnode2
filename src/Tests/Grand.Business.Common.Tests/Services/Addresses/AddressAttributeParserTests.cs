@@ -26,7 +26,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
                 new CustomAttribute(){Key="key1",Value="value1" },
                 new CustomAttribute(){Key="key2",Value="value2" },
                 new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" },
+                new CustomAttribute(){Key="key4",Value="value4" }
             };
         }
 

@@ -12,28 +12,28 @@ namespace Grand.Business.System.Services.Installation
                                    new TaxCategory
                                        {
                                            Name = "Lego",
-                                           DisplayOrder = 1,
+                                           DisplayOrder = 1
                                        },
                                    new TaxCategory
                                        {
                                            Name = "Electronics & Software",
-                                           DisplayOrder = 5,
+                                           DisplayOrder = 5
                                        },
                                    new TaxCategory
                                        {
                                            Name = "Downloadable Products",
-                                           DisplayOrder = 10,
+                                           DisplayOrder = 10
                                        },
                                    new TaxCategory
                                        {
                                            Name = "Balls",
-                                           DisplayOrder = 15,
+                                           DisplayOrder = 15
                                        },
                                    new TaxCategory
                                        {
                                            Name = "Apparel",
-                                           DisplayOrder = 20,
-                                       },
+                                           DisplayOrder = 20
+                                       }
                                };
             await _taxCategoryRepository.InsertAsync(taxCategories);
 

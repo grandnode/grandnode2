@@ -1,12 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Globalization;
-using System.Reflection;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +9,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
+using System.Text.Encodings.Web;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     public class DefaultHtmlGenerator : IHtmlGenerator
     {
@@ -125,7 +125,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
         /// <inheritdoc />
         public string Encode(object value)
         {
-            return (value != null) ? _htmlEncoder.Encode(value.ToString()) : string.Empty;
+            return value != null ? _htmlEncoder.Encode(value.ToString()) : string.Empty;
         }
 
         /// <inheritdoc />
@@ -254,7 +254,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 modelExplorer,
                 expression,
                 value: "true",
-                useViewData: (modelExplorer == null && !isChecked.HasValue),
+                useViewData: modelExplorer == null && !isChecked.HasValue,
                 isChecked: isChecked ?? false,
                 setId: true,
                 isExplicitValue: false,
@@ -765,7 +765,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 modelExplorer,
                 expression,
                 value,
-                useViewData: (modelExplorer == null && value == null),
+                useViewData: modelExplorer == null && value == null,
                 isChecked: false,
                 setId: true,
                 isExplicitValue: true,
@@ -826,7 +826,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
             // Only the style of the span is changed according to the errors if message is null or empty.
             // Otherwise the content and style is handled by the client-side validation.
-            var className = (modelError != null) ?
+            var className = modelError != null ?
                 HtmlHelper.ValidationMessageCssClassName :
                 HtmlHelper.ValidationMessageValidCssClassName;
             tagBuilder.AddCssClass(className);
@@ -1040,7 +1040,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             foreach (var value in rawValues)
             {
                 // Add original or converted string.
-                var stringValue = (value as string) ?? Convert.ToString(value, CultureInfo.CurrentCulture);
+                var stringValue = value as string ?? Convert.ToString(value, CultureInfo.CurrentCulture);
 
                 // Do not add simple names of enum properties here because whitespace isn't relevant for their binding.
                 // Will add matching names just below.
@@ -1211,7 +1211,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
             var inputTypeString = GetInputTypeString(inputType);
             var tagBuilder = new TagBuilder("input") {
-                TagRenderMode = TagRenderMode.SelfClosing,
+                TagRenderMode = TagRenderMode.SelfClosing
             };
 
             tagBuilder.MergeAttributes(htmlAttributes);
@@ -1596,7 +1596,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                     new SelectListItem() {
                         Text = optionLabel,
                         Value = string.Empty,
-                        Selected = false,
+                        Selected = false
                     },
                     currentValues: null));
             }

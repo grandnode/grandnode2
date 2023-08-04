@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
@@ -31,7 +30,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly IStoreService _storeService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IGroupService _groupService;
 
@@ -44,7 +42,6 @@ namespace Grand.Web.Admin.Controllers
             IDiscountService discountService,
             ITranslationService translationService,
             IWorkContext workContext,
-            IStoreService storeService,
             IDateTimeService dateTimeService,
             IGroupService groupService)
         {
@@ -52,7 +49,6 @@ namespace Grand.Web.Admin.Controllers
             _discountService = discountService;
             _translationService = translationService;
             _workContext = workContext;
-            _storeService = storeService;
             _dateTimeService = dateTimeService;
             _groupService = groupService;
         }

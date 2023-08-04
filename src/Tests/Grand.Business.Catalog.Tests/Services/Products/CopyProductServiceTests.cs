@@ -8,7 +8,7 @@ using Grand.Domain.Seo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Products
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class CopyProductServiceTests

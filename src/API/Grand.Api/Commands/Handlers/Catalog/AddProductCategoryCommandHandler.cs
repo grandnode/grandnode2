@@ -19,7 +19,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             var productCategory = new ProductCategory
             {
                 CategoryId = request.Model.CategoryId,
-                IsFeaturedProduct = request.Model.IsFeaturedProduct,
+                IsFeaturedProduct = request.Model.IsFeaturedProduct
             };
             await _productcategoryService.InsertProductCategory(productCategory, request.Product.Id);
 

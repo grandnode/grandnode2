@@ -12,6 +12,6 @@ namespace Grand.Domain.Tax
         /// <summary>
         /// Excluding tax
         /// </summary>
-        ExcludingTax = 10,
+        ExcludingTax = 10
     }
 }

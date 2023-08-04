@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Domain;
-using Grand.Domain.AdminSearch;
 using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Settings;
@@ -20,6 +19,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Domain.Admin;
 
 namespace Grand.Web.Admin.Controllers
 {

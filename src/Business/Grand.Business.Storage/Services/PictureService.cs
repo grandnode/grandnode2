@@ -567,7 +567,7 @@ namespace Grand.Business.Storage.Services
                 TitleAttribute = titleAttribute,
                 Reference = reference,
                 ObjectId = objectId,
-                IsNew = isNew,
+                IsNew = isNew
             };
             await _pictureRepository.InsertAsync(picture);
 

@@ -158,14 +158,15 @@ namespace Grand.Web.Admin.Controllers
                 order = await _orderService.GetOrderByNumber(orderNumber);
             }
             var orders = await _orderService.GetOrdersByCode(model.GoDirectlyToNumber);
-            if (orders.Count > 1)
+            switch (orders.Count)
             {
-                return RedirectToAction("List", new { Code = model.GoDirectlyToNumber });
+                case > 1:
+                    return RedirectToAction("List", new { Code = model.GoDirectlyToNumber });
+                case 1:
+                    order = orders.FirstOrDefault();
+                    break;
             }
-            if (orders.Count == 1)
-            {
-                order = orders.FirstOrDefault();
-            }
+
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
@@ -1096,12 +1097,21 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var address = new Address();
-            if (billingAddress && order.BillingAddress != null)
-                if (order.BillingAddress.Id == addressId)
-                    address = order.BillingAddress;
-            if (!billingAddress && order.ShippingAddress != null)
-                if (order.ShippingAddress.Id == addressId)
-                    address = order.ShippingAddress;
+            switch (billingAddress)
+            {
+                case true when order.BillingAddress != null:
+                {
+                    if (order.BillingAddress.Id == addressId)
+                        address = order.BillingAddress;
+                    break;
+                }
+                case false when order.ShippingAddress != null:
+                {
+                    if (order.ShippingAddress.Id == addressId)
+                        address = order.ShippingAddress;
+                    break;
+                }
+            }
 
             if (address == null)
                 throw new ArgumentException("No address found with the specified id", "addressId");

@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Catalog.Services.Prices;
+﻿using Grand.Business.Catalog.Services.Prices;
+using Grand.Business.Common.Services.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Domain.Directory;
@@ -16,7 +16,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Prices
+namespace Grand.Business.Catalog.Tests.Services.Prices
 {
     [TestClass()]
     public class PriceFormatterTests
@@ -142,7 +142,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "US Dollar",
                 CurrencyCode = "USD",
                 DisplayLocale = "en-US",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
 
             };
             var gbp_currency = new Currency {
@@ -150,14 +150,14 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "great british pound",
                 CurrencyCode = "GBP",
                 DisplayLocale = "en-GB",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var euro_currency = new Currency {
                 Id = "3",
                 Name = "Euro",
                 CurrencyCode = "EUR",
                 DisplayLocale = "en_150",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var language = new Language {
                 Id = "1",
@@ -180,7 +180,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "US Dollar",
                 CurrencyCode = "USD",
                 DisplayLocale = "en-US",
-                MidpointRoundId = MidpointRounding.AwayFromZero,
+                MidpointRoundId = MidpointRounding.AwayFromZero
             };
             var language = new Language {
                 Id = "1",
@@ -206,7 +206,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Id = "1",
                 Name = "US Dollar",
                 CurrencyCode = "USD",
-                DisplayLocale = "en-US",
+                DisplayLocale = "en-US"
             };
             var language = new Language {
                 Id = "1",

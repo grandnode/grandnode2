@@ -40,21 +40,21 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 TextPrompt = "Select color:",
                 IsRequired = true,
                 AttributeControlTypeId = AttributeControlType.DropdownList,
-                DisplayOrder = 1,
+                DisplayOrder = 1
             };
             cav1_1 = new CheckoutAttributeValue {
                 Id = "11",
                 Name = "Green",
                 DisplayOrder = 1,
                 //CheckoutAttribute = ca1,
-                CheckoutAttributeId = ca1.Id,
+                CheckoutAttributeId = ca1.Id
             };
             cav1_2 = new CheckoutAttributeValue {
                 Id = "12",
                 Name = "Red",
                 DisplayOrder = 2,
                 //CheckoutAttribute = ca1,
-                CheckoutAttributeId = ca1.Id,
+                CheckoutAttributeId = ca1.Id
             };
             ca1.CheckoutAttributeValues.Add(cav1_1);
             ca1.CheckoutAttributeValues.Add(cav1_2);
@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 TextPrompt = "Select custom option:",
                 IsRequired = true,
                 AttributeControlTypeId = AttributeControlType.Checkboxes,
-                DisplayOrder = 2,
+                DisplayOrder = 2
                 //CheckoutAttributeValues
             };
 
@@ -75,14 +75,14 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 Name = "Option 1",
                 DisplayOrder = 1,
                 //CheckoutAttribute = ca2,
-                CheckoutAttributeId = ca2.Id,
+                CheckoutAttributeId = ca2.Id
             };
             cav2_2 = new CheckoutAttributeValue {
                 Id = "22",
                 Name = "Option 2",
                 DisplayOrder = 2,
                 //CheckoutAttribute = ca2,
-                CheckoutAttributeId = ca2.Id,
+                CheckoutAttributeId = ca2.Id
             };
             ca2.CheckoutAttributeValues.Add(cav2_1);
             ca2.CheckoutAttributeValues.Add(cav2_2);
@@ -94,7 +94,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 TextPrompt = "Enter custom text:",
                 IsRequired = true,
                 AttributeControlTypeId = AttributeControlType.MultilineTextbox,
-                DisplayOrder = 3,
+                DisplayOrder = 3
             };
 
             var tempEventPublisher = new Mock<IMediator>();

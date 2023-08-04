@@ -1,22 +1,22 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Directory;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Domain.Directory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ByWeight.Domain;
 using Shipping.ByWeight.Models;
 using Shipping.ByWeight.Services;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
 
-namespace Shipping.ByWeight.Controllers
+namespace Shipping.ByWeight.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

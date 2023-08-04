@@ -3,7 +3,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -25,7 +24,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly SeoSettings _seoSettings;
@@ -34,12 +32,12 @@ namespace Grand.Web.Admin.Controllers
 
         #region Constructors
 
-        public ProductAttributeController(IProductService productService,
+        public ProductAttributeController(
+            IProductService productService,
             IProductAttributeService productAttributeService,
             ILanguageService languageService,
             ITranslationService translationService,
             ICustomerActivityService customerActivityService,
-            IStoreService storeService,
             IWorkContext workContext,
             IGroupService groupService,
             SeoSettings seoSettings)
@@ -49,7 +47,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _translationService = translationService;
             _customerActivityService = customerActivityService;
-            _storeService = storeService;
             _workContext = workContext;
             _groupService = groupService;
             _seoSettings = seoSettings;

@@ -151,29 +151,32 @@ namespace Grand.Business.Common.Services.Addresses
                     var formattedAttribute = "";
                     if (!attribute.ShouldHaveValues())
                     {
-                        //no values
-                        if (attribute.AttributeControlType == AttributeControlType.MultilineTextbox)
+                        switch (attribute.AttributeControlType)
                         {
-                            //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
-                            //encode (if required)
-                            if (htmlEncode)
-                                attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
-                            //we never encode multiline text box input
-                        }
-                        else if (attribute.AttributeControlType == AttributeControlType.FileUpload)
-                        {
-                            //file upload
-                            //not supported for address attributes
-                        }
-                        else
-                        {
-                            //other attributes (text box, datepicker)
-                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
-                            //encode (if required)
-                            if (htmlEncode)
-                                formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                            //no values
+                            case AttributeControlType.MultilineTextbox:
+                            {
+                                //multiline text box
+                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
+                                //encode (if required)
+                                if (htmlEncode)
+                                    attributeName = WebUtility.HtmlEncode(attributeName);
+                                formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                                break;
+                            }
+                            case AttributeControlType.FileUpload:
+                                //file upload
+                                //not supported for address attributes
+                                break;
+                            default:
+                            {
+                                //other attributes (text box, datepicker)
+                                formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
+                                //encode (if required)
+                                if (htmlEncode)
+                                    formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
+                                break;
+                            }
                         }
                     }
                     else

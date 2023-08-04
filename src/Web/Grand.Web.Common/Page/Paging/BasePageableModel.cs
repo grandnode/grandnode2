@@ -13,7 +13,7 @@ namespace Grand.Web.Common.Page.Paging
             FirstItem = pagedList.PageIndex * pagedList.PageSize + 1;
             HasNextPage = pagedList.HasNextPage;
             HasPreviousPage = pagedList.HasPreviousPage;
-            LastItem = Math.Min(pagedList.TotalCount, (pagedList.PageIndex * pagedList.PageSize) + pagedList.PageSize);
+            LastItem = Math.Min(pagedList.TotalCount, pagedList.PageIndex * pagedList.PageSize + pagedList.PageSize);
             PageNumber = pagedList.PageIndex + 1;
             PageSize = pagedList.PageSize;
             TotalItems = pagedList.TotalCount;

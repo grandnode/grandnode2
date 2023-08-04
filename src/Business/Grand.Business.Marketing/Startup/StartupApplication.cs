@@ -11,7 +11,6 @@ using Grand.Business.Marketing.Services.Courses;
 using Grand.Business.Marketing.Services.Customers;
 using Grand.Business.Marketing.Services.Documents;
 using Grand.Business.Marketing.Services.Newsletters;
-using Grand.Business.Marketing.Services.Newsteletters;
 using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;

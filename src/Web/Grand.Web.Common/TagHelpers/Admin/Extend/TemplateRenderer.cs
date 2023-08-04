@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections;
-using System.Reflection;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -11,9 +9,10 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Buffers;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections;
+using System.Reflection;
 
-
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal class TemplateRenderer
     {
@@ -196,7 +195,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 // Nothing more to provide
                 yield break;
             }
-            else if (!modelMetadata.IsComplexType)
+
+            if (!modelMetadata.IsComplexType)
             {
                 // IsEnum is false for the Enum class itself
                 if (fieldTypeInfo.IsEnum)
@@ -212,7 +212,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 yield return "String";
                 yield break;
             }
-            else if (!fieldTypeInfo.IsInterface)
+            if (!fieldTypeInfo.IsInterface)
             {
                 var type = fieldType;
                 while (true)

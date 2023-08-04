@@ -191,17 +191,27 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 if (campaign.CustomerLastPurchaseDateTo.HasValue)
                     query = query.Where(x => x.LastPurchaseDateUtc <= campaign.CustomerLastPurchaseDateTo.Value);
 
-                //customer has shopping carts
-                if (campaign.CustomerHasShoppingCart == CampaignCondition.True)
-                    query = query.Where(x => x.HasShoppingCartItems);
-                if (campaign.CustomerHasShoppingCart == CampaignCondition.False)
-                    query = query.Where(x => !x.HasShoppingCartItems);
+                switch (campaign.CustomerHasShoppingCart)
+                {
+                    //customer has shopping carts
+                    case CampaignCondition.True:
+                        query = query.Where(x => x.HasShoppingCartItems);
+                        break;
+                    case CampaignCondition.False:
+                        query = query.Where(x => !x.HasShoppingCartItems);
+                        break;
+                }
 
-                //customer has order
-                if (campaign.CustomerHasOrders == CampaignCondition.True)
-                    query = query.Where(x => x.IsHasOrders);
-                if (campaign.CustomerHasOrders == CampaignCondition.False)
-                    query = query.Where(x => !x.IsHasOrders);
+                switch (campaign.CustomerHasOrders)
+                {
+                    //customer has order
+                    case CampaignCondition.True:
+                        query = query.Where(x => x.IsHasOrders);
+                        break;
+                    case CampaignCondition.False:
+                        query = query.Where(x => !x.IsHasOrders);
+                        break;
+                }
 
                 //tags
                 if (campaign.CustomerTags.Count > 0)

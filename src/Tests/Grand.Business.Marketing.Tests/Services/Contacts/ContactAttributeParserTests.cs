@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Marketing.Services.Contacts;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
@@ -7,7 +8,7 @@ using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Marketing.Services.Contacts.Tests
+namespace Grand.Business.Marketing.Tests.Services.Contacts
 {
     [TestClass()]
     public class ContactAttributeParserTests
@@ -34,7 +35,7 @@ namespace Grand.Business.Marketing.Services.Contacts.Tests
                 new CustomAttribute(){Key="key1",Value="value1" },
                 new CustomAttribute(){Key="key2",Value="value2" },
                 new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" },
+                new CustomAttribute(){Key="key4",Value="value4" }
             };
 
             _contactAtr = new List<ContactAttribute>()
@@ -43,7 +44,7 @@ namespace Grand.Business.Marketing.Services.Contacts.Tests
                 new ContactAttribute(){Id="key2", Name="name2"},
                 new ContactAttribute(){Id="key3", Name="name3"},
                 new ContactAttribute(){Id="key4", Name="name4"},
-                new ContactAttribute(){Id="key5", Name="name5"},
+                new ContactAttribute(){Id="key5", Name="name5"}
             };
             _contactAtr.ForEach(c => c.ContactAttributeValues.Add(new ContactAttributeValue() { Id = "value" + c.Id.Last() }));
         }

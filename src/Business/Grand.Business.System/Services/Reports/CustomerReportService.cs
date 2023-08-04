@@ -177,13 +177,13 @@ namespace Grand.Business.System.Services.Reports
                     .Select(g => new CustomerStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
-                        Count = g.Count(),
+                        Count = g.Count()
                     }).ToList();
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
                         Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
-                        Registered = item.Count,
+                        Registered = item.Count
                     });
                 }
             }
@@ -195,13 +195,13 @@ namespace Grand.Business.System.Services.Reports
                         Year = g.Key.Year,
                         Month = g.Key.Month,
                         Day = g.Key.Day,
-                        Count = g.Count(),
+                        Count = g.Count()
                     }).ToList();
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
                         Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
-                        Registered = item.Count,
+                        Registered = item.Count
                     });
                 }
             }

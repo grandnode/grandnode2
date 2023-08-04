@@ -1,19 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Events.Handlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Data;
-using Grand.Domain.Catalog;
-using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Catalog.Events.Handlers;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Moq;
+using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Data;
 using Grand.Domain.Seo;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Catalog.Events.Handlers.Tests
+namespace Grand.Business.Catalog.Tests.Events.Handlers
 {
     [TestClass()]
     public class ProductDeletedEventHandlerTests

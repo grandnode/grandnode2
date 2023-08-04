@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.ExportImport;
 using Grand.Domain.Orders;
 
-namespace Grand.Business.Checkout.Services.ExportImport
+namespace Grand.Business.Checkout.Services.ExportImpot
 {
     public class OrderSchemaProperty : ISchemaProperty<Order>
     {

@@ -1,17 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Common.Services.Directory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Data;
-using Grand.Domain.Common;
+﻿using Grand.Business.Common.Services.Directory;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace Grand.Business.Common.Services.Directory.Tests
+namespace Grand.Business.Common.Tests.Services.Directory
 {
     [TestClass()]
     public class UserFieldServiceTests

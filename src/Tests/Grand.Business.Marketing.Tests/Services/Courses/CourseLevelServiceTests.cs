@@ -1,11 +1,12 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Marketing.Services.Courses;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Marketing.Services.Courses.Tests
+namespace Grand.Business.Marketing.Tests.Services.Courses
 {
     [TestClass()]
     public class CourseLevelServiceTests

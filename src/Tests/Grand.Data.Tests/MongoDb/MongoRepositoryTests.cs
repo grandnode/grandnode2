@@ -40,7 +40,7 @@ namespace Grand.Data.Tests.MongoDb
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1" },
             new SampleCollection(){ Id = "2" },
-            new SampleCollection(){ Id = "3" },
+            new SampleCollection(){ Id = "3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -128,7 +128,7 @@ namespace Grand.Data.Tests.MongoDb
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test" },
             new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test2" },
+            new SampleCollection(){ Id = "3", Name = "Test2" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -144,7 +144,7 @@ namespace Grand.Data.Tests.MongoDb
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test" },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -165,7 +165,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -186,7 +186,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -212,7 +212,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -236,7 +236,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -266,7 +266,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 }
             },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -292,7 +292,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -318,7 +318,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -345,7 +345,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -384,7 +384,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -408,7 +408,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);
@@ -431,7 +431,7 @@ namespace Grand.Data.Tests.MongoDb
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
+            new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
             await _myRepository.InsertManyAsync(products);

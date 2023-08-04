@@ -1,16 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Common.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Moq;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Common.Events;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Localization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Common.Events.Tests
+namespace Grand.Business.Common.Tests.Events
 {
     [TestClass()]
     public class LanguageDeletedEventHandlerTests

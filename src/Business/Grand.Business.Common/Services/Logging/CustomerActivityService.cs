@@ -249,7 +249,7 @@ namespace Grand.Business.Common.Services.Logging
                 .Select(g => new ActivityStats {
                     ActivityLogTypeId = g.Key.ActivityLogTypeId,
                     EntityKeyId = g.Key.EntityKeyId,
-                    Count = g.Count(),
+                    Count = g.Count()
                 });
 
             gquery = gquery.OrderByDescending(x => x.Count);
@@ -463,7 +463,7 @@ namespace Grand.Business.Common.Services.Logging
             {
                 "PublicStore.ViewCategory",
                 "EditCategory",
-                "AddNewCategory",
+                "AddNewCategory"
             };
             return tokens;
         }
@@ -473,7 +473,7 @@ namespace Grand.Business.Common.Services.Logging
             {
                 "PublicStore.ViewProduct",
                 "EditProduct",
-                "AddNewProduct",
+                "AddNewProduct"
             };
             return tokens;
         }
@@ -517,7 +517,7 @@ namespace Grand.Business.Common.Services.Logging
             {
                 "CreateKnowledgebaseArticle",
                 "UpdateKnowledgebaseArticle",
-                "DeleteKnowledgebaseArticle",
+                "DeleteKnowledgebaseArticle"
             };
             return tokens;
         }

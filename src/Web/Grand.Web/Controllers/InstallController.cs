@@ -163,13 +163,14 @@ namespace Grand.Web.Controllers
 
         protected async Task CheckConnectionString(IInstallationLocalizedService locService, string connectionString, InstallModel model)
         {
-            if (!_dbConfig.UseLiteDb && model.DataProvider == DbProvider.LiteDB)
+            switch (_dbConfig.UseLiteDb)
             {
-                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
-            }
-            if (_dbConfig.UseLiteDb && model.DataProvider != DbProvider.LiteDB)
-            {
-                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
+                case false when model.DataProvider == DbProvider.LiteDB:
+                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
+                    break;
+                case true when model.DataProvider != DbProvider.LiteDB:
+                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
+                    break;
             }
 
             if (ModelState.IsValid && !string.IsNullOrEmpty(connectionString))

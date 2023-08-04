@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Grand.Infrastructure.Migrations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Migrations.Tests
+namespace Grand.Infrastructure.Tests.Migrations
 {
     [TestClass()]
     public class DbVersionTests

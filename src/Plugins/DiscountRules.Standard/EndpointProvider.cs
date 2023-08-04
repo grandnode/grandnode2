@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace DiscountRules
+namespace DiscountRules.Standard
 {
     public class EndpointProvider : IEndpointProvider
     {

@@ -20,12 +20,12 @@ namespace Grand.Web.Admin.Controllers
     public class NewsController : BaseAdminController
     {
         #region Fields
+
         private readonly INewsViewModelService _newsViewModelService;
         private readonly INewsService _newsService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
-        private readonly IGroupService _groupService;
         private readonly IDateTimeService _dateTimeService;
         #endregion
 
@@ -37,7 +37,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IStoreService storeService,
-            IGroupService groupService,
             IDateTimeService dateTimeService)
         {
             _newsViewModelService = newsViewModelService;
@@ -45,7 +44,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _translationService = translationService;
             _storeService = storeService;
-            _groupService = groupService;
             _dateTimeService = dateTimeService;
         }
 

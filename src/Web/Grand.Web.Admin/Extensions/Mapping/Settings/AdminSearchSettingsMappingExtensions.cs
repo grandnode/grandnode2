@@ -1,4 +1,4 @@
-﻿using Grand.Domain.AdminSearch;
+﻿using Grand.Domain.Admin;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 

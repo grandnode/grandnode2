@@ -908,7 +908,7 @@ namespace Grand.Web.Controllers
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "payment-info",
-                        model = paymentInfoModel,
+                        model = paymentInfoModel
                     },
                     warnings = warnings.ToArray()
                 });

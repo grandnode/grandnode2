@@ -196,7 +196,7 @@ namespace Grand.Business.Catalog.Services.Prices
                     allowedDiscounts.Add(new ApplyDiscount {
                         CouponCode = validDiscount.CouponCode,
                         DiscountId = discount.Id,
-                        IsCumulative = discount.IsCumulative,
+                        IsCumulative = discount.IsCumulative
                     });
             }
             return allowedDiscounts;
@@ -264,7 +264,7 @@ namespace Grand.Business.Catalog.Services.Prices
                     allowedDiscounts.Add(new ApplyDiscount {
                         CouponCode = validDiscount.CouponCode,
                         DiscountId = discount.Id,
-                        IsCumulative = discount.IsCumulative,
+                        IsCumulative = discount.IsCumulative
                     });
             }
             return allowedDiscounts;

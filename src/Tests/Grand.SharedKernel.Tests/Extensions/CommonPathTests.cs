@@ -1,7 +1,7 @@
 ﻿using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.SharedKernel.Extensions.Tests
+namespace Grand.SharedKernel.Tests.Extensions
 {
     [TestClass()]
     public class CommonPathTests

@@ -1,7 +1,8 @@
 ﻿using Grand.Domain.Common;
+using Grand.Infrastructure.TypeConverters.Converter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.TypeConverters.Converter.Tests
+namespace Grand.Infrastructure.Tests.TypeConverters.Converter
 {
     [TestClass()]
     public class CustomAttributeListTypeConverterTests

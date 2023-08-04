@@ -1,15 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Queries.Handlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Business.Catalog.Queries.Handlers;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Vendors;
-using Grand.Data.Tests.MongoDb;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Catalog.Queries.Handlers.Tests
+namespace Grand.Business.Catalog.Tests.Queries.Handlers
 {
     [TestClass()]
     public class GetVendorByIdQueryHandlerTests

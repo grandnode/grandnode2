@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Installation
                                            Name = "Default layout",
                                            ViewPath = "PageDetails",
                                            DisplayOrder = 1
-                                       },
+                                       }
                                };
             await _pageLayoutRepository.InsertAsync(pageLayouts);
         }

@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Catalog.Services.Brands;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
@@ -7,7 +8,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.Brands.Tests
+namespace Grand.Business.Catalog.Tests.Services.Brands
 {
     [TestClass()]
     public class BrandLayoutServiceTests

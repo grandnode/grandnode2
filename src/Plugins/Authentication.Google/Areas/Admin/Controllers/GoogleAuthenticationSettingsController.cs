@@ -9,7 +9,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace Authentication.Google.Controllers
+namespace Authentication.Google.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

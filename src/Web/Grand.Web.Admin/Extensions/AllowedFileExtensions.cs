@@ -6,8 +6,7 @@
         {
             if (string.IsNullOrEmpty(allowedFileTypes))
                 return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
-            else
-                return allowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
+            return allowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using Grand.Infrastructure.Tests;
+﻿using Grand.Infrastructure.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Extensions.Tests
+namespace Grand.Infrastructure.Tests.Extensions
 {
     [TestClass()]
     public class ProviderExtensionsTests

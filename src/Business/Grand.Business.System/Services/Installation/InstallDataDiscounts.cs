@@ -32,7 +32,7 @@ namespace Grand.Business.System.Services.Installation
                                             RequiresCouponCode = true,
                                             IsEnabled = true,
                                             CurrencyCode = "USD"
-                                        },
+                                        }
                                 };
             await _discountRepository.InsertAsync(discounts);
             var coupon1 = new DiscountCoupon

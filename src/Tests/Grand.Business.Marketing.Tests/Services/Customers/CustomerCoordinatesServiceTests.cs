@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Events.Marketing;
+using Grand.Business.Marketing.Services.Customers;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -7,7 +8,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Marketing.Services.Customers.Tests
+namespace Grand.Business.Marketing.Tests.Services.Customers
 {
     [TestClass()]
     public class CustomerCoordinatesServiceTests

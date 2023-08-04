@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Common.Services.Localization;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Localization;
@@ -9,7 +10,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Services.Localization.Tests
+namespace Grand.Business.Common.Tests.Services.Localization
 {
     [TestClass()]
     public class TranslationServiceTests

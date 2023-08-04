@@ -94,7 +94,7 @@ namespace Grand.Business.Messages.Services
                         ReadDate = File.GetLastAccessTime(attachmentFilePath)
                     },
                     ContentTransferEncoding = ContentEncoding.Base64,
-                    FileName = Path.GetFileName(attachmentFilePath),
+                    FileName = Path.GetFileName(attachmentFilePath)
                 };
                 builder.Attachments.Add(attachment);
             }
@@ -117,7 +117,7 @@ namespace Grand.Business.Messages.Services
                             ReadDate = DateTime.UtcNow
                         },
                         ContentTransferEncoding = ContentEncoding.Base64,
-                        FileName = fileName,
+                        FileName = fileName
                     };
                     builder.Attachments.Add(attachment);
                 }

@@ -2,13 +2,14 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
 using Grand.SharedKernel;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Customers.Services.Tests
+namespace Grand.Business.Customers.Tests.Services
 {
     [TestClass()]
     public class CustomerManagerServiceTests

@@ -70,7 +70,7 @@ namespace Grand.Domain.Customers
             var firstName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
             var lastName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
 
-            string fullName = "";
+            var fullName = "";
             if (!String.IsNullOrWhiteSpace(firstName) && !String.IsNullOrWhiteSpace(lastName))
                 fullName = string.Format("{0} {1}", firstName, lastName);
             else
@@ -98,7 +98,7 @@ namespace Grand.Domain.Customers
                 return "Customer.Guest";
             }
 
-            string result = string.Empty;
+            var result = string.Empty;
             switch (customerNameFormat)
             {
                 case CustomerNameFormat.Emails:
@@ -152,14 +152,7 @@ namespace Grand.Domain.Customers
                 throw new ArgumentNullException(nameof(customer));
 
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
-            if (string.IsNullOrEmpty(existingCouponCodes))
-            {
-                return couponCode;
-            }
-            else
-            {
-                return string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Append(couponCode).Distinct());
-            }
+            return string.IsNullOrEmpty(existingCouponCodes) ? couponCode : string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Append(couponCode).Distinct());
         }
         /// <summary>
         /// Adds a coupon codes
@@ -177,12 +170,10 @@ namespace Grand.Domain.Customers
             {
                 return string.Join(CouponSeparator, couponCodes);
             }
-            else
-            {
-                var coupons = existingCouponCodes.Split(CouponSeparator).ToList();
-                coupons.AddRange(couponCodes.ToList());
-                return string.Join(CouponSeparator, coupons.Distinct());
-            }
+
+            var coupons = existingCouponCodes.Split(CouponSeparator).ToList();
+            coupons.AddRange(couponCodes.ToList());
+            return string.Join(CouponSeparator, coupons.Distinct());
         }
         /// <summary>
         /// Adds a coupon code
@@ -200,10 +191,8 @@ namespace Grand.Domain.Customers
             {
                 return "";
             }
-            else
-            {
-                return string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Except(new List<string> { couponCode }).Distinct());
-            }
+
+            return string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Except(new List<string> { couponCode }).Distinct());
         }
 
         /// <summary>

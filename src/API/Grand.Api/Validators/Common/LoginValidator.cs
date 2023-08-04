@@ -34,7 +34,7 @@ namespace Grand.Api.Validators.Common
                     }
                 }
                 return false;
-            }).WithMessage(("User not exists or password is wrong"));
+            }).WithMessage("User not exists or password is wrong");
             RuleFor(x => x).MustAsync(async (x, _) =>
             {
                 if (!string.IsNullOrEmpty(x.Email))

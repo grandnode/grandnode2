@@ -75,10 +75,7 @@ namespace Grand.Domain.Data.Mongo
 
             var filter = new BsonDocument("name", "GrandNodeVersion");
             var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
-            if (found.Any())
-                return true;
-            else
-                return false;
+            return await found.AnyAsync();
         }
 
         public async Task CreateTable(string name, string collation)

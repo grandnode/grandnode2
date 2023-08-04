@@ -7,7 +7,7 @@ using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
 using Widgets.Slider.Services;
 
-namespace Widgets.Slider.ViewComponents
+namespace Widgets.Slider.Components
 {
     [ViewComponent(Name = "WidgetSlider")]
     public class WidgetSliderComponent : ViewComponent
@@ -64,17 +64,17 @@ namespace Widgets.Slider.ViewComponents
             }
             if (widgetZone == SliderWidgetDefaults.WidgetZoneCategoryPage)
             {
-                var slides = await _sliderService.GetPictureSliders(SliderType.Category, additionalData.ToString());
+                var slides = await _sliderService.GetPictureSliders(SliderType.Category, additionalData?.ToString());
                 await PrepareModel(slides, model);
             }
             if (widgetZone == SliderWidgetDefaults.WidgetZoneCollectionPage)
             {
-                var slides = await _sliderService.GetPictureSliders(SliderType.Collection, additionalData.ToString());
+                var slides = await _sliderService.GetPictureSliders(SliderType.Collection, additionalData?.ToString());
                 await PrepareModel(slides, model);
             }
             if (widgetZone == SliderWidgetDefaults.WidgetZoneBrandPage)
             {
-                var slides = await _sliderService.GetPictureSliders(SliderType.Brand, additionalData.ToString());
+                var slides = await _sliderService.GetPictureSliders(SliderType.Brand, additionalData?.ToString());
                 await PrepareModel(slides, model);
             }
 

@@ -1,8 +1,8 @@
-﻿using Grand.SharedKernel.Tests;
+﻿using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 
-namespace Grand.SharedKernel.Extensions.Tests
+namespace Grand.SharedKernel.Tests.Extensions
 {
     [TestClass()]
     public class CommonHelperTests
@@ -73,21 +73,21 @@ namespace Grand.SharedKernel.Extensions.Tests
         [TestMethod()]
         public void EnsureMaximumLengthTest_Value_3_True()
         {
-            string str = "value"; int max = 3; string post = null;
+            var str = "value"; var max = 3; string post = null;
             Assert.IsTrue(CommonHelper.EnsureMaximumLength(str, max, post) == "val");
         }
 
         [TestMethod()]
         public void EnsureMaximumLengthTest_Value_10_True()
         {
-            string str = "value"; int max = 10; string post = null;
+            var str = "value"; var max = 10; string post = null;
             Assert.IsTrue(CommonHelper.EnsureMaximumLength(str, max, post) == "value");
         }
 
         [TestMethod()]
         public void EnsureMaximumLengthTest_Value_2_Post_True()
         {
-            string str = "0123456789000"; int max = 10; string post = "...";
+            var str = "0123456789000"; var max = 10; var post = "...";
             Assert.IsTrue(CommonHelper.EnsureMaximumLength(str, max, post) == "0123456...");
         }
 

@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Domain.AdminSearch
+namespace Grand.Domain.Admin
 {
     public class AdminSearchSettings : ISettings
     {

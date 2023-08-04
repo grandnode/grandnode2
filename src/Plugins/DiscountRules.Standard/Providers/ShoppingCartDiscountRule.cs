@@ -6,7 +6,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DiscountRules.Provider
+namespace DiscountRules.Standard.Providers
 {
     public class ShoppingCartDiscountRule : IDiscountRule
     {

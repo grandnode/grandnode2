@@ -32,7 +32,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
                 CustomValue = request.Model.CustomValue,
                 AllowFiltering = request.Model.AllowFiltering,
                 ShowOnProductPage = request.Model.ShowOnProductPage,
-                DisplayOrder = request.Model.DisplayOrder,
+                DisplayOrder = request.Model.DisplayOrder
             };
             await _specificationAttributeService.InsertProductSpecificationAttribute(psa, request.Product.Id);
 

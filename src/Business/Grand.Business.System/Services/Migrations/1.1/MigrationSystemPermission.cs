@@ -37,7 +37,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
                         Name = "Manage System",
                         SystemName = PermissionSystemName.System,
                         Area = "Admin area",
-                        Category = "System",
+                        Category = "System"
 
                     };
                     permission.CustomerGroups.Add(groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators).GetAwaiter().GetResult().Id);

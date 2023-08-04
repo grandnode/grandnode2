@@ -1,12 +1,12 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Marketing.Services.Courses;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-
-namespace Grand.Business.Marketing.Services.Courses.Tests
+namespace Grand.Business.Marketing.Tests.Services.Courses
 {
     [TestClass()]
     public class CourseLessonServiceTests
@@ -63,7 +63,7 @@ namespace Grand.Business.Marketing.Services.Courses.Tests
         {
             //Arrange
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
 
@@ -80,7 +80,7 @@ namespace Grand.Business.Marketing.Services.Courses.Tests
         {
             //Act
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
 
@@ -93,7 +93,7 @@ namespace Grand.Business.Marketing.Services.Courses.Tests
         {
             //Arrange
             var courseLesson = new CourseLesson() {
-                Name = "test",
+                Name = "test"
             };
             await _courseLessonService.Insert(courseLesson);
             courseLesson.Name = "test2";

@@ -20,13 +20,21 @@ namespace Grand.Web.Validators.ShoppingCart
             RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Wrong quantity");
             RuleFor(x => x).CustomAsync(async (x, context, _) =>
             {
-                if(x.ShoppingCartType == ShoppingCartType.ShoppingCart)
-                    if (!await permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                        context.AddFailure("No permission");
-
-                if(x.ShoppingCartType == ShoppingCartType.Wishlist)
-                    if (!await permissionService.Authorize(StandardPermission.EnableWishlist))
-                        context.AddFailure("No permission");
+                switch (x.ShoppingCartType)
+                {
+                    case ShoppingCartType.ShoppingCart:
+                    {
+                        if (!await permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                            context.AddFailure("No permission");
+                        break;
+                    }
+                    case ShoppingCartType.Wishlist:
+                    {
+                        if (!await permissionService.Authorize(StandardPermission.EnableWishlist))
+                            context.AddFailure("No permission");
+                        break;
+                    }
+                }
 
                 var cart = (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, PrepareCartTypes()))
                     .FirstOrDefault(z => z.Id == x.ShoppingCartId);

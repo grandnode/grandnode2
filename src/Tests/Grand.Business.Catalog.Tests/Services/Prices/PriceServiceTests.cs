@@ -1,14 +1,16 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Catalog.Services.Prices;
+using Grand.Business.Common.Services.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Catalog.Services.Prices;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
@@ -22,10 +24,8 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Grand.Business.Common.Services.Directory;
-using Grand.Domain.Common;
 
-namespace Grand.Business.Catalog.Tests.Service.Prices
+namespace Grand.Business.Catalog.Tests.Services.Prices
 {
     [TestClass()]
     public class PriceServiceTests
@@ -134,13 +134,13 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
 
             var currency = new Currency { Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = System.MidpointRounding.ToEven, RoundingTypeId = RoundingType.Rounding001 };
             var customer = new Customer();
-            var pr = (await _pricingService.GetFinalPrice(product, customer, currency, 0, false, 1));
+            var pr = await _pricingService.GetFinalPrice(product, customer, currency, 0, false, 1);
             Assert.AreEqual(49.99, pr.finalPrice);
             //returned price FOR ONE UNIT should be the same, even if quantity is different than 1
             Assert.AreEqual(49.99, (await _pricingService.GetFinalPrice(product, customer, _currency, 0, false, 10)).finalPrice);
@@ -154,7 +154,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             //TierPrice is simply "the more you buy, the less you pay"
@@ -212,7 +212,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             var customer = new Customer();
@@ -257,7 +257,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "product name 01",
                 Price = 49.99,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product001.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99 });
             tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);
@@ -285,7 +285,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "product name 01",
                 Price = 55.11,
                 EnteredPrice = false,
-                Published = true,
+                Published = true
             };
             product001.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 55.11 });
             tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);

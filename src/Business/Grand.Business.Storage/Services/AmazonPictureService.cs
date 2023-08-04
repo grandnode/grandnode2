@@ -90,7 +90,7 @@ namespace Grand.Business.Storage.Services
                     var s3Region = S3Region.FindValue(_config.AmazonRegion);
                     var putBucketRequest = new PutBucketRequest {
                         BucketName = _bucketName,
-                        BucketRegion = s3Region,
+                        BucketRegion = s3Region
                     };
 
                     try
@@ -203,7 +203,7 @@ namespace Grand.Business.Storage.Services
                     BucketName = _bucketName,
                     InputStream = stream,
                     Key = thumbFileName,
-                    StorageClass = S3StorageClass.Standard,
+                    StorageClass = S3StorageClass.Standard
                 };
                 _s3Client.PutObjectAsync(putObjectRequest).Wait();
             }

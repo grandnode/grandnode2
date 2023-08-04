@@ -22,7 +22,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Business.Catalog.Services.ExportImport;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
+using Grand.Business.Core.Dto;
 
 namespace Grand.Business.Catalog.Startup
 {

@@ -1,7 +1,8 @@
-﻿using Grand.SharedKernel.Extensions;
+﻿using Grand.Domain.Data;
+using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Data.Tests
+namespace Grand.Domain.Tests.Data
 {
     [TestClass()]
     public class DataSettingsManagerTests

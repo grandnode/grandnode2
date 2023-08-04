@@ -12,6 +12,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Manually
         /// </summary>
-        Manually = 10,
+        Manually = 10
     }
 }

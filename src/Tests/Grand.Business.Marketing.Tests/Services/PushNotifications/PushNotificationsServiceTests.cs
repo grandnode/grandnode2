@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
@@ -12,7 +13,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
 
-namespace Grand.Business.Marketing.Services.PushNotifications.Tests
+namespace Grand.Business.Marketing.Tests.Services.PushNotifications
 {
     [TestClass()]
     public class PushNotificationsServiceTests
@@ -37,7 +38,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications.Tests
 
             var mockMessageHandler = new Mock<HttpMessageHandler>();
 
-            string output = JsonConvert.SerializeObject(new JsonResponse() { success = 1, failure = 0, canonical_ids = 1 });
+            var output = JsonConvert.SerializeObject(new JsonResponse() { success = 1, failure = 0, canonical_ids = 1 });
 
             mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())

@@ -1,12 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.SharedKernel.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.SharedKernel.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.SharedKernel.Extensions.Tests
+namespace Grand.SharedKernel.Tests.Extensions
 {
     [TestClass()]
     public class FormatTextTests

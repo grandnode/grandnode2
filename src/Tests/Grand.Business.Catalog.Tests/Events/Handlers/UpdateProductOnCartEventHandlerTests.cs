@@ -1,16 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Events.Handlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Customers;
-using Grand.Domain.Data;
+﻿using Grand.Business.Catalog.Events.Handlers;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Domain.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Catalog.Events.Handlers.Tests
+namespace Grand.Business.Catalog.Tests.Events.Handlers
 {
     [TestClass()]
     public class UpdateProductOnCartEventHandlerTests
@@ -39,7 +34,7 @@ namespace Grand.Business.Catalog.Events.Handlers.Tests
                 IsFreeShipping = !product.IsFreeShipping,
                 IsShipEnabled = !product.IsShipEnabled,
                 IsTaxExempt = !product.IsTaxExempt,
-                IsGiftVoucher = !product.IsGiftVoucher,
+                IsGiftVoucher = !product.IsGiftVoucher
             });
             //Act
             await _handler.Handle(new Core.Events.Catalog.UpdateProductOnCartEvent(product), CancellationToken.None);

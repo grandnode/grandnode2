@@ -4,13 +4,16 @@
     {
         public static bool IsCommissionValid(double? commission)
         {
-            if (!commission.HasValue)
-                return true;
-
-            if (commission < 0 || commission > 100)
-                return false;
-
-            return true;
+            switch (commission)
+            {
+                case null:
+                    return true;
+                case < 0:
+                case > 100:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
     }

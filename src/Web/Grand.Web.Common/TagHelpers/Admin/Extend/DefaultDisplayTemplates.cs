@@ -1,9 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections;
-using System.Diagnostics;
-using System.Globalization;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,8 +8,11 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Buffers;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections;
+using System.Diagnostics;
+using System.Globalization;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal static class DefaultDisplayTemplates
     {
@@ -65,8 +65,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
             return new List<SelectListItem>
             {
                 new SelectListItem("Not Set", string.Empty, !value.HasValue),
-                new SelectListItem("True", "true", (value == true)),
-                new SelectListItem("False", "false", (value == false)),
+                new SelectListItem("True", "true", value == true),
+                new SelectListItem("False", "false", value == false)
             };
         }
 
@@ -157,10 +157,10 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         public static async Task<IHtmlContent> EmailAddressTemplate(IHtmlHelper htmlHelper)
         {
-            var uriString = "mailto:" + ((htmlHelper.ViewData.Model == null) ?
+            var uriString = "mailto:" + (htmlHelper.ViewData.Model == null ?
                 string.Empty :
                 htmlHelper.ViewData.Model.ToString());
-            var linkedText = (htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null) ?
+            var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null ?
                 string.Empty :
                 htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
 
@@ -273,8 +273,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         public static async Task<IHtmlContent> UrlTemplate(IHtmlHelper htmlHelper)
         {
-            var uriString = (htmlHelper.ViewData.Model == null) ? string.Empty : htmlHelper.ViewData.Model.ToString();
-            var linkedText = (htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null) ?
+            var uriString = htmlHelper.ViewData.Model == null ? string.Empty : htmlHelper.ViewData.Model.ToString();
+            var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null ?
                 string.Empty :
                 htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
 

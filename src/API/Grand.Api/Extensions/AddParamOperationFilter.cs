@@ -8,15 +8,15 @@ namespace Grand.Api.Extensions
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.ApiDescription.GroupName == "v1" && context.ApiDescription.HttpMethod == "GET" &&
-                context.ApiDescription.ParameterDescriptions.Count == 0)
+            switch (context.ApiDescription.GroupName)
             {
-                ApplyV1(operation);
-            }
-
-            if (context.ApiDescription.GroupName == "v2" && context.ApiDescription.HttpMethod == "POST")
-            {
-                ApplyV2(operation, context);
+                case "v1" when context.ApiDescription.HttpMethod == "GET" &&
+                               context.ApiDescription.ParameterDescriptions.Count == 0:
+                    ApplyV1(operation);
+                    break;
+                case "v2" when context.ApiDescription.HttpMethod == "POST":
+                    ApplyV2(operation, context);
+                    break;
             }
         }
 

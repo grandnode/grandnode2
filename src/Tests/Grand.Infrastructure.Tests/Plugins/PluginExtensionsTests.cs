@@ -1,8 +1,8 @@
-﻿using Grand.Infrastructure.Tests.Plugins;
+﻿using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Plugins.Tests
+namespace Grand.Infrastructure.Tests.Plugins
 {
     [TestClass()]
     public class PluginExtensionsTests

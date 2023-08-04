@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Grand.Business.Catalog.Services.Brands;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
+using Grand.Business.Catalog.Services.ExportImport;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -15,12 +16,11 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using Grand.Infrastructure.TypeSearchers;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.ExportImport.Tests
+namespace Grand.Business.Catalog.Tests.Services.ExportImport
 {
     [TestClass()]
     public class BrandImportDataObjectTests

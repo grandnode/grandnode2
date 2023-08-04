@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Grand.Business.Storage.Startup;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Storage.Startup.Tests
+namespace Grand.Business.Storage.Tests.Startup
 {
     [TestClass()]
     public class StartupApplicationTests

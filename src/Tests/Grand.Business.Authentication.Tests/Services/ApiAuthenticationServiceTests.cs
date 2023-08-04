@@ -57,7 +57,7 @@ namespace Grand.Business.Authentication.Tests.Services
             var context = new TokenValidatedContext(httpContext.Object, new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
             IList<Claim> claims = new List<Claim>
             {
-                  new Claim("Email", "johny@gmail.com"),
+                  new Claim("Email", "johny@gmail.com")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
             var result = await _jwtBearerAuthenticationService.Valid(context);

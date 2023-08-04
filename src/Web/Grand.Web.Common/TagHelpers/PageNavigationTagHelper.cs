@@ -121,7 +121,7 @@ namespace Grand.Web.Common.TagHelpers
                 return null;
 
             var links = new StringBuilder();
-            if (ShowTotalSummary && (Pagination.TotalPages > 0))
+            if (ShowTotalSummary && Pagination.TotalPages > 0)
             {
                 links.Append("<li class=\"total-summary\">");
                 links.Append(string.Format(_translationService.GetResource("Pager.CurrentPage"),
@@ -129,12 +129,12 @@ namespace Grand.Web.Common.TagHelpers
                 links.Append("</li>");
             }
 
-            if (ShowPagerItems && (Pagination.TotalPages > 1))
+            if (ShowPagerItems && Pagination.TotalPages > 1)
             {
                 if (ShowFirst)
                 {
                     //first page
-                    if ((Pagination.PageIndex >= 3) && (Pagination.TotalPages > IndividualPagesDisplayedCount))
+                    if (Pagination.PageIndex >= 3 && Pagination.TotalPages > IndividualPagesDisplayedCount)
                     {
                         links.Append(CreatePageLink(1, _translationService.GetResource("Pager.First"),
                             "first-page page-item"));
@@ -161,7 +161,7 @@ namespace Grand.Web.Common.TagHelpers
                         if (Pagination.PageIndex == i)
                         {
                             links.Append(
-                                $"<li class=\"current-page page-item\"><a class=\"page-link\">{(i + 1)}</a></li>");
+                                $"<li class=\"current-page page-item\"><a class=\"page-link\">{i + 1}</a></li>");
                         }
                         else
                         {
@@ -184,7 +184,7 @@ namespace Grand.Web.Common.TagHelpers
                 {
                     //last page
                     if (Pagination.PageIndex + 3 < Pagination.TotalPages &&
-                        (Pagination.TotalPages > IndividualPagesDisplayedCount))
+                        Pagination.TotalPages > IndividualPagesDisplayedCount)
                     {
                         links.Append(CreatePageLink(Pagination.TotalPages,
                             _translationService.GetResource("Pager.Last"), "last-page page-item"));
@@ -269,17 +269,17 @@ namespace Grand.Web.Common.TagHelpers
         protected virtual int GetFirstIndividualPageIndex()
         {
             if (Pagination.TotalPages < IndividualPagesDisplayedCount ||
-                ((Pagination.PageIndex - IndividualPagesDisplayedCount / 2) < 0))
+                Pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0)
             {
                 return 0;
             }
 
-            if ((Pagination.PageIndex + IndividualPagesDisplayedCount / 2) >= Pagination.TotalPages)
+            if (Pagination.PageIndex + IndividualPagesDisplayedCount / 2 >= Pagination.TotalPages)
             {
-                return (Pagination.TotalPages - IndividualPagesDisplayedCount);
+                return Pagination.TotalPages - IndividualPagesDisplayedCount;
             }
 
-            return (Pagination.PageIndex - IndividualPagesDisplayedCount / 2);
+            return Pagination.PageIndex - IndividualPagesDisplayedCount / 2;
         }
 
         protected virtual int GetLastIndividualPageIndex()
@@ -293,15 +293,15 @@ namespace Grand.Web.Common.TagHelpers
             if (Pagination.TotalPages < IndividualPagesDisplayedCount ||
                 Pagination.PageIndex + num >= Pagination.TotalPages)
             {
-                return (Pagination.TotalPages - 1);
+                return Pagination.TotalPages - 1;
             }
 
-            if ((Pagination.PageIndex - (IndividualPagesDisplayedCount / 2)) < 0)
+            if (Pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0)
             {
-                return (IndividualPagesDisplayedCount - 1);
+                return IndividualPagesDisplayedCount - 1;
             }
 
-            return (Pagination.PageIndex + num);
+            return Pagination.PageIndex + num;
         }
     }
 }

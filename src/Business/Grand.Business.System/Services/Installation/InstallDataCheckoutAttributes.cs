@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Installation
                 IsRequired = true,
                 ShippableProductRequired = true,
                 AttributeControlTypeId = AttributeControlType.DropdownList,
-                DisplayOrder = 1,
+                DisplayOrder = 1
             };
             await _checkoutAttributeRepository.InsertAsync(ca1);
             ca1.CheckoutAttributeValues.Add(new CheckoutAttributeValue
@@ -23,7 +23,7 @@ namespace Grand.Business.System.Services.Installation
                 PriceAdjustment = 0,
                 DisplayOrder = 1,
                 IsPreSelected = true,
-                CheckoutAttributeId = ca1.Id,
+                CheckoutAttributeId = ca1.Id
             });
 
             ca1.CheckoutAttributeValues.Add(new CheckoutAttributeValue
@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Yes",
                 PriceAdjustment = 10,
                 DisplayOrder = 2,
-                CheckoutAttributeId = ca1.Id,
+                CheckoutAttributeId = ca1.Id
             });
             await _checkoutAttributeRepository.UpdateAsync(ca1);
         }

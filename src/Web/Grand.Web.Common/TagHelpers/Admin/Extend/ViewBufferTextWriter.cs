@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
+using System.Text.Encodings.Web;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal class ViewBufferTextWriter : TextWriter
     {
@@ -106,7 +106,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            if (count < 0 || (buffer.Length - index < count))
+            if (count < 0 || buffer.Length - index < count)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
@@ -236,10 +236,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(value.ToString());
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(value);
-            }
+
+            return _inner.WriteAsync(value);
         }
 
         /// <inheritdoc />
@@ -254,7 +252,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
-            if (count < 0 || (buffer.Length - index < count))
+            if (count < 0 || buffer.Length - index < count)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
@@ -264,10 +262,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(new string(buffer, index, count));
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(buffer, index, count);
-            }
+
+            return _inner.WriteAsync(buffer, index, count);
         }
 
         /// <inheritdoc />
@@ -278,10 +274,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(value);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteAsync(value);
-            }
+
+            return _inner.WriteAsync(value);
         }
 
         /// <inheritdoc />
@@ -320,10 +314,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value);
-            }
+
+            return _inner.WriteLineAsync(value);
         }
 
         /// <inheritdoc />
@@ -335,10 +327,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value, start, offset);
-            }
+
+            return _inner.WriteLineAsync(value, start, offset);
         }
 
         /// <inheritdoc />
@@ -350,10 +340,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync(value);
-            }
+
+            return _inner.WriteLineAsync(value);
         }
 
         /// <inheritdoc />
@@ -364,10 +352,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Buffer.AppendHtml(NewLine);
                 return Task.CompletedTask;
             }
-            else
-            {
-                return _inner.WriteLineAsync();
-            }
+
+            return _inner.WriteLineAsync();
         }
 
         /// <summary>

@@ -150,7 +150,7 @@ namespace Grand.Infrastructure.Plugins
                         catch (ReflectionTypeLoadException ex)
                         {
                             var msg = $"Plugin '{plugin.FriendlyName}'. ";
-                            msg = ex.LoaderExceptions.Aggregate(msg, (current, e) => current + (e!.Message + Environment.NewLine));
+                            msg = ex.LoaderExceptions.Aggregate(msg, (current, e) => current + e!.Message + Environment.NewLine);
 
                             var fail = new Exception(msg, ex);
                             throw fail;

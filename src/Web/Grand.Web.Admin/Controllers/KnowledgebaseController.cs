@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
@@ -22,22 +20,17 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IKnowledgebaseService _knowledgebaseService;
         private readonly ILanguageService _languageService;
-        private readonly IGroupService _groupService;
-        private readonly IStoreService _storeService;
 
-        public KnowledgebaseController(IKnowledgebaseViewModelService knowledgebaseViewModelService,
+        public KnowledgebaseController(
+            IKnowledgebaseViewModelService knowledgebaseViewModelService,
             ITranslationService translationService,
             IKnowledgebaseService knowledgebaseService,
-            ILanguageService languageService,
-            IGroupService groupService,
-            IStoreService storeService)
+            ILanguageService languageService)
         {
             _knowledgebaseViewModelService = knowledgebaseViewModelService;
             _translationService = translationService;
             _knowledgebaseService = knowledgebaseService;
             _languageService = languageService;
-            _groupService = groupService;
-            _storeService = storeService;
         }
 
         public IActionResult Index() => RedirectToAction("List");

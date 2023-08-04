@@ -258,7 +258,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     ShoppingCartItem = shoppingCartItem,
                     RentalStartDate = rentalStartDate,
                     RentalEndDate = rentalEndDate,
-                    ReservationId = reservationId,
+                    ReservationId = reservationId
                 });
             //reset checkout info
             await _customerService.ResetCheckoutData(customer, storeId);

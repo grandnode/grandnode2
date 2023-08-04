@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.AdminSearch;
+using Grand.Domain.Admin;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -253,10 +253,15 @@ namespace Grand.Web.Admin.Controllers
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
 
             catalogSettings.ProductSortingEnumDisplayOrder[model.Id] = model.DisplayOrder;
-            if (model.IsActive && catalogSettings.ProductSortingEnumDisabled.Contains(model.Id))
-                catalogSettings.ProductSortingEnumDisabled.Remove(model.Id);
-            if (!model.IsActive && !catalogSettings.ProductSortingEnumDisabled.Contains(model.Id))
-                catalogSettings.ProductSortingEnumDisabled.Add(model.Id);
+            switch (model.IsActive)
+            {
+                case true when catalogSettings.ProductSortingEnumDisabled.Contains(model.Id):
+                    catalogSettings.ProductSortingEnumDisabled.Remove(model.Id);
+                    break;
+                case false when !catalogSettings.ProductSortingEnumDisabled.Contains(model.Id):
+                    catalogSettings.ProductSortingEnumDisabled.Add(model.Id);
+                    break;
+            }
 
             await _settingService.SaveSetting(catalogSettings, storeScope);
 
@@ -970,37 +975,30 @@ namespace Grand.Web.Admin.Controllers
         {
             var pageIndex = 0;
             const int pageSize = 100;
-            try
+            while (true)
             {
-                while (true)
+                var pictures = _pictureService.GetPictures(pageIndex, pageSize);
+                pageIndex++;
+                if (!pictures.Any())
+                    break;
+
+                foreach (var picture in pictures)
                 {
-                    var pictures = _pictureService.GetPictures(pageIndex, pageSize);
-                    pageIndex++;
-                    if (!pictures.Any())
-                        break;
-
-                    foreach (var picture in pictures)
+                    var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
+                    if (storeIdDb)
+                        await _pictureService.DeletePictureOnFileSystem(picture);
+                    else
                     {
-                        var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
-                        if (storeIdDb)
-                            await _pictureService.DeletePictureOnFileSystem(picture);
-                        else
-                        {
-                            //now on file system
-                            if (pictureBinary != null)
-                                await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
-                        }
-                        picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
-                        picture.IsNew = true;
-
-                        await _pictureService.UpdatePicture(picture);
+                        //now on file system
+                        if (pictureBinary != null)
+                            await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
                     }
+                    picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
+                    picture.IsNew = true;
+
+                    await _pictureService.UpdatePicture(picture);
                 }
             }
-            finally
-            {
-            }
-
         }
         #endregion
 

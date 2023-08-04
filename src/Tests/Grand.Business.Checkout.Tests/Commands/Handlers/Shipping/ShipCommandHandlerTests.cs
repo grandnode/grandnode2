@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Checkout.Commands.Handlers.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
@@ -7,7 +8,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Shipping.Tests
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Shipping
 {
     [TestClass()]
     public class ShipCommandHandlerTests

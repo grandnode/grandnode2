@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "";
 }
-@model Grand.Plugin.DiscountRules.ShoppingCart.Models.RequirementModel
+@model DiscountRules.Standard.Models.RequirementShoppingCartModel
 <script>
         $(document).ready(function () {
             $('#saveShoppingCartrequirement@(Model.RequirementId)').click(function () {
@@ -11,7 +11,7 @@
                 $.ajax({
                     cache:false,
                     type: "POST",
-                    url: "@(Url.Action("Configure", "ShoppingCartAmount"))",
+                    url: "@Url.Action("Configure", "ShoppingCartAmount")",
                     data: { "discountId": discountId, "discountRequirementId": requirementId, "spentAmount": spentAmount },
                     success: function (data) {
                          $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");

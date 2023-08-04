@@ -1,11 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
+﻿using Grand.Business.Checkout.Queries.Handlers.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Queries.Handlers.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Queries.Handlers.Orders
 {
     [TestClass()]
     public class HandlerTests

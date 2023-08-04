@@ -1,16 +1,14 @@
-﻿using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Customers;
+﻿using Grand.Business.Common.Services.Logging;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
-using Grand.Domain.Localization;
 using Grand.Domain.Logging;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Services.Logging.Tests
+namespace Grand.Business.Common.Tests.Services.Logging
 {
     [TestClass()]
     public class CustomerActivityServiceTests

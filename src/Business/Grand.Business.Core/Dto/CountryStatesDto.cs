@@ -1,6 +1,6 @@
-﻿namespace Grand.Business.Common.Services.ExportImport
+﻿namespace Grand.Business.Core.Dto
 {
-    public class CountryStates
+    public class CountryStatesDto
     {
         public string Country { get; set; }
         public string StateProvinceName { get; set; }

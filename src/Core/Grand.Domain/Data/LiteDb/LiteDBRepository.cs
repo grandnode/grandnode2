@@ -290,7 +290,7 @@ namespace Grand.Domain.Data.LiteDb
                 var propertyInfo = entity?.GetType().GetProperty(name,
                     BindingFlags.Public | BindingFlags.Instance);
 
-                propertyInfo.SetValue(entity, item.Value);
+                propertyInfo?.SetValue(entity, item.Value);
             }
             _collection.Update(entity);
             return Task.CompletedTask;
@@ -389,11 +389,11 @@ namespace Grand.Domain.Data.LiteDb
                     var propertyField = position.GetType().GetProperty(item.Name,
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    propertyField.SetValue(position, item.GetValue(value));
+                    propertyField?.SetValue(position, item.GetValue(value));
                 }
 
-                var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
-                entity[fieldName] = updatelist;
+                var updateList = BsonMapper.Global.Serialize<IList<U>>(list);
+                entity[fieldName] = updateList;
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -681,20 +681,21 @@ namespace Grand.Domain.Data.LiteDb
 
             MemberExpression expr = null;
 
-            if (Field.Body is MemberExpression expression)
+            switch (Field.Body)
             {
-                expr = expression;
-            }
-            else if (Field.Body is UnaryExpression)
-            {
-                expr = (MemberExpression)((UnaryExpression)Field.Body).Operand;
-            }
-            else
-            {
-                const string Format = "Expression '{0}' not supported.";
-                var message = string.Format(Format, Field);
+                case MemberExpression expression:
+                    expr = expression;
+                    break;
+                case UnaryExpression expression:
+                    expr = (MemberExpression)expression.Operand;
+                    break;
+                default:
+                {
+                    const string format = "Expression '{0}' not supported.";
+                    var message = string.Format(format, Field);
 
-                throw new ArgumentException(message, "Field");
+                    throw new ArgumentException(message, "Field");
+                }
             }
 
             return expr.Member.Name;

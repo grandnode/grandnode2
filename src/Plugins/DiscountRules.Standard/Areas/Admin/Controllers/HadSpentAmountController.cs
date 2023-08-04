@@ -1,14 +1,14 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+﻿using DiscountRules.Standard.Models;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Discounts;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Domain.Discounts;
 using Microsoft.AspNetCore.Mvc;
-using DiscountRules.Standard.HadSpentAmount.Models;
 using System.Globalization;
 
-namespace DiscountRules.Standard.HadSpentAmount.Controllers
+namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [AuthorizeAdmin]
@@ -44,7 +44,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
                 spentAmountRequirement = Convert.ToDouble(discountRequirement.Metadata);
             }
 
-            var model = new RequirementModel {
+            var model = new RequirementSpentAmountModel {
                 RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
                 DiscountId = discountId,
                 SpentAmount = spentAmountRequirement
@@ -54,7 +54,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesHadSpentAmount{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View(model);
+            return View((object)model);
         }
 
         [HttpPost]

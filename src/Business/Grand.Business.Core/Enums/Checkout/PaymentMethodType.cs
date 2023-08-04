@@ -7,6 +7,6 @@ namespace Grand.Business.Core.Enums.Checkout
     {
         Standard = 1,
         Redirection = 2,
-        Other = 3,
+        Other = 3
     }
 }

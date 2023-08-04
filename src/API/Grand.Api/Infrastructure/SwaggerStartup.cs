@@ -101,7 +101,7 @@ namespace Grand.Api.Infrastructure
             return new OpenApiContact {
                 Name = "Grandnode",
                 Email = "support@grandnode.com",
-                Url = new Uri("https://grancnode.com"),
+                Url = new Uri("https://grancnode.com")
             };
         }
 
@@ -109,7 +109,7 @@ namespace Grand.Api.Infrastructure
         {
             return new OpenApiLicense {
                 Name = "GNU General Public License v3.0",
-                Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE"),
+                Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE")
             };
         }
     }

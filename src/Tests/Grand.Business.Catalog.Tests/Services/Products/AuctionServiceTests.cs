@@ -1,4 +1,5 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -10,7 +11,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class AuctionServiceTests
@@ -203,12 +204,12 @@ namespace Grand.Business.Catalog.Services.Products.Tests
             //Arrange
             var product1 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             };
             _productrepository.Insert(product1);
             var product2 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(-1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(-1)
             };
             _productrepository.Insert(product2);
 
@@ -225,7 +226,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
             //Arrange
             var product1 = new Product() {
                 ProductTypeId = ProductType.Auction,
-                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1),
+                AvailableEndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             };
             _productrepository.Insert(product1);
 

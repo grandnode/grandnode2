@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Events.Checkout.Orders;
+﻿using Grand.Business.Checkout.Events.Orders;
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Events.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Events.Orders
 {
     [TestClass()]
     public class OrderDeletedEventHandlerTests

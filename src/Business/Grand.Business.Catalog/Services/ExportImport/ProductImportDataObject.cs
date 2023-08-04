@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
@@ -221,7 +221,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             {
                 if (string.IsNullOrEmpty(picturePath))
                     continue;
-                if (!picturePath.ToLower().StartsWith(("http".ToLower())))
+                if (!picturePath.ToLower().StartsWith("http".ToLower()))
                 {
                     var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
                     var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
@@ -249,7 +249,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                         Domain.Common.Reference.Product, product.Id);
                     var productPicture = new ProductPicture {
                         PictureId = picture.Id,
-                        DisplayOrder = 1,
+                        DisplayOrder = 1
                     };
                     await _productService.InsertProductPicture(productPicture, product.Id);
                 }
@@ -261,7 +261,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                     var picture = await _pictureService.InsertPicture(fileBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false, Domain.Common.Reference.Product, product.Id);
                     var productPicture = new ProductPicture {
                         PictureId = picture.Id,
-                        DisplayOrder = 1,
+                        DisplayOrder = 1
                     };
                     await _productService.InsertProductPicture(productPicture, product.Id);
                 }

@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain;
 using Grand.Domain.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Authentication.Services.Tests
+namespace Grand.Business.Authentication.Tests.Services
 {
     [TestClass()]
     public class RefreshTokenServiceTests
@@ -26,7 +27,7 @@ namespace Grand.Business.Authentication.Services.Tests
                 ExpiryInMinutes = 1440,
                 RefreshTokenExpiryInMinutes = 1440,
                 Enabled = true,
-                ValidateIssuer = false,
+                ValidateIssuer = false
             });
         }
 

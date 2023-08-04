@@ -13,6 +13,6 @@
         /// <summary>
         /// SMS verification
         /// </summary>
-        SMSVerification = 2,
+        SMSVerification = 2
     }
 }

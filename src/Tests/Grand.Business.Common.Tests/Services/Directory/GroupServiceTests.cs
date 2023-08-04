@@ -2,14 +2,13 @@
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
-using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Services.Directory.Tests
+namespace Grand.Business.Common.Tests.Services.Directory
 {
     [TestClass()]
     public class GroupServiceTests

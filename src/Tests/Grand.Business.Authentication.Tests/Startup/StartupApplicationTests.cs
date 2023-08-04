@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Authentication.Tests
+namespace Grand.Business.Authentication.Tests.Startup
 {
     [TestClass()]
     public class StartupApplicationTests

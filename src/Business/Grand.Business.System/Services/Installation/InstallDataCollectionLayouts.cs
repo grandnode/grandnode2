@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Installation
                                            Name = "Grid or Lines",
                                            ViewPath = "CollectionLayout.GridOrLines",
                                            DisplayOrder = 1
-                                       },
+                                       }
                                };
             await _collectionLayoutRepository.InsertAsync(collectionLayouts);
         }

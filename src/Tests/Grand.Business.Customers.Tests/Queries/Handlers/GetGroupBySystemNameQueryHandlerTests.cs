@@ -1,8 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Customers.Queries.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Customers.Queries.Handlers.Tests
+namespace Grand.Business.Customers.Tests.Queries.Handlers
 {
     [TestClass()]
     public class GetGroupBySystemNameQueryHandlerTests

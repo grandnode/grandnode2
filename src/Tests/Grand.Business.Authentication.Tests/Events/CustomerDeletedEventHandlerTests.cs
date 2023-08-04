@@ -1,9 +1,10 @@
-﻿using Grand.Data.Tests.MongoDb;
+﻿using Grand.Business.Authentication.Events;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Authentication.Events.Tests
+namespace Grand.Business.Authentication.Tests.Events
 {
     [TestClass()]
     public class CustomerDeletedEventHandlerTests

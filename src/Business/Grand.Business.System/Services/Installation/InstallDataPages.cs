@@ -161,7 +161,7 @@ namespace Grand.Business.System.Services.Installation
                                            Body = "<p>Knowledgebase homepage. You can edit this in the admin site.</p>",
                                            PageLayoutId = defaultPageLayout.Id,
                                            Published = true
-                                       },
+                                       }
                                };
             await _pageRepository.InsertAsync(pages);
 

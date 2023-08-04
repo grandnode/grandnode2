@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Orders;
+﻿using Grand.Domain.Catalog;
+using Grand.Domain.Orders;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 

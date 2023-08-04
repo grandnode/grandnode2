@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
@@ -18,7 +17,6 @@ namespace Grand.Web.Admin.Services
     {
 
         private readonly ICampaignService _campaignService;
-        private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IEmailAccountService _emailAccountService;
@@ -29,7 +27,6 @@ namespace Grand.Web.Admin.Services
         private readonly INewsletterCategoryService _newsletterCategoryService;
 
         public CampaignViewModelService(ICampaignService campaignService,
-            ICustomerService customerService,
             IGroupService groupService,
             IDateTimeService dateTimeService,
             IEmailAccountService emailAccountService,
@@ -40,7 +37,6 @@ namespace Grand.Web.Admin.Services
             INewsletterCategoryService newsletterCategoryService)
         {
             _campaignService = campaignService;
-            _customerService = customerService;
             _groupService = groupService;
             _dateTimeService = dateTimeService;
             _emailAccountService = emailAccountService;

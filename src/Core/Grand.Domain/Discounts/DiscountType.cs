@@ -40,6 +40,6 @@ namespace Grand.Domain.Discounts
         /// <summary>
         /// Assigned to all product
         /// </summary>
-        AssignedToAllProducts = 30,
+        AssignedToAllProducts = 30
     }
 }

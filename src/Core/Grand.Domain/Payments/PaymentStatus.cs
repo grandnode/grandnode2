@@ -36,6 +36,6 @@ namespace Grand.Domain.Payments
         /// <summary>
         /// Voided
         /// </summary>
-        Voided = 50,
+        Voided = 50
     }
 }

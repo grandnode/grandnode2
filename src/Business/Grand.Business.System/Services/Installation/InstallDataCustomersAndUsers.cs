@@ -13,7 +13,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Administrators",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.Administrators,
+                SystemName = SystemCustomerGroupNames.Administrators
             };
             await _customerGroupRepository.InsertAsync(crAdministrators);
 
@@ -22,7 +22,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Registered",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.Registered,
+                SystemName = SystemCustomerGroupNames.Registered
             };
             await _customerGroupRepository.InsertAsync(crRegistered);
 
@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Guests",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.Guests,
+                SystemName = SystemCustomerGroupNames.Guests
             };
             await _customerGroupRepository.InsertAsync(crGuests);
 
@@ -40,7 +40,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Vendors",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.Vendors,
+                SystemName = SystemCustomerGroupNames.Vendors
             };
             await _customerGroupRepository.InsertAsync(crVendors);
 
@@ -49,7 +49,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Staff",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.Staff,
+                SystemName = SystemCustomerGroupNames.Staff
             };
             await _customerGroupRepository.InsertAsync(crStaff);
 
@@ -58,7 +58,7 @@ namespace Grand.Business.System.Services.Installation
                 Name = "Sales manager",
                 Active = true,
                 IsSystem = true,
-                SystemName = SystemCustomerGroupNames.SalesManager,
+                SystemName = SystemCustomerGroupNames.SalesManager
             };
             await _customerGroupRepository.InsertAsync(crSalesManager);
 
@@ -74,7 +74,7 @@ namespace Grand.Business.System.Services.Installation
                 Active = true,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
-                PasswordChangeDateUtc = DateTime.UtcNow,
+                PasswordChangeDateUtc = DateTime.UtcNow
             };
             var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "USA");
             var defaultAdminUserAddress = new Address
@@ -91,7 +91,7 @@ namespace Grand.Business.System.Services.Installation
                 StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
                 CountryId = country?.Id,
                 ZipPostalCode = "10021",
-                CreatedOnUtc = DateTime.UtcNow,
+                CreatedOnUtc = DateTime.UtcNow
             };
             adminUser.Addresses.Add(defaultAdminUserAddress);
             adminUser.BillingAddress = defaultAdminUserAddress;
@@ -113,7 +113,7 @@ namespace Grand.Business.System.Services.Installation
                 IsSystemAccount = true,
                 SystemName = SystemCustomerNames.Anonymous,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
             anonymousUser.Groups.Add(crGuests.Id);
             await _customerRepository.InsertAsync(anonymousUser);
@@ -129,7 +129,7 @@ namespace Grand.Business.System.Services.Installation
                 IsSystemAccount = true,
                 SystemName = SystemCustomerNames.SearchEngine,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
             searchEngineUser.Groups.Add(crGuests.Id);
             await _customerRepository.InsertAsync(searchEngineUser);
@@ -146,7 +146,7 @@ namespace Grand.Business.System.Services.Installation
                 IsSystemAccount = true,
                 SystemName = SystemCustomerNames.BackgroundTask,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
             backgroundTaskUser.Groups.Add(crGuests.Id);
             await _customerRepository.InsertAsync(backgroundTaskUser);

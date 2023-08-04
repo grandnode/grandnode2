@@ -1,12 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Messages.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grand.Business.Messages.Services;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Messages.Services.Tests
+namespace Grand.Business.Messages.Tests.Services
 {
     [TestClass()]
     public class MessageTokenProviderTests

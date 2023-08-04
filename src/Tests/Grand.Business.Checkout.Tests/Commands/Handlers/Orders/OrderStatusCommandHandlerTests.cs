@@ -1,17 +1,15 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-namespace Grand.Business.Checkout.Commands.Handlers.Orders.Tests
+
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass()]
     public class OrderStatusCommandHandlerTests

@@ -1,15 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Services.Directory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Moq;
+﻿using Grand.Business.Catalog.Services.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.SharedKernel.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Catalog.Services.Directory.Tests
+namespace Grand.Business.Catalog.Tests.Services.Directory
 {
     [TestClass()]
     public class GeoLookupServiceTests

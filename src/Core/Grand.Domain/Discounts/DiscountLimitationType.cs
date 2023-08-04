@@ -16,6 +16,6 @@ namespace Grand.Domain.Discounts
         /// <summary>
         /// N Times Per user
         /// </summary>
-        NTimesPerUser = 2,
+        NTimesPerUser = 2
     }
 }

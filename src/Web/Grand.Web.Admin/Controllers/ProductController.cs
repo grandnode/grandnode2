@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
+﻿using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -139,8 +139,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     if (!product.LimitedToStores || (product.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && product.LimitedToStores))
                         return RedirectToAction("Edit", new { id = product.Id });
-                    else
-                        return RedirectToAction("List", "Product");
+                    return RedirectToAction("List", "Product");
                 }
 
                 return RedirectToAction("Edit", "Product", new { id = product.Id });
@@ -655,13 +654,11 @@ namespace Grand.Web.Admin.Controllers
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareRelatedProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareRelatedProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -758,13 +755,11 @@ namespace Grand.Web.Admin.Controllers
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareSimilarProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareSimilarProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -862,13 +857,11 @@ namespace Grand.Web.Admin.Controllers
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareBundleProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareBundleProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -957,13 +950,11 @@ namespace Grand.Web.Admin.Controllers
                 }
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareCrossSellProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareCrossSellProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -1051,13 +1042,11 @@ namespace Grand.Web.Admin.Controllers
                 }
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareRecommendedProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareRecommendedProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -1166,13 +1155,11 @@ namespace Grand.Web.Admin.Controllers
                 }
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                model = await _productViewModelService.PrepareAssociatedProductModel();
-                model.ProductId = model.ProductId;
-                return View(model);
-            }
+
+            Error(ModelState);
+            model = await _productViewModelService.PrepareAssociatedProductModel();
+            model.ProductId = model.ProductId;
+            return View(model);
         }
 
         #endregion
@@ -1826,13 +1813,11 @@ namespace Grand.Web.Admin.Controllers
 
                 return Content("");
             }
-            else
-            {
-                Error(ModelState);
-                //If we got this far, something failed, redisplay form
-                await _productViewModelService.PrepareTierPriceModel(model);
-                return View(model);
-            }
+
+            Error(ModelState);
+            //If we got this far, something failed, redisplay form
+            await _productViewModelService.PrepareTierPriceModel(model);
+            return View(model);
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -2647,17 +2632,17 @@ namespace Grand.Web.Admin.Controllers
             await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
             var minutesToAdd = 0;
-            if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute)
+            switch ((IntervalUnit)model.IntervalUnit)
             {
-                minutesToAdd = model.Interval;
-            }
-            else if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Hour)
-            {
-                minutesToAdd = model.Interval * 60;
-            }
-            else if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Day)
-            {
-                minutesToAdd = model.Interval * 60 * 24;
+                case IntervalUnit.Minute:
+                    minutesToAdd = model.Interval;
+                    break;
+                case IntervalUnit.Hour:
+                    minutesToAdd = model.Interval * 60;
+                    break;
+                case IntervalUnit.Day:
+                    minutesToAdd = model.Interval * 60 * 24;
+                    break;
             }
 
             var _hourFrom = model.StartTime.Hour;
@@ -2882,8 +2867,8 @@ namespace Grand.Web.Admin.Controllers
                     await _auctionService.DeleteBid(toDelete);
                     return Json("");
                 }
-                else
-                    return Json(new DataSourceResult { Errors = _translationService.GetResource("Admin.Catalog.Products.Bids.CantDeleteWithOrder") });
+
+                return Json(new DataSourceResult { Errors = _translationService.GetResource("Admin.Catalog.Products.Bids.CantDeleteWithOrder") });
             }
             return Json(new DataSourceResult { Errors = "Bid not exists" });
         }

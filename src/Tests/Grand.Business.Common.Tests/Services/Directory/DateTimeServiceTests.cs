@@ -1,7 +1,8 @@
-﻿using Grand.Domain.Directory;
+﻿using Grand.Business.Common.Services.Directory;
+using Grand.Domain.Directory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Common.Services.Directory.Tests
+namespace Grand.Business.Common.Tests.Services.Directory
 {
     [TestClass()]
     public class DateTimeServiceTests

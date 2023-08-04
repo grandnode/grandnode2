@@ -20,6 +20,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Years
         /// </summary>
-        Years = 30,
+        Years = 30
     }
 }

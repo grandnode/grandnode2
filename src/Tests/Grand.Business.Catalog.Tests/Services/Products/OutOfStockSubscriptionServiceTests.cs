@@ -1,20 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Catalog.Services.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grand.Domain.Data;
-using Grand.Domain.Catalog;
-using MediatR;
-using Moq;
-using Grand.Data.Tests.MongoDb;
-using Grand.SharedKernel.Extensions;
-using Grand.Domain.Common;
+﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Commands.Catalog;
+using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Data;
+using Grand.SharedKernel.Extensions;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Catalog.Services.Products.Tests
+namespace Grand.Business.Catalog.Tests.Services.Products
 {
     [TestClass()]
     public class OutOfStockSubscriptionServiceTests
@@ -41,13 +36,13 @@ namespace Grand.Business.Catalog.Services.Products.Tests
         {
             //Arange
             var outOfStockSubscription1 = new OutOfStockSubscription() {
-                CustomerId = "1",
+                CustomerId = "1"
             };
             var outOfStockSubscription2 = new OutOfStockSubscription() {
-                CustomerId = "1",
+                CustomerId = "1"
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
-                CustomerId = "2",
+                CustomerId = "2"
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 
@@ -66,19 +61,19 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription2 = new OutOfStockSubscription() {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 
@@ -96,19 +91,19 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription2 = new OutOfStockSubscription() {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 
@@ -126,19 +121,19 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription2 = new OutOfStockSubscription() {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 
@@ -158,7 +153,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             //Act
             await _outOfStockSubscriptionService.InsertSubscription(outOfStockSubscription1);
@@ -176,7 +171,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _outOfStockSubscriptionService.InsertSubscription(outOfStockSubscription1);
             outOfStockSubscription1.CustomerId = "2";
@@ -194,7 +189,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _outOfStockSubscriptionService.InsertSubscription(outOfStockSubscription1);
             //Act
@@ -213,19 +208,19 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription2 = new OutOfStockSubscription() {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 
@@ -244,7 +239,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             outOfStockSubscription1.Attributes.Add(new CustomAttribute() { Key = "MyKey", Value = "1" });
 
@@ -252,13 +247,13 @@ namespace Grand.Business.Catalog.Services.Products.Tests
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2",
                 ProductId = "1",
                 StoreId = "",
-                WarehouseId = "",
+                WarehouseId = ""
             };
             await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
 

@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -28,7 +27,6 @@ namespace Grand.Web.Admin.Controllers
         #region Fields
 
         private readonly ITaxService _taxService;
-        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly ISettingService _settingService;
@@ -42,7 +40,6 @@ namespace Grand.Web.Admin.Controllers
         #region Constructors
 
         public TaxController(ITaxService taxService,
-            IStoreService storeService,
             IWorkContext workContext,
             ITaxCategoryService taxCategoryService,
             ISettingService settingService, 
@@ -52,7 +49,6 @@ namespace Grand.Web.Admin.Controllers
             ICountryService countryService)
         {
             _taxService = taxService;
-            _storeService = storeService;
             _workContext = workContext;
             _taxCategoryService = taxCategoryService;
             _settingService = settingService;

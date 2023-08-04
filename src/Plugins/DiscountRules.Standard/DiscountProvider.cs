@@ -1,4 +1,4 @@
-﻿using DiscountRules.Provider;
+﻿using DiscountRules.Standard.Providers;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 
 namespace DiscountRules.Standard

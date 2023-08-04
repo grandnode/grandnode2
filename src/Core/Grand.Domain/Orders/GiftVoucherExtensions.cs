@@ -64,7 +64,7 @@ namespace Grand.Domain.Orders
         /// <returns>Gift voucher remaining amount</returns>
         public static double GetGiftVoucherRemainingAmount(this GiftVoucher giftVoucher)
         {
-            double result = giftVoucher.Amount;
+            var result = giftVoucher.Amount;
 
             foreach (var gcuh in giftVoucher.GiftVoucherUsageHistory)
                 result -= gcuh.UsedValue;
@@ -96,7 +96,7 @@ namespace Grand.Domain.Orders
             if(!string.IsNullOrEmpty(giftVoucher.StoreId) && giftVoucher.StoreId!=store.Id)
                 return false;
 
-            double remainingAmount = giftVoucher.GetGiftVoucherRemainingAmount();
+            var remainingAmount = giftVoucher.GetGiftVoucherRemainingAmount();
             if (remainingAmount > 0)
                 return true;
 

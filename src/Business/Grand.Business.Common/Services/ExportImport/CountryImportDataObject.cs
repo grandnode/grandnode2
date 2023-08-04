@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Dto;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Directory;
 
 namespace Grand.Business.Common.Services.ExportImport
 {
-    public class CountryImportDataObject : IImportDataObject<CountryStates>
+    public class CountryImportDataObject : IImportDataObject<CountryStatesDto>
     {
         private readonly ICountryService _countryService;
 
@@ -13,7 +14,7 @@ namespace Grand.Business.Common.Services.ExportImport
             _countryService = countryService;
         }
 
-        public async Task Execute(IEnumerable<CountryStates> data)
+        public async Task Execute(IEnumerable<CountryStatesDto> data)
         {
             foreach (var item in data)
             {
@@ -21,28 +22,28 @@ namespace Grand.Business.Common.Services.ExportImport
             }
         }
 
-        private async Task Import(CountryStates countryStatesDto)
+        private async Task Import(CountryStatesDto countryStatesDtoDto)
         {
-            var country = await _countryService.GetCountryByTwoLetterIsoCode(countryStatesDto.Country);
+            var country = await _countryService.GetCountryByTwoLetterIsoCode(countryStatesDtoDto.Country);
             if (country == null)
                 return;
 
-            var state = country.StateProvinces.FirstOrDefault(x => x.Abbreviation.Equals(countryStatesDto.Abbreviation, StringComparison.OrdinalIgnoreCase));
+            var state = country.StateProvinces.FirstOrDefault(x => x.Abbreviation.Equals(countryStatesDtoDto.Abbreviation, StringComparison.OrdinalIgnoreCase));
             if (state != null)
             {
-                state.Name = countryStatesDto.StateProvinceName;
-                state.Abbreviation = countryStatesDto.Abbreviation;
-                state.Published = countryStatesDto.Published;
-                state.DisplayOrder = countryStatesDto.DisplayOrder;
+                state.Name = countryStatesDtoDto.StateProvinceName;
+                state.Abbreviation = countryStatesDtoDto.Abbreviation;
+                state.Published = countryStatesDtoDto.Published;
+                state.DisplayOrder = countryStatesDtoDto.DisplayOrder;
                 await _countryService.UpdateStateProvince(state, country.Id);
             }
             else
             {
                 state = new StateProvince {
-                    Name = countryStatesDto.StateProvinceName,
-                    Abbreviation = countryStatesDto.Abbreviation,
-                    Published = countryStatesDto.Published,
-                    DisplayOrder = countryStatesDto.DisplayOrder
+                    Name = countryStatesDtoDto.StateProvinceName,
+                    Abbreviation = countryStatesDtoDto.Abbreviation,
+                    Published = countryStatesDtoDto.Published,
+                    DisplayOrder = countryStatesDtoDto.DisplayOrder
                 };
                 await _countryService.InsertStateProvince(state, country.Id);
             }

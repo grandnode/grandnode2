@@ -3,7 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal static class NameAndIdProvider
     {

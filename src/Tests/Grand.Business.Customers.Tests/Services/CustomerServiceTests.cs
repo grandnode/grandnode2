@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Common.Services.Directory;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Customers;
+using Grand.Business.Customers.Services;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -11,7 +11,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Customers.Services.Tests
+namespace Grand.Business.Customers.Tests.Services
 {
     [TestClass()]
     public class CustomerServiceTests

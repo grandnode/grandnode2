@@ -22,7 +22,7 @@ namespace Grand.Business.System.Services.Installation
                     DisplayOrder = 1,
                     PageSize = 6,
                     AllowCustomersToSelectPageSize = true,
-                    PageSizeOptions = "6, 3, 9, 18",
+                    PageSizeOptions = "6, 3, 9, 18"
                 },
                 new Vendor
                 {
@@ -35,7 +35,7 @@ namespace Grand.Business.System.Services.Installation
                     DisplayOrder = 2,
                     PageSize = 6,
                     AllowCustomersToSelectPageSize = true,
-                    PageSizeOptions = "6, 3, 9, 18",
+                    PageSizeOptions = "6, 3, 9, 18"
                 }
             };
 

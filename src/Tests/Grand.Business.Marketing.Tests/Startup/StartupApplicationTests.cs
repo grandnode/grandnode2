@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Grand.Business.Marketing.Startup;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Marketing.Startup.Tests
+namespace Grand.Business.Marketing.Tests.Startup
 {
     [TestClass()]
     public class StartupApplicationTests

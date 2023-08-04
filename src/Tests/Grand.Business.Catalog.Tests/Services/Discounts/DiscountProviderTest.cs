@@ -40,7 +40,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task<DiscountRuleValidationResult> CheckRequirement(DiscountRuleValidationRequest request)
         {
             var result = new DiscountRuleValidationResult() {
-                IsValid = true,
+                IsValid = true
             };
             return await Task.FromResult(result);
         }

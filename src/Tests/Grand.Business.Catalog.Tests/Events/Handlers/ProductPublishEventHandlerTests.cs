@@ -1,8 +1,9 @@
-﻿using Grand.Infrastructure.Caching;
+﻿using Grand.Business.Catalog.Events.Handlers;
+using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Events.Handlers.Tests
+namespace Grand.Business.Catalog.Tests.Events.Handlers
 {
     [TestClass()]
     public class ProductPublishEventHandlerTests

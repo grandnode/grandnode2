@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal static class ExpressionMetadataProvider
     {
@@ -181,7 +181,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                     Func<object, object> modelAccessor = (ignore) => viewDataInfo.Value;
                     return containerExplorer.GetExplorerForExpression(propertyMetadata, modelAccessor);
                 }
-                else if (viewDataInfo.Value != null)
+
+                if (viewDataInfo.Value != null)
                 {
                     // We have a value, even though we may not know where it came from.
                     var valueMetadata = metadataProvider.GetMetadataForType(viewDataInfo.Value.GetType());
@@ -209,10 +210,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 var model = viewData.Model == null ? null : Convert.ToString(viewData.Model, CultureInfo.CurrentCulture);
                 return metadataProvider.GetModelExplorerForType(typeof(string), model);
             }
-            else
-            {
-                return viewData.ModelExplorer;
-            }
+
+            return viewData.ModelExplorer;
         }
     }
 }

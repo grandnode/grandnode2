@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Events.Checkout.Orders;
+﻿using Grand.Business.Checkout.Events.Orders;
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -7,7 +8,7 @@ using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Events.Orders.Tests
+namespace Grand.Business.Checkout.Tests.Events.Orders
 {
     [TestClass()]
     public class OrderPlacedEventHandlerTests

@@ -408,9 +408,9 @@ namespace Grand.Web.Admin.Services
                     QuantityToAdd = maxQtyToAdd
                 };
 
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+                switch (product.ManageInventoryMethodId)
                 {
-                    if (product.UseMultipleWarehouses)
+                    case ManageInventoryMethod.ManageStock when product.UseMultipleWarehouses:
                     {
                         //multiple warehouses supported
                         shipmentItemModel.AllowToChooseWarehouse = true;
@@ -430,8 +430,10 @@ namespace Grand.Web.Admin.Services
                                     });
                             }
                         }
+
+                        break;
                     }
-                    else
+                    case ManageInventoryMethod.ManageStock:
                     {
                         //multiple warehouses are not supported
                         var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
@@ -444,12 +446,10 @@ namespace Grand.Web.Admin.Services
                                 StockQuantity = product.StockQuantity
                             });
                         }
-                    }
-                }
 
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-                {
-                    if (product.UseMultipleWarehouses)
+                        break;
+                    }
+                    case ManageInventoryMethod.ManageStockByAttributes when product.UseMultipleWarehouses:
                     {
                         //multiple warehouses supported
                         shipmentItemModel.AllowToChooseWarehouse = true;
@@ -473,8 +473,10 @@ namespace Grand.Web.Admin.Services
                                 }
                             }
                         }
+
+                        break;
                     }
-                    else
+                    case ManageInventoryMethod.ManageStockByAttributes:
                     {
                         //multiple warehouses are not supported
                         var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
@@ -487,6 +489,8 @@ namespace Grand.Web.Admin.Services
                                 StockQuantity = product.StockQuantity
                             });
                         }
+
+                        break;
                     }
                 }
 
@@ -538,24 +542,28 @@ namespace Grand.Web.Admin.Services
             foreach (var item in shipment.ShipmentItems)
             {
                 var product = await _productService.GetProductById(item.ProductId);
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+                switch (product.ManageInventoryMethodId)
                 {
-                    var stock = _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: false,
-                        warehouseId: item.WarehouseId);
-                    if (stock - item.Quantity < 0)
-                        return (false, $"Out of stock for product {product.Name}");
-                }
+                    case ManageInventoryMethod.ManageStock:
+                    {
+                        var stock = _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: false,
+                            warehouseId: item.WarehouseId);
+                        if (stock - item.Quantity < 0)
+                            return (false, $"Out of stock for product {product.Name}");
+                        break;
+                    }
+                    case ManageInventoryMethod.ManageStockByAttributes:
+                    {
+                        var combination = product.FindProductAttributeCombination(item.Attributes);
+                        if (combination == null)
+                            return (false, $"Can't find combination for product {product.Name}");
 
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-                {
-                    var combination = product.FindProductAttributeCombination(item.Attributes);
-                    if (combination == null)
-                        return (false, $"Can't find combination for product {product.Name}");
-
-                    var stock = _stockQuantityService.GetTotalStockQuantityForCombination(product, combination,
-                        useReservedQuantity: false, warehouseId: item.WarehouseId);
-                    if (stock - item.Quantity < 0)
-                        return (false, $"Out of stock for product {product.Name}");
+                        var stock = _stockQuantityService.GetTotalStockQuantityForCombination(product, combination,
+                            useReservedQuantity: false, warehouseId: item.WarehouseId);
+                        if (stock - item.Quantity < 0)
+                            return (false, $"Out of stock for product {product.Name}");
+                        break;
+                    }
                 }
             }
 

@@ -1,22 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
-using Grand.Domain;
+using Grand.Business.Marketing.Services.Campaigns;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Extensions;
-using MediatR;
-using Grand.Data.Tests.MongoDb;
-using Moq;
 using Grand.Infrastructure.Events;
-using Grand.Domain.Localization;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Grand.Business.Marketing.Services.Campaigns.Tests
+namespace Grand.Business.Marketing.Tests.Services.Campaigns
 {
     [TestClass()]
     public class CampaignServiceTests

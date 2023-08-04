@@ -4,7 +4,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using Grand.Infrastructure.Configuration;
 
 namespace Grand.Business.Common.Services.Seo
 {
@@ -17,7 +16,6 @@ namespace Grand.Business.Common.Services.Seo
 
         private readonly IRepository<EntityUrl> _urlEntityRepository;
         private readonly ICacheBase _cacheBase;
-        private readonly PerformanceConfig _config;
 
         #endregion
 
@@ -27,12 +25,10 @@ namespace Grand.Business.Common.Services.Seo
         /// Ctor
         /// </summary>
         public SlugService(ICacheBase cacheBase,
-            IRepository<EntityUrl> urlEntityRepository,
-            PerformanceConfig config)
+            IRepository<EntityUrl> urlEntityRepository)
         {
             _cacheBase = cacheBase;
             _urlEntityRepository = urlEntityRepository;
-            _config = config;
         }
 
         #endregion

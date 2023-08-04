@@ -1,7 +1,8 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Domain.Customers.Tests
+namespace Grand.Domain.Tests.Customers
 {
     [TestClass()]
     public class CustomerAttributeExtensionsTests

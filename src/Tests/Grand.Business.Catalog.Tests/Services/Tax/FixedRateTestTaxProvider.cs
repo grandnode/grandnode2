@@ -3,7 +3,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Infrastructure.Plugins;
 using Microsoft.AspNetCore.Routing;
 
-namespace Grand.Business.Catalog.Tests.Service.Tax
+namespace Grand.Business.Catalog.Tests.Services.Tax
 {
     public class FixedRateTestTaxProvider : BasePlugin, ITaxProvider
     {

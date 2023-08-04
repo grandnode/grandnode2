@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Services.ExportImport;
+﻿using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -25,8 +25,8 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICountryViewModelService _countryViewModelService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
-        private readonly IExportManager<CountryStates> _exportManager;
-        private readonly IImportManager<CountryStates> _importManager;
+        private readonly IExportManager<CountryStatesDto> _exportManager;
+        private readonly IImportManager<CountryStatesDto> _importManager;
 
         #endregion
 
@@ -36,8 +36,8 @@ namespace Grand.Web.Admin.Controllers
             ICountryViewModelService countryViewModelService,
             ITranslationService translationService,
             ILanguageService languageService,
-            IExportManager<CountryStates> exportManager,
-            IImportManager<CountryStates> importManager)
+            IExportManager<CountryStatesDto> exportManager,
+            IImportManager<CountryStatesDto> importManager)
         {
             _countryService = countryService;
             _countryViewModelService = countryViewModelService;
@@ -347,7 +347,7 @@ namespace Grand.Web.Admin.Controllers
             var countries = await _countryService.GetAllCountries();
             var query = from p in countries
                         from s in p.StateProvinces
-                        select new CountryStates {
+                        select new CountryStatesDto {
                             Country = p.TwoLetterIsoCode,
                             StateProvinceName = s.Name,
                             Abbreviation = s.Abbreviation,

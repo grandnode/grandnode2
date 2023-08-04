@@ -1,8 +1,15 @@
 ﻿using AutoMapper;
+using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Catalog.Services.Products;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Dto;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
@@ -15,19 +22,12 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Infrastructure.TypeSearch;
 
-namespace Grand.Business.Catalog.Services.ExportImport.Tests
+namespace Grand.Business.Catalog.Tests.Services.ExportImport
 {
     [TestClass()]
     public class ProductImportDataObjectTests

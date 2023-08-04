@@ -255,11 +255,9 @@ namespace Grand.Data.Tests.MongoDb
             {
                 return collectionName;
             }
-            else
-            {
-                var maxCollectionNameLength = 123 - (databaseNamespace.DatabaseName.Length + 1);
-                return collectionName.Substring(0, maxCollectionNameLength);
-            }
+
+            var maxCollectionNameLength = 123 - (databaseNamespace.DatabaseName.Length + 1);
+            return collectionName.Substring(0, maxCollectionNameLength);
         }
 
         private static string TruncateDatabaseNameIfTooLong(string databaseName)
@@ -268,10 +266,8 @@ namespace Grand.Data.Tests.MongoDb
             {
                 return databaseName;
             }
-            else
-            {
-                return databaseName.Substring(0, 63);
-            }
+
+            return databaseName.Substring(0, 63);
         }
         #endregion
 

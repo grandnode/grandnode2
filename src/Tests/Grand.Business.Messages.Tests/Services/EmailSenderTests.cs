@@ -1,10 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Messages.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net.Sockets;
 
-namespace Grand.Business.Messages.Services.Tests
+namespace Grand.Business.Messages.Tests.Services
 {
     [TestClass()]
     public class EmailSenderTests

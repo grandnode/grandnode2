@@ -751,7 +751,7 @@ namespace Grand.Web.Controllers
                 Address = address,
                 ExcludeProperties = false,
                 Customer = _workContext.CurrentCustomer,
-                LoadCountries = () => countries,
+                LoadCountries = () => countries
             });
 
             return View(model);

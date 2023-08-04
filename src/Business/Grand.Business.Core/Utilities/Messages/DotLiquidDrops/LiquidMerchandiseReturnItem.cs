@@ -24,7 +24,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string ProductName {
             get {
-                string name = "";
+                var name = "";
 
                 if (_product != null)
                     name = WebUtility.HtmlEncode(_product.Name);
@@ -35,7 +35,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string ProductSeName {
             get {
-                string name = "";
+                var name = "";
 
                 if (_product != null)
                     name = _product.SeName;
@@ -44,7 +44,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         }
         public string ProductShortDescription {
             get {
-                string desc = "";
+                var desc = "";
 
                 if (_product != null)
                     desc = WebUtility.HtmlEncode(_product.ShortDescription);
@@ -55,7 +55,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string ProductFullDescription {
             get {
-                string desc = "";
+                var desc = "";
 
                 if (_product != null)
                     desc = WebUtility.HtmlDecode(_product.FullDescription);

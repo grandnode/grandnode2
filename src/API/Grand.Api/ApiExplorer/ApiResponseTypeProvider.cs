@@ -87,7 +87,7 @@ public class ApiResponseTypeProvider
         {
             responseTypes.Add(new ApiResponseType {
                 StatusCode = StatusCodes.Status200OK,
-                Type = type,
+                Type = type
             });
         }
 
@@ -144,7 +144,7 @@ public class ApiResponseTypeProvider
                 var apiResponseType = new ApiResponseType {
                     Type = metadataAttribute.Type,
                     StatusCode = statusCode,
-                    IsDefaultResponse = metadataAttribute is IApiDefaultResponseMetadataProvider,
+                    IsDefaultResponse = metadataAttribute is IApiDefaultResponseMetadataProvider
                 };
 
                 if (apiResponseType.Type == typeof(void))
@@ -247,7 +247,7 @@ public class ApiResponseTypeProvider
                     {
                         apiResponse.ApiResponseFormats.Add(new ApiResponseFormat {
                             Formatter = (IOutputFormatter)responseTypeMetadataProvider,
-                            MediaType = formatterSupportedContentType,
+                            MediaType = formatterSupportedContentType
                         });
                     }
                 }
@@ -258,7 +258,7 @@ public class ApiResponseTypeProvider
             {
                 // No output formatter was found that supports this content type. Add the user specified content type as-is to the result.
                 apiResponse.ApiResponseFormats.Add(new ApiResponseFormat {
-                    MediaType = contentType,
+                    MediaType = contentType
                 });
             }
         }

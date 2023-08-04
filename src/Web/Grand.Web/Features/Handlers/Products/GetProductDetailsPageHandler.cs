@@ -940,12 +940,17 @@ namespace Grand.Web.Features.Handlers.Products
                                 await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                             var productprice =
                                 await _taxService.GetProductPrice(product, attributeValuePriceAdjustment);
-                            if (productprice.productprice > 0)
-                                valueModel.PriceAdjustment =
-                                    "+" + _priceFormatter.FormatPrice(productprice.productprice, false);
-                            else if (productprice.productprice < 0)
-                                valueModel.PriceAdjustment =
-                                    "-" + _priceFormatter.FormatPrice(-productprice.productprice, false);
+                            switch (productprice.productprice)
+                            {
+                                case > 0:
+                                    valueModel.PriceAdjustment =
+                                        "+" + _priceFormatter.FormatPrice(productprice.productprice, false);
+                                    break;
+                                case < 0:
+                                    valueModel.PriceAdjustment =
+                                        "-" + _priceFormatter.FormatPrice(-productprice.productprice, false);
+                                    break;
+                            }
 
                             valueModel.PriceAdjustmentValue = productprice.productprice;
                         }
