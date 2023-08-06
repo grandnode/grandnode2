@@ -37,7 +37,7 @@ jobs:
             GIT_BRANCH=${{ github.ref_name }}
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ secrets.DOCKERHUB_ACCOUNT }}/grandnode2:${{ env.TAG }}
+          tags: grandnode/develop:${{ env.TAG }}
       - name: Build and push on develop
         uses: docker/build-push-action@v2
         with:
@@ -47,4 +47,4 @@ jobs:
             GIT_BRANCH=${{ github.ref_name }}
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ secrets.DOCKERHUB_ACCOUNT }}/develop:${{ env.TAG }}
+          tags: grandnode/develop:${{ env.TAG }}
