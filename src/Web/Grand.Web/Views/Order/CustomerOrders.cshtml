@@ -65,53 +65,6 @@
                 </tbody>
             </table>
         </div>
-
-        @*<div class="account-order">
-            <div class="row">
-                @foreach (var order in Model.Orders)
-                {
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="h6">
-                                    @Loc["Account.CustomerOrders.OrderNumber"]: @order.OrderNumber
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <ul class="info mb-0 px-0">
-                                    <li class="d-flex"><span class="mx-1">@Loc["Account.CustomerOrders.OrderStatus"]:</span> <span class="order-status">@order.OrderStatus</span></li>
-                                    <li>
-                                        <span class="order-date d-flex">
-                                            @if (supportRtl)
-                                            {
-                                                <span class="ml-1">@Loc["Account.CustomerOrders.OrderDate"]:</span>
-                                                <span>@Convert.ToDateTime(order.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="mr-1">@Loc["Account.CustomerOrders.OrderDate"]:</span>
-                                                <span>@order.CreatedOn.ToString("g")</span>
-                                            }
-                                        </span>
-                                    </li>
-                                    <li class="d-flex"><span class="mx-1">@Loc["Account.CustomerOrders.OrderTotal"]:</span> <span class="order-total">@order.OrderTotal</span></li>
-                                </ul>
-                            </div>
-                            <div class="card-footer">
-                                <div class="buttons">
-                                    <input type="button" value="@Loc["Account.CustomerOrders.OrderDetails"]" class="btn btn-sm btn-info order-details-button" onclick="location = ('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')" />
-
-                                    @if (order.IsMerchandiseReturnAllowed)
-                                    {
-                                        <input type="button" value="@Loc["Account.CustomerOrders.ReturnItems"]" class="btn btn-sm btn-warning text-white return-items-button" onclick="location = ('@Url.RouteUrl("MerchandiseReturn", new { orderId = order.Id })')" />
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>*@
         <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
     }
     else
