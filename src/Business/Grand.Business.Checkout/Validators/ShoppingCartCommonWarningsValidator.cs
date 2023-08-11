@@ -41,8 +41,6 @@ namespace Grand.Business.Checkout.Validators
                             }
                         }
                         break;
-                    default:
-                        break;
                 }
 
                 switch (value.ShoppingCartType)

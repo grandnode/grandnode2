@@ -73,9 +73,6 @@ namespace Grand.Business.Authentication.Services
                     var smsVerificationService = _serviceProvider.GetRequiredService<ISMSVerificationService>();
                     model = await smsVerificationService.GenerateCode(secretKey, customer, language);
                     break;
-
-                default:
-                    break;
             }
             return model;
         }

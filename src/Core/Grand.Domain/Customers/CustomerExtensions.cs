@@ -113,8 +113,6 @@ namespace Grand.Domain.Customers
                 case CustomerNameFormat.FirstName:
                     result = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
                     break;
-                default:
-                    break;
             }
 
             return result;

@@ -229,26 +229,7 @@ namespace Grand.Domain.Data.LiteDb
                     entity[GetName(expression)] = bsonLongValue;
                     _database.GetCollection(typeof(T).Name).Update(entity);
                     break;
-                default:
-                    break;
             }
-
-            //if (typeof(U) == typeof(int))
-            //{
-            //    var rawValue = Convert.ToInt32(entity[GetName(expression)].RawValue);
-            //    var inc = Convert.ToInt32(value);
-            //    var bsonValue = BsonMapper.Global.Serialize<int>(rawValue + inc);
-            //    entity[GetName(expression)] = bsonValue;
-            //    _database.GetCollection(typeof(T).Name).Update(entity);
-            //}
-            //if (typeof(U) == typeof(long))
-            //{
-            //    var rawValue = Convert.ToInt64(entity[GetName(expression)].RawValue);
-            //    var inc = Convert.ToInt64(value);
-            //    var bsonValue = BsonMapper.Global.Serialize<long>(rawValue + inc);
-            //    entity[GetName(expression)] = bsonValue;
-            //    _database.GetCollection(typeof(T).Name).Update(entity);
-            //}
 
             return Task.CompletedTask;
         }

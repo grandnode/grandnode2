@@ -118,8 +118,6 @@ namespace Grand.Business.Catalog.Services.Products
                                 case BackorderMode.AllowQtyBelowZero:
                                     stockMessage = _translationService.GetResource("Products.Availability.Backordering");
                                     break;
-                                default:
-                                    break;
                             }
                         }
 
@@ -156,8 +154,6 @@ namespace Grand.Business.Catalog.Services.Products
                                         break;
                                     case BackorderMode.AllowQtyBelowZero:
                                         stockMessage = _translationService.GetResource("Products.Availability.Attributes.Backordering");
-                                        break;
-                                    default:
                                         break;
                                 }
                                 if (!combination.AllowOutOfStockOrders)

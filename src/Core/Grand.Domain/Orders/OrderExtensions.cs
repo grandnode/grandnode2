@@ -68,8 +68,6 @@ namespace Grand.Domain.Orders
                         }
                     }
                     break;
-                default:
-                    break;
             }
 
             return false;

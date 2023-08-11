@@ -145,8 +145,6 @@ namespace Grand.Business.Catalog.Services.ExportImport
                     case 2:
                         picture3 = pictureLocalPath;
                         break;
-                    default:
-                        break;
                 }
                 i++;
             }

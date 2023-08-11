@@ -44,9 +44,6 @@ namespace Grand.Web.Common.TagHelpers
                 case ResourceType.TemplateFooter:
                     _resourceManager.RenderTemplate(output.Content, false);
                     break;
-
-                default:
-                    break;
             }
 
             output.TagName = null;

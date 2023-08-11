@@ -68,8 +68,6 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                 case ExpressionType.Parameter:
                     // Parameter expression means "model => model", so we delegate to FromModel
                     return FromModel(viewData, metadataProvider);
-                default:
-                    break;
             }
 
             if (!legalExpression)

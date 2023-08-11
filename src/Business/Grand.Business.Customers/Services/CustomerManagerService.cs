@@ -140,8 +140,6 @@ namespace Grand.Business.Customers.Services
                     request.Customer.PasswordSalt = saltKey;
                     request.Customer.Password = _encryptionService.CreatePasswordHash(request.Password, saltKey, _customerSettings.HashedPasswordFormat);
                     break;
-                default:
-                    break;
             }
             await _customerHistoryPasswordService.InsertCustomerPassword(request.Customer);
 
@@ -198,8 +196,6 @@ namespace Grand.Business.Customers.Services
                         customer.PasswordSalt = saltKey;
                         customer.Password = _encryptionService.CreatePasswordHash(request.NewPassword, saltKey, _customerSettings.HashedPasswordFormat);
                     }
-                    break;
-                default:
                     break;
             }
             customer.PasswordChangeDateUtc = DateTime.UtcNow;

@@ -142,8 +142,6 @@ namespace Grand.Business.Checkout.Validators
                                 }
                             }
                             break;
-                        default:
-                            break;
                     }
                 }
             });

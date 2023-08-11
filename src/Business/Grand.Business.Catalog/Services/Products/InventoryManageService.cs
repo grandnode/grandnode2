@@ -334,8 +334,6 @@ namespace Grand.Business.Catalog.Services.Products
                             await _mediator.EntityUpdated(product);
 
                             break;
-                        default:
-                            break;
                     }
                 }
                 //qty is increased. product is out of stock (minimum stock quantity is reached again)?
@@ -377,8 +375,6 @@ namespace Grand.Business.Catalog.Services.Products
                                 //event notification
                                 await _mediator.EntityUpdated(product);
 
-                                break;
-                            default:
                                 break;
                         }
                     }

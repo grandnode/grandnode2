@@ -714,8 +714,6 @@ namespace Grand.Business.Catalog.Services.Prices
                                 cost += associatedProduct.ProductCost * attributeValue.Quantity;
                         }
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -752,8 +750,6 @@ namespace Grand.Business.Catalog.Services.Prices
                                 additionalCharge: value.PriceAdjustment, includeDiscounts: true)).finalPrice * value.Quantity;
                         }
                     }
-                    break;
-                default:
                     break;
             }
 

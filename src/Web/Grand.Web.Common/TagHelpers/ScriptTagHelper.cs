@@ -66,9 +66,6 @@ namespace Grand.Web.Common.TagHelpers
                     case ScriptLocation.Footer:
                         _resourceManager.RegisterFootScript(builder, DisplayOrder);
                         break;
-
-                    default:
-                        break;
                 }
             }
         }

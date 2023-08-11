@@ -94,8 +94,6 @@ namespace Grand.Business.Storage.Services
                 case "x-icon":
                     lastPart = "ico";
                     break;
-                default:
-                    break;
             }
             return lastPart;
         }
