@@ -249,7 +249,7 @@ namespace Grand.SharedKernel.Extensions
             var result = string.Empty;
             foreach (var c in str)
                 if (c.ToString() != c.ToString().ToLower())
-                    result += " " + c.ToString();
+                    result += " " + c;
                 else
                     result += c.ToString();
             return result.TrimStart();

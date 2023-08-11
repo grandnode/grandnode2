@@ -138,10 +138,10 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
         {
             IList<CustomAttribute> attributes = new List<CustomAttribute>();
             //color: green
-            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca1, cav1_1.Id.ToString()).ToList();
+            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca1, cav1_1.Id).ToList();
             //custom option: option 1, option 2
-            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca2, cav2_1.Id.ToString()).ToList();
-            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca2, cav2_2.Id.ToString()).ToList();
+            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca2, cav2_1.Id).ToList();
+            attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca2, cav2_2.Id).ToList();
             //custom text
             attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca3, "absolutely any value").ToList();
 

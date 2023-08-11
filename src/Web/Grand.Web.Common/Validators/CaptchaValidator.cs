@@ -73,7 +73,7 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         //Captcha validate request
         var recaptchaResponse = await _googleReCaptchaValidator.Validate(
             !StringValues.IsNullOrEmpty(captchaResponseValue)
-                ? captchaResponseValue.ToString()
+                ? captchaResponseValue
                 : gCaptchaResponseValue);
         isValid = recaptchaResponse.IsValid;
         

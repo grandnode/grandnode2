@@ -536,7 +536,7 @@ namespace Grand.Domain.Data.LiteDb
             var fieldName = ((MemberExpression)field.Body).Member.Name;
             if (string.IsNullOrEmpty(id))
             {
-                var entities = collection.Find(Query.EQ($"{fieldName}[*] ANY", element.ToString())).ToList();
+                var entities = collection.Find(Query.EQ($"{fieldName}[*] ANY", element)).ToList();
                 foreach (var entity in entities)
                 {
                     UpdateEntity(entity);

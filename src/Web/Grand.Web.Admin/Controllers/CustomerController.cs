@@ -155,7 +155,7 @@ namespace Grand.Web.Admin.Controllers
                             var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                var enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.Trim();
                                 customAttributes = _customerAttributeParser.AddCustomerAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }

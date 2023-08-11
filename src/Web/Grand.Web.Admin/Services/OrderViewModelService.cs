@@ -1144,7 +1144,7 @@ namespace Grand.Web.Admin.Services
                         var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(cblAttributes))
                         {
-                            foreach (var item in cblAttributes.ToString()
+                            foreach (var item in cblAttributes
                                          .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                             {
                                 customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(
@@ -1174,7 +1174,7 @@ namespace Grand.Web.Admin.Services
                         var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(ctrlAttributes))
                         {
-                            var enteredText = ctrlAttributes.ToString().Trim();
+                            var enteredText = ctrlAttributes.Trim();
                             customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(customattributes,
                                 attribute, enteredText).ToList();
                         }

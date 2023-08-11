@@ -133,7 +133,7 @@ namespace Grand.Data.Tests.MongoDb
                 {
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: anyWritableServer = {anyWritableServer}.");
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription}.");
                 }
                 Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
             };
@@ -149,7 +149,7 @@ namespace Grand.Data.Tests.MongoDb
             {
                 var message = string.Format(
                     "Test cluster has no writable server. Client view of the cluster is {0}.",
-                    cluster.Description.ToString());
+                    cluster.Description);
                 throw new Exception(message);
             }
 
