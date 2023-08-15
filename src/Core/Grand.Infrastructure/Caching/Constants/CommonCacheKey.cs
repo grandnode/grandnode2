@@ -117,12 +117,11 @@
         /// </summary>
         /// <remarks>
         /// {0} : picture ID
-        /// {1} : store ID
-        /// {2} : target size
-        /// {3} : showDefaultPicture
-        /// {4} : storeLocation
+        /// {1} : target size
+        /// {2} : showDefaultPicture
+        /// {3} : storeLocation
         /// </remarks>
-        public static string PICTURE_BY_KEY => "Grand.picture-{0}-{1}-{2}-{3}-{4}";
+        public static string PICTURE_BY_KEY => "Grand.picture-{0}-{1}-{2}-{3}";
 
         #region Seo
 

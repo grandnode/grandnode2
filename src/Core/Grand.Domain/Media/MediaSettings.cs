@@ -36,7 +36,5 @@ namespace Grand.Domain.Media
 
         public string FileManagerDisabledUICommands { get; set; } = "ping,hide,archive,extract,netmount,netunmount,zipdl";
 
-        public string StoreLocation { get; set; }
-
     }
 }

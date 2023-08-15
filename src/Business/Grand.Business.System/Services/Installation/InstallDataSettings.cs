@@ -89,7 +89,6 @@ namespace Grand.Business.System.Services.Installation
                 ImageQuality = 100,
                 DefaultPictureZoomEnabled = true,
                 AllowedFileTypes = ".gif, .jpg, .jpeg, .png, .bmp, .webp",
-                StoreLocation = "/"
             });
 
             await _settingService.SaveSetting(new StorageSettings {

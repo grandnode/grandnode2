@@ -40,8 +40,7 @@ namespace Grand.Business.Storage.Tests.Services
             _mediaFileStoreMock = new Mock<IMediaFileStore>();
             _settings = new MediaSettings();
             _storagesettings = new StorageSettings();
-            _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _workContextMock.Object
-                , _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
+            _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
         }
         [TestMethod]
         public async Task GetPictureById_InvokeExpectedMethods()

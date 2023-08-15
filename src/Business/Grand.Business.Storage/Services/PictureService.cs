@@ -5,7 +5,6 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -27,7 +26,6 @@ namespace Grand.Business.Storage.Services
         private readonly IRepository<Picture> _pictureRepository;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly IWorkContext _workContext;
         private readonly ICacheBase _cacheBase;
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
@@ -43,7 +41,6 @@ namespace Grand.Business.Storage.Services
         /// <param name="pictureRepository">Picture repository</param>
         /// <param name="logger">Logger</param>
         /// <param name="mediator">Mediator</param>
-        /// <param name="workContext">Current context</param>
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="mediaFileStore">Media file storage</param>
         /// <param name="mediaSettings">Media settings</param>
@@ -51,7 +48,6 @@ namespace Grand.Business.Storage.Services
         public PictureService(IRepository<Picture> pictureRepository,
             ILogger logger,
             IMediator mediator,
-            IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
@@ -60,7 +56,6 @@ namespace Grand.Business.Storage.Services
             _pictureRepository = pictureRepository;
             _logger = logger;
             _mediator = mediator;
-            _workContext = workContext;
             _cacheBase = cacheBase;
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
@@ -161,12 +156,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Local picture thumb path</returns>
         protected virtual string GetThumbUrl(string thumbFileName, string storeLocation = null)
         {
-            storeLocation = !string.IsNullOrEmpty(storeLocation)
-                                    ? storeLocation
-                                    : string.IsNullOrEmpty(_mediaSettings.StoreLocation) ?
-                                    _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl : _workContext.CurrentStore.Url :
-                                    _mediaSettings.StoreLocation;
-
+            storeLocation = !string.IsNullOrEmpty(storeLocation) ? storeLocation : "";
             return _mediaFileStore.Combine(storeLocation, CommonPath.Param, CommonPath.ImageThumbPath, thumbFileName);
         }
 
@@ -268,15 +258,12 @@ namespace Grand.Business.Storage.Services
             var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
             if (string.IsNullOrEmpty(filePath))
             {
-                return _mediaFileStore.Combine(_mediaSettings.StoreLocation, CommonPath.ImagePath, "no-image.png");
+                return _mediaFileStore.Combine(CommonPath.ImagePath, "no-image.png");
             }
             if (targetSize == 0)
             {
                 return !string.IsNullOrEmpty(storeLocation)
-                        ? storeLocation
-                        : string.IsNullOrEmpty(_mediaSettings.StoreLocation) ?
-                        _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl : _workContext.CurrentStore.Url :
-                        _mediaFileStore.Combine(_mediaSettings.StoreLocation, CommonPath.ImagePath, _mediaSettings.DefaultImageName);
+                        ? storeLocation : _mediaFileStore.Combine(CommonPath.ImagePath, _mediaSettings.DefaultImageName);
             }
 
             var fileExtension = Path.GetExtension(filePath);
@@ -315,7 +302,7 @@ namespace Grand.Business.Storage.Services
             bool showDefaultPicture = true,
             string storeLocation = null)
         {
-            var pictureKey = string.Format(CacheKey.PICTURE_BY_KEY, pictureId, _workContext.CurrentStore?.Id, targetSize, showDefaultPicture, storeLocation);
+            var pictureKey = string.Format(CacheKey.PICTURE_BY_KEY, pictureId, targetSize, showDefaultPicture, storeLocation);
             return await _cacheBase.GetAsync(pictureKey, async () =>
             {
                 var picture = await GetPictureById(pictureId);
