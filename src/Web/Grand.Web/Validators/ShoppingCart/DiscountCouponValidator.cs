@@ -48,8 +48,8 @@ namespace Grand.Web.Validators.ShoppingCart
                             var validationResult = await discountService.ValidateDiscount(discount,
                                 workContext.CurrentCustomer, workContext.WorkingCurrency, x.DiscountCouponCode);
                             if (!validationResult.IsValid)
-                                context.AddFailure(!string.IsNullOrEmpty(validationResult.UserError)
-                                    ? validationResult.UserError
+                                context.AddFailure(!string.IsNullOrEmpty(validationResult.UserErrorResource)
+                                    ? translationService.GetResource(validationResult.UserErrorResource)
                                     : translationService.GetResource("ShoppingCart.DiscountCouponCode.WrongDiscount"));
                         }
                         else

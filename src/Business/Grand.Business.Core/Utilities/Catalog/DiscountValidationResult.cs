@@ -13,11 +13,12 @@
         /// <summary>
         /// Gets or sets an error for a customer that should be visible when a coupon code is entered (in case if "IsValid" is set to "false")
         /// </summary>
-        public string UserError { get; set; }
+        public string UserErrorResource { get; set; }
 
         /// <summary>
         /// Gets or sets a coupon code value
         /// </summary>
         public string CouponCode { get; set; }
     }
+    
 }
