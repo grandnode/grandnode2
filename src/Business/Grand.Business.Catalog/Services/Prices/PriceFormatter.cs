@@ -243,29 +243,22 @@ namespace Grand.Business.Catalog.Services.Prices
         }
 
         /// <summary>
-        /// Formats the price of rental product (with rental period)
+        /// Resource name of rental product (rental period)
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="price">Price</param>
         /// <returns>Rental product price with period</returns>
-        public virtual string FormatReservationProductPeriod(Product product, string price)
+        public virtual string ResourceReservationProductPeriod(Product product)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
             if (product.ProductTypeId != ProductType.Reservation)
-                return price;
-
-            if (string.IsNullOrWhiteSpace(price))
-                return price;
+                return string.Empty;
 
             var result = product.IntervalUnitId switch {
-                IntervalUnit.Day => string.Format(_translationService.GetResource("Products.Price.Reservation.Days"),
-                    price, product.Interval),
-                IntervalUnit.Hour => string.Format(_translationService.GetResource("Products.Price.Reservation.Hour"),
-                    price, product.Interval),
-                IntervalUnit.Minute => string.Format(
-                    _translationService.GetResource("Products.Price.Reservation.Minute"), price, product.Interval),
+                IntervalUnit.Day => "Products.Price.Reservation.Days",
+                IntervalUnit.Hour => "Products.Price.Reservation.Hour",
+                IntervalUnit.Minute => "Products.Price.Reservation.Minute",
                 _ => throw new GrandException("Not supported reservation period")
             };
 

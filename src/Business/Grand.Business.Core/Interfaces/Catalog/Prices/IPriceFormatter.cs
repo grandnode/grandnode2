@@ -71,12 +71,11 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         string FormatPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
 
         /// <summary>
-        /// Formats the price of rental product (with rental period)
+        /// Resource name of rental product (rental period)
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="price">Price</param>
         /// <returns>Rental product price with period</returns>
-        string FormatReservationProductPeriod(Product product, string price);
+        string ResourceReservationProductPeriod(Product product);
 
         /// <summary>
         /// Formats the shipping price

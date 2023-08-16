@@ -723,7 +723,7 @@ namespace Grand.Web.Features.Handlers.Products
                         {
                             model.IsReservation = true;
                             var priceStr = _priceFormatter.FormatPrice(finalPriceWithDiscount);
-                            model.ReservationPrice = _priceFormatter.FormatReservationProductPeriod(product, priceStr);
+                            model.ReservationPrice = string.Format(_translationService.GetResource(_priceFormatter.ResourceReservationProductPeriod(product)), priceStr, product.Interval);
                         }
 
                         if (product.ProductTypeId != ProductType.Auction) return model;

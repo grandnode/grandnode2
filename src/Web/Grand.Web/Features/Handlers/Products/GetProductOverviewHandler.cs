@@ -442,10 +442,10 @@ namespace Grand.Web.Features.Handlers.Products
                                 if (product.ProductTypeId == ProductType.Reservation)
                                 {
                                     //rental product
-                                    priceModel.OldPrice =
-                                        _priceFormatter.FormatReservationProductPeriod(product, priceModel.OldPrice);
-                                    priceModel.Price =
-                                        _priceFormatter.FormatReservationProductPeriod(product, priceModel.Price);
+                                    if(!string.IsNullOrEmpty(priceModel.OldPrice))
+                                        priceModel.OldPrice = string.Format(_translationService.GetResource(_priceFormatter.ResourceReservationProductPeriod(product)), priceModel.OldPrice, product.Interval);
+                                    
+                                    priceModel.Price = string.Format(_translationService.GetResource(_priceFormatter.ResourceReservationProductPeriod(product)), priceModel.Price, product.Interval);
                                 }
 
                                 //PAngV base price (used in Germany)
