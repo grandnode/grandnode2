@@ -1,5 +1,4 @@
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -16,13 +15,10 @@ namespace Grand.Business.Customers.Services
     public class CustomerAttributeParser : ICustomerAttributeParser
     {
         private readonly ICustomerAttributeService _customerAttributeService;
-        private readonly ITranslationService _translationService;
 
-        public CustomerAttributeParser(ICustomerAttributeService customerAttributeService,
-            ITranslationService translationService)
+        public CustomerAttributeParser(ICustomerAttributeService customerAttributeService)
         {
             _customerAttributeService = customerAttributeService;
-            _translationService = translationService;
         }
 
         /// <summary>
@@ -119,9 +115,8 @@ namespace Grand.Business.Customers.Services
 
                 //if not found
                 if (found) continue;
-                var notFoundWarning = string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), a2.GetTranslation(a => a.Name, ""));
 
-                warnings.Add(notFoundWarning);
+                warnings.Add("Selected attribute not found");
             }
 
             return warnings;
