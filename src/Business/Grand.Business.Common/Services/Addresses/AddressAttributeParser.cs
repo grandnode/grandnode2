@@ -1,6 +1,5 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
@@ -15,14 +14,11 @@ namespace Grand.Business.Common.Services.Addresses
     public class AddressAttributeParser : IAddressAttributeParser
     {
         private readonly IAddressAttributeService _addressAttributeService;
-        private readonly ITranslationService _translationService;
 
         public AddressAttributeParser(
-            IAddressAttributeService addressAttributeService,
-            ITranslationService translationService)
+            IAddressAttributeService addressAttributeService)
         {
             _addressAttributeService = addressAttributeService;
-            _translationService = translationService;
         }
 
         /// <summary>
@@ -115,7 +111,7 @@ namespace Grand.Business.Common.Services.Addresses
 
                 //if not found
                 if (found) continue;
-                var notFoundWarning = string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), a2.GetTranslation(a => a.Name, ""));
+                var notFoundWarning = "Selected attribute not found"; 
                 warnings.Add(notFoundWarning);
             }
 
