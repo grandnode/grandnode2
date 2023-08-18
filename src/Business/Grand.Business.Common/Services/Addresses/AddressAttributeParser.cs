@@ -111,8 +111,7 @@ namespace Grand.Business.Common.Services.Addresses
 
                 //if not found
                 if (found) continue;
-                var notFoundWarning = "Selected attribute not found"; 
-                warnings.Add(notFoundWarning);
+                warnings.Add("Selected attribute not found");
             }
 
             return warnings;
