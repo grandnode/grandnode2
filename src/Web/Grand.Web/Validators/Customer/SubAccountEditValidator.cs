@@ -38,11 +38,11 @@ namespace Grand.Web.Validators.Customer
                 {
                     case null:
                         context.AddFailure(
-                            translationService.GetResource("Account not exists"));
+                            translationService.GetResource("Account.NoExists"));
                         break;
                     case { Deleted: true }:
                         context.AddFailure(
-                            translationService.GetResource("Account deleted"));
+                            translationService.GetResource("Account.DeleteAccount"));
                         break;
                     case not null when !await groupService.IsRegistered(customer):
                         context.AddFailure(

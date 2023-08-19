@@ -576,6 +576,9 @@
 	<Resource Name="Account.Navigation" Area="Front">
 		<Value>My account</Value>
 	</Resource>
+	<Resource Name="Account.NoExists" Area="Front">
+		<Value>Account not exists</Value>
+	</Resource>
 	<Resource Name="Account.Options" Area="Front">
 		<Value>Options</Value>
 	</Resource>
