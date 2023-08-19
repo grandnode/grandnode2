@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Models.Customer;
 
 namespace Grand.Web.Validators.Customer
@@ -15,7 +16,7 @@ namespace Grand.Web.Validators.Customer
             IEnumerable<IValidatorConsumer<SubAccountEditModel>> validators,
             ICustomerService customerService, IGroupService groupService,
             ITranslationService translationService,
-            IWorkContext workContext,
+            IWorkContext workContext, 
             CustomerSettings customerSettings)
             : base(validators)
         {
@@ -27,7 +28,7 @@ namespace Grand.Web.Validators.Customer
 
             if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
                 RuleFor(x => x.Password).Matches(customerSettings.PasswordRegularExpression).WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")))
-                    .When(subaccount => !string.IsNullOrEmpty(subaccount.Password));
+                    .When(subAccount => !string.IsNullOrEmpty(subAccount.Password));
 
             RuleFor(x => x).CustomAsync(async (x, context, _) =>
             {
@@ -43,7 +44,7 @@ namespace Grand.Web.Validators.Customer
                         context.AddFailure(
                             translationService.GetResource("Account deleted"));
                         break;
-                    case { } when !await groupService.IsRegistered(customer):
+                    case not null when !await groupService.IsRegistered(customer):
                         context.AddFailure(
                             translationService.GetResource(
                                 "Account is not registered"));
@@ -57,6 +58,9 @@ namespace Grand.Web.Validators.Customer
                 
                 if (customer != null && customer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
                 {
+                    if (!CommonHelper.IsValidEmail(x.Email))
+                        context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
+                    
                     if (x.Email.Length > 100)
                         context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
@@ -65,7 +69,6 @@ namespace Grand.Web.Validators.Customer
                         context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
                    
                 }
-
             });
         }
     }

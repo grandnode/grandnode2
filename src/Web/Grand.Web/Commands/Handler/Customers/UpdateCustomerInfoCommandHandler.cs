@@ -52,7 +52,8 @@ namespace Grand.Web.Commands.Handler.Customers
                 if (!request.Customer.Username.Equals(request.Model.Username.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     //change username
-                    await _customerManagerService.SetUsername(request.Customer, request.Model.Username.Trim());
+                    request.Customer.Username = request.Model.Username.Trim();
+                    await _customerService.UpdateCustomerField(request.Customer, x => x.Username, request.Model.Username.Trim());
                     //re-authenticate
                     if (request.OriginalCustomerIfImpersonated == null)
                         await _authenticationService.SignIn(request.Customer, true);
@@ -62,7 +63,8 @@ namespace Grand.Web.Commands.Handler.Customers
             if (!request.Customer.Email.Equals(request.Model.Email.Trim(), StringComparison.OrdinalIgnoreCase) && _customerSettings.AllowUsersToChangeEmail)
             {
                 //change email
-                await _customerManagerService.SetEmail(request.Customer, request.Model.Email.Trim());
+                request.Customer.Email = request.Model.Email.Trim();
+                await _customerService.UpdateCustomerField(request.Customer,x=>x.Email, request.Model.Email.Trim());
                 //re-authenticate (if usernames are disabled)
                 //do not authenticate users in impersonation mode
                 if (request.OriginalCustomerIfImpersonated == null)

@@ -66,22 +66,7 @@ namespace Grand.Business.Customers.Tests.Services
             //Assert
             Assert.AreEqual(CustomerLoginResults.Successful, result);
         }
-
-        /*[TestMethod()] TODO
-        public async Task RegisterCustomerTest_Success()
-        {
-            //Arrange
-            var request = new Core.Utilities.Customers.RegistrationRequest(new Customer(),
-                "admin@admin.com", "admin@admin.com", "123456", PasswordFormat.Clear, ""
-                );
-            _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
-            _groupServiceMock.Setup(c => c.GetCustomerGroupBySystemName(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerGroup()));
-            //Act
-            await _customerManagerService.RegisterCustomer(request);
-            //Assert
-            Assert.AreEqual(result.Success, true);
-        }*/
-
+        
         [TestMethod()]
         public async Task ChangePasswordTest_Success()
         {
@@ -98,51 +83,6 @@ namespace Grand.Business.Customers.Tests.Services
             var passwordMatch = _customerManagerService.PasswordMatch(PasswordFormat.Clear, "zxcvb", "zxcvb", string.Empty);
             Assert.IsTrue(passwordMatch);
         }
-        [TestMethod()]
-        public async Task SetEmailTest_Success()
-        {
-            //Arrange
-            var customer = new Customer() { Email = "email@email.com", Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-            _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
-
-            //Act
-            await _customerManagerService.SetEmail(customer, "admin@admin.pl");
-            //Assert
-            Assert.AreEqual(customer.Email, "admin@admin.pl");
-        }
-        [TestMethod()]
-        public async Task SetEmailTest_ThrowsException()
-        {
-            //Arrange
-            var customer = new Customer() { Email = "email@email.com", Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-            _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
-
-            //Act
-            await Assert.ThrowsExceptionAsync<GrandException>(async () => await _customerManagerService.SetEmail(customer, "adminadmin.pl"));
-        }
-        [TestMethod()]
-        public async Task SetUsernameTest_Success()
-        {
-            //Arrange
-            _customerSettings.UsernamesEnabled = true;
-            var customer = new Customer() { Email = "email@email.com", Username = "emailemail.com", Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-            _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
-
-            //Act
-            await _customerManagerService.SetUsername(customer, "adminadmin.pl");
-            //Assert
-            Assert.AreEqual(customer.Username, "adminadmin.pl");
-        }
-        [TestMethod()]
-        public async Task SetUsernameTest_ThrowsException()
-        {
-            //Arrange
-            _customerSettings.UsernamesEnabled = true;
-            var customer = new Customer() { Email = "email@email.com", Username = "emailemail.com", Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
-            _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(new Customer()));
-
-            //Act
-            await Assert.ThrowsExceptionAsync<GrandException>(async () => await _customerManagerService.SetUsername(customer, "adminadmin.pl"));
-        }
+        
     }
 }

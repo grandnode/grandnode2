@@ -745,36 +745,13 @@ namespace Grand.Web.Admin.Services
             if(!model.TwoFactorEnabled)
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.TwoFactorEnabled, model.TwoFactorEnabled);
 
-            //email
-            if (!string.IsNullOrWhiteSpace(model.Email))
-            {
-                await _customerManagerService.SetEmail(customer, model.Email);
-            }
-            else
-            {
-                customer.Email = model.Email;
-            }
+            customer.Email = model.Email;
 
-            switch (_customerSettings.UsernamesEnabled)
-            {
-                //username
-                case true when _customerSettings.AllowUsersToChangeUsernames:
-                {
-                    if (!string.IsNullOrWhiteSpace(model.Username))
-                    {
-                        await _customerManagerService.SetUsername(customer, model.Username);
-                    }
-                    else
-                    {
-                        customer.Username = model.Username;
-                    }
-
-                    break;
-                }
-                case false:
-                    customer.Username = model.Email;
-                    break;
-            }
+            customer.Username = _customerSettings.UsernamesEnabled switch {
+                true when _customerSettings.AllowUsersToChangeUsernames => model.Username.Trim(),
+                false => model.Email.Trim(),
+                _ => customer.Username
+            };
 
             if (!string.IsNullOrEmpty(model.Owner))
             {

@@ -38,13 +38,15 @@ namespace Grand.Web.Commands.Handler.Customers
             //update email
             if (customer.Email != request.EditModel.Email.ToLower() && _customerSettings.AllowUsersToChangeEmail)
             {
-                await _customerManagerService.SetEmail(customer, request.EditModel.Email);
+                customer.Email = request.EditModel.Email;
+                await _customerService.UpdateCustomerField(customer,x=>x.Email, request.EditModel.Email);
             }
 
             //update password
-            await _customerManagerService.ChangePassword(
-                new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
-                    request.EditModel.Password));
+            if(!string.IsNullOrEmpty(request.EditModel.Password))
+                await _customerManagerService.ChangePassword(
+                    new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
+                        request.EditModel.Password));
 
             //update active
             customer.Active = request.EditModel.Active;

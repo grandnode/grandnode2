@@ -1,6 +1,5 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
@@ -22,7 +21,6 @@ namespace Grand.Business.Customers.Services
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly IEncryptionService _encryptionService;
-        private readonly ITranslationService _translationService;
         private readonly IMediator _mediator;
         private readonly IUserFieldService _userFieldService;
         private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
@@ -37,7 +35,6 @@ namespace Grand.Business.Customers.Services
         /// <param name="customerService">Customer service</param>
         /// <param name="groupService">Group service</param>
         /// <param name="encryptionService">Encryption service</param>
-        /// <param name="translationService">Translation service</param>
         /// <param name="mediator">Mediator</param>
         /// <param name="userFieldService">UserFields service</param>
         /// <param name="customerHistoryPasswordService">History password</param>
@@ -46,7 +43,6 @@ namespace Grand.Business.Customers.Services
             ICustomerService customerService,
             IGroupService groupService,
             IEncryptionService encryptionService,
-            ITranslationService translationService,
             IMediator mediator,
             IUserFieldService userFieldService,
             ICustomerHistoryPasswordService customerHistoryPasswordService,
@@ -55,7 +51,6 @@ namespace Grand.Business.Customers.Services
             _customerService = customerService;
             _groupService = groupService;
             _encryptionService = encryptionService;
-            _translationService = translationService;
             _mediator = mediator;
             _userFieldService = userFieldService;
             _customerHistoryPasswordService = customerHistoryPasswordService;
@@ -207,81 +202,7 @@ namespace Grand.Business.Customers.Services
             //create new login token
             await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
         }
-
-        /// <summary>
-        /// Sets a user email
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="newEmail">New email</param>
-        public virtual async Task SetEmail(Customer customer, string newEmail)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (newEmail == null)
-                throw new GrandException("Email cannot be null");
-
-            newEmail = newEmail.Trim();
-
-            if (!CommonHelper.IsValidEmail(newEmail))
-                throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
-
-            if (newEmail.Length > 100)
-                throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
-
-            var customer2 = await _customerService.GetCustomerByEmail(newEmail);
-            if (customer2 != null && customer.Id != customer2.Id)
-                throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
-
-            customer.Email = newEmail;
-            await _customerService.UpdateCustomer(customer);
-
-            //update newsletter subscription (if required)
-            //TODO
-            /*
-            if (!String.IsNullOrEmpty(oldEmail) && !oldEmail.Equals(newEmail, StringComparison.OrdinalIgnoreCase))
-            {
-                foreach (var store in await _storeService.GetAllStores())
-                {
-                    var subscriptionOld = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(oldEmail, store.Id);
-                    if (subscriptionOld != null)
-                    {
-                        subscriptionOld.Email = newEmail;
-                        await _newsLetterSubscriptionService.UpdateNewsLetterSubscription(subscriptionOld);
-                    }
-                }
-            }*/
-        }
-
-        /// <summary>
-        /// Sets a customer username
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="newUsername">New Username</param>
-        public virtual async Task SetUsername(Customer customer, string newUsername)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (!_customerSettings.UsernamesEnabled)
-                throw new GrandException("Usernames are disabled");
-
-            if (!_customerSettings.AllowUsersToChangeUsernames)
-                throw new GrandException("Changing usernames is not allowed");
-
-            newUsername = newUsername.Trim();
-
-            if (newUsername.Length > 100)
-                throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.UsernameTooLong"));
-
-            var user2 = await _customerService.GetCustomerByUsername(newUsername);
-            if (user2 != null && customer.Id != user2.Id)
-                throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.UsernameAlreadyExists"));
-
-            customer.Username = newUsername;
-            await _customerService.UpdateCustomer(customer);
-        }
-
+        
         #endregion
     }
 }

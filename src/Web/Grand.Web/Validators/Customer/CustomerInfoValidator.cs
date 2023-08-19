@@ -145,6 +145,9 @@ namespace Grand.Web.Validators.Customer
 
                 if (workContext.CurrentCustomer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
                 {
+                    if (!CommonHelper.IsValidEmail(x.Email))
+                        context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
+
                     if (x.Email.Length > 100)
                         context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
@@ -157,7 +160,10 @@ namespace Grand.Web.Validators.Customer
                 if (customerSettings.UsernamesEnabled && customerSettings.AllowUsersToChangeUsernames &&
                     workContext.CurrentCustomer.Username != x.Username.ToLower())
                 {
-                    var customer2 = await customerService.GetCustomerByUsername(x.Username);
+                    if (x.Username.ToLower().Length > 100)
+                        context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.UsernameTooLong"));
+
+                    var customer2 = await customerService.GetCustomerByUsername(x.Username.ToLower());
                     if (customer2 != null)
                         context.AddFailure(
                             translationService.GetResource("Account.EmailUsernameErrors.UsernameAlreadyExists"));

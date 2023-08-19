@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Text.RegularExpressions;
@@ -165,6 +166,12 @@ namespace Grand.Web.Admin.Validators.Customers
                     {
                         if (!string.IsNullOrWhiteSpace(x.Email))
                         {
+                            if (!CommonHelper.IsValidEmail(x.Email))
+                                context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
+                    
+                            if (x.Email.Length > 100)
+                                context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
+                            
                             var customerByEmail = await customerService.GetCustomerByEmail(x.Email);
                             if (customerByEmail != null)
                                 context.AddFailure("Email is already registered");
@@ -182,6 +189,9 @@ namespace Grand.Web.Admin.Validators.Customers
                             var customerByUsername = await customerService.GetCustomerByUsername(x.Username);
                             if (customerByUsername != null)
                                 context.AddFailure("Username is already registered");
+                            
+                            if (x.Username.Length > 100)
+                                context.AddFailure("Username is too long");
                         }
 
                         //validate customer groups
@@ -228,6 +238,30 @@ namespace Grand.Web.Admin.Validators.Customers
                         if (await groupService.IsSalesManager(workContext.CurrentCustomer) &&
                             customer?.Id == workContext.CurrentCustomer.Id)
                             context.AddFailure("You can't edit own data from admin panel");
+                        
+                        if (customer != null && customer.Email != x.Email.ToLower())
+                        {
+                            if (!CommonHelper.IsValidEmail(x.Email))
+                                context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
+                    
+                            if (x.Email.Length > 100)
+                                context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
+
+                            var customer2 = await customerService.GetCustomerByEmail(x.Email);
+                            if (customer2 != null && customer.Id != customer2.Id)
+                                context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
+                   
+                        }
+
+                        if (customer != null && !string.IsNullOrWhiteSpace(x.Username) & customerSettings.UsernamesEnabled)
+                        {
+                            if (x.Username.Length > 100)
+                                context.AddFailure("Username is too long");
+
+                            var user2 = await customerService.GetCustomerByUsername(x.Username);
+                            if (user2 != null && customer.Id != user2.Id)
+                                context.AddFailure("The username is already in use");
+                        }
                     });
                 });
             }
