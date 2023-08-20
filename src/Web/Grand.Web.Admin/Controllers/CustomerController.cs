@@ -301,9 +301,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> MarkVatNumberAsValid(CustomerModel model)
+        public async Task<IActionResult> MarkVatNumberAsValid(string id)
         {
-            var customer = await _customerService.GetCustomerById(model.Id);
+            var customer = await _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 //No customer found with the specified id
                 return RedirectToAction("List");
@@ -317,9 +317,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> MarkVatNumberAsInvalid(CustomerModel model)
+        public async Task<IActionResult> MarkVatNumberAsInvalid(string id)
         {
-            var customer = await _customerService.GetCustomerById(model.Id);
+            var customer = await _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 //No customer found with the specified id
                 return RedirectToAction("List");
@@ -333,9 +333,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> RemoveAffiliate(CustomerModel model)
+        public async Task<IActionResult> RemoveAffiliate(string id)
         {
-            var customer = await _customerService.GetCustomerById(model.Id);
+            var customer = await _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 //No customer found with the specified id
                 return RedirectToAction("List");
@@ -414,9 +414,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> SendWelcomeMessage(CustomerModel model)
+        public async Task<IActionResult> SendWelcomeMessage(string id)
         {
-            var customer = await _customerService.GetCustomerById(model.Id);
+            var customer = await _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 //No customer found with the specified id
                 return RedirectToAction("List");
@@ -430,9 +430,9 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ReSendActivationMessage(CustomerModel model)
+        public async Task<IActionResult> ReSendActivationMessage(string id)
         {
-            var customer = await _customerService.GetCustomerById(model.Id);
+            var customer = await _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 //No customer found with the specified id
                 return RedirectToAction("List");
@@ -447,7 +447,7 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> SendEmail(CustomerModel model)
+        public async Task<IActionResult> SendEmail(CustomerModel.SendEmailModel model)
         {
             var customer = await _customerService.GetCustomerById(model.Id);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
@@ -460,12 +460,12 @@ namespace Grand.Web.Admin.Controllers
                     throw new GrandException("Customer email is empty");
                 if (!CommonHelper.IsValidEmail(customer.Email))
                     throw new GrandException("Customer email is not valid");
-                if (string.IsNullOrWhiteSpace(model.SendEmail.Subject))
+                if (string.IsNullOrWhiteSpace(model.Subject))
                     throw new GrandException("Email subject is empty");
-                if (string.IsNullOrWhiteSpace(model.SendEmail.Body))
+                if (string.IsNullOrWhiteSpace(model.Body))
                     throw new GrandException("Email body is empty");
 
-                await _customerViewModelService.SendEmail(customer, model.SendEmail);
+                await _customerViewModelService.SendEmail(customer, model);
 
                 Success(_translationService.GetResource("Admin.Customers.Customers.SendEmail.Queued"));
             }

@@ -267,6 +267,8 @@ namespace Grand.Web.Admin.Models.Customers
 
         public class SendEmailModel : BaseModel
         {
+            public string Id { get; set; }
+            
             [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.Subject")]
             public string Subject { get; set; }
 
