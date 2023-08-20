@@ -1,6 +1,5 @@
 ﻿using Azure.Identity;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -254,7 +253,6 @@ namespace Grand.Web.Common.Infrastructure
             }
 
             //Add fluentValidation
-            services.AddFluentValidationClientsideAdapters();
             var typeSearcher = new TypeSearcher();
             var assemblies = typeSearcher.GetAssemblies();
             services.AddValidatorsFromAssemblies(assemblies);
@@ -265,7 +263,7 @@ namespace Grand.Web.Common.Infrastructure
 
             //register controllers as services, it'll allow to override them
             mvcBuilder.AddControllersAsServices();
-
+            
             return mvcBuilder;
         }
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
@@ -12,7 +13,6 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MassTransit;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -197,7 +197,8 @@ namespace Grand.Infrastructure
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="configuration">Configuration</param>
-        private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration)
+        /// <param name="typeSearcher">Type searcher</param>
+        private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration, ITypeSearcher typeSearcher)
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
@@ -233,7 +234,7 @@ namespace Grand.Infrastructure
 
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
-
+            
             services.AddTransient<FluentValidationFilter>();
             var mvcCoreBuilder = services.AddMvcCore(options =>
             {
@@ -261,15 +262,15 @@ namespace Grand.Infrastructure
         /// <param name="configuration">Configuration root of the application</param>
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            //register application
-            var mvcBuilder = RegisterApplication(services, configuration);
-
-            //register extensions 
-            RegisterExtensions(mvcBuilder, configuration);
-
             //find startup configurations provided by other assemblies
             var typeSearcher = new TypeSearcher();
             services.AddSingleton<ITypeSearcher>(typeSearcher);
+
+            //register application
+            var mvcBuilder = RegisterApplication(services, configuration, typeSearcher);
+
+            //register extensions 
+            RegisterExtensions(mvcBuilder, configuration);
 
             var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
 
