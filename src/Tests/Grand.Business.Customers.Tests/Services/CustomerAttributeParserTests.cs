@@ -25,7 +25,7 @@ namespace Grand.Business.Customers.Tests.Services
                 _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");                
             }
 
-            _parser = new CustomerAttributeParser(_customerAtrServiceMock.Object, _translationServiceMock.Object);
+            _parser = new CustomerAttributeParser(_customerAtrServiceMock.Object);
             customAtr = new List<CustomAttribute>()
             {
                 new CustomAttribute(){Key="key1",Value="value1" },

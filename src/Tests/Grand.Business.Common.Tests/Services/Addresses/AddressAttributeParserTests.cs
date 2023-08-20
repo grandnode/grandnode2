@@ -20,7 +20,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         {
             _atrService = new Mock<IAddressAttributeService>();
             _translationService = new Mock<ITranslationService>();
-            _parser = new AddressAttributeParser(_atrService.Object, _translationService.Object);
+            _parser = new AddressAttributeParser(_atrService.Object);
             customAtr = new List<CustomAttribute>()
             {
                 new CustomAttribute(){Key="key1",Value="value1" },

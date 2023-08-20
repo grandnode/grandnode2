@@ -38,7 +38,7 @@ namespace Grand.Business.Customers.Tests.Services
             _customerSettings.AllowUsersToChangeUsernames = true;
 
             _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
-                _encryptionServiceMock.Object, _translationServiceMock.Object, _mediatorMock.Object, _userFieldServiceMock.Object,
+                _encryptionServiceMock.Object, _mediatorMock.Object, _userFieldServiceMock.Object,
                 _customerHistoryPasswordServiceMock.Object, _customerSettings);
         }
         
