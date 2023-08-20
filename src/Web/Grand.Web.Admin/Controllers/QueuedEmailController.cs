@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -120,7 +121,7 @@ namespace Grand.Web.Admin.Controllers
             if (email.ReadOnUtc.HasValue)
                 model.ReadOn = _dateTimeService.ConvertToUserTime(email.ReadOnUtc.Value, DateTimeKind.Utc);
             if (email.DontSendBeforeDateUtc.HasValue)
-                model.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(email.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);
+                model.DontSendBeforeDate = email.DontSendBeforeDateUtc.ConvertToUserTime(_dateTimeService);
             else model.SendImmediately = true;
 
             return View(model);
@@ -138,8 +139,9 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 email = model.ToEntity(email);
-                email.DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
-                    null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value);
+                email.DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue
+                    ? null
+                    : model.DontSendBeforeDate.ConvertToUtcTime(_dateTimeService); 
                 await _queuedEmailService.UpdateQueuedEmail(email);
 
                 Success(_translationService.GetResource("Admin.System.QueuedEmails.Updated"));
@@ -154,8 +156,8 @@ namespace Grand.Web.Admin.Controllers
             if (email.ReadOnUtc.HasValue)
                 model.ReadOn = _dateTimeService.ConvertToUserTime(email.ReadOnUtc.Value, DateTimeKind.Utc);
             if (email.DontSendBeforeDateUtc.HasValue)
-                model.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(email.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);
-
+                model.DontSendBeforeDate = email.DontSendBeforeDateUtc.ConvertToUserTime(_dateTimeService);
+            else model.SendImmediately = true;
             return View(model);
         }
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -167,7 +169,7 @@ namespace Grand.Web.Admin.Controllers
                 //No email found with the specified id
                 return RedirectToAction("List");
 
-            var requeuedEmail = new QueuedEmail
+            var requestedEmail = new QueuedEmail
             {
                 PriorityId = queuedEmail.PriorityId,
                 From = queuedEmail.From,
@@ -188,10 +190,10 @@ namespace Grand.Web.Admin.Controllers
                 DontSendBeforeDateUtc = queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue ?
                     null : _dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)
             };
-            await _queuedEmailService.InsertQueuedEmail(requeuedEmail);
+            await _queuedEmailService.InsertQueuedEmail(requestedEmail);
 
             Success(_translationService.GetResource("Admin.System.QueuedEmails.Requeued"));
-            return RedirectToAction("Edit", new { id = requeuedEmail.Id });
+            return RedirectToAction("Edit", new { id = requestedEmail.Id });
         }
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
