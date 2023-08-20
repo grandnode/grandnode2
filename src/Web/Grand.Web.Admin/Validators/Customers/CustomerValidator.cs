@@ -21,13 +21,9 @@ namespace Grand.Web.Admin.Validators.Customers
             IWorkContext workContext,
             ICustomerService customerService,
             IGroupService groupService,
-            CustomerSettings customerSettings,
-            IActionContextAccessor actionContextAccessor)
+            CustomerSettings customerSettings)
             : base(validators)
         {
-            var currentAction = actionContextAccessor.ActionContext?.RouteData.Values["action"]?.ToString();
-            var currentController = actionContextAccessor.ActionContext?.RouteData.Values["controller"]?.ToString();
-
             CustomerCreateValidator();
             CustomerEditValidator();
             
@@ -95,11 +91,13 @@ namespace Grand.Web.Admin.Validators.Customers
                 {
                     if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
                     {
-                        Regex passwordregex = new Regex(customerSettings.PasswordRegularExpression);
-                        if (!passwordregex.Match(x.Password).Success)
+                        Regex passwordRegex = new Regex(customerSettings.PasswordRegularExpression);
+                        if (!passwordRegex.Match(x.Password).Success)
                             context.AddFailure(translationService.GetResource("Account.Fields.Password.Validation"));
                     }
                 }
+                if(string.IsNullOrWhiteSpace(x.Username) & customerSettings.UsernamesEnabled)
+                    context.AddFailure("The username cannot be empty");
             });
 
             async Task<string> ValidateCustomerGroups(IList<CustomerGroup> customerGroups, CustomerModel customerModel)
@@ -160,7 +158,7 @@ namespace Grand.Web.Admin.Validators.Customers
             }
             void CustomerCreateValidator()
             {
-                When(x => currentAction == "Create" && currentController == "Customer", () =>
+                When(x => string.IsNullOrEmpty(x.Id), () =>
                 {
                     RuleFor(x => x).CustomAsync(async (x, context, y) =>
                     {
@@ -209,7 +207,7 @@ namespace Grand.Web.Admin.Validators.Customers
             
             void CustomerEditValidator()
             {
-                When(x => currentAction == "Edit" && currentController == "Customer", () =>
+                When(x => !string.IsNullOrEmpty(x.Id), () =>
                 {
                     RuleFor(x => x).CustomAsync(async (x, context, y) =>
                     {
