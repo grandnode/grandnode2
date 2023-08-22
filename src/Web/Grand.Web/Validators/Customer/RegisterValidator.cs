@@ -161,7 +161,6 @@ namespace Grand.Web.Validators.Customer
                     if (await customerService.GetCustomerByUsername(x.Username) != null)
                     {
                         context.AddFailure(translationService.GetResource("Account.Register.Errors.UsernameAlreadyExists"));
-                        return;
                     }
                 }
 
