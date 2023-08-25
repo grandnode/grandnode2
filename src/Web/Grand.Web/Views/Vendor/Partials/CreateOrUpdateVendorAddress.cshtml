@@ -50,7 +50,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix'  + '.Company'" v-slot="{ errors, classes }">
                     <label asp-for="Company" class="col-form-label">@Loc["Address.Fields.Company"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="Company" v-model="createorupdatevendoraddress.Company" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="Company" v-model="createorupdatevendoraddress.Company" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.Company.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="Company"></span>
                 </validation-provider>
@@ -69,7 +69,7 @@
             <validation-provider tag="div" rules="required" :name="'@prefix' + '.CountryId'" v-slot="{ errors, classes }">
                 <label asp-for="CountryId" class="col-form-label">@Loc["Address.Fields.Country"]:</label>
                 <span class="required">*</span>
-                <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.VendorInfo.Country.Required"] 
                         onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="createorupdatevendoraddress.CountryId"></select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="CountryId"></span>
@@ -99,7 +99,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.City'" v-slot="{ errors, classes }">
                     <label asp-for="City" class="col-form-label">@Loc["Address.Fields.City"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="City" v-model="createorupdatevendoraddress.City" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="City" v-model="createorupdatevendoraddress.City" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.City.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="City"></span>
                 </validation-provider>
@@ -120,7 +120,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.Address1'" v-slot="{ errors, classes }">
                     <label asp-for="Address1" class="col-form-label">@Loc["Address.Fields.Address1"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="Address1" v-model="createorupdatevendoraddress.Address1" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="Address1" v-model="createorupdatevendoraddress.Address1" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.Address1.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="Address1"></span>
                 </validation-provider>
@@ -141,7 +141,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.Address2'" v-slot="{ errors, classes }">
                     <label asp-for="Address2" class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="Address2" v-model="createorupdatevendoraddress.Address2" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="Address2" v-model="createorupdatevendoraddress.Address2" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.Address2.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="Address2"></span>
                 </validation-provider>
@@ -162,7 +162,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.ZipPostalCode'" v-slot="{ errors, classes }">
                     <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Address.Fields.ZipPostalCode"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="ZipPostalCode" v-model="createorupdatevendoraddress.ZipPostalCode" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="ZipPostalCode" v-model="createorupdatevendoraddress.ZipPostalCode" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.ZipPostalCode.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="ZipPostalCode"></span>
                 </validation-provider>
@@ -183,7 +183,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.PhoneNumber'" v-slot="{ errors, classes }">
                     <label asp-for="PhoneNumber" class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="PhoneNumber" v-model="createorupdatevendoraddress.PhoneNumber" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="PhoneNumber" v-model="createorupdatevendoraddress.PhoneNumber" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.PhoneNumber.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="PhoneNumber"></span>
                 </validation-provider>
@@ -204,7 +204,7 @@
                 <validation-provider tag="div" rules="required" :name="'@prefix' + '.FaxNumber'" v-slot="{ errors, classes }">
                     <label asp-for="FaxNumber" class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
                     <span class="required">*</span>
-                    <input asp-for="FaxNumber" v-model="createorupdatevendoraddress.FaxNumber" v-bind:class="[classes , 'form-control']" />
+                    <input asp-for="FaxNumber" v-model="createorupdatevendoraddress.FaxNumber" v-bind:class="[classes , 'form-control']" data-val-required=@Loc["Account.VendorInfo.FaxNumber.Required"] />
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     <span asp-validation-for="FaxNumber"></span>
                 </validation-provider>

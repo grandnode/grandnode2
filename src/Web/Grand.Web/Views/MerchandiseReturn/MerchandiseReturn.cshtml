@@ -192,7 +192,7 @@
                                 <validation-provider tag="div" rules="required" name="PickupDate" v-slot="{ errors, classes }">
                                     <label class="col-form-label">@Loc["MerchandiseReturns.PickupDate"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" v-bind:class="[classes , 'form-control datepicker']" />
+                                    <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" v-bind:class="[classes , 'form-control datepicker']" data-val-required=@Loc["MerchandiseReturns.PickupDateRequired"] />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                 </validation-provider>
                             </div>   

@@ -104,7 +104,7 @@
                                 <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
                                     <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="FirstName" v-model="customer.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="FirstName" v-model="customer.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.FirstName.Required"] />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="FirstName"></span>
                                 </validation-provider>
@@ -122,7 +122,7 @@
                                 <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
                                     <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="LastName" v-model="customer.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="LastName" v-model="customer.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.LastName.Required"] />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="LastName"></span>
                                 </validation-provider>
@@ -164,7 +164,7 @@
                         <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"] />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -179,7 +179,7 @@
                             </div>
                             <div class="col-12">
                                 <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors, classes }">
-                                    <input asp-for="Username" v-model="customer.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="Username" v-model="customer.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Username.Required"] />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Username"></span>
                                 </validation-provider>
@@ -206,7 +206,7 @@
                                 <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors, classes }">
                                     <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="Company" v-model="customer.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="Company" v-model="customer.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Company.Required"] />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Company"></span>
                                 </validation-provider>
@@ -257,7 +257,7 @@
                                         <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress" v-model="customer.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress" v-model="customer.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress"></span>
                                         </validation-provider>
@@ -279,7 +279,7 @@
                                         <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress2" v-model="customer.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress2" v-model="customer.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress2.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress2"></span>
                                         </validation-provider>
@@ -301,7 +301,7 @@
                                         <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
                                             <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="ZipPostalCode" v-model="customer.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="ZipPostalCode" v-model="customer.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.ZipPostalCode.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="ZipPostalCode"></span>
                                         </validation-provider>
@@ -323,7 +323,7 @@
                                         <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
                                             <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="City" v-model="customer.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="City" v-model="customer.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.City.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="City"></span>
                                         </validation-provider>
@@ -345,7 +345,7 @@
                                         <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
                                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                             <span class="required">*</span>
-                                            <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                                            <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.Fields.Country.Required"] 
                                                     onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId"></select>
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="CountryId"></span>
@@ -396,7 +396,7 @@
                                         <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
                                             <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Phone" v-model="customer.Phone" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="Phone" v-model="customer.Phone" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Phone.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Phone"></span>
                                         </validation-provider>
@@ -418,7 +418,7 @@
                                         <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
                                             <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Fax" v-model="customer.Fax" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="Fax" v-model="customer.Fax" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Fax.Required"] />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Fax"></span>
                                         </validation-provider>
@@ -470,7 +470,7 @@
                     <div class="form-group">
                         <validation-provider tag="div" vid="customer.Password" rules="required" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" />
+                            <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-required=@Loc["Account.Fields.Password.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
@@ -478,7 +478,7 @@
                     <div class="form-group">
                         <validation-provider tag="div" vid="customer.ConfirmPassword" rules="required|confirmed:@@customer.Password" v-slot="{ errors, classes }">
                             <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
-                            <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autocomplete="off" />
+                            <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-equalto=@Loc["Account.Fields.Password.EnteredPasswordsDoNotMatch"] data-val-required=@Loc["Account.Fields.Password.Required"] />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="ConfirmPassword"></span>
                         </validation-provider>

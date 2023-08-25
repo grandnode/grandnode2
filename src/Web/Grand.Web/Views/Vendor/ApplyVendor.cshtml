@@ -27,7 +27,8 @@
                         <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
                             <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']" />
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']" 
+                                    data-val-required=@Loc["Vendors.ApplyAccount.Name.Required"] />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Name"></span>
                         </validation-provider>
@@ -36,7 +37,8 @@
                         <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']" />
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']" 
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.ApplyAccount.Email.Required"] />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>

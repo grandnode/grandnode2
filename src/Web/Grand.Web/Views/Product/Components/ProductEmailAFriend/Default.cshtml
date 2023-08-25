@@ -30,7 +30,8 @@
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
                                         <label asp-for="FriendEmail" class="col-form-label">@Loc["Products.EmailAFriend.FriendEmail"]:</label>
-                                        <input asp-for="FriendEmail" v-model="emailafriend.FriendEmail" placeholder="@Loc["Products.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control friend-email']" autofocus="autofocus" />
+                                        <input asp-for="FriendEmail" v-model="emailafriend.FriendEmail" placeholder="@Loc["Products.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control friend-email']" autofocus="autofocus" 
+                                                data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Products.EmailAFriend.FriendEmail.Required"] />
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="FriendEmail"></span>
                                     </validation-provider>
@@ -38,7 +39,8 @@
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
                                         <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Products.EmailAFriend.YourEmailAddress"]:</label>
-                                        <input asp-for="YourEmailAddress" v-model="emailafriend.YourEmailAddress" placeholder="@Loc["Products.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" />
+                                        <input asp-for="YourEmailAddress" v-model="emailafriend.YourEmailAddress" placeholder="@Loc["Products.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" 
+                                                data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Products.EmailAFriend.YourEmailAddress.Required"] />
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="YourEmailAddress"></span>
                                     </validation-provider>
@@ -46,7 +48,7 @@
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required" name="PersonalMessage" v-slot="{ errors, classes }">
                                         <label asp-for="PersonalMessage" class="col-form-label">@Loc["Products.EmailAFriend.PersonalMessage"]:</label>
-                                        <textarea asp-for="PersonalMessage" v-model="emailafriend.PersonalMessage" placeholder="@Loc["Products.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" rows="4"></textarea>
+                                        <textarea asp-for="PersonalMessage" v-model="emailafriend.PersonalMessage" placeholder="@Loc["Products.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" rows="4" data-val-required=@Loc["Products.EmailAFriend.PersonalMessage.Required"]></textarea>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="YourEmailAddress"></span>
                                     </validation-provider>
