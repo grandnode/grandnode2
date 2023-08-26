@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Data.Tests.MongoDb;
@@ -22,7 +21,6 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
         private IRepository<PushRegistration> _repositoryPushRegistration;
         private IRepository<PushMessage> _repositoryPushMessage;
         private Mock<IMediator> _mediatorMock;
-        private Mock<ITranslationService> _translationServiceMock;
         private Mock<ILogger> _loggerMock;
 
 
@@ -32,8 +30,6 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
             _repositoryPushRegistration = new MongoDBRepositoryTest<PushRegistration>();
             _repositoryPushMessage = new MongoDBRepositoryTest<PushMessage>();
             _mediatorMock = new Mock<IMediator>();
-            _translationServiceMock = new Mock<ITranslationService>();
-            _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("translate");
             _loggerMock = new Mock<ILogger>();
 
             var mockMessageHandler = new Mock<HttpMessageHandler>();
@@ -48,7 +44,7 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
                 });
             var httpClient = new HttpClient(mockMessageHandler.Object);
 
-            _pushNotificationsService = new PushNotificationsService(_repositoryPushRegistration, _repositoryPushMessage, _mediatorMock.Object, new PushNotificationsSettings(), _translationServiceMock.Object,
+            _pushNotificationsService = new PushNotificationsService(_repositoryPushRegistration, _repositoryPushMessage, _mediatorMock.Object, new PushNotificationsSettings(), 
                 _loggerMock.Object, httpClient);
         }
 

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Domain;
@@ -18,7 +17,6 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         private readonly IRepository<PushMessage> _pushMessagesRepository;
         private readonly IMediator _mediator;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
-        private readonly ITranslationService _translationService;
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
 
@@ -29,7 +27,6 @@ namespace Grand.Business.Marketing.Services.PushNotifications
             IRepository<PushMessage> pushMessagesRepository,
             IMediator mediator,
             PushNotificationsSettings pushNotificationsSettings,
-            ITranslationService translationService,
             ILogger logger,
             HttpClient httpClient)
         {
@@ -37,7 +34,6 @@ namespace Grand.Business.Marketing.Services.PushNotifications
             _pushMessagesRepository = pushMessagesRepository;
             _mediator = mediator;
             _pushNotificationsSettings = pushNotificationsSettings;
-            _translationService = translationService;
             _logger = logger;
             _httpClient = httpClient;
         }
@@ -156,7 +152,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                 var receivers = await GetPushReceivers();
                 if (!receivers.Any())
                 {
-                    return (false, _translationService.GetResource("Admin.PushNotifications.Error.NoReceivers"));
+                    return (false, "Admin.PushNotifications.Error.NoReceivers");
                 }
 
                 const int batchSize = 1000;
@@ -210,7 +206,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                     Title = title
                 });
 
-                return (true, string.Format(_translationService.GetResource("Admin.PushNotifications.MessageSent"), responseMessage.success, responseMessage.failure));
+                return (true, "Admin.PushNotifications.MessageSent");
             }
             catch (Exception ex)
             {
