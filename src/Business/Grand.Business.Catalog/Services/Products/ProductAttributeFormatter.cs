@@ -2,7 +2,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -20,7 +19,6 @@ namespace Grand.Business.Catalog.Services.Products
     {
         private readonly IWorkContext _workContext;
         private readonly IProductAttributeService _productAttributeService;
-        private readonly ITranslationService _translationService;
         private readonly ITaxService _taxService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IPricingService _pricingService;
@@ -28,7 +26,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         public ProductAttributeFormatter(IWorkContext workContext,
             IProductAttributeService productAttributeService,
-            ITranslationService translationService,
             ITaxService taxService,
             IPriceFormatter priceFormatter,
             IPricingService priceCalculationService,
@@ -36,7 +33,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             _workContext = workContext;
             _productAttributeService = productAttributeService;
-            _translationService = translationService;
             _taxService = taxService;
             _priceFormatter = priceFormatter;
             _pricingService = priceCalculationService;
@@ -133,13 +129,11 @@ namespace Grand.Business.Catalog.Services.Products
                 out var giftVoucherSenderName, out var giftVoucherSenderEmail, out _);
 
             //sender
-            var giftVoucherFrom = product.GiftVoucherTypeId == GiftVoucherType.Virtual ?
-                string.Format(_translationService.GetResource("GiftVoucherAttribute.From.Virtual"), giftVoucherSenderName, giftVoucherSenderEmail) :
-                string.Format(_translationService.GetResource("GiftVoucherAttribute.From.Physical"), giftVoucherSenderName);
+            var giftVoucherFrom = product.GiftVoucherTypeId == GiftVoucherType.Virtual
+                ? $"{giftVoucherSenderName} <{giftVoucherSenderEmail}>" : $"{giftVoucherSenderName}"; 
             //recipient
-            var giftVoucherFor = product.GiftVoucherTypeId == GiftVoucherType.Virtual ?
-                string.Format(_translationService.GetResource("GiftVoucherAttribute.For.Virtual"), giftVoucherRecipientName, giftVoucherRecipientEmail) :
-                string.Format(_translationService.GetResource("GiftVoucherAttribute.For.Physical"), giftVoucherRecipientName);
+            var giftVoucherFor = product.GiftVoucherTypeId == GiftVoucherType.Virtual 
+                ? $"{giftVoucherRecipientName} <{giftVoucherRecipientEmail}>" : $"{giftVoucherRecipientName}"; 
 
             //encode (if required)
             if (htmlEncode)
