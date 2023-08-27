@@ -49,8 +49,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _mediatorMock = new Mock<IMediator>();
             _aclServiceMock = new AclService();
             _productAttributeFormatter = new ProductAttributeFormatter(_workContextMock.Object, _productAttributeServiceMock.Object,
-                _translationServiceMock.Object, _taxServiceMock.Object, _priceFormatterMock.Object, _pricingServiceMock.Object,
-                _productServiceMock.Object);
+                _taxServiceMock.Object, _priceFormatterMock.Object, _pricingServiceMock.Object, _productServiceMock.Object);
         }
 
         [TestMethod()]

@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Tests.Validators
             _productAttributeService = new Mock<IProductAttributeService>();
             _productReservationServiceMock = new Mock<IProductReservationService>();
             _permissionServiceMock = new Mock<IPermissionService>();
-            _stockQuantityService = new StockQuantityService(_translationServiceMock.Object);
+            _stockQuantityService = new StockQuantityService();
             _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
         }
 

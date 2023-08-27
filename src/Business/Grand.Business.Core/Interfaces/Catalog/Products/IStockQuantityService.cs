@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Catalog;
+﻿#nullable enable
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Products
@@ -12,6 +13,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         int GetTotalStockQuantityForCombination(Product product, ProductAttributeCombination combination,
             bool useReservedQuantity = true, string warehouseId = "");
 
-        string FormatStockMessage(Product product, string warehouseId, IList<CustomAttribute> attributes);
+        (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId, IList<CustomAttribute> attributes);
     }
 }

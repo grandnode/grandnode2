@@ -104,9 +104,9 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             //stock
-            model.StockAvailability =
-                _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
-
+            var stock = _stockQuantityService.FormatStockMessage(request.Product, warehouseId, customAttributes);
+            model.StockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0);
+            
             //out of stock subscription
             if (request.Product.ManageInventoryMethodId is ManageInventoryMethod.ManageStockByAttributes or ManageInventoryMethod.ManageStock &&
                 request.Product.BackorderModeId == BackorderMode.NoBackorders &&

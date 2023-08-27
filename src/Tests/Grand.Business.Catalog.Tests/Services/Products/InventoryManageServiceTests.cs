@@ -45,7 +45,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
-            _stockQuantityService = new StockQuantityService(_translationService.Object);
+            _stockQuantityService = new StockQuantityService();
             _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal, _stockQuantityService, _cacheBase, _mediatorMock.Object, _settings);
         }
 

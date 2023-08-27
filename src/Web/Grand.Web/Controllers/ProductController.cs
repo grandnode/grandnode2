@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Products;
@@ -189,10 +190,10 @@ namespace Grand.Web.Controllers
             if (product == null)
                 return new JsonResult("");
 
-            var stock = stockQuantityService.FormatStockMessage(product, model.WarehouseId, null);
+            var stock = stockQuantityService.FormatStockMessage(product, model.WarehouseId, new List<CustomAttribute>());
             return Json(new
             {
-                stockAvailability = stock
+                stockAvailability = string.Format(_translationService.GetResource(stock.resource), stock.arg0)
             });
         }
 

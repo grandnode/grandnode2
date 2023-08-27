@@ -1,5 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿#nullable enable
+
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 
@@ -7,13 +8,6 @@ namespace Grand.Business.Catalog.Services.Products
 {
     public class StockQuantityService : IStockQuantityService
     {
-        private readonly ITranslationService _translationService;
-        public StockQuantityService(
-            ITranslationService translationService)
-        {
-            _translationService = translationService;
-        }
-
         public virtual int GetTotalStockQuantity(Product product, bool useReservedQuantity = true,
             string warehouseId = "", bool total = false)
         {
@@ -29,7 +23,9 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 if (total)
                 {
-                    return useReservedQuantity ? product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) : product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
+                    return useReservedQuantity
+                        ? product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity)
+                        : product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
                 }
 
                 var pwi = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
@@ -39,14 +35,16 @@ namespace Grand.Business.Catalog.Services.Products
                 {
                     result -= pwi.ReservedQuantity;
                 }
+
                 return result;
             }
+
             if (string.IsNullOrEmpty(warehouseId) || string.IsNullOrEmpty(product.WarehouseId))
                 return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);
-            
+
             if (product.WarehouseId == warehouseId)
                 return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);
-            
+
             return 0;
         }
 
@@ -73,108 +71,123 @@ namespace Grand.Business.Catalog.Services.Products
                 {
                     result -= pwi.ReservedQuantity;
                 }
+
                 return result;
             }
 
             if (string.IsNullOrEmpty(warehouseId) || string.IsNullOrEmpty(product.WarehouseId))
                 return combination.StockQuantity - (useReservedQuantity ? combination.ReservedQuantity : 0);
-            
+
             if (product.WarehouseId == warehouseId)
                 return combination.StockQuantity - (useReservedQuantity ? combination.ReservedQuantity : 0);
-            
+
             return 0;
         }
 
-        public virtual string FormatStockMessage(Product product, string warehouseId, IList<CustomAttribute> attributes)
+        public virtual (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId,
+            IList<CustomAttribute> attributes)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
             var stockMessage = string.Empty;
 
-            switch (product.ManageInventoryMethodId)
-            {
-                case ManageInventoryMethod.ManageStock:
-                    {
-                        #region Manage stock
-
-                        if (!product.StockAvailability)
-                            return stockMessage;
-
-                        var stockQuantity = GetTotalStockQuantity(product, warehouseId: warehouseId);
-                        if (stockQuantity > 0)
-                        {
-                            stockMessage = product.DisplayStockQuantity ?
-                                string.Format(_translationService.GetResource("Products.Availability.InStockWithQuantity"), stockQuantity) :
-                                _translationService.GetResource("Products.Availability.InStock");
-                        }
-                        else
-                        {
-                            switch (product.BackorderModeId)
-                            {
-                                case BackorderMode.NoBackorders:
-                                    stockMessage = _translationService.GetResource("Products.Availability.OutOfStock");
-                                    break;
-                                case BackorderMode.AllowQtyBelowZero:
-                                    stockMessage = _translationService.GetResource("Products.Availability.Backordering");
-                                    break;
-                            }
-                        }
-
-                        #endregion
-                    }
-                    break;
-                case ManageInventoryMethod.ManageStockByAttributes:
-                    {
-                        #region Manage stock by attributes
-
-                        if (!product.StockAvailability)
-                            return stockMessage;
-
-                        var combination = product.FindProductAttributeCombination(attributes);
-                        if (combination != null)
-                        {
-                            //combination exists
-                            var stockQuantity = GetTotalStockQuantityForCombination(product, combination, warehouseId: warehouseId);
-                            if (stockQuantity > 0)
-                            {
-                                stockMessage = product.DisplayStockQuantity ?
-                                    //display "in stock" with stock quantity
-                                    string.Format(_translationService.GetResource("Products.Availability.InStockWithQuantity"), stockQuantity) :
-                                    //display "in stock" without stock quantity
-                                    _translationService.GetResource("Products.Availability.InStock");
-                            }
-                            else
-                            {
-                                //out of stock
-                                switch (product.BackorderModeId)
-                                {
-                                    case BackorderMode.NoBackorders:
-                                        stockMessage = _translationService.GetResource("Products.Availability.Attributes.OutOfStock");
-                                        break;
-                                    case BackorderMode.AllowQtyBelowZero:
-                                        stockMessage = _translationService.GetResource("Products.Availability.Attributes.Backordering");
-                                        break;
-                                }
-                                if (!combination.AllowOutOfStockOrders)
-                                    stockMessage = _translationService.GetResource("Products.Availability.Attributes.OutOfStock");
-                            }
-                        }
-                        else
-                        {
-                            stockMessage = _translationService.GetResource("Products.Availability.AttributeCombinationsNotExists");
-                        }
-
-                        #endregion
-                    }
-                    break;
-                case ManageInventoryMethod.DontManageStock:
-                case ManageInventoryMethod.ManageStockByBundleProducts:
-                default:
-                    return stockMessage;
-            }
-            return stockMessage;
+            return product.ManageInventoryMethodId switch {
+                ManageInventoryMethod.ManageStock => StockInventoryFormatStockMessage(product, warehouseId,
+                    stockMessage),
+                ManageInventoryMethod.ManageStockByAttributes => StockByAttributesFormatStockMessage(product,
+                    warehouseId, attributes, stockMessage),
+                _ => (stockMessage, null)
+            };
         }
 
+        private (string resource, object? arg0) StockByAttributesFormatStockMessage(Product product, string warehouseId,
+            IList<CustomAttribute> attributes, string stockMessage)
+        {
+            if (!product.StockAvailability)
+            {
+                return (stockMessage, null);
+            }
+
+            var combination = product.FindProductAttributeCombination(attributes);
+            if (combination != null)
+            {
+                //combination exists
+                var stockQuantity =
+                    GetTotalStockQuantityForCombination(product, combination, warehouseId: warehouseId);
+                if (stockQuantity > 0)
+                {
+                    if (product.DisplayStockQuantity)
+                        //display "in stock" with stock quantity
+                    {
+                        return ("Products.Availability.InStockWithQuantity", stockQuantity);
+                    }
+
+                    //display "in stock" without stock quantity
+                    {
+                        return ("Products.Availability.InStock", null);
+                    }
+                }
+
+                //out of stock
+                switch (product.BackorderModeId)
+                {
+                    case BackorderMode.NoBackorders:
+                    {
+                        return ("Products.Availability.Attributes.OutOfStock", null);
+                    }
+                    case BackorderMode.AllowQtyBelowZero:
+                    {
+                        return ("Products.Availability.Attributes.Backordering", null);
+                    }
+                }
+
+                if (!combination.AllowOutOfStockOrders)
+                {
+                    return ("Products.Availability.Attributes.OutOfStock", null);
+                }
+            }
+            else
+            {
+                    return ("Products.Availability.AttributeCombinationsNotExists", null);
+            }
+            return (stockMessage, null);
+        }
+
+        private (string resource, object? arg0) StockInventoryFormatStockMessage(Product product, string warehouseId,
+            string stockMessage)
+        {
+            if (!product.StockAvailability)
+            {
+                return (stockMessage, null);
+            }
+
+            var stockQuantity = GetTotalStockQuantity(product, warehouseId: warehouseId);
+            if (stockQuantity > 0)
+            {
+                if (product.DisplayStockQuantity)
+                {
+                    return ("Products.Availability.InStockWithQuantity", stockQuantity);
+                }
+
+                {
+                    return ("Products.Availability.InStock", null);
+                }
+            }
+
+            switch (product.BackorderModeId)
+            {
+                case BackorderMode.NoBackorders:
+                {
+                    return ("Products.Availability.OutOfStock", null);
+                }
+                case BackorderMode.AllowQtyBelowZero:
+                {
+                    return ("Products.Availability.Backordering", null);
+                }
+            }
+
+            return (stockMessage, null);
+        }
     }
 }
