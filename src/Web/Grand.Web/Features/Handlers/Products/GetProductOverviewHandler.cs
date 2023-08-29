@@ -12,6 +12,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
@@ -424,9 +425,9 @@ namespace Grand.Web.Features.Handlers.Products
                                 {
                                     //rental product
                                     if(!string.IsNullOrEmpty(priceModel.OldPrice))
-                                        priceModel.OldPrice = string.Format(_translationService.GetResource(_priceFormatter.ResourceReservationProductPeriod(product)), priceModel.OldPrice, product.Interval);
+                                        priceModel.OldPrice = string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()), priceModel.OldPrice, product.Interval);
                                     
-                                    priceModel.Price = string.Format(_translationService.GetResource(_priceFormatter.ResourceReservationProductPeriod(product)), priceModel.Price, product.Interval);
+                                    priceModel.Price = string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()), priceModel.Price, product.Interval);
                                 }
 
                                 //PAngV base price (used in Germany)

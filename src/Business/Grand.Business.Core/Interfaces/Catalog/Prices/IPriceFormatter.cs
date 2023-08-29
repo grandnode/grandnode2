@@ -1,4 +1,3 @@
-using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Prices
@@ -20,14 +19,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// <returns>Price</returns>
         string FormatPrice(double price, Currency targetCurrency);
         
-        /// <summary>
-        /// Resource name of rental product (rental period)
-        /// </summary>
-        /// <param name="product">Product</param>
-        /// <returns>Rental product price with period</returns>
-        string ResourceReservationProductPeriod(Product product);
-
-
         /// <summary>
         /// Formats a tax rate
         /// </summary>

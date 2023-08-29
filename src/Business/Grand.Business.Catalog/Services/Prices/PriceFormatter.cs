@@ -1,8 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
-using Grand.SharedKernel;
 using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices
@@ -89,30 +87,7 @@ namespace Grand.Business.Catalog.Services.Prices
             var currencyString = GetCurrencyString(price, targetCurrency);
             return currencyString;
         }
-
-        /// <summary>
-        /// Resource name of rental product (rental period)
-        /// </summary>
-        /// <param name="product">Product</param>
-        /// <returns>Rental product price with period</returns>
-        public virtual string ResourceReservationProductPeriod(Product product)
-        {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            if (product.ProductTypeId != ProductType.Reservation)
-                return string.Empty;
-
-            var result = product.IntervalUnitId switch {
-                IntervalUnit.Day => "Products.Price.Reservation.Days",
-                IntervalUnit.Hour => "Products.Price.Reservation.Hour",
-                IntervalUnit.Minute => "Products.Price.Reservation.Minute",
-                _ => throw new GrandException("Not supported reservation period")
-            };
-
-            return result;
-        }
-
+        
         /// <summary>
         /// Formats a tax rate
         /// </summary>

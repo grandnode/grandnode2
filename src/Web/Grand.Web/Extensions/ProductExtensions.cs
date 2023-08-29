@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
+using Grand.SharedKernel;
 
 namespace Grand.Web.Extensions
 {
@@ -73,5 +74,26 @@ namespace Grand.Web.Extensions
 
             return picture;
         }
+        
+        /// <summary>
+        /// Resource name of rental product (rental period)
+        /// </summary>
+        /// <param name="product">Product</param>
+        /// <returns>Rental product price with period</returns>
+        public static string ResourceReservationProductPeriod(this Product product)
+        {
+            if (product.ProductTypeId != ProductType.Reservation)
+                return string.Empty;
+
+            var result = product.IntervalUnitId switch {
+                IntervalUnit.Day => "Products.Price.Reservation.Days",
+                IntervalUnit.Hour => "Products.Price.Reservation.Hour",
+                IntervalUnit.Minute => "Products.Price.Reservation.Minute",
+                _ => throw new GrandException("Not supported reservation period")
+            };
+
+            return result;
+        }
+
     }
 }
