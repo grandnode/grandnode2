@@ -129,7 +129,7 @@ namespace Grand.Web.Validators.Customer
             
             if (captchaSettings.Enabled && captchaSettings.ShowOnRegistrationPage)
             {
-                RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));;
+                RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
                 RuleFor(x => x.Captcha).SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
             }
 

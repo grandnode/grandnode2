@@ -61,6 +61,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute>());
             //Assert
             Assert.AreEqual("", result);
+            
         }
         [TestMethod()]
         public async Task FormatAttributesTest_GiftVoucher()
