@@ -27,9 +27,6 @@ namespace Grand.Web.Admin.Models.Tax
         public int TaxDisplayType { get; set; }
         public SelectList TaxDisplayTypeValues { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.DisplayTaxSuffix")]
-        public bool DisplayTaxSuffix { get; set; }
-
         [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.DisplayTaxRates")]
         public bool DisplayTaxRates { get; set; }
 

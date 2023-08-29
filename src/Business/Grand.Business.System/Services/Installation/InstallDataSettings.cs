@@ -443,7 +443,6 @@ namespace Grand.Business.System.Services.Installation
             await _settingService.SaveSetting(new TaxSettings {
                 TaxBasedOn = TaxBasedOn.BillingAddress,
                 TaxDisplayType = TaxDisplayType.ExcludingTax,
-                DisplayTaxSuffix = false,
                 DisplayTaxRates = false,
                 PricesIncludeTax = false,
                 CalculateRoundPrice = 2,

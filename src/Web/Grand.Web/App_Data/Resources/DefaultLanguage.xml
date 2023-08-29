@@ -5292,9 +5292,6 @@
 	<Resource Name="Admin.Configuration.Tax.Settings.DisplayTaxRates" Area="Admin">
 		<Value>Display all applied tax rates</Value>
 	</Resource>
-	<Resource Name="Admin.Configuration.Tax.Settings.DisplayTaxSuffix" Area="Admin">
-		<Value>Display tax suffix</Value>
-	</Resource>
 	<Resource Name="Admin.Configuration.Tax.Settings.EuVatAllowVatExemption" Area="Admin">
 		<Value>Allow VAT exemption</Value>
 	</Resource>

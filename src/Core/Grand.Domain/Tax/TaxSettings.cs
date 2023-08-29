@@ -21,11 +21,6 @@ namespace Grand.Domain.Tax
         public Address DefaultTaxAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to display tax suffix
-        /// </summary>
-        public bool DisplayTaxSuffix { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether each tax rate should be displayed on separate line (shopping cart page)
         /// </summary>
         public bool DisplayTaxRates { get; set; }
