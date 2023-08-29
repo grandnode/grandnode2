@@ -10,16 +10,13 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 {
     public class GetMerchandiseReturnTokensCommandHandler : IRequestHandler<GetMerchandiseReturnTokensCommand, LiquidMerchandiseReturn>
     {
-        private readonly ITranslationService _translationService;
         private readonly ICountryService _countryService;
         private readonly IProductService _productService;
 
         public GetMerchandiseReturnTokensCommandHandler(
-            ITranslationService translationService,
             ICountryService countryService,
             IProductService productService)
         {
-            _translationService = translationService;
             _countryService = countryService;
             _productService = productService;
         }
@@ -30,7 +27,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
             var country = await _countryService.GetCountryById(request.MerchandiseReturn.PickupAddress.CountryId);
 
-            liquidMerchandiseReturn.Status = request.MerchandiseReturn.MerchandiseReturnStatus.GetTranslationEnum(_translationService, request.Language.Id);
+            liquidMerchandiseReturn.Status = request.MerchandiseReturn.MerchandiseReturnStatus.ToString();
 
             liquidMerchandiseReturn.PickupAddressStateProvince =
                             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.StateProvinceId) ?
