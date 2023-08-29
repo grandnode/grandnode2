@@ -237,13 +237,13 @@ namespace Grand.Business.Catalog.Services.Products
                                     {
                                         case > 0:
                                         {
-                                            var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustmentBase, false);
+                                            var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustmentBase, _workContext.WorkingCurrency);
                                             formattedAttribute += $" [+{priceAdjustmentStr}]";
                                             break;
                                         }
                                         case < 0:
                                         {
-                                            var priceAdjustmentStr = _priceFormatter.FormatPrice(-priceAdjustmentBase, false);
+                                            var priceAdjustmentStr = _priceFormatter.FormatPrice(-priceAdjustmentBase, _workContext.WorkingCurrency);
                                             formattedAttribute += $" [-{priceAdjustmentStr}]";
                                             break;
                                         }

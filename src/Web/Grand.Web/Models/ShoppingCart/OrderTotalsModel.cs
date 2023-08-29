@@ -13,6 +13,7 @@ namespace Grand.Web.Models.ShoppingCart
         public bool IsEditable { get; set; }
 
         public string SubTotal { get; set; }
+        public bool SubTotalIncludingTax { get; set; }
         public double SubTotalValue { get; set; }
 
         public string SubTotalDiscount { get; set; }

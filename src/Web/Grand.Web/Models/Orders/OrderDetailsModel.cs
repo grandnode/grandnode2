@@ -49,7 +49,7 @@ namespace Grand.Web.Models.Orders
         public string PaymentMethodStatus { get; set; }
         public bool CanRePostProcessPayment { get; set; }
         public Dictionary<string, object> CustomValues { get; set; }
-
+        public bool OrderIncludingTax { get; set; }
         public string OrderSubtotal { get; set; }
         public string OrderSubTotalDiscount { get; set; }
         public string OrderShipping { get; set; }
@@ -91,6 +91,7 @@ namespace Grand.Web.Models.Orders
             public string ProductSeName { get; set; }
             public PictureModel Picture { get; set; }
             public string UnitPrice { get; set; }
+            public bool UnitPriceIncludingTax { get; set; }
             public double UnitPriceValue { get; set; }
             public string UnitPriceWithoutDiscount { get; set; }
             public double UnitPriceWithoutDiscountValue { get; set; }

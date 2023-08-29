@@ -50,7 +50,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                             //do not round. otherwise, it can cause issues
                             await _measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
                             referenceAmount;
-            var basePriceStr = _priceFormatter.FormatPrice(basePrice, false);
+            var basePriceStr = _priceFormatter.FormatPrice(basePrice);
 
             var result = string.Format(_translationService.GetResource("Products.BasePrice"),
                 basePriceStr, referenceAmount.ToString("G29"), referenceUnit.Name);

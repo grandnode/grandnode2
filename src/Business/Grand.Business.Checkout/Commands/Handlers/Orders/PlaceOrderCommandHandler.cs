@@ -486,7 +486,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (!minOrderSubtotalAmountOk)
             {
                 var minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
-                throw new GrandException(string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false)));
+                throw new GrandException(string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, _workContext.WorkingCurrency)));
             }
 
             var minmaxOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand() { Customer = details.Customer, Cart = details.Cart });

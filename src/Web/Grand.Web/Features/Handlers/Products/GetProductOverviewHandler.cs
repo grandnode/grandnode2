@@ -224,14 +224,12 @@ namespace Grand.Web.Features.Handlers.Products
                     //compare products
                     priceModel.DisableAddToCompareListButton = !_catalogSettings.CompareProductsEnabled;
 
+                    priceModel.PriceIncludesTax = priceIncludesTax;
                     //catalog price, not used in views, but it's for front developer
                     if (product.CatalogPrice > 0)
                     {
-                        var catalogPrice =
-                            await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice,
-                                _workContext.WorkingCurrency);
-                        priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice,
-                            _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
+                        var catalogPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice, _workContext.WorkingCurrency);
+                        priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _workContext.WorkingCurrency);
                     }
 
                     if (associatedProducts.Any())
@@ -272,8 +270,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                                     priceModel.OldPrice = null;
                                     priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
-                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency,
-                                            _workContext.WorkingLanguage, priceIncludesTax));
+                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency));
                                     priceModel.PriceValue = finalPrice;
 
                                     //PAngV base price (used in Germany)
@@ -282,12 +279,6 @@ namespace Grand.Web.Features.Handlers.Products
                                             Currency = _workContext.WorkingCurrency, Product = product,
                                             ProductPrice = finalPrice
                                         });
-                                }
-                                else
-                                {
-                                    //Actually it's not possible (we presume that minimalPrice always has a value)
-                                    //We never should get here
-                                    Debug.WriteLine("Cannot calculate minPrice for product #{0}", product.Id);
                                 }
                             }
                         }
@@ -333,8 +324,7 @@ namespace Grand.Web.Features.Handlers.Products
                         var catalogPrice =
                             await _currencyService.ConvertFromPrimaryStoreCurrency(product.CatalogPrice,
                                 _workContext.WorkingCurrency);
-                        priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice,
-                            _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
+                        priceModel.CatalogPrice = _priceFormatter.FormatPrice(catalogPrice, _workContext.WorkingCurrency);
                     }
 
                     //start price for product auction
@@ -343,8 +333,7 @@ namespace Grand.Web.Features.Handlers.Products
                         var startPrice =
                             await _currencyService.ConvertFromPrimaryStoreCurrency(product.StartPrice,
                                 _workContext.WorkingCurrency);
-                        priceModel.StartPrice = _priceFormatter.FormatPrice(startPrice, _workContext.WorkingCurrency,
-                            _workContext.WorkingLanguage, priceIncludesTax);
+                        priceModel.StartPrice = _priceFormatter.FormatPrice(startPrice, _workContext.WorkingCurrency);
                         priceModel.StartPriceValue = startPrice;
                     }
 
@@ -354,8 +343,7 @@ namespace Grand.Web.Features.Handlers.Products
                         var highestBid =
                             await _currencyService.ConvertFromPrimaryStoreCurrency(product.HighestBid,
                                 _workContext.WorkingCurrency);
-                        priceModel.HighestBid = _priceFormatter.FormatPrice(highestBid, _workContext.WorkingCurrency,
-                            _workContext.WorkingLanguage, priceIncludesTax);
+                        priceModel.HighestBid = _priceFormatter.FormatPrice(highestBid, _workContext.WorkingCurrency);
                         priceModel.HighestBidValue = highestBid;
                     }
 
@@ -375,13 +363,13 @@ namespace Grand.Web.Features.Handlers.Products
                                 //prices
 
                                 //calculate for the maximum quantity (in case if we have tier prices)
-                                var infoprice = await _pricingService.GetFinalPrice(product,
+                                var infoPrice = await _pricingService.GetFinalPrice(product,
                                     _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true, int.MaxValue);
 
-                                priceModel.AppliedDiscounts = infoprice.appliedDiscounts;
-                                priceModel.PreferredTierPrice = infoprice.preferredTierPrice;
+                                priceModel.AppliedDiscounts = infoPrice.appliedDiscounts;
+                                priceModel.PreferredTierPrice = infoPrice.preferredTierPrice;
 
-                                var minPossiblePrice = infoprice.finalPrice;
+                                var minPossiblePrice = infoPrice.finalPrice;
 
                                 var oldPriceBase = (await _taxService.GetProductPrice(product, product.OldPrice,
                                     priceIncludesTax, _workContext.CurrentCustomer)).productprice;
@@ -412,29 +400,22 @@ namespace Grand.Web.Features.Handlers.Products
                                 {
                                     priceModel.OldPrice = null;
                                     priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
-                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency,
-                                            _workContext.WorkingLanguage, priceIncludesTax));
+                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency));
                                     priceModel.PriceValue = finalPrice;
                                 }
                                 else
                                 {
-                                    if (finalPrice != oldPriceBase && oldPriceBase != 0)
+                                    if (!finalPrice.Equals(oldPriceBase) && oldPriceBase != 0)
                                     {
-                                        priceModel.OldPrice = _priceFormatter.FormatPrice(oldPrice,
-                                            _workContext.WorkingCurrency, _workContext.WorkingLanguage,
-                                            priceIncludesTax);
+                                        priceModel.OldPrice = _priceFormatter.FormatPrice(oldPrice, _workContext.WorkingCurrency);
                                         priceModel.OldPriceValue = oldPrice;
-                                        priceModel.Price = _priceFormatter.FormatPrice(finalPrice,
-                                            _workContext.WorkingCurrency, _workContext.WorkingLanguage,
-                                            priceIncludesTax);
+                                        priceModel.Price = _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency);
                                         priceModel.PriceValue = finalPrice;
                                     }
                                     else
                                     {
                                         priceModel.OldPrice = null;
-                                        priceModel.Price = _priceFormatter.FormatPrice(finalPrice,
-                                            _workContext.WorkingCurrency, _workContext.WorkingLanguage,
-                                            priceIncludesTax);
+                                        priceModel.Price = _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency);
                                         priceModel.PriceValue = finalPrice;
                                     }
                                 }

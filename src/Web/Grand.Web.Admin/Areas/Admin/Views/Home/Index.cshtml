@@ -1,4 +1,5 @@
-﻿@model DashboardModel
+﻿@using Grand.Business.Core.Interfaces.Common.Directory
+@model DashboardModel
 
 @inject Grand.Domain.Customers.CustomerSettings customerSettings
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
@@ -6,7 +7,8 @@
 @inject Grand.Business.Core.Interfaces.System.Reports.IOrderReportService orderReportService
 @inject Grand.Business.Core.Interfaces.Catalog.Prices.IPriceFormatter priceFormatter
 @inject IWorkContext workContext
-@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
+@inject ICurrencyService currencyService
+@inject IGroupService groupService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
@@ -16,7 +18,7 @@
     var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
     var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
     var ordersToday = await orderReportService.GetOrderPeriodReport(0, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
-    var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, false);
+    var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
 }
 
 <vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>

@@ -51,7 +51,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ISearchTermService _searchTermService;
         private readonly IGroupService _groupService;
         private readonly IOrderStatusService _orderStatusService;
-
+        private readonly ICurrencyService _currencyService;
         public ReportsController(IOrderService orderService,
         IOrderReportService orderReportService,
         IProductsReportService productsReportService,
@@ -70,7 +70,8 @@ namespace Grand.Web.Admin.Controllers
         IDateTimeService dateTimeService,
         ISearchTermService searchTermService,
         IGroupService groupService,
-        IOrderStatusService orderStatusService)
+        IOrderStatusService orderStatusService, 
+        ICurrencyService currencyService)
         {
             _orderService = orderService;
             _orderReportService = orderReportService;
@@ -91,6 +92,7 @@ namespace Grand.Web.Admin.Controllers
             _searchTermService = searchTermService;
             _groupService = groupService;
             _orderStatusService = orderStatusService;
+            _currencyService = currencyService;
         }
 
         [NonAction]
@@ -118,7 +120,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
-                    TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
+                    TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, await _currencyService.GetPrimaryStoreCurrency()),
                     TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
@@ -274,7 +276,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
-                    TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
+                    TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, await _currencyService.GetPrimaryStoreCurrency()),
                     TotalQuantity = x.TotalQuantity
                 };
                 var product = await _productService.GetProductById(x.ProductId);
@@ -390,16 +392,18 @@ namespace Grand.Web.Admin.Controllers
             };
 
             var statuses = await _orderStatusService.GetAll();
-
-            var model = report.Select(x => new OrderAverageReportLineSummaryModel {
-                OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatus)?.Name,
-                SumTodayOrders = _priceFormatter.FormatPrice(x.SumTodayOrders, false),
-                SumThisWeekOrders = _priceFormatter.FormatPrice(x.SumThisWeekOrders, false),
-                SumThisMonthOrders = _priceFormatter.FormatPrice(x.SumThisMonthOrders, false),
-                SumThisYearOrders = _priceFormatter.FormatPrice(x.SumThisYearOrders, false),
-                SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false)
-            }).ToList();
-
+            var model = new List<OrderAverageReportLineSummaryModel>();
+            foreach (var x in report.ToList())
+            {
+                model.Add(new OrderAverageReportLineSummaryModel {
+                    OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatus)?.Name,
+                    SumTodayOrders = _priceFormatter.FormatPrice(x.SumTodayOrders, await _currencyService.GetPrimaryStoreCurrency()),
+                    SumThisWeekOrders = _priceFormatter.FormatPrice(x.SumThisWeekOrders, await _currencyService.GetPrimaryStoreCurrency()),
+                    SumThisMonthOrders = _priceFormatter.FormatPrice(x.SumThisMonthOrders, await _currencyService.GetPrimaryStoreCurrency()),
+                    SumThisYearOrders = _priceFormatter.FormatPrice(x.SumThisYearOrders, await _currencyService.GetPrimaryStoreCurrency()),
+                    SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, await _currencyService.GetPrimaryStoreCurrency())
+                });           
+            }
             var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
@@ -440,7 +444,7 @@ namespace Grand.Web.Admin.Controllers
                     Id = x.Id,
                     OrderNumber = x.OrderNumber,
                     StoreName = store != null ? store.Shortcut : "Unknown",
-                    OrderTotal = _priceFormatter.FormatPrice(x.OrderTotal, false),
+                    OrderTotal = _priceFormatter.FormatPrice(x.OrderTotal, await _currencyService.GetPrimaryStoreCurrency()),
                     OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
                     PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
                     ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
@@ -477,7 +481,7 @@ namespace Grand.Web.Admin.Controllers
             model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalUnpaidOrders"),
                 Count = psPending.CountOrders,
-                Total = _priceFormatter.FormatPrice(psPending.SumOrders, false),
+                Total = _priceFormatter.FormatPrice(psPending.SumOrders, await _currencyService.GetPrimaryStoreCurrency()),
                 ViewLink = Url.Action("List", "Order", new { paymentStatusId = ((int)PaymentStatus.Pending).ToString(), area = Constants.AreaAdmin })
             });
             //not shipped
@@ -485,7 +489,7 @@ namespace Grand.Web.Admin.Controllers
             model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalNotShippedOrders"),
                 Count = ssPending.CountOrders,
-                Total = _priceFormatter.FormatPrice(ssPending.SumOrders, false),
+                Total = _priceFormatter.FormatPrice(ssPending.SumOrders, await _currencyService.GetPrimaryStoreCurrency()),
                 ViewLink = Url.Action("List", "Order", new { shippingStatusId = ((int)ShippingStatus.Pending).ToString(), area = Constants.AreaAdmin })
             });
             //pending
@@ -493,7 +497,7 @@ namespace Grand.Web.Admin.Controllers
             model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalIncompleteOrders"),
                 Count = osPending.CountOrders,
-                Total = _priceFormatter.FormatPrice(osPending.SumOrders, false),
+                Total = _priceFormatter.FormatPrice(osPending.SumOrders, await _currencyService.GetPrimaryStoreCurrency()),
                 ViewLink = Url.Action("List", "Order", new { orderStatusId = ((int)OrderStatusSystem.Pending).ToString(), area = Constants.AreaAdmin })
             });
 
@@ -553,7 +557,7 @@ namespace Grand.Web.Admin.Controllers
                 var country = await _countryService.GetCountryById(!string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
                 var m = new CountryReportLineModel {
                     CountryName = country != null ? country.Name : "Unknown",
-                    SumOrders = _priceFormatter.FormatPrice(x.SumOrders, false),
+                    SumOrders = _priceFormatter.FormatPrice(x.SumOrders, await _currencyService.GetPrimaryStoreCurrency()),
                     TotalOrders = x.TotalOrders
                 };
                 result.Add(m);

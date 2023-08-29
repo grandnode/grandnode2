@@ -832,8 +832,8 @@ namespace Grand.Web.Features.Handlers.Products
                 : minimumCustomerEnteredPrice;
             model.CustomerEnteredPriceRange = string.Format(
                 _translationService.GetResource("Products.EnterProductPrice.Range"),
-                _priceFormatter.FormatPrice(minimumCustomerEnteredPrice, false),
-                _priceFormatter.FormatPrice(maximumCustomerEnteredPrice, false));
+                _priceFormatter.FormatPrice(minimumCustomerEnteredPrice),
+                _priceFormatter.FormatPrice(maximumCustomerEnteredPrice));
 
             return model;
         }
@@ -950,11 +950,11 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 case > 0:
                                     valueModel.PriceAdjustment =
-                                        "+" + _priceFormatter.FormatPrice(productprice.productprice, false);
+                                        "+" + _priceFormatter.FormatPrice(productprice.productprice, _workContext.WorkingCurrency);
                                     break;
                                 case < 0:
                                     valueModel.PriceAdjustment =
-                                        "-" + _priceFormatter.FormatPrice(-productprice.productprice, false);
+                                        "-" + _priceFormatter.FormatPrice(-productprice.productprice, _workContext.WorkingCurrency);
                                     break;
                             }
 
@@ -1095,7 +1095,7 @@ namespace Grand.Web.Features.Handlers.Products
                     _workContext.CurrentCustomer, _workContext.WorkingCurrency,
                     0, _catalogSettings.DisplayTierPricesWithDiscounts, tierPrice.Quantity)).finalPrice);
                 tier.Quantity = tierPrice.Quantity;
-                tier.Price = _priceFormatter.FormatPrice(priceBase.productprice, false);
+                tier.Price = _priceFormatter.FormatPrice(priceBase.productprice, _workContext.WorkingCurrency);
                 model.Add(tier);
             }
 

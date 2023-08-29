@@ -47,13 +47,13 @@ namespace Grand.Web.Features.Handlers.Orders
             var loyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
             var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
             model.LoyaltyPointsBalance = loyaltyPointsBalance;
-            model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
+            model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);
             //minimum amount/balance
             var minimumLoyaltyPointsBalance = _loyaltyPointsSettings.MinimumLoyaltyPointsToUse;
             var minimumLoyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
             var minimumLoyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
             model.MinimumLoyaltyPointsBalance = minimumLoyaltyPointsBalance;
-            model.MinimumLoyaltyPointsAmount = _priceFormatter.FormatPrice(minimumLoyaltyPointsAmount, false);
+            model.MinimumLoyaltyPointsAmount = _priceFormatter.FormatPrice(minimumLoyaltyPointsAmount, request.Currency);
 
             return model;
         }

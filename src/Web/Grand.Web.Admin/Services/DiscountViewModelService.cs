@@ -454,7 +454,7 @@ namespace Grand.Web.Admin.Services
                     OrderId = x.OrderId,
                     OrderNumber = order?.OrderNumber ?? 0,
                     OrderCode = order != null ? order.Code : "",
-                    OrderTotal = order != null ? _priceFormatter.FormatPrice(order.OrderTotal, false) : "",
+                    OrderTotal = order != null ? _priceFormatter.FormatPrice(order.OrderTotal, await _currencyService.GetPrimaryStoreCurrency()) : "",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 items.Add(duhModel);

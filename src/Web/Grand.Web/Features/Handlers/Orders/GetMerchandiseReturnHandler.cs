@@ -27,6 +27,7 @@ namespace Grand.Web.Features.Handlers.Orders
         private readonly ICountryService _countryService;
         private readonly IAclService _aclService;
         private readonly IVendorService _vendorService;
+        private readonly ICurrencyService _currencyService;
         private readonly IMediator _mediator;
         private readonly OrderSettings _orderSettings;
 
@@ -40,8 +41,8 @@ namespace Grand.Web.Features.Handlers.Orders
             IAclService aclService,
             IVendorService vendorService,
             IMediator mediator,
-            OrderSettings orderSettings
-        )
+            OrderSettings orderSettings, 
+            ICurrencyService currencyService)
         {
             _workContext = workContext;
             _merchandiseReturnService = merchandiseReturnService;
@@ -53,6 +54,7 @@ namespace Grand.Web.Features.Handlers.Orders
             _vendorService = vendorService;
             _mediator = mediator;
             _orderSettings = orderSettings;
+            _currencyService = currencyService;
         }
 
         public async Task<MerchandiseReturnModel> Handle(GetMerchandiseReturn request,
@@ -107,7 +109,7 @@ namespace Grand.Web.Features.Handlers.Orders
         private async Task PrepareItems(GetMerchandiseReturn request, MerchandiseReturnModel model)
         {
             var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
-
+            var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
             foreach (var orderItem in request.Order.OrderItems)
             {
                 var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems)
@@ -135,19 +137,10 @@ namespace Grand.Web.Features.Handlers.Orders
                 };
                 if (orderItemModel.Quantity > 0)
                     model.Items.Add(orderItemModel);
-                //unit price
-                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                {
-                    //including tax
-                    orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax,
-                        request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, true);
-                }
-                else
-                {
-                    //excluding tax
-                    orderItemModel.UnitPrice = await _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax,
-                        request.Order.CustomerCurrencyCode, _workContext.WorkingLanguage, false);
-                }
+                
+                orderItemModel.IncludingTax = request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax;
+                orderItemModel.UnitPrice = _priceFormatter.FormatPrice(request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ?
+                    orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax, currency);
             }
         }
 

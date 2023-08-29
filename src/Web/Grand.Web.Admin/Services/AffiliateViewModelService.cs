@@ -28,13 +28,14 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IOrderStatusService _orderStatusService;
+        private readonly ICurrencyService _currencyService;
         private readonly SeoSettings _seoSettings;
 
         public AffiliateViewModelService(IWorkContext workContext, ICountryService countryService,
             IPriceFormatter priceFormatter, IAffiliateService affiliateService,
             ICustomerService customerService, IOrderService orderService, ITranslationService translationService, IDateTimeService dateTimeService,
             IOrderStatusService orderStatusService,
-            SeoSettings seoSettings)
+            SeoSettings seoSettings, ICurrencyService currencyService)
         {
             _workContext = workContext;
             _countryService = countryService;
@@ -46,6 +47,7 @@ namespace Grand.Web.Admin.Services
             _dateTimeService = dateTimeService;
             _orderStatusService = orderStatusService;
             _seoSettings = seoSettings;
+            _currencyService = currencyService;
         }
 
         public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
@@ -185,7 +187,7 @@ namespace Grand.Web.Admin.Services
                     OrderStatus = statuses.FirstOrDefault(y => y.StatusId == order.OrderStatusId)?.Name,
                     PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
                     ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
-                    OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage),
+                    OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal, await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)),
                     CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc)
                 };
                 affiliateorders.Add(orderModel);

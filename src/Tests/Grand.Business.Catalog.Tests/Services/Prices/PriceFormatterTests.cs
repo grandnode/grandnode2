@@ -102,7 +102,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 _translationService = tempLocalizationService.Object;
             }
 
-            _priceFormatter = new PriceFormatter(_workContext, _currencyService, _translationService, _taxSettings);
+            _priceFormatter = new PriceFormatter(_workContext);
         }
 
         [TestMethod()]
@@ -130,7 +130,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 LanguageCulture = "en-US"
             };
 
-            Assert.AreEqual("€412.20", _priceFormatter.FormatPrice(412.2, currency0111, language0111, false, false));
+            Assert.AreEqual("€412.20", _priceFormatter.FormatPrice(412.2, currency0111));
         }
 
         [TestMethod()]
@@ -164,36 +164,8 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 Name = "English",
                 LanguageCulture = "en-US"
             };
-            Assert.AreEqual("$1,234.50", _priceFormatter.FormatPrice(1234.5, usd_currency, language, false, false));
-            Assert.AreEqual("£1,234.50", _priceFormatter.FormatPrice(1234.5, gbp_currency, language, false, false));
-        }
-
-        [TestMethod()]
-        public void Can_formatPrice_with_showTax()
-        {
-            //$18,888.10                    priceIncludestax=false || showTax=false
-            //$18,888.10 incl tax           priceIncludestax=true || showTax=true
-            //$18,888.10 excl tax           priceIncludestax=false || showTax=true
-
-            var currency = new Currency {
-                Id = "1",
-                Name = "US Dollar",
-                CurrencyCode = "USD",
-                DisplayLocale = "en-US",
-                MidpointRoundId = MidpointRounding.AwayFromZero
-            };
-            var language = new Language {
-                Id = "1",
-                Name = "English",
-                LanguageCulture = "en-US"
-            };
-
-            //
-            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1, currency, language, false, false));
-            //
-            Assert.AreEqual("$18,888.10 incl tax", _priceFormatter.FormatPrice(18888.1, currency, language, true, true));
-            //
-            Assert.AreEqual("$18,888.10 excl tax", _priceFormatter.FormatPrice(18888.1, currency, language, false, true));
+            Assert.AreEqual("$1,234.50", _priceFormatter.FormatPrice(1234.5, usd_currency));
+            Assert.AreEqual("£1,234.50", _priceFormatter.FormatPrice(1234.5, gbp_currency));
         }
 
         [TestMethod()]
@@ -214,7 +186,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 LanguageCulture = "en-US"
             };
 
-            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1, currency, language, false, false));
+            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1, currency));
 
         }
     }

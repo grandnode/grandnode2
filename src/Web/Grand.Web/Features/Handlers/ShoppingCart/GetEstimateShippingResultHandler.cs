@@ -77,7 +77,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         var shippingTotal = total.shippingRate;
 
                         var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
-                        soModel.Price = _priceFormatter.FormatShippingPrice(rate);
+                        soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                         model.ShippingOptions.Add(soModel);
                     }
 
@@ -93,7 +93,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
                         var shippingTotal = pickupPoints.Max(x => x.PickupFee);
                         var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
-                        soModel.Price = _priceFormatter.FormatShippingPrice(rate);
+                        soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                         model.ShippingOptions.Add(soModel);
                     }
                 }

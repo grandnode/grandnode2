@@ -105,7 +105,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     {
                         var amount = (await _taxService.GetShippingPrice(pickupPoint.PickupFee, request.Customer)).shippingPrice;
                         amount = await _currencyService.ConvertFromPrimaryStoreCurrency(amount, request.Currency);
-                        pickupPointModel.PickupFee = _priceFormatter.FormatShippingPrice(amount);
+                        pickupPointModel.PickupFee = _priceFormatter.FormatPrice(amount, request.Currency);
                     }
                     model.PickupPoints.Add(pickupPointModel);
                 }

@@ -65,7 +65,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                         shippingOption.Rate, request.Cart)).shippingRate;
 
                     var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
-                    soModel.Fee = _priceFormatter.FormatShippingPrice(rateBase);
+                    soModel.Fee = _priceFormatter.FormatPrice(rateBase);
 
                     model.ShippingMethods.Add(soModel);
                 }

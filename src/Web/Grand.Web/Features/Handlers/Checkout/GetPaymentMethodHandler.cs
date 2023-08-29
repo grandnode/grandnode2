@@ -58,7 +58,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                     _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
                     model.DisplayLoyaltyPoints = true;
-                    model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
+                    model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);
                     model.LoyaltyPointsBalance = loyaltyPointsBalance;
                     var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: true)).shoppingCartTotal;
                     model.LoyaltyPointsEnoughToPayForOrder = shoppingCartTotalBase is 0;
@@ -89,7 +89,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 var paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
                 var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
                 if (rate > 0)
-                    pmModel.Fee = _priceFormatter.FormatPaymentMethodAdditionalFee(rate);
+                    pmModel.Fee = _priceFormatter.FormatPrice(rate, request.Currency);
 
                 model.PaymentMethods.Add(pmModel);
             }

@@ -157,7 +157,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 if (!minOrderSubtotalAmountOk)
                 {
                     var minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, request.Currency);
-                    model.MinOrderSubtotalWarning = string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false));
+                    model.MinOrderSubtotalWarning = string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, request.Currency));
                 }
             }
             model.TermsOfServiceOnShoppingCartPage = _orderSettings.TermsOfServiceOnShoppingCartPage;

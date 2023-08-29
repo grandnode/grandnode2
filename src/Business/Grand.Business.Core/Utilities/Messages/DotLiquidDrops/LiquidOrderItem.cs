@@ -35,8 +35,10 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         }
 
         public string UnitPrice { get; set; }
+        public bool UnitPriceWithTax { get; set; }
 
         public string TotalPrice { get; set; }
+        public bool TotalPriceWithTax { get; set; }
 
         public string ProductSku { get; set; }
 

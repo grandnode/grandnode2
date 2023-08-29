@@ -150,11 +150,12 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 {
                     var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                     var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
-                    model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
+                    model.SubTotalIncludingTax = subTotalIncludingTax;
+                    model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
                     model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
                     if (shoppingCartSubTotal.discountAmount > 0)
                     {
-                        model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency, request.Language, subTotalIncludingTax);
+                        model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency);
                     }
 
                     break;

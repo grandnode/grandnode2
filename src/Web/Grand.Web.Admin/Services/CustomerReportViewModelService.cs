@@ -23,12 +23,12 @@ namespace Grand.Web.Admin.Services
         private readonly IDateTimeService _dateTimeService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IOrderStatusService _orderStatusService;
-
+        private readonly ICurrencyService _currencyService;
         public CustomerReportViewModelService(IWorkContext workContext,
             ICustomerService customerService,
             ITranslationService translationService, ICustomerReportService customerReportService,
             IDateTimeService dateTimeService, IPriceFormatter priceFormatter,
-            IOrderStatusService orderStatusService)
+            IOrderStatusService orderStatusService, ICurrencyService currencyService)
         {
             _workContext = workContext;
             _customerService = customerService;
@@ -37,6 +37,7 @@ namespace Grand.Web.Admin.Services
             _dateTimeService = dateTimeService;
             _priceFormatter = priceFormatter;
             _orderStatusService = orderStatusService;
+            _currencyService = currencyService;
         }
 
         public virtual async Task<CustomerReportsModel> PrepareCustomerReportsModel()
@@ -118,7 +119,7 @@ namespace Grand.Web.Admin.Services
             {
                 var m = new BestCustomerReportLineModel {
                     CustomerId = x.CustomerId,
-                    OrderTotal = _priceFormatter.FormatPrice(x.OrderTotal, false),
+                    OrderTotal = _priceFormatter.FormatPrice(x.OrderTotal, await _currencyService.GetPrimaryStoreCurrency()),
                     OrderCount = x.OrderCount
                 };
                 var customer = await _customerService.GetCustomerById(x.CustomerId);

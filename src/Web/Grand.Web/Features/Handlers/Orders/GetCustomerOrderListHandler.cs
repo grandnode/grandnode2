@@ -20,6 +20,7 @@ namespace Grand.Web.Features.Handlers.Orders
         private readonly IMediator _mediator;
         private readonly IOrderStatusService _orderStatusService;
         private readonly IOrderService _orderService;
+        private readonly ICurrencyService _currencyService;
         private readonly OrderSettings _orderSettings;
 
         public GetCustomerOrderListHandler(
@@ -30,6 +31,7 @@ namespace Grand.Web.Features.Handlers.Orders
             IPriceFormatter priceFormatter,
             IOrderStatusService orderStatusService,
             IOrderService orderService,
+            ICurrencyService currencyService,
             OrderSettings orderSettings)
         {
             _dateTimeService = dateTimeService;
@@ -39,6 +41,7 @@ namespace Grand.Web.Features.Handlers.Orders
             _orderStatusService = orderStatusService;
             _orderService = orderService;
             _orderSettings = orderSettings;
+            _currencyService = currencyService;
             _mediator = mediator;
         }
 
@@ -73,6 +76,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
             model.PagingContext.LoadPagedList(orders);
 
+            
             foreach (var order in orders)
             {
                 var status = await _orderStatusService.GetByStatusId(order.OrderStatusId);
@@ -88,7 +92,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
                     ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
                     IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
-                    OrderTotal = await _priceFormatter.FormatPrice(order.OrderTotal, order.CustomerCurrencyCode, false, request.Language)
+                    OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,  await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode))
                 };
 
                 model.Orders.Add(orderModel);

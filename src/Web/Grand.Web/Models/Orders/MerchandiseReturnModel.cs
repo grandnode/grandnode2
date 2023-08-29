@@ -61,7 +61,7 @@ namespace Grand.Web.Models.Orders
             public string AttributeInfo { get; set; }
 
             public string UnitPrice { get; set; }
-
+            public bool IncludingTax { get; set; }
             public int Quantity { get; set; }
 
             [GrandResourceDisplayName("MerchandiseReturns.ReturnReason")]

@@ -109,8 +109,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var shoppingCartSubTotal =
                 await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
 
-            model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount,
-                request.Currency, request.Language, subTotalIncludingTax);
+            model.SubTotalIncludingTax = subTotalIncludingTax;
+            model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
 
             var requiresShipping = cart.RequiresShipping();
             var checkoutAttributesExist =

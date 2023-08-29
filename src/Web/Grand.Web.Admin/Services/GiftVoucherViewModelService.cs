@@ -127,10 +127,8 @@ namespace Grand.Web.Admin.Services
                 var currency = await _currencyService.GetCurrencyByCode(item.CurrencyCode) ??
                                await _currencyService.GetPrimaryStoreCurrency();
 
-                gift.RemainingAmountStr = _priceFormatter.FormatPrice(item.GetGiftVoucherRemainingAmount(), currency,
-                    _workContext.WorkingLanguage, true, false);
-                gift.AmountStr =
-                    _priceFormatter.FormatPrice(item.Amount, currency, _workContext.WorkingLanguage, true, false);
+                gift.RemainingAmountStr = _priceFormatter.FormatPrice(item.GetGiftVoucherRemainingAmount(), currency);
+                gift.AmountStr = _priceFormatter.FormatPrice(item.Amount, currency);
                 gift.CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc);
 
                 giftvouchers.Add(gift);
@@ -167,10 +165,8 @@ namespace Grand.Web.Admin.Services
                            await _currencyService.GetPrimaryStoreCurrency();
             
             model.PurchasedWithOrderId = giftVoucher.PurchasedWithOrderItem != null ? (await GetOrderFromGiftVoucher(giftVoucher))?.Id : null;
-            model.RemainingAmountStr = _priceFormatter.FormatPrice(giftVoucher.GetGiftVoucherRemainingAmount(),
-                currency, _workContext.WorkingLanguage, true, false);
-            model.AmountStr = _priceFormatter.FormatPrice(giftVoucher.Amount, currency, _workContext.WorkingLanguage,
-                true, false);
+            model.RemainingAmountStr = _priceFormatter.FormatPrice(giftVoucher.GetGiftVoucherRemainingAmount(), currency);
+            model.AmountStr = _priceFormatter.FormatPrice(giftVoucher.Amount, currency);
             model.CreatedOn = _dateTimeService.ConvertToUserTime(giftVoucher.CreatedOnUtc, DateTimeKind.Utc);
             model.CurrencyCode = giftVoucher.CurrencyCode;
             return model;
@@ -234,10 +230,8 @@ namespace Grand.Web.Admin.Services
 
             model.PurchasedWithOrderId = giftVoucher.PurchasedWithOrderItem != null ? order?.Id : null;
             model.PurchasedWithOrderNumber = order?.OrderNumber ?? 0;
-            model.RemainingAmountStr = _priceFormatter.FormatPrice(giftVoucher.GetGiftVoucherRemainingAmount(),
-                currency, _workContext.WorkingLanguage, true, false);
-            model.AmountStr = _priceFormatter.FormatPrice(giftVoucher.Amount, currency, _workContext.WorkingLanguage,
-                true, false);
+            model.RemainingAmountStr = _priceFormatter.FormatPrice(giftVoucher.GetGiftVoucherRemainingAmount(), currency);
+            model.AmountStr = _priceFormatter.FormatPrice(giftVoucher.Amount, currency);
             model.CreatedOn = _dateTimeService.ConvertToUserTime(giftVoucher.CreatedOnUtc, DateTimeKind.Utc);
             model.CurrencyCode = giftVoucher.CurrencyCode;
             return model;
@@ -258,8 +252,7 @@ namespace Grand.Web.Admin.Services
                     Id = x.Id,
                     OrderId = x.UsedWithOrderId,
                     OrderNumber = order?.OrderNumber ?? 0,
-                    UsedValue = _priceFormatter.FormatPrice(x.UsedValue, currency, _workContext.WorkingLanguage, true,
-                        false),
+                    UsedValue = _priceFormatter.FormatPrice(x.UsedValue, currency),
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
