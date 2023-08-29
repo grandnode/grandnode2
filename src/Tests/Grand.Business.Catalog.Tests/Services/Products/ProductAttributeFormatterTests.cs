@@ -77,7 +77,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                     new CustomAttribute() { Key = "Message", Value =  "" }
             });
             //Assert
-            Assert.AreEqual("Name Will, Email Will@will.com<br />RecName John, RecEmail John@john.com", result);
+            Assert.AreEqual("Will &lt;Will@will.com&gt;<br />John &lt;John@john.com&gt;", result);
         }
         [TestMethod()]
         public async Task FormatAttributesTest_CustomAttribute()
