@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -22,7 +21,6 @@ namespace Grand.Business.Checkout.Services.Shipping
         #region Fields
 
         private readonly ILogger _logger;
-        private readonly ITranslationService _translationService;
         private readonly ICountryService _countryService;
         private readonly IEnumerable<IShippingRateCalculationProvider> _shippingRateCalculationProvider;
         private readonly ShippingSettings _shippingSettings;
@@ -37,14 +35,12 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// </summary>
         public ShippingService(
             ILogger logger,
-            ITranslationService translationService,
             ICountryService countryService,
             IEnumerable<IShippingRateCalculationProvider> shippingRateCalculationProvider,
             ShippingProviderSettings shippingProviderSettings,
             ShippingSettings shippingSettings)
         {
             _logger = logger;
-            _translationService = translationService;
             _countryService = countryService;
             _shippingRateCalculationProvider = shippingRateCalculationProvider;
             _shippingProviderSettings = shippingProviderSettings;
@@ -222,7 +218,7 @@ namespace Grand.Business.Checkout.Services.Shipping
 
             //no shipping options loaded
             if (result.ShippingOptions.Count == 0 && result.Errors.Count == 0)
-                result.Errors.Add(_translationService.GetResource("Checkout.ShippingOptionCouldNotBeLoaded"));
+                result.Errors.Add("Shipping options could not be loaded");
 
             return result;
         }

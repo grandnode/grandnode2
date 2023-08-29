@@ -12690,9 +12690,6 @@
 	<Resource Name="Checkout.ShippingMethod" Area="Front">
 		<Value>Shipping method</Value>
 	</Resource>
-	<Resource Name="Checkout.ShippingOptionCouldNotBeLoaded" Area="Front">
-		<Value>Shipping options could not be loaded</Value>
-	</Resource>
 	<Resource Name="Checkout.ShipToThisAddress" Area="Front">
 		<Value>Ship to this address</Value>
 	</Resource>
