@@ -29,7 +29,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
         private readonly ICountryService _countryService;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IPaymentService _paymentService;
-        private readonly ITranslationService _translationService;
         private readonly IGiftVoucherService _giftVoucherService;
 
         private readonly TaxSettings _taxSettings;
@@ -43,7 +42,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             ICountryService countryService,
             IAddressAttributeParser addressAttributeParser,
             IPaymentService paymentService,
-            ITranslationService translationService,
             IGiftVoucherService giftVoucherService,
             TaxSettings taxSettings)
         {
@@ -55,7 +53,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             _countryService = countryService;
             _addressAttributeParser = addressAttributeParser;
             _paymentService = paymentService;
-            _translationService = translationService;
             _giftVoucherService = giftVoucherService;
             _taxSettings = taxSettings;
         }
@@ -116,7 +113,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             var dict = new Dictionary<string, string>();
             foreach (var item in request.Order.OrderTaxes)
             {
-                var taxRate = string.Format(_translationService.GetResource("Messages.Order.TaxRateLine", language.Id), _priceFormatter.FormatTaxRate(item.Percent));
+                var taxRate = _priceFormatter.FormatTaxRate(item.Percent);
                 var taxValue = _priceFormatter.FormatPrice(item.Amount);
 
                 if (string.IsNullOrEmpty(taxRate))
@@ -132,14 +129,14 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             foreach (var gcuh in gcuhC)
             {
                 var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-                var giftVoucherText = string.Format(_translationService.GetResource("Messages.Order.GiftVoucherInfo", language.Id), WebUtility.HtmlEncode(giftVoucher.Code));
+                var giftVoucherText = WebUtility.HtmlEncode(giftVoucher.Code);
                 var giftVoucherAmount = _priceFormatter.FormatPrice(-gcuh.UsedValue, currency);
                 cards.Add(giftVoucherText, giftVoucherAmount);
             }
             liquidOrder.GiftVouchers = cards;
             if (request.Order.RedeemedLoyaltyPoints > 0)
             {
-                liquidOrder.RPTitle = string.Format(_translationService.GetResource("Messages.Order.LoyaltyPoints", language.Id), -request.Order.RedeemedLoyaltyPoints);
+                liquidOrder.RPPoints = request.Order.RedeemedLoyaltyPoints.ToString();
                 liquidOrder.RPAmount = _priceFormatter.FormatPrice(-request.Order.RedeemedLoyaltyPointsAmount, currency);
             }
             void CalculateSubTotals()

@@ -328,10 +328,8 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             }
         }
 
-        public string RPTitle { get; set; }
-
         public string RPAmount { get; set; }
-
+        public string RPPoints { get; set; }
 
         public bool IsRecurring {
             get {
