@@ -33,7 +33,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
             _shippingProviderSettings = new ShippingProviderSettings();
             _shippingSettings = new ShippingSettings();
             _rateProviderMock = new Mock<IShippingRateCalculationProvider>();
-            _service = new ShippingService(_loggerMock.Object, _translationServiceMock.Object, _countryServiceMokc.Object,
+            _service = new ShippingService(_loggerMock.Object, _countryServiceMokc.Object,
                 new List<IShippingRateCalculationProvider>() { _rateProviderMock.Object }, _shippingProviderSettings, _shippingSettings);
         }
 
