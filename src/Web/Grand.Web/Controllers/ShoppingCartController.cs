@@ -521,7 +521,7 @@ namespace Grand.Web.Controllers
             }
 
             var checkoutAttributeWarnings =
-                await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true);
+                await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
             if (checkoutAttributeWarnings.Any())
             {
                 return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });

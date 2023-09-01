@@ -1,7 +1,5 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Payments;
+﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -19,7 +17,6 @@ namespace Grand.Web.Features.Handlers.Checkout
     {
         private readonly ICountryService _countryService;
         private readonly IPaymentService _paymentService;
-        private readonly ITranslationService _translationService;
         private readonly IMediator _mediator;
         private readonly OrderSettings _orderSettings;
         private readonly ShippingSettings _shippingSettings;
@@ -27,7 +24,6 @@ namespace Grand.Web.Features.Handlers.Checkout
         public GetConfirmOrderHandler(
             ICountryService countryService,
             IPaymentService paymentService,
-            ITranslationService translationService,
             IMediator mediator,
             OrderSettings orderSettings,
             ShippingSettings shippingSettings)
@@ -35,7 +31,6 @@ namespace Grand.Web.Features.Handlers.Checkout
         {
             _countryService = countryService;
             _paymentService = paymentService;
-            _translationService = translationService;
             _mediator = mediator;
             _orderSettings = orderSettings;
             _shippingSettings = shippingSettings;
@@ -47,15 +42,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 //terms of service
                 TermsOfServiceOnOrderConfirmPage = _orderSettings.TermsOfServiceOnOrderConfirmPage
             };
-            //min order amount validation
-            var minOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand { Customer = request.Customer, Cart = request.Cart }, cancellationToken);
-            if (!minOrderTotalAmountOk)
-            {
-                model.MinOrderTotalWarning = string.Format(_translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
-            }
-
             await PrepareOrderReviewData(model, request);
-
             return model;
         }
 

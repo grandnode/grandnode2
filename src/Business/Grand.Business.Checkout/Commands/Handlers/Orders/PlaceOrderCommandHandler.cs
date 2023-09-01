@@ -446,16 +446,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 throw new GrandException("Cart is empty");
 
             //validate the entire shopping cart
-            var warnings = await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, true);
+            var warnings = await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, true,true);
             if (warnings.Any())
             {
-                var warningsSb = new StringBuilder();
-                foreach (var warning in warnings)
-                {
-                    warningsSb.Append(warning);
-                    warningsSb.Append(';');
-                }
-                throw new GrandException(warningsSb.ToString());
+                throw new GrandException(string.Join(", ", warnings));
             }
 
             //validate individual cart items
@@ -479,20 +473,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 details.RecurringCycleLength = product.RecurringCycleLength;
                 details.RecurringCyclePeriodId = product.RecurringCyclePeriodId;
                 details.RecurringTotalCycles = product.RecurringTotalCycles;
-            }
-
-            //min totals validation
-            var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() { Customer = _workContext.CurrentCustomer, Cart = details.Cart });
-            if (!minOrderSubtotalAmountOk)
-            {
-                var minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
-                throw new GrandException(string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, _workContext.WorkingCurrency)));
-            }
-
-            var minmaxOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand() { Customer = details.Customer, Cart = details.Cart });
-            if (!minmaxOrderTotalAmountOk)
-            {
-                throw new GrandException(_translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
             }
 
             //tax display type

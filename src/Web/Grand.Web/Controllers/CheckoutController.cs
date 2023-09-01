@@ -355,7 +355,7 @@ namespace Grand.Web.Controllers
             var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService,
                 SystemCustomerFieldNames.CheckoutAttributes,
                 _workContext.CurrentStore.Id);
-            var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true);
+            var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
             if (scWarnings.Any())
                 return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
 

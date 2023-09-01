@@ -181,7 +181,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             model.GiftVoucherBox.Display = _shoppingCartSettings.ShowGiftVoucherBox;
 
             //cart warnings
-            var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes, request.ValidateCheckoutAttributes);
+            var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, checkoutAttributes, request.ValidateCheckoutAttributes, true);
             foreach (var warning in cartWarnings)
                 model.Warnings.Add(warning);
 

@@ -123,7 +123,7 @@ namespace Grand.Business.Checkout.Services.Orders
         }
 
         public virtual async Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-            IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
+            IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes, bool validateAmount)
         {
             var warnings = new List<string>();
             checkoutAttributes ??= new List<CustomAttribute>();
@@ -139,6 +139,15 @@ namespace Grand.Business.Checkout.Services.Orders
                 var validatorCheckoutAttributes = _serviceProvider.GetRequiredService<IValidator<ShoppingCartCheckoutAttributesValidatorRecord>>();
                 var resultCheckoutAttributes = await validatorCheckoutAttributes.ValidateAsync(new ShoppingCartCheckoutAttributesValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore,
                     shoppingCart, checkoutAttributes));
+                if (!resultCheckoutAttributes.IsValid)
+                    warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
+            }
+            
+            //validate subtotal/total amount in the cart
+            if (validateAmount)
+            {
+                var validatorCheckoutAttributes = _serviceProvider.GetRequiredService<IValidator<ShoppingCartTotalAmountValidatorRecord>>();
+                var resultCheckoutAttributes = await validatorCheckoutAttributes.ValidateAsync(new ShoppingCartTotalAmountValidatorRecord(_workContext.CurrentCustomer, _workContext.WorkingCurrency, shoppingCart));
                 if (!resultCheckoutAttributes.IsValid)
                     warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
             }
