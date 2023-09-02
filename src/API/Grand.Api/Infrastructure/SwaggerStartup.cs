@@ -101,7 +101,7 @@ namespace Grand.Api.Infrastructure
             return new OpenApiContact {
                 Name = "Grandnode",
                 Email = "support@grandnode.com",
-                Url = new Uri("https://grancnode.com")
+                Url = new Uri("https://grandnode.com")
             };
         }
 
