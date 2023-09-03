@@ -18,7 +18,6 @@ namespace Grand.Business.Authentication.Tests.Services
         private Mock<IHttpContextAccessor> _httpContextAccessorMoc;
         private Mock<ICustomerService> _customerService;
         private Mock<IUserApiService> _userApiServiceMock;
-        private Mock<HttpContext> _httpContextMock;
         private Mock<IGroupService> _groupService;
         private IApiAuthenticationService _authService;
         private IJwtBearerAuthenticationService _jwtBearerAuthenticationService;
@@ -30,8 +29,7 @@ namespace Grand.Business.Authentication.Tests.Services
             _customerService = new Mock<ICustomerService>();
             _userApiServiceMock = new Mock<IUserApiService>();
             _groupService = new Mock<IGroupService>();
-            _httpContextMock = new Mock<HttpContext>();
-            _authService = new ApiAuthenticationService(_httpContextAccessorMoc.Object, _customerService.Object, _groupService.Object);
+            _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object);
             _jwtBearerAuthenticationService = new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object);
         }
 
@@ -163,7 +161,7 @@ namespace Grand.Business.Authentication.Tests.Services
             httpContext.Setup(c => c.Request).Returns(req.Object);
             _httpContextAccessorMoc.Setup(c => c.HttpContext).Returns(httpContext.Object);
             _customerService.Setup(c => c.GetCustomerBySystemName(It.IsAny<string>())).Returns(() => Task.FromResult(customer));
-            var result = await _authService.GetAuthenticatedCustomer();
+            var result = await _authService.GetAuthenticatedCustomer(httpContext.Object);
             Assert.IsNull(result);
         }
 

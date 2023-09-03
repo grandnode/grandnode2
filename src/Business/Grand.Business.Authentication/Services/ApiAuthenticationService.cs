@@ -12,47 +12,44 @@ namespace Grand.Business.Authentication.Services
 {
     public class ApiAuthenticationService : IApiAuthenticationService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private Customer _cachedCustomer;
 
 
         public ApiAuthenticationService(
-            IHttpContextAccessor httpContextAccessor,
             ICustomerService customerService,
             IGroupService groupService)
         {
-            _httpContextAccessor = httpContextAccessor;
             _customerService = customerService;
             _groupService = groupService;
         }
 
-        public virtual async Task<Customer> GetAuthenticatedCustomer()
+        public virtual async Task<Customer> GetAuthenticatedCustomer(HttpContext httpContext)
         {
             //whether there is a cached customer
             if (_cachedCustomer != null)
                 return _cachedCustomer;
 
             Customer customer = null;
-            if (_httpContextAccessor.HttpContext == null) return null;
+            if (httpContext == null) return null;
             
             //try to get authenticated user identity
-            string authHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Authorization];
+            string authHeader = httpContext.Request.Headers[HeaderNames.Authorization];
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme))
                 return null;
 
-            if (_httpContextAccessor.HttpContext.Request.Path.Value != null 
-                && !_httpContextAccessor.HttpContext.Request.Path.Value.StartsWith("/odata"))
+            if (httpContext.Request.Path.Value != null 
+                && !httpContext.Request.Path.Value.StartsWith("/odata"))
             {
-                customer = await ApiCustomer();
+                customer = await ApiCustomer(httpContext);
                 if (customer == null) return null;
                 _cachedCustomer = customer;
                 return _cachedCustomer;
             }
 
             var authenticateResult =
-                await _httpContextAccessor.HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+                await httpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
             if (!authenticateResult.Succeeded)
                 return null;
 
@@ -71,17 +68,16 @@ namespace Grand.Business.Authentication.Services
             return _cachedCustomer;
         }
 
-        private async Task<Customer> ApiCustomer()
+        private async Task<Customer> ApiCustomer(HttpContext httpContext)
         {
             Customer customer = null;
-            if (_httpContextAccessor.HttpContext == null) return null;
-            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(FrontendAPIConfig.AuthenticationScheme);
+            var authResult = await httpContext.AuthenticateAsync(FrontendAPIConfig.AuthenticationScheme);
             if (!authResult.Succeeded)
             {
-                _httpContextAccessor.HttpContext.Response.StatusCode = 400;
-                _httpContextAccessor.HttpContext.Response.ContentType = "text/plain";
+                httpContext.Response.StatusCode = 400;
+                httpContext.Response.ContentType = "text/plain";
                 if (authResult.Failure != null)
-                    await _httpContextAccessor.HttpContext.Response.WriteAsync(authResult.Failure.Message);
+                    await httpContext.Response.WriteAsync(authResult.Failure.Message);
                 return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
             }
             var email = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
