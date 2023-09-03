@@ -226,7 +226,7 @@ namespace Grand.Web.Common
             }
 
             //try to get api user
-            customer = await _apiAuthenticationService.GetAuthenticatedCustomer();
+            customer = await _apiAuthenticationService.GetAuthenticatedCustomer(_httpContextAccessor.HttpContext);
             //if customer comes from api, doesn't need to create cookies
             if (customer != null)
             {
