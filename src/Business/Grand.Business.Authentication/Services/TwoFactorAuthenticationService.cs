@@ -5,7 +5,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Grand.Business.Core.Utilities.Authentication;
 
 namespace Grand.Business.Authentication.Services
@@ -14,17 +13,17 @@ namespace Grand.Business.Authentication.Services
     {
         private readonly IWorkContext _workContext;
         private readonly IUserFieldService _userFieldService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IEnumerable<ISMSVerificationService> _smsVerificationService;
         private readonly TwoFactorAuthenticator _twoFactorAuthentication;
 
         public TwoFactorAuthenticationService(
             IWorkContext workContext,
             IUserFieldService userFieldService,
-            IServiceProvider serviceProvider)
+            IEnumerable<ISMSVerificationService> smsVerificationService)
         {
             _workContext = workContext;
             _userFieldService = userFieldService;
-            _serviceProvider = serviceProvider;
+            _smsVerificationService = smsVerificationService;
             _twoFactorAuthentication = new TwoFactorAuthenticator();
         }
 
@@ -43,8 +42,10 @@ namespace Grand.Business.Authentication.Services
                     return validUntil >= DateTime.UtcNow;
 
                 case TwoFactorAuthenticationType.SMSVerification:
-                    var smsVerificationService = _serviceProvider.GetRequiredService<ISMSVerificationService>();
-                    return await smsVerificationService.Authenticate(secretKey, token.Trim(), customer);
+                    if (!_smsVerificationService.Any())
+                        throw new Exception("ISMSVerificationService not registered in DI container");
+                    var smsVerificationService = _smsVerificationService.FirstOrDefault();
+                    return await smsVerificationService!.Authenticate(secretKey, token.Trim(), customer);
                 default:
                     return false;
             }
@@ -70,8 +71,10 @@ namespace Grand.Business.Authentication.Services
                     break;
 
                 case TwoFactorAuthenticationType.SMSVerification:
-                    var smsVerificationService = _serviceProvider.GetRequiredService<ISMSVerificationService>();
-                    model = await smsVerificationService.GenerateCode(secretKey, customer, language);
+                    if (!_smsVerificationService.Any())
+                        throw new Exception("ISMSVerificationService not registered in DI container");
+                    var smsVerificationService = _smsVerificationService.FirstOrDefault();
+                    model = await smsVerificationService!.GenerateCode(secretKey, customer, language);
                     break;
             }
             return model;
