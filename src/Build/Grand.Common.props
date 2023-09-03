@@ -34,4 +34,9 @@
 	<ItemGroup Condition="'$(GitBranch)'!=''">
 		<AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" />
 	</ItemGroup>
+	<Target Name="SetVersion" BeforeTargets="PrepareForBuild">
+		<PropertyGroup>
+			<Version>2.2.0-develop</Version>
+		</PropertyGroup>
+	</Target>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Grand.Infrastructure
 {
@@ -7,32 +8,44 @@ namespace Grand.Infrastructure
         /// <summary>
         /// Gets the major version
         /// </summary>
-        public const string MajorVersion = "2";
+        public static readonly string MajorVersion = Assembly.GetExecutingAssembly().GetName().Version?.Major.ToString();
 
         /// <summary>
         /// Gets the minor version
         /// </summary>
-        public const string MinorVersion = "2";
+        public static readonly string MinorVersion = Assembly.GetExecutingAssembly().GetName().Version?.Minor.ToString();
 
         /// <summary>
         /// Gets the patch version
         /// </summary>
-        public const string PatchVersion = "0-develop";
-
+        public static string PatchVersion {
+            get {
+                
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                if (assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute)) is not
+                    AssemblyInformationalVersionAttribute infoVersionAttribute) return "0";
+                var fullVersion = infoVersionAttribute.InformationalVersion;
+                Match match = Regex.Match(fullVersion, @"(\d+)\.(\d+)\.(\d+)(?:-([^\+]+))?");
+                if (!match.Success) return "0";
+                var patch = match.Groups[3].Value;
+                var suffix = match.Groups[4].Value;
+                return string.IsNullOrEmpty(suffix) ? patch : $"{patch}-{suffix}";
+            }   
+        }
         /// <summary>
         /// Gets the full version
         /// </summary>
-        public const string FullVersion = $"{MajorVersion}.{MinorVersion}.{PatchVersion}";
+        public static readonly string FullVersion = $"{MajorVersion}.{MinorVersion}.{PatchVersion}";
 
         /// <summary>
         /// Gets the Supported DB version
         /// </summary>
-        public const string SupportedDBVersion = $"{MajorVersion}.{MinorVersion}";
+        public static readonly string SupportedDBVersion = $"{MajorVersion}.{MinorVersion}";
 
         /// <summary>
         /// Gets the Supported plugin version
         /// </summary>
-        public const string SupportedPluginVersion = $"{MajorVersion}.{MinorVersion}";
+        public static readonly string SupportedPluginVersion = $"{MajorVersion}.{MinorVersion}";
 
         /// <summary>
         /// Gets the git branch

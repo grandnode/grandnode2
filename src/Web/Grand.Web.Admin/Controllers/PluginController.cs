@@ -423,7 +423,7 @@ namespace Grand.Web.Admin.Controllers
                         {
                             var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
                             var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                            if (pluginInfo is { SupportedVersion: GrandVersion.SupportedPluginVersion })
+                            if (pluginInfo != null && pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
                             {
                                 supportedVersion = true;
                                 _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
