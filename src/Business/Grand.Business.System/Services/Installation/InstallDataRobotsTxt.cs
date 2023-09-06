@@ -50,7 +50,8 @@ Disallow: /subscribenewsletter/*
 Disallow: /page/authenticate
 Disallow: /uploadfileproductattribute
 Disallow: /uploadfilecheckoutattribute
-Disallow: /wishlist"
+Disallow: /wishlist
+Disallow: /quickview/*"
             };
 
             await _robotsTxtRepository.InsertAsync(robotsTxt);
