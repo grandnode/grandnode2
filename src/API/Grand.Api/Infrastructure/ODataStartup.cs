@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using OpenTelemetry.Trace;
 
 namespace Grand.Api.Infrastructure
 {
@@ -55,6 +56,8 @@ namespace Grand.Api.Infrastructure
                 });
 
                 services.AddScoped<ModelValidationAttribute>();
+            
+
 
             }
         }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using OpenTelemetry.Trace;
 namespace Grand.Web.Common.Startup
 {
     /// <summary>
@@ -33,6 +33,8 @@ namespace Grand.Web.Common.Startup
 
             //add and configure MVC feature
             services.AddGrandMvc(configuration);
+
+           
 
         }
 

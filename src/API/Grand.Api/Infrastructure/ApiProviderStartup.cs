@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using OpenTelemetry.Trace;
 
 namespace Grand.Api.Infrastructure
 {
@@ -23,6 +24,8 @@ namespace Grand.Api.Infrastructure
         {
             //Swagger - api description provider
             services.TryAddEnumerable(ServiceDescriptor.Transient<IApiDescriptionProvider, MetadataApiDescriptionProvider>());
+        
+
         }
 
         /// <summary>

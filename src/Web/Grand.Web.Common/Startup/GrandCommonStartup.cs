@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Globalization;
+using OpenTelemetry.Trace;
 
 namespace Grand.Web.Common.Startup
 {
@@ -62,6 +63,9 @@ namespace Grand.Web.Common.Startup
 
             //add data protection
             services.AddGrandDataProtection(configuration);
+
+            // instrumentation
+        
         }
 
         /// <summary>

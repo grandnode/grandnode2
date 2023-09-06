@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Trace;
 
 namespace Grand.Web.Common.Startup
 {
@@ -27,6 +28,9 @@ namespace Grand.Web.Common.Startup
 
             //add authentication
             services.AddGrandAuthentication(configuration);
+
+    
+
         }
 
         /// <summary>
