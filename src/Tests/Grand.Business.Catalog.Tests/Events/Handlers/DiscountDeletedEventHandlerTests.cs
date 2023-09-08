@@ -5,6 +5,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,7 +37,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             _collectionRepository = new MongoDBRepositoryTest<Collection>();
             _vendorRepository = new MongoDBRepositoryTest<Vendor>();
             _discountCouponRepository = new MongoDBRepositoryTest<DiscountCoupon>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
 
             _handler = new DiscountDeletedEventHandler(_productRepository, _categoryRepository,
                 _brandRepository, _collectionRepository, _vendorRepository, _discountCouponRepository, _cacheBase);

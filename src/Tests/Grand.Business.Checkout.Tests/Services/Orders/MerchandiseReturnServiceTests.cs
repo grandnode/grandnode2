@@ -5,6 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,7 +41,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
             _mediatorMock.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), default))
                .Returns(Task.FromResult(query));
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
 
             _merchandiseReturnService = new MerchandiseReturnService(_repository, _merchandiseReturnActionRepository, _merchandiseReturnReasonRepository, _merchandiseReturnNoteRepository, _cacheBase, _mediatorMock.Object);
         }

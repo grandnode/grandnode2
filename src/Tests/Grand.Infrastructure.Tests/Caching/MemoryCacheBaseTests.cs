@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,25 +15,25 @@ namespace Grand.Infrastructure.Tests.Caching
         private Mock<IMediator> _mediatorMock;
         private MemoryCacheBase _service;
         private IMemoryCache _memoryCache;
-
+        private CacheConfig _config;
+        
         [TestInitialize]
         public void Init()
         {
-            CommonHelper.CacheTimeMinutes = 1;
-
+            _config = new CacheConfig() { DefaultCacheTimeMinutes = 1 };
             var services = new ServiceCollection();
             services.AddMemoryCache();
+            services.AddSingleton<CacheConfig>(_config);
             var serviceProvider = services.BuildServiceProvider();
 
             _memoryCache = serviceProvider.GetService<IMemoryCache>();
             _mediatorMock = new Mock<IMediator>();
-            _service = new MemoryCacheBase(_memoryCache, _mediatorMock.Object);
+            _service = new MemoryCacheBase(_memoryCache, _mediatorMock.Object, _config);
         }
 
         [TestMethod()]
         public async Task GetAsyncTest()
         {
-            CommonHelper.CacheTimeMinutes = 10;
             var result = await _service.GetAsync<string>("key", () => { return Task.FromResult("test"); });
             Assert.AreEqual(result, "test");
         }

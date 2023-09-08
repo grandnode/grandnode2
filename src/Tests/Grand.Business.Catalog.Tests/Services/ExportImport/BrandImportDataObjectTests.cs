@@ -13,6 +13,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
@@ -54,7 +55,7 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object);
 
             _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object, _brandLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new Domain.Seo.SeoSettings());

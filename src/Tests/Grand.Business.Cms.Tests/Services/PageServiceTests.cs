@@ -7,6 +7,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Pages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,7 +34,7 @@ namespace Grand.Business.Cms.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             
             _aclService = new AclService();
 

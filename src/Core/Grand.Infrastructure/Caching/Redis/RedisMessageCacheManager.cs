@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Caching.Message;
+using Grand.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -9,8 +10,8 @@ namespace Grand.Infrastructure.Caching.Redis
         private readonly IMemoryCache _cache;
         private readonly IMessageBus _messageBus;
 
-        public RedisMessageCacheManager(IMemoryCache cache, IMediator mediator, IMessageBus messageBus)
-            : base(cache, mediator)
+        public RedisMessageCacheManager(IMemoryCache cache, IMediator mediator, IMessageBus messageBus, CacheConfig config)
+            : base(cache, mediator, config)
         {
             _cache = cache;
             _messageBus = messageBus;

@@ -1,5 +1,5 @@
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
@@ -16,7 +16,8 @@ namespace Grand.Infrastructure.Caching
 
         private readonly IMemoryCache _cache;
         private readonly IMediator _mediator;
-
+        private readonly CacheConfig _cacheConfig;
+        
         private bool _disposed;
         private static CancellationTokenSource _resetCacheToken = new();
 
@@ -26,10 +27,11 @@ namespace Grand.Infrastructure.Caching
 
         #region Ctor
 
-        public MemoryCacheBase(IMemoryCache cache, IMediator mediator)
+        public MemoryCacheBase(IMemoryCache cache, IMediator mediator, CacheConfig cacheConfig)
         {
             _cache = cache;
             _mediator = mediator;
+            _cacheConfig = cacheConfig;
         }
 
         #endregion
@@ -38,7 +40,7 @@ namespace Grand.Infrastructure.Caching
 
         public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
         {
-            return GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
+            return GetAsync(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
         }
 
         public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
@@ -63,7 +65,7 @@ namespace Grand.Infrastructure.Caching
 
         public virtual T Get<T>(string key, Func<T> acquire)
         {
-            return Get(key, acquire, CommonHelper.CacheTimeMinutes);
+            return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
         }
 
         public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)

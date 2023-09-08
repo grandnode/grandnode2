@@ -11,11 +11,6 @@ namespace Grand.SharedKernel.Extensions
     public static class CommonHelper
     {
         /// <summary>
-        /// Gets or sets application default cache time minutes
-        /// </summary>
-        public static int CacheTimeMinutes { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating for cookie expires in hours
         /// </summary>
         public static int CookieAuthExpires { get; set; }

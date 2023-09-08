@@ -3,6 +3,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +28,7 @@ namespace Grand.Business.Common.Tests.Services.Logging
             _repositoryActivityLogType = new MongoDBRepositoryTest<ActivityLogType>();
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _customerActivityService = new CustomerActivityService(_cacheBase, _repository, _repositoryActivityLogType);
         }
 

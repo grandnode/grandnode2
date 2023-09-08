@@ -16,11 +16,6 @@ namespace Grand.Infrastructure.Configuration
         public bool IgnoreStoreLimitations { get; set; }
         
         /// <summary>
-        /// Gets or sets a value indicating for default cache time in minutes
-        /// </summary>
-        public int DefaultCacheTimeMinutes { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether mini profiler should be displayed in public store (used for debugging)
         /// </summary>
         public bool DisplayMiniProfilerInPublicStore { get; set; }

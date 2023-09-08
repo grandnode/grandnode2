@@ -3,6 +3,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +26,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
             _repository = new MongoDBRepositoryTest<Language>();
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _languageService = new LanguageService(_cacheBase, _repository, _mediatorMock.Object);
         }
 

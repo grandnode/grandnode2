@@ -8,6 +8,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.SharedKernel.Extensions;
@@ -41,7 +42,7 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             _mediatorMock = new Mock<IMediator>();
             _aclServiceMock = new AclService();
             _settings = new CatalogSettings();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _categoryService = new CategoryService(_cacheBase, _categoryRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock);
         }
 

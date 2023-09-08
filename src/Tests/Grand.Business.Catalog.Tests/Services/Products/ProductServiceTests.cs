@@ -9,6 +9,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -42,7 +43,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 .Returns(Task.FromResult(new Product()));
 
             _aclServiceMock = new AclService();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _productService = new ProductService(_cacheBase, _productRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock);
         }
 

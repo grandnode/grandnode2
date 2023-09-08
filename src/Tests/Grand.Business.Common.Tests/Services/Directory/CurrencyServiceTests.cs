@@ -33,7 +33,6 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public void TestInitialize()
         {
             CommonPath.BaseDirectory = "";
-            CommonHelper.CacheTimeMinutes = 10;
 
             currencyUSD = new Currency {
                 Id = "1",

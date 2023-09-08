@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +25,7 @@ namespace Grand.Business.Common.Tests.Events
         {
             _repository = new MongoDBRepositoryTest<Customer>();
             _product = new MongoDBRepositoryTest<Product>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
 
             _handler = new GroupDeletedEventHandler(_repository, _product, _cacheBase);
         }

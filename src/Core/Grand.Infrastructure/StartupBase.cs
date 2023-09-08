@@ -207,6 +207,7 @@ namespace Grand.Infrastructure
             var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
             var securityConfig = services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
             services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
+            services.StartupConfig<CacheConfig>(configuration.GetSection("Cache"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
@@ -228,7 +229,6 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
             CommonHelper.CookieAuthExpires =
                 securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
 

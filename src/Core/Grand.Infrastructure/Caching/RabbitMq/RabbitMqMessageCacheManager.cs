@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Caching.Message;
+using Grand.Infrastructure.Configuration;
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,8 +12,8 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         private readonly IMemoryCache _cache;
         private readonly IBus _bus;
 
-        public RabbitMqMessageCacheManager(IMemoryCache cache, IMediator mediator, IBus bus)
-            : base(cache, mediator)
+        public RabbitMqMessageCacheManager(IMemoryCache cache, IMediator mediator, IBus bus, CacheConfig config)
+            : base(cache, mediator, config)
         {
             _cache = cache;
             _bus = bus;

@@ -7,6 +7,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -44,7 +45,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _stockQuantityService = new StockQuantityService();
             _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal, _stockQuantityService, _cacheBase, _mediatorMock.Object, _settings);
         }
