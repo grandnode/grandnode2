@@ -11,11 +11,6 @@ namespace Grand.SharedKernel.Extensions
     public static class CommonHelper
     {
         /// <summary>
-        /// Gets or sets a value indicating for cookie expires in hours
-        /// </summary>
-        public static int CookieAuthExpires { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to ignore ACL rules (side-wide). It can significantly improve performance when enabled.
         /// </summary>
         public static bool IgnoreAcl { get; set; }

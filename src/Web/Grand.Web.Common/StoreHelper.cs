@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common
@@ -12,7 +12,7 @@ namespace Grand.Web.Common
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStoreService _storeService;
-
+        private readonly SecurityConfig _securityConfig;
         private Store _cachedStore;
         private DomainHost _cachedDomainHost;
 
@@ -24,10 +24,12 @@ namespace Grand.Web.Common
 
         public StoreHelper(
             IHttpContextAccessor httpContextAccessor,
-            IStoreService storeService)
+            IStoreService storeService, 
+            SecurityConfig securityConfig)
         {
             _httpContextAccessor = httpContextAccessor;
             _storeService = storeService;
+            _securityConfig = securityConfig;
         }
 
         #endregion
@@ -133,7 +135,7 @@ namespace Grand.Web.Common
             _httpContextAccessor.HttpContext.Response.Cookies.Delete(StoreCookieName);
 
             //get date of cookie expiration
-            var cookieExpiresDate = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires);
+            var cookieExpiresDate = DateTime.UtcNow.AddHours(_securityConfig.CookieAuthExpires);
 
             //set new cookie value
             var options = new CookieOptions {

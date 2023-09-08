@@ -106,7 +106,7 @@ namespace Grand.Business.Authentication.Services
             var authenticationProperties = new AuthenticationProperties {
                 IsPersistent = isPersistent,
                 IssuedUtc = DateTime.UtcNow,
-                ExpiresUtc = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires)
+                ExpiresUtc = DateTime.UtcNow.AddHours(_securityConfig.CookieAuthExpires)
             };
 
             //sign in user
@@ -216,7 +216,7 @@ namespace Grand.Business.Authentication.Services
             _httpContextAccessor.HttpContext.Response.Cookies.Delete(CustomerCookieName);
 
             //Get the date date of current cookie expiration
-            var cookieExpiresDate = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires);
+            var cookieExpiresDate = DateTime.UtcNow.AddHours(_securityConfig.CookieAuthExpires);
 
             //If provided guid is empty (only remove cookies)
             if (customerGuid == Guid.Empty)
