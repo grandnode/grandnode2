@@ -11,16 +11,6 @@ namespace Grand.SharedKernel.Extensions
     public static class CommonHelper
     {
         /// <summary>
-        /// Gets or sets a value indicating whether to ignore ACL rules (side-wide). It can significantly improve performance when enabled.
-        /// </summary>
-        public static bool IgnoreAcl { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to ignore "limit per store" rules (side-wide). It can significantly improve performance when enabled.
-        /// </summary>
-        public static bool IgnoreStoreLimitations { get; set; }
-
-        /// <summary>
         /// Ensures the subscriber email or throw.
         /// </summary>
         /// <param name="email">The email.</param>

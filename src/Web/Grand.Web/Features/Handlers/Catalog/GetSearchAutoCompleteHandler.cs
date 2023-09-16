@@ -14,7 +14,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
@@ -39,7 +39,8 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly BlogSettings _blogSettings;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         public GetSearchAutoCompleteHandler(
             IPictureService pictureService,
             IBrandService brandService,
@@ -55,7 +56,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             IPermissionService permissionService,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
-            BlogSettings blogSettings)
+            BlogSettings blogSettings, AccessControlConfig accessControlConfig)
         {
             _pictureService = pictureService;
             _brandService = brandService;
@@ -72,6 +73,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;
             _blogSettings = blogSettings;
+            _accessControlConfig = accessControlConfig;
         }
 
         public async Task<IList<SearchAutoCompleteModel>> Handle(GetSearchAutoComplete request, CancellationToken cancellationToken)
@@ -147,10 +149,10 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var brand = await _brandService.GetBrandById(item);
                 if (brand is not { Published: true }) continue;
                 var allow = true;
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                     if (!_aclService.Authorize(brand, _workContext.CurrentCustomer))
                         allow = false;
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                     if (!_aclService.Authorize(brand, storeId))
                         allow = false;
                 if (!allow) continue;
@@ -171,10 +173,10 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var category = await _categoryService.GetCategoryById(item);
                 if (category is not { Published: true }) continue;
                 var allow = true;
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                     if (!_aclService.Authorize(category, _workContext.CurrentCustomer))
                         allow = false;
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                     if (!_aclService.Authorize(category, storeId))
                         allow = false;
                 if (!allow) continue;

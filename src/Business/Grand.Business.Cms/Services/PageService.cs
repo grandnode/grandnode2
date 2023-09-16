@@ -6,8 +6,8 @@ using Grand.Domain.Pages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Cms.Services
@@ -24,7 +24,8 @@ namespace Grand.Business.Cms.Services
         private readonly IAclService _aclService;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
@@ -33,13 +34,14 @@ namespace Grand.Business.Cms.Services
             IWorkContext workContext,
             IAclService aclService,
             IMediator mediator,
-            ICacheBase cacheBase)
+            ICacheBase cacheBase, AccessControlConfig accessControlConfig)
         {
             _pageRepository = pageRepository;
             _workContext = workContext;
             _aclService = aclService;
             _mediator = mediator;
             _cacheBase = cacheBase;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -102,10 +104,10 @@ namespace Grand.Business.Cms.Services
 
                 query = query.OrderBy(t => t.DisplayOrder).ThenBy(t => t.SystemName);
 
-                if ((string.IsNullOrEmpty(storeId) || CommonHelper.IgnoreStoreLimitations) &&
-                    (ignoreAcl || CommonHelper.IgnoreAcl)) return await Task.FromResult(query.ToList());
+                if ((string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations) &&
+                    (ignoreAcl || _accessControlConfig.IgnoreAcl)) return await Task.FromResult(query.ToList());
                 {
-                    if (!ignoreAcl && !CommonHelper.IgnoreAcl)
+                    if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                     {
                         var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                         query = from p in query
@@ -113,7 +115,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                     }
                     //Store acl
-                    if (string.IsNullOrEmpty(storeId) || CommonHelper.IgnoreStoreLimitations)
+                    if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
                         return await Task.FromResult(query.ToList());
                     query = from p in query
                         where !p.LimitedToStores || p.Stores.Contains(storeId)

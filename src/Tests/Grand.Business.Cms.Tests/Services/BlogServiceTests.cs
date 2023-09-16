@@ -2,6 +2,7 @@
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,7 +31,7 @@ namespace Grand.Business.Cms.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
             _blogService = new BlogService(_blogPostRepositoryMock.Object, _blogCommentRepositoryMock.Object,
-                _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object);
+                _blogCategoryRepositoryMock.Object, _blogProductRepositoryMock.Object, _mediatorMock.Object, new AccessControlConfig());
         }
 
         [TestMethod()]

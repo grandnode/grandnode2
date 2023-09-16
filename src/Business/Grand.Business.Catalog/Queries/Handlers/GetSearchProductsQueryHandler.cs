@@ -4,7 +4,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 using MediatR;
 
 namespace Grand.Business.Catalog.Queries.Handlers
@@ -14,17 +14,19 @@ namespace Grand.Business.Catalog.Queries.Handlers
     {
         private readonly IRepository<Product> _productRepository;
         private readonly ISpecificationAttributeService _specificationAttributeService;
-
+        private readonly AccessControlConfig _accessControlConfig;
         private readonly CatalogSettings _catalogSettings;
 
         public GetSearchProductsQueryHandler(
             IRepository<Product> productRepository,
             ISpecificationAttributeService specificationAttributeService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings, 
+            AccessControlConfig accessControlConfig)
         {
             _productRepository = productRepository;
             _specificationAttributeService = specificationAttributeService;
             _catalogSettings = catalogSettings;
+            _accessControlConfig = accessControlConfig;
         }
 
         public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
@@ -250,14 +252,14 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 }
             }
 
-            if (!request.ShowHidden && !CommonHelper.IgnoreAcl)
+            if (!request.ShowHidden && !_accessControlConfig.IgnoreAcl)
             {
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
             }
 
-            if (!string.IsNullOrEmpty(request.StoreId) && !CommonHelper.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(request.StoreId) && !_accessControlConfig.IgnoreStoreLimitations)
             {
                 query = query.Where(x => x.Stores.Any(y => y == request.StoreId) || !x.LimitedToStores);
             }

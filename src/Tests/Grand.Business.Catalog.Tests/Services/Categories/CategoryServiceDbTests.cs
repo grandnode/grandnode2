@@ -5,11 +5,9 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Events;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -40,10 +38,10 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
-            _aclServiceMock = new AclService();
+            _aclServiceMock = new AclService(new AccessControlConfig());
             _settings = new CatalogSettings();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _categoryService = new CategoryService(_cacheBase, _categoryRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock);
+            _categoryService = new CategoryService(_cacheBase, _categoryRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock, new AccessControlConfig());
         }
 
         [TestMethod()]

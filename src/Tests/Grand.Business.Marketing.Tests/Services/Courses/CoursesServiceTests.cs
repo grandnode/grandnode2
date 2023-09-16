@@ -3,6 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +27,8 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
             _orderRepositoryMock = new Mock<IRepository<Order>>();
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
-            _courseService = new CourseService(_courseRepositoryMock.Object, _orderRepositoryMock.Object, _mediatorMock.Object);
+            var accessControlConfig = new AccessControlConfig();
+            _courseService = new CourseService(_courseRepositoryMock.Object, _orderRepositoryMock.Object, _mediatorMock.Object, accessControlConfig);
 
         }
 

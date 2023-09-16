@@ -1,11 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Customers.Commands.Handlers;
-using Grand.Business.Core.Commands.Customers;
-using Grand.Business.Core.Events.Customers;
+﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Events.Handlers;
 using Grand.Domain.Customers;
-using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

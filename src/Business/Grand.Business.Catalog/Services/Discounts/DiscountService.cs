@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -11,8 +10,8 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Catalog.Services.Discounts
@@ -33,7 +32,8 @@ namespace Grand.Business.Catalog.Services.Discounts
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
         private readonly IEnumerable<IDiscountAmountProvider> _discountAmountProviders;
         private readonly IMediator _mediator;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             IWorkContext workContext,
             IEnumerable<IDiscountProvider> discountProviders,
             IEnumerable<IDiscountAmountProvider> discountAmountProviders,
-            IMediator mediator)
+            IMediator mediator, AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _discountRepository = discountRepository;
@@ -58,6 +58,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             _discountProviders = discountProviders;
             _discountAmountProviders = discountAmountProviders;
             _mediator = mediator;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -95,7 +96,7 @@ namespace Grand.Business.Catalog.Services.Discounts
                         && (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc)
                         && d.IsEnabled);
                 }
-                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query

@@ -26,7 +26,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
             
             _mediatorMock = new Mock<IMediator>();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase);
+            _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase, new AccessControlConfig());
         }
 
         [TestMethod()]

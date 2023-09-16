@@ -6,6 +6,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -41,8 +42,8 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             _aclServiceMock = new Mock<IAclService>();
             _settings = new CatalogSettings();
             _categoryService = new CategoryService(_casheManagerMock.Object, _categoryRepositoryMock.Object, _workContextMock.Object,
-                 _mediatorMock.Object, _aclServiceMock.Object);
-            _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object, _workContextMock.Object, _mediatorMock.Object);
+                 _mediatorMock.Object, _aclServiceMock.Object, new AccessControlConfig());
+            _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
         }
 
         [TestMethod()]

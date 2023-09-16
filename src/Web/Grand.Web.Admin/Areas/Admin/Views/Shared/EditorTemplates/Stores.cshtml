@@ -1,4 +1,6 @@
-﻿@model string[]
+﻿@using Grand.Infrastructure.Configuration
+@model string[]
+@inject AccessControlConfig AccessControlConfig
 @{
     var warnings = true;
     if (ViewData["DisableIgnoreStoreWarnings"] != null)
@@ -8,7 +10,7 @@
 }
 @Html.ListBoxFor(model => model, new List<SelectListItem>())
 
-@if (CommonHelper.IgnoreStoreLimitations && warnings)
+@if (AccessControlConfig.IgnoreStoreLimitations && warnings)
 {
     <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreStoreLimitations"]</div>
 }

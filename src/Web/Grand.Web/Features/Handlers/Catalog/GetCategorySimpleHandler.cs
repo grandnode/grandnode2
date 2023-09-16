@@ -6,7 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
@@ -23,7 +23,8 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly IMediator _mediator;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         public GetCategorySimpleHandler(
             ICacheBase cacheBase,
             ICategoryService categoryService,
@@ -31,7 +32,8 @@ namespace Grand.Web.Features.Handlers.Catalog
             IProductService productService,
             IMediator mediator,
             MediaSettings mediaSettings,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings, 
+            AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _categoryService = categoryService;
@@ -40,6 +42,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             _mediator = mediator;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
+            _accessControlConfig = accessControlConfig;
         }
 
         public async Task<IList<CategorySimpleModel>> Handle(GetCategorySimple request, CancellationToken cancellationToken)
@@ -115,7 +118,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     //include subcategories
                     if (_catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
                         categoryIds.AddRange(await _mediator.Send(new GetChildCategoryIds { Customer = request.Customer, Store = request.Store, ParentCategoryId = category.Id }));
-                    categoryModel.NumberOfProducts = _productService.GetCategoryProductNumber(request.Customer, categoryIds, request.Store.Id, CommonHelper.IgnoreAcl, CommonHelper.IgnoreStoreLimitations);
+                    categoryModel.NumberOfProducts = _productService.GetCategoryProductNumber(request.Customer, categoryIds, request.Store.Id, _accessControlConfig.IgnoreAcl, _accessControlConfig.IgnoreStoreLimitations);
                 }
                 if (loadSubCategories)
                 {

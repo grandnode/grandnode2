@@ -12,7 +12,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Roslyn;
-using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
@@ -44,6 +43,8 @@ namespace Grand.Web.Admin.Controllers
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
         private readonly ExtensionsConfig _extConfig;
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Constructors
@@ -61,7 +62,7 @@ namespace Grand.Web.Admin.Controllers
             ILogger logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
-            ExtensionsConfig extConfig)
+            ExtensionsConfig extConfig, AccessControlConfig accessControlConfig)
         {
             _paymentService = paymentService;
             _shippingService = shippingService;
@@ -76,6 +77,7 @@ namespace Grand.Web.Admin.Controllers
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _extConfig = extConfig;
+            _accessControlConfig = accessControlConfig;
             _machineNameProvider = machineNameProvider;
         }
 
@@ -256,14 +258,14 @@ namespace Grand.Web.Admin.Controllers
                 });
 
             //performance settings
-            if (CommonHelper.IgnoreStoreLimitations)
+            if (_accessControlConfig.IgnoreStoreLimitations)
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = _translationService.GetResource("Admin.System.Warnings.Performance.IgnoreStoreLimitations")
                 });
             }
-            if (CommonHelper.IgnoreAcl)
+            if (_accessControlConfig.IgnoreAcl)
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,

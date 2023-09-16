@@ -4,6 +4,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.News;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,7 +31,7 @@ namespace Grand.Business.Cms.Tests.Services
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
-            _newsService = new NewsService(_repository, _mediatorMock.Object, _workContextMock.Object);
+            _newsService = new NewsService(_repository, _mediatorMock.Object, _workContextMock.Object, new AccessControlConfig());
         }
 
         [TestMethod()]

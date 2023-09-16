@@ -41,7 +41,7 @@ namespace Grand.Business.Cms.Tests.Services
 
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _knowledgebaseService = new KnowledgebaseService(_repositoryKnowledgebaseCategory, _repositoryKnowledgebaseArticle, _repositoryKnowledgebaseArticleComment, _mediatorMock.Object,
-                _workContextMock.Object, _cacheBase);
+                _workContextMock.Object, _cacheBase, new AccessControlConfig());
         }
 
         [TestMethod()]

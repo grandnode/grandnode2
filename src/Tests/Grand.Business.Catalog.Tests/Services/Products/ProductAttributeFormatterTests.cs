@@ -9,6 +9,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,7 +48,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _pricingServiceMock = new Mock<IPricingService>();
             _productServiceMock = new Mock<IProductService>();
             _mediatorMock = new Mock<IMediator>();
-            _aclServiceMock = new AclService();
+            _aclServiceMock = new AclService(new AccessControlConfig());
             _productAttributeFormatter = new ProductAttributeFormatter(_workContextMock.Object, _productAttributeServiceMock.Object,
                 _taxServiceMock.Object, _priceFormatterMock.Object, _pricingServiceMock.Object, _productServiceMock.Object);
         }

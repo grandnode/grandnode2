@@ -4,8 +4,8 @@ using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Messages.Services
@@ -18,6 +18,7 @@ namespace Grand.Business.Messages.Services
         private readonly IAclService _aclService;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
+        private readonly AccessControlConfig _accessControlConfig;
 
         #endregion
 
@@ -29,12 +30,13 @@ namespace Grand.Business.Messages.Services
         public MessageTemplateService(ICacheBase cacheBase,
             IAclService aclService,
             IRepository<MessageTemplate> messageTemplateRepository,
-            IMediator mediator)
+            IMediator mediator, AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _aclService = aclService;
             _messageTemplateRepository = messageTemplateRepository;
             _mediator = mediator;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -151,7 +153,7 @@ namespace Grand.Business.Messages.Services
                 query = query.OrderBy(t => t.Name);
 
                 //Store acl
-                if (string.IsNullOrEmpty(storeId) || CommonHelper.IgnoreStoreLimitations)
+                if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
                     return await Task.FromResult(query.ToList());
 
                 query = from p in query

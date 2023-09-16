@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Services.Security;
 using Grand.Domain.Catalog;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Common.Tests.Services.Security
@@ -10,12 +10,13 @@ namespace Grand.Business.Common.Tests.Services.Security
     {
         private CatalogSettings _settings;
         private AclService _aclService;
-
+        private AccessControlConfig _accessControlConfig;    
         [TestInitialize]
         public void Init()
         {
             _settings = new CatalogSettings();
-            _aclService = new AclService();
+            _accessControlConfig = new AccessControlConfig();
+            _aclService = new AclService(_accessControlConfig);
         }
 
         [TestMethod]
@@ -35,7 +36,7 @@ namespace Grand.Business.Common.Tests.Services.Security
             product.LimitedToStores = false;
             Assert.IsTrue(_aclService.Authorize(product, "id"));
             Assert.IsTrue(_aclService.Authorize(product, ""));
-            CommonHelper.IgnoreStoreLimitations = true;
+            _accessControlConfig.IgnoreStoreLimitations = true;
             Assert.IsTrue(_aclService.Authorize(product, "id"));
         }
     }

@@ -82,7 +82,7 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
 
             _mediatorMock = new Mock<IMediator>();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _productService = new ProductService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AclService());
+            _productService = new ProductService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AclService(new AccessControlConfig()));
 
             _productImportDataObject = new ProductImportDataObject
                 (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,

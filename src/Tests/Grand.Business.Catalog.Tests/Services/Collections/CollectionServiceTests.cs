@@ -5,6 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,7 +34,7 @@ namespace Grand.Business.Catalog.Tests.Services.Collections
             _aclMock = new Mock<IAclService>();
             _settings = new CatalogSettings();
             _collectionService = new CollectionService(_cacheMock.Object, _repositoryMock.Object, _workContextMock.Object
-                , _mediatorMock.Object, _aclMock.Object);
+                , _mediatorMock.Object, _aclMock.Object, new AccessControlConfig());
         }
 
 

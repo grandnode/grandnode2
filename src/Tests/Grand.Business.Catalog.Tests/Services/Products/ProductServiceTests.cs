@@ -42,7 +42,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _mediatorMock.Setup(x => x.Send(It.IsAny<GetProductArchByIdQuery>(), default))
                 .Returns(Task.FromResult(new Product()));
 
-            _aclServiceMock = new AclService();
+            _aclServiceMock = new AclService(new AccessControlConfig());
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             _productService = new ProductService(_cacheBase, _productRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock);
         }

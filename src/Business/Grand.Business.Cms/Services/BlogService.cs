@@ -2,8 +2,8 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain;
 using Grand.Domain.Blogs;
 using Grand.Domain.Data;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Cms.Services
@@ -19,6 +19,7 @@ namespace Grand.Business.Cms.Services
         private readonly IRepository<BlogComment> _blogCommentRepository;
         private readonly IRepository<BlogCategory> _blogCategoryRepository;
         private readonly IRepository<BlogProduct> _blogProductRepository;
+        private readonly AccessControlConfig _accessControlConfig;
         private readonly IMediator _mediator;
 
         #endregion
@@ -29,13 +30,14 @@ namespace Grand.Business.Cms.Services
             IRepository<BlogComment> blogCommentRepository,
             IRepository<BlogCategory> blogCategoryRepository,
             IRepository<BlogProduct> blogProductRepository,
-            IMediator mediator)
+            IMediator mediator, AccessControlConfig accessControlConfig)
         {
             _blogPostRepository = blogPostRepository;
             _blogCommentRepository = blogCommentRepository;
             _blogCategoryRepository = blogCategoryRepository;
             _blogProductRepository = blogProductRepository;
             _mediator = mediator;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -101,7 +103,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(b => !b.EndDateUtc.HasValue || b.EndDateUtc >= utcNow);
             }
 
-            if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
             {
                 query = query.Where(b => b.Stores.Contains(storeId) || !b.LimitedToStores);
             }
@@ -339,7 +341,7 @@ namespace Grand.Business.Cms.Services
             var query = from c in _blogCategoryRepository.Table
                         select c;
 
-            if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
             {
                 query = query.Where(b => b.Stores.Contains(storeId) || !b.LimitedToStores);
             }

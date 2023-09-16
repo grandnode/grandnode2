@@ -31,7 +31,8 @@ namespace Grand.Business.Common.Tests.Services.ExportImport
 
             _mediatorMock = new Mock<IMediator>();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase);
+            var accessControlConfig = new AccessControlConfig();
+            _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase, accessControlConfig);
             _countryImportDataObject = new CountryImportDataObject(_countryService);
         }
 

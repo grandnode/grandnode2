@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +30,8 @@ namespace Grand.Business.Messages.Tests.Services
             _repositoryMock = new Mock<IRepository<MessageTemplate>>();
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
-            _service = new MessageTemplateService(_cacheMock.Object, _aclService.Object, _repositoryMock.Object, _mediatorMock.Object);
+            var accessControlConfig = new AccessControlConfig();
+            _service = new MessageTemplateService(_cacheMock.Object, _aclService.Object, _repositoryMock.Object, _mediatorMock.Object, accessControlConfig);
         }
 
         [TestMethod]

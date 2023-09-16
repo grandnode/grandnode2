@@ -207,6 +207,7 @@ namespace Grand.Infrastructure
             services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
             services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
             services.StartupConfig<CacheConfig>(configuration.GetSection("Cache"));
+            services.StartupConfig<AccessControlConfig>(configuration.GetSection("AccessControl"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
@@ -228,9 +229,6 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            
-            CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
-            CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
             
             services.AddTransient<FluentValidationFilter>();
             var mvcCoreBuilder = services.AddMvcCore(options =>

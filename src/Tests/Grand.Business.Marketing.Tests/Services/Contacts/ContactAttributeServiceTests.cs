@@ -30,9 +30,9 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
             _workContextMock = new Mock<IWorkContext>();
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
-
+            var accessControlConfig = new AccessControlConfig();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _contactAttributeService = new ContactAttributeService(_cacheBase, _repository, _mediatorMock.Object, _workContextMock.Object);
+            _contactAttributeService = new ContactAttributeService(_cacheBase, _repository, _mediatorMock.Object, _workContextMock.Object, accessControlConfig);
         }
 
         [TestMethod()]

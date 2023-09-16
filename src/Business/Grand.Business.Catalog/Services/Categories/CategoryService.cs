@@ -8,8 +8,8 @@ using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Catalog.Services.Categories
@@ -26,7 +26,8 @@ namespace Grand.Business.Catalog.Services.Categories
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
         private readonly IAclService _aclService;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
@@ -39,17 +40,20 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="workContext">Work context</param>
         /// <param name="mediator">Mediator</param>
         /// <param name="aclService">ACL service</param>
+        /// <param name="accessControlConfig"></param>
         public CategoryService(ICacheBase cacheBase,
             IRepository<Category> categoryRepository,
             IWorkContext workContext,
             IMediator mediator,
-            IAclService aclService)
+            IAclService aclService, 
+            AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _categoryRepository = categoryRepository;
             _workContext = workContext;
             _mediator = mediator;
             _aclService = aclService;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -80,9 +84,9 @@ namespace Grand.Business.Catalog.Services.Categories
             if (parentId != null)
                 query = query.Where(m => m.ParentCategoryId == parentId);
 
-            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
+            if (!_accessControlConfig.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations))
             {
-                if (!showHidden && !CommonHelper.IgnoreAcl)
+                if (!showHidden && !_accessControlConfig.IgnoreAcl)
                 {
                     //Limited to customer group (access control list)
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
@@ -90,7 +94,7 @@ namespace Grand.Business.Catalog.Services.Categories
                             where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                             select p;
                 }
-                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Limited to stores rule
                     query = from p in query
@@ -117,10 +121,10 @@ namespace Grand.Business.Catalog.Services.Categories
 
             query = query.Where(c => c.Published && c.IncludeInMenu);
 
-            switch (CommonHelper.IgnoreAcl)
+            switch (_accessControlConfig.IgnoreAcl)
             {
                 case true when
-                    string.IsNullOrEmpty(_workContext.CurrentStore.Id) || CommonHelper.IgnoreStoreLimitations:
+                    string.IsNullOrEmpty(_workContext.CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
                     return await Task.FromResult(query.ToList());
                 case false:
                 {
@@ -133,7 +137,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 }
             }
 
-            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id) && !CommonHelper.IgnoreStoreLimitations)
+            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id) && !_accessControlConfig.IgnoreStoreLimitations)
             {
                 //Limited to stores rule
                 query = from p in query
@@ -162,9 +166,9 @@ namespace Grand.Business.Catalog.Services.Categories
                 if (!showHidden)
                     query = query.Where(c => c.Published);
 
-                if (!showHidden && (!CommonHelper.IgnoreAcl || !CommonHelper.IgnoreStoreLimitations))
+                if (!showHidden && (!_accessControlConfig.IgnoreAcl || !_accessControlConfig.IgnoreStoreLimitations))
                 {
-                    if (!CommonHelper.IgnoreAcl)
+                    if (!_accessControlConfig.IgnoreAcl)
                     {
                         //Limited to customer groups rules
                         var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
@@ -172,7 +176,7 @@ namespace Grand.Business.Catalog.Services.Categories
                                 where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                                 select p;
                     }
-                    if (!CommonHelper.IgnoreStoreLimitations)
+                    if (!_accessControlConfig.IgnoreStoreLimitations)
                     {
                         //Limited to stores rules
                         query = from p in query

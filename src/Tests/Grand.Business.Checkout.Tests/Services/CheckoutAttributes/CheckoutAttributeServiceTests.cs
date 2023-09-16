@@ -4,6 +4,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +28,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             _repositoryMock = new Mock<IRepository<CheckoutAttribute>>();
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
-            _service = new CheckoutAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object, _workContextMock.Object);
+            _service = new CheckoutAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object, _workContextMock.Object, new AccessControlConfig());
         }
 
         [TestMethod]

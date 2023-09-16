@@ -56,7 +56,7 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
 
             _mediatorMock = new Mock<IMediator>();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object);
+            _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
 
             _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object, _brandLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new Domain.Seo.SeoSettings());
         }

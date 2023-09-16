@@ -4,8 +4,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.News;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Cms.Services
@@ -20,18 +20,20 @@ namespace Grand.Business.Cms.Services
         private readonly IRepository<NewsItem> _newsItemRepository;
         private readonly IMediator _mediator;
         private readonly IWorkContext _workContext;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
 
         public NewsService(IRepository<NewsItem> newsItemRepository,
             IMediator mediator,
-            IWorkContext workContext)
+            IWorkContext workContext, AccessControlConfig accessControlConfig)
         {
             _newsItemRepository = newsItemRepository;
             _mediator = mediator;
             _workContext = workContext;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -76,10 +78,10 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
             }
 
-            if ((!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations) ||
-                    (!ignoreAcl && !CommonHelper.IgnoreAcl))
+            if ((!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations) ||
+                    (!ignoreAcl && !_accessControlConfig.IgnoreAcl))
             {
-                if (!ignoreAcl && !CommonHelper.IgnoreAcl)
+                if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -87,7 +89,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
                 //Store acl
-                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
                 {
                     query = from p in query
                             where !p.LimitedToStores || p.Stores.Contains(storeId)

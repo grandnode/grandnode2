@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;

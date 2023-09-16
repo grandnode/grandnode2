@@ -1,4 +1,5 @@
 ﻿@model string[]
+@inject Grand.Infrastructure.Configuration.AccessControlConfig AccessControlConfig;
 @{
     var warnings = true;
     if (ViewData["DisableIgnoreAclWarnings"] != null)
@@ -7,7 +8,7 @@
     }
 }
 @Html.ListBoxFor(model => model, new List<SelectListItem>())
-@if (CommonHelper.IgnoreAcl && warnings)
+@if (AccessControlConfig.IgnoreAcl && warnings)
 {
     <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreAcl"]</div>
 }

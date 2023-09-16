@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
-using Grand.SharedKernel;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain;
 using Grand.Domain.Customers;
-using Grand.Domain.Logging;
 using Grand.Domain.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

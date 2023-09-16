@@ -6,8 +6,8 @@ using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Cms.Services
@@ -20,7 +20,8 @@ namespace Grand.Business.Cms.Services
         private readonly IMediator _mediator;
         private readonly IWorkContext _workContext;
         private readonly ICacheBase _cacheBase;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         /// <summary>
         /// Ctor
         /// </summary>
@@ -30,8 +31,7 @@ namespace Grand.Business.Cms.Services
             IRepository<KnowledgebaseArticleComment> articleCommentRepository,
             IMediator mediator,
             IWorkContext workContext,
-            ICacheBase cacheBase
-            )
+            ICacheBase cacheBase, AccessControlConfig accessControlConfig)
         {
             _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
             _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
@@ -39,6 +39,7 @@ namespace Grand.Business.Cms.Services
             _mediator = mediator;
             _workContext = workContext;
             _cacheBase = cacheBase;
+            _accessControlConfig = accessControlConfig;
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(x => x.Published);
                 query = query.Where(x => x.Id == id);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     //Limited to customer groups rules
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
@@ -110,7 +111,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -169,7 +170,7 @@ namespace Grand.Business.Cms.Services
         {
             var query = from p in _knowledgebaseArticleRepository.Table
                         select p;
-            if (!CommonHelper.IgnoreAcl)
+            if (!_accessControlConfig.IgnoreAcl)
             {
                 var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
@@ -177,7 +178,7 @@ namespace Grand.Business.Cms.Services
                         select p;
             }
 
-            if (!CommonHelper.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
+            if (!_accessControlConfig.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
             {
                 //Limited to stores rules
                 query = from p in query
@@ -254,7 +255,7 @@ namespace Grand.Business.Cms.Services
 
                 query = query.Where(x => x.Published);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -262,7 +263,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -291,7 +292,7 @@ namespace Grand.Business.Cms.Services
 
                 query = query.Where(x => x.Published);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -299,7 +300,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -328,7 +329,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(x => x.Published);
                 query = query.Where(x => x.Id == id);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -336,7 +337,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -364,7 +365,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(x => x.Published);
                 query = query.Where(x => x.ParentCategoryId == categoryId);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -372,7 +373,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -403,7 +404,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                     || p.Name.ToLower().Contains(keyword.ToLower()) || p.Content.ToLower().Contains(keyword.ToLower()));
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -411,7 +412,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -441,7 +442,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                     || p.Name.ToLower().Contains(keyword.ToLower()) || p.Description.ToLower().Contains(keyword.ToLower()));
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -449,7 +450,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query
@@ -478,7 +479,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(x => x.Published);
                 query = query.Where(x => x.ShowOnHomepage);
 
-                if (!CommonHelper.IgnoreAcl)
+                if (!_accessControlConfig.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
@@ -486,7 +487,7 @@ namespace Grand.Business.Cms.Services
                             select p;
                 }
 
-                if (!CommonHelper.IgnoreStoreLimitations)
+                if (!_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Store acl
                     query = from p in query

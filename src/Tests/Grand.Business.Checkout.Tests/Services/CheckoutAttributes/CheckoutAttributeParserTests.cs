@@ -8,6 +8,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -120,7 +121,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             _workContextMock = new Mock<IWorkContext>();
 
             _checkoutAttributeService = new CheckoutAttributeService(cacheManager.Object, _checkoutAttributeRepo,
-               _eventPublisher, _workContextMock.Object);
+               _eventPublisher, _workContextMock.Object, new AccessControlConfig());
 
             _checkoutAttributeParser = new CheckoutAttributeParser(_checkoutAttributeService);
 

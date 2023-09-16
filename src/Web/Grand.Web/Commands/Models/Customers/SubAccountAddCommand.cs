@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Utilities.Customers;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Customer;
 using MediatR;

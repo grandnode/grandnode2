@@ -4,8 +4,8 @@ using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Common.Services.Directory
@@ -20,7 +20,8 @@ namespace Grand.Business.Common.Services.Directory
         private readonly IRepository<Country> _countryRepository;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
@@ -31,12 +32,15 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="countryRepository">Country repository</param>
         /// <param name="mediator">Mediator</param>
         /// <param name="cacheBase">Cache manager</param>
+        /// <param name="accessControlConfig">Access control</param>
         public CountryService(
             IRepository<Country> countryRepository,
             IMediator mediator,
-            ICacheBase cacheBase)
+            ICacheBase cacheBase, 
+            AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
+            _accessControlConfig = accessControlConfig;
             _countryRepository = countryRepository;
             _mediator = mediator;
         }
@@ -64,7 +68,7 @@ namespace Grand.Business.Common.Services.Directory
                 if (!showHidden)
                     query = query.Where(c => c.Published);
 
-                if (!showHidden && !CommonHelper.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
+                if (!showHidden && !_accessControlConfig.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
                 {
                     //Store acl
                     query = from p in query

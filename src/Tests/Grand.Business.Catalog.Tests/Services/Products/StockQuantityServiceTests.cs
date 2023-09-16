@@ -1,10 +1,8 @@
 ﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Grand.Business.Catalog.Tests.Services.Products
 {

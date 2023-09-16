@@ -53,7 +53,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             _discountAmountProviders = new List<IDiscountAmountProvider> { new DiscountAmountProviderTests() };
 
             _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository, _discountUsageHistoryRepository,  
-                _workContextMock.Object, _discountProviders, _discountAmountProviders, _mediatorMock.Object);
+                _workContextMock.Object, _discountProviders, _discountAmountProviders, _mediatorMock.Object, new AccessControlConfig());
         }
 
         [TestMethod()]

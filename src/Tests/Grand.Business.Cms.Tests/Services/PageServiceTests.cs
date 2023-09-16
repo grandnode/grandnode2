@@ -36,12 +36,12 @@ namespace Grand.Business.Cms.Tests.Services
 
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
             
-            _aclService = new AclService();
+            _aclService = new AclService(new AccessControlConfig());
 
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
-            _pageService = new PageService(_repository, _workContextMock.Object, _aclService, _mediatorMock.Object, _cacheBase);
+            _pageService = new PageService(_repository, _workContextMock.Object, _aclService, _mediatorMock.Object, _cacheBase, new AccessControlConfig());
         }
 
         [TestMethod()]

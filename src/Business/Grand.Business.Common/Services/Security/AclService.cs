@@ -3,7 +3,7 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
-using Grand.SharedKernel.Extensions;
+using Grand.Infrastructure.Configuration;
 
 namespace Grand.Business.Common.Services.Security
 {
@@ -12,14 +12,20 @@ namespace Grand.Business.Common.Services.Security
     /// </summary>
     public class AclService : IAclService
     {
+        #region Fields
+
+        private readonly AccessControlConfig _accessControlConfig;
+
+        #endregion
+        
         #region Ctor
 
         /// <summary>
         /// Ctor
         /// </summary>
-        public AclService()
+        public AclService(AccessControlConfig accessControlConfig)
         {
-
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -45,7 +51,7 @@ namespace Grand.Business.Common.Services.Security
             if (!entity.LimitedToGroups)
                 return true;
 
-            return CommonHelper.IgnoreAcl || customer.Groups.Any(role1 => entity.CustomerGroups.Any(role2Id => role1 == role2Id));
+            return _accessControlConfig.IgnoreAcl || customer.Groups.Any(role1 => entity.CustomerGroups.Any(role2Id => role1 == role2Id));
         }
 
         /// <summary>
@@ -64,7 +70,7 @@ namespace Grand.Business.Common.Services.Security
                 //return true if no store specified/found
                 return true;
 
-            if (CommonHelper.IgnoreStoreLimitations)
+            if (_accessControlConfig.IgnoreStoreLimitations)
                 return true;
 
             return !entity.LimitedToStores || entity.Stores.Any(storeIdWithAccess => storeId == storeIdWithAccess);

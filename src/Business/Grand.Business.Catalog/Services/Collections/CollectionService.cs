@@ -7,8 +7,8 @@ using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 
 namespace Grand.Business.Catalog.Services.Collections
@@ -25,7 +25,8 @@ namespace Grand.Business.Catalog.Services.Collections
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
         private readonly IAclService _aclService;
-
+        private readonly AccessControlConfig _accessControlConfig;
+        
         #endregion
 
         #region Ctor
@@ -37,13 +38,14 @@ namespace Grand.Business.Catalog.Services.Collections
             IRepository<Collection> collectionRepository,
             IWorkContext workContext,
             IMediator mediator,
-            IAclService aclService)
+            IAclService aclService, AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _collectionRepository = collectionRepository;
             _workContext = workContext;
             _mediator = mediator;
             _aclService = aclService;
+            _accessControlConfig = accessControlConfig;
         }
 
         #endregion
@@ -73,9 +75,9 @@ namespace Grand.Business.Catalog.Services.Collections
             if (!string.IsNullOrWhiteSpace(collectionName))
                 query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(collectionName.ToLower()));
 
-            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
+            if (!_accessControlConfig.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations))
             {
-                if (!showHidden && !CommonHelper.IgnoreAcl)
+                if (!showHidden && !_accessControlConfig.IgnoreAcl)
                 {
                     //Limited to customer groups rules
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
@@ -84,7 +86,7 @@ namespace Grand.Business.Catalog.Services.Collections
                             select p;
 
                 }
-                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
                 {
                     //Limited to stores rules
                     query = from p in query
