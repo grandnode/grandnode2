@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;

@@ -1,9 +1,6 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Events.Customers;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Domain.Customers;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Security.Captcha;

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Messages;
+﻿using Grand.Domain.Messages;
 
 namespace Grand.Business.System.Services.Installation
 {

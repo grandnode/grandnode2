@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Tax;
+﻿using Grand.Domain.Tax;
 
 namespace Grand.Business.System.Services.Installation
 {

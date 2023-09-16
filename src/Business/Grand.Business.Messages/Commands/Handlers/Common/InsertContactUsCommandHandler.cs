@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Commands.Messages;
-using Grand.Business.Core.Commands.Messages.Common;
+﻿using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;

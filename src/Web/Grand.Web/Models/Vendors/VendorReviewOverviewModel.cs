@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Vendors
 {

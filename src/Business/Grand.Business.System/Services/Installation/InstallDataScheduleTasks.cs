@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Tasks;
+﻿using Grand.Domain.Tasks;
 
 namespace Grand.Business.System.Services.Installation
 {

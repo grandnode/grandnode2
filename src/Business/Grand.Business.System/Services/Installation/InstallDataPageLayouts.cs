@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Pages;
+﻿using Grand.Domain.Pages;
 
 namespace Grand.Business.System.Services.Installation
 {

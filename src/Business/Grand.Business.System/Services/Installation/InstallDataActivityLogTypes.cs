@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Logging;
+﻿using Grand.Domain.Logging;
 
 namespace Grand.Business.System.Services.Installation
 {

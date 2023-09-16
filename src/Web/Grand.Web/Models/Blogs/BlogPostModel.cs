@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Media;
 
 namespace Grand.Web.Models.Blogs

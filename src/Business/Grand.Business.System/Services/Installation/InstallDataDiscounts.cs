@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Discounts;
+﻿using Grand.Domain.Discounts;
 
 namespace Grand.Business.System.Services.Installation
 {

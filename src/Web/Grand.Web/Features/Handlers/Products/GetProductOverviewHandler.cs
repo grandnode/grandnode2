@@ -19,7 +19,6 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Routing;
-using System.Diagnostics;
 
 namespace Grand.Web.Features.Handlers.Products
 {

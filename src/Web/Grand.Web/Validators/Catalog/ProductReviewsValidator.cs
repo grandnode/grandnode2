@@ -10,7 +10,6 @@ using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
-using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Catalog;
 using Microsoft.AspNetCore.Http;
 

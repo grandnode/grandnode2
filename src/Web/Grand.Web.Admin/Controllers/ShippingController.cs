@@ -22,7 +22,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Extensions.Mapping.Settings;
-using Microsoft.Extensions.Primitives;
 
 namespace Grand.Web.Admin.Controllers
 {
