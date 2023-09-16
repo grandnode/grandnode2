@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Catalog;
 using Grand.Domain.Logging;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
