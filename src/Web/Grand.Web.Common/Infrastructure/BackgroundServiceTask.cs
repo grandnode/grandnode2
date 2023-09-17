@@ -51,10 +51,11 @@ namespace Grand.Web.Common.Infrastructure
                                 var runTask = true;
                                 if(task.LastStartUtc.HasValue)
                                 {
-                                    if (DateTime.UtcNow < task.LastStartUtc.Value.AddMinutes(task.TimeInterval))
+                                    var dateTimeNow = DateTime.UtcNow; 
+                                    if (dateTimeNow < task.LastStartUtc.Value.AddMinutes(task.TimeInterval))
                                     {
                                         runTask = false;
-                                        timeInterval = (int)(DateTime.UtcNow - task.LastStartUtc.Value).TotalMinutes;
+                                        timeInterval = (int)(task.LastStartUtc.Value.AddMinutes(task.TimeInterval) - dateTimeNow).TotalMinutes;
                                     }
                                     else
                                     {
