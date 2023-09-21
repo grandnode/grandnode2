@@ -101,14 +101,6 @@ namespace Grand.Web.Common.TagHelpers.Admin
             //clear the output
             output.SuppressOutput();
 
-            //disabled attribute
-            bool.TryParse(IsDisabled, out var disabled);
-            if (disabled)
-            {
-                var d = new TagHelperAttribute("disabled", "disabled");
-                output.Attributes.Add(d);
-            }
-
             //required asterisk
             bool.TryParse(IsRequired, out var required);
             if (required)
@@ -126,21 +118,25 @@ namespace Grand.Web.Common.TagHelpers.Admin
             object htmlAttributes = null;
             if (string.IsNullOrEmpty(RenderFormControlClass) && For.Metadata.ModelType.Name.Equals("String") || renderFormControlClass)
                 htmlAttributes = new { @class = "form-control k-input" };
-
+            
+            //disabled attribute
+            bool.TryParse(IsDisabled, out var disabled);
+            if (disabled)
+            {
+                if(htmlAttributes == null)
+                    htmlAttributes = new { @disabled = "disabled" };
+                else
+                {
+                    htmlAttributes = new { @class = "form-control k-input", @disabled = "disabled" };
+                }
+            }
             var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine;
             var bufferScope = GetPrivateFieldValue(_htmlHelper, "_bufferScope") as IViewBufferScope;
             if (SelectItems != null)
             {
                 if (SelectItems.Any())
                 {
-                    if (_htmlHelper.ViewData.ContainsKey("SelectList"))
-                    {
-                        _htmlHelper.ViewData["SelectList"] = SelectItems;
-                    }
-                    else
-                    {
-                        _htmlHelper.ViewData.Add("SelectList", SelectItems);
-                    }
+                    _htmlHelper.ViewData["SelectList"] = SelectItems;
                 }
                 else
                 {
@@ -152,9 +148,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                     {
                         _htmlHelper.ViewData.Add("SelectList", new List<SelectListItem>());
                     }
-
                 }
-
             }
 
             var templateBuilder = new TemplateBuilder(
@@ -167,7 +161,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 Template,
                 readOnly: false,
                 additionalViewData: new { htmlAttributes, postfix = this.Postfix });
-
+            
             var htmlOutput = await templateBuilder.Build();
             output.Content.SetHtmlContent(htmlOutput.RenderHtmlContent());
         }
