@@ -14,6 +14,7 @@
                         @Loc["Admin.Configuration.Permissions"]
                     </div>
                     <div class="actions">
+                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green" id="btnAddNewPermission"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
                         <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
                     </div>
                     <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null" />
@@ -33,7 +34,7 @@
                                     }
                                     else
                                     {
-                                    <script>
+                                        <script>
                                             function checkCategory(checkbox) {
                                                 var cbox = checkbox;
                                                 var input = $(checkbox).closest("td").find("ul input");
@@ -56,66 +57,66 @@
                                             <div class="table-responsive">
                                                 <table class="table table-bordered tableFixHead permissions-table">
                                                     <thead>
-                                                        <tr>
-                                                            <th class="first-th" scope="col">
-                                                                <div class="d-flex justify-content-center align-items-center">
-                                                                    <strong>@Loc["Admin.Configuration.Permissions.Permission"]</strong>
+                                                    <tr>
+                                                        <th class="first-th" scope="col">
+                                                            <div class="d-flex justify-content-center align-items-center">
+                                                                <strong>@Loc["Admin.Configuration.Permissions.Permission"]</strong>
+                                                            </div>
+                                                        </th>
+                                                        @foreach (var cr in Model.AvailableCustomerGroups)
+                                                        {
+                                                            <th scope="col">
+                                                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                                                    <strong>@cr.Name</strong>
+                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" id="selectall-@(cr.Id)" /> <div class="control__indicator"></div></label>
                                                                 </div>
                                                             </th>
-                                                            @foreach (var cr in Model.AvailableCustomerGroups)
-                                                            {
-                                                                <th scope="col">
-                                                                    <div class="d-flex flex-column align-items-center justify-content-center">
-                                                                        <strong>@cr.Name</strong>
-                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" id="selectall-@(cr.Id)" /> <div class="control__indicator"></div></label>
-                                                                    </div>
-                                                                </th>
-                                                            }
-                                                        </tr>
+                                                        }
+                                                    </tr>
                                                     </thead>
                                                     <tbody>
 
-                                                        @{
-                                                            var altRow = true;
-                                                            var group = Model.AvailablePermissions.GroupBy(x => x.Category);
-                                                        }
-                                                        @foreach (var pr in group)
-                                                        {
-                                                            altRow = !altRow;
+                                                    @{
+                                                        var altRow = true;
+                                                        var group = Model.AvailablePermissions.GroupBy(x => x.Category);
+                                                    }
+                                                    @foreach (var pr in group)
+                                                    {
+                                                        altRow = !altRow;
 
-                                                            <tr class="@(altRow ? "altrowstyle" : "rowstyle")">
-                                                                <td>
-                                                                    @{
-                                                                        var groupList = pr.ToList();
+                                                        <tr class="@(altRow ? "altrowstyle" : "rowstyle")">
+                                                            <td>
+                                                                @{
+                                                                    var groupList = pr.ToList();
+                                                                }
+                                                                <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category" aria-expanded="true" aria-controls="@groupList[0].Category-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                                                                <ul id="@groupList[0].Category-collapseMain" class="collapse show multi-collapse-@groupList[0].Category">
+                                                                    @foreach (var item in groupList)
+                                                                    {
+                                                                        <li>
+                                                                            <a class="btnUpdatePermission" href="@Url.Action("Update", new { area = Constants.AreaAdmin, SystemName = @item.SystemName })">@item.Name</a>
+                                                                        </li>
                                                                     }
-                                                                    <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category" aria-expanded="true" aria-controls="@groupList[0].Category-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
-                                                                    <ul id="@groupList[0].Category-collapseMain" class="collapse show multi-collapse-@groupList[0].Category">
+                                                                </ul>
+                                                            </td>
+                                                            @foreach (var cr in Model.AvailableCustomerGroups)
+                                                            {
+                                                                <td class="checkbox-container">
+                                                                    <div class="title">
+                                                                        <span>@cr.Name</span>
+                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" onclick="checkCategory(this)" /> <div class="control__indicator"></div></label>
+                                                                    </div>
+                                                                    <ul class="collapse show multi-collapse-@groupList[0].Category">
                                                                         @foreach (var item in groupList)
                                                                         {
+                                                                            var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
                                                                             <li>
-                                                                                <span>@item.Name</span>
-                                                                            </li>
-                                                                        }
-                                                                    </ul>
-                                                                </td>
-                                                                @foreach (var cr in Model.AvailableCustomerGroups)
-                                                                {
-                                                                    <td class="checkbox-container">
-                                                                        <div class="title">
-                                                                            <span>@cr.Name</span>
-                                                                            <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" onclick="checkCategory(this)" /> <div class="control__indicator"></div></label>
-                                                                        </div>
-                                                                        <ul class="collapse show multi-collapse-@groupList[0].Category">
-                                                                            @foreach (var item in groupList)
-                                                                            {
-                                                                                var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
-                                                                                <li>
-                                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'><input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null) /> <div class="control__indicator"></div></label>
-                                                                                    @if (item.Actions)
-                                                                                    {
-                                                                                        <a class='k-link permissionlink'
-                                                                                           href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id"><i class="icon-settings"></i></a>
-                                                                                        <script>
+                                                                                <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'><input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null) /> <div class="control__indicator"></div></label>
+                                                                                @if (item.Actions)
+                                                                                {
+                                                                                    <a class='k-link permissionlink'
+                                                                                       href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id"><i class="icon-settings"></i></a>
+                                                                                    <script>
                                                                                             $(document).ready(function () {
                                                                                                 $('.permissionlink').magnificPopup({
                                                                                                     type: 'ajax',
@@ -132,14 +133,14 @@
                                                                                                 });
                                                                                             });
                                                                                         </script>
-                                                                                    }
-                                                                                </li>
-                                                                            }
-                                                                        </ul>
-                                                                    </td>
-                                                                }
-                                                            </tr>
-                                                        }
+                                                                                }
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                </td>
+                                                            }
+                                                        </tr>
+                                                    }
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -154,3 +155,35 @@
         </div>
     </div>
 </form>
+
+
+<script>
+    $(document).ready(function () {
+            $('#btnAddNewPermission').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $('.btnUpdatePermission').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                parseAjax: function (mfpResponse) {
+                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                },
+                ajaxContentAdded: function () {
+                    $('.mfp-wrap').removeAttr('tabindex');
+                }
+                }
+            });
+    });
+</script>

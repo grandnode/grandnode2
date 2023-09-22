@@ -4938,6 +4938,24 @@
 	<Resource Name="Admin.Configuration.Shipping.PickupPoint.Fields.Warehouses" Area="Admin">
 		<Value>Select warehouse</Value>
 	</Resource>
+	<Resource Name="admin.configuration.permissions.addnew" Area="Admin">
+		<Value>Add new permission</Value>
+	</Resource>
+	<Resource Name="admin.configuration.permissions.fields.area" Area="Admin">
+		<Value>Area</Value>
+	</Resource>
+	<Resource Name="admin.configuration.permissions.fields.category" Area="Admin">
+		<Value>Category</Value>
+	</Resource>
+	<Resource Name="admin.configuration.permissions.fields.name" Area="Admin">
+		<Value>Name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.permissions.fields.systemName" Area="Admin">
+		<Value>System name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.permissions.update" Area="Admin">
+		<Value>Update permission</Value>
+	</Resource>
 	<Resource Name="admin.configuration.shipping.pickuppoint.selectstore" Area="Admin">
 		<Value>Select store</Value>
 	</Resource>
@@ -9299,6 +9317,21 @@
 	</Resource>
 	<Resource Name="Admin.PaymentTransaction.Fields.VoidOffline" Area="Admin">
 		<Value>Void offline</Value>
+	</Resource>
+	<Resource Name="admin.permissions.fields.area.required" Area="Admin">
+		<Value>Area is required.</Value>
+	</Resource>
+	<Resource Name="admin.permissions.fields.category.required" Area="Admin">
+		<Value>Category is required.</Value>
+	</Resource>
+	<Resource Name="admin.permissions.fields.id.notexist" Area="Admin">
+		<Value>Permission not exists.</Value>
+	</Resource>
+	<Resource Name="admin.permissions.fields.name.required" Area="Admin">
+		<Value>Name is required.</Value>
+	</Resource>
+	<Resource Name="admin.permissions.fields.systemname.required" Area="Admin">
+		<Value>System name is required.</Value>
 	</Resource>
 	<Resource Name="Admin.Picture.RemovePicture" Area="Admin">
 		<Value>Remove picture</Value>

@@ -1,0 +1,92 @@
+﻿@model PermissionUpdateModel
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Permissions.AddNew"];
+}
+<form id="PermissionPopup" asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="Update" method="post">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Id" type="hidden" />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                            <text> @Loc["Admin.Configuration.Permissions.Update"] @Model.SystemName</text>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="Name" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Name" />
+                                    <span asp-validation-for="Name"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SystemName" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="SystemName" asp-disabled="true" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Area" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Area" />
+                                    <span asp-validation-for="Area"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Category" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Category" />
+                                    <span asp-validation-for="Category"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PermissionPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        location.reload();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

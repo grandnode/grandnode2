@@ -1,15 +1,15 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using DotLiquid.Util;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Permissions;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
@@ -19,31 +19,24 @@ namespace Grand.Web.Admin.Controllers
     {
         #region Fields
 
-        private readonly ILogger _logger;
         private readonly IWorkContext _workContext;
         private readonly IPermissionService _permissionService;
         private readonly IGroupService _groupService;
         private readonly ITranslationService _translationService;
-        private readonly IMediator _mediator;
 
         #endregion
 
         #region Constructors
 
-        public PermissionController(
-            ILogger logger,
-            IWorkContext workContext,
+        public PermissionController(IWorkContext workContext,
             IPermissionService permissionService,
             IGroupService groupService,
-            ITranslationService translationService,
-            IMediator mediator)
+            ITranslationService translationService)
         {
-            _logger = logger;
             _workContext = workContext;
             _permissionService = permissionService;
             _groupService = groupService;
             _translationService = translationService;
-            _mediator = mediator;
         }
 
         #endregion
@@ -84,6 +77,42 @@ namespace Grand.Web.Admin.Controllers
             return View(model);
         }
 
+        public IActionResult Create()
+        {
+            return View(new PermissionCreateModel() { Area = "Area admin" });
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Create(PermissionCreateModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+            
+            var permission = model.ToEntity();
+            await _permissionService.InsertPermission(permission);
+            return Content("");
+        }
+        
+        public async Task<IActionResult> Update(string systemName)
+        {
+            if(string.IsNullOrEmpty(systemName)) return Content("SystemName is null");
+            
+            var permission = await _permissionService.GetPermissionBySystemName(systemName);
+            if (permission == null) return Content("Permission not found");
+            PermissionUpdateModel model = permission.ToModel();
+            return View(model);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Update(PermissionUpdateModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+            
+            var permission = await _permissionService.GetPermissionById(model.Id);
+            permission = model.ToEntity(permission);
+            await _permissionService.UpdatePermission(permission);
+            return Content("");
+        }
+        
         [HttpPost, ActionName("Index")]
         public async Task<IActionResult> PermissionsSave(IDictionary<string, string[]> model)
         {
