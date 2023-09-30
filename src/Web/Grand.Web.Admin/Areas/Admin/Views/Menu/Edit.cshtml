@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Grand.Web.Admin.Components
+@using Grand.Web.Admin.Interfaces
+@using Grand.Web.Common.TagHelpers.Admin
+@model MenuModel
+@inject IMenuViewModelService MenuViewModelService 
+@{    
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Menu.Edit"];
+    var parent = await MenuViewModelService.FindParentNodeById(Model.Id);
+}
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="Menu" asp-action="Edit" method="post" id="menu-edit">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Admin.Configuration.Menu.Edit"]  - @Model.SystemName
+                        @if (parent != null && parent.Id != Model.Id)
+                        {
+                            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[parent.ResourceName], "Edit", new { Id = parent.Id, area = @Constants.AreaAdmin })</small>
+                        }
+                        else
+                        {
+                            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Menu.BackToList"], "Index")</small>
+                        }
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="menu-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="menu_details_buttons" additional-data="Model" />
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="menu-delete"/>

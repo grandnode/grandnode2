@@ -1,0 +1,28 @@
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Web.Admin.Components
+@model MenuModel
+@inject IPermissionService PermissionService
+@{
+    var permissions = await PermissionService.GetAllPermissions();
+}
+<vc:admin-widget widget-zone="menu_details_permissions_top" additional-data="Model" />
+@if (permissions is {Count: > 0 })
+{
+    <div class="mt-checkbox-list">
+        @foreach (var permission in permissions)
+        {
+            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                <input type="checkbox" name="PermissionNames" value="@permission.SystemName"
+                       @if (Model.PermissionNames != null && Model.PermissionNames.Contains(permission.SystemName)) { <text> checked="checked" </text>         } />@permission.Name
+                     <div class="control__indicator"></div>
+                </label>
+        }
+    </div>
+}
+else
+{
+    <div class="note note-info">
+        @Html.Raw(Loc["Admin.Configuration.Menu.NoPermissions"])
+    </div>
+}
+<vc:admin-widget widget-zone="menu_details_permissions_bottom" additional-data="Model" />

@@ -1,0 +1,77 @@
+﻿@model MenuModel
+
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="menu_details_info_top" additional-data="Model"/>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="SystemName"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SystemName" />
+                <span asp-validation-for="SystemName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ResourceName"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ResourceName"/>
+                <span asp-validation-for="ResourceName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ControllerName"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ControllerName"/>
+                <span asp-validation-for="ControllerName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ActionName"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ActionName"/>
+                <span asp-validation-for="ActionName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Url"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Url"/>
+                <span asp-validation-for="Url"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IconClass"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="IconClass"/>
+                <span asp-validation-for="IconClass"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder"/>
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OpenUrlInNewTab"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OpenUrlInNewTab"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OpenUrlInNewTab"></span>
+            </div>
+        </div>        
+        <div class="form-group">
+            <admin-label asp-for="AllPermissions"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AllPermissions"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AllPermissions"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="menu_details_info_bottom" additional-data="Model"/>

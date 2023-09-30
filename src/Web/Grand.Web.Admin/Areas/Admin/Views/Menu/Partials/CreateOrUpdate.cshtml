@@ -1,0 +1,31 @@
+﻿@model MenuModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<admin-tabstrip name="tabmenu-edit" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Configuration.Menu.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Configuration.Menu.Permission"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabPermission" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Configuration.Menu.Child"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabChild" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="menu_details_tabs" additional-data="Model"/>
+    </items>
+</admin-tabstrip>

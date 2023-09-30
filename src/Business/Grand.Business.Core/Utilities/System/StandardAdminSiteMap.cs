@@ -698,11 +698,20 @@ namespace Grand.Business.Core.Utilities.System
                             IconClass = "fa fa-dot-circle-o"
                         },
                         new () {
+                            SystemName = "Admin menu",
+                            ResourceName = "Admin.Configuration.Menu",
+                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+                            ControllerName = "Menu",
+                            ActionName = "Index",
+                            DisplayOrder = 7,
+                            IconClass = "fa fa-dot-circle-o"
+                        },
+                        new () {
                             SystemName = "Payment",
                             ResourceName = "Admin.Configuration.Payment",
                             PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
                             IconClass = "fa fa-arrow-circle-o-right",
-                            DisplayOrder = 7,
+                            DisplayOrder = 8,
                             ChildNodes = new List<AdminSiteMap> {
                                 new () {
                                     SystemName = "Payment methods",
@@ -738,7 +747,7 @@ namespace Grand.Business.Core.Utilities.System
                             ResourceName = "Admin.Configuration.Shipping",
                             PermissionNames = new List<string> { PermissionSystemName.ShippingSettings },
                             IconClass = "fa fa-arrow-circle-o-right",
-                            DisplayOrder = 8,
+                            DisplayOrder = 9,
                             ChildNodes = new List<AdminSiteMap> {
                                 new () {
                                     SystemName = "Shipping providers",
@@ -812,7 +821,7 @@ namespace Grand.Business.Core.Utilities.System
                             ResourceName = "Admin.Configuration.Tax",
                             PermissionNames = new List<string> { PermissionSystemName.TaxSettings },
                             IconClass = "fa fa-arrow-circle-o-right",
-                            DisplayOrder = 9,
+                            DisplayOrder = 10,
                             ChildNodes = new List<AdminSiteMap> {
                                 new () {
                                     SystemName = "Tax providers",
@@ -845,7 +854,7 @@ namespace Grand.Business.Core.Utilities.System
                             ResourceName = "Admin.Configuration.Layouts",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
                             IconClass = "fa fa-arrow-circle-o-right",
-                            DisplayOrder = 10,
+                            DisplayOrder = 11,
                             ChildNodes = new List<AdminSiteMap> {
                                 new () {
                                     SystemName = "Category layouts",

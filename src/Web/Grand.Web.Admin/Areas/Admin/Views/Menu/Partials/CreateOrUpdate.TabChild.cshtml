@@ -1,0 +1,68 @@
+﻿@model MenuModel
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="menu_details_documents_top" additional-data="Model" />
+        <div class="panel-body">
+            <div id="menu-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="k-button" onclick="location.href='@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
+        </div>
+        <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model" />
+    </div>
+    <script>
+        $(document).ready(function () {
+                $("#menu-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("ChildItem", "Menu", new { ParentId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors"
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: false,
+                        serverFiltering: true,
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "SystemName",
+                        title: "@Loc["Admin.Configuration.Menu.Fields.SystemName"]",
+                        width: 400,
+                        template: '<a class="k-link" href="../Edit/#=Id#">#=kendo.htmlEncode(SystemName)#</a>',
+                    },
+                    {
+                        field: "DisplayOrder",
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        title: "@Loc["Admin.Configuration.Menu.Fields.DisplayOrder"]",
+                        width: 125    
+                    }]
+                });
+            });
+         </script>
+
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.SaveBeforeEdit"]
+    </div>
+}

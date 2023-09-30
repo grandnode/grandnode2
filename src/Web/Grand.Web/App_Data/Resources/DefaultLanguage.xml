@@ -4695,6 +4695,66 @@
 	<Resource Name="Admin.Configuration.Measures.Weights.Fields.SystemKeyword.Required" Area="Admin">
 		<Value>Please provide a system keyword.</Value>
 	</Resource>
+	<Resource Name="admin.configuration.menu" Area="Admin">
+		<Value>Admin menu</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.added" Area="Admin">
+		<Value>The new menu has been added successfully</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.addnew" Area="Admin">
+		<Value>Add new menu</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.backtolist" Area="Admin">
+		<Value>Back to list</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.child" Area="Admin">
+		<Value>Submenu</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.edit" Area="Admin">
+		<Value>Edit menu</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.info" Area="Admin">
+		<Value>Info</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.actionname" Area="Admin">
+		<Value>Action name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.allpermissions" Area="Admin">
+		<Value>Require all selected permissions</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.controllername" Area="Admin">
+		<Value>Controller name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.displayorder" Area="Admin">
+		<Value>Display order</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.iconclass" Area="Admin">
+		<Value>Icon class</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.openurlinnewtab" Area="Admin">
+		<Value>To open URL in a new tab</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.resourcename" Area="Admin">
+		<Value>String resource name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.resourcename.Required" Area="Admin">
+		<Value>Please provide a string resource name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.systemname" Area="Admin">
+		<Value>System name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.systemname.Required" Area="Admin">
+		<Value>Please provide a system name</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.fields.url" Area="Admin">
+		<Value>Url</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.permission" Area="Admin">
+		<Value>Permissions</Value>
+	</Resource>
+	<Resource Name="admin.configuration.menu.updated" Area="Admin">
+		<Value>Updated menu</Value>
+	</Resource>
 	<Resource Name="Admin.Configuration.Payment" Area="Admin">
 		<Value>Payment</Value>
 	</Resource>
