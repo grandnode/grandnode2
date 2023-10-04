@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NUglify.Helpers;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -181,7 +180,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             var currentRating = _httpContextAccessor.HttpContext?.Request.Query["rating"];
             request.PagingFilteringModel.RatingOptions.Add(new SelectListItem("", ""));
             _catalogSettings.FilterProductRating.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ForEach(x =>
+                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList().ForEach(x =>
                 request.PagingFilteringModel.RatingOptions.Add(new SelectListItem(x, x, currentRating?.ToString() == x)));
         }
     }
