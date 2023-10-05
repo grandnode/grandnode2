@@ -22,7 +22,7 @@
                 <b-form-checkbox id="TermsOfService"
                                  v-model="vmorder.terms"
                                  name="TermsOfService">
-                    @Loc["Checkout.TermsOfService.PleaseAccept"] <a href="@Url.RouteUrl("Page", new { SeName = PageSeNameConstants.Conditionsofuse })" target="_blank">@Loc["Checkout.TermsOfService.Read"]</a>
+                    @Loc["Checkout.TermsOfService.PleaseAccept"] <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">@Loc["Checkout.TermsOfService.Read"]</a>
                 </b-form-checkbox>
                 <div class="alert alert-info my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
             </div>

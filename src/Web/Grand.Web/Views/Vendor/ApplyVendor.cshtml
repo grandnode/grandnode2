@@ -99,11 +99,11 @@
                                     </label>
                                     @if (Model.TermsOfServicePopup)
                                     {
-                                        <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = PageSeNameConstants.VendorTermsOfService })', 450, 500, true)">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</b-link>
+                                        <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "VendorTermsOfService" })', 450, 500, true)">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</b-link>
                                     }
                                     else
                                     {
-                                        <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new {SeName = PageSeNameConstants.VendorTermsOfService })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
+                                        <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new {SeName = "VendorTermsOfService" })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
                                     }
                                 </div>
                                 <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
