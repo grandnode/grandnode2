@@ -10,9 +10,7 @@ using System.Globalization;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
-    [AuthorizeAdmin]
-    [Area("Admin")]
-    public class ShoppingCartAmountController : BasePluginController
+    public class ShoppingCartAmountController : BaseAdminPluginController
     {
         private readonly IDiscountService _discountService;
         private readonly IPermissionService _permissionService;

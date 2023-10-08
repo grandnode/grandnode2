@@ -13,10 +13,8 @@ using Widgets.FacebookPixel.Models;
 
 namespace Widgets.FacebookPixel.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [AuthorizeAdmin]
     [PermissionAuthorize(PermissionSystemName.Widgets)]
-    public class WidgetsFacebookPixelController : BasePluginController
+    public class WidgetsFacebookPixelController : BaseAdminPluginController
     {
         private readonly IWorkContext _workContext;
         private readonly IStoreService _storeService;

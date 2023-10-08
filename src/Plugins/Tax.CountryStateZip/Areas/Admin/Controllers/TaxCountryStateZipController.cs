@@ -14,10 +14,8 @@ using Tax.CountryStateZip.Services;
 
 namespace Tax.CountryStateZip.Areas.Admin.Controllers
 {
-    [AuthorizeAdmin]
-    [Area("Admin")]
     [PermissionAuthorize(PermissionSystemName.TaxSettings)]
-    public class TaxCountryStateZipController : BasePluginController
+    public class TaxCountryStateZipController : BaseAdminPluginController
     {
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly ICountryService _countryService;

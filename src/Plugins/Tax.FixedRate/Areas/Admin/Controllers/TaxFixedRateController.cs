@@ -10,10 +10,8 @@ using Tax.FixedRate.Models;
 
 namespace Tax.FixedRate.Areas.Admin.Controllers
 {
-    [AuthorizeAdmin]
-    [Area("Admin")]
     [PermissionAuthorize(PermissionSystemName.TaxSettings)]
-    public class TaxFixedRateController : BasePluginController
+    public class TaxFixedRateController : BaseAdminPluginController
     {
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly ISettingService _settingService;

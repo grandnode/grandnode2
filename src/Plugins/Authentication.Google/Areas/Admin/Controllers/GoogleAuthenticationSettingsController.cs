@@ -11,10 +11,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Google.Areas.Admin.Controllers
 {
-    [AuthorizeAdmin]
-    [Area("Admin")]
     [PermissionAuthorize(PermissionSystemName.ExternalAuthenticationMethods)]
-    public class GoogleAuthenticationSettingsController : BasePluginController
+    public class GoogleAuthenticationSettingsController : BaseAdminPluginController
     {
         #region Fields
 

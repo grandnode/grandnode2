@@ -11,9 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [AuthorizeAdmin]
-    public class CustomerGroupsController : BasePluginController
+    public class CustomerGroupsController : BaseAdminPluginController
     {
         private readonly IDiscountService _discountService;
         private readonly IGroupService _groupService;

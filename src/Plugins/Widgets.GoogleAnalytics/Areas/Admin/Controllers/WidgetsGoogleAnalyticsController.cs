@@ -13,10 +13,8 @@ using Widgets.GoogleAnalytics.Models;
 
 namespace Widgets.GoogleAnalytics.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [AuthorizeAdmin]
     [PermissionAuthorize(PermissionSystemName.Widgets)]
-    public class WidgetsGoogleAnalyticsController : BasePluginController
+    public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     {
         private readonly IWorkContext _workContext;
         private readonly IStoreService _storeService;

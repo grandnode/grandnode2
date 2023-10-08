@@ -14,10 +14,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 
 namespace Widgets.Slider.Areas.Admin.Controllers
 {
-    [AuthorizeAdmin]
-    [Area("Admin")]
     [PermissionAuthorize(PermissionSystemName.Widgets)]
-    public class WidgetsSliderController : BasePluginController
+    public class WidgetsSliderController : BaseAdminPluginController
     {
         private readonly IPictureService _pictureService;
         private readonly ITranslationService _translationService;

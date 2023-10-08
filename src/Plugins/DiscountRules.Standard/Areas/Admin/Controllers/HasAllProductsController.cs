@@ -18,9 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [AuthorizeAdmin]
-    public class HasAllProductsController : BasePluginController
+    public class HasAllProductsController : BaseAdminPluginController
     {
         private readonly IDiscountService _discountService;
         private readonly IPermissionService _permissionService;
