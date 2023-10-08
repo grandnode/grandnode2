@@ -18,5 +18,29 @@
                 from item in sequence
                 select accseq.Concat(new[] { item }));
         }
+        
+        public static async Task<bool> AllAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+        {
+            foreach (var item in source)
+            {
+                if (!await predicate(item))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+        {
+            foreach (var item in source)
+            {
+                if (await predicate(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }

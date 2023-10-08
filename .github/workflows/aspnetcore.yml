@@ -47,5 +47,7 @@ jobs:
       run: dotnet test ./src/Tests/Grand.Infrastructure.Tests/Grand.Infrastructure.Tests.csproj
     - name: Grand.SharedKernel.Tests Unit Tests
       run: dotnet test ./src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj
+    - name: Grand.Web.Common.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.Web.Common.Tests/Grand.Web.Common.Tests.csproj
     - name: Grand.Web.Admin.Tests Unit Tests
       run: dotnet test ./src/Tests/Grand.Web.Admin.Tests/Grand.Web.Admin.Tests.csproj

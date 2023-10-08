@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <Import Project="..\..\Build\Grand.Common.props" />
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+        <PackageReference Include="Moq" Version="4.20.69" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit" Version="3.13.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+        <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Properties\launchSettings.json" />
+      <None Update="App_Data\index.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+</Project>
