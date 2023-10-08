@@ -59,5 +59,10 @@
         /// When enabled, allowing Razor files to be updated if they're edited.
         /// </summary>
         public bool EnableRuntimeCompilation { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether to verify access to a specific controller and action in the admin panel using menu configuration.
+        /// </summary>
+        public bool AuthorizeAdminMenu { get; set; }
     }
 }
