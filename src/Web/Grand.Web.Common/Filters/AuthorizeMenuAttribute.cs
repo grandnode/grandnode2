@@ -107,13 +107,13 @@ namespace Grand.Web.Common.Filters
                     {
                         if (!(await menuSiteMap.PermissionNames.AllAsync(async x =>
                                 await _permissionService.Authorize(x, _workContext.CurrentCustomer))))
-                            filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+                            filterContext.Result = new ForbidResult();
                     }
                     else
                     {
                         if (!(await menuSiteMap.PermissionNames.AnyAsync(async x =>
                                 await _permissionService.Authorize(x, _workContext.CurrentCustomer))))
-                            filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+                            filterContext.Result = new ForbidResult();
                     }
                 }
             }

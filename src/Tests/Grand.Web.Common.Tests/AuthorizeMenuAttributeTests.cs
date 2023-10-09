@@ -139,7 +139,7 @@ public class AuthorizeMenuAttributeTests
         await filter.OnAuthorizationAsync(_mockFilterContext);
 
         // Assert
-        Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(RedirectToRouteResult));
+        Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(ForbidResult));
     }
     
     [Test]
@@ -217,6 +217,6 @@ public class AuthorizeMenuAttributeTests
 
         // Assert
         // Permission exists but user is not authorized, so a redirect should occur
-        Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(RedirectToRouteResult));
+        Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(ForbidResult));
     }
 }
