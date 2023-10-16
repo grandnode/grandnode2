@@ -193,22 +193,22 @@ namespace Grand.Web.Endpoints
         {
             //vendor info
             endpointRouteBuilder.MapControllerRoute("CustomerVendorInfo",
-                            pattern + "vendor/vendorinfo",
+                            pattern + "vendorinfo",
                             new { controller = "Vendor", action = "Info" });
 
             //apply for vendor account
             endpointRouteBuilder.MapControllerRoute("ApplyVendorAccount",
-                            pattern + "vendor/apply",
+                            pattern + "vendorapply",
                             new { controller = "Vendor", action = "ApplyVendor" });
 
             //contact vendor
             endpointRouteBuilder.MapControllerRoute("ContactVendor",
-                            pattern + "vendor/contact/{vendorId}",
+                            pattern + "vendorcontact/{vendorId}",
                             new { controller = "Vendor", action = "ContactVendor" });
 
             //vendor remove picture
             endpointRouteBuilder.MapControllerRoute("CustomerVendorRemovePicture",
-                            pattern + "vendor/removepicture",
+                            pattern + "vendorremovepicture",
                             new { controller = "Vendor", action = "RemovePicture" });
 
         }
