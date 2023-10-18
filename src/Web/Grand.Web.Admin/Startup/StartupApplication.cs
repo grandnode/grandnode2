@@ -1,10 +1,12 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Infrastructure;
+using Grand.Web.Admin.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -58,6 +60,13 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<IPictureViewModelService, PictureViewModelService>();
             services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
             services.AddScoped<IMenuViewModelService, MenuViewModelService>();
+            
+            //themes support
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                options.ViewLocationExpanders.Add(new AdminViewLocationExpander());
+            });
+
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
