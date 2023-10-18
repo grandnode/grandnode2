@@ -84,7 +84,7 @@ namespace Grand.Web.Controllers
 
         #region Utilities
 
-        protected virtual async Task UpdatePictureSeoNames(Vendor vendor)
+        protected virtual async Task UpdatePictureSeoNames(Domain.Vendors.Vendor vendor)
         {
             var picture = await _pictureService.GetPictureById(vendor.PictureId);
             if (picture != null)
@@ -163,7 +163,7 @@ namespace Grand.Web.Controllers
             {
                 var description = FormatText.ConvertText(model.Description);
                 //disabled by default
-                var vendor = new Vendor {
+                var vendor = new Domain.Vendors.Vendor {
                     Name = model.Name,
                     Email = model.Email,
                     Description = description,

@@ -71,7 +71,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             return model;
         }
 
-        private async Task<VendorModel> BuildVendor(Vendor vendor, GetVendorAll request)
+        private async Task<VendorModel> BuildVendor(Domain.Vendors.Vendor vendor, GetVendorAll request)
         {
             var model = new VendorModel
             {
