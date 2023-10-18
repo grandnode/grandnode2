@@ -1,5 +1,4 @@
-﻿using Grand.Web.Common.Themes;
-using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace Grand.Web.Vendor.Infrastructure
 {
@@ -10,8 +9,9 @@ namespace Grand.Web.Vendor.Infrastructure
 
         public void PopulateValues(ViewLocationExpanderContext context)
         {
-            if (context.AreaName?.Equals("Vendor") ?? false)
-                context.Values[AreaVendorKey] = AreaVendorKey;
+            if (!(context.AreaName?.Equals("Vendor") ?? false)) return;
+            
+            context.Values[AreaVendorKey] = AreaVendorKey;
         }
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)

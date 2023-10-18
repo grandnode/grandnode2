@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Components
 {
-    public class VendorWidgetViewComponent : BaseAdminViewComponent
+    public class VendorWidgetViewComponent : BaseVendorViewComponent
     {
         #region Fields
 

@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Components
 {
-    public class LatestOrderViewComponent : BaseAdminViewComponent
+    public class LatestVendorOrderViewComponent : BaseVendorViewComponent
     {
         private readonly IPermissionService _permissionService;
         private readonly IWorkContext _workContext;
 
-        public LatestOrderViewComponent(IPermissionService permissionService, IWorkContext workContext)
+        public LatestVendorOrderViewComponent(IPermissionService permissionService, IWorkContext workContext)
         {
             _permissionService = permissionService;
             _workContext = workContext;

@@ -1,4 +1,6 @@
-﻿@{
+﻿@using NPOI.SS.UserModel
+@inject IWorkContext WorkContext;
+@{
     //page title
     ViewBag.Title = Loc["Vendor.Dashboard"];
 }
@@ -8,7 +10,7 @@
         <div class="col-md-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>@Loc["Vendor.Dashboard.Summary"]</h2>
+                    <h2>@Loc["Vendor.Dashboard.Summary"] - @WorkContext.CurrentVendor.Name</h2>
                     <div class="filter">
                         <div class="page-bar" style="height:43px;">
                             <div class="page-toolbar">
@@ -34,7 +36,7 @@
                     <div class="clear"></div>
                 </div>
                 <div class="x_content">
-                    @await Component.InvokeAsync("LatestOrder")
+                    @await Component.InvokeAsync("LatestVendorOrder")
                 </div>
             </div>
         </div>
