@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace Grand.Web.Common.Components
 {
-    public abstract class BaseViewComponent : ViewComponent
+    [Area("Vendor")]
+    public abstract class BaseVendorViewComponent : ViewComponent
     {
         public new IViewComponentResult View<TModel>(string viewName, TModel model)
         {
@@ -12,10 +12,6 @@ namespace Grand.Web.Common.Components
 
         public new IViewComponentResult View<TModel>(TModel model)
         {
-            if(Request?.ContentType == "application/json")
-            {
-                return new JsonContentViewComponentResult(JsonConvert.SerializeObject(model));
-            }
             return base.View<TModel>(model);
         }
 
