@@ -3,6 +3,7 @@ using Grand.Domain.Common;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Mapper
 {

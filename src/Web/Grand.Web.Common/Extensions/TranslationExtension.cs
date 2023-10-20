@@ -8,7 +8,7 @@ using Grand.Domain.Seo;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Common.Extensions
 {
     public static class TranslationExtension
     {

@@ -2,7 +2,7 @@
 using Grand.Domain;
 using Grand.Domain.Catalog;
 
-namespace Grand.Web.Admin.Extensions
+namespace Grand.Web.Common.Extensions
 {
     public static class ProductList
     {
