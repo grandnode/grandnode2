@@ -1,0 +1,143 @@
+﻿@model ProductModel
+
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @Loc["Vendor.Catalog.Products.RelatedProducts"]
+        </div>
+        <div class="panel-body">
+            <div id="relatedproducts-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <a id="btnAddNewRelatedProduct" href="@(Url.Action("RelatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRelatedProducts", formId = "product-form", area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.RelatedProducts.AddNew"]</a>
+            <input type="submit" id="btnRefreshRelatedProducts" style="display: none" />
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewRelatedProduct').magnificPopup({
+                type: 'ajax',
+                midClick: true,
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $("#relatedproducts-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("RelatedProductList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("RelatedProductUpdate", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("RelatedProductDelete", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Product2Name: { editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number" },
+                                ProductId2: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if(e.type=="update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Product2Name",
+                    title: "@Loc["Vendor.Catalog.Products.RelatedProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaVendor })/#=ProductId2#">#=kendo.htmlEncode(Product2Name)#</a>',
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Vendor.Catalog.Products.RelatedProducts.Fields.DisplayOrder"]",
+                    //integer format
+                    format: "{0:0}",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                }, {
+                    command: [{
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Vendor.Common.Edit"]",
+                            update: "@Loc["Vendor.Common.Update"]",
+                            cancel: "@Loc["Vendor.Common.Cancel"]"
+                        }
+                    }, {
+                        name: "destroy",
+                        text: "@Loc["Vendor.Common.Delete"]"
+                    }]
+                }]
+            });
+        });
+    </script>
+           
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshRelatedProducts').click(function () {
+                //refresh grid
+                var grid = $("#relatedproducts-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Vendor.Catalog.Products.RelatedProducts.SaveBeforeEdit"]
+    </div>
+}

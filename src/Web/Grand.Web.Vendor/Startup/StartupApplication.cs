@@ -1,6 +1,8 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Web.Vendor.Infrastructure;
+using Grand.Web.Vendor.Interfaces;
+using Grand.Web.Vendor.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -21,6 +23,10 @@ namespace Grand.Web.Vendor.Startup
             {
                 options.ViewLocationExpanders.Add(new VendorViewLocationExpander());
             });
+            
+            services.AddScoped<IProductViewModelService, ProductViewModelService>();
+            services.AddScoped<IOrderViewModelService, OrderViewModelService>();
+
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {

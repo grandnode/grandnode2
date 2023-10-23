@@ -1,0 +1,61 @@
+﻿@model ProductModel.TierPriceModel
+
+@{
+    Layout = "";
+
+    //page title
+    ViewBag.Title = Loc["Vendor.Catalog.Products.TierPrices.AddNew"];
+}
+
+<form id="TierPriceCreatePopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="TierPriceCreatePopup"
+      asp-route-ProductId="@Context.Request.Query["ProductId"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Vendor.Catalog.Products.TierPrices.AddNew"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdateTierPrice" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#TierPriceCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                    $('#btnRefreshTierPrices').click();
+                }
+            });
+        });
+    </script>
+</form>

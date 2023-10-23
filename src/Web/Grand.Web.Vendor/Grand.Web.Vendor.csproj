@@ -5,8 +5,8 @@
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <EnableDefaultContentItems>false</EnableDefaultContentItems>
         <UseAppHost>false</UseAppHost>
-        <!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
-        <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+        <!--Set GenerateRuntimeConfigurationFiles as true when Vendor panel is supposed to works independent-->
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     </PropertyGroup>
     <ItemGroup>
         <Content Include="Areas\**" CopyToPublishDirectory="Never" />

@@ -1,0 +1,11 @@
+@model double?
+<input asp-for="@Model"/>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdForModel()").kendoNumericTextBox({
+           culture: "@CultureInfo.CurrentCulture.Name",
+           format: 'n2',
+           decimals: 2  
+        });
+    });
+</script>
