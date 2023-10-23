@@ -371,3 +371,4 @@ src/Web/Grand.Web.Vendor/App_Data/InstalledPlugins.cfg
 src/Web/Grand.Web.Vendor/App_Data/Settings.cfg
 src/Web/Grand.Web.Vendor/Plugins/*
 src/Web/Grand.Web.Vendor/App_Data/DataProtectionKeys/*
+src/Web/Grand.Web.Vendor/wwwroot/assets/images/thumbs/*.**
