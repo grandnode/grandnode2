@@ -1566,33 +1566,6 @@ namespace Grand.Web.Vendor.Controllers
             return File(bytes, "text/xls", "products.xlsx");
         }
 
-        [PermissionAuthorizeAction(PermissionActionName.Import)]
-        [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile,
-            [FromServices] IImportManager<ProductDto> importManager)
-        {
-            try
-            {
-                if (importexcelfile is { Length: > 0 })
-                {
-                    await importManager.Import(importexcelfile.OpenReadStream());
-                }
-                else
-                {
-                    Error(_translationService.GetResource("Vendor.Common.UploadFile"));
-                    return RedirectToAction("List");
-                }
-
-                Success(_translationService.GetResource("Vendor.Catalog.Products.Imported"));
-                return RedirectToAction("List");
-            }
-            catch (Exception exc)
-            {
-                Error(exc);
-                return RedirectToAction("List");
-            }
-        }
-
         #endregion
 
         #region Bulk editing

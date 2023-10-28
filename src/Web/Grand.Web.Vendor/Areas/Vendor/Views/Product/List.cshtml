@@ -32,12 +32,7 @@
                                     <input type="button" id="exportexcel-selected" class="btn default" style="width: 100%;" value="@Loc["Vendor.Common.ExportToExcel.Selected"]"/>
                                 </li>
                             </ul>
-                        </div>                        
-                        <button type="button" id="importexcel" name="importexcel" class="btn default">
-                            <i class="fa fa-upload"></i>
-                            @Loc["Vendor.Common.ImportFromExcel"]
-                        </button>
-
+                        </div>
                         <button type="button" name="delete-selected" id="delete-selected" class="btn red">
                             <i class="fa fa-trash-o"></i>
                             @Loc["Vendor.Common.Delete.Selected"]
@@ -365,53 +360,7 @@
         }
     </script>
 </form>
-@*import products form*@
-<div class="modal-dialog" id="importexcel-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
 
-        <em>@Loc["Vendor.Catalog.Products.List.ImportFromExcelTip"]</em>
-        <div class="form-group">
-            &nbsp;
-        </div>
-        <div class="form-group">
-            <div class="col-md-2" style="margin-top: 2px; height: 34px; padding-left: 25px;">
-                <label class="control-label">
-                    @Loc["Vendor.Common.ExcelFile"]
-                </label>
-            </div>
-            <div class="col-md-10">
-                <input type="file" id="importexcelfile" name="importexcelfile"/>
-            </div>
-        </div>
-        <div class="form-group">
-            &nbsp;
-        </div>
-        <div class="form-group">
-            <div class="col-md-2">
-                &nbsp;
-            </div>
-            <div class="col-md-10 text-right mt-10">
-                <input type="submit" class="k-button" value="@Loc["Vendor.Common.ImportFromExcel"]"/>
-            </div>
-        </div>
-    </form>
-</div>
-<script>
-        $(document).ready(function () {
-            $("#importexcel").click(function (e) {
-                e.preventDefault();
-                var window = $("#importexcel-window");
-                if (!window.data("kendoWindow")) {
-                    window.kendoWindow({
-                        modal: true,
-                        title: "@Loc["Vendor.Common.ImportFromExcel"]",
-                        actions: ["Close"]
-                    });
-                }
-                window.data('kendoWindow').center().open();
-            });
-        });
-</script>
 <script>
     $(document).ready(function () {
         $('#exportxml-selected').click(function (e) {
@@ -425,7 +374,6 @@
 
 </script>
 <form asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="ExportExcelSelected" method="post" id="export-excel-selected-form">
-
     <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
 </form>
 <script>
