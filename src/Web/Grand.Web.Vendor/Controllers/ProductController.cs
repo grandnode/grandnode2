@@ -893,11 +893,7 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> CrossSellProductDelete(ProductModel.CrossSellProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
-            if (product == null)
-            {
-                throw new ArgumentException("Product not exists");
-            }
-
+            
             var crossSellProduct = product.CrossSellProduct.FirstOrDefault(x => x == model.Id);
             if (string.IsNullOrEmpty(crossSellProduct))
                 throw new ArgumentException("No cross-sell product found with the specified id");
@@ -1406,9 +1402,7 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    return Content("Product not exists");
-
+                
                 var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
                 if (psa == null)
                     await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
@@ -1945,10 +1939,6 @@ namespace Grand.Web.Vendor.Controllers
         {
             if (ModelState.IsValid)
             {
-                var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    throw new ArgumentException("No product found with the specified id");
-
                 if (string.IsNullOrEmpty(model.Id))
                     await _productViewModelService.InsertProductAttributeMappingModel(model);
                 else

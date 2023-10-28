@@ -1,0 +1,45 @@
+﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Validators;
+using Grand.Web.Vendor.Models.Catalog;
+
+namespace Grand.Web.Vendor.Validators.Catalog
+{
+    public class AddProductSpecificationAttributeModelValidator : BaseGrandValidator<ProductModel.AddProductSpecificationAttributeModel>
+    {
+        public AddProductSpecificationAttributeModelValidator(
+            IEnumerable<IValidatorConsumer<ProductModel.AddProductSpecificationAttributeModel>> validators,
+            ITranslationService translationService, IProductService productService, IWorkContext workContext,
+            ISpecificationAttributeService specificationAttributeService)
+            : base(validators)
+        {
+            
+                RuleFor(x => x).MustAsync(async (x, _, _) =>
+                {
+                    var product = await productService.GetProductById(x.ProductId);
+                    if (product == null) return true;
+                    return product.VendorId == workContext.CurrentVendor.Id;
+                }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
+            
+
+            RuleFor(x => x).MustAsync(async (x, _, _) =>
+            {
+                if (x.AttributeTypeId == Domain.Catalog.SpecificationAttributeType.Option)
+                {
+                    if (string.IsNullOrEmpty(x.SpecificationAttributeId))
+                        return false;
+                    if (string.IsNullOrEmpty(x.SpecificationAttributeOptionId))
+                        return false;
+
+                    var specification = await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
+
+                    return specification?.SpecificationAttributeOptions.FirstOrDefault(z=>z.Id == x.SpecificationAttributeOptionId) != null;
+                }
+
+                return !string.IsNullOrEmpty(x.CustomValue);
+            }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.SpecificationAttributes.Validate"));
+        }
+    }
+}

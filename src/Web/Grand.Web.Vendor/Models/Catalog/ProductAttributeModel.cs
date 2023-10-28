@@ -6,42 +6,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Vendor.Models.Catalog
 {
-    public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
-    {
-        public ProductAttributeModel()
-        {
-            Locales = new List<ProductAttributeLocalizedModel>();
-        }
-
-        [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.Fields.Name")]
-        public string Name { get; set; }
-
-        [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.Fields.SeName")]
-        public string SeName { get; set; }
-
-        [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.Fields.Description")]
-        public string Description { get; set; }
-
-        //Store acl
-        [GrandResourceDisplayName("Vendor.Catalog.Categories.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
-
-        public IList<ProductAttributeLocalizedModel> Locales { get; set; }
-
-        #region Nested classes
-
-        public class UsedByProductModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.UsedByProducts.Product")]
-            public string ProductName { get; set; }
-            [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.UsedByProducts.Published")]
-            public bool Published { get; set; }
-        }
-
-        #endregion
-    }
-
     public class ProductAttributeLocalizedModel : ILocalizedModelLocal
     {
         public string LanguageId { get; set; }

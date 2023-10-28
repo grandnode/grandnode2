@@ -1102,23 +1102,17 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
+                if (product == null) continue;
+                var existingRelatedProducts = productId1.RelatedProducts;
+                if (model.ProductId == id) continue;
+                if (existingRelatedProducts.All(x => x.ProductId2 != id))
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
-                    var existingRelatedProducts = productId1.RelatedProducts;
-                    if (model.ProductId != id)
-                        if (existingRelatedProducts.All(x => x.ProductId2 != id))
-                        {
-                            var related = new RelatedProduct {
-                                ProductId2 = id,
-                                DisplayOrder = 1
-                            };
-                            productId1.RelatedProducts.Add(related);
-                            await _productService.InsertRelatedProduct(related, model.ProductId);
-                        }
+                    var related = new RelatedProduct {
+                        ProductId2 = id,
+                        DisplayOrder = 1
+                    };
+                    productId1.RelatedProducts.Add(related);
+                    await _productService.InsertRelatedProduct(related, model.ProductId);
                 }
             }
         }
@@ -1129,17 +1123,7 @@ namespace Grand.Web.Vendor.Services
             var relatedProduct = product1.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
-
-            var product2 = await _productService.GetProductById(relatedProduct.ProductId2);
-            if (product2 == null)
-                throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product2 != null && product2.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
+            
             relatedProduct.DisplayOrder = model.DisplayOrder;
             await _productService.UpdateRelatedProduct(relatedProduct, model.ProductId1);
         }
@@ -1150,12 +1134,6 @@ namespace Grand.Web.Vendor.Services
             var relatedProduct = product.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             await _productService.DeleteRelatedProduct(relatedProduct, model.ProductId1);
         }
@@ -1169,10 +1147,6 @@ namespace Grand.Web.Vendor.Services
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
                     var existingSimilarProducts = productId1.SimilarProducts;
                     if (model.ProductId != id)
                         if (existingSimilarProducts.All(x => x.ProductId2 != id))
@@ -1196,16 +1170,6 @@ namespace Grand.Web.Vendor.Services
             if (similarProduct == null)
                 throw new ArgumentException("No similar product found with the specified id");
 
-            var product2 = await _productService.GetProductById(similarProduct.ProductId2);
-            if (product2 == null)
-                throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product2 != null && product2.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
             similarProduct.ProductId1 = model.ProductId1;
             similarProduct.DisplayOrder = model.DisplayOrder;
             await _productService.UpdateSimilarProduct(similarProduct);
@@ -1217,12 +1181,6 @@ namespace Grand.Web.Vendor.Services
             var similarProduct = product.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
             if (similarProduct == null)
                 throw new ArgumentException("No similar product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             similarProduct.ProductId1 = model.ProductId1;
             await _productService.DeleteSimilarProduct(similarProduct);
@@ -1237,10 +1195,6 @@ namespace Grand.Web.Vendor.Services
                 var product = await _productService.GetProductById(id);
                 if (product != null)
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
                     var existingBundleProducts = productId1.BundleProducts;
                     if (model.ProductId != id)
                         if (existingBundleProducts.All(x => x.ProductId != id))
@@ -1302,21 +1256,14 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
+                if (product != null && crossSellProduct.CrossSellProduct.All(x => x != id))
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
-                    if (crossSellProduct.CrossSellProduct.All(x => x != id))
-                    {
-                        if (model.ProductId != id)
-                            await _productService.InsertCrossSellProduct(
-                                new CrossSellProduct {
-                                    ProductId1 = model.ProductId,
-                                    ProductId2 = id
-                                });
-                    }
+                    if (model.ProductId != id)
+                        await _productService.InsertCrossSellProduct(
+                            new CrossSellProduct {
+                                ProductId1 = model.ProductId,
+                                ProductId2 = id
+                            });
                 }
             }
         }
@@ -1361,15 +1308,9 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
-                {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
-                    product.ParentGroupedProductId = model.ProductId;
-                    await _productService.UpdateAssociatedProduct(product);
-                }
+                if (product == null) continue;
+                product.ParentGroupedProductId = model.ProductId;
+                await _productService.UpdateAssociatedProduct(product);
             }
         }
 
