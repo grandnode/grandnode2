@@ -12,8 +12,6 @@ namespace Grand.Web.Vendor.Models.Orders
             AvailableOrderStatuses = new List<SelectListItem>();
             AvailablePaymentStatuses = new List<SelectListItem>();
             AvailableShippingStatuses = new List<SelectListItem>();
-            AvailableStores = new List<SelectListItem>();
-            AvailableVendors = new List<SelectListItem>();
             AvailableWarehouses = new List<SelectListItem>();
             AvailablePaymentMethods = new List<SelectListItem>();
             AvailableCountries = new List<SelectListItem>();
@@ -48,9 +46,6 @@ namespace Grand.Web.Vendor.Models.Orders
         [GrandResourceDisplayName("Vendor.Orders.List.PaymentMethod")]
         public string PaymentMethodSystemName { get; set; }
 
-        [GrandResourceDisplayName("Vendor.Orders.List.Store")]
-        public string StoreId { get; set; }
-        
         [GrandResourceDisplayName("Vendor.Orders.List.Warehouse")]
         public string WarehouseId { get; set; }
 
@@ -59,10 +54,7 @@ namespace Grand.Web.Vendor.Models.Orders
 
         [GrandResourceDisplayName("Vendor.Orders.List.BillingCountry")]
         public string BillingCountryId { get; set; }
-
-        [GrandResourceDisplayName("Vendor.Orders.List.OrderNotes")]
         
-        public string OrderNotes { get; set; }
 
         [GrandResourceDisplayName("Vendor.Orders.List.OrderGuid")]
         
@@ -72,16 +64,12 @@ namespace Grand.Web.Vendor.Models.Orders
         
         public string GoDirectlyToNumber { get; set; }
 
-        public bool IsLoggedInAsVendor { get; set; }
-
         [GrandResourceDisplayName("Vendor.Orders.List.OrderTagId")]
         public string OrderTag { get; set; }
 
         public IList<SelectListItem> AvailableOrderStatuses { get; set; }
         public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
         public IList<SelectListItem> AvailableShippingStatuses { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
         public IList<SelectListItem> AvailableWarehouses { get; set; }
         public IList<SelectListItem> AvailablePaymentMethods { get; set; }
         public IList<SelectListItem> AvailableCountries { get; set; }

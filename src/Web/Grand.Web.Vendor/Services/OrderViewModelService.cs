@@ -10,7 +10,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -39,35 +38,23 @@ namespace Grand.Web.Vendor.Services
         #region Fields
 
         private readonly IOrderService _orderService;
-        private readonly IPricingService _pricingService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
-        private readonly IPaymentTransactionService _paymentTransactionService;
         private readonly ICountryService _countryService;
         private readonly IProductService _productService;
-        private readonly IMessageProviderService _messageProviderService;
-        private readonly IProductAttributeService _productAttributeService;
         private readonly IGiftVoucherService _giftVoucherService;
         private readonly IDownloadService _downloadService;
         private readonly IStoreService _storeService;
         private readonly IVendorService _vendorService;
-        private readonly ISalesEmployeeService _salesEmployeeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
-        private readonly IAddressAttributeService _addressAttributeService;
-        private readonly IAffiliateService _affiliateService;
         private readonly IPictureService _pictureService;
-        private readonly ITaxService _taxService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly ICustomerService _customerService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IWarehouseService _warehouseService;
-        private readonly IServiceProvider _serviceProvider;
         private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
         private readonly AddressSettings _addressSettings;
@@ -79,35 +66,23 @@ namespace Grand.Web.Vendor.Services
         #region Ctor
 
         public OrderViewModelService(IOrderService orderService,
-            IPricingService priceCalculationService,
             IDateTimeService dateTimeService,
             IPriceFormatter priceFormatter,
-            IDiscountService discountService,
             ITranslationService translationService,
             IWorkContext workContext,
-            IGroupService groupService,
             ICurrencyService currencyService,
             IPaymentService paymentService,
-            IPaymentTransactionService paymentTransactionService,
             ICountryService countryService,
             IProductService productService,
-            IMessageProviderService messageProviderService,
-            IProductAttributeService productAttributeService,
             IGiftVoucherService giftVoucherService,
             IDownloadService downloadService,
             IStoreService storeService,
             IVendorService vendorService,
-            ISalesEmployeeService salesEmployeeService,
             IAddressAttributeParser addressAttributeParser,
-            IAddressAttributeService addressAttributeService,
-            IAffiliateService affiliateService,
             IPictureService pictureService,
-            ITaxService taxService,
             IMerchandiseReturnService merchandiseReturnService,
             ICustomerService customerService,
-            ICustomerActivityService customerActivityService,
             IWarehouseService warehouseService,
-            IServiceProvider serviceProvider,
             CurrencySettings currencySettings,
             TaxSettings taxSettings,
             AddressSettings addressSettings,
@@ -115,34 +90,22 @@ namespace Grand.Web.Vendor.Services
             IOrderStatusService orderStatusService)
         {
             _orderService = orderService;
-            _pricingService = priceCalculationService;
             _dateTimeService = dateTimeService;
             _priceFormatter = priceFormatter;
-            _discountService = discountService;
             _translationService = translationService;
             _workContext = workContext;
-            _groupService = groupService;
             _currencyService = currencyService;
             _paymentService = paymentService;
-            _paymentTransactionService = paymentTransactionService;
             _countryService = countryService;
             _productService = productService;
-            _messageProviderService = messageProviderService;
-            _productAttributeService = productAttributeService;
             _giftVoucherService = giftVoucherService;
             _downloadService = downloadService;
             _storeService = storeService;
             _vendorService = vendorService;
-            _salesEmployeeService = salesEmployeeService;
             _addressAttributeParser = addressAttributeParser;
-            _addressAttributeService = addressAttributeService;
-            _affiliateService = affiliateService;
             _pictureService = pictureService;
-            _taxService = taxService;
             _merchandiseReturnService = merchandiseReturnService;
-            _customerActivityService = customerActivityService;
             _warehouseService = warehouseService;
-            _serviceProvider = serviceProvider;
             _currencySettings = currencySettings;
             _taxSettings = taxSettings;
             _addressSettings = addressSettings;
@@ -152,23 +115,6 @@ namespace Grand.Web.Vendor.Services
         }
 
         #endregion
-
-        private IList<string> ParseOrderTagsToList(string orderTags)
-        {
-            var result = new List<string>();
-            if (!string.IsNullOrWhiteSpace(orderTags))
-            {
-                var values = orderTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var val1 in values)
-                {
-                    if (!string.IsNullOrEmpty(val1.Trim()))
-                        result.Add(val1.Trim());
-                }
-            }
-
-            return result;
-        }
-
 
         public virtual async Task<OrderListModel> PrepareOrderListModel(
             int? orderStatusId = null,
@@ -229,20 +175,7 @@ namespace Grand.Web.Vendor.Services
                 if (item != null)
                     item.Selected = true;
             }
-
-            //stores
-            model.AvailableStores.Add(new SelectListItem
-                { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
-            foreach (var s in (await _storeService.GetAllStores()).Where(x =>
-                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-
-            //vendors
-            model.AvailableVendors.Add(new SelectListItem
-                { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
-            foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
-
+            
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem
                 { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
@@ -263,10 +196,7 @@ namespace Grand.Web.Vendor.Services
 
             model.AvailableCountries.Insert(0,
                 new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
-
-            //a vendor should have access only to orders with his products
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null &&
-                                       !await _groupService.IsStaff(_workContext.CurrentCustomer);
+            
             if (startDate.HasValue)
                 model.StartDate = startDate.Value;
 
@@ -291,11 +221,9 @@ namespace Grand.Web.Vendor.Services
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus =
                 model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
-
-
+            
             //load orders
             var orders = await _orderService.SearchOrders(
-                storeId: model.StoreId,
                 vendorId: _workContext.CurrentVendor.Id,
                 customerId: model.CustomerId,
                 productId: model.ProductId,
@@ -314,8 +242,7 @@ namespace Grand.Web.Vendor.Services
                 pageIndex: pageIndex - 1,
                 pageSize: pageSize,
                 orderTagId: model.OrderTag);
-
-
+            
             var primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
             if (primaryStoreCurrency == null)
                 throw new Exception("Cannot load primary store currency");
@@ -332,14 +259,11 @@ namespace Grand.Web.Vendor.Services
                     OrderNumber = x.OrderNumber,
                     Code = x.Code,
                     StoreName = store != null ? store.Shortcut : "Unknown",
-                    OrderTotal = orderTotal,
                     CurrencyCode = x.CustomerCurrencyCode,
                     OrderStatus = status.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
                     OrderStatusId = x.OrderStatusId,
                     PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
-                    ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
                     CustomerEmail = x.BillingAddress?.Email,
-                    CustomerId = x.CustomerId,
                     CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
@@ -347,8 +271,6 @@ namespace Grand.Web.Vendor.Services
 
             return (items, orders.TotalCount);
         }
-
-
         public virtual async Task PrepareOrderDetailsModel(OrderModel model, Order order)
         {
             if (order == null)
@@ -364,13 +286,10 @@ namespace Grand.Web.Vendor.Services
             model.OrderGuid = order.OrderGuid;
 
             var status = await _orderStatusService.GetAll();
-            model.OrderStatuses =
-                status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
             model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
 
             var store = await _storeService.GetStoreById(order.StoreId);
             model.StoreName = store != null ? store.Shortcut : "Unknown";
-            model.CustomerId = order.CustomerId;
             model.UserFields = order.UserFields;
 
             var customer = await _customerService.GetCustomerById(order.CustomerId);
@@ -379,50 +298,10 @@ namespace Grand.Web.Vendor.Services
                     ? customer.Email
                     : _translationService.GetResource("Vendor.Customers.Guest");
 
-            model.CustomerIp = order.CustomerIp;
-            model.UrlReferrer = order.UrlReferrer;
             model.VatNumber = order.VatNumber;
             model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
             model.TaxDisplayType = _taxSettings.TaxDisplayType;
-
-            if (!string.IsNullOrEmpty(order.AffiliateId))
-            {
-                var affiliate = await _affiliateService.GetAffiliateById(order.AffiliateId);
-                if (affiliate != null)
-                {
-                    model.AffiliateId = affiliate.Id;
-                    model.AffiliateName = affiliate.GetFullName();
-                }
-            }
-
-            if (!string.IsNullOrEmpty(order.SeId))
-            {
-                var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
-                if (salesEmployee != null)
-                {
-                    model.SalesEmployeeId = salesEmployee.Id;
-                    model.SalesEmployeeName = salesEmployee.Name;
-                }
-            }
-
-            //a vendor should have access only to his products
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null &&
-                                       !await _groupService.IsStaff(_workContext.CurrentCustomer);
-
-            //order's tags
-            if (order.OrderTags.Any())
-            {
-                var tagsName = new List<string>();
-                foreach (var item in order.OrderTags)
-                {
-                    var tag = await _orderTagService.GetOrderTagById(item);
-                    if (tag != null)
-                        tagsName.Add(tag.Name);
-                }
-
-                model.OrderTags = string.Join(",", tagsName);
-            }
-
+           
             #region Order totals
 
             var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ??
@@ -434,166 +313,9 @@ namespace Grand.Web.Vendor.Services
             var orderCurrency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
             if (orderCurrency == null)
                 throw new Exception("Cannot load order currency");
-
-            //subtotal
-            model.OrderSubtotalInclTax = _priceFormatter.FormatPrice(order.OrderSubtotalInclTax, orderCurrency);
-            model.OrderSubtotalExclTax = _priceFormatter.FormatPrice(order.OrderSubtotalExclTax, orderCurrency);
-            model.OrderSubtotalInclTaxValue = order.OrderSubtotalInclTax;
-            model.OrderSubtotalExclTaxValue = order.OrderSubtotalExclTax;
-            //discount (applied to order subtotal)
-            var orderSubtotalDiscountInclTaxStr =
-                _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency);
-            var orderSubtotalDiscountExclTaxStr =
-                _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency);
-            if (order.OrderSubTotalDiscountInclTax > 0)
-                model.OrderSubTotalDiscountInclTax = orderSubtotalDiscountInclTaxStr;
-            if (order.OrderSubTotalDiscountExclTax > 0)
-                model.OrderSubTotalDiscountExclTax = orderSubtotalDiscountExclTaxStr;
-            model.OrderSubTotalDiscountInclTaxValue = order.OrderSubTotalDiscountInclTax;
-            model.OrderSubTotalDiscountExclTaxValue = order.OrderSubTotalDiscountExclTax;
-
-            //shipping
-            model.OrderShippingInclTax = _priceFormatter.FormatPrice(order.OrderShippingInclTax, orderCurrency);
-            model.OrderShippingExclTax = _priceFormatter.FormatPrice(order.OrderShippingExclTax, orderCurrency);
-            model.OrderShippingInclTaxValue = order.OrderShippingInclTax;
-            model.OrderShippingExclTaxValue = order.OrderShippingExclTax;
-
-            //payment method additional fee
-            if (order.PaymentMethodAdditionalFeeInclTax > 0)
-            {
-                model.PaymentMethodAdditionalFeeInclTax =
-                    _priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeInclTax, orderCurrency);
-                model.PaymentMethodAdditionalFeeExclTax =
-                    _priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeExclTax, orderCurrency);
-            }
-
-            model.PaymentMethodAdditionalFeeInclTaxValue = order.PaymentMethodAdditionalFeeInclTax;
-            model.PaymentMethodAdditionalFeeExclTaxValue = order.PaymentMethodAdditionalFeeExclTax;
-
-            //tax
-            model.Tax = _priceFormatter.FormatPrice(order.OrderTax, orderCurrency);
-            var displayTaxRates = _taxSettings.DisplayTaxRates && order.OrderTaxes.Any();
-            var displayTax = !displayTaxRates;
-            foreach (var tr in order.OrderTaxes)
-            {
-                model.TaxRates.Add(new OrderModel.TaxRate {
-                    Rate = _priceFormatter.FormatTaxRate(tr.Percent),
-                    Value = _priceFormatter.FormatPrice(tr.Amount, orderCurrency)
-                });
-            }
-
-            model.DisplayTaxRates = displayTaxRates;
-            model.DisplayTax = displayTax;
-            model.TaxValue = order.OrderTax;
-            //model.TaxRatesValue = order.TaxRates;
-
-            //discount
-            if (order.OrderDiscount > 0)
-                model.OrderTotalDiscount = _priceFormatter.FormatPrice(-order.OrderDiscount, orderCurrency);
-            model.OrderTotalDiscountValue = order.OrderDiscount;
-
-            //gift vouchers
-            foreach (var gcuh in await _giftVoucherService.GetAllGiftVoucherUsageHistory(order.Id))
-            {
-                var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-                if (giftVoucher != null)
-                {
-                    model.GiftVouchers.Add(new OrderModel.GiftVoucher {
-                        CouponCode = giftVoucher.Code,
-                        Amount = _priceFormatter.FormatPrice(-gcuh.UsedValue, orderCurrency)
-                    });
-                }
-            }
-
-            //loyalty points
-            if (order.RedeemedLoyaltyPoints > 0)
-            {
-                model.RedeemedLoyaltyPoints = order.RedeemedLoyaltyPoints;
-                model.RedeemedLoyaltyPointsAmount =
-                    _priceFormatter.FormatPrice(-order.RedeemedLoyaltyPointsAmount, orderCurrency);
-            }
-
-            //total
-            model.OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal, orderCurrency);
-            model.OrderTotalValue = order.OrderTotal;
+            
             model.CurrencyRate = order.CurrencyRate;
             model.CurrencyCode = order.CustomerCurrencyCode;
-
-            //refunded amount
-            if (order.RefundedAmount > 0)
-                model.RefundedAmount = _priceFormatter.FormatPrice(order.RefundedAmount, orderCurrency);
-
-            var suggestedRefundedAmount = order.OrderItems.Sum(x => x.CancelAmount);
-            if (suggestedRefundedAmount > 0)
-                model.SuggestedRefundedAmount = _priceFormatter.FormatPrice(suggestedRefundedAmount, orderCurrency);
-
-            //used discounts
-            var duh = await _discountService.GetAllDiscountUsageHistory(orderId: order.Id);
-            foreach (var d in duh)
-            {
-                var discount = await _discountService.GetDiscountById(d.DiscountId);
-                if (discount != null)
-                {
-                    model.UsedDiscounts.Add(new OrderModel.UsedDiscountModel {
-                        DiscountId = d.DiscountId,
-                        DiscountName = discount.Name
-                    });
-                }
-            }
-
-            //profit (not for vendors)
-            if (_workContext.CurrentVendor == null)
-            {
-                var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
-                if (order.CurrencyRate > 0)
-                {
-                    var profit = Convert.ToDouble(order.OrderTotal / order.CurrencyRate -
-                                                  order.OrderShippingExclTax / order.CurrencyRate -
-                                                  order.OrderTax / order.CurrencyRate - productCost);
-                    model.Profit = _priceFormatter.FormatPrice(profit, primaryStoreCurrency);
-                }
-            }
-
-            if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
-            {
-                model.OrderTotal +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderTotal / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderSubtotalInclTax +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderSubtotalInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderSubtotalExclTax +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderSubtotalExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-
-                //discount (applied to order subtotal)
-                if (order.OrderSubTotalDiscountInclTax > 0)
-                    model.OrderSubTotalDiscountInclTax +=
-                        $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                if (order.OrderSubTotalDiscountExclTax > 0)
-                    model.OrderSubTotalDiscountExclTax +=
-                        $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-
-                //shipping
-                model.OrderShippingInclTax +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderShippingInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderShippingExclTax +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderShippingExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-
-                //payment method additional fee
-                if (order.PaymentMethodAdditionalFeeInclTax > 0)
-                {
-                    model.PaymentMethodAdditionalFeeInclTax +=
-                        $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    model.PaymentMethodAdditionalFeeExclTax +=
-                        $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                }
-
-                model.Tax +=
-                    $" ({_priceFormatter.FormatPrice(order.OrderTax / order.CurrencyRate, primaryStoreCurrency)})";
-
-                //refunded amount
-                if (order.RefundedAmount > 0)
-                    model.RefundedAmount +=
-                        $" ({_priceFormatter.FormatPrice(order.RefundedAmount / order.CurrencyRate, primaryStoreCurrency)})";
-            }
 
             #endregion
 
@@ -604,12 +326,6 @@ namespace Grand.Web.Vendor.Services
             model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
             model.PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext);
             model.PaymentStatusEnum = order.PaymentStatusId;
-            var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
-            if (pt != null)
-                model.PaymentTransactionId = pt.Id;
-
-            model.PrimaryStoreCurrencyCode = order.PrimaryCurrencyCode;
-            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
 
             #endregion
 
@@ -646,7 +362,6 @@ namespace Grand.Web.Vendor.Services
             model.BillingAddress.FaxRequired = _addressSettings.FaxRequired;
             model.BillingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-            model.ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, _workContext);
             if (order.ShippingStatusId != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
@@ -725,14 +440,9 @@ namespace Grand.Web.Vendor.Services
 
             model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
             var hasDownloadableItems = false;
-            var products = order.OrderItems;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                products = products
-                    .Where(orderItem => orderItem.VendorId == _workContext.CurrentVendor.Id)
-                    .ToList();
-            }
+            var products = order.OrderItems
+                .Where(orderItem => orderItem.VendorId == _workContext.CurrentVendor.Id)
+                .ToList();
 
             foreach (var orderItem in products)
             {
@@ -841,242 +551,7 @@ namespace Grand.Web.Vendor.Services
 
             #endregion
         }
-
-        public virtual async Task<OrderModel.AddOrderProductModel> PrepareAddOrderProductModel(Order order)
-        {
-            var model = new OrderModel.AddOrderProductModel {
-                OrderId = order.Id,
-                OrderNumber = order.OrderNumber,
-                //product types
-                AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false)
-                    .ToList()
-            };
-
-            model.AvailableProductTypes.Insert(0,
-                new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
-
-            return await Task.FromResult(model);
-        }
-
-        public virtual async Task<OrderModel.AddOrderProductModel.ProductDetailsModel> PrepareAddProductToOrderModel(
-            Order order, string productId)
-        {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-                throw new ArgumentException("No product found with the specified id");
-
-            var customer = await _customerService.GetCustomerById(order.CustomerId);
-            var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
-            var presetQty = 1;
-            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty))
-                .finalPrice;
-            var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
-            var presetPriceInclTax = productPrice.productprice;
-            var presetPriceExclTax =
-                (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
-
-            var model = new OrderModel.AddOrderProductModel.ProductDetailsModel {
-                ProductId = product.Id,
-                OrderId = order.Id,
-                OrderNumber = order.OrderNumber,
-                Name = product.Name,
-                ProductType = product.ProductTypeId,
-                UnitPriceExclTax = presetPriceExclTax,
-                UnitPriceInclTax = presetPriceInclTax,
-                Quantity = presetQty,
-                TaxRate = productPrice.taxRate
-            };
-
-            //attributes
-            var attributes = product.ProductAttributeMappings;
-            foreach (var attribute in attributes)
-            {
-                var productAttribute =
-                    await _productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
-                var attributeModel = new OrderModel.AddOrderProductModel.ProductAttributeModel {
-                    Id = attribute.Id,
-                    ProductAttributeId = attribute.ProductAttributeId,
-                    Name = productAttribute.Name,
-                    TextPrompt = attribute.TextPrompt,
-                    IsRequired = attribute.IsRequired,
-                    AttributeControlType = attribute.AttributeControlTypeId
-                };
-
-                if (attribute.ShouldHaveValues())
-                {
-                    //values
-                    var attributeValues = attribute.ProductAttributeValues;
-                    foreach (var attributeValue in attributeValues)
-                    {
-                        var attributeValueModel = new OrderModel.AddOrderProductModel.ProductAttributeValueModel {
-                            Id = attributeValue.Id,
-                            Name = attributeValue.Name,
-                            IsPreSelected = attributeValue.IsPreSelected
-                        };
-                        attributeModel.Values.Add(attributeValueModel);
-                    }
-                }
-
-                model.ProductAttributes.Add(attributeModel);
-            }
-
-            //gift voucher
-            model.GiftVoucher.IsGiftVoucher = product.IsGiftVoucher;
-            if (model.GiftVoucher.IsGiftVoucher)
-            {
-                model.GiftVoucher.GiftVoucherType = product.GiftVoucherTypeId;
-            }
-
-            return model;
-        }
-
-        public virtual async Task<OrderAddressModel> PrepareOrderAddressModel(Order order, Address address)
-        {
-            var model = new OrderAddressModel {
-                OrderId = order.Id,
-                Address = await address.ToModel(_countryService)
-            };
-            model.Address.Id = address.Id;
-            model.Address.NameEnabled = _addressSettings.NameEnabled;
-            model.Address.FirstNameEnabled = true;
-            model.Address.FirstNameRequired = true;
-            model.Address.LastNameEnabled = true;
-            model.Address.LastNameRequired = true;
-            model.Address.EmailEnabled = true;
-            model.Address.EmailRequired = true;
-            model.Address.CompanyEnabled = _addressSettings.CompanyEnabled;
-            model.Address.CompanyRequired = _addressSettings.CompanyRequired;
-            model.Address.VatNumberEnabled = _addressSettings.VatNumberEnabled;
-            model.Address.VatNumberRequired = _addressSettings.VatNumberRequired;
-            model.Address.CountryEnabled = _addressSettings.CountryEnabled;
-            model.Address.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
-            model.Address.CityEnabled = _addressSettings.CityEnabled;
-            model.Address.CityRequired = _addressSettings.CityRequired;
-            model.Address.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
-            model.Address.StreetAddressRequired = _addressSettings.StreetAddressRequired;
-            model.Address.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
-            model.Address.StreetAddress2Required = _addressSettings.StreetAddress2Required;
-            model.Address.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
-            model.Address.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
-            model.Address.PhoneEnabled = _addressSettings.PhoneEnabled;
-            model.Address.PhoneRequired = _addressSettings.PhoneRequired;
-            model.Address.FaxEnabled = _addressSettings.FaxEnabled;
-            model.Address.FaxRequired = _addressSettings.FaxRequired;
-            model.Address.NoteEnabled = _addressSettings.NoteEnabled;
-            model.Address.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
-
-            //countries
-            model.Address.AvailableCountries.Add(new SelectListItem
-                { Text = _translationService.GetResource("Vendor.Address.SelectCountry"), Value = "" });
-            foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem
-                    { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
-            //states
-            var states = !string.IsNullOrEmpty(address.CountryId)
-                ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces
-                : new List<StateProvince>();
-            if (states?.Count > 0)
-            {
-                foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem
-                        { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
-            }
-
-            //customer attribute services
-            await model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService,
-                _addressAttributeParser);
-
-            return model;
-        }
-
-        public virtual async Task<IList<OrderModel.OrderNote>> PrepareOrderNotes(Order order)
-        {
-            //order notes
-            var orderNoteModels = new List<OrderModel.OrderNote>();
-            foreach (var orderNote in (await _orderService.GetOrderNotes(order.Id))
-                     .OrderByDescending(on => on.CreatedOnUtc))
-            {
-                var download = await _downloadService.GetDownloadById(orderNote.DownloadId);
-                orderNoteModels.Add(new OrderModel.OrderNote {
-                    Id = orderNote.Id,
-                    OrderId = order.Id,
-                    DownloadId = string.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
-                    DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
-                    DisplayToCustomer = orderNote.DisplayToCustomer,
-                    Note = orderNote.Note,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc),
-                    CreatedByCustomer = orderNote.CreatedByCustomer
-                });
-            }
-
-            return orderNoteModels;
-        }
-
-        public virtual async Task InsertOrderNote(Order order, string downloadId, bool displayToCustomer,
-            string message)
-        {
-            var orderNote = new OrderNote {
-                DisplayToCustomer = displayToCustomer,
-                Note = message,
-                DownloadId = downloadId,
-                OrderId = order.Id,
-                CreatedOnUtc = DateTime.UtcNow
-            };
-            await _orderService.InsertOrderNote(orderNote);
-
-            //new order notification
-            if (displayToCustomer)
-            {
-                //email
-                await _messageProviderService.SendNewOrderNoteAddedCustomerMessage(order, orderNote);
-            }
-        }
-
-        public virtual async Task DeleteOrderNote(Order order, string id)
-        {
-            var orderNote = (await _orderService.GetOrderNotes(order.Id)).FirstOrDefault(on => on.Id == id);
-            if (orderNote == null)
-                throw new ArgumentException("No order note found with the specified id");
-
-            orderNote.OrderId = order.Id;
-            await _orderService.DeleteOrderNote(orderNote);
-
-            //delete an old "attachment" file
-            if (!string.IsNullOrEmpty(orderNote.DownloadId))
-            {
-                var attachment = await _downloadService.GetDownloadById(orderNote.DownloadId);
-                if (attachment != null)
-                    await _downloadService.DeleteDownload(attachment);
-            }
-        }
-
-        public virtual Task LogEditOrder(string orderId)
-        {
-            var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            _ = _customerActivityService.InsertActivity("EditOrder", orderId,
-                _workContext.CurrentCustomer, httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditOrder"), orderId);
-            return Task.CompletedTask;
-        }
-
-        public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model,
-            List<CustomAttribute> customAttributes)
-        {
-            address = model.Address.ToEntity(address);
-            address.Attributes = customAttributes;
-            await _orderService.UpdateOrder(order);
-
-            //add a note
-            await _orderService.InsertOrderNote(new OrderNote {
-                Note = "Address has been edited",
-                DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id
-            });
-            _ = LogEditOrder(order.Id);
-            return address;
-        }
-
+        
         public virtual async Task<IList<Order>> PrepareOrders(OrderListModel model)
         {
             DateTime? startDateValue = model.StartDate == null
@@ -1091,10 +566,9 @@ namespace Grand.Web.Vendor.Services
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus =
                 model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
-
-
+            
             //load orders
-            var orders = await _orderService.SearchOrders(storeId: model.StoreId,
+            var orders = await _orderService.SearchOrders(
                 vendorId: _workContext.CurrentVendor.Id,
                 productId: model.ProductId,
                 warehouseId: model.WarehouseId,
@@ -1112,61 +586,5 @@ namespace Grand.Web.Vendor.Services
             return orders;
         }
 
-        /// <summary>
-        /// Save order's tag by id
-        /// </summary>
-        /// <param name="order">Order identifier</param>
-        /// <param name="orderTags">Order's tag identifier</param>
-        /// <returns>Order's tag</returns>
-        public virtual async Task SaveOrderTags(Order order, string orderTags)
-        {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
-
-            //order's tags
-            var existingOrderTags = new List<string>();
-            foreach (var item in order.OrderTags)
-            {
-                var tag = await _orderTagService.GetOrderTagById(item);
-                if (tag != null)
-                    existingOrderTags.Add(tag.Name);
-            }
-
-            var newOrderTags = ParseOrderTagsToList(orderTags);
-
-            // compare 
-            var orderTagsToRemove = existingOrderTags.Except(newOrderTags);
-
-            foreach (var orderTag in orderTagsToRemove)
-            {
-                var ot = await _orderTagService.GetOrderTagByName(orderTag);
-                if (ot != null)
-                {
-                    await _orderTagService.DetachOrderTag(ot.Id, order.Id);
-                }
-            }
-
-            var allOrderTags = await _orderTagService.GetAllOrderTags();
-            foreach (var newOrderTag in newOrderTags)
-            {
-                OrderTag orderTag;
-                var orderTag2 = allOrderTags.ToList().Find(o => o.Name == newOrderTag);
-
-                if (orderTag2 == null)
-                {
-                    orderTag = new OrderTag { Name = newOrderTag, Count = 0 };
-                    await _orderTagService.InsertOrderTag(orderTag);
-                }
-                else
-                {
-                    orderTag = orderTag2;
-                }
-
-                if (!order.OrderTagExists(orderTag))
-                {
-                    await _orderTagService.AttachOrderTag(orderTag.Id, order.Id);
-                }
-            }
-        }
     }
 }
