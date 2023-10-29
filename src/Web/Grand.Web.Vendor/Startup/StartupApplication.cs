@@ -26,6 +26,7 @@ namespace Grand.Web.Vendor.Startup
             
             services.AddScoped<IProductViewModelService, ProductViewModelService>();
             services.AddScoped<IOrderViewModelService, OrderViewModelService>();
+            services.AddScoped<IShipmentViewModelService, ShipmentViewModelService>();
 
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)

@@ -31,16 +31,12 @@ namespace Grand.Web.Vendor.Extensions
 
             return orderItem.VendorId == workContext.CurrentVendor.Id;
         }
-        public static bool HasAccessToShipment(this IWorkContext workContext, Order order, Shipment shipment)
+        public static bool HasAccessToShipment(this IWorkContext workContext, Shipment shipment)
         {
             if (shipment == null)
                 throw new ArgumentNullException(nameof(shipment));
-
-            var vendorId = workContext.CurrentVendor.Id;
-            return shipment.ShipmentItems.Select(shipmentItem => 
-                order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId))
-                .Where(orderItem => orderItem != null)
-                .Any(orderItem => orderItem.VendorId == vendorId);
+            
+            return shipment.VendorId == workContext.CurrentVendor.Id;
         }
     }
 }
