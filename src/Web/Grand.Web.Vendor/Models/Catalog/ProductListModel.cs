@@ -9,7 +9,6 @@ namespace Grand.Web.Vendor.Models.Catalog
     {
         public ProductListModel()
         {
-            AvailableStores = new List<SelectListItem>();
             AvailableWarehouses = new List<SelectListItem>();
             AvailableProductTypes = new List<SelectListItem>();
             AvailablePublishedOptions = new List<SelectListItem>();
@@ -40,9 +39,7 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Products.List.GoDirectlyToSku")]
         
         public string GoDirectlyToSku { get; set; }
-
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
+       public IList<SelectListItem> AvailableWarehouses { get; set; }
         public IList<SelectListItem> AvailableProductTypes { get; set; }
         public IList<SelectListItem> AvailablePublishedOptions { get; set; }
     }

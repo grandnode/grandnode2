@@ -290,27 +290,6 @@
     @if (!string.IsNullOrEmpty(Model.Id))
     {
         <script>
-                //local datasource
-                var allStores = [
-                    {
-                        Id : ' ',
-                        Name : "@Loc["Vendor.Settings.AllSettings.Fields.StoreName.AllStores"]"
-                    }
-                    @{
-                        var allStores = await _storeService.GetAllStores();
-                    }
-                    @foreach (var store in allStores)
-                    {
-                        <text>
-                                , {
-                                    Id: "@(store.Id)",
-                                    Name: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(store.Shortcut) ? "" : store.Shortcut)))"
-                                }
-                                </text>
-                    }
-
-                ];
-
                     $("#tierprices-grid").kendoGrid({
                         dataSource: {
                             transport: {

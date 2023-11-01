@@ -335,10 +335,6 @@ namespace Grand.Web.Vendor.Models.Catalog
         public ProductPictureModel AddPictureModel { get; set; }
         public IList<ProductPictureModel> ProductPictureModels { get; set; }
 
-        //discounts
-        public List<DiscountModel> AvailableDiscounts { get; set; }
-        public string[] SelectedDiscountIds { get; set; }
-
         //multiple warehouses
         [GrandResourceDisplayName("Vendor.Catalog.Products.ProductWarehouseInventory")]
         public IList<ProductWarehouseInventoryModel> ProductWarehouseInventoryModels { get; set; }

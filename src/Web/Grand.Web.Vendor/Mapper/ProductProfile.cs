@@ -32,8 +32,6 @@ namespace Grand.Web.Vendor.Mapper
                 .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
                 .ForMember(dest => dest.BaseDimensionIn, mo => mo.Ignore())
                 .ForMember(dest => dest.BaseWeightIn, mo => mo.Ignore())
-                .ForMember(dest => dest.AvailableDiscounts, mo => mo.Ignore())
-                .ForMember(dest => dest.SelectedDiscountIds, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableDeliveryDates, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableWarehouses, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableBasepriceUnits, mo => mo.Ignore())

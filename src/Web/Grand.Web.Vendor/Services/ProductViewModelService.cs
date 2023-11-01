@@ -510,17 +510,6 @@ namespace Grand.Web.Vendor.Services
                 model.AvailableUnits.Add(new SelectListItem
                     { Text = un.Name, Value = un.Id, Selected = product != null && un.Id == product.UnitId });
 
-            //discounts
-            model.AvailableDiscounts = (await _discountService
-                    .GetAllDiscounts(DiscountType.AssignedToSkus, storeId: _workContext.CurrentCustomer.StaffStoreId,
-                        showHidden: true))
-                .Select(d => new DiscountModel() { Id = d.Id, Name = d.Name })
-                .ToList();
-            if (!excludeProperties && product != null)
-            {
-                model.SelectedDiscountIds = product.AppliedDiscounts.ToArray();
-            }
-
             //default values
             if (setPredefinedValues)
             {
@@ -639,14 +628,6 @@ namespace Grand.Web.Vendor.Services
         {
             var model = new ProductListModel();
 
-            //stores
-            model.AvailableStores.Add(new SelectListItem
-                { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
-            foreach (var s in (await _storeService.GetAllStores()))
-            {
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-            }
-
             //warehouses
             model.AvailableWarehouses.Add(new SelectListItem
                 { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
@@ -663,7 +644,6 @@ namespace Grand.Web.Vendor.Services
             //0 - all (according to "ShowHidden" parameter)
             //1 - published only
             //2 - unpublished only
-            //3 - Show on homepage
             //4 - mark as new
             model.AvailablePublishedOptions.Add(new SelectListItem {
                 Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.All"), Value = " "
@@ -675,10 +655,6 @@ namespace Grand.Web.Vendor.Services
             model.AvailablePublishedOptions.Add(new SelectListItem {
                 Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
                 Value = "2"
-            });
-            model.AvailablePublishedOptions.Add(new SelectListItem {
-                Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
-                Value = "3"
             });
             model.AvailablePublishedOptions.Add(new SelectListItem {
                 Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.MarkAsNew"),
@@ -819,17 +795,6 @@ namespace Grand.Web.Vendor.Services
             await _slugService.SaveSlug(product, model.SeName, "");
             //warehouses
             await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-            //discounts
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToSkus,
-                storeId: _workContext.CurrentCustomer.StaffStoreId, showHidden: true);
-            foreach (var discount in allDiscounts)
-            {
-                if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
-                {
-                    product.AppliedDiscounts.Add(discount.Id);
-                    await _productService.InsertDiscount(discount.Id, product.Id);
-                }
-            }
 
             await _productService.UpdateProduct(product);
 
@@ -860,30 +825,6 @@ namespace Grand.Web.Vendor.Services
             await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
             //picture seo names
             await UpdatePictureSeoNames(product);
-            //discounts
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToSkus,
-                storeId: _workContext.CurrentCustomer.StaffStoreId, showHidden: true);
-            foreach (var discount in allDiscounts)
-            {
-                if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
-                {
-                    //new discount
-                    if (product.AppliedDiscounts.Count(d => d == discount.Id) == 0)
-                    {
-                        product.AppliedDiscounts.Add(discount.Id);
-                        await _productService.InsertDiscount(discount.Id, product.Id);
-                    }
-                }
-                else
-                {
-                    //remove discount
-                    if (product.AppliedDiscounts.Count(d => d == discount.Id) > 0)
-                    {
-                        product.AppliedDiscounts.Remove(discount.Id);
-                        await _productService.DeleteDiscount(discount.Id, product.Id);
-                    }
-                }
-            }
 
             await _productService.UpdateProduct(product);
 
@@ -896,21 +837,6 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task DeleteProduct(Product product)
         {
             await _productService.DeleteProduct(product);
-
-            //delete an "download" file
-            if (!string.IsNullOrEmpty(product.DownloadId))
-            {
-                var download = await _downloadService.GetDownloadById(product.DownloadId);
-                if (download != null)
-                    await _downloadService.DeleteDownload(download);
-            }
-
-            if (!string.IsNullOrEmpty(product.SampleDownloadId))
-            {
-                var sampledownload = await _downloadService.GetDownloadById(product.SampleDownloadId);
-                if (sampledownload != null)
-                    await _downloadService.DeleteDownload(sampledownload);
-            }
         }
 
         public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)

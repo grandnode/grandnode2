@@ -1,5 +1,4 @@
 ﻿@model ProductModel
-@inject AdminAreaSettings adminAreaSettings
 <vc:vendor-widget widget-zone="product_details_prices_top" additional-data="Model" />
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
     <div class="form-body">
@@ -323,32 +322,4 @@ else
     </div>
 }
 
-
-@if (Model.AvailableDiscounts is {Count: > 0 })
-{
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            @Loc["Vendor.Catalog.Products.AvailableDiscounts"]
-        </div>
-        <div class="panel-body">
-            <div class="mt-checkbox-list">
-                @foreach (var discount in Model.AvailableDiscounts)
-                {
-                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
-                               @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text> } />@discount.Name
-                            <div class="control__indicator"></div>
-                        </label>
-                    }
-            </div>
-        </div>
-    </div>
-}
-else
-{
-    <div class="note note-info">
-        @Html.Raw(Loc["Vendor.Catalog.Collections.Discounts.NoDiscounts"])
-    </div>
-}
 <vc:vendor-widget widget-zone="product_details_prices_bottom" additional-data="Model" />
