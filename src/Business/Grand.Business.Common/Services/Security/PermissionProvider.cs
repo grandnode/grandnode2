@@ -197,13 +197,13 @@ namespace Grand.Business.Common.Services.Security
                     CustomerGroupSystemName = SystemCustomerGroupNames.Vendors,
                     Permissions = new[]
                     {
-                        StandardPermission.AccessAdminPanel,
                         StandardPermission.ManageProducts,
                         StandardPermission.ManageFiles,
                         StandardPermission.ManagePictures,
                         StandardPermission.ManageOrders,
                         StandardPermission.ManageVendorReviews,
-                        StandardPermission.ManageShipments
+                        StandardPermission.ManageShipments,
+                        StandardPermission.ManageMerchandiseReturns
                     }
                 },
                 new DefaultPermission
