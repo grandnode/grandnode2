@@ -10,6 +10,7 @@
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
     var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
     var isAdminAccess = await permissionService.Authorize(StandardPermission.AccessAdminPanel);
+    var isVendor = workContext.CurrentVendor != null;
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })
@@ -23,11 +24,18 @@
     }
     @if (isAuthenticated)
     {
-        @if (isAdminAccess)
+        @if (isAdminAccess && !isVendor)
         {
             <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Admin")">
                 <b-icon icon="gear"></b-icon>
                 <span class="text text-uppercase ml-3">@Loc["admin"]</span>
+            </a>
+        }
+        @if (isVendor)
+        {
+            <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Vendor")">
+                <b-icon icon="gear"></b-icon>
+                <span class="text text-uppercase ml-3">@Loc["vendor.portal"]</span>
             </a>
         }
         @if (!string.IsNullOrEmpty(pagebuilder.EditPageUrl))
