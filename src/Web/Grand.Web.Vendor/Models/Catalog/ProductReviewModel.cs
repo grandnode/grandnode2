@@ -9,12 +9,7 @@ namespace Grand.Web.Vendor.Models.Catalog
         public string ProductId { get; set; }
         [GrandResourceDisplayName("Vendor.Catalog.ProductReviews.Fields.Product")]
         public string ProductName { get; set; }
-
-        public string Ids {
-            get {
-                return Id + ":" + ProductId;
-            }
-        }
+        
 
         [GrandResourceDisplayName("Vendor.Catalog.ProductReviews.Fields.Store")]
         public string StoreName { get; set; }

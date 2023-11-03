@@ -1,5 +1,4 @@
-﻿using Grand.Web.Common.Link;
-using Grand.Web.Common.Models;
+﻿using Grand.Web.Common.Models;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
@@ -376,7 +375,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             
         }
 
-        public class AddProductSpecificationAttributeModel : BaseModel
+        public class AddProductSpecificationAttributeModel : BaseModel, IProductValidVendor
         {
             public AddProductSpecificationAttributeModel()
             {
@@ -415,7 +414,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public IList<SelectListItem> AvailableOptions { get; set; }
         }
 
-        public class ProductPictureModel : BaseEntityModel, ILocalizedModel<ProductPictureModel.ProductPictureLocalizedModel>
+        public class ProductPictureModel : BaseEntityModel, ILocalizedModel<ProductPictureModel.ProductPictureLocalizedModel>, IProductValidVendor
         {
             public ProductPictureModel()
             {
@@ -462,7 +461,7 @@ namespace Grand.Web.Vendor.Models.Catalog
 
         }
 
-        public class ProductCategoryModel : BaseEntityModel
+        public class ProductCategoryModel : BaseEntityModel, IProductValidVendor
         {
             [GrandResourceDisplayName("Vendor.Catalog.Products.Categories.Fields.Category")]
             public string Category { get; set; }
@@ -475,7 +474,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public class ProductCollectionModel : BaseEntityModel
+        public class ProductCollectionModel : BaseEntityModel, IProductValidVendor
         {
             [GrandResourceDisplayName("Vendor.Catalog.Products.Collections.Fields.Collection")]
             public string Collection { get; set; }
@@ -488,7 +487,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public class RelatedProductModel : BaseEntityModel
+        public class RelatedProductModel : BaseEntityModel, IProductRelatedValidVendor
         {
             public string ProductId1 { get; set; }
             public string ProductId2 { get; set; }
@@ -499,13 +498,13 @@ namespace Grand.Web.Vendor.Models.Catalog
             [GrandResourceDisplayName("Vendor.Catalog.Products.RelatedProducts.Fields.DisplayOrder")]
             public int DisplayOrder { get; set; }
         }
-        public class AddRelatedProductModel : AddProductModel
+        public class AddRelatedProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class SimilarProductModel : BaseEntityModel
+        public class SimilarProductModel : BaseEntityModel, IProductRelatedValidVendor
         {
             public string ProductId1 { get; set; }
             public string ProductId2 { get; set; }
@@ -517,14 +516,14 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public class AddSimilarProductModel : AddProductModel
+        public class AddSimilarProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class BundleProductModel : BaseEntityModel
+        public class BundleProductModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductBundleId { get; set; }
             public string ProductId { get; set; }
@@ -539,14 +538,14 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public class AddBundleProductModel : AddProductModel
+        public class AddBundleProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class AssociatedProductModel : BaseEntityModel
+        public class AssociatedProductModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductId { get; set; }
             [GrandResourceDisplayName("Vendor.Catalog.Products.AssociatedProducts.Fields.Product")]
@@ -555,14 +554,14 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public class AddAssociatedProductModel : AddProductModel
+        public class AddAssociatedProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class CrossSellProductModel : BaseEntityModel
+        public class CrossSellProductModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductId { get; set; }            
 
@@ -570,21 +569,21 @@ namespace Grand.Web.Vendor.Models.Catalog
             public string Product2Name { get; set; }
         }
 
-        public class AddCrossSellProductModel : AddProductModel
+        public class AddCrossSellProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class RecommendedProductModel : BaseEntityModel
+        public class RecommendedProductModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             [GrandResourceDisplayName("Vendor.Catalog.Products.Recommended.Fields.Product")]
             public string Product2Name { get; set; }
         }
-        public class AddRecommendedProductModel : AddProductModel
+        public class AddRecommendedProductModel : AddProductModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
@@ -598,7 +597,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public double Price { get; set; }
         }
 
-        public class TierPriceModel : BaseEntityModel
+        public class TierPriceModel : BaseEntityModel, IProductValidVendor
         {
             public TierPriceModel()
             {
@@ -641,7 +640,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int ReservedQuantity { get; set; }
 
         }
-        public class ReservationModel : BaseEntityModel
+        public class ReservationModel : BaseEntityModel, IProductValidVendor
         {
             public string ReservationId { get; set; }
             public DateTime Date { get; set; }
@@ -652,7 +651,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public string Duration { get; set; }
         }
 
-        public class BidModel : BaseEntityModel
+        public class BidModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductId { get; set; }
             public string BidId { get; set; }
@@ -663,7 +662,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public string OrderId { get; set; }
         }
 
-        public class GenerateCalendarModel : BaseModel
+        public class GenerateCalendarModel : BaseModel, IProductValidVendor
         {
 
             public GenerateCalendarModel()
@@ -728,7 +727,7 @@ namespace Grand.Web.Vendor.Models.Catalog
 
         }
 
-        public class ProductAttributeMappingModel : BaseEntityModel
+        public class ProductAttributeMappingModel : BaseEntityModel, IProductValidVendor
         {
             public ProductAttributeMappingModel()
             {
@@ -791,7 +790,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public bool ConditionAllowed { get; set; }
             public string ConditionString { get; set; }
         }
-        public class ProductAttributeValueListModel : BaseModel
+        public class ProductAttributeValueListModel : BaseModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
@@ -802,7 +801,7 @@ namespace Grand.Web.Vendor.Models.Catalog
             public string ProductAttributeName { get; set; }
         }
 
-        public class ProductAttributeValueModel : BaseEntityModel, ILocalizedModel<ProductAttributeValueLocalizedModel>
+        public class ProductAttributeValueModel : BaseEntityModel, ILocalizedModel<ProductAttributeValueLocalizedModel>, IProductValidVendor
         {
             public ProductAttributeValueModel()
             {
@@ -899,14 +898,12 @@ namespace Grand.Web.Vendor.Models.Catalog
 
             public string Name { get; set; }
         }
-        public class ProductAttributeCombinationModel : BaseEntityModel
+        public class ProductAttributeCombinationModel : BaseEntityModel, IProductValidVendor
         {
             public string ProductId { get; set; }
 
             [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes")]
             public string Attributes { get; set; }
-
-            public string Warnings { get; set; }
 
             [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity")]
             public int StockQuantity { get; set; }
@@ -931,8 +928,11 @@ namespace Grand.Web.Vendor.Models.Catalog
             public int NotifyAdminForQuantityBelow { get; set; }
 
         }
-        public class ProductAttributeCombinationTierPricesModel : BaseEntityModel
+        public class ProductAttributeCombinationTierPricesModel : BaseEntityModel, IProductValidVendor
         {
+            public string ProductId { get; set; }
+            
+            public string ProductAttributeCombinationId { get; set; } 
             /// <summary>
             /// Gets or sets the quantity
             /// </summary>

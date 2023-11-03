@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Vendor.Models.Catalog
 {
-    public class ProductSpecificationAttributeModel : BaseEntityModel
+    public class ProductSpecificationAttributeModel : BaseEntityModel, IProductValidVendor
     {
         public int AttributeTypeId { get; set; }
 

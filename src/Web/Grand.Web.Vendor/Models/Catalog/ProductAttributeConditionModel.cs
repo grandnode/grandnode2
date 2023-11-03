@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Models.Catalog
 {
-    public class ProductAttributeConditionModel : BaseModel
+    public class ProductAttributeConditionModel : BaseModel, IProductValidVendor
     {
         public ProductAttributeConditionModel()
         {

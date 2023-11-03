@@ -53,7 +53,7 @@ namespace Grand.Web.Vendor.Controllers
             int? paymentStatusId = null, int? shippingStatusId = null, 
             DateTime? startDate = null, string code = null)
         {
-            var model = await _orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId, startDate, _workContext.CurrentCustomer.StaffStoreId, code);
+            var model = await _orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId, startDate, code);
             return View(model);
         }
 
@@ -115,7 +115,7 @@ namespace Grand.Web.Vendor.Controllers
                         break;
                 }
             }
-            return RedirectToAction("Edit", "Order", new { id = order.Id });
+            return RedirectToAction("Edit", "Order", new { id = order?.Id });
         }
 
         #endregion
@@ -128,11 +128,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var order = await _orderService.GetOrderById(id);
-            if (order == null || order.Deleted)
+            if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
                 //No order found with the specified id
-                return RedirectToAction("List");
-
-            if (!_workContext.HasAccessToOrder(order))
                 return RedirectToAction("List");
 
             var model = new OrderModel();
@@ -145,7 +142,7 @@ namespace Grand.Web.Vendor.Controllers
         {
             var order = await _orderService.GetOrderById(orderId);
             //No order found with the specified id
-            if (order == null || order.Deleted)
+            if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
             {
                 return RedirectToAction("List");
             }

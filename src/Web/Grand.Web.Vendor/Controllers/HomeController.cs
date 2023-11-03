@@ -41,8 +41,6 @@ namespace Grand.Web.Vendor.Controllers
         {
             _ = _logger.Information(
                 $"Access denied to user #{_workContext.CurrentCustomer.Email} on {pageUrl}");
-
-
             return View();
         }
 

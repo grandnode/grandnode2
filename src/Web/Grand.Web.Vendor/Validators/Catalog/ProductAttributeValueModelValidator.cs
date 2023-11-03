@@ -25,18 +25,7 @@ namespace Grand.Web.Vendor.Validators.Catalog
                 .WithMessage(translationService.GetResource(
                     "Vendor.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Quantity.GreaterThanOrEqualTo1"))
                 .When(x => x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct);
-
-
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (product.VendorId != workContext.CurrentVendor.Id)
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
-
+            
             RuleFor(x => x).CustomAsync(async (x, context, _) =>
             {
                 var product = await productService.GetProductById(x.ProductId);

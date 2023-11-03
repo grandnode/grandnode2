@@ -153,7 +153,6 @@ namespace Grand.Web.Vendor.Services
                 : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
             var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(
-                storeId:"",
                 customerId: customerId,
                 vendorId: _workContext.CurrentVendor.Id,
                 rs: model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null,
@@ -169,7 +168,7 @@ namespace Grand.Web.Vendor.Services
             }
             return (merchandiseReturnModels, merchandiseReturns.TotalCount);
         }
-        public virtual async Task<AddressModel> PrepareAddressModel(AddressModel model, Address address, bool excludeProperties)
+        private async Task<AddressModel> PrepareAddressModel(AddressModel model, Address address, bool excludeProperties)
         {
             if (address != null)
             {
@@ -224,7 +223,7 @@ namespace Grand.Web.Vendor.Services
             return model;
         }
 
-        public virtual async Task NotifyCustomer(MerchandiseReturn merchandiseReturn)
+        private async Task NotifyCustomer(MerchandiseReturn merchandiseReturn)
         {
             var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
             await _messageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(merchandiseReturn, order, _languageSettings.DefaultAdminLanguageId);

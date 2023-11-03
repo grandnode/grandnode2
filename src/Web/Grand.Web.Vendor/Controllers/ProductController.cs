@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Dto;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -20,7 +19,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Vendor.Models.Orders;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
@@ -43,7 +41,7 @@ namespace Grand.Web.Vendor.Controllers
         private readonly IDateTimeService _dateTimeService;
         private readonly IPermissionService _permissionService;
         private readonly ICustomerActivityService _customerActivityService;
-        
+
         #endregion
 
         #region Constructors
@@ -58,7 +56,7 @@ namespace Grand.Web.Vendor.Controllers
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             IDateTimeService dateTimeService,
-            IPermissionService permissionService, 
+            IPermissionService permissionService,
             ICustomerActivityService customerActivityService)
         {
             _productViewModelService = productViewModelService;
@@ -84,6 +82,7 @@ namespace Grand.Web.Vendor.Controllers
             {
                 return Task.FromResult((false, "Product not exists"));
             }
+
             //a vendor should have access only to his products
             if (product.VendorId != _workContext.CurrentVendor.Id)
             {
@@ -174,12 +173,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var product = await _productService.GetProductById(id, true);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 //No product found with the specified id
-                return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
                 return RedirectToAction("List");
 
             var model = product.ToModel(_dateTimeService);
@@ -205,12 +200,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> Edit(ProductModel model, bool continueEditing)
         {
             var product = await _productService.GetProductById(model.Id, true);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 //No product found with the specified id
-                return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
                 return RedirectToAction("List");
 
             if (model.Ticks != product.UpdatedOnUtc.Ticks)
@@ -222,7 +213,7 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 product = await _productViewModelService.UpdateProductModel(product, model);
-                
+
                 //activity log
                 _ = _customerActivityService.InsertActivity("EditProduct", product.Id,
                     _workContext.CurrentCustomer, HttpContext?.Connection?.RemoteIpAddress?.ToString(),
@@ -251,18 +242,14 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             var product = await _productService.GetProductById(id, true);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 //No product found with the specified id
-                return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
                 return RedirectToAction("List");
 
             if (ModelState.IsValid)
             {
                 await _productViewModelService.DeleteProduct(product);
-                
+
                 //activity log
                 _ = _customerActivityService.InsertActivity("DeleteProduct", product.Id,
                     _workContext.CurrentCustomer, HttpContext?.Connection?.RemoteIpAddress?.ToString(),
@@ -297,9 +284,8 @@ namespace Grand.Web.Vendor.Controllers
             try
             {
                 var originalProduct = await _productService.GetProductById(copyModel.Id, true);
-
                 //a vendor should have access only to his products
-                if (originalProduct.VendorId != _workContext.CurrentVendor.Id)
+                if (originalProduct == null || originalProduct.VendorId != _workContext.CurrentVendor.Id)
                     return RedirectToAction("List");
 
                 var newProduct = await copyProductService.CopyProduct(originalProduct,
@@ -359,6 +345,8 @@ namespace Grand.Web.Vendor.Controllers
                 var products = await _productService.GetProductsByIds(Enumerable.ToArray(rangeArray), true);
                 for (var i = 0; i <= products.Count - 1; i++)
                 {
+                    if (products[i].VendorId != _workContext.CurrentVendor.Id) continue;
+
                     result += products[i].Name;
                     if (i != products.Count - 1)
                         result += ", ";
@@ -396,7 +384,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductCategoryList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductCategoryList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -472,7 +460,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductCollectionList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductCollectionList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -892,14 +880,14 @@ namespace Grand.Web.Vendor.Controllers
         [HttpPost]
         public async Task<IActionResult> CrossSellProductDelete(ProductModel.CrossSellProductModel model)
         {
-            var product = await _productService.GetProductById(model.ProductId);
-            
-            var crossSellProduct = product.CrossSellProduct.FirstOrDefault(x => x == model.Id);
-            if (string.IsNullOrEmpty(crossSellProduct))
-                throw new ArgumentException("No cross-sell product found with the specified id");
-
             if (ModelState.IsValid)
             {
+                var product = await _productService.GetProductById(model.ProductId);
+
+                var crossSellProduct = product.CrossSellProduct.FirstOrDefault(x => x == model.Id);
+                if (string.IsNullOrEmpty(crossSellProduct))
+                    throw new ArgumentException("No cross-sell product found with the specified id");
+
                 await _productViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
                 return new JsonResult("");
             }
@@ -1095,7 +1083,7 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var associatedProduct = await _productService.GetProductById(model.Id);
-                if (associatedProduct == null)
+                if (associatedProduct == null || associatedProduct.VendorId != _workContext.CurrentVendor.Id)
                     throw new ArgumentException("No associated product found with the specified id");
 
                 associatedProduct.DisplayOrder = model.DisplayOrder;
@@ -1114,7 +1102,7 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(model.Id);
-                if (product == null)
+                if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                     throw new ArgumentException("No associated product found with the specified id");
 
                 await _productViewModelService.DeleteAssociatedProduct(product);
@@ -1402,12 +1390,12 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(model.ProductId);
-                
+
                 var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
                 if (psa == null)
                     await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
                 else
-                    await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
+                    await _productViewModelService.UpdateProductSpecificationAttributeModel(psa, model);
 
                 return new JsonResult("");
             }
@@ -1440,8 +1428,6 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    return Content("Product not exists");
 
                 var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == model.Id);
                 if (psa == null)
@@ -1774,12 +1760,8 @@ namespace Grand.Web.Vendor.Controllers
         {
             if (ModelState.IsValid)
             {
-                var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    throw new ArgumentException("No product found with the specified id");
-
                 var tierPrice = model.ToEntity(_dateTimeService);
-                await _productService.InsertTierPrice(tierPrice, product.Id);
+                await _productService.InsertTierPrice(tierPrice, model.ProductId);
 
                 return Content("");
             }
@@ -1818,8 +1800,6 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(productId, true);
-                if (product == null)
-                    throw new ArgumentException("No product found with the specified id");
 
                 var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
                 if (tierPrice == null)
@@ -1844,9 +1824,6 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productService.GetProductById(model.ProductId, true);
-                if (product == null)
-                    throw new ArgumentException("No product found with the specified id");
-
                 var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
                 if (tierPrice == null)
                     throw new ArgumentException("No tier price found with the specified id");
@@ -2019,20 +1996,19 @@ namespace Grand.Web.Vendor.Controllers
         [HttpPost]
         public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model)
         {
-            var product = await _productService.GetProductById(model.ProductId);
-            if (product == null)
-                throw new ArgumentException("No product found with the specified id");
+            if (ModelState.IsValid)
+            {
+                var product = await _productService.GetProductById(model.ProductId);
 
-            var productAttributeMapping =
-                product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
-            if (productAttributeMapping == null)
-                return Content("No attribute value found with the specified id");
+                var productAttributeMapping =
+                    product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
+                if (productAttributeMapping == null)
+                    return Content("No attribute value found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content(_translationService.GetResource("Vendor.Catalog.Products.Permisions"));
+                await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping,
+                    model);
+            }
 
-            await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
             return Content("");
         }
 
@@ -2046,17 +2022,13 @@ namespace Grand.Web.Vendor.Controllers
             [FromServices] IProductAttributeService productAttributeService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
             var productAttributeMapping =
                 product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return RedirectToAction("List", "Product");
 
             var productAttribute =
                 await productAttributeService.GetProductAttributeById(productAttributeMapping.ProductAttributeId);
@@ -2123,25 +2095,22 @@ namespace Grand.Web.Vendor.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> ProductAttributeValueCreatePopup(ProductModel.ProductAttributeValueModel model)
         {
-            var product = await _productService.GetProductById(model.ProductId);
-            if (product == null)
-                throw new ArgumentException("No product found with the specified id");
-
-            var productAttributeMapping =
-                product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
-            if (productAttributeMapping == null)
-                //No product attribute found with the specified id
-                return RedirectToAction("List", "Product");
-
             if (ModelState.IsValid)
             {
+                var product = await _productService.GetProductById(model.ProductId);
+
+                var productAttributeMapping =
+                    product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
+                if (productAttributeMapping == null)
+                    //No product attribute found with the specified id
+                    return RedirectToAction("List", "Product");
+
+
                 await _productViewModelService.InsertProductAttributeValueModel(model);
                 return Content("");
             }
 
-            //If we got this far, something failed, redisplay form
-            await _productViewModelService.PrepareProductAttributeValueModel(product, model);
-            return View(model);
+            return Content("");
         }
 
         //edit
@@ -2181,7 +2150,7 @@ namespace Grand.Web.Vendor.Controllers
             ProductModel.ProductAttributeValueModel model)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
             var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId)
@@ -2208,17 +2177,13 @@ namespace Grand.Web.Vendor.Controllers
             [FromServices] IProductAttributeService productAttributeService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
             var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == pam)?.ProductAttributeValues
                 .FirstOrDefault(x => x.Id == id);
             if (pav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
 
             if (ModelState.IsValid)
             {
@@ -2255,12 +2220,8 @@ namespace Grand.Web.Vendor.Controllers
             ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel model)
         {
             var associatedProduct = await _productService.GetProductById(model.AssociatedToProductId);
-            if (associatedProduct == null)
+            if (associatedProduct == null || associatedProduct.VendorId != _workContext.CurrentVendor.Id)
                 return Content("Cannot load a product");
-
-            //a vendor should have access only to his products
-            if (associatedProduct.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
 
             return Content("");
         }
@@ -2293,19 +2254,15 @@ namespace Grand.Web.Vendor.Controllers
             [FromServices] IProductAttributeService productAttributeService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == id);
             if (combination == null)
                 throw new ArgumentException("No product attribute combination found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
-
             await productAttributeService.DeleteProductAttributeCombination(combination, productId);
-            
+
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
                 var pr = await _productService.GetProductById(productId);
@@ -2338,12 +2295,8 @@ namespace Grand.Web.Vendor.Controllers
             ProductAttributeCombinationModel model)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 //No product found with the specified id
-                return RedirectToAction("List", "Product");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
                 return RedirectToAction("List", "Product");
 
             var warnings =
@@ -2364,12 +2317,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> GenerateAllAttributeCombinations(string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
 
             await _productViewModelService.GenerateAllAttributeCombinations(product);
 
@@ -2382,12 +2331,8 @@ namespace Grand.Web.Vendor.Controllers
             [FromServices] IProductAttributeService productAttributeService)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
 
             if (ModelState.IsValid)
             {
@@ -2432,46 +2377,41 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeCombinationTierPriceInsert(string productId,
-            string productAttributeCombinationId, ProductModel.ProductAttributeCombinationTierPricesModel model)
+        public async Task<IActionResult> ProductAttributeCombinationTierPriceInsert(
+            ProductModel.ProductAttributeCombinationTierPricesModel model)
         {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-                throw new ArgumentException("No product found with the specified id");
+            if (ModelState.IsValid)
+            {
+                var product = await _productService.GetProductById(model.ProductId);
+                var combination =
+                    product.ProductAttributeCombinations.FirstOrDefault(
+                        x => x.Id == model.ProductAttributeCombinationId);
+                if (combination != null)
+                    await _productViewModelService.InsertProductAttributeCombinationTierPricesModel(product,
+                        combination, model);
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
+                return new JsonResult("");
+            }
 
-            var combination =
-                product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
-            if (combination != null)
-                await _productViewModelService.InsertProductAttributeCombinationTierPricesModel(product, combination,
-                    model);
-
-            return new JsonResult("");
+            return ErrorForKendoGridJson(ModelState);
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeCombinationTierPriceUpdate(string productId,
-            string productAttributeCombinationId, ProductModel.ProductAttributeCombinationTierPricesModel model)
+        public async Task<IActionResult> ProductAttributeCombinationTierPriceUpdate(
+            ProductModel.ProductAttributeCombinationTierPricesModel model)
         {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-                throw new ArgumentException("No product found with the specified id");
+            if (ModelState.IsValid)
+            {
+                var product = await _productService.GetProductById(model.ProductId);
+                var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == model.ProductAttributeCombinationId);
+                if (combination != null)
+                    await _productViewModelService.UpdateProductAttributeCombinationTierPricesModel(product, combination, model);
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
+                return new JsonResult("");
+            }
 
-            var combination =
-                product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
-            if (combination != null)
-                await _productViewModelService.UpdateProductAttributeCombinationTierPricesModel(product, combination,
-                    model);
-
-            return new JsonResult("");
+            return ErrorForKendoGridJson(ModelState);
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -2480,13 +2420,9 @@ namespace Grand.Web.Vendor.Controllers
             string productAttributeCombinationId, string id)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
-
+            
             var combination =
                 product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
             if (combination != null)
@@ -2498,6 +2434,7 @@ namespace Grand.Web.Vendor.Controllers
                         tierPrice);
                 }
             }
+
             return new JsonResult("");
         }
 
@@ -2564,18 +2501,14 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> GenerateCalendar(string productId, ProductModel.GenerateCalendarModel model)
+        public async Task<IActionResult> GenerateCalendar(ProductModel.GenerateCalendarModel model)
         {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
+            var product = await _productService.GetProductById(model.ProductId);
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
-
             var reservations =
-                await _productReservationService.GetProductReservationsByProductId(productId, null, null);
+                await _productReservationService.GetProductReservationsByProductId(model.ProductId, null, null);
             if (reservations.Any())
             {
                 if (((product.IntervalUnitId == IntervalUnit.Minute || product.IntervalUnitId == IntervalUnit.Hour) &&
@@ -2585,7 +2518,8 @@ namespace Grand.Web.Vendor.Controllers
                      (IntervalUnit)model.IntervalUnit == IntervalUnit.Hour))
                 {
                     return Json(new {
-                        errors = _translationService.GetResource("Vendor.Catalog.Products.Calendar.CannotChangeInterval")
+                        errors = _translationService.GetResource(
+                            "Vendor.Catalog.Products.Calendar.CannotChangeInterval")
                     });
                 }
             }
@@ -2705,7 +2639,7 @@ namespace Grand.Web.Vendor.Controllers
                             await _productReservationService.InsertProductReservation(new ProductReservation {
                                 OrderId = "",
                                 Date = iterator,
-                                ProductId = productId,
+                                ProductId = model.ProductId,
                                 Resource = model.Resource,
                                 Parameter = model.Parameter,
                                 Duration = model.Interval + " " +
@@ -2725,13 +2659,9 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> ClearCalendar(string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
-            
             var toDelete = await _productReservationService.GetProductReservationsByProductId(productId, true, null);
             foreach (var record in toDelete)
             {
@@ -2745,12 +2675,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> ClearOld(string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
 
             var toDelete =
                 (await _productReservationService.GetProductReservationsByProductId(productId, true, null)).Where(x =>
@@ -2768,12 +2694,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> ProductReservationDelete(ProductModel.ReservationModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
 
             var toDelete = await _productReservationService.GetProductReservation(model.ReservationId);
             if (toDelete != null)
@@ -2799,12 +2721,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> ListBids(DataSourceRequest command, string productId)
         {
             var product = await _productService.GetProductById(productId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
 
             var (bidModels, totalCount) =
                 await _productViewModelService.PrepareBidMode(productId, command.Page, command.PageSize);
@@ -2820,13 +2738,9 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> BidDelete(ProductModel.BidModel model)
         {
             var product = await _productService.GetProductById(model.ProductId);
-            if (product == null)
+            if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                return Json(new { errors = "This is not your product" });
-
+            
             var toDelete = await _auctionService.GetBid(model.BidId);
             if (toDelete != null)
             {

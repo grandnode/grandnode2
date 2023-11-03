@@ -98,7 +98,7 @@ namespace Grand.Web.Vendor.Interfaces
         //Product specification
         Task<IList<ProductSpecificationAttributeModel>> PrepareProductSpecificationAttributeModel(Product product);
         Task InsertProductSpecificationAttributeModel(ProductModel.AddProductSpecificationAttributeModel model, Product product);
-        Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model);
+        Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model);
         Task DeleteProductSpecificationAttribute(Product product, ProductSpecificationAttribute psa);
     }
 }

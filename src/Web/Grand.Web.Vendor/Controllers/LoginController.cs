@@ -83,7 +83,7 @@ namespace Grand.Web.Vendor.Controllers
                     case CustomerLoginResults.RequiresTwoFactor:
                     {
                         var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
-                        HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                        HttpContext.Session.SetString("VendorRequiresTwoFactor", userName);
                         return RedirectToRoute("TwoFactorAuthorization");
                     }
                 }

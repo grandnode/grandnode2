@@ -49,13 +49,13 @@
                     field: "CustomerId",
                     title: "@Loc["Vendor.Catalog.ProductReviews.Fields.Customer"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaVendor })/#=CustomerId#">#:CustomerInfo#</a>',
+                    template: '#:CustomerInfo#',
                     minScreenWidth: 750,
                 },
                 {
                     field: "Title",
                     title: "@Loc["Vendor.Catalog.ProductReviews.Fields.Title"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = Constants.AreaVendor })/#=Id#">#:Title#</a>',
+                    template: '#:Title#',
                     width: 280,
                 },
                 {

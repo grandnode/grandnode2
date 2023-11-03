@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -18,7 +17,6 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
-using Grand.Domain.Discounts;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
@@ -48,20 +46,16 @@ namespace Grand.Web.Vendor.Services
         private readonly ICategoryService _categoryService;
         private readonly IProductCategoryService _productCategoryService;
         private readonly ITranslationService _translationService;
-        
         private readonly IProductLayoutService _productLayoutService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
         private readonly IWarehouseService _warehouseService;
         private readonly IDeliveryDateService _deliveryDateService;
         private readonly ITaxCategoryService _taxCategoryService;
-        private readonly IDiscountService _discountService;
         private readonly ICustomerService _customerService;
         private readonly IStoreService _storeService;
         private readonly ISlugService _slugService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
-        private readonly IDownloadService _downloadService;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ILanguageService _languageService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -87,16 +81,13 @@ namespace Grand.Web.Vendor.Services
             IProductLayoutService productLayoutService,
             ISpecificationAttributeService specificationAttributeService,
             IWorkContext workContext,
-            IGroupService groupService,
             IWarehouseService warehouseService,
             IDeliveryDateService deliveryDateService,
             ITaxCategoryService taxCategoryService,
-            IDiscountService discountService,
             ICustomerService customerService,
             IStoreService storeService,
             ISlugService slugService,
             IOutOfStockSubscriptionService outOfStockSubscriptionService,
-            IDownloadService downloadService,
             ILanguageService languageService,
             IProductAttributeFormatter productAttributeFormatter,
             IStockQuantityService stockQuantityService,
@@ -121,16 +112,13 @@ namespace Grand.Web.Vendor.Services
             _productLayoutService = productLayoutService;
             _specificationAttributeService = specificationAttributeService;
             _workContext = workContext;
-            _groupService = groupService;
             _warehouseService = warehouseService;
             _deliveryDateService = deliveryDateService;
             _taxCategoryService = taxCategoryService;
-            _discountService = discountService;
             _customerService = customerService;
             _storeService = storeService;
             _slugService = slugService;
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
-            _downloadService = downloadService;
             _stockQuantityService = stockQuantityService;
             _languageService = languageService;
             _productAttributeFormatter = productAttributeFormatter;
@@ -164,6 +152,7 @@ namespace Grand.Web.Vendor.Services
 
             return categoriesIds;
         }
+
         protected virtual T PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
         {
             var model = new T();
@@ -478,6 +467,7 @@ namespace Grand.Web.Vendor.Services
 
                 model.ProductWarehouseInventoryModels.Add(pwiModel);
             }
+
             //tax categories
             var taxCategories = await _taxCategoryService.GetAllTaxCategories();
             model.AvailableTaxCategories.Add(new SelectListItem {
@@ -808,7 +798,7 @@ namespace Grand.Web.Vendor.Services
                     WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity
                 })
                 .ToList();
-            
+
             //product
             product = model.ToEntity(product, _dateTimeService);
             product.UpdatedOnUtc = DateTime.UtcNow;
@@ -891,13 +881,8 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task InsertProductCategoryModel(ProductModel.ProductCategoryModel model)
         {
             var product = await _productService.GetProductById(model.ProductId, true);
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
-            if (product != null && product.ProductCategories.All(x => x.CategoryId != model.CategoryId))
+            if (product.ProductCategories.All(x => x.CategoryId != model.CategoryId))
             {
                 var productCategory = new ProductCategory {
                     CategoryId = model.CategoryId,
@@ -910,19 +895,13 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model)
         {
             var product = await _productService.GetProductById(model.ProductId, true);
+
             var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == model.Id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
 
             if (product.ProductCategories.Any(x => x.Id != model.Id && x.CategoryId == model.CategoryId))
                 throw new ArgumentException("This category is already mapped with this product");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
             productCategory.CategoryId = model.CategoryId;
             productCategory.DisplayOrder = model.DisplayOrder;
 
@@ -932,15 +911,10 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task DeleteProductCategory(string id, string productId)
         {
             var product = await _productService.GetProductById(productId, true);
+
             var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
             if (productCategory == null)
                 throw new ArgumentException("No product category mapping found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             await _productCategoryService.DeleteProductCategory(productCategory, product.Id);
         }
@@ -967,13 +941,8 @@ namespace Grand.Web.Vendor.Services
         {
             var collectionId = model.CollectionId;
             var product = await _productService.GetProductById(model.ProductId, true);
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
-            if (product != null && product.ProductCollections.All(x => x.CollectionId != collectionId))
+            if (product.ProductCollections.All(x => x.CollectionId != collectionId))
             {
                 var productCollection = new ProductCollection {
                     CollectionId = collectionId,
@@ -986,18 +955,13 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task UpdateProductCollection(ProductModel.ProductCollectionModel model)
         {
             var product = await _productService.GetProductById(model.ProductId, true);
+
             var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
 
             if (product.ProductCollections.Any(x => x.Id != model.Id && x.CollectionId == model.CollectionId))
                 throw new ArgumentException("This collection is already mapped with this product");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             productCollection.CollectionId = model.CollectionId;
             productCollection.DisplayOrder = model.DisplayOrder;
@@ -1008,15 +972,10 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task DeleteProductCollection(string id, string productId)
         {
             var product = await _productService.GetProductById(productId, true);
+
             var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
             if (productCollection == null)
                 throw new ArgumentException("No product collection mapping found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             await _productCollectionService.DeleteProductCollection(productCollection, product.Id);
         }
@@ -1028,7 +987,8 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product == null) continue;
+                if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+
                 var existingRelatedProducts = productId1.RelatedProducts;
                 if (model.ProductId == id) continue;
                 if (existingRelatedProducts.All(x => x.ProductId2 != id))
@@ -1046,10 +1006,11 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task UpdateRelatedProductModel(ProductModel.RelatedProductModel model)
         {
             var product1 = await _productService.GetProductById(model.ProductId1, true);
+
             var relatedProduct = product1.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
-            
+
             relatedProduct.DisplayOrder = model.DisplayOrder;
             await _productService.UpdateRelatedProduct(relatedProduct, model.ProductId1);
         }
@@ -1057,6 +1018,7 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task DeleteRelatedProductModel(ProductModel.RelatedProductModel model)
         {
             var product = await _productService.GetProductById(model.ProductId1, true);
+
             var relatedProduct = product.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
             if (relatedProduct == null)
                 throw new ArgumentException("No related product found with the specified id");
@@ -1067,11 +1029,10 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task InsertSimilarProductModel(ProductModel.AddSimilarProductModel model)
         {
             var productId1 = await _productService.GetProductById(model.ProductId, true);
-
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
+                if (product != null && productId1.VendorId == _workContext.CurrentVendor.Id)
                 {
                     var existingSimilarProducts = productId1.SimilarProducts;
                     if (model.ProductId != id)
@@ -1119,7 +1080,7 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
+                if (product != null && productId1.VendorId == _workContext.CurrentVendor.Id)
                 {
                     var existingBundleProducts = productId1.BundleProducts;
                     if (model.ProductId != id)
@@ -1144,16 +1105,6 @@ namespace Grand.Web.Vendor.Services
             if (bundleProduct == null)
                 throw new ArgumentException("No bundle product found with the specified id");
 
-            var product2 = await _productService.GetProductById(bundleProduct.ProductId);
-            if (product2 == null)
-                throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product2.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
             bundleProduct.ProductId = model.ProductId;
             bundleProduct.Quantity = model.Quantity > 0 ? model.Quantity : 1;
             bundleProduct.DisplayOrder = model.DisplayOrder;
@@ -1167,12 +1118,6 @@ namespace Grand.Web.Vendor.Services
             if (bundleProduct == null)
                 throw new ArgumentException("No bundle product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
             await _productService.DeleteBundleProduct(bundleProduct, model.ProductBundleId);
         }
 
@@ -1182,7 +1127,8 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null && crossSellProduct.CrossSellProduct.All(x => x != id))
+                if (product != null && product.VendorId == _workContext.CurrentVendor.Id &&
+                    crossSellProduct.CrossSellProduct.All(x => x != id))
                 {
                     if (model.ProductId != id)
                         await _productService.InsertCrossSellProduct(
@@ -1209,12 +1155,8 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product != null)
+                if (product != null && product.VendorId == _workContext.CurrentVendor.Id)
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
                     if (mainproduct.RecommendedProduct.All(x => x != id))
                     {
                         if (model.ProductId != id)
@@ -1234,7 +1176,7 @@ namespace Grand.Web.Vendor.Services
             foreach (var id in model.SelectedProductIds)
             {
                 var product = await _productService.GetProductById(id);
-                if (product == null) continue;
+                if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
                 product.ParentGroupedProductId = model.ProductId;
                 await _productService.UpdateAssociatedProduct(product);
             }
@@ -1242,10 +1184,6 @@ namespace Grand.Web.Vendor.Services
 
         public virtual async Task DeleteAssociatedProduct(Product product)
         {
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-                throw new ArgumentException("This is not your product");
-
             product.ParentGroupedProductId = "";
             await _productService.UpdateAssociatedProduct(product);
         }
@@ -1341,33 +1279,28 @@ namespace Grand.Web.Vendor.Services
             {
                 //update
                 var product = await _productService.GetProductById(pModel.Id, true);
-                if (product != null)
+                if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+                
+                var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
+
+                product.Sku = pModel.Sku;
+                product.Price = pModel.Price;
+                product.OldPrice = pModel.OldPrice;
+                product.StockQuantity = pModel.StockQuantity;
+                product.Published = pModel.Published;
+                product.Name = pModel.Name;
+                product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
+                await _productService.UpdateProduct(product);
+
+                //out of stock notifications
+                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
+                    product.BackorderModeId == BackorderMode.NoBackorders &&
+                    product.AllowOutOfStockSubscriptions &&
+                    _stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
+                    prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
+                    product.Published)
                 {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
-                    var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
-
-                    product.Sku = pModel.Sku;
-                    product.Price = pModel.Price;
-                    product.OldPrice = pModel.OldPrice;
-                    product.StockQuantity = pModel.StockQuantity;
-                    product.Published = pModel.Published;
-                    product.Name = pModel.Name;
-                    product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
-                    await _productService.UpdateProduct(product);
-
-                    //out of stock notifications
-                    if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-                        product.BackorderModeId == BackorderMode.NoBackorders &&
-                        product.AllowOutOfStockSubscriptions &&
-                        _stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
-                        prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
-                        product.Published)
-                    {
-                        await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
-                    }
+                    await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
                 }
             }
         }
@@ -1378,14 +1311,9 @@ namespace Grand.Web.Vendor.Services
             {
                 //delete
                 var product = await _productService.GetProductById(pModel.Id, true);
-                if (product != null)
-                {
-                    //a vendor should have access only to his products
-                    if (product.VendorId != _workContext.CurrentVendor.Id)
-                        continue;
-
-                    await _productService.DeleteProduct(product);
-                }
+                if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+                
+                await _productService.DeleteProduct(product);
             }
         }
 
@@ -1396,7 +1324,6 @@ namespace Grand.Web.Vendor.Services
                          .OrderBy(x => x.StoreId)
                          .ThenBy(x => x.Quantity))
             {
-                
                 items.Add(new ProductModel.TierPriceModel {
                     Id = x.Id,
                     CurrencyCode = x.CurrencyCode,
@@ -2008,7 +1935,7 @@ namespace Grand.Web.Vendor.Services
             PrepareAssociateProductToAttributeValueModel()
         {
             var model = PrepareAddProductModel<
-                    ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>();
+                ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>();
             return Task.FromResult(model);
         }
 
@@ -2366,21 +2293,12 @@ namespace Grand.Web.Vendor.Services
             foreach (var x in product.ProductAttributeCombinations.Where(x => x.Id == productAttributeCombinationId)
                          .SelectMany(x => x.TierPrices))
             {
-                string storeName;
-                if (!string.IsNullOrEmpty(x.StoreId))
-                {
-                    var store = await _storeService.GetStoreById(x.StoreId);
-                    storeName = store != null ? store.Shortcut : "Deleted";
-                }
-                else
-                {
-                    storeName = _translationService.GetResource("Vendor.Catalog.Products.TierPrices.Fields.Store.All");
-                }
-
                 var priceModel = new ProductModel.ProductAttributeCombinationTierPricesModel {
                     Id = x.Id,
                     Price = x.Price,
-                    Quantity = x.Quantity
+                    Quantity = x.Quantity,
+                    ProductId = product.Id,
+                    ProductAttributeCombinationId = productAttributeCombinationId
                 };
                 items.Add(priceModel);
             }
@@ -2495,12 +2413,6 @@ namespace Grand.Web.Vendor.Services
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified id");
 
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
-
             var picture = await _pictureService.GetPictureById(productPicture.PictureId);
             if (picture == null)
                 throw new ArgumentException("No picture found with the specified id");
@@ -2523,12 +2435,6 @@ namespace Grand.Web.Vendor.Services
             var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified id");
-
-            //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                throw new ArgumentException("This is not your product");
-            }
 
             var pictureId = productPicture.PictureId;
             await _productService.DeleteProductPicture(productPicture, product.Id);
@@ -2607,8 +2513,8 @@ namespace Grand.Web.Vendor.Services
             product.ProductSpecificationAttributes.Add(psa);
         }
 
-        public virtual async Task UpdateProductSpecificationAttributeModel(Product product,
-            ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model)
+        public virtual async Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
+            ProductModel.AddProductSpecificationAttributeModel model)
         {
             psa = model.ToEntity(psa);
             await _specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);

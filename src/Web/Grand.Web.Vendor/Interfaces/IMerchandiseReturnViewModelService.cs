@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Orders;
-using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.MerchandiseReturn;
 
 namespace Grand.Web.Vendor.Interfaces
@@ -10,8 +9,6 @@ namespace Grand.Web.Vendor.Interfaces
         Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
             MerchandiseReturn merchandiseReturn, bool excludeProperties);
         Task<(IList<MerchandiseReturnModel> merchandiseReturnModels, int totalCount)> PrepareMerchandiseReturnModel(MerchandiseReturnListModel model, int pageIndex, int pageSize);
-        Task<AddressModel> PrepareAddressModel(AddressModel model, Address address, bool excludeProperties);
-        Task NotifyCustomer(MerchandiseReturn merchandiseReturn);
         MerchandiseReturnListModel PrepareReturnRequestListModel();
         Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>> PrepareMerchandiseReturnItemModel(string merchandiseReturnId);
         Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);

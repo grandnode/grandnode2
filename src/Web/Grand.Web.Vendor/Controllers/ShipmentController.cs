@@ -84,7 +84,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
-        public async Task<IActionResult> ShipmentsByOrder(string orderId, DataSourceRequest command)
+        public async Task<IActionResult> ShipmentsByOrder(string orderId)
         {
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
@@ -110,7 +110,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
-        public async Task<IActionResult> ShipmentsItemsByShipmentId(string shipmentId, DataSourceRequest command)
+        public async Task<IActionResult> ShipmentsItemsByShipmentId(string shipmentId)
         {
             var shipment = await _shipmentService.GetShipmentById(shipmentId);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))
@@ -130,12 +130,8 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> AddShipment(string orderId)
         {
             var order = await _orderService.GetOrderById(orderId);
-            if (order == null)
+            if (order == null || order.Deleted  || !_workContext.HasAccessToOrder(order))
                 //No order found with the specified id
-                return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (!_workContext.HasAccessToOrder(order))
                 return RedirectToAction("List");
 
             var model = await _shipmentViewModelService.PrepareShipmentModel(order);
@@ -150,7 +146,7 @@ namespace Grand.Web.Vendor.Controllers
                 return RedirectToAction("AddShipment", new { orderId = model.OrderId });
 
             var order = await _orderService.GetOrderById(model.OrderId);
-            if (order == null || !_workContext.HasAccessToOrder(order))
+            if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
@@ -214,11 +210,6 @@ namespace Grand.Web.Vendor.Controllers
                 //No shipment found with the specified id
                 return RedirectToAction("List");
 
-            var order = await _orderService.GetOrderById(shipment.OrderId);
-            if (order == null)
-                //No order found with the specified id
-                return RedirectToAction("List");
-
             await _shipmentService.DeleteShipment(shipment);
 
             //add a note
@@ -226,7 +217,7 @@ namespace Grand.Web.Vendor.Controllers
                 Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id
+                OrderId = shipment.OrderId
             });
 
             _ = _shipmentViewModelService.LogShipment(shipment.Id,
@@ -234,13 +225,16 @@ namespace Grand.Web.Vendor.Controllers
 
             Success(_translationService.GetResource("Admin.Orders.Shipments.Deleted"));
 
-            return RedirectToAction("Edit", "Order", new { order.Id });
+            return RedirectToAction("Edit", "Order", new { Id = shipment.OrderId });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> SetTrackingNumber(ShipmentModel model)
+        public async Task<IActionResult> SetTrackingNumber(ShipmentTrackingModel model)
         {
+            if (!ModelState.IsValid) 
+                return RedirectToAction("ShipmentDetails", new { id = model.Id });
+            
             var shipment = await _shipmentService.GetShipmentById(model.Id);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))
                 //No shipment found with the specified id
@@ -254,8 +248,11 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> SetShipmentAdminComment(ShipmentModel model)
+        public async Task<IActionResult> SetShipmentAdminComment(ShipmentAdminCommentModel model)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("ShipmentDetails", new { id = model.Id });
+
             var shipment = await _shipmentService.GetShipmentById(model.Id);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))
                 //No shipment found with the specified id
@@ -291,8 +288,11 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> EditShippedDate(ShipmentModel model)
+        public async Task<IActionResult> EditShippedDate(ShipmentShippedDateModel model)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("ShipmentDetails", new { id = model.Id });
+
             var shipment = await _shipmentService.GetShipmentById(model.Id);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))
                 //No shipment found with the specified id
@@ -342,8 +342,11 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> EditDeliveryDate(ShipmentModel model)
+        public async Task<IActionResult> EditDeliveryDate(ShipmentDeliveryDateModel model)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("ShipmentDetails", new { id = model.Id });
+
             var shipment = await _shipmentService.GetShipmentById(model.Id);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))
                 //No shipment found with the specified id

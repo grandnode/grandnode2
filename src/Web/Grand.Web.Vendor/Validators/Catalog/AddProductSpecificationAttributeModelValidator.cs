@@ -7,7 +7,9 @@ using Grand.Web.Vendor.Models.Catalog;
 
 namespace Grand.Web.Vendor.Validators.Catalog
 {
-    public class AddProductSpecificationAttributeModelValidator : BaseGrandValidator<ProductModel.AddProductSpecificationAttributeModel>
+    public class
+        AddProductSpecificationAttributeModelValidator : BaseGrandValidator<
+            ProductModel.AddProductSpecificationAttributeModel>
     {
         public AddProductSpecificationAttributeModelValidator(
             IEnumerable<IValidatorConsumer<ProductModel.AddProductSpecificationAttributeModel>> validators,
@@ -15,15 +17,6 @@ namespace Grand.Web.Vendor.Validators.Catalog
             ISpecificationAttributeService specificationAttributeService)
             : base(validators)
         {
-            
-                RuleFor(x => x).MustAsync(async (x, _, _) =>
-                {
-                    var product = await productService.GetProductById(x.ProductId);
-                    if (product == null) return true;
-                    return product.VendorId == workContext.CurrentVendor.Id;
-                }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
-            
-
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 if (x.AttributeTypeId == Domain.Catalog.SpecificationAttributeType.Option)
@@ -33,9 +26,11 @@ namespace Grand.Web.Vendor.Validators.Catalog
                     if (string.IsNullOrEmpty(x.SpecificationAttributeOptionId))
                         return false;
 
-                    var specification = await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
+                    var specification =
+                        await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
 
-                    return specification?.SpecificationAttributeOptions.FirstOrDefault(z=>z.Id == x.SpecificationAttributeOptionId) != null;
+                    return specification?.SpecificationAttributeOptions.FirstOrDefault(z =>
+                        z.Id == x.SpecificationAttributeOptionId) != null;
                 }
 
                 return !string.IsNullOrEmpty(x.CustomValue);

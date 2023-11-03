@@ -16,7 +16,7 @@ namespace Grand.Web.Vendor.Validators.Catalog
         {
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
-                var product = await productService.GetProductById(x.ProductId);
+                var product = await productService.GetProductById(x.ProductBundleId);
                 if (product == null) return true;
                 return product.VendorId == workContext.CurrentVendor.Id;
             }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));

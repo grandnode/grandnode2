@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -12,9 +10,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -26,9 +22,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Orders;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
 namespace Grand.Web.Vendor.Services
@@ -121,7 +115,6 @@ namespace Grand.Web.Vendor.Services
             int? paymentStatusId = null,
             int? shippingStatusId = null,
             DateTime? startDate = null,
-            string storeId = null,
             string code = null)
         {
             //order statuses

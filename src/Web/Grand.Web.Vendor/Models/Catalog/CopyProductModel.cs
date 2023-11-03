@@ -7,7 +7,6 @@ namespace Grand.Web.Vendor.Models.Catalog
     {
 
         [GrandResourceDisplayName("Vendor.Catalog.Products.Copy.Name")]
-        
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Vendor.Catalog.Products.Copy.CopyImages")]

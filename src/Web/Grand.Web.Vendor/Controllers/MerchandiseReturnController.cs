@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Common;
@@ -24,9 +23,7 @@ namespace Grand.Web.Vendor.Controllers
         private readonly IMerchandiseReturnViewModelService _merchandiseReturnViewModelService;
         private readonly ITranslationService _translationService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
-        private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
 
         #endregion Fields
 
@@ -36,16 +33,12 @@ namespace Grand.Web.Vendor.Controllers
             IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
             ITranslationService translationService,
             IMerchandiseReturnService merchandiseReturnService,
-            IOrderService orderService,
-            IWorkContext workContext,
-            IGroupService groupService)
+            IWorkContext workContext)
         {
             _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
             _translationService = translationService;
             _merchandiseReturnService = merchandiseReturnService;
-            _orderService = orderService;
             _workContext = workContext;
-            _groupService = groupService;
         }
 
         #endregion
@@ -89,7 +82,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductsForMerchandiseReturn(string merchandiseReturnId, DataSourceRequest command)
+        public async Task<IActionResult> ProductsForMerchandiseReturn(string merchandiseReturnId)
         {
             var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
             if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContext.CurrentVendor.Id)
@@ -176,7 +169,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> MerchandiseReturnNotesSelect(string merchandiseReturnId, DataSourceRequest command)
+        public async Task<IActionResult> MerchandiseReturnNotesSelect(string merchandiseReturnId)
         {
             var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
             if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContext.CurrentVendor.Id)
@@ -193,7 +186,7 @@ namespace Grand.Web.Vendor.Controllers
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> MerchandiseReturnNoteAdd(string merchandiseReturnId, string downloadId, bool displayToCustomer, string message)
+        public async Task<IActionResult> MerchandiseReturnNoteAdd(string merchandiseReturnId, bool displayToCustomer, string message)
         {
             var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
             if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContext.CurrentVendor.Id)
