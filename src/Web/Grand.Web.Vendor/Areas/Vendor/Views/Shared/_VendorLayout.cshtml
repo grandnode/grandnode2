@@ -42,7 +42,7 @@
     </script>
     <div class="container body">
         <div class="main_container">
-            <vc:vendor-widget widget-zone="vendor_header_before" additional-data="null" />
+            <vc:vendor-widget widget-zone="vendor_vendor_header_before" additional-data="null" />
             @if (IsSectionDefined("headermenu"))
             {
                 @await RenderSectionAsync("headermenu")
@@ -51,7 +51,7 @@
             {
                 <partial name="Partials/Menu" />
             }
-            <vc:vendor-widget widget-zone="vendor_header_after" additional-data="null" />
+            <vc:vendor-widget widget-zone="vendor_vendor_header_after" additional-data="null" />
             @if (IsSectionDefined("statusbar"))
             {
                 @await RenderSectionAsync("statusbar")
@@ -62,11 +62,11 @@
             }
             else
             {
-                <vc:vendor-widget widget-zone="header_before" additional-data="null" />
+                <vc:vendor-widget widget-zone="vendor_header_before" additional-data="null" />
                 <div class="top_nav">
                     <div class="nav_menu">
                         <nav>
-                            <vc:vendor-widget widget-zone="header_toggle_after" additional-data="null" />
+                            <vc:vendor-widget widget-zone="vendor_header_toggle_after" additional-data="null" />
                             <ul class="nav navbar-nav navbar-right">
 
                                 <li class="dropdown" role="presentation">
@@ -164,7 +164,7 @@
                     </div>
                     <div class="clear"></div>
                 </div>
-                <vc:vendor-widget widget-zone="header_navbar_after" additional-data="null" />
+                <vc:vendor-widget widget-zone="vendor_header_navbar_after" additional-data="null" />
             }
 
             <div class="right_col" role="main">

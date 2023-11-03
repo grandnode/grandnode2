@@ -4,7 +4,7 @@
 {
 
     <div class="panel panel-default">
-        <vc:vendor-widget widget-zone="product_details_cross_sells_top" additional-data="Model" />
+        <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_top" additional-data="Model" />
         <div class="panel-heading">
             @Loc["Vendor.Catalog.Products.CrossSells"]
         </div>
@@ -15,7 +15,7 @@
             <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.CrossSells.AddNew"]</a>
             <input type="submit" id="btnRefreshCrossSellProducts" style="display: none" />
         </div>
-        <vc:vendor-widget widget-zone="product_details_cross_sells_bottom" additional-data="Model" />
+        <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_bottom" additional-data="Model" />
     </div>
 
     <script>

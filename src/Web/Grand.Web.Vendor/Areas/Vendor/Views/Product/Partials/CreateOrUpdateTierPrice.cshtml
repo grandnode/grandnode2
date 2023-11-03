@@ -5,7 +5,7 @@
 <input asp-for="ProductId" type="hidden" />
 
 <div class="form-horizontal">
-    <vc:vendor-widget widget-zone="product_details_tier_price_top" additional-data="Model" />
+    <vc:vendor-widget widget-zone="vendor_product_details_tier_price_top" additional-data="Model" />
     <div class="form-body">
         <div class="form-group">
             <admin-label asp-for="Quantity" class="col-sm-3 control-label" />
@@ -45,11 +45,11 @@
         <div class="form-group">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                 <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
-                <vc:vendor-widget widget-zone="product_details_tier_price_buttons" additional-data="null" />
+                <vc:vendor-widget widget-zone="vendor_product_details_tier_price_buttons" additional-data="null" />
             </div>
         </div>
     </div>
-    <vc:vendor-widget widget-zone="product_details_tier_price_bottom" additional-data="Model" />
+    <vc:vendor-widget widget-zone="vendor_product_details_tier_price_bottom" additional-data="Model" />
 </div>
 
 

@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model OrderModel
 
-<vc:vendor-widget widget-zone="order_details_products_top" additional-data="Model"/>
+<vc:vendor-widget widget-zone="vendor_order_details_products_top" additional-data="Model"/>
 <div class="table-responsive order-table">
     <table class="table table-bordered table-striped table-hover">
         <tr>
@@ -161,7 +161,7 @@
         </tr>
     </table>
 </div>
-<vc:vendor-widget widget-zone="order_details_products_bottom" additional-data="Model"/>
+<vc:vendor-widget widget-zone="vendor_order_details_products_bottom" additional-data="Model"/>
 
 @if (!string.IsNullOrEmpty(Model.CheckoutAttributeInfo))
 {
