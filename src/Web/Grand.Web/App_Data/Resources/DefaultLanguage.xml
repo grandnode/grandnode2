@@ -16995,6 +16995,15 @@
 	<Resource Name="admin.catalog.products.recommended.fields.product" Area="Vendor">
 		<Value>Products</Value>
 	</Resource>
+	<Resource Name="vendor.catalog.products.recommended" Area="Admin">
+		<Value>Recommended products</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.recommended.addnew" Area="Admin">
+		<Value>Add new recommended products</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.recommended.fields.product" Area="Admin">
+		<Value>Products</Value>
+	</Resource>
 	<Resource Name="Vendor.Catalog.Products.RelatedProducts" Area="Vendor">
 		<Value>Related products</Value>
 	</Resource>
@@ -17026,6 +17035,21 @@
 		<Value>Products</Value>
 	</Resource>
 	<Resource Name="admin.catalog.products.similarproducts.savebeforeedit" Area="Vendor">
+		<Value>You need to save the product before you can add similar products for this product page.</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.similarproducts" Area="Admin">
+		<Value>Similar products</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.similarproducts.addnew" Area="Admin">
+		<Value>Add new product</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.similarproducts.fields.displayorder" Area="Admin">
+		<Value>Display order</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.similarproducts.fields.product" Area="Admin">
+		<Value>Products</Value>
+	</Resource>
+	<Resource Name="vendor.catalog.products.similarproducts.savebeforeedit" Area="Admin">
 		<Value>You need to save the product before you can add similar products for this product page.</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.SpecificationAttributes" Area="Vendor">
@@ -17637,28 +17661,29 @@
 	<Resource Name="Vendor.Orders.Shipments.Products.Warehouse.NotAvailabe" Area="Vendor">
 		<Value>No warehouses available. You cannot ship this product.</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes" Area="Vendor">
 		<Value>Shipment notes</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.addbutton" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.addbutton" Area="Vendor">
 		<Value>Add shipment note</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.addtitle" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.addtitle" Area="Vendor">
 		<Value>Add shipment note</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.createdbycustomer" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.createdbycustomer" Area="Vendor">
 		<Value>Created by customer</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.createdon" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.createdon" Area="Vendor">
 		<Value>Created on</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.fields.displaytocustomer" Area="Vendor">
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.fields.displaytocustomer" Area="Vendor">
 		<Value>Display to customer</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.Shipments.ShipmentNotes.Fields.Note" Area="Vendor">
 		<Value>Note</Value>
 	</Resource>
-	<Resource Name="admin.orders.shipments.shipmentnotes.note" Area="Vendor">
+	
+	<Resource Name="Vendor.orders.shipments.shipmentnotes.note" Area="Vendor">
 		<Value>Note</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.Shipments.ShipmentStatusEvents" Area="Vendor">
@@ -17702,6 +17727,9 @@
 	</Resource>
 	<Resource Name="Vendor.Orders.Shipments.ViewDetails" Area="Vendor">
 		<Value>View shipment details</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.Shipments.ViewDetails.Info" Area="Vendor">
+		<Value>Shipment info</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.ShippingInfo" Area="Vendor">
 		<Value>Shipping info</Value>
