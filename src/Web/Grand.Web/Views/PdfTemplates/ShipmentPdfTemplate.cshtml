@@ -21,18 +21,18 @@
         .summary {
                     padding-top:20px;
                 }
-                
-          table.CodeTable th,
-          table.CodeTable td {
-            /* width: 100%; */
-            width: 400px;
-            margin-right: 0px;
-            margin-left: auto;
-            white-space: nowrap;
-            /* border: 1px solid black; */
-            border: none;
-            border-collapse: collapse;
-          }
+                table.CodeTable {
+                              width: 100%;  
+                      }
+                      .CodeTable .line {border-bottom:1px solid #EEE; border-top: 1px solid #EEE; border-left: 1px solid #FFFFFF; border-right: 1px solid #FFFFFF;}
+                      table.CodeTable th,
+                      table.CodeTable td {
+                        /* width: 100%; */
+                        /*border: 0px solid black;*/
+                        border: none;
+                        border-collapse: collapse;
+                      }
+          
           .Header {
             background-color: grey;
             color: white;
@@ -106,7 +106,7 @@
         <div class="summary">
             @(_translationService.GetResource("PDFInvoice.Product(s)", order.CustomerLanguageId))
         </div>
-        <table class="Table">
+        <table class="CodeTable">
             <tr>
                 <td class="Header" colspan="2">@(_translationService.GetResource("PDFPackagingSlip.ProductName", order.CustomerLanguageId))</td>
                 <td class="Header">@(_translationService.GetResource("PDFPackagingSlip.SKU", order.CustomerLanguageId))</td>
