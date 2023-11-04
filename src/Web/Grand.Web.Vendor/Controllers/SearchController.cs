@@ -85,14 +85,8 @@ namespace Grand.Web.Vendor.Controllers
                         });
                     }
                 }
-                foreach (var item in collections)
-                {
-                    if (item.Id != collectionId)
-                        model.Add(new SearchModel {
-                            Id = item.Id,
-                            Name = item.Name
-                        });
-                }
+
+                model.AddRange(from item in collections where item.Id != collectionId select new SearchModel { Id = item.Id, Name = item.Name });
                 return model;
             }
 

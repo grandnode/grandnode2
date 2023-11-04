@@ -153,14 +153,13 @@ namespace Grand.Web.Vendor.Controllers
             //a vendor should have access only to his products
             var orderItems = order.OrderItems.Where(_workContext.HasAccessToOrderItem).ToList();
 
-            var sh = await _shipmentViewModelService.PrepareShipment(order, orderItems.ToList(), model);
-            if (!sh.shipment.ShipmentItems.Any())
+            var (shipment, totalWeight) = await _shipmentViewModelService.PrepareShipment(order, orderItems.ToList(), model);
+            if (!shipment.ShipmentItems.Any())
             {
                 Error(_translationService.GetResource("Admin.Orders.Shipments.NoProductsSelected"));
                 return RedirectToAction("AddShipment", new { orderId = model.OrderId });
             }
 
-            Shipment shipment = sh.shipment;
             //check stock
             var (valid, message) = await _shipmentViewModelService.ValidStockShipment(shipment);
             if (!valid)
@@ -169,7 +168,7 @@ namespace Grand.Web.Vendor.Controllers
                 return RedirectToAction("AddShipment", new { orderId = model.OrderId });
             }
 
-            shipment.TotalWeight = sh.totalWeight;
+            shipment.TotalWeight = totalWeight;
             await _shipmentService.InsertShipment(shipment);
 
             //add a note
@@ -518,7 +517,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ShipmentNotesSelect(string shipmentId, DataSourceRequest command)
+        public async Task<IActionResult> ShipmentNotesSelect(string shipmentId)
         {
             var shipment = await _shipmentService.GetShipmentById(shipmentId);
             if (shipment == null || !_workContext.HasAccessToShipment(shipment))

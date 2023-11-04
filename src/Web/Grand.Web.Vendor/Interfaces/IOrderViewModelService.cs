@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Common;
-using Grand.Domain.Orders;
+﻿using Grand.Domain.Orders;
 using Grand.Web.Vendor.Models.Orders;
 
 namespace Grand.Web.Vendor.Interfaces

@@ -19,9 +19,7 @@ namespace Grand.Web.Vendor.Models.Catalog
         public bool ShowOnProductPage { get; set; }
 
         public int DisplayOrder { get; set; }
-
-        public string ProductSpecificationId { get; set; }
-
+        
         public string SpecificationAttributeOptionId { get; set; }
 
         public string ProductId { get; set; }

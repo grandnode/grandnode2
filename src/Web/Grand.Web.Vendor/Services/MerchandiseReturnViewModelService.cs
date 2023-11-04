@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Extensions;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -43,7 +42,6 @@ namespace Grand.Web.Vendor.Services
         private readonly ICountryService _countryService;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
-        private readonly IDownloadService _downloadService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion Fields
@@ -63,7 +61,6 @@ namespace Grand.Web.Vendor.Services
             ICountryService countryService,
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser,
-            IDownloadService downloadService,
             OrderSettings orderSettings,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -82,7 +79,6 @@ namespace Grand.Web.Vendor.Services
             _countryService = countryService;
             _addressAttributeService = addressAttributeService;
             _addressAttributeParser = addressAttributeParser;
-            _downloadService = downloadService;
             _orderSettings = orderSettings;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -306,7 +302,6 @@ namespace Grand.Web.Vendor.Services
             foreach (var merchandiseReturnNote in (await _merchandiseReturnService.GetMerchandiseReturnNotes(merchandiseReturn.Id))
                 .OrderByDescending(on => on.CreatedOnUtc))
             {
-                var download = await _downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
                 merchandiseReturnNoteModels.Add(new MerchandiseReturnModel.MerchandiseReturnNote
                 {
                     Id = merchandiseReturnNote.Id,

@@ -56,10 +56,7 @@ namespace Grand.Web.Vendor.Services
             if (!excludeProperties)
             {
                 model.Title = vendorReview.Title;
-                if (formatReviewText)
-                    model.ReviewText = FormatText.ConvertText(vendorReview.ReviewText);
-                else
-                    model.ReviewText = vendorReview.ReviewText;
+                model.ReviewText = formatReviewText ? FormatText.ConvertText(vendorReview.ReviewText) : vendorReview.ReviewText;
                 model.IsApproved = vendorReview.IsApproved;
             }
         }

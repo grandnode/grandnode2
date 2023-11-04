@@ -245,8 +245,6 @@ namespace Grand.Web.Vendor.Services
             foreach (var x in orders)
             {
                 var store = await _storeService.GetStoreById(x.StoreId);
-                var orderTotal = _priceFormatter.FormatPrice(x.OrderTotal,
-                    await _currencyService.GetCurrencyByCode(x.CustomerCurrencyCode));
                 items.Add(new OrderModel {
                     Id = x.Id,
                     OrderNumber = x.OrderNumber,

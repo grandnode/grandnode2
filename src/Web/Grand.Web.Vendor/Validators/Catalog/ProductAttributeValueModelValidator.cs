@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Domain.Catalog;
 using Grand.Web.Vendor.Models.Catalog;
@@ -12,7 +11,7 @@ namespace Grand.Web.Vendor.Validators.Catalog
     {
         public ProductAttributeValueModelValidator(
             IEnumerable<IValidatorConsumer<ProductModel.ProductAttributeValueModel>> validators,
-            ITranslationService translationService, IProductService productService, IWorkContext workContext)
+            ITranslationService translationService, IProductService productService)
             : base(validators)
         {
             RuleFor(x => x.Name)

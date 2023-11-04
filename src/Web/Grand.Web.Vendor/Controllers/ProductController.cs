@@ -76,7 +76,7 @@ namespace Grand.Web.Vendor.Controllers
 
         #region Methods
 
-        protected Task<(bool allow, string message)> CheckAccessToProduct(Product product)
+        private Task<(bool allow, string message)> CheckAccessToProduct(Product product)
         {
             if (product == null)
             {
@@ -84,19 +84,17 @@ namespace Grand.Web.Vendor.Controllers
             }
 
             //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
-            {
-                return Task.FromResult((false, "This is not your product"));
-            }
-
-
-            return Task.FromResult<(bool allow, string message)>((true, null));
+            return product.VendorId != _workContext.CurrentVendor.Id ? 
+                Task.FromResult((false, "This is not your product")) : Task.FromResult<(bool allow, string message)>((true, null));
         }
 
         #region Product list / create / edit / delete
 
         //list products
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List()
         {
@@ -141,7 +139,7 @@ namespace Grand.Web.Vendor.Controllers
         public async Task<IActionResult> Create()
         {
             var model = new ProductModel();
-            await _productViewModelService.PrepareProductModel(model, null, true, true);
+            await _productViewModelService.PrepareProductModel(model, null, true);
             await AddLocales(_languageService, model.Locales);
             return View(model);
         }
@@ -155,7 +153,7 @@ namespace Grand.Web.Vendor.Controllers
                 var product = await _productViewModelService.InsertProductModel(model);
                 //activity log
                 _ = _customerActivityService.InsertActivity("AddNewProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
 
 
@@ -164,7 +162,7 @@ namespace Grand.Web.Vendor.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            await _productViewModelService.PrepareProductModel(model, null, false, true);
+            await _productViewModelService.PrepareProductModel(model, null, false);
             return View(model);
         }
 
@@ -180,7 +178,7 @@ namespace Grand.Web.Vendor.Controllers
             var model = product.ToModel(_dateTimeService);
             model.Ticks = product.UpdatedOnUtc.Ticks;
 
-            await _productViewModelService.PrepareProductModel(model, product, false, false);
+            await _productViewModelService.PrepareProductModel(model, product, false);
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
             {
                 locale.Name = product.GetTranslation(x => x.Name, languageId, false);
@@ -216,7 +214,7 @@ namespace Grand.Web.Vendor.Controllers
 
                 //activity log
                 _ = _customerActivityService.InsertActivity("EditProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
                 Success(_translationService.GetResource("Vendor.Catalog.Products.Updated"));
@@ -231,7 +229,7 @@ namespace Grand.Web.Vendor.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            await _productViewModelService.PrepareProductModel(model, product, false, true);
+            await _productViewModelService.PrepareProductModel(model, product, false);
 
             return View(model);
         }
@@ -252,7 +250,7 @@ namespace Grand.Web.Vendor.Controllers
 
                 //activity log
                 _ = _customerActivityService.InsertActivity("DeleteProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
 
                 Success(_translationService.GetResource("Vendor.Catalog.Products.Deleted"));
@@ -536,7 +534,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> RelatedProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> RelatedProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -624,14 +622,9 @@ namespace Grand.Web.Vendor.Controllers
                 {
                     await _productViewModelService.InsertRelatedProductModel(model);
                 }
-
                 return Content("");
             }
-
-            Error(ModelState);
-            model = await _productViewModelService.PrepareRelatedProductModel();
-            model.ProductId = model.ProductId;
-            return View(model);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -640,7 +633,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> SimilarProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> SimilarProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -728,14 +721,9 @@ namespace Grand.Web.Vendor.Controllers
                 {
                     await _productViewModelService.InsertSimilarProductModel(model);
                 }
-
                 return Content("");
             }
-
-            Error(ModelState);
-            model = await _productViewModelService.PrepareSimilarProductModel();
-            model.ProductId = model.ProductId;
-            return View(model);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -744,7 +732,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> BundleProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> BundleProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -836,11 +824,7 @@ namespace Grand.Web.Vendor.Controllers
 
                 return Content("");
             }
-
-            Error(ModelState);
-            model = await _productViewModelService.PrepareBundleProductModel();
-            model.ProductId = model.ProductId;
-            return View(model);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -849,7 +833,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> CrossSellProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> CrossSellProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -928,14 +912,9 @@ namespace Grand.Web.Vendor.Controllers
                 {
                     await _productViewModelService.InsertCrossSellProductModel(model);
                 }
-
                 return Content("");
             }
-
-            Error(ModelState);
-            model = await _productViewModelService.PrepareCrossSellProductModel();
-            model.ProductId = model.ProductId;
-            return View(model);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -944,7 +923,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> RecommendedProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> RecommendedProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1026,14 +1005,9 @@ namespace Grand.Web.Vendor.Controllers
                 {
                     await _productViewModelService.InsertRecommendedProductModel(model);
                 }
-
                 return Content("");
             }
-
-            Error(ModelState);
-            model = await _productViewModelService.PrepareRecommendedProductModel();
-            model.ProductId = model.ProductId;
-            return View(model);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -1042,7 +1016,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> AssociatedProductList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> AssociatedProductList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1234,7 +1208,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductPictureList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductPictureList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1335,7 +1309,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductSpecAttrList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductSpecAttrList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1343,10 +1317,10 @@ namespace Grand.Web.Vendor.Controllers
             if (!permission.allow)
                 return ErrorForKendoGridJson(permission.message);
 
-            var productrSpecsModel = await _productViewModelService.PrepareProductSpecificationAttributeModel(product);
+            var productSpecsModel = await _productViewModelService.PrepareProductSpecificationAttributeModel(product);
             var gridModel = new DataSourceResult {
-                Data = productrSpecsModel,
-                Total = productrSpecsModel.Count
+                Data = productSpecsModel,
+                Total = productSpecsModel.Count
             };
             return Json(gridModel);
         }
@@ -1409,16 +1383,7 @@ namespace Grand.Web.Vendor.Controllers
         private async Task<List<SelectListItem>> PrepareAvailableAttributes(
             ISpecificationAttributeService specificationAttributeService)
         {
-            var availableSpecificationAttributes = new List<SelectListItem>();
-            foreach (var sa in await specificationAttributeService.GetSpecificationAttributes())
-            {
-                availableSpecificationAttributes.Add(new SelectListItem {
-                    Text = sa.Name,
-                    Value = sa.Id
-                });
-            }
-
-            return availableSpecificationAttributes;
+            return (await specificationAttributeService.GetSpecificationAttributes()).Select(sa => new SelectListItem { Text = sa.Name, Value = sa.Id }).ToList();
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -1606,7 +1571,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductPriceList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductPriceList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1718,8 +1683,7 @@ namespace Grand.Web.Vendor.Controllers
 
                 return new JsonResult("");
             }
-
-            return ErrorForKendoGridJson(ModelState);
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -1728,7 +1692,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> TierPriceList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> TierPriceList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1841,7 +1805,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeMappingList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductAttributeMappingList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -1877,8 +1841,7 @@ namespace Grand.Web.Vendor.Controllers
             {
                 var productAttributeMapping =
                     product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
-                var model = await _productViewModelService.PrepareProductAttributeMappingModel(product,
-                    productAttributeMapping);
+                var model = await _productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
                 return View(model);
             }
         }
@@ -2009,7 +1972,7 @@ namespace Grand.Web.Vendor.Controllers
                     model);
             }
 
-            return Content("");
+            return Content(ModelState.GetErrors());
         }
 
         #endregion
@@ -2044,8 +2007,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeValueList(string productAttributeMappingId, string productId,
-            DataSourceRequest command)
+        public async Task<IActionResult> ProductAttributeValueList(string productAttributeMappingId, string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -2232,7 +2194,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeCombinationList(DataSourceRequest command, string productId)
+        public async Task<IActionResult> ProductAttributeCombinationList(string productId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -2276,7 +2238,7 @@ namespace Grand.Web.Vendor.Controllers
 
         //edit
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> AttributeCombinationPopup(string productId, string Id)
+        public async Task<IActionResult> AttributeCombinationPopup(string productId, string id)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -2284,7 +2246,7 @@ namespace Grand.Web.Vendor.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            var model = await _productViewModelService.PrepareProductAttributeCombinationModel(product, Id);
+            var model = await _productViewModelService.PrepareProductAttributeCombinationModel(product, id);
             await _productViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
             return View(model);
         }
@@ -2327,8 +2289,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ClearAllAttributeCombinations(string productId,
-            [FromServices] IProductAttributeService productAttributeService)
+        public async Task<IActionResult> ClearAllAttributeCombinations(string productId)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null || product.VendorId != _workContext.CurrentVendor.Id)
@@ -2355,8 +2316,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductAttributeCombinationTierPriceList(DataSourceRequest command,
-            string productId, string productAttributeCombinationId)
+        public async Task<IActionResult> ProductAttributeCombinationTierPriceList(string productId, string productAttributeCombinationId)
         {
             var product = await _productService.GetProductById(productId);
 
@@ -2511,7 +2471,7 @@ namespace Grand.Web.Vendor.Controllers
                 await _productReservationService.GetProductReservationsByProductId(model.ProductId, null, null);
             if (reservations.Any())
             {
-                if (((product.IntervalUnitId == IntervalUnit.Minute || product.IntervalUnitId == IntervalUnit.Hour) &&
+                if ((product.IntervalUnitId is IntervalUnit.Minute or IntervalUnit.Hour &&
                      (IntervalUnit)model.Interval == IntervalUnit.Day) ||
                     product.IntervalUnitId == IntervalUnit.Day &&
                     ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute ||
@@ -2546,19 +2506,12 @@ namespace Grand.Web.Vendor.Controllers
             await _productService.UpdateProductField(product, x => x.IntervalUnitId, (IntervalUnit)model.IntervalUnit);
             await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
-            var minutesToAdd = 0;
-            switch ((IntervalUnit)model.IntervalUnit)
-            {
-                case IntervalUnit.Minute:
-                    minutesToAdd = model.Interval;
-                    break;
-                case IntervalUnit.Hour:
-                    minutesToAdd = model.Interval * 60;
-                    break;
-                case IntervalUnit.Day:
-                    minutesToAdd = model.Interval * 60 * 24;
-                    break;
-            }
+            var minutesToAdd = (IntervalUnit)model.IntervalUnit switch {
+                IntervalUnit.Minute => model.Interval,
+                IntervalUnit.Hour => model.Interval * 60,
+                IntervalUnit.Day => model.Interval * 60 * 24,
+                _ => 0
+            };
 
             var _hourFrom = model.StartTime.Hour;
             var _minutesFrom = model.StartTime.Minute;
@@ -2648,7 +2601,10 @@ namespace Grand.Web.Vendor.Controllers
                             });
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
 
@@ -2748,7 +2704,7 @@ namespace Grand.Web.Vendor.Controllers
                 {
                     //activity log
                     _ = _customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId,
-                        _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                        _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
                         _translationService.GetResource("ActivityLog.DeleteBid"), product.Name);
                     //delete bid
                     await _auctionService.DeleteBid(toDelete);

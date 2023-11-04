@@ -41,22 +41,31 @@ namespace Grand.Infrastructure.Validators
             
             foreach (var argument in context.ActionArguments.Where(x => !CommonHelper.IsSimpleType(x.Value?.GetType())))
             {
-                Type genericType = typeof(IValidator<>).MakeGenericType(argument.Value!.GetType());
-                var validator = (IValidator)_serviceProvider.GetService(genericType);
-                if (validator is null) continue;
-                var contextValidator = new ValidationContext<object>(argument.Value);
-                var result = await validator.ValidateAsync(contextValidator);
-                if (result.IsValid) continue;
-                
-                if (!result.IsValid) {
-                    foreach (var error in result.Errors) {
+                Type targetType = argument.Value!.GetType();
+                Type[] implementedInterfaces = new[] { targetType }.Concat(targetType.GetInterfaces()).ToArray();
+                foreach (Type interfaceType in implementedInterfaces)
+                {
+                    Type genericType = typeof(IValidator<>).MakeGenericType(interfaceType);
+                    var validator = (IValidator)_serviceProvider.GetService(genericType);
+                    if (validator is null)
+                    {
+                        continue;
+                    }
+                    var contextValidator = new ValidationContext<object>(argument.Value);
+                    var result = await validator.ValidateAsync(contextValidator);
+                    if (result.IsValid) continue;
+                    foreach (var error in result.Errors)
+                    {
                         context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                     }
                 }
+
                 var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
                 if (!hasJsonData) continue;
+                if (context.ModelState.IsValid) continue;
                 context.Result = new BadRequestObjectResult(context.ModelState);
                 return;
+                
             }
 
             await next();

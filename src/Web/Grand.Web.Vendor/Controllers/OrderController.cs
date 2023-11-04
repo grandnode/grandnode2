@@ -47,7 +47,10 @@ namespace Grand.Web.Vendor.Controllers
 
         #region Order list
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List(int? orderStatusId = null,
             int? paymentStatusId = null, int? shippingStatusId = null, 

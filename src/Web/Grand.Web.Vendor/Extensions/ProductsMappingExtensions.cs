@@ -61,16 +61,6 @@ namespace Grand.Web.Vendor.Extensions
             return entity.MapTo<ProductAttributeCombination, ProductAttributeCombinationModel>();
         }
 
-        public static ProductAttributeCombination ToEntity(this ProductAttributeCombinationModel model)
-        {
-            return model.MapTo<ProductAttributeCombinationModel, ProductAttributeCombination>();
-        }
-
-        public static ProductAttributeCombination ToEntity(this ProductAttributeCombinationModel model, ProductAttributeCombination destination)
-        {
-            return model.MapTo(destination);
-        }
-        
         public static ProductModel.AddProductSpecificationAttributeModel ToModel(this ProductSpecificationAttribute entity)
         {
             return entity.MapTo<ProductSpecificationAttribute, ProductModel.AddProductSpecificationAttributeModel>();

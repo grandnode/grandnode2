@@ -15,7 +15,7 @@ namespace Grand.Web.Vendor.Controllers
         /// <summary>
         /// Save selected TAB index
         /// </summary>
-        /// <param name="index">Idnex to save; null to automatically detect it</param>
+        /// <param name="index">Index to save; null to automatically detect it</param>
         /// <param name="persistForTheNextRequest">A value indicating whether a message should be persisted for the next request</param>
         protected async Task SaveSelectedTabIndex(int? index = null, bool persistForTheNextRequest = true)
         {

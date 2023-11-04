@@ -5,16 +5,14 @@
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
 }
-@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
-{
-    if (currencies.Count > 0)
-    { 
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div id="productprices-grid"></div>
-            </div>
+@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0 && currencies.Count > 0)
+{ 
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="productprices-grid"></div>
         </div>
-        <script>
+    </div>
+    <script>
             $(document).ready(function () {
                 $("#productprices-grid").kendoGrid({
                     dataSource: {
@@ -120,15 +118,15 @@
                 @for (var i = 0; i < currencies.Count; i++)
                 {
                     var currencyItem = currencies[i];
-                    <text>
-                        {
-                            Id: '@(currencyItem.CurrencyCode)',
-                            Name: "@(currencyItem.CurrencyCode)"
-                        }
-                        </text>
+
+                    <text>{
+                            Id: '@currencyItem.CurrencyCode',
+                            Name: "@currencyItem.CurrencyCode"
+                        }</text>
+                        
                     if (i != currencies.Count - 1)
                     {
-                        <text>,</text>
+                        @:,
                     }
                 }
             ];
@@ -142,5 +140,4 @@
                     });
             }
         </script>
-    }
 }

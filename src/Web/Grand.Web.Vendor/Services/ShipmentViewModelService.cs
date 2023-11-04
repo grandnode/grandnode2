@@ -562,10 +562,8 @@ namespace Grand.Web.Vendor.Services
                     continue;
 
                 var product = await _productService.GetProductById(orderItem.ProductId);
-                var warehouseId = "";
-                if (product != null && (((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
-                                          product.ManageInventoryMethodId ==
-                                          ManageInventoryMethod.ManageStockByAttributes) &&
+                string warehouseId;
+                if (product != null && ((product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes &&
                                          product.UseMultipleWarehouses) || product.ManageInventoryMethodId ==
                         ManageInventoryMethod.ManageStockByBundleProducts))
                 {

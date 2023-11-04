@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,12 +8,9 @@ namespace Grand.Web.Vendor.Components
     public class LatestVendorOrderViewComponent : BaseVendorViewComponent
     {
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContext _workContext;
-
-        public LatestVendorOrderViewComponent(IPermissionService permissionService, IWorkContext workContext)
+        public LatestVendorOrderViewComponent(IPermissionService permissionService)
         {
             _permissionService = permissionService;
-            _workContext = workContext;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()

@@ -4,7 +4,6 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Vendor.Models.Common;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Vendor.Models.Orders
@@ -144,17 +143,7 @@ namespace Grand.Web.Vendor.Models.Orders
             public string Commission { get; set; }
             public double CommissionValue { get; set; }
         }
-
-        public class UploadLicenseModel : BaseModel
-        {
-            public string OrderId { get; set; }
-
-            public string OrderItemId { get; set; }
-
-            [UIHint("Download")]
-            public string LicenseDownloadId { get; set; }
-
-        }
+        
         #endregion
     }
 }

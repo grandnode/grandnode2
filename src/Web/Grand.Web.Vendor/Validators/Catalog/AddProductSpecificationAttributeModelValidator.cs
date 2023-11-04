@@ -1,19 +1,17 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Vendor.Models.Catalog;
 
 namespace Grand.Web.Vendor.Validators.Catalog
 {
-    public class
-        AddProductSpecificationAttributeModelValidator : BaseGrandValidator<
+    public class AddProductSpecificationAttributeModelValidator : BaseGrandValidator<
             ProductModel.AddProductSpecificationAttributeModel>
     {
         public AddProductSpecificationAttributeModelValidator(
             IEnumerable<IValidatorConsumer<ProductModel.AddProductSpecificationAttributeModel>> validators,
-            ITranslationService translationService, IProductService productService, IWorkContext workContext,
+            ITranslationService translationService,
             ISpecificationAttributeService specificationAttributeService)
             : base(validators)
         {

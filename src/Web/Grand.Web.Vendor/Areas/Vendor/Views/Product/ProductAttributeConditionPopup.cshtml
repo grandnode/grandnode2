@@ -41,11 +41,7 @@
                             <div class="form-group" id="pnlAttributes">
                                 @if (Model.ProductAttributes.Count > 0)
                                 {
-                                    var attributesList = new List<SelectListItem>();
-                                    foreach (var attribute in Model.ProductAttributes)
-                                    {
-                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id });
-                                    }
+                                    var attributesList = Model.ProductAttributes.Select(attribute => new SelectListItem { Text = attribute.Name, Value = attribute.Id }).ToList();
                                     <div class="form-horizontal">
                                         <div class="form-body">
                                             <div class="form-group" id="pnlBasepriceUnit">

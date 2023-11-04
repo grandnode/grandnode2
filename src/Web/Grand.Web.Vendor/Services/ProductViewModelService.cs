@@ -155,11 +155,12 @@ namespace Grand.Web.Vendor.Services
 
         protected virtual T PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
         {
-            var model = new T();
+            var model = new T {
+                //product types
+                AvailableProductTypes = ProductType.SimpleProduct
+                    .ToSelectList(_translationService, _workContext, false).ToList()
+            };
 
-            //product types
-            model.AvailableProductTypes = ProductType.SimpleProduct
-                .ToSelectList(_translationService, _workContext, false).ToList();
             model.AvailableProductTypes.Insert(0,
                 new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
 
@@ -264,7 +265,7 @@ namespace Grand.Web.Vendor.Services
             model.AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "";
         }
 
-        public virtual async Task OutOfStockNotifications(Product product, ProductModel model, int prevStockQuantity,
+        public virtual async Task OutOfStockNotifications(Product product, int prevStockQuantity,
             List<ProductWarehouseInventory> prevMultiWarehouseStock
         )
         {
@@ -357,7 +358,7 @@ namespace Grand.Web.Vendor.Services
         }
 
         public virtual async Task PrepareProductModel(ProductModel model, Product product,
-            bool setPredefinedValues, bool excludeProperties)
+            bool setPredefinedValues)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -480,7 +481,7 @@ namespace Grand.Web.Vendor.Services
                     Selected = product != null && !setPredefinedValues && tc.Id == product.TaxCategoryId
                 });
 
-            //baseprice units
+            //base-price units
             var measureWeights = await _measureService.GetAllMeasureWeights();
             foreach (var mw in measureWeights)
                 model.AvailableBasepriceUnits.Add(new SelectListItem {
@@ -668,16 +669,11 @@ namespace Grand.Web.Vendor.Services
             //0 - all (according to "ShowHidden" parameter)
             //1 - published only
             //2 - unpublished only
-            bool? overridePublished = null;
-            switch (model.SearchPublishedId)
-            {
-                case 1:
-                    overridePublished = true;
-                    break;
-                case 2:
-                    overridePublished = false;
-                    break;
-            }
+            bool? overridePublished = model.SearchPublishedId switch {
+                1 => true,
+                2 => false,
+                _ => null
+            };
 
             bool? showOnHomePage = null;
             if (model.SearchPublishedId == 3)
@@ -740,16 +736,11 @@ namespace Grand.Web.Vendor.Services
             //0 - all (according to "ShowHidden" parameter)
             //1 - published only
             //2 - unpublished only
-            bool? overridePublished = null;
-            switch (model.SearchPublishedId)
-            {
-                case 1:
-                    overridePublished = true;
-                    break;
-                case 2:
-                    overridePublished = false;
-                    break;
-            }
+            bool? overridePublished = model.SearchPublishedId switch {
+                1 => true,
+                2 => false,
+                _ => null
+            };
 
             var products = (await _productService.SearchProducts(
                 categoryIds: categoryIds,
@@ -819,7 +810,7 @@ namespace Grand.Web.Vendor.Services
             await _productService.UpdateProduct(product);
 
             //out of stock notifications
-            await OutOfStockNotifications(product, model, prevStockQuantity, prevMultiWarehouseStock);
+            await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
 
             return product;
         }
@@ -1226,11 +1217,12 @@ namespace Grand.Web.Vendor.Services
 
         public virtual Task<BulkEditListModel> PrepareBulkEditListModel()
         {
-            var model = new BulkEditListModel();
+            var model = new BulkEditListModel {
+                //product types
+                AvailableProductTypes = ProductType.SimpleProduct
+                    .ToSelectList(_translationService, _workContext, false).ToList()
+            };
 
-            //product types
-            model.AvailableProductTypes = ProductType.SimpleProduct
-                .ToSelectList(_translationService, _workContext, false).ToList();
             model.AvailableProductTypes.Insert(0,
                 new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
 
@@ -1406,8 +1398,7 @@ namespace Grand.Web.Vendor.Services
             return model;
         }
 
-        public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
-            Product product, ProductAttributeMapping productAttributeMapping)
+        public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(ProductAttributeMapping productAttributeMapping)
         {
             var model = productAttributeMapping.ToModel();
             foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
@@ -1497,7 +1488,7 @@ namespace Grand.Web.Vendor.Services
                     attributeModel.ValidationRulesString = validationRules.ToString();
                 }
 
-                //currenty any attribute can have condition. why not?
+                //currency any attribute can have condition. why not?
                 attributeModel.ConditionAllowed = true;
                 var conditionAttribute = product.ParseProductAttributeMappings(x.ConditionAttribute).FirstOrDefault();
                 var conditionValue = product.ParseProductAttributeValues(x.ConditionAttribute).FirstOrDefault();
@@ -1559,23 +1550,6 @@ namespace Grand.Web.Vendor.Services
                         model.ProductId);
                 }
             }
-        }
-
-        public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
-            ProductAttributeMapping productAttributeMapping)
-        {
-            var model = new ProductModel.ProductAttributeMappingModel {
-                //prepare only used properties
-                Id = productAttributeMapping.Id,
-                ValidationRulesAllowed = productAttributeMapping.ValidationRulesAllowed(),
-                AttributeControlTypeId = productAttributeMapping.AttributeControlTypeId,
-                ValidationMinLength = productAttributeMapping.ValidationMinLength,
-                ValidationMaxLength = productAttributeMapping.ValidationMaxLength,
-                ValidationFileAllowedExtensions = productAttributeMapping.ValidationFileAllowedExtensions,
-                ValidationFileMaximumSize = productAttributeMapping.ValidationFileMaximumSize,
-                DefaultValue = productAttributeMapping.DefaultValue
-            };
-            return await Task.FromResult(model);
         }
 
         public virtual async Task UpdateProductAttributeValidationRulesModel(
@@ -2286,7 +2260,7 @@ namespace Grand.Web.Vendor.Services
             }
         }
 
-        public virtual async Task<IList<ProductModel.ProductAttributeCombinationTierPricesModel>>
+        public virtual Task<IList<ProductModel.ProductAttributeCombinationTierPricesModel>>
             PrepareProductAttributeCombinationTierPricesModel(Product product, string productAttributeCombinationId)
         {
             var items = new List<ProductModel.ProductAttributeCombinationTierPricesModel>();
@@ -2303,7 +2277,7 @@ namespace Grand.Web.Vendor.Services
                 items.Add(priceModel);
             }
 
-            return items;
+            return Task.FromResult<IList<ProductModel.ProductAttributeCombinationTierPricesModel>>(items);
         }
 
         public virtual async Task InsertProductAttributeCombinationTierPricesModel(Product product,
@@ -2314,7 +2288,7 @@ namespace Grand.Web.Vendor.Services
             {
                 var pctp = new ProductCombinationTierPrices {
                     Price = model.Price,
-                    Quantity = model.Quantity,
+                    Quantity = model.Quantity
                 };
                 productAttributeCombination.TierPrices.Add(pctp);
                 await _productAttributeService.UpdateProductAttributeCombination(productAttributeCombination,

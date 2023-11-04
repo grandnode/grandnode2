@@ -6,9 +6,9 @@ namespace Grand.Web.Vendor.Interfaces
 {
     public interface IProductViewModelService
     {
-        Task PrepareProductModel(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties);
+        Task PrepareProductModel(ProductModel model, Product product, bool setPredefinedValues);
         Task PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties, bool formatReviewText);
-        Task OutOfStockNotifications(Product product, ProductModel model, int prevStockQuantity, List<ProductWarehouseInventory> prevMultiWarehouseStock);
+        Task OutOfStockNotifications(Product product, int prevStockQuantity, List<ProductWarehouseInventory> prevMultiWarehouseStock);
         Task OutOfStockNotifications(Product product, ProductAttributeCombination combination, ProductAttributeCombination prevcombination);
         Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product);
         Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
@@ -56,13 +56,12 @@ namespace Grand.Web.Vendor.Interfaces
         Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)> PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize);
         Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products);
         Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
-        //tierprices
+        //tier-prices
         Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
         Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex, int pageSize);
         Task<(IEnumerable<ProductModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string productId, int pageIndex, int pageSize);
         Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product);
         Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);
-        Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product, ProductAttributeMapping productAttributeMapping);
         Task<IList<ProductModel.ProductAttributeMappingModel>> PrepareProductAttributeMappingModels(Product product);
         Task InsertProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);
         Task UpdateProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);

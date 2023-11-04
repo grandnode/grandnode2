@@ -3361,7 +3361,7 @@
 		<Value>Mappings</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Products.Permisions" Area="Admin">
-		<Value>You can't edit this product, because it can be used in many stores.</Value>
+		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Products.Pictures" Area="Admin">
 		<Value>Pictures</Value>
@@ -16714,7 +16714,7 @@
 		<Value>Mappings</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Permisions" Area="Vendor">
-		<Value>You can't edit this product, because it can be used in many stores.</Value>
+		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Pictures" Area="Vendor">
 		<Value>Pictures</Value>
