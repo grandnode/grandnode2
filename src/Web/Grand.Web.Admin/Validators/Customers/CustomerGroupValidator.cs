@@ -18,17 +18,19 @@ namespace Grand.Web.Admin.Validators.Customers
             RuleFor(x => x).CustomAsync(async (x, context, _) =>
             {
                 var customerGroup = await groupService.GetCustomerGroupById(x.Id);
-                
-                if (customerGroup.IsSystem && !x.Active)
-                    context.AddFailure(
-                        translationService.GetResource(
-                            "Admin.Customers.CustomerGroups.Fields.Active.CantEditSystem"));
+                if (customerGroup != null)
+                {
+                    if (customerGroup.IsSystem && !x.Active)
+                        context.AddFailure(
+                            translationService.GetResource(
+                                "Admin.Customers.CustomerGroups.Fields.Active.CantEditSystem"));
 
-                if (customerGroup.IsSystem &&
-                    !customerGroup.SystemName.Equals(x.SystemName, StringComparison.OrdinalIgnoreCase))
-                    context.AddFailure(
-                        translationService.GetResource(
-                            "Admin.Customers.CustomerGroups.Fields.SystemName.CantEditSystem"));
+                    if (customerGroup.IsSystem &&
+                        !customerGroup.SystemName.Equals(x.SystemName, StringComparison.OrdinalIgnoreCase))
+                        context.AddFailure(
+                            translationService.GetResource(
+                                "Admin.Customers.CustomerGroups.Fields.SystemName.CantEditSystem"));
+                }
             });
         }
     }
