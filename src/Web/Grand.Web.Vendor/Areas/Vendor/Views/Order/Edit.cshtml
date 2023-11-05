@@ -1,0 +1,79 @@
+﻿@model OrderModel
+@{
+    //page title
+    ViewBag.Title = Loc["Vendor.Orders.EditOrderDetails"];
+}
+<form asp-area="@Constants.AreaVendor" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="icon-basket"></i>
+                        @Loc["Vendor.Orders.EditOrderDetails"] - @Model.OrderNumber
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Vendor.Orders.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = Constants.AreaVendor })" class="btn purple">
+                                <i class="fa fa-file-pdf-o"></i> @Loc["Vendor.Orders.PdfInvoice"]
+                            </a>
+                            <input type="submit" id="btnRefreshPage" style="display: none" />
+                            <script>
+                                $(document).ready(function () {
+                                    $('#btnRefreshPage').click(function () {
+                                        //refresh page
+                                        location.reload();
+                                    });
+                                });
+                            </script>
+                            <vc:vendor-widget widget-zone="vendor_order_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <admin-tabstrip name="order-edit" SetTabPos="true" BindGrid="true">
+                        <items>
+                            <tabstrip-item text="@Loc["Vendor.Orders.Info"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/OrderDetails.Info" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+
+                            <tabstrip-item text="@Loc["Vendor.Orders.Addresses"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/OrderDetails.Addresses" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            @if (Model.IsShippable)
+                            {
+                                <tabstrip-item text="@Loc["Vendor.Orders.Shipments"]" tab-index="2">
+                                    <content>
+                                        <div>
+                                            <partial name="Partials/OrderDetails.Shipment" model="Model" />
+                                        </div>
+                                    </content>
+                                </tabstrip-item>
+                            }
+                            <tabstrip-item text="@Loc["Vendor.Orders.Products"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/OrderDetails.Products" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:vendor-widget widget-zone="vendor_order_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="order-delete" />

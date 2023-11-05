@@ -1,0 +1,97 @@
+﻿@model ShipmentModel
+@{
+    //page title
+    ViewBag.Title = Loc["Vendor.Orders.Shipments.ViewDetails"];
+}
+<form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
+    <input type="hidden" asp-for="Id" />
+    <script>
+        $(document).ready(function () {
+            toggleShippedDate(false);
+            toggleDeliveryDate(false);
+        });
+
+        function toggleShippedDate(editmode) {
+            if (editmode) {
+                $('#lblShippedDate').hide();
+                $('#divShippedDate').show();
+                $('#btnEditShippedDate').hide();
+                $('#btnSaveShippedDate').show();
+                $('#btnCancelShippedDate').show();
+            }
+            else {
+                $('#lblShippedDate').show();
+                $('#divShippedDate').hide();
+                $('#btnEditShippedDate').show();
+                $('#btnSaveShippedDate').hide();
+                $('#btnCancelShippedDate').hide();
+            }
+        }
+
+        function toggleDeliveryDate(editmode) {
+            if (editmode) {
+                $('#lblDeliveryDate').hide();
+                $('#divDeliveryDate').show();
+                $('#btnEditDeliveryDate').hide();
+                $('#btnSaveDeliveryDate').show();
+                $('#btnCancelDeliveryDate').show();
+            }
+            else {
+                $('#lblDeliveryDate').show();
+                $('#divDeliveryDate').hide();
+                $('#btnEditDeliveryDate').show();
+                $('#btnSaveDeliveryDate').hide();
+                $('#btnCancelDeliveryDate').hide();
+            }
+        }
+    </script>
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-truck"></i>
+                        @Loc["Vendor.Orders.Shipments.ViewDetails"] - @Model.ShipmentNumber
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>
+                            @Html.ActionLink(Loc["Vendor.Orders.Shipments.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = Constants.AreaVendor })" class="btn purple">
+                                <i class="fa fa-file-pdf-o"></i> @Loc["Vendor.Orders.Shipments.PrintPackagingSlip"]
+                            </a>
+                            <span id="shipment-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Vendor.Common.Delete"]</span>
+                            <vc:vendor-widget widget-zone="vendor_order_shipment_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <admin-tabstrip name="shipment-edit" SetTabPos="true">
+                        <items>
+                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/Info" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ShipmentNotes"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/ShipmentNotes" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:vendor-widget widget-zone="vendor_order_shipment_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="shipment-delete" action-name="DeleteShipment" />

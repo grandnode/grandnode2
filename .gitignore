@@ -367,3 +367,8 @@ src/Web/Grand.Web/App_Data/Download/*
 !src/Web/Grand.Web/App_Data/Download/Index.htm
 src/Web/Grand.Web/App_Data/TempUploads/*
 !src/Web/Grand.Web/App_Data/TempUploads/Index.htm
+src/Web/Grand.Web.Vendor/App_Data/InstalledPlugins.cfg
+src/Web/Grand.Web.Vendor/App_Data/Settings.cfg
+src/Web/Grand.Web.Vendor/Plugins/*
+src/Web/Grand.Web.Vendor/App_Data/DataProtectionKeys/*
+src/Web/Grand.Web.Vendor/wwwroot/assets/images/thumbs/*.**

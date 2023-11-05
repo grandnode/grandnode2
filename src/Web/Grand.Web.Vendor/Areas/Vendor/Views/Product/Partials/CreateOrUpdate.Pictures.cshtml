@@ -1,0 +1,155 @@
+﻿@model ProductModel
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+<div class="panel panel-default">
+    <vc:vendor-widget widget-zone="vendor_product_details_pictures_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="productpictures-grid"></div>
+    </div>
+    <vc:vendor-widget widget-zone="vendor_product_details_pictures_bottom" additional-data="Model" />
+</div>
+<script>
+            $(document).ready(function () {
+                $("#productpictures-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editpicture').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("ProductPictureList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },                            
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("ProductPictureDelete", "Product", new { area = Constants.AreaVendor }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    PictureUrl: {editable: false, type: "string" },
+                                    DisplayOrder: {editable: true, type: "number" },
+                                    AltAttribute: {editable: true, type: "string" },
+                                    TitleAttribute: {editable: true, type: "string" }
+                                }
+                            }
+                        },
+                        requestEnd: function(e) {
+                            if(e.type=="update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    autoBind: false,
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "PictureUrl",
+                        title: "@Loc["Vendor.Catalog.Products.Pictures.Fields.Picture"]",
+                        template: "<a class='k-link editpicture' href=\"@Url.Action("ProductPicturePopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\"><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
+                        width: 165
+                    }, {
+                        field: "DisplayOrder",
+                        title: "@Loc["Vendor.Catalog.Products.Pictures.Fields.DisplayOrder"]",
+                        minScreenWidth: 750,
+                        width: 100,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        format: "{0:0}",
+                    }, {
+                        field: "AltAttribute",
+                        minScreenWidth: 500,
+                        title: "@Loc["Vendor.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]",
+                    }, {
+                        field: "TitleAttribute",
+                        title: "@Loc["Vendor.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]",
+                        minScreenWidth: 500,
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Vendor.Common.Delete"]"
+                        }],
+                        width: 200
+                    }]
+                });
+            });
+</script>
+
+    <p>
+        <strong>@Loc["Vendor.Catalog.Products.Pictures.AddNew"]</strong>
+    </p>
+    <div class="form-horizontal">
+        <div class="form-body">
+            <div class="form-group">
+                @{
+                    ViewData["Reference"] = "Product";
+                    ViewData["ObjectId"] = Model.Id;
+                    ViewData["Endpoint"] = Url.Action("ProductPictureAdd", "Product", new { area = Constants.AreaVendor });
+                    ViewData["Click"] = "btnRefreshProductPictures";
+                }
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="AddPictureModel.PictureId" />
+                    <span asp-validation-for="AddPictureModel.PictureId"></span>
+                </div>
+                <input type="submit" id="btnRefreshProductPictures" style="display: none" />
+                <script>
+                    $(document).ready(function () {
+                        $('#btnRefreshProductPictures').click(function () {
+                            //refresh grid
+                            var grid = $("#productpictures-grid").data('kendoGrid');
+                            grid.dataSource.read();
+
+                            //return false to don't reload a page
+                            return false;
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Vendor.Catalog.Products.Pictures.SaveBeforeEdit"]
+    </div>
+}

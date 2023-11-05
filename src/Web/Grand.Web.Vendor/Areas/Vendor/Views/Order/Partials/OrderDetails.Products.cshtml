@@ -1,0 +1,171 @@
+﻿@using Grand.Domain.Tax
+@using Grand.Web.Vendor.Components
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model OrderModel
+
+<vc:vendor-widget widget-zone="vendor_order_details_products_top" additional-data="Model"/>
+<div class="table-responsive order-table">
+    <table class="table table-bordered table-striped table-hover">
+        <tr>
+            <td>
+                <table class="table table-bordered table-striped table-hover">
+                    <col/>
+                    <col/>
+                    <col/>
+                    <col/>
+                    <col/>
+                    <col/>
+                    <thead>
+                    <tr>
+                        <th>
+                            @Loc["Vendor.Orders.Products.Picture"]
+                        </th>
+                        <th>
+                            @Loc["Vendor.Orders.Products.ProductName"]
+                        </th>
+                        <th>
+                            @Loc["Vendor.Orders.Products.Price"]
+                        </th>
+                        <th class="qty-head">
+                            @Loc["Vendor.Orders.Products.Quantity"]
+                        </th>
+                        @if (Model.Items.Sum(x => x.DiscountInclTaxValue) > 0)
+                        {
+                            <th>
+                                @Loc["Vendor.Orders.Products.Discount"]
+                            </th>
+                        }
+                        @if (Model.Items.Sum(x => x.CommissionValue) > 0)
+                        {
+                            <th>
+                                @Loc["Vendor.Orders.Products.Commission"]
+                            </th>
+                        }
+                        <th>
+                            @Loc["Vendor.Orders.Products.Total"]
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (var j = 0; j < Model.Items.Count; j++)
+                    {
+                        var item = Model.Items[j];
+                        <input asp-for="@Model.Items[j].Id" type="hidden"/>
+                        <tr>
+                            <td>
+                                <img src="@item.PictureThumbnailUrl" alt="" title=""/>
+                            </td>
+                            <td>
+                                <div>
+                                    <em>
+                                        <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = Constants.AreaVendor })">@item.ProductName</a>
+                                    </em>
+                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                    {
+                                        <p>
+                                            @Html.Raw(item.AttributeInfo)
+                                        </p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.RecurringInfo))
+                                    {
+                                        <p>
+                                            @Html.Raw(item.RecurringInfo)
+                                        </p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Sku))
+                                    {
+                                        <p>
+                                            <strong>@Loc["Vendor.Orders.Products.SKU"]</strong><text>:</text>
+                                            @item.Sku
+                                        </p>
+                                    }
+                                    @if (item.MerchandiseReturnIds.Count > 0)
+                                    {
+                                        <p>
+                                            @Loc["Vendor.Orders.Products.MerchandiseReturns"]<text>:</text>
+                                            @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
+                                            {
+                                                <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = Constants.AreaVendor })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Vendor.Orders.MerchandiseReturns.View"]</a>
+                                                if (i != item.MerchandiseReturnIds.Count - 1)
+                                                {
+                                                    <text>,</text>
+                                                }
+                                            }
+                                        </p>
+                                    }
+
+                                </div>
+                            </td>
+                            <td>
+
+                                @switch (Model.TaxDisplayType)
+                                {
+                                    case TaxDisplayType.ExcludingTax:
+                                    {
+                                        @item.UnitPriceExclTax
+                                    }
+                                        break;
+                                    case TaxDisplayType.IncludingTax:
+                                    {
+                                        @item.UnitPriceInclTax
+                                    }
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @item.Quantity
+
+                                @if (item.OpenQty > 0)
+                                {
+                                    <div>
+                                        Open: @item.OpenQty
+                                    </div>
+                                }
+                                @if (item.CancelQty > 0)
+                                {
+                                    <div>
+                                        Canceled: @item.CancelQty
+                                    </div>
+                                }
+                            </td>
+
+                            @if (Model.Items.Sum(x => x.CommissionValue) > 0)
+                            {
+                                <td>
+                                    <div>@item.Commission</div>
+                                </td>
+                            }
+                            <td>
+
+                                @switch (Model.TaxDisplayType)
+                                {
+                                    case TaxDisplayType.ExcludingTax:
+                                    {
+                                        @item.SubTotalExclTax
+                                    }
+                                        break;
+                                    case TaxDisplayType.IncludingTax:
+                                    {
+                                        @item.SubTotalInclTax
+                                    }
+                                        break;
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<vc:vendor-widget widget-zone="vendor_order_details_products_bottom" additional-data="Model"/>
+
+@if (!string.IsNullOrEmpty(Model.CheckoutAttributeInfo))
+{
+    <div class="note note-info">
+        @Html.Raw(Model.CheckoutAttributeInfo)
+    </div>
+}

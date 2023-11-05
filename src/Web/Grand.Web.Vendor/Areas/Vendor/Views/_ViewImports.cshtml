@@ -1,0 +1,32 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Grand.Web.Common
+@addTagHelper *, Grand.Web.Vendor
+@addTagHelper *, Grand.Web
+
+@using System.Globalization
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using System.Text
+@using Grand.SharedKernel.Extensions
+@using Grand.Infrastructure
+@using Grand.Domain.Common
+@using Grand.Domain.Catalog
+@using Grand.Domain.Directory
+@using Grand.Domain.Documents
+@using Grand.Domain.Orders
+@using Grand.Infrastructure.TypeConverters
+@using Grand.Business.Core.Interfaces.Cms
+@using Grand.Web.Common
+@using Grand.Web.Common.Events
+@using Grand.Web.Common.Extensions
+@using Grand.Web.Common.Security.Captcha
+@using Grand.Web.Common.Themes
+@using Grand.Web.Common.Page
+@using Grand.Web.Common.Link;
+@using Grand.Web.Vendor.Extensions;
+@using Grand.Web.Vendor.Models.Catalog;
+@using Grand.Web.Vendor.Models.Orders;
+@using Grand.Web.Vendor.Models.Shipment;
+@using Grand.Web.Vendor.Models.MerchandiseReturn;
+@using Grand.Web.Vendor.Models.VendorReview;
+@inject Grand.Web.Common.Localization.LocService Loc

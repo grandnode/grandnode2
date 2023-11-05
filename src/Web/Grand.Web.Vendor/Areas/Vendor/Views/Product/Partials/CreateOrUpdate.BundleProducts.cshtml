@@ -1,0 +1,150 @@
+﻿@model ProductModel
+
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+<div class="panel panel-default">
+    <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="bundleproducts-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = Constants.AreaVendor }))" class="k-button">
+            @Loc["Vendor.Catalog.Products.BundleProducts.AddNew"]
+        </a>
+        <input type="submit" id="btnRefreshBundleProducts" style="display: none" />
+    </div>
+    <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_bottom" additional-data="Model" />
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewBundleProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $("#bundleproducts-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("BundleProductUpdate", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("BundleProductDelete", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductName: { editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number" },
+                                Quantity: { editable: true, type: "number" },
+                                ProductId: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if(e.type=="update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaVendor })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
+                },{
+                    field: "Quantity",
+                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.Quantity"]",
+                    format: "{0:0}",
+                },{
+                    field: "DisplayOrder",
+                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.DisplayOrder"]",
+                    format: "{0:0}",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    minScreenWidth: 750,
+
+                }, {
+                    command: [{
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Vendor.Common.Edit"]",
+                            update: "@Loc["Vendor.Common.Update"]",
+                            cancel: "@Loc["Vendor.Common.Cancel"]"
+                        }
+                    }, {
+                        name: "destroy",
+                        text: "@Loc["Vendor.Common.Delete"]"
+                    }]
+                }]
+            });
+        });
+    </script>
+           
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshBundleProducts').click(function () {
+                //refresh grid
+                var grid = $("#bundleproducts-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Vendor.Catalog.Products.BundleProducts.SaveBeforeEdit"]
+    </div>
+}

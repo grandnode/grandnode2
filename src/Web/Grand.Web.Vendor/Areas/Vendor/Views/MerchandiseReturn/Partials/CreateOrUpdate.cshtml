@@ -1,0 +1,34 @@
+﻿@model MerchandiseReturnModel
+@inject OrderSettings orderSettings
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="merchandisereturn-edit">
+    <items>
+        <tabstrip-item text="@Loc["Vendor.Orders.MerchandiseReturns.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+        {
+            <tabstrip-item text="@Loc["Vendor.Orders.MerchandiseReturns.Address"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabAddress" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/MerchandiseReturnNotes" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:vendor-widget widget-zone="vendor_merchandisereturn_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

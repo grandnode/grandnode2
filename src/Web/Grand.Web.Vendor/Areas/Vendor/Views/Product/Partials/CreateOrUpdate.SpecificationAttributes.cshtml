@@ -1,0 +1,159 @@
+﻿@model ProductModel
+
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_top" additional-data="Model" />
+        <div class="panel-body">
+            <div id="specificationattributes-grid"></div>
+        </div>
+        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_bottom" additional-data="Model" />
+        <div class="panel-footer">
+            <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.SpecificationAttributes.AddButton"]</a>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#btnAddNewSpecification').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+
+            $("#specificationattributes-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductSpecAttrList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ProductSpecAttrDelete", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                AttributeTypeName: { editable: false, type: "string" },
+                                AttributeTypeId: { editable: false, type: "int" },
+                                AttributeName: { editable: false, type: "string" },
+                                ValueRaw: { editable: false, type: "string" },
+                                AllowFiltering: { editable: false, type: "boolean" },
+                                ShowOnProductPage: { editable: false, type: "boolean" },
+                                DisplayOrder: { editable: false, type: "number" },
+                                Id: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function (e) {
+                        if (e.type == "create" || e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                dataBound: function () {
+                    var data = this.dataSource.data();
+                    $('.btnMagnificPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        midClick: true,
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                        field: "AttributeTypeName",
+                        title: "@Loc["Vendor.Catalog.Products.SpecificationAttributes.Fields.AttributeType"]",
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeTypeName)#</a>"
+                    }, {
+                        field: "ValueRaw",
+                        encoded: false,
+                        title: "@Loc["Vendor.Catalog.Products.SpecificationAttributes.Fields.Value"]",
+                    template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeName)# : #=ValueRaw# </a>"
+                    }, {
+                        field: "AllowFiltering",
+                        title: "@Loc["Vendor.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering"]",
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(AllowFiltering) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        field: "ShowOnProductPage",
+                        title: "@Loc["Vendor.Catalog.Products.SpecificationAttributes.Fields.ShowOnProductPage"]",
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(ShowOnProductPage) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        command: [
+                            {
+                                name: "destroy",
+                                text: "@Loc["Vendor.Common.Delete"]"
+                            }
+                        ]
+                    }]
+            });
+            });
+    </script>
+    <input type="submit" id="btnRefreshProductSpec" style="display: none" />
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshProductSpec').click(function () {
+                //refresh grid
+                var grid = $("#specificationattributes-grid").data('kendoGrid');
+                grid.dataSource.read();
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Vendor.Catalog.Products.SpecificationAttributes.SaveBeforeEdit"]
+    </div>
+}

@@ -89,7 +89,7 @@ namespace Grand.Web.Controllers
                 _workContext.CurrentStore.Id);
         }
 
-        private VendorReviewOverviewModel PrepareVendorReviewOverviewModel(Vendor vendor)
+        private VendorReviewOverviewModel PrepareVendorReviewOverviewModel(Domain.Vendors.Vendor vendor)
         {
             var model = new VendorReviewOverviewModel {
                 RatingSum = vendor.ApprovedRatingSum,

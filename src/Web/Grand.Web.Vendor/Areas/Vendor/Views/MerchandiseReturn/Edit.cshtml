@@ -1,0 +1,33 @@
+﻿@model MerchandiseReturnModel
+@{
+    //page title
+    ViewBag.Title = Loc["Vendor.Orders.MerchandiseReturns.EditMerchandiseReturnDetails"];
+}
+<form asp-area="@Constants.AreaVendor" asp-controller="MerchandiseReturn" asp-action="Edit" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-truck"></i>
+                        @Loc["Vendor.Orders.MerchandiseReturns.EditMerchandiseReturnDetails"]
+                        <small><i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Vendor.Orders.MerchandiseReturns.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Vendor.Common.SaveContinue"] </button>
+                            <span id="merchandisereturn-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Vendor.Common.Delete"]</span>
+                            <vc:vendor-widget widget-zone="vendor_merchandisereturn_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="merchandisereturn-delete"/>

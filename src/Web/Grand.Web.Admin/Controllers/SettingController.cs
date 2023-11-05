@@ -638,7 +638,7 @@ namespace Grand.Web.Admin.Controllers
             //datettime settings
             var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
             model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
-            var iswindows = Infrastructure.OperatingSystem.IsWindows();
+            var iswindows = Grand.Infrastructure.OperatingSystem.IsWindows();
             foreach (TimeZoneInfo timeZone in _dateTimeService.GetSystemTimeZones())
             {
                 var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";

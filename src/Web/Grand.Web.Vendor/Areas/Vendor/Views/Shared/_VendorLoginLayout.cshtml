@@ -1,0 +1,45 @@
+﻿@model Grand.Web.Vendor.Models.Common.LoginModel
+@{
+    //page title
+    Layout = "";
+}
+@{
+    //page title
+    var pageTitle = "";
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        pageTitle = ViewBag.Title + " / ";
+    }
+    pageTitle += Loc["Vendor.Login.PageTitle"];
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@pageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/simple-line-icons/simple-line-icons.min.css" />
+    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/build/css/custom.css" />
+
+    <script src="@(Constants.WwwRoot)/administration/build/js/jquery.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/build/js/moment.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/jquery.validate.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/jquery-ui/jquery-ui.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/bootstrap/js/popper.min.js"></script>
+    <script src="@(Constants.WwwRoot)/administration/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+    @Html.AntiForgeryToken()
+    <div class="container body admin-login-layout">
+        <div class="main_container">
+            @RenderBody()
+        </div>
+    </div>
+</body>
+</html>

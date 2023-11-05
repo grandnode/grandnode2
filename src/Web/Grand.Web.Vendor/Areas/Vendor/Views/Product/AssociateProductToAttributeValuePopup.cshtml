@@ -1,0 +1,207 @@
+﻿@model ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"];
+}
+
+<form asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="AssociateProductToAttributeValuePopup"
+     asp-route-productIdInput="@Context.Request.Query["productIdInput"]"
+      asp-route-productNameInput="@Context.Request.Query["productNameInput"]" id="associateproduct">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchProductName" class="control-label" />
+                                            <admin-input asp-for="SearchProductName" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-auto col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-products">
+                                                    <i class="fa fa-search"></i> @Loc["Vendor.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Vendor.Common.Filters"]
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse" id="filterCollapse">
+                                <div class="drop-filters-container w-100">
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="SearchCategoryId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9  col-sm-9">
+                                            <admin-input asp-for="SearchBrandId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9  col-sm-9">
+                                            <admin-input asp-for="SearchCollectionId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div id="products-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input asp-for="AssociatedToProductId" type="hidden" />
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#associateproduct").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        var productId = $("#@Html.IdFor(model => model.AssociatedToProductId)").val();
+                        var productName = $("#@Html.IdFor(model => model.AssociatedToProductId)").data("name");
+                        var id = $('.btnProductAttributeValueEditPopup.active').data("id");
+                        var button = $('.btnProductAttributeValueEditPopup[data-id="' + id + '"]');
+                        var mfp = $('.mfp-wrap');
+
+                        mfp.attr("data-id", id);
+                        mfp.attr("data-prodid", productId);
+                        mfp.attr("data-prodname", productName);
+
+                        $('.btnProductAttributeValueEditPopup.active').removeClass('active');
+
+                        button.click();
+
+                    } else {
+                        $.magnificPopup.instance.currItem.src = data;
+                        $.magnificPopup.instance.updateItemHTML();
+                    }
+                }
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function selectAssociatedProduct(productid, productname) {
+            $("#@Html.IdFor(model => model.AssociatedToProductId)").val(productid);
+            $("#@Html.IdFor(model => model.AssociatedToProductId)").attr("data-name", productname);
+            $('#associateproduct').submit();
+        }
+
+        $("#products-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("AssociateProductToAttributeValuePopupList", "Product", new { area = Constants.AreaVendor }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: false, type: "string" },
+                        }
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Vendor.Common.Select"]",
+                width: 50,
+                template: '<input type="button" value="@Loc["Vendor.Common.Select"]" onclick="selectAssociatedProduct(\'#=Id#\',\'#=Name#\')" class="k-button" />'
+            },{
+                field: "Name",
+                title: "@Loc["Vendor.Catalog.Products.Fields.Name"]"
+            }, {
+                field: "Published",
+                title: "@Loc["Vendor.Catalog.Products.Fields.Published"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }]
+        });
+
+            $('#search-products').click(function () {
+                var grid = $('#products-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                return false;
+            });
+
+        $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-products").click();
+                return false;
+            }
+        });
+
+    </script>
+</form>

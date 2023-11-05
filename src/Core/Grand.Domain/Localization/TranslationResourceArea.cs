@@ -6,6 +6,7 @@
         Admin = 1,
         Front = 2,
         Plugin = 3,
-        Other = 4
+        Other = 4,
+        Vendor = 5
     }
 }

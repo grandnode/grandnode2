@@ -1,0 +1,55 @@
+﻿@model ProductModel.TierPriceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ProductId" type="hidden" />
+
+<div class="form-horizontal">
+    <vc:vendor-widget widget-zone="vendor_product_details_tier_price_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Quantity" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Quantity" />
+                <span asp-validation-for="Quantity"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Price" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Price" />
+                <span asp-validation-for="Price"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" />
+                <span asp-validation-for="CurrencyCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDateTime" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDateTime" />
+                <span asp-validation-for="StartDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDateTime" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDateTime" />
+                <span asp-validation-for="EndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                <vc:vendor-widget widget-zone="vendor_product_details_tier_price_buttons" additional-data="null" />
+            </div>
+        </div>
+    </div>
+    <vc:vendor-widget widget-zone="vendor_product_details_tier_price_bottom" additional-data="Model" />
+</div>
+
+

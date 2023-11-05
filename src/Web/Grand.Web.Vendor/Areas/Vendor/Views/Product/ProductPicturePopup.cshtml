@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNetCore.Mvc.Razor;
+
+@model ProductModel.ProductPictureModel
+@{
+    Layout = "";
+}
+<form id="ProductPicturePopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+      asp-route-ProductId="@Context.Request.Query["ProductId"]"
+      asp-route-Id="@Context.Request.Query["Id"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
+
+    <!-- #region languages template -->
+    @{ Func<int, HelperResult> template = @<div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].AltAttribute" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].AltAttribute" />
+                    <span asp-validation-for="@Model.Locales[item].AltAttribute"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].TitleAttribute" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].TitleAttribute" />
+                    <span asp-validation-for="@Model.Locales[item].TitleAttribute"></span>
+                </div>
+            </div>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+        </div>;
+    }
+
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ProductId" type="hidden" />
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="PictureUrl" type="hidden" />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        <text> @Loc["Vendor.Catalog.Products.Pictures.Details"]</text>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="PictureUrl" />
+                                <div class="col-md-9 col-sm-9">
+                                    <a href="@Model.PictureUrl" target="_blank"><img src="@Model.PictureUrl" width="150" /></a>
+                                </div>
+                            </div>
+                            <localized-editor localized-template=template name="productpicturevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <admin-label asp-for="AltAttribute" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="AltAttribute" />
+                                            <span asp-validation-for="AltAttribute"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="TitleAttribute" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="TitleAttribute" />
+                                            <span asp-validation-for="TitleAttribute"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </localized-editor>
+                            <div class="form-group">
+                                <admin-label asp-for="DisplayOrder" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="DisplayOrder" />
+                                    <span asp-validation-for="DisplayOrder"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Style" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Style" />
+                                    <span asp-validation-for="Style"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ExtraField" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="ExtraField" />
+                                    <span asp-validation-for="ExtraField"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductPicturePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductPictures').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

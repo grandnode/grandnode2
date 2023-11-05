@@ -1,0 +1,278 @@
+﻿@model ProductModel
+<vc:vendor-widget widget-zone="vendor_product_details_inventory_top" additional-data="Model" />
+<div class="form-horizontal portlet bg-inverse form-fit" id="group-inventory">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ManageInventoryMethodId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ManageInventoryMethodId" asp-items="((ManageInventoryMethod)Model.ManageInventoryMethodId).ToSelectList(Context)" />
+                <span asp-validation-for="ManageInventoryMethodId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUseMultipleWarehouses">
+            <admin-label asp-for="UseMultipleWarehouses" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="UseMultipleWarehouses" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="UseMultipleWarehouses"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlWarehouse">
+            <admin-label asp-for="WarehouseId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses" />
+                <span asp-validation-for="WarehouseId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMultipleWarehouses">
+            <admin-label asp-for="ProductWarehouseInventoryModels" />
+            <div class="col-md-9 col-sm-9">
+                @if (Model.ProductWarehouseInventoryModels.Count > 0)
+                {
+                    <table style="width: 600px; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]
+                                </th>
+                                <th align="center">
+                                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]
+                                </th>
+                                <th align="center">
+                                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]
+                                </th>
+                                <th align="center">
+                                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.ProductWarehouseInventoryModels.Count; i++)
+                            {
+                                var item = Model.ProductWarehouseInventoryModels[i];
+                                <tr>
+                                    <td style="width: 40%;">
+                                        <div style="padding-left: 10px; padding-right: 10px;">
+                                            @item.WarehouseName (@item.WarehouseCode)
+                                            <input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseId" type="hidden" />
+                                        </div>
+                                    </td>
+                                    <td align="center" style="width: 10%;">
+                                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseUsed" />
+                                            <div class="control__indicator"></div>
+                                        </label>
+                                    <td align="center" style="width: 20%;">
+                                        <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].StockQuantity" />
+                                    </td>
+                                    <td align="center" style="width: 20%;">
+                                        <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].ReservedQuantity" />
+                                    </td>
+                                    
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <p>
+                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description1"]</em>
+                    </p>
+                    <p>
+                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description2"]</em>
+                    </p>
+                    <p>
+                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description3"]</em>
+                    </p>
+                }
+                else
+                {
+                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]
+                }
+            </div>
+        </div>
+        <div class="form-group" id="pnlStockQuantity">
+            <admin-label asp-for="StockQuantity" />
+            <div class="col-md-9 col-sm-9 form-inline">
+                <admin-input asp-for="StockQuantity" />
+                <span asp-validation-for="StockQuantity"></span>
+                <span>
+                    <admin-select asp-for="UnitId" asp-items="Model.AvailableUnits" class="form-control input-xsmall" />
+                </span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlReservedQuantity">
+            <admin-label asp-for="ReservedQuantity" />
+            <div class="col-md-9 col-sm-9 form-inline">
+                <admin-input asp-for="ReservedQuantity" />
+                <span asp-validation-for="ReservedQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDisplayStockAvailability">
+            <admin-label asp-for="StockAvailability" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="StockAvailability" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="StockAvailability"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDisplayStockQuantity">
+            <admin-label asp-for="DisplayStockQuantity" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="DisplayStockQuantity" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="DisplayStockQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMinStockQuantity">
+            <admin-label asp-for="MinStockQuantity" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MinStockQuantity" />
+                <span asp-validation-for="MinStockQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlLowStockActivity">
+            <admin-label asp-for="LowStockActivityId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="LowStockActivityId" asp-items="((LowStockActivity)Model.LowStockActivityId).ToSelectList(Context)" />
+                <span asp-validation-for="LowStockActivityId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlNotifyForQuantityBelow">
+            <admin-label asp-for="NotifyAdminForQuantityBelow" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="NotifyAdminForQuantityBelow" />
+                <span asp-validation-for="NotifyAdminForQuantityBelow"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlBackorders">
+            <admin-label asp-for="BackorderModeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="BackorderModeId" asp-items="((BackorderMode)Model.BackorderModeId).ToSelectList(Context)" />
+                <span asp-validation-for="BackorderModeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlAllowOutOfStockSubscriptions">
+            <admin-label asp-for="AllowOutOfStockSubscriptions" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AllowOutOfStockSubscriptions" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AllowOutOfStockSubscriptions"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OrderMinimumQuantity" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OrderMinimumQuantity" />
+                <span asp-validation-for="OrderMinimumQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OrderMaximumQuantity" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OrderMaximumQuantity" />
+                <span asp-validation-for="OrderMaximumQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AllowedQuantities" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AllowedQuantities" />
+                <span asp-validation-for="AllowedQuantities"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="NotReturnable" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NotReturnable" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NotReturnable"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-horizontal portlet bg-inverse form-fit" id="group-shipping">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsShipEnabled" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsShipEnabled" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsShipEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlFreeShipping">
+            <admin-label asp-for="IsFreeShipping" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsFreeShipping" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsFreeShipping"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlShipSeparately">
+            <admin-label asp-for="ShipSeparately" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="ShipSeparately" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="ShipSeparately"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlAdditionalShippingCharge">
+            <admin-label asp-for="AdditionalShippingCharge" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AdditionalShippingCharge" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="AdditionalShippingCharge"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlWeight">
+            <admin-label asp-for="Weight" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Weight" /> [@Model.BaseWeightIn]
+                <span asp-validation-for="Weight"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlLength">
+            <admin-label asp-for="Length" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Length" /> [@Model.BaseDimensionIn]
+                <span asp-validation-for="Length"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlWidth">
+            <admin-label asp-for="Width" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Width" /> [@Model.BaseDimensionIn]
+                <span asp-validation-for="Width"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlHeight">
+            <admin-label asp-for="Height" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Height" /> [@Model.BaseDimensionIn]
+                <span asp-validation-for="Height"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDeliveryDate">
+            <admin-label asp-for="DeliveryDateId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DeliveryDateId" asp-items="Model.AvailableDeliveryDates" />
+                <span asp-validation-for="DeliveryDateId"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:vendor-widget widget-zone="vendor_product_details_inventory_bottom" additional-data="Model" />

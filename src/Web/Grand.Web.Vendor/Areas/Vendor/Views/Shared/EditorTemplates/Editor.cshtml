@@ -1,0 +1,33 @@
+﻿@model string
+@{
+    var random = CommonHelper.GenerateRandomInteger();    
+}
+<div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
+    @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
+</div>
+@Html.TextArea(string.Empty, /* Name suffix */
+    ViewData.TemplateInfo.FormattedModelValue /* Initial value */
+)
+<script>
+    $(document).ready(function () {
+        $('#s-@(random)-summernote').summernote({
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'image', 'hr']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+            ],
+            callbacks: {
+                    onChange: function (contents) {
+                            var textarea = this.nextSibling.nextElementSibling;
+                            textarea.value = contents;
+                        },
+            },
+        });
+    });
+</script>
+

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 
 namespace Grand.Web.Common.Components
 {
-    [BaseViewComponent(AdminAccess = false)]
     public abstract class BaseViewComponent : ViewComponent
     {
         public new IViewComponentResult View<TModel>(string viewName, TModel model)

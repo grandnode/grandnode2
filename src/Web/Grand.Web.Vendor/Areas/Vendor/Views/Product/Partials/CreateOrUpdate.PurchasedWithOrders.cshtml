@@ -1,0 +1,68 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+
+<div class="panel panel-default">
+    <vc:vendor-widget widget-zone="vendor_product_details_purchased_with_orders_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="purchased-with-orders-grid"></div>
+    </div>
+    <vc:vendor-widget widget-zone="vendor_product_details_purchased_with_orders_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#purchased-with-orders-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("PurchasedWithOrders", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "OrderNumber",
+                    title: "@Loc["Vendor.Orders.Fields.ID"]",
+                    width: 80,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/#=Id#">#=OrderNumber#</a>',
+                }, {
+                    field: "CustomerEmail",
+                    title: "@Loc["Vendor.Orders.Fields.CustomerEmail"]",
+                    width: 200,
+                    minScreenWidth: 500
+                },
+                {
+                    field: "CreatedOn",
+                    title: "@Loc["Vendor.Orders.Fields.CreatedOn"]",
+                    width: 150,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+</script>

@@ -1,0 +1,601 @@
+﻿@model ProductModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<script>
+    $(document).ready(function() {
+
+        $("#@Html.IdFor(model => model.ProductTypeId)").change(toggleProductType);
+        $("#@Html.IdFor(model => model.RequireOtherProducts)").click(toggleRequireOtherProducts);
+        $("#@Html.IdFor(model => model.AvailableForPreOrder)").click(togglePreOrder);
+        $("#@Html.IdFor(model => model.IsGiftVoucher)").click(toggleGiftVoucher);
+        $("#@Html.IdFor(model => model.EnteredPrice)").click(toggleEnteredPrice);
+        $("#@Html.IdFor(model => model.BasepriceEnabled)").click(toggleBasepriceEnabled);
+        $("#@Html.IdFor(model => model.IsRecurring)").click(toggleRecurring);
+        $("#@Html.IdFor(model => model.IsShipEnabled)").click(toggleShipping);
+        $("#@Html.IdFor(model => model.IsTaxExempt)").click(toggleTax);
+        $("#@Html.IdFor(model => model.ManageInventoryMethodId)").change(toggleManageStock);
+        $("#@Html.IdFor(model => model.UseMultipleWarehouses)").click(toggleManageStock);
+        $("#@Html.IdFor(model => model.BackorderModeId)").change(toggleManageStock);
+        $("#@Html.IdFor(model => model.StockAvailability)").click(toggleManageStock);
+        $("#@Html.IdFor(model => model.MarkAsNew)").click(toggleMarkAsNew);
+
+        toggleProductType();
+        togglePreOrder();
+        toggleRequireOtherProducts();
+        toggleGiftVoucher();
+        toggleEnteredPrice();
+        toggleBasepriceEnabled();
+        toggleRecurring();
+        toggleShipping();
+        toggleTax();
+        toggleManageStock();
+        toggleMarkAsNew();
+    });
+
+    function toggleProductType() {
+        var selectedProductTypeId = $("#@Html.IdFor(model => model.ProductTypeId)").val();
+        if (selectedProductTypeId == @(((int) ProductType.SimpleProduct).ToString())) {
+            $('#group-required-other-products').show();
+            $('#group-giftvoucher').show();
+            $('#group-recurring').show();
+            $('#group-shipping').show();
+            $('#group-tax').show();
+            $('#pnlStartPrice').hide();
+            $('#tab-associated-products').hide();
+            $('#tab-price-product').show();
+            $('#tab-inventory-product').show();
+            $('#tab-attributes-product').show();
+            $('#tab-purchased-product').show();
+            $('#tab-calendar').hide();
+            $('#tab-bundle-products').hide();
+            $('#tab-bids').hide();
+        } else if (selectedProductTypeId == @(((int) ProductType.GroupedProduct).ToString())) {
+            $('#group-required-other-products').hide();
+            $('#group-giftvoucher').hide();
+            $('#group-recurring').hide();
+            $('#group-shipping').hide();
+            $('#group-tax').hide();
+            $('#pnlStartPrice').hide();
+            $('#tab-associated-products').show();
+            $('#tab-price-product').hide();
+            $('#tab-inventory-product').hide();
+            $('#tab-attributes-product').hide();
+            $('#tab-purchased-product').hide();
+            $('#tab-calendar').hide();
+            $('#tab-bundle-products').hide();
+            $('#tab-bids').hide();
+        } else if (selectedProductTypeId == @(((int) ProductType.Reservation).ToString())){
+            $('#group-required-other-products').show();
+            $('#group-giftvoucher').show();
+            $('#group-shipping').show();
+            $('#group-tax').show();
+            $('#pnlStartPrice').hide();
+            $('#group-recurring').hide();
+            $('#tab-associated-products').hide();
+            $('#tab-price-product').show();
+            $('#tab-inventory-product').show();
+            $('#tab-attributes-product').show();
+            $('#tab-purchased-product').show();
+            $('#tab-calendar').show();
+            $('#tab-bundle-products').hide();
+            $('#tab-bids').hide();
+            $("#@Html.IdFor(model => model.ManageInventoryMethodId)").val("0");
+            toggleManageStock();
+            $("#@Html.IdFor(model => model.IsShipEnabled)").prop("checked", false);
+            $("#@Html.IdFor(model => model.NotReturnable)").prop("checked", true);
+            $("#@Html.IdFor(model => model.IsRecurring)").prop("checked", false);
+            toggleShipping();
+            $('#tab-inventory-product').hide();
+        } else if (selectedProductTypeId == @(((int) ProductType.BundledProduct).ToString())){
+            $('#group-required-other-products').hide();
+            $('#group-giftvoucher').hide();
+            $('#group-recurring').hide();
+            $('#group-shipping').show();
+            $('#group-tax').show();
+            $('#pnlStartPrice').hide();
+            $('#tab-associated-products').hide();
+            $('#tab-price-product').show();
+            $('#tab-inventory-product').show();
+            $('#tab-attributes-product').show();
+            $('#tab-purchased-product').show();
+            $('#tab-calendar').hide();
+            $('#tab-bundle-products').show();
+            $('#tab-bids').hide();
+            $("#@Html.IdFor(model => model.IsRecurring)").prop("checked", false);
+        } else if (selectedProductTypeId == @(((int) ProductType.Auction).ToString())){
+            $('#tab-bids').show();
+            $('#tab-calendar').hide();
+            $('#tab-bundle-products').hide();
+            $('#tab-attributes-product').hide();
+            $('#group-required-other-products').hide();
+            $('#group-recurring').hide();
+            $('#pnlStartPrice').show();
+            $('#tab-associated-products').hide();
+            $("#@Html.IdFor(model => model.IsRecurring)").prop("checked", false);
+        }
+    }
+
+    function togglePreOrder() {
+        if ($('#@Html.IdFor(model => model.AvailableForPreOrder)').is(':checked')) {
+            $('#pnlPreOrderDateTime').show();
+        } else {
+            $('#pnlPreOrderDateTime').hide();
+        }
+    }
+
+    function toggleRequireOtherProducts() {
+        if ($('#@Html.IdFor(model => model.RequireOtherProducts)').is(':checked')) {
+            $('#pnlRequiredProductIds').show();
+            $('#pnlAutomaticallyAddRequiredProducts').show();
+        } else {
+            $('#pnlRequiredProductIds').hide();
+            $('#pnlAutomaticallyAddRequiredProducts').hide();
+        }
+    }
+
+    function toggleGiftVoucher() {
+        if ($('#@Html.IdFor(model => model.IsGiftVoucher)').is(':checked')) {
+            $('#pnlGiftVoucherType').show();
+            $('#pnlOverriddenGiftVoucherAmount').show();
+        } else {
+            $('#pnlGiftVoucherType').hide();
+            $('#pnlOverriddenGiftVoucherAmount').hide();
+        }
+    }
+
+    function toggleEnteredPrice() {
+        if ($('#@Html.IdFor(model => model.EnteredPrice)').is(':checked')) {
+            $('#pnlMinEnteredPrice').show();
+            $('#pnlMaxEnteredPrice').show();
+        } else {
+            $('#pnlMinEnteredPrice').hide();
+            $('#pnlMaxEnteredPrice').hide();
+        }
+    }
+
+    function toggleBasepriceEnabled() {
+        if ($('#@Html.IdFor(model => model.BasepriceEnabled)').is(':checked')) {
+            $('#pnlBasepriceAmount').show();
+            $('#pnlBasepriceUnit').show();
+            $('#pnlBasepriceBaseAmount').show();
+            $('#pnlBasepriceBaseUnit').show();
+        } else {
+            $('#pnlBasepriceAmount').hide();
+            $('#pnlBasepriceUnit').hide();
+            $('#pnlBasepriceBaseAmount').hide();
+            $('#pnlBasepriceBaseUnit').hide();
+        }
+    }
+
+    function toggleShipping() {
+        if ($('#@Html.IdFor(model => model.IsShipEnabled)').is(':checked')) {
+            $('#pnlFreeShipping').show();
+            $('#pnlShipSeparately').show();
+            $('#pnlAdditionalShippingCharge').show();
+            $('#pnlWeight').show();
+            $('#pnlLength').show();
+            $('#pnlWidth').show();
+            $('#pnlHeight').show();
+            $('#pnlDeliveryDate').show();
+        } else {
+            $('#pnlFreeShipping').hide();
+            $('#pnlShipSeparately').hide();
+            $('#pnlAdditionalShippingCharge').hide();
+            $('#pnlWeight').hide();
+            $('#pnlLength').hide();
+            $('#pnlWidth').hide();
+            $('#pnlHeight').hide();
+            $('#pnlDeliveryDate').hide();
+        }
+    }
+
+    function toggleRecurring() {
+        if ($('#@Html.IdFor(model => model.IsRecurring)').is(':checked')) {
+            $('#pnlCycleLength').show();
+            $('#pnlCyclePeriod').show();
+            $('#pnlTotalCycles').show();
+        } else {
+            $('#pnlCycleLength').hide();
+            $('#pnlCyclePeriod').hide();
+            $('#pnlTotalCycles').hide();
+        }
+    }
+
+
+    function toggleTax() {
+        if ($('#@Html.IdFor(model => model.IsTaxExempt)').is(':checked')) {
+            $('#pnlTaxCategory').hide();
+        } else {
+            $('#pnlTaxCategory').show();
+        }
+    }
+
+    function toggleManageStock() {
+        var selectedManageInventoryMethodId = $("#@Html.IdFor(model => model.ManageInventoryMethodId)").val();
+        if (selectedManageInventoryMethodId == @(((int) ManageInventoryMethod.DontManageStock).ToString())) {
+            $('#pnlUseMultipleWarehouses').hide();
+            $('#pnlWarehouse').show();
+            $('#pnlMultipleWarehouses').hide();
+            $('#pnlStockQuantity').hide();
+            $('#pnlReservedQuantity').hide();
+            $('#pnlDisplayStockAvailability').hide();
+            $('#pnlDisplayStockQuantity').hide();
+            $('#pnlMinStockQuantity').hide();
+            $('#pnlLowStockActivity').hide();
+            $('#pnlNotifyForQuantityBelow').hide();
+            $('#pnlAllowOutOfStockSubscriptions').hide();
+            $('#pnlBackorders').hide();
+        } else if (selectedManageInventoryMethodId == @(((int) ManageInventoryMethod.ManageStockByBundleProducts).ToString())) {
+            $('#pnlWarehouse').hide();
+            $('#pnlUseMultipleWarehouses').hide();
+            $('#pnlMultipleWarehouses').hide();
+            $('#pnlStockQuantity').hide();
+            $('#pnlReservedQuantity').hide();
+            $('#pnlDisplayStockAvailability').hide();
+            $('#pnlDisplayStockQuantity').hide();
+            $('#pnlMinStockQuantity').hide();
+            $('#pnlLowStockActivity').hide();
+            $('#pnlNotifyForQuantityBelow').hide();
+            $('#pnlAllowOutOfStockSubscriptions').hide();
+            $('#pnlBackorders').hide();
+        }else if (selectedManageInventoryMethodId == @(((int) ManageInventoryMethod.ManageStock).ToString())) {
+            $('#pnlUseMultipleWarehouses').show();
+
+            if ($('#@Html.IdFor(model => model.UseMultipleWarehouses)').is(':checked')) {
+                $('#pnlWarehouse').hide();
+                $('#pnlMultipleWarehouses').show();
+                $('#pnlStockQuantity').hide();
+                $('#pnlReservedQuantity').hide();
+
+            } else {
+                $('#pnlWarehouse').show();
+                $('#pnlMultipleWarehouses').hide();
+                $('#pnlStockQuantity').show();
+                $('#pnlReservedQuantity').show();
+            }
+
+            $('#pnlDisplayStockAvailability').show();
+            if ($('#@Html.IdFor(model => model.StockAvailability)').is(':checked')) {
+                $('#pnlDisplayStockQuantity').show();
+            } else {
+                $('#pnlDisplayStockQuantity').hide();
+            }
+
+            $('#pnlMinStockQuantity').show();
+            $('#pnlLowStockActivity').show();
+            $('#pnlNotifyForQuantityBelow').show();
+            $('#pnlBackorders').show();
+            var selectedBackorderModeId = $("#@Html.IdFor(model => model.BackorderModeId)").val();
+            if (selectedBackorderModeId == @(((int) BackorderMode.NoBackorders).ToString())) {
+                //no backorders
+                $('#pnlAllowOutOfStockSubscriptions').show();
+            } else {
+                //backorders are enabled
+                $('#pnlAllowOutOfStockSubscriptions').hide();
+            }
+        } else if (selectedManageInventoryMethodId == @(((int) ManageInventoryMethod.ManageStockByAttributes).ToString())) {
+            $('#pnlUseMultipleWarehouses').show();
+            $('#pnlMultipleWarehouses').hide();
+            $('#pnlStockQuantity').hide();
+            $('#pnlReservedQuantity').hide();
+            $('#pnlMinStockQuantity').show();
+            $('#pnlLowStockActivity').show();
+            $('#pnlNotifyForQuantityBelow').show();
+            $('#pnlBackorders').show();
+            if ($('#@Html.IdFor(model => model.UseMultipleWarehouses)').is(':checked')) {
+                $('#pnlWarehouse').hide();
+            } else {
+                $('#pnlWarehouse').show();
+            }
+            $('#pnlDisplayStockAvailability').show();
+            if ($('#@Html.IdFor(model => model.StockAvailability)').is(':checked')) {
+                $('#pnlDisplayStockQuantity').show();
+            } else {
+                $('#pnlDisplayStockQuantity').hide();
+            }
+            var selectedBackorderModeId = $("#@Html.IdFor(model => model.BackorderModeId)").val();
+            if (selectedBackorderModeId == @(((int) BackorderMode.NoBackorders).ToString())) {
+                //no backorders
+                $('#pnlAllowOutOfStockSubscriptions').show();
+            } else {
+                //backorders are enabled
+                $('#pnlAllowOutOfStockSubscriptions').hide();
+            }
+
+        } else {
+            if ($('#@Html.IdFor(model => model.UseMultipleWarehouses)').is(':checked')) {
+                $('#pnlWarehouse').hide();
+            } else {
+                $('#pnlWarehouse').show();
+            }
+            $('#pnlMultipleWarehouses').hide();
+            $('#pnlStockQuantity').hide();
+            $('#pnlReservedQuantity').hide();
+            $('#pnlDisplayStockAvailability').show();
+            if ($('#@Html.IdFor(model => model.StockAvailability)').is(':checked')) {
+                $('#pnlDisplayStockQuantity').show();
+            } else {
+                $('#pnlDisplayStockQuantity').hide();
+            }
+            $('#pnlMinStockQuantity').hide();
+            $('#pnlLowStockActivity').hide();
+            $('#pnlNotifyForQuantityBelow').hide();
+            $('#pnlAllowOutOfStockSubscriptions').hide();
+            $('#pnlBackorders').hide();
+        }
+    }
+
+    function toggleMarkAsNew() {
+        if ($('#@Html.IdFor(model => model.MarkAsNew)').is(':checked')) {
+            $('#pnlMarkAsNewStartDateTime').show();
+            $('#pnlMarkAsNewEndDateTime').show();
+        } else {
+            $('#pnlMarkAsNewStartDateTime').hide();
+            $('#pnlMarkAsNewEndDateTime').hide();
+        }
+    }
+
+    //required product friendly names
+    $(document).ready(function () {
+        loadRequiredProductFriendlyNames();
+    });
+    $(document).ready(function () {
+        $('#@Html.IdFor(model => model.RequiredProductIds)')
+        .data('timeout', null)
+        .keyup(function() {
+            clearTimeout($(this).data('timeout'));
+            //one second timeout
+            $(this).data('timeout', setTimeout(loadRequiredProductFriendlyNames, 1000));
+        });
+    });
+    function loadRequiredProductFriendlyNames() {
+        var inputValue = $('#@Html.IdFor(model => model.RequiredProductIds)').val();
+        if (inputValue) {
+            //load friendly names
+            $('#required-products-check-progress').show();
+
+            var postData = {
+                productIds: inputValue
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("LoadProductFriendlyNames", "Product", new { area = Constants.AreaVendor })',
+                data: postData,
+                dataType: 'json',
+                success: function(data) {
+                    $('#required-products-check-progress').hide();
+                    $('#required-product-names').text(data.Text);
+                },
+                failure: function () {
+                    $('#required-products-check-progress').hide();
+                    $('#required-product-names').text('');
+                }
+            });
+        } else {
+            $('#required-product-names').text('');
+        }
+    }
+
+</script>
+<vc:vendor-widget widget-zone="vendor_product_details_info_column_left_top" additional-data="Model" />
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ProductTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ProductTypeId" asp-items="((ProductType)Model.ProductTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="ProductTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="VisibleIndividually" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="VisibleIndividually" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="VisibleIndividually"></span>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.AssociatedToProductId) && !string.IsNullOrEmpty(Model.AssociatedToProductName))
+        {
+            <div class="form-group">
+                <admin-label asp-for="AssociatedToProductId" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">
+                        @Html.ActionLink(Model.AssociatedToProductName, "Edit", "Product", new { id = Model.AssociatedToProductId }, new { })
+                    </label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="ProductLayoutId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ProductLayoutId" asp-items="Model.AvailableProductLayouts" />
+                <span asp-validation-for="ProductLayoutId"></span>
+            </div>
+        </div>
+    </div>
+
+    @{ Func<int, HelperResult>
+               template = @<div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].Name" />
+                    <span asp-validation-for="@Model.Locales[item].Name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].ShortDescription" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
+                    <span asp-validation-for="@Model.Locales[item].ShortDescription"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].FullDescription" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].FullDescription" asp-template="Editor" />
+                    <span asp-validation-for="@Model.Locales[item].FullDescription"></span>
+                </div>
+            </div>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+        </div>;
+    }
+
+    <localized-editor localized-template=@template name="product-info-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="ShortDescription" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="ShortDescription"></admin-textarea>
+                    <span asp-validation-for="ShortDescription"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="FullDescription" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="FullDescription" asp-template="Editor" />
+                    <span asp-validation-for="FullDescription"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Flag" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Flag" />
+                <span asp-validation-for="Flag"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AdminComment" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="AdminComment"></admin-textarea>
+                <span asp-validation-for="AdminComment"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BrandId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BrandId" />
+                <span asp-validation-for="BrandId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AllowCustomerReviews" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AllowCustomerReviews" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AllowCustomerReviews"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Sku" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Sku" />
+                <span asp-validation-for="Sku"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Mpn" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Mpn" />
+                <span asp-validation-for="Mpn"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Gtin" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Gtin" />
+                <span asp-validation-for="Gtin"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="AvailableStartDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AvailableStartDateTime" />
+                <span asp-validation-for="AvailableStartDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AvailableEndDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AvailableEndDateTime" />
+                <span asp-validation-for="AvailableEndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="MarkAsNew" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="MarkAsNew" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="MarkAsNew"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMarkAsNewStartDateTime">
+            <admin-label asp-for="MarkAsNewStartDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MarkAsNewStartDateTime" />
+                <span asp-validation-for="MarkAsNewStartDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMarkAsNewEndDateTime">
+            <admin-label asp-for="MarkAsNewEndDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MarkAsNewEndDateTime" />
+                <span asp-validation-for="MarkAsNewEndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Published" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Published" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Published"></span>
+            </div>
+        </div>
+        @if (Model.CreatedOn.HasValue)
+        {
+            <div class="form-group">
+                <admin-label asp-for="CreatedOn" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.CreatedOn.Value.ToString("F")</label>
+                </div>
+            </div>
+        }
+        @if (Model.UpdatedOn.HasValue)
+        {
+            <div class="form-group">
+                <admin-label asp-for="UpdatedOn" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.UpdatedOn.Value.ToString("F")</label>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<vc:vendor-widget widget-zone="vendor_product_details_info_column_left_bottom" additional-data="Model" />

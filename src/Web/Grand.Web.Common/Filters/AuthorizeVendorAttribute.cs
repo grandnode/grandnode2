@@ -3,6 +3,7 @@ using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Common.Filters
 {
@@ -74,13 +75,10 @@ namespace Grand.Web.Common.Filters
                 if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
-                //whether current customer is vendor
-                if (!await _groupService.IsVendor(_workContext.CurrentCustomer))
-                    return;
-
                 //ensure that this user has active vendor record associated
-                if (_workContext.CurrentVendor == null)
-                    context.Result = new ChallengeResult();
+                if (!await _groupService.IsVendor(_workContext.CurrentCustomer) || _workContext.CurrentVendor == null)
+                    context.Result = new RedirectToRouteResult("VendorLogin", new RouteValueDictionary());
+
             }
 
             #endregion

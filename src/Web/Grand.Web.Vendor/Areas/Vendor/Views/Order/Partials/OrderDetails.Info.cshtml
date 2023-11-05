@@ -1,0 +1,69 @@
+﻿@model OrderModel
+
+<div class="form-horizontal">
+    <vc:vendor-widget widget-zone="vendor_order_details_info_top" additional-data="Model"/>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="OrderNumber" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+            <div class="col-9 col-md-9 col-sm-9">
+                <label class="control-label">@Model.OrderNumber</label>
+            </div>
+        </div>
+
+        @if (Model.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+        {
+            <div class="form-group">
+                <admin-label asp-for="OrderStatus" asp-display-hint="false" class="control-label col-12 col-md-3 col-sm-3"></admin-label>
+                <div class="col-12 col-md-9 col-sm-9">
+                    <label class="control-label text-danger">
+                        <strong>
+                            @Model.OrderStatus
+                        </strong>
+                    </label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="PaymentStatus" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+            <div class="col-9 col-md-9 col-sm-9">
+                <label class="control-label">
+                    @Model.PaymentStatus
+                </label>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Code))
+        {
+            <div class="form-group">
+                <admin-label asp-for="Code" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+                <div class="col-9 col-md-9 col-sm-9">
+                    <label class="control-label">@Model.Code</label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="CurrencyCode" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+            <div class="col-9 col-md-9 col-sm-9">
+                <label class="control-label">
+                    @Model.CurrencyCode
+                    @if (Model.CurrencyRate != 1)
+                    {
+                        <text>(@Model.CurrencyRate)</text>
+                    }
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StoreName" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+            <div class="col-9 col-md-9 col-sm-9">
+                <label class="control-label">@Model.StoreName</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CreatedOn" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
+            <div class="col-9 col-md-9 col-sm-9">
+                <label class="control-label"> @Html.DisplayFor(model => model.CreatedOn)</label>
+            </div>
+        </div>
+    </div>
+    <vc:vendor-widget widget-zone="vendor_order_details_info_bottom" additional-data="Model"/>
+</div>

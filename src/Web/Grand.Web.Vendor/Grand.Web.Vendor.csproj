@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <Import Project="..\..\Build\Grand.Common.props" />
+    <PropertyGroup>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
+        <UseAppHost>false</UseAppHost>
+        <!--Set GenerateRuntimeConfigurationFiles as true when Vendor panel is supposed to works independent-->
+        <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+    </PropertyGroup>
+    <ItemGroup>
+        <Content Include="Areas\**" CopyToPublishDirectory="Never" />
+        <Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
+        <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
+        <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+        <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+    </ItemGroup>
+</Project>

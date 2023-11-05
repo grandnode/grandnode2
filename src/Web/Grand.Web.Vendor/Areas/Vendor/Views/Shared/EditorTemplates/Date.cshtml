@@ -1,0 +1,9 @@
+﻿@model DateTime
+<input asp-for="@Model"/>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdForModel()").kendoDatePicker({
+           culture: "@CultureInfo.CurrentCulture.Name"
+        });
+    });
+</script>

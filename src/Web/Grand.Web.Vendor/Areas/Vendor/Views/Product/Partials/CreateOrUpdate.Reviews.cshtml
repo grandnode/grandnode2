@@ -1,0 +1,86 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+ 
+<div class="panel panel-default">
+    <vc:vendor-widget widget-zone="vendor_product_details_reviews_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="reviews-grid"></div>
+    </div>
+    <vc:vendor-widget widget-zone="vendor_product_details_reviews_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#reviews-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("Reviews", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "CustomerId",
+                    title: "@Loc["Vendor.Catalog.ProductReviews.Fields.Customer"]",
+                    width: 200,
+                    template: '#:CustomerInfo#',
+                    minScreenWidth: 750,
+                },
+                {
+                    field: "Title",
+                    title: "@Loc["Vendor.Catalog.ProductReviews.Fields.Title"]",
+                    template: '#:Title#',
+                    width: 280,
+                },
+                {
+                    field: "Rating",
+                    title: "@Loc["Vendor.Catalog.ProductReviews.Fields.Rating"]",
+                    width: 60,
+                    minScreenWidth: 500,
+                },
+                {
+                    field: "IsApproved",
+                    title: "@Loc["Vendor.Catalog.ProductReviews.Fields.IsApproved"]",
+                    width: 80,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(IsApproved) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #',
+                    minScreenWidth: 500,
+                },
+                {
+                    field: "CreatedOn",
+                    title: "@Loc["Vendor.Orders.Fields.CreatedOn"]",
+                    width: 150,
+                    type: "date",
+                    format: "{0:G}",
+                    minScreenWidth: 500,
+                }]
+            });
+        });
+</script>

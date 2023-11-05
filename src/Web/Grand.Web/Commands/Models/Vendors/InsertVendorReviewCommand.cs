@@ -7,7 +7,7 @@ namespace Grand.Web.Commands.Models.Vendors
 {
     public class InsertVendorReviewCommand : IRequest<VendorReview>
     {
-        public Vendor Vendor { get; set; }
+        public Domain.Vendors.Vendor Vendor { get; set; }
         public Store Store { get; set; }
         public VendorReviewsModel Model { get; set; }
     }

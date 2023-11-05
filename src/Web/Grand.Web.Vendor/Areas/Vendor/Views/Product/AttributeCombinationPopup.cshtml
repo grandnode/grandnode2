@@ -1,0 +1,387 @@
+﻿@model ProductAttributeCombinationModel
+@{
+    Layout = "";
+    ViewBag.Title = string.IsNullOrEmpty(Model.Id) ? Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"] : Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
+}
+<form id="AttributeCombinationPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
+      asp-route-productId="@Context.Request.Query["productId"]"
+      asp-route-Id="@Context.Request.Query["Id"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
+    
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="ProductId" type="hidden" />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @if (string.IsNullOrEmpty(Model.Id))
+                        {
+                            @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"]
+                        }
+                        else
+                        {
+                            @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Update"]
+                        }
+                    </div>
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @if (Model.Warnings.Count > 0)
+                            {
+                                <div class="message-box message-box-error">
+                                    @foreach (var warning in Model.Warnings)
+                                    {
+                                        @warning
+                                        <br />
+                                    }
+                                </div>
+                            }
+                            @if (string.IsNullOrEmpty(Model.Id))
+                            {
+                                <partial name="Partials/ProductAttributes" model="Model.ProductAttributes" />
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">
+                                        @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]
+                                    </label>
+                                    <div class="col-md-9 col-sm-9">
+                                        <text>@Html.Raw(Model.Attributes)</text>
+                                    </div>
+                                </div>
+
+                            }
+                            <br />
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @if (!Model.UseMultipleWarehouses)
+                            {
+                                <div class="form-group">
+                                    <admin-label asp-for="StockQuantity" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="StockQuantity" />
+                                        <span asp-validation-for="StockQuantity"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="ReservedQuantity" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="ReservedQuantity" />
+                                        <span asp-validation-for="ReservedQuantity"></span>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group" id="pnlMultipleWarehouses">
+
+                                    <div class="col-md-9 col-sm-9">
+                                        @if (Model.WarehouseInventoryModels.Count > 0)
+                                        {
+                                            <table style="width: 600px; border-collapse: collapse;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]
+                                                        </th>
+                                                        <th align="center">
+                                                            @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]
+                                                        </th>
+                                                        <th align="center">
+                                                            @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]
+                                                        </th>
+                                                        <th align="center">
+                                                            @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @for (var i = 0; i < Model.WarehouseInventoryModels.Count; i++)
+                                                    {
+                                                        var item = Model.WarehouseInventoryModels[i];
+                                                        <tr style="height:40px;">
+                                                            <td style="width: 35%;">
+                                                                <div style="padding-left: 5px; padding-right: 5px;">
+                                                                    @item.WarehouseName
+                                                                    <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseId" type="hidden" />
+                                                                </div>
+                                                            </td>
+                                                            <td align="center" style="width: 10%;">
+                                                                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                                                    <admin-input asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed" />
+                                                                    <div class="control__indicator"></div>
+                                                                </label>
+                                                            <td align="center" style="width: 20%;">
+                                                                <admin-input asp-for="@Model.WarehouseInventoryModels[i].StockQuantity" />
+                                                            </td>
+                                                            <td align="center" style="width: 20%;">
+                                                                <admin-input asp-for="@Model.WarehouseInventoryModels[i].ReservedQuantity" />
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <admin-label asp-for="AllowOutOfStockOrders" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowOutOfStockOrders" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowOutOfStockOrders"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Text" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Text" />
+                                    <span asp-validation-for="Text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Sku" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Sku" />
+                                    <span asp-validation-for="Sku"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Mpn" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Mpn" />
+                                    <span asp-validation-for="Mpn"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Gtin" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Gtin" />
+                                    <span asp-validation-for="Gtin"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OverriddenPrice" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="OverriddenPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                                    <span asp-validation-for="OverriddenPrice"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="NotifyAdminForQuantityBelow" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="NotifyAdminForQuantityBelow" />
+                                    <span asp-validation-for="NotifyAdminForQuantityBelow"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="PictureId" class="col-sm-3 control-label" />
+                                <div class="col-md-9 col-sm-9">
+                                    <ul style="list-style: none;">
+                                        <li style="float: left; width: 110px;">
+                                            <p style="float: left; padding-top: 20px;">
+                                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
+                                                       @if (!string.IsNullOrEmpty(Model.PictureId)) { <text> checked="checked" </text> }>
+                                            </p>
+                                            <p style="float: left; padding-top: 20px;">
+                                                <label for="id_image_0">
+                                                    @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Picture.NoPicture"]
+                                                </label>
+                                            </p>
+                                        </li>
+                                        @foreach (var picture in Model.ProductPictureModels)
+                                        {
+                                            <li style="float: left; width: 110px;">
+                                                <p style="float: left; padding-top: 20px;">
+                                                    <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
+                                                           @if (picture.PictureId == Model.PictureId) { <text> checked="checked" </text> }>
+                                                </p>
+                                                <p style="float: left;">
+                                                    <label for="id_image_@picture.PictureId">
+                                                        <img src="@picture.PictureUrl" alt="" title="" width="75">
+                                                    </label>
+                                                </p>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                                    <vc:vendor-widget widget-zone="vendor_product_details_attribute_combination_buttons" additional-data="Model" />
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Id))
+                        {
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"] [@Model.PrimaryStoreCurrencyCode]
+                                </div>
+                                <div class="panel-body">
+                                    <div id="tierprices-grid"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#AttributeCombinationPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshCombinations').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+    @if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <script>
+                    $("#tierprices-grid").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaVendor }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Quantity: { editable: true, type: "number" },
+                                        Price: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "string" },
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        toolbar: [{ name: "create", text: "@Loc["Vendor.Common.AddNewRecord"]" }],
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [
+                        {
+                            field: "Quantity",
+                            title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]",
+                            width: 150,
+                            format: "{0:0}"
+                        }, {
+                            field: "Price",
+                            title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]",
+                            width: 150,
+                            editor: function (container, options) {
+                                $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "{0:n4}",
+                                            decimals: 4
+                                        });
+                            }
+                        },{
+                            command: [{
+                                name: "edit",
+                                text: {
+                                    edit: "@Loc["Vendor.Common.Edit"]",
+                                    update: "@Loc["Vendor.Common.Update"]",
+                                    cancel: "@Loc["Vendor.Common.Cancel"]"
+                                }
+                            }, {
+                                name: "destroy",
+                                text: "@Loc["Vendor.Common.Delete"]"
+                            }],
+                            width: 200
+                        }]
+                    });
+
+        </script>
+    }
+</form>

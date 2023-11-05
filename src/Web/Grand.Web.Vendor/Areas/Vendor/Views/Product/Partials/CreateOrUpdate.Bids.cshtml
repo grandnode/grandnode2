@@ -1,0 +1,96 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+@if (!string.IsNullOrEmpty(Model.Id))
+{
+    <input asp-for="AuctionEnded" type="hidden" />
+
+    <div class="panel panel-default">
+        <vc:vendor-widget widget-zone="vendor_product_details_bids_top" additional-data="Model" />
+        <div class="panel-body">
+            <div id="bids-grid"></div>
+        </div>
+        <vc:vendor-widget widget-zone="vendor_product_details_bids_bottom" additional-data="Model" />
+    </div>
+    <script>
+        $(document).ready(function () {
+                $("#bids-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ListBids", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken,
+                        }, destroy: {
+                            url: "@Html.Raw(Url.Action("BidDelete", "Product", new { area = Constants.AreaVendor }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        ProductId: "ProductId"
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            autoBind: false,
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Date",
+                title: "@Loc["Vendor.Catalog.Products.Bids.Date"]",
+                width: 200,
+                type: "date",
+                template: "#= kendo.toString(kendo.parseDate(Date, 'yyyy-MM-dd'), 'MM/dd/yyyy  h:mm tt') #"
+            }, {
+                field: "CustomerId",
+                title: "@Loc["Vendor.Catalog.Products.Bids.CustomerId"]",
+                width: 200,
+                template: '# if(Email) {# <a  href="@Url.Action("Edit", "Customer")/#=CustomerId#">#=Email#</a>  #} #'
+            }, {
+                field: "Amount",
+                title: "@Loc["Vendor.Catalog.Products.Bids.Amount"]",
+                width: 200
+            }, {
+                field: "OrderId",
+                title: "@Loc["Vendor.Catalog.Products.Bids.OrderId"]",
+                width: 200,
+                template: '# if(OrderId) {# <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/#=OrderId#"><i class="fa fa-search"></i> @Loc["Vendor.Common.View"]</a>  #} #'
+            }, {
+                command: [{
+                    name: "destroy",
+                    text: "@Loc["Vendor.Common.Delete"]"
+                }],
+                width: 100
+            }]
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Vendor.Catalog.Products.Bids.SaveBeforeEdit"]
+    </div>
+}

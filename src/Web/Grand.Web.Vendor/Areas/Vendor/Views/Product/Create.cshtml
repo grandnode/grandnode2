@@ -1,0 +1,31 @@
+﻿@model ProductModel
+@{
+    //page title
+    ViewBag.Title = Loc["Vendor.Catalog.Products.AddNew"];
+}
+<form asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="Create" method="post" id="product-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Vendor.Catalog.Products.AddNew"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Vendor.Catalog.Products.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Vendor.Common.SaveContinue"] </button>
+                            <vc:vendor-widget widget-zone="vendor_product_details_buttons" additional-data="null" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

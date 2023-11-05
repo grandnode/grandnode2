@@ -15,7 +15,6 @@ namespace Grand.Web.Admin.Controllers
     [AuthorizeAdmin]
     [AutoValidateAntiforgeryToken]
     [Area(Constants.AreaAdmin)]
-    [AuthorizeVendor]
     [AuthorizeMenu]
     public abstract class BaseAdminController : BaseController
     {
