@@ -5,41 +5,41 @@
 }
 
 <vc:vendor-widget widget-zone="vendor_dashboard_top" additional-data="null"/>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>@Loc["Vendor.Dashboard.Summary"] - @WorkContext.CurrentVendor.Name</h2>
-                    <div class="filter">
-                        <div class="page-bar" style="height:43px;">
-                            <div class="page-toolbar">
-                                <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
-                                    <i class="icon-calendar"></i>&nbsp;
-                                    <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
-                                    <i class="fa fa-angle-down"></i>
-                                </div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>@Loc["Vendor.Dashboard.Summary"] - @WorkContext.CurrentVendor.Name</h2>
+                <div class="filter">
+                    <div class="page-bar" style="height:43px;">
+                        <div class="page-toolbar">
+                            <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
+                                <i class="icon-calendar"></i>&nbsp;
+                                <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
+                                <i class="fa fa-angle-down"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="clearfix"></div>
                 </div>
+                <div class="clearfix"></div>
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light bordered">
-                <div class="x_title">
-                    <h2 class="caption-subject font-blue bold uppercase">@Loc["Vendor.Dashboard.ReportLatestOrder"]</h2>
-                    <div class="clear"></div>
-                </div>
-                <div class="x_content">
-                    @await Component.InvokeAsync("LatestVendorOrder")
-                </div>
+</div>
+<vc:vendor-page system-name="VendorPortalInfo"/>
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light bordered">
+            <div class="x_title">
+                <h2 class="caption-subject font-blue bold uppercase">@Loc["Vendor.Dashboard.ReportLatestOrder"]</h2>
+                <div class="clear"></div>
+            </div>
+            <div class="x_content">
+                @await Component.InvokeAsync("LatestVendorOrder")
             </div>
         </div>
     </div>
+</div>
 
 <vc:vendor-widget widget-zone="vendor_dashboard_bottom" additional-data="null"/>
 <script>

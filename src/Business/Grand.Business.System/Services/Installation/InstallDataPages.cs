@@ -160,7 +160,18 @@ namespace Grand.Business.System.Services.Installation
                                            Body = "<p>Knowledgebase homepage. You can edit this in the admin site.</p>",
                                            PageLayoutId = defaultPageLayout.Id,
                                            Published = true
-                                       }
+                                       },
+                                   new Page
+                                   {
+                                       SystemName = "VendorPortalInfo",
+                                       IncludeInSitemap = false,
+                                       IsPasswordProtected = false,
+                                       DisplayOrder = 1,
+                                       Title = "Welcome to our Vendor Management Hub!",
+                                       Body = "<p>Manage your product catalog, oversee customer orders, and streamline your shipping processes. Your vendor dashboard is the command center for your success. Stay organized, serve your customers efficiently, and watch your business thrive.</p>",
+                                       PageLayoutId = defaultPageLayout.Id,
+                                       Published = true
+                                   }
                                };
             await _pageRepository.InsertAsync(pages);
 
