@@ -388,7 +388,7 @@ namespace Grand.Web.Admin.Controllers
             return Json(new { Result = true });
         }
 
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
         public async Task<IActionResult> Impersonate(string id)
         {
@@ -397,8 +397,12 @@ namespace Grand.Web.Admin.Controllers
                 //No customer found with the specified id
                 return RedirectToAction("List");
 
-            //ensure that a non-admin user cannot impersonate as an administrator
-            //otherwise, that user can simply impersonate as an administrator and gain additional administrative privileges
+            if(!await _permissionService.Authorize(StandardPermission.AllowCustomerImpersonation))
+            {
+                Error("User does not have permission for the impersonate session");
+                return RedirectToAction("Edit", customer.Id);
+            }
+            
             if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && await _groupService.IsAdmin(customer))
             {
                 Error("A non-admin user cannot impersonate as an administrator");
