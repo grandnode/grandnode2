@@ -157,7 +157,7 @@
         </script>
     }
 
-    @if (await permisionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.MessageQueue))
+    @if (await permisionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.MessageQueue) && !string.IsNullOrEmpty(Model.Email))
     {
         <br />
         <strong>@Loc["Admin.System.QueuedEmails"]</strong>
