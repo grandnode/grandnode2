@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "Grand.Web.Common.Tests": {
+    "Grand.Web.Admin.Tests": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:58577;http://localhost:58579"
+      "applicationUrl": "https://localhost:64107;http://localhost:64108"
     }
   }
 }

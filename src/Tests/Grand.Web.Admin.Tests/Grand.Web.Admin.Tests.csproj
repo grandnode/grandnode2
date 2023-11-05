@@ -21,12 +21,4 @@
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Properties\launchSettings.json" />
-    </ItemGroup>
 </Project>
