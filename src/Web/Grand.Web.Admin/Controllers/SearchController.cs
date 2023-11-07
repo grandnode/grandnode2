@@ -432,12 +432,12 @@ namespace Grand.Web.Admin.Controllers
                 var model = new List<SearchModel>();
                 if (!string.IsNullOrEmpty(vendorId))
                 {
-                    var currentVendor = await _vendorService.GetVendorById(vendorId);
-                    if (currentVendor != null)
+                    var vendor = await _vendorService.GetVendorById(vendorId);
+                    if (vendor != null)
                     {
                         model.Add(new SearchModel {
-                            Id = currentVendor.Id,
-                            Name = currentVendor.Name
+                            Id = vendor.Id,
+                            Name = vendor.Name
                         });
                     }
                 }

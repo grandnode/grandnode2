@@ -1,5 +1,4 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Directory
-@model DashboardModel
 
 @inject Grand.Domain.Customers.CustomerSettings customerSettings
 @inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
@@ -22,7 +21,7 @@
 }
 
 <vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null"/>
-@if (!Model.IsLoggedInAsVendor && canManageOrders)
+@if (canManageOrders)
 {
     <div class="form-row top_tiles">
         <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
@@ -143,33 +142,7 @@
             }
         </div>
     </div>
-}
-@if (Model.IsLoggedInAsVendor)
-{
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>@Loc["Admin.Dashboard.Summary"]</h2>
-                    <div class="filter">
-                        <div class="page-bar" style="height:43px;">
-                            <div class="page-toolbar">
-                                <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
-                                    <i class="icon-calendar"></i>&nbsp;
-                                    <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
-                                    <i class="fa fa-angle-down"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-@if (canManageOrders)
-{
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light bordered">

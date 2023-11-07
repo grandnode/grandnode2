@@ -55,18 +55,11 @@ namespace Grand.Web.Admin.Services
             DateTime? endDateValue = model.SearchEndDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null)
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
-
             var contactform = await _contactUsService.GetAllContactUs(
                 fromUtc: startDateValue,
                 toUtc: endDateValue,
                 email: model.SearchEmail,
                 storeId: model.StoreId,
-                vendorId: vendorId,
                 pageIndex: pageIndex - 1,
                 pageSize: pageSize);
             var contactformmodelList = new List<ContactFormModel>();

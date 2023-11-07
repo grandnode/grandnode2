@@ -99,18 +99,12 @@ namespace Grand.Web.Admin.Controllers
         protected async Task<DataSourceResult> GetBestsellersBriefReportModel(int pageIndex,
             int pageSize, int orderBy)
         {
-            //a vendor should have access only to his products
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                vendorId = _workContext.CurrentVendor.Id;
-
             var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             var items = await _orderReportService.BestSellersReport(
                 storeId: storeId,
-                vendorId: vendorId,
                 orderBy: orderBy,
                 pageIndex: pageIndex,
                 pageSize: pageSize,
@@ -198,10 +192,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> BestsellersReport()
         {
-            var model = new BestsellersReportModel {
-                //vendor
-                IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
-            };
+            var model = new BestsellersReportModel();
 
             var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -240,12 +231,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> BestsellersReportList(DataSourceRequest command, BestsellersReportModel model)
         {
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                model.VendorId = _workContext.CurrentVendor.Id;
-            }
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
 
@@ -282,13 +267,8 @@ namespace Grand.Web.Admin.Controllers
                 var product = await _productService.GetProductById(x.ProductId);
                 if (product != null)
                     m.ProductName = product.Name;
-                if (_workContext.CurrentVendor != null)
-                {
-                    if (product?.VendorId == _workContext.CurrentVendor.Id)
-                        result.Add(m);
-                }
-                else
-                    result.Add(m);
+                
+                result.Add(m);
             }
             var gridModel = new DataSourceResult {
                 Data = result,
@@ -339,11 +319,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> NeverSoldReportList(DataSourceRequest command, NeverSoldReportModel model)
         {
-            //a vendor should have access only to his products
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null)
-                vendorId = _workContext.CurrentVendor.Id;
-
             DateTime? startDateValue = model.StartDate == null ? null
                             : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
 
@@ -354,7 +329,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var items = await _orderReportService.ProductsNeverSold(storeId, vendorId,
+            var items = await _orderReportService.ProductsNeverSold(storeId, "",
                 startDateValue, endDateValue,
                 command.Page - 1, command.PageSize, true);
             var gridModel = new DataSourceResult {
@@ -373,10 +348,6 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OrderAverageReportList(DataSourceRequest command)
         {
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
-                return Content("");
-
-            //a vendor does have access to this report
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
             var storeId = "";
@@ -417,11 +388,6 @@ namespace Grand.Web.Admin.Controllers
         {
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
                 return Content("");
-
-            //a vendor does have access to this report
-            if (_workContext.CurrentVendor != null)
-                return Content("");
-
             var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
@@ -464,10 +430,6 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OrderIncompleteReportList(DataSourceRequest command)
         {
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
-                return Content("");
-
-            //a vendor does have access to this report
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("");
 
             var storeId = "";
@@ -580,16 +542,11 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
         {
-            var vendorId = "";
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                vendorId = _workContext.CurrentVendor.Id;
-
             var storeId = "";
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var lowStockProducts = await _productsReportService.LowStockProducts(vendorId, storeId);
+            var lowStockProducts = await _productsReportService.LowStockProducts("", storeId);
 
             var models = new List<LowStockProductModel>();
             //products

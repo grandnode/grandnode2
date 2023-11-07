@@ -40,7 +40,7 @@ namespace Grand.Web.Admin.Interfaces
         Task UpdatePersonalizedProduct(CustomerModel.ProductModel model);
         Task DeletePersonalizedProduct(string id);
         Task<(IEnumerable<CustomerModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string customerId, int pageIndex, int pageSize);
-        Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, string vendorId, int pageIndex, int pageSize);
+        Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, int pageIndex, int pageSize);
         Task<(IEnumerable<CustomerModel.OutOfStockSubscriptionModel> outOfStockSubscriptionModels, int totalCount)> PrepareOutOfStockSubscriptionModel(string customerId, int pageIndex, int pageSize);
         Task<IList<CustomerModel.CustomerNote>> PrepareCustomerNoteList(string customerId);
         Task<CustomerNote> InsertCustomerNote(string customerId, string downloadId, bool displayToCustomer, string title, string message);

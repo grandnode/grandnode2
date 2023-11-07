@@ -273,9 +273,6 @@ namespace Grand.Web.Admin.Services
             model.AvailableCountries.Insert(0,
                 new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
-            //a vendor should have access only to orders with his products
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null &&
-                                       !await _groupService.IsStaff(_workContext.CurrentCustomer);
             if (startDate.HasValue)
                 model.StartDate = startDate.Value;
 
@@ -304,7 +301,7 @@ namespace Grand.Web.Admin.Services
 
             var filterByProductId = "";
             var product = await _productService.GetProductById(model.ProductId);
-            if (product != null && _workContext.HasAccessToProduct(product))
+            if (product != null)
                 filterByProductId = model.ProductId;
 
             var salesEmployeeId = _workContext.CurrentCustomer.SeId;
@@ -421,11 +418,7 @@ namespace Grand.Web.Admin.Services
                     model.SalesEmployeeName = salesEmployee.Name;
                 }
             }
-
-            //a vendor should have access only to his products
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null &&
-                                       !await _groupService.IsStaff(_workContext.CurrentCustomer);
-
+            
             //order's tags
             if (order.OrderTags.Any())
             {
@@ -526,7 +519,8 @@ namespace Grand.Web.Admin.Services
             if (order.RedeemedLoyaltyPoints > 0)
             {
                 model.RedeemedLoyaltyPoints = order.RedeemedLoyaltyPoints;
-                model.RedeemedLoyaltyPointsAmount = _priceFormatter.FormatPrice(-order.RedeemedLoyaltyPointsAmount, orderCurrency);
+                model.RedeemedLoyaltyPointsAmount =
+                    _priceFormatter.FormatPrice(-order.RedeemedLoyaltyPointsAmount, orderCurrency);
             }
 
             //total
@@ -557,47 +551,55 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            //profit (not for vendors)
-            if (_workContext.CurrentVendor == null)
+            //profit
+            var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
+            if (order.CurrencyRate > 0)
             {
-                var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
-                if (order.CurrencyRate > 0)
-                {
-                    var profit = Convert.ToDouble(order.OrderTotal / order.CurrencyRate -
-                                                  order.OrderShippingExclTax / order.CurrencyRate -
-                                                  order.OrderTax / order.CurrencyRate - productCost);
-                    model.Profit = _priceFormatter.FormatPrice(profit, primaryStoreCurrency);
-                }
+                var profit = Convert.ToDouble(order.OrderTotal / order.CurrencyRate -
+                                              order.OrderShippingExclTax / order.CurrencyRate -
+                                              order.OrderTax / order.CurrencyRate - productCost);
+                model.Profit = _priceFormatter.FormatPrice(profit, primaryStoreCurrency);
             }
 
             if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
             {
-                model.OrderTotal += $" ({_priceFormatter.FormatPrice(order.OrderTotal / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderSubtotalInclTax += $" ({_priceFormatter.FormatPrice(order.OrderSubtotalInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderSubtotalExclTax += $" ({_priceFormatter.FormatPrice(order.OrderSubtotalExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                model.OrderTotal +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderTotal / order.CurrencyRate, primaryStoreCurrency)})";
+                model.OrderSubtotalInclTax +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderSubtotalInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                model.OrderSubtotalExclTax +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderSubtotalExclTax / order.CurrencyRate, primaryStoreCurrency)})";
 
                 //discount (applied to order subtotal)
                 if (order.OrderSubTotalDiscountInclTax > 0)
-                    model.OrderSubTotalDiscountInclTax += $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    model.OrderSubTotalDiscountInclTax +=
+                        $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax / order.CurrencyRate, primaryStoreCurrency)})";
                 if (order.OrderSubTotalDiscountExclTax > 0)
-                    model.OrderSubTotalDiscountExclTax += $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    model.OrderSubTotalDiscountExclTax +=
+                        $" ({_priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax / order.CurrencyRate, primaryStoreCurrency)})";
 
                 //shipping
-                model.OrderShippingInclTax += $" ({_priceFormatter.FormatPrice(order.OrderShippingInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                model.OrderShippingExclTax += $" ({_priceFormatter.FormatPrice(order.OrderShippingExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                model.OrderShippingInclTax +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderShippingInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                model.OrderShippingExclTax +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderShippingExclTax / order.CurrencyRate, primaryStoreCurrency)})";
 
                 //payment method additional fee
                 if (order.PaymentMethodAdditionalFeeInclTax > 0)
                 {
-                    model.PaymentMethodAdditionalFeeInclTax += $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    model.PaymentMethodAdditionalFeeExclTax += $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    model.PaymentMethodAdditionalFeeInclTax +=
+                        $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    model.PaymentMethodAdditionalFeeExclTax +=
+                        $" ({_priceFormatter.FormatPrice(order.PaymentMethodAdditionalFeeExclTax / order.CurrencyRate, primaryStoreCurrency)})";
                 }
 
-                model.Tax += $" ({_priceFormatter.FormatPrice(order.OrderTax / order.CurrencyRate, primaryStoreCurrency)})";
+                model.Tax +=
+                    $" ({_priceFormatter.FormatPrice(order.OrderTax / order.CurrencyRate, primaryStoreCurrency)})";
 
                 //refunded amount
                 if (order.RefundedAmount > 0)
-                    model.RefundedAmount += $" ({_priceFormatter.FormatPrice(order.RefundedAmount / order.CurrencyRate, primaryStoreCurrency)})";
+                    model.RefundedAmount +=
+                        $" ({_priceFormatter.FormatPrice(order.RefundedAmount / order.CurrencyRate, primaryStoreCurrency)})";
             }
 
             #endregion
@@ -731,14 +733,6 @@ namespace Grand.Web.Admin.Services
             model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
             var hasDownloadableItems = false;
             var products = order.OrderItems;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                products = products
-                    .Where(orderItem => orderItem.VendorId == _workContext.CurrentVendor.Id)
-                    .ToList();
-            }
-
             foreach (var orderItem in products)
             {
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
@@ -785,13 +779,17 @@ namespace Grand.Web.Admin.Services
                 //unit price
                 orderItemModel.UnitPriceInclTaxValue = orderItem.UnitPriceInclTax;
                 orderItemModel.UnitPriceExclTaxValue = orderItem.UnitPriceExclTax;
-                orderItemModel.UnitPriceInclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax, orderCurrency);
-                orderItemModel.UnitPriceExclTax = _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax, orderCurrency);
+                orderItemModel.UnitPriceInclTax =
+                    _priceFormatter.FormatPrice(orderItem.UnitPriceInclTax, orderCurrency);
+                orderItemModel.UnitPriceExclTax =
+                    _priceFormatter.FormatPrice(orderItem.UnitPriceExclTax, orderCurrency);
                 //discounts
                 orderItemModel.DiscountInclTaxValue = orderItem.DiscountAmountInclTax;
                 orderItemModel.DiscountExclTaxValue = orderItem.DiscountAmountExclTax;
-                orderItemModel.DiscountInclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax, orderCurrency);
-                orderItemModel.DiscountExclTax = _priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax, orderCurrency);
+                orderItemModel.DiscountInclTax =
+                    _priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax, orderCurrency);
+                orderItemModel.DiscountExclTax =
+                    _priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax, orderCurrency);
                 //subtotal
                 orderItemModel.SubTotalInclTaxValue = orderItem.PriceInclTax;
                 orderItemModel.SubTotalExclTaxValue = orderItem.PriceExclTax;
@@ -800,12 +798,18 @@ namespace Grand.Web.Admin.Services
 
                 if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
                 {
-                    orderItemModel.UnitPriceInclTax += $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    orderItemModel.UnitPriceExclTax += $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    orderItemModel.DiscountInclTax += $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    orderItemModel.DiscountExclTax += $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    orderItemModel.SubTotalInclTax += $" ({_priceFormatter.FormatPrice(orderItem.PriceInclTax / order.CurrencyRate, primaryStoreCurrency)})";
-                    orderItemModel.SubTotalExclTax += $" ({_priceFormatter.FormatPrice(orderItem.PriceExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.UnitPriceInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.UnitPriceExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.UnitPriceExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.DiscountInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.DiscountExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.DiscountAmountExclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.SubTotalInclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.PriceInclTax / order.CurrencyRate, primaryStoreCurrency)})";
+                    orderItemModel.SubTotalExclTax +=
+                        $" ({_priceFormatter.FormatPrice(orderItem.PriceExclTax / order.CurrencyRate, primaryStoreCurrency)})";
                 }
 
                 // commission
@@ -1259,7 +1263,7 @@ namespace Grand.Web.Admin.Services
 
             var filterByProductId = "";
             var product = await _productService.GetProductById(model.ProductId);
-            if (product != null && _workContext.HasAccessToProduct(product))
+            if (product != null)
                 filterByProductId = model.ProductId;
 
             var salesEmployeeId = _workContext.CurrentCustomer.SeId;

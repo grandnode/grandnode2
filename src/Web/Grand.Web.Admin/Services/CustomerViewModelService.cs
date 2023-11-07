@@ -1300,10 +1300,10 @@ namespace Grand.Web.Admin.Services
             }
             return (items, activityLog.TotalCount);
         }
-        public virtual async Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, string vendorId, int pageIndex, int pageSize)
+        public virtual async Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, int pageIndex, int pageSize)
         {
             var contactUsService = _serviceProvider.GetRequiredService<IContactUsService>();
-            var contactform = await contactUsService.GetAllContactUs(storeId: "", vendorId: vendorId, customerId: customerId, pageIndex: pageIndex - 1, pageSize: pageSize);
+            var contactform = await contactUsService.GetAllContactUs(storeId: "", vendorId: "", customerId: customerId, pageIndex: pageIndex - 1, pageSize: pageSize);
             var items = new List<ContactFormModel>();
             foreach (var x in contactform)
             {

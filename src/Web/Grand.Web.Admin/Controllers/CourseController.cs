@@ -284,11 +284,6 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> AssociateProductToCoursePopupList(DataSourceRequest command,
             CourseModel.AssociateProductToCourseModel model, [FromServices] IWorkContext workContext)
         {
-            //a vendor should have access only to his products
-            if (workContext.CurrentVendor != null)
-            {
-                model.SearchVendorId = workContext.CurrentVendor.Id;
-            }
             var products = await _courseViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult
             {
@@ -307,13 +302,7 @@ namespace Grand.Web.Admin.Controllers
             var associatedProduct = await productService.GetProductById(model.AssociatedToProductId);
             if (associatedProduct == null)
                 return Content("Cannot load a product");
-
-            //a vendor should have access only to his products
-            if (workContext.CurrentVendor != null && associatedProduct.VendorId != workContext.CurrentVendor.Id)
-                return Content("This is not your product");
-
-            //a vendor should have access only to his products
-            model.IsLoggedInAsVendor = workContext.CurrentVendor != null;
+            
             ViewBag.RefreshPage = true;
             ViewBag.productIdInput = productIdInput;
             ViewBag.productNameInput = productNameInput;

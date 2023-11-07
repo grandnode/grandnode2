@@ -58,19 +58,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> List(DataSourceRequest command, VendorReviewListModel model)
         {
-            var vendorId = string.Empty;
-            //vendor
-            if (_workContext.CurrentVendor != null)
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
-            //admin
-            else if (await _groupService.IsAdmin(_workContext.CurrentCustomer))
-            {
-                vendorId = model.SearchVendorId;
-            }
-
-            model.SearchVendorId = vendorId;
             var (vendorReviewModels, totalCount) = await _vendorViewModelService.PrepareVendorReviewModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
                 Data = vendorReviewModels.ToList(),

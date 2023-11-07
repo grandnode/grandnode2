@@ -121,10 +121,6 @@ namespace Grand.Web.Admin.Services
                     if (orderItem == null)
                         continue;
 
-                    if (_workContext.CurrentVendor != null)
-                        if (orderItem.VendorId != _workContext.CurrentVendor.Id)
-                            continue;
-
                     //quantities
                     var qtyInThisShipment = shipmentItem.Quantity;
                     var maxQtyToAdd = orderItem.OpenQty;
@@ -367,14 +363,7 @@ namespace Grand.Web.Admin.Services
             var baseDimension = await _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId);
             var baseDimensionIn = baseDimension != null ? baseDimension.Name : "";
 
-            var orderItems = order.OrderItems;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                orderItems = orderItems.Where(_workContext.HasAccessToOrderItem).ToList();
-            }
-
-            foreach (var orderItem in orderItems)
+            foreach (var orderItem in order.OrderItems)
             {
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
                 //we can ship only shippable products
@@ -635,10 +624,6 @@ namespace Grand.Web.Admin.Services
                         CreatedOnUtc = DateTime.UtcNow,
                         StoreId = order.StoreId
                     };
-                    if (_workContext.CurrentVendor != null)
-                    {
-                        shipment.VendorId = _workContext.CurrentVendor.Id;
-                    }
                 }
 
                 //create a shipment item

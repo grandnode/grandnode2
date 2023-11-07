@@ -22,8 +22,7 @@ namespace Grand.Web.Admin.Components
             if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
                 return Content("");
 
-            var isLoggedInAsVendor = _workContext.CurrentVendor != null;
-            return View(isLoggedInAsVendor);
+            return View();
         }
     }
 }

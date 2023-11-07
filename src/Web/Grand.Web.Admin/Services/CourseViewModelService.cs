@@ -279,10 +279,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<CourseModel.AssociateProductToCourseModel> PrepareAssociateProductToCourseModel()
         {
             var model = new CourseModel.AssociateProductToCourseModel();
-            //a vendor should have access only to his products
-            var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
-            model.IsLoggedInAsVendor = workContext.CurrentVendor != null;
-
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             var storeService = _serviceProvider.GetRequiredService<IStoreService>();

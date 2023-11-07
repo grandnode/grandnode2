@@ -75,8 +75,6 @@ namespace Grand.Web.Admin.Models.Orders
         
         public string GoDirectlyToNumber { get; set; }
 
-        public bool IsLoggedInAsVendor { get; set; }
-
         [GrandResourceDisplayName("Admin.Orders.List.OrderTagId")]
         public string OrderTag { get; set; }
 

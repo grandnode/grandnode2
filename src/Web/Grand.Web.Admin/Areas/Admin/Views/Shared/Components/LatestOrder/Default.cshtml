@@ -1,5 +1,4 @@
-﻿@model bool
-@inject AdminAreaSettings adminAreaSettings
+﻿@inject AdminAreaSettings adminAreaSettings
 
 <div id="latest-orders-grid"></div>
 
@@ -59,12 +58,7 @@
                         field: "CustomerEmail",
                         title: "@Loc["Admin.Orders.Fields.Customer"]",
                         width: 300,
-                        @if (!Model)
-                        {
-                            <text>
-                                template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#=CustomerFullName# (#=CustomerEmail#)</a>'
-                            </text>
-                        }
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#=CustomerFullName# (#=CustomerEmail#)</a>'                        
                     },
                     @if (!adminAreaSettings.HideStoreColumn)
                     {
@@ -85,18 +79,13 @@
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
                     },
-
-                    @if (!Model)
                     {
-                        //a vendor does not have access to this functionality
-                        <text>{
                         field: "OrderTotal",
                         title: "@Loc["Admin.Orders.Fields.OrderTotal"]",
                         width: 200,
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" }
-                        },</text>
-                    }
+                    },
                     {
                         field: "CreatedOn",
                         title: "@Loc["Admin.Orders.Fields.CreatedOn"]",

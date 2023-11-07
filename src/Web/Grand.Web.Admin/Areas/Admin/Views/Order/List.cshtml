@@ -5,121 +5,120 @@
     ViewBag.Title = Loc["Admin.Orders"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="List" method="post">
-    
-    <div class="row">
-        <div class="col-md-12">
-            <div class="x_panel light form-fit popup-window">
-                <div class="x_title">
-                    <div class="caption">
-                        <i class="icon-basket"></i>
-                        @Loc["Admin.Orders"]
-                    </div>
-                    <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
-                        @if (!Model.IsLoggedInAsVendor)
-                        {
-                            <div class="btn-group btn-group-devided">
-                                <a class="btn default" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                    <i class="fa fa-download"></i>
-                                    @Loc["Admin.Common.Export"]
-                                    <i class="fa fa-angle-down"></i>
-                                </a>
-                                <ul class="dropdown-menu pull-right">
-                                    <li>
-                                        <input type="submit" name="exportexcel-all" asp-action="ExportExcelAll" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.All"]" />
-                                    </li>
-                                    <li>
-                                        <input type="button" id="exportexcel-selected" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.Selected"]" />
-                                    </li>
-                                </ul>
-                                <vc:admin-widget widget-zone="order_list_buttons" additional-data="null" />
-                            </div>
-                        }
-                        <button type="submit" name="pdf-invoice-all" asp-action="PdfInvoiceAll" class="btn green">
-                            <i class="fa fa-file-pdf-o"></i>
-                            @Loc["Admin.Orders.PdfInvoice.All"]
-                        </button>
-                        <button type="button" id="pdf-invoice-selected" class="btn green">
-                            <i class="fa fa-file-pdf-o"></i>
-                            @Loc["Admin.Orders.PdfInvoice.Selected"]
-                        </button>
-                        <button type="button" name="delete-selected" id="delete-selected" class="btn red">
-                            <i class="fa fa-trash-o"></i>
-                            @Loc["Admin.Common.Delete.Selected"]
-                        </button>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="icon-basket"></i>
+                    @Loc["Admin.Orders"]
+                </div>
+                <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
+
+                    <div class="btn-group btn-group-devided">
+                        <a class="btn default" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <i class="fa fa-download"></i>
+                            @Loc["Admin.Common.Export"]
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li>
+                                <input type="submit" name="exportexcel-all" asp-action="ExportExcelAll" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.All"]"/>
+                            </li>
+                            <li>
+                                <input type="button" id="exportexcel-selected" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.Selected"]"/>
+                            </li>
+                        </ul>
+                        <vc:admin-widget widget-zone="order_list_buttons" additional-data="null"/>
                     </div>
 
+                    <button type="submit" name="pdf-invoice-all" asp-action="PdfInvoiceAll" class="btn green">
+                        <i class="fa fa-file-pdf-o"></i>
+                        @Loc["Admin.Orders.PdfInvoice.All"]
+                    </button>
+                    <button type="button" id="pdf-invoice-selected" class="btn green">
+                        <i class="fa fa-file-pdf-o"></i>
+                        @Loc["Admin.Orders.PdfInvoice.Selected"]
+                    </button>
+                    <button type="button" name="delete-selected" id="delete-selected" class="btn red">
+                        <i class="fa fa-trash-o"></i>
+                        @Loc["Admin.Common.Delete.Selected"]
+                    </button>
                 </div>
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="main-header col-12 px-0">
-                            <div class="row align-items-end">
-                                <div class="col-md-8 col-ms-12 col-12">
-                                    <div class="row">
-                                        <div class="col-md-6 col-sm-12 col-12">
-                                            <div class="form-group mb-0">
-                                                <admin-label asp-for="BillingEmail" class="control-label" />
-                                                <admin-input asp-for="BillingEmail" />
-                                            </div>
+
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="main-header col-12 px-0">
+                        <div class="row align-items-end">
+                            <div class="col-md-8 col-ms-12 col-12">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="BillingEmail" class="control-label"/>
+                                            <admin-input asp-for="BillingEmail"/>
                                         </div>
-                                        <div class="col-md-6 col-sm-12 col-12">
-                                            <admin-label asp-for="GoDirectlyToNumber" class="control-label" />
-                                            <div class="input-group mb-0">
-                                                <admin-input asp-for="GoDirectlyToNumber" />
-                                                <div class="input-group-append">
-                                                    <input type="submit" name="go-to-order-by-number" id="gotoorderbynumber" asp-action="GoToOrderId" class="input-group btn btn-default" value="@Loc["Admin.Common.Go"]" />
-                                                </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12 col-12">
+                                        <admin-label asp-for="GoDirectlyToNumber" class="control-label"/>
+                                        <div class="input-group mb-0">
+                                            <admin-input asp-for="GoDirectlyToNumber"/>
+                                            <div class="input-group-append">
+                                                <input type="submit" name="go-to-order-by-number" id="gotoorderbynumber" asp-action="GoToOrderId" class="input-group btn btn-default" value="@Loc["Admin.Common.Go"]"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-sm-12 col-12">
-                                    <div class="form-actions">
-                                        <div class="btn-group">
-                                            <button class="btn btn-success filter-submit" id="search-orders">
-                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
-                                            </button>
-                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="fa fa-filter"></i>&nbsp;  @Loc["Admin.Common.Filters"]
-                                            </button>
-                                        </div>
+                            </div>
+                            <div class="col-md-4 col-sm-12 col-12">
+                                <div class="form-actions">
+                                    <div class="btn-group">
+                                        <button class="btn btn-success filter-submit" id="search-orders">
+                                            <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        </button>
+                                        <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                            <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="drop-filters-container">
-                                <div class="form-group">
-                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="StartDate" />
-                                    </div>
+                    </div>
+                    <div class="collapse" id="filterCollapse">
+                        <div class="drop-filters-container">
+                            <div class="form-group">
+                                <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="StartDate"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="EndDate" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="EndDate"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="OrderGuid" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="OrderGuid" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OrderGuid" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="OrderGuid"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="BillingCountryId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="BillingCountryId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="ProductId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <input class="form-control" type="text" id="search-product-name" autocomplete="off" />
-                                        <span id="search-product-friendly-name"></span>
-                                        <input type="button" id="search-product-clear" class="k-button" style="display:none;" value="@Loc["Admin.Common.Clear"]" />
-                                        @Html.TextBoxFor(model => model.ProductId, new { autocomplete = "off", style = "display:none;" })
-                                        <script>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ProductId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <input class="form-control" type="text" id="search-product-name" autocomplete="off"/>
+                                    <span id="search-product-friendly-name"></span>
+                                    <input type="button" id="search-product-clear" class="k-button" style="display:none;" value="@Loc["Admin.Common.Clear"]"/>
+                                    @Html.TextBoxFor(model => model.ProductId, new { autocomplete = "off", style = "display:none;" })
+                                    <script>
                                             $(document).ready(function() {
                                                 $('#search-product-name').autocomplete({
                                                     delay: 500,
@@ -143,74 +142,74 @@
                                                 });
                                             });
                                         </script>
-                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="BillingLastName" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="BillingLastName" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="BillingLastName" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="BillingLastName"/>
                                 </div>
-                                <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
-                                    <admin-label asp-for="OrderStatusId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OrderStatusId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
                                 </div>
-                                <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
-                                    <admin-label asp-for="VendorId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="VendorId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors"/>
                                 </div>
-                                <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
-                                    <admin-label asp-for="ShippingStatusId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ShippingStatusId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="StoreId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="PaymentStatusId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="PaymentStatusId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="WarehouseId" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="WarehouseId" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
                                 </div>
-                                <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
-                                    <admin-label asp-for="PaymentMethodSystemName" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="PaymentMethodSystemName" asp-items="Model.AvailablePaymentMethods" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="PaymentMethodSystemName" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="PaymentMethodSystemName" asp-items="Model.AvailablePaymentMethods"/>
                                 </div>
-                                <div class="form-group">
-                                    <admin-label asp-for="OrderTag" class="col-sm-3 control-label" />
-                                    <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="OrderTag" asp-items="Model.AvailableOrderTags" />
-                                    </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OrderTag" class="col-sm-3 control-label"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="OrderTag" asp-items="Model.AvailableOrderTags"/>
                                 </div>
                             </div>
                         </div>
-                        <div class="x_content">
-                            <div id="orders-grid"></div>
-                        </div>
+                    </div>
+                    <div class="x_content">
+                        <div id="orders-grid"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
         $(document).ready(function () {
 
             $('.extend-collapse').hide();
@@ -285,10 +284,7 @@
                         width: 50,
                         template: '<a class="k-link" href="Edit/#=Id#">#=OrderNumber#</a>'
                     },
-                    @if (!Model.IsLoggedInAsVendor)
                     {
-                        //a vendor does not have access to this functionality
-                        <text>{
                         field: "OrderStatus",
                         title: "@Loc["Admin.Orders.Fields.OrderStatus"]",
                         width: 120,
@@ -300,37 +296,27 @@
                             '# if(OrderStatusId == 40) {#danger #} #' +
                             '# if(OrderStatusId > 40) {#primary #} #' +
                             '">#=OrderStatus#</span></a></h4>'
-                        },</text>
-                    }
+                    },
                     {
                         field: "PaymentStatus",
                         title: "@Loc["Admin.Orders.Fields.PaymentStatus"]",
                         width: 120,
                         template: '<a class="k-link" href="Edit/#=Id#">#=PaymentStatus#</a>'
                     },
-                    @if (!Model.IsLoggedInAsVendor)
                     {
-                        //a vendor does not have access to this functionality
-                        <text>{
                         field: "ShippingStatus",
                         title: "@Loc["Admin.Orders.Fields.ShippingStatus"]",
                         width: 120,
-                        template: '<a class="k-link" href="Edit/#=Id#">#=ShippingStatus#</a>'
-                    },</text>
-                    }
+                        template: '<a class="k-link" href="Edit/#=Id#">#=ShippingStatus#</a>'                    
+                    },
                     {
                         field: "CustomerEmail",
                         title: "@Loc["Admin.Orders.Fields.Customer"]",
                         width: 220,
-                        @if (!Model.IsLoggedInAsVendor)
-                        {
-                            <text>
-                            template: function(dataItem) {
+                        template: function(dataItem) {
                                     return "<a class=\"k-link\" href='@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/" + dataItem.CustomerId + "'>" + kendo.htmlEncode(dataItem.CustomerFullName) + " (" + dataItem.CustomerEmail + ")</a>";
-                            }
-                            </text>
                         }
-                        },
+                    },
                     @if (!adminAreaSettings.HideStoreColumn)
                     {
                         <text>
@@ -350,24 +336,20 @@
                         format: "{0:G}",
 
                     },
-                    @if (!Model.IsLoggedInAsVendor)
                     {
-                        //a vendor does not have access to this functionality
-                        <text>{
                         field: "OrderTotal",
                         title: "@Loc["Admin.Orders.Fields.OrderTotal"]",
                         width: 150,
                         template: '#=OrderTotal#',
                         headerAttributes: { style: "text-align:right" },
-                        attributes: { style: "text-align:right" },
-                    },</text>
+                        attributes: { style: "text-align:right" },                    
                     }
                 ]
             } );
         });
     </script>
 
-    <script>
+<script>
 
         var selectedIds = [];
 
@@ -542,8 +524,8 @@
 
 </script>
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="ExportExcelSelected" method="post" id="export-excel-selected-form">
-    
-    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+
+    <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
 </form>
 <script>
 
@@ -558,9 +540,9 @@
     });
 
 </script>
-<form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="PdfInvoiceSelected" method="post" id="pdf-invoice-selected-form">    
-    
-    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+<form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="PdfInvoiceSelected" method="post" id="pdf-invoice-selected-form">
+
+    <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
 </form>
 
 <script>

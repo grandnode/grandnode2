@@ -524,10 +524,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("List", "MerchandiseReturn");
             }
-
-            if (_workContext.CurrentVendor != null)
-                return RedirectToAction("List", "PaymentTransaction");
-
             if (ModelState.IsValid)
             {
                 await _paymentTransactionService.DeletePaymentTransaction(paymentTransaction);

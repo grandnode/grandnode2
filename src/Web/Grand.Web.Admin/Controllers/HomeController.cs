@@ -68,10 +68,7 @@ namespace Grand.Web.Admin.Controllers
         private async Task<DashboardActivityModel> PrepareActivityModel()
         {
             var model = new DashboardActivityModel();
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null)
-                vendorId = _workContext.CurrentVendor.Id;
-
+            
             var storeId = string.Empty;
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
@@ -79,7 +76,7 @@ namespace Grand.Web.Admin.Controllers
             model.OrdersPending = (await _orderReportService.GetOrderAverageReportLine(storeId: storeId, os: (int)OrderStatusSystem.Pending)).CountOrders;
             model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
 
-            var lowStockProducts = await _productsReportService.LowStockProducts(vendorId, storeId);
+            var lowStockProducts = await _productsReportService.LowStockProducts("", storeId);
             model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
 
             model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery { RequestStatusId = 0, StoreId = storeId });
@@ -97,20 +94,14 @@ namespace Grand.Web.Admin.Controllers
 
         #region Methods
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var model = new DashboardModel {
-                IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
-            };
-            return View(model);
+            return View();
         }
 
-        public async Task<IActionResult> Statistics()
+        public IActionResult Statistics()
         {
-            var model = new DashboardModel {
-                IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
-            };
-            return View(model);
+            return View();
         }
 
         public async Task<IActionResult> DashboardActivity()

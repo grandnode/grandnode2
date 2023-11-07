@@ -310,10 +310,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IImportManager<CategoryDto> importManager)
         {
-            //a vendor and staff cannot import categories
-            if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return AccessDeniedView();
-
             try
             {
                 if (importexcelfile is { Length: > 0 })

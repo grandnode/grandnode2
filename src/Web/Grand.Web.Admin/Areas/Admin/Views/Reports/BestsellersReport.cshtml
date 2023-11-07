@@ -30,7 +30,7 @@
                                                     <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-ms-12 col-12" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+                                            <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
                                                     <admin-label asp-for="OrderStatusId" class="control-label" />
                                                     <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
@@ -76,7 +76,7 @@
                                                     <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries" />
                                                 </div>
                                             </div>
-                                            <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+                                            <div class="form-group">
                                                 <admin-label asp-for="VendorId"  class="col-sm-3 control-label" />
                                                 <div class="col-md-9 col-sm-9">
                                                     <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors" />

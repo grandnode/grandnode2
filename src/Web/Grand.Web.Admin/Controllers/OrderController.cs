@@ -97,17 +97,10 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var vendorId = string.Empty;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null)
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
             //products
             const int productNumber = 15;
             var products = (await productService.SearchProducts(
                 storeId: storeId,
-                vendorId: vendorId,
                 keywords: term,
                 pageSize: productNumber,
                 showHidden: true)).products;
@@ -126,12 +119,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> OrderList(DataSourceRequest command, OrderListModel model)
         {
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                model.VendorId = _workContext.CurrentVendor.Id;
-            }
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
@@ -186,10 +174,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportExcelAll(OrderListModel model)
         {
-            //a vendor cannot export orders
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return AccessDeniedView();
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
@@ -213,10 +197,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportExcelSelected(string selectedIds)
         {
-            //a vendor cannot export orders
-            if (_workContext.CurrentVendor != null)
-                return AccessDeniedView();
-
             var orders = new List<Order>();
             if (selectedIds != null)
             {
@@ -248,11 +228,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
@@ -282,11 +258,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = order.Id });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
@@ -316,10 +288,6 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
@@ -368,11 +336,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || order.Deleted || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrder(order) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
@@ -394,10 +358,6 @@ namespace Grand.Web.Admin.Controllers
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            //a vendor or staff does not have access to this functionality
-            if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { model.Id });
-
             if (ModelState.IsValid)
             {
                 await _mediator.Send(new DeleteOrderCommand { Order = order });
@@ -417,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
             [FromServices] ICustomerActivityService customerActivityService,
             [FromServices] IShipmentService shipmentService)
         {
-            if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return RedirectToAction("List", "Order");
 
             if (selectedIds != null)
@@ -446,14 +406,6 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> PdfInvoice(string orderId)
         {
-            var vendorId = string.Empty;
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
-
             var order = await _orderService.GetOrderById(orderId);
             if ((await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId) || await CheckSalesManager(order))
             {
@@ -467,7 +419,7 @@ namespace Grand.Web.Admin.Controllers
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, vendorId);
+                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, "");
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", $"order_{order.Id}.pdf");
@@ -477,11 +429,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> PdfInvoiceAll(OrderListModel model)
         {
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                model.VendorId = _workContext.CurrentVendor.Id;
-            }
             //load orders
             var orders = await _orderViewModelService.PrepareOrders(model);
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -511,13 +458,7 @@ namespace Grand.Web.Admin.Controllers
                     .ToArray();
                 orders.AddRange(await _orderService.GetOrdersByIds(ids));
             }
-            var vendorId = string.Empty;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                orders = orders.Where(_workContext.HasAccessToOrder).ToList();
-                vendorId = _workContext.CurrentVendor.Id;
-            }
+           
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
@@ -533,7 +474,7 @@ namespace Grand.Web.Admin.Controllers
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, vendorId);
+                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, "");
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", "orders.pdf");
@@ -547,10 +488,6 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
@@ -593,10 +530,6 @@ namespace Grand.Web.Admin.Controllers
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
@@ -630,10 +563,6 @@ namespace Grand.Web.Admin.Controllers
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
@@ -660,11 +589,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
@@ -731,10 +656,6 @@ namespace Grand.Web.Admin.Controllers
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
@@ -763,10 +684,6 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
@@ -808,11 +725,6 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            //ensure a vendor has access only to his products 
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrderItem(orderItem) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
-
             orderItem.DownloadCount = 0;
             await _orderService.UpdateOrder(order);
             _ = _orderViewModelService.LogEditOrder(order.Id);
@@ -842,11 +754,7 @@ namespace Grand.Web.Admin.Controllers
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
-
-            //ensure a vendor has access only to his products 
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrderItem(orderItem) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
+            
             orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
             await _orderService.UpdateOrder(order);
             _ = _orderViewModelService.LogEditOrder(order.Id);
@@ -880,11 +788,6 @@ namespace Grand.Web.Admin.Controllers
 
             if (!product.IsDownload)
                 throw new ArgumentException("Product is not downloadable");
-
-            //ensure a vendor has access only to his products 
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrderItem(orderItem) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
             var model = new OrderModel.UploadLicenseModel
             {
                 LicenseDownloadId = !string.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "",
@@ -912,10 +815,6 @@ namespace Grand.Web.Admin.Controllers
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
-
-            //ensure a vendor has access only to his products 
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrderItem(orderItem) && await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
 
             //attach license
             if (!string.IsNullOrEmpty(model.LicenseDownloadId))
@@ -949,10 +848,6 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            //ensure a vendor has access only to his products 
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrderItem(orderItem) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
             //attach license
             orderItem.LicenseDownloadId = null;
             await _orderService.UpdateOrder(order);
@@ -968,10 +863,6 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> AddProductToOrder(string orderId)
         {
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = orderId });
-
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
@@ -985,10 +876,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProductToOrder(DataSourceRequest command, OrderModel.AddOrderProductModel model, [FromServices] IProductService productService)
         {
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("");
-
             var categoryIds = new List<string>();
             if (!string.IsNullOrEmpty(model.SearchCategoryId))
                 categoryIds.Add(model.SearchCategoryId);
@@ -1028,10 +915,6 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId)
         {
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = orderId });
-
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
@@ -1049,10 +932,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
         {
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = model.OrderId });
-
             var order = await _orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
@@ -1086,11 +965,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = orderId });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
@@ -1131,11 +1006,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = order.Id });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
@@ -1182,11 +1053,7 @@ namespace Grand.Web.Admin.Controllers
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 throw new ArgumentException("No order found with the specified id");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("");
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return Content("");
@@ -1207,11 +1074,7 @@ namespace Grand.Web.Admin.Controllers
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 return Json(new { Result = false });
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { Result = false });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return Json(new { Result = false });
@@ -1228,11 +1091,7 @@ namespace Grand.Web.Admin.Controllers
             var order = await _orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 throw new ArgumentException("No order found with the specified id");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { Result = false });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
                 return Json(new { Result = false });

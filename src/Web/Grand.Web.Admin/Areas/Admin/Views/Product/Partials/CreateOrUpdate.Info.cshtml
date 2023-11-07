@@ -11,11 +11,8 @@
 <script>
     $(document).ready(function() {
 
-        @if (!Model.IsLoggedInAsVendor)
-        {
-            <text>$("#@Html.IdFor(model => model.ShowOnHomePage)").click(toggleShowOnHomePage);</text>
-            <text>$("#@Html.IdFor(model => model.BestSeller)").click(toggleShowOnHomePage);</text>
-        }
+        $("#@Html.IdFor(model => model.ShowOnHomePage)").click(toggleShowOnHomePage);
+        $("#@Html.IdFor(model => model.BestSeller)").click(toggleShowOnHomePage);
         $("#@Html.IdFor(model => model.ProductTypeId)").change(toggleProductType);
         $("#@Html.IdFor(model => model.RequireOtherProducts)").click(toggleRequireOtherProducts);
         $("#@Html.IdFor(model => model.AvailableForPreOrder)").click(togglePreOrder);
@@ -35,10 +32,7 @@
         $("#@Html.IdFor(model => model.StockAvailability)").click(toggleManageStock);
         $("#@Html.IdFor(model => model.MarkAsNew)").click(toggleMarkAsNew);
 
-        @if (!Model.IsLoggedInAsVendor)
-        {
-            <text>toggleShowOnHomePage();</text>
-        }
+        toggleShowOnHomePage();
         toggleProductType();
         togglePreOrder();
         toggleRequireOtherProducts();
@@ -603,14 +597,14 @@
                 <span asp-validation-for="BrandId"></span>
             </div>
         </div>
-        <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+        <div class="form-group" >
             <admin-label asp-for="VendorId" />
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="VendorId" />
                 <span asp-validation-for="VendorId"></span>
             </div>
         </div>
-        <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+        <div class="form-group" >
             <admin-label asp-for="ShowOnHomePage" />
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
@@ -620,14 +614,14 @@
                 <span asp-validation-for="ShowOnHomePage"></span>
             </div>
         </div>
-        <div class="form-group" id="pnlDisplayOrder" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+        <div class="form-group" id="pnlDisplayOrder" >
             <admin-label asp-for="DisplayOrder" />
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder" />
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+        <div class="form-group" >
             <admin-label asp-for="BestSeller" />
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">

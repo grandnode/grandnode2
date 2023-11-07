@@ -102,11 +102,6 @@ namespace Grand.Web.Admin.Models.Courses
             public IList<SelectListItem> AvailableStores { get; set; }
             public IList<SelectListItem> AvailableVendors { get; set; }
             public IList<SelectListItem> AvailableProductTypes { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
-
-
             public string AssociatedToProductId { get; set; }
         }
         #endregion

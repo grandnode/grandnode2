@@ -1,5 +1,4 @@
 ﻿@model VendorReviewListModel
-@inject IWorkContext workContext
 @inject AdminAreaSettings adminAreaSettings
 @{
 
@@ -60,10 +59,7 @@
                                         <admin-input asp-for="CreatedOnTo" />
                                     </div>
                                 </div>
-                                @if (workContext.CurrentVendor == null)
-                                {
-                                    <partial name="Partials/SearchVendor" model="Model" />
-                                }
+                                <partial name="Partials/SearchVendor" model="Model" />
                             </div>
                         </div>
                     </div>
@@ -154,12 +150,8 @@ $(document).ready(function () {
     });
 });
 </script>
-
-
 <script>
-
                 var selectedIds = [];
-
                 $(document).ready(function () {
 
                     //search button

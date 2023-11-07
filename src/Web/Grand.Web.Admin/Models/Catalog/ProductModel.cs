@@ -388,9 +388,6 @@ namespace Grand.Web.Admin.Models.Catalog
         [UIHint("Stores")]
         public string[] Stores { get; set; }
 
-        //vendor
-        public bool IsLoggedInAsVendor { get; set; }
-
         //product attributes
         public IList<SelectListItem> AvailableProductAttributes { get; set; }
 
@@ -442,12 +439,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public IList<SelectListItem> AvailableStores { get; set; }
             public IList<SelectListItem> AvailableVendors { get; set; }
             public IList<SelectListItem> AvailableProductTypes { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
-
-
         public class AddRequiredProductModel : AddProductModel 
         {
             

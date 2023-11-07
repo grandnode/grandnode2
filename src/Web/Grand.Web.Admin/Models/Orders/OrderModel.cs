@@ -21,8 +21,6 @@ namespace Grand.Web.Admin.Models.Orders
             OrderStatuses = new List<SelectListItem>();
         }
 
-        public bool IsLoggedInAsVendor { get; set; }
-
         //identifiers
         [GrandResourceDisplayName("Admin.Orders.Fields.ID")]
         public override string Id { get; set; }

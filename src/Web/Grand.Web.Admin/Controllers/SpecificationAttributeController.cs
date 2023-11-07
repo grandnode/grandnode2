@@ -347,13 +347,6 @@ namespace Grand.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.StaffStoreId))
                 searchStoreId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var searchVendorId = string.Empty;
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null)
-            {
-                searchVendorId = _workContext.CurrentVendor.Id;
-            }
-
             var specificationProducts = new List<SpecificationAttributeModel.UsedByProductModel>();
             var total = 0;
 
@@ -362,7 +355,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 var products = (await _productService.SearchProducts(
                     storeId: searchStoreId,
-                    vendorId: searchVendorId,
                     specificationOptions: searchspecificationOptions,
                     pageIndex: command.Page - 1,
                     pageSize: command.PageSize,

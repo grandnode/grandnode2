@@ -351,10 +351,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext, [FromServices] IImportManager<CollectionDto> importManager)
         {
-            //a vendor and staff cannot import collections
-            if (workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return AccessDeniedView();
-
             try
             {
                 if (importexcelfile is { Length: > 0 })

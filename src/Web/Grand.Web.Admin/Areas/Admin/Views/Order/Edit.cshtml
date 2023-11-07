@@ -8,7 +8,7 @@
     var canManageMessageQueue = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageMessageQueue);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
-    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Id"/>
     <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
@@ -17,22 +17,23 @@
                     <div class="caption">
                         <i class="icon-basket"></i>
                         @Loc["Admin.Orders.EditOrderDetails"] - @Model.OrderNumber
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Orders.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Orders.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = Constants.AreaAdmin })" class="btn purple">
                                 <i class="fa fa-file-pdf-o"></i> @Loc["Admin.Orders.PdfInvoice"]
                             </a>
-                            @if (!Model.IsLoggedInAsVendor)
-                            {
-                                <span id="order-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
-                                <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn border-red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
-                                    <i class="red fa fa-times-circle-o"></i>
-                                    @Loc["Admin.Common.Cancel"]
-                                </a>
-                            }
-                            <input type="submit" id="btnRefreshPage" style="display: none" />
+                            <span id="order-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
+                            <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn border-red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
+                                <i class="red fa fa-times-circle-o"></i>
+                                @Loc["Admin.Common.Cancel"]
+                            </a>
+                            <input type="submit" id="btnRefreshPage" style="display: none"/>
                             <script>
                                 $(document).ready(function () {
                                     $('#btnRefreshPage').click(function () {
@@ -41,7 +42,7 @@
                                     });
                                 });
                             </script>
-                            <vc:admin-widget widget-zone="order_details_buttons" additional-data="Model" />
+                            <vc:admin-widget widget-zone="order_details_buttons" additional-data="Model"/>
                         </div>
                     </div>
                 </div>
@@ -51,7 +52,7 @@
                             <tabstrip-item text="@Loc["Admin.Orders.Info"]" tab-index="0">
                                 <content>
                                     <div>
-                                        <partial name="Partials/OrderDetails.Info" model="Model" />
+                                        <partial name="Partials/OrderDetails.Info" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
@@ -59,7 +60,7 @@
                             <tabstrip-item text="@Loc["Admin.Orders.Addresses"]" tab-index="1">
                                 <content>
                                     <div>
-                                        <partial name="Partials/OrderDetails.Addresses" model="Model" />
+                                        <partial name="Partials/OrderDetails.Addresses" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
@@ -68,7 +69,7 @@
                                 <tabstrip-item text="@Loc["Admin.Orders.Shipments"]" tab-index="2">
                                     <content>
                                         <div>
-                                            <partial name="Partials/OrderDetails.Shipment" model="Model" />
+                                            <partial name="Partials/OrderDetails.Shipment" model="Model"/>
                                         </div>
                                     </content>
                                 </tabstrip-item>
@@ -76,26 +77,23 @@
                             <tabstrip-item text="@Loc["Admin.Orders.Products"]" tab-index="3">
                                 <content>
                                     <div>
-                                        <partial name="Partials/OrderDetails.Products" model="Model" />
+                                        <partial name="Partials/OrderDetails.Products" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            @if (!Model.IsLoggedInAsVendor)
-                            {
-                                <tabstrip-item text="@Loc["Admin.Orders.OrderNotes"]" tab-index="4">
-                                    <content>
-                                        <div>
-                                            <partial name="Partials/OrderDetails.Notes" model="Model" />
-                                        </div>
-                                    </content>
-                                </tabstrip-item>
-                            }
+                            <tabstrip-item text="@Loc["Admin.Orders.OrderNotes"]" tab-index="4">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/OrderDetails.Notes" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
                             @if (canManageDocuments)
                             {
                                 <tabstrip-item text="@Loc["Admin.Orders.Documents"]" tab-index="5">
                                     <content>
                                         <div>
-                                            <partial name="Partials/OrderDetails.Documents" model="Model" />
+                                            <partial name="Partials/OrderDetails.Documents" model="Model"/>
                                         </div>
                                     </content>
                                 </tabstrip-item>
@@ -104,10 +102,10 @@
                                 <content>
                                     <div>
                                         <div class="form-actions">
-                                            <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="k-button" />
+                                            <input type="submit" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" asp-action="EditUserFields" class="k-button"/>
                                         </div>
                                         <div class="form-horizontal">
-                                            <partial name="Partials/UserFields" model="Model" />
+                                            <partial name="Partials/UserFields" model="Model"/>
                                         </div>
                                     </div>
                                 </content>
@@ -117,12 +115,12 @@
                                 <tabstrip-item text="@Loc["Admin.Orders.Notifications"]" tab-index="7">
                                     <content>
                                         <div>
-                                            <partial name="Partials/OrderDetails.Notifications" model="Model" />
+                                            <partial name="Partials/OrderDetails.Notifications" model="Model"/>
                                         </div>
                                     </content>
                                 </tabstrip-item>
                             }
-                            <vc:admin-widget widget-zone="order_details_tabs" additional-data="Model" />
+                            <vc:admin-widget widget-zone="order_details_tabs" additional-data="Model"/>
                         </items>
                     </admin-tabstrip>
                 </div>
@@ -130,4 +128,4 @@
         </div>
     </div>
 </form>
-<admin-delete-confirmation button-id="order-delete" />
+<admin-delete-confirmation button-id="order-delete"/>

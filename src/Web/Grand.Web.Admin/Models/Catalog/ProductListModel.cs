@@ -46,8 +46,6 @@ namespace Grand.Web.Admin.Models.Catalog
         
         public string GoDirectlyToSku { get; set; }
 
-        public bool IsLoggedInAsVendor { get; set; }
-
         public IList<SelectListItem> AvailableStores { get; set; }
         public IList<SelectListItem> AvailableWarehouses { get; set; }
         public IList<SelectListItem> AvailableProductTypes { get; set; }

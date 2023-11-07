@@ -158,7 +158,7 @@ namespace Grand.Web.Admin.Services
             var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(model.StoreId,
                 customerId,
                 "",
-                _workContext.CurrentVendor?.Id,
+                "",
                 "",
                 model.SearchMerchandiseReturnStatusId >= 0 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId : null,
                 pageIndex - 1,

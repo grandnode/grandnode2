@@ -85,14 +85,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 return (false, "Product not exists");
             }
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-            {
-                if (product.VendorId != _workContext.CurrentVendor.Id)
-                {
-                    return (false, "This is not your product");
-                }
-            }
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!(!product.LimitedToStores || (product.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && product.LimitedToStores)))
@@ -183,11 +175,6 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 //No product found with the specified id
                 return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!product.LimitedToStores || (product.LimitedToStores && product.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && product.Stores.Count > 1))
@@ -224,10 +211,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(model.Id, true);
             if (product == null)
                 //No product found with the specified id
-                return RedirectToAction("List");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return RedirectToAction("List");
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -268,10 +251,6 @@ namespace Grand.Web.Admin.Controllers
                 //No product found with the specified id
                 return RedirectToAction("List");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -308,11 +287,6 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 var originalProduct = await _productService.GetProductById(copyModel.Id, true);
-
-                //a vendor should have access only to his products
-                if (_workContext.CurrentVendor != null && originalProduct.VendorId != _workContext.CurrentVendor.Id)
-                    return RedirectToAction("List");
-
                 if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 {
                     originalProduct.LimitedToStores = true;
@@ -649,9 +623,6 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertRelatedProductModel(model);
                 }
-
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
 
@@ -751,8 +722,6 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertSimilarProductModel(model);
                 }
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
 
@@ -852,9 +821,6 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertBundleProductModel(model);
                 }
-
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
                 return Content("");
             }
 
@@ -1062,15 +1028,7 @@ namespace Grand.Web.Admin.Controllers
             var permission = await CheckAccessToProduct(product);
             if (!permission.allow)
                 return ErrorForKendoGridJson(permission.message);
-
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null)
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
-
             var associatedProducts = await _productService.GetAssociatedProducts(parentGroupedProductId: productId,
-                vendorId: vendorId,
                 showHidden: true);
             var associatedProductsModel = associatedProducts
                 .Select(x => new ProductModel.AssociatedProductModel {
@@ -1198,16 +1156,6 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var product = await _productService.GetProductById(objectId);
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new
-                {
-                    success = false,
-                    message = "Access denied - vendor permissions"
-                });
-
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Json(new
@@ -1480,8 +1428,6 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
-            if (_workContext.CurrentVendor != null)
-                model.VendorId = _workContext.CurrentVendor.Id;
 
             var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
@@ -1562,12 +1508,6 @@ namespace Grand.Web.Admin.Controllers
                     .ToArray();
                 products.AddRange(await _productService.GetProductsByIds(ids, true));
             }
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null)
-            {
-                products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
-            }
-
             var bytes = await exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
@@ -1576,10 +1516,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ImportExcel(IFormFile importexcelfile, [FromServices] IImportManager<ProductDto> importManager)
         {
-            //a vendor ans staff cannot import products
-            if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return AccessDeniedView();
-
             try
             {
                 if (importexcelfile is { Length: > 0 })
@@ -1831,10 +1767,6 @@ namespace Grand.Web.Admin.Controllers
             if (tierPrice == null)
                 return Content("Empty tier price");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             var model = tierPrice.ToModel(_dateTimeService);
             model.ProductId = productId;
             await _productViewModelService.PrepareTierPriceModel(model);
@@ -1964,11 +1896,7 @@ namespace Grand.Web.Admin.Controllers
             var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2052,10 +1980,6 @@ namespace Grand.Web.Admin.Controllers
             if (productAttributeMapping == null)
                 return Content("No attribute value found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2079,10 +2003,6 @@ namespace Grand.Web.Admin.Controllers
             var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             if (productAttributeMapping == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List", "Product");
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
@@ -2232,10 +2152,6 @@ namespace Grand.Web.Admin.Controllers
             if (pav == null)
                 throw new ArgumentException("No product attribute value found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2275,10 +2191,6 @@ namespace Grand.Web.Admin.Controllers
             if (associatedProduct == null)
                 return Content("Cannot load a product");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && associatedProduct.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             return Content("");
         }
 
@@ -2315,11 +2227,7 @@ namespace Grand.Web.Admin.Controllers
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == id);
             if (combination == null)
                 throw new ArgumentException("No product attribute combination found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2360,11 +2268,7 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 //No product found with the specified id
                 return RedirectToAction("List", "Product");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("List", "Product");
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2388,10 +2292,6 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2408,10 +2308,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
-                return Content("This is not your product");
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -2461,10 +2357,6 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2484,10 +2376,6 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Content("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
@@ -2506,10 +2394,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Content("This is not your product");
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -2591,11 +2475,7 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
@@ -2741,10 +2621,6 @@ namespace Grand.Web.Admin.Controllers
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
-
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
@@ -2764,10 +2640,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -2789,10 +2661,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -2821,11 +2689,7 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(productId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
                     return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
@@ -2845,10 +2709,6 @@ namespace Grand.Web.Admin.Controllers
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { errors = "This is not your product" });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))

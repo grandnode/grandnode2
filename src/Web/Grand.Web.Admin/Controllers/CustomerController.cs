@@ -662,9 +662,7 @@ namespace Grand.Web.Admin.Controllers
             };
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
-            if (_workContext.CurrentVendor != null)
-                model.VendorId = _workContext.CurrentVendor.Id;
-
+            
             var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult
             {
@@ -689,15 +687,7 @@ namespace Grand.Web.Admin.Controllers
             var order = await orderService.GetOrderById(orderId);
             if (order == null)
                 throw new ArgumentException("No order found with the specified id");
-
-            //a vendor should have access only to his products
-            if (_workContext.CurrentVendor != null && !_workContext.HasAccessToOrder(order) && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new DataSourceResult
-                {
-                    Data = null,
-                    Total = 0
-                });
-
+            
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
                 return Json(new DataSourceResult
                 {
@@ -910,12 +900,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ContactFormList(DataSourceRequest command, string customerId)
         {
-            var vendorId = "";
-            if (_workContext.CurrentVendor != null)
-            {
-                vendorId = _workContext.CurrentVendor.Id;
-            }
-            var (contactFormModels, totalCount) = await _customerViewModelService.PrepareContactFormModel(customerId, vendorId, command.Page, command.PageSize);
+            var (contactFormModels, totalCount) = await _customerViewModelService.PrepareContactFormModel(customerId, command.Page, command.PageSize);
             var gridModel = new DataSourceResult
             {
                 Data = contactFormModels.ToList(),
@@ -951,11 +936,7 @@ namespace Grand.Web.Admin.Controllers
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 throw new ArgumentException("No customer found with the specified id");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null)
-                return Content("");
-
+            
             var customerNoteModels = await _customerViewModelService.PrepareCustomerNoteList(customerId);
             var gridModel = new DataSourceResult
             {
@@ -973,10 +954,6 @@ namespace Grand.Web.Admin.Controllers
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 return Json(new { Result = false });
 
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null)
-                return Json(new { Result = false });
-
             await _customerViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
 
             return Json(new { Result = true });
@@ -989,10 +966,6 @@ namespace Grand.Web.Admin.Controllers
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
                 throw new ArgumentException("No customer found with the specified id");
-
-            //a vendor does not have access to this functionality
-            if (_workContext.CurrentVendor != null)
-                throw new ArgumentException("AccessDenied");
 
             await _customerViewModelService.DeleteCustomerNote(id, customerId);
 
