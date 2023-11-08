@@ -25,7 +25,7 @@ namespace Grand.Web.Admin.Validators.Catalog
                             return false;
 
                     return true;
-                }).WithMessage(translationService.GetResource("Admin.Catalog.Categories.Permisions"));
+                }).WithMessage(translationService.GetResource("Admin.Catalog.Categories.Permissions"));
             }
         }
     }

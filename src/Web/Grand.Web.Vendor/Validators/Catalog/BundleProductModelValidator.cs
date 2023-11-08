@@ -19,7 +19,7 @@ namespace Grand.Web.Vendor.Validators.Catalog
                 var product = await productService.GetProductById(x.ProductBundleId);
                 if (product == null) return true;
                 return product.VendorId == workContext.CurrentVendor.Id;
-            }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
+            }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
         }
     }
 }

@@ -176,7 +176,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!brand.LimitedToStores || (brand.LimitedToStores && brand.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && brand.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Catalog.Brands.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Catalog.Brands.Permissions"));
                 else
                 {
                     if (!brand.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))

@@ -35,7 +35,7 @@ namespace Grand.Web.Admin.Validators.Catalog
                             return false;
 
                     return true;
-                }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
             }
             RuleFor(x => x).CustomAsync(async (x, context, _) =>
             {

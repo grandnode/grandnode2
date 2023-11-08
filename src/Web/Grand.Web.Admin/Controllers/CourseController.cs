@@ -182,7 +182,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!course.LimitedToStores || (course.LimitedToStores && course.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && course.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Courses.Course.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
                 else
                 {
                     if (!course.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -406,7 +406,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!course.LimitedToStores || (course.LimitedToStores && course.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && course.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Courses.Course.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
                 else
                 {
                     if (!course.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -431,7 +431,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!course.LimitedToStores || (course.LimitedToStores && course.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && course.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Courses.Course.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
                 else
                 {
                     if (!course.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -469,7 +469,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!course.LimitedToStores || (course.LimitedToStores && course.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && course.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Courses.Course.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
                 else
                 {
                     if (!course.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))

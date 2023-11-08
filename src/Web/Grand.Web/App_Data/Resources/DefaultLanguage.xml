@@ -2094,7 +2094,7 @@
 	<Resource Name="Admin.Catalog.Brands.List.SearchStore" Area="Admin">
 		<Value>Store</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Brands.Permisions" Area="Admin">
+	<Resource Name="Admin.Catalog.Brands.Permissions" Area="Admin">
 		<Value>You can't edit this brand, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Brands.Updated" Area="Admin">
@@ -2316,7 +2316,7 @@
 	<Resource Name="Admin.Catalog.Categories.Manage" Area="Admin">
 		<Value>Manage Categories</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Categories.Permisions" Area="Admin">
+	<Resource Name="Admin.Catalog.Categories.Permissions" Area="Admin">
 		<Value>You can't edit this category, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Categories.Products" Area="Admin">
@@ -2487,7 +2487,7 @@
 	<Resource Name="Admin.Catalog.Collections.List.SearchStore" Area="Admin">
 		<Value>Store</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Collections.Permisions" Area="Admin">
+	<Resource Name="Admin.Catalog.Collections.Permissions" Area="Admin">
 		<Value>You can't edit this collection, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Collections.Products" Area="Admin">
@@ -3360,7 +3360,7 @@
 	<Resource Name="Admin.Catalog.Products.Mappings" Area="Admin">
 		<Value>Mappings</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Products.Permisions" Area="Admin">
+	<Resource Name="Admin.Catalog.Products.Permissions" Area="Admin">
 		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Products.Pictures" Area="Admin">
@@ -5490,7 +5490,7 @@
 	<Resource Name="Admin.Content.blog.blogcategory.info" Area="Admin">
 		<Value>Info</Value>
 	</Resource>
-	<Resource Name="Admin.Content.Blog.BlogCategory.Permisions" Area="Admin">
+	<Resource Name="Admin.Content.Blog.BlogCategory.Permissions" Area="Admin">
 		<Value>You can't edit this category blog, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Content.blog.blogcategory.posts" Area="Admin">
@@ -5598,7 +5598,7 @@
 	<Resource Name="Admin.Content.Blog.BlogPosts.Info" Area="Admin">
 		<Value>Info</Value>
 	</Resource>
-	<Resource Name="Admin.Content.Blog.BlogPosts.Permisions" Area="Admin">
+	<Resource Name="Admin.Content.Blog.BlogPosts.Permissions" Area="Admin">
 		<Value>You can't edit this blog post, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Content.Blog.BlogPosts.Products" Area="Admin">
@@ -6288,7 +6288,7 @@
 	<Resource Name="Admin.Courses.Course.Manage" Area="Admin">
 		<Value>Manage course</Value>
 	</Resource>
-	<Resource Name="Admin.Courses.Course.Permisions" Area="Admin">
+	<Resource Name="Admin.Courses.Course.Permissions" Area="Admin">
 		<Value>You can't edit this course, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Courses.Course.Subject.Fields.CourseId.Required" Area="Admin">
@@ -8064,7 +8064,7 @@
 	<Resource Name="Admin.Marketing.Discounts.List.SearchDiscountType" Area="Admin">
 		<Value>Discount type</Value>
 	</Resource>
-	<Resource Name="Admin.Marketing.Discounts.Permisions" Area="Admin">
+	<Resource Name="Admin.Marketing.Discounts.Permissions" Area="Admin">
 		<Value>You can't edit this discount, because it can be used in many stores.</Value>
 	</Resource>
 	<Resource Name="Admin.Marketing.Discounts.Requirements" Area="Admin">
@@ -16713,7 +16713,7 @@
 	<Resource Name="Vendor.Catalog.Products.Mappings" Area="Vendor">
 		<Value>Mappings</Value>
 	</Resource>
-	<Resource Name="Vendor.Catalog.Products.Permisions" Area="Vendor">
+	<Resource Name="Vendor.Catalog.Products.Permissions" Area="Vendor">
 		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Pictures" Area="Vendor">

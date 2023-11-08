@@ -19,7 +19,7 @@ public class ProductValidVendor: BaseGrandValidator<IProductValidVendor>
             var product = await productService.GetProductById(x.ProductId);
             if (product == null) return true;
             return product.VendorId == workContext.CurrentVendor.Id;
-        }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
+        }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }
 
@@ -37,6 +37,6 @@ public class ProductRelatedValidVendor: BaseGrandValidator<IProductRelatedValidV
             var product2 = await productService.GetProductById(x.ProductId2);
             if (product2 == null) return true;
             return product1.VendorId == workContext.CurrentVendor.Id || product2.VendorId == workContext.CurrentVendor.Id;
-        }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permisions"));
+        }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }

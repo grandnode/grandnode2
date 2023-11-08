@@ -811,7 +811,7 @@
 	<Resource Name="Vendor.Catalog.Products.Mappings" Area="Vendor">
 		<Value>Mappings</Value>
 	</Resource>
-	<Resource Name="Vendor.Catalog.Products.Permisions" Area="Vendor">
+	<Resource Name="Vendor.Catalog.Products.Permissions" Area="Vendor">
 		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Pictures" Area="Vendor">
@@ -1884,5 +1884,32 @@
 	</Resource>
 	<Resource Name="Vendor.Portal" Area="Front">
 		<Value>Vendor portal</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Brands.Permissions" Area="Admin">
+		<Value>You can't edit this brand, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Categories.Permissions" Area="Admin">
+		<Value>You can't edit this category, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Collections.Permissions" Area="Admin">
+		<Value>You can't edit this collection, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Permissions" Area="Admin">
+		<Value>You can't edit this product, because it is not yours.</Value>
+	</Resource>
+	<Resource Name="Admin.Content.Blog.BlogCategory.Permissions" Area="Admin">
+		<Value>You can't edit this category blog, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Content.Blog.BlogPosts.Permissions" Area="Admin">
+		<Value>You can't edit this blog post, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Courses.Course.Permissions" Area="Admin">
+		<Value>You can't edit this course, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Marketing.Discounts.Permissions" Area="Admin">
+		<Value>You can't edit this discount, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="Vendor.Catalog.Products.Permissions" Area="Vendor">
+		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>
 </Language>

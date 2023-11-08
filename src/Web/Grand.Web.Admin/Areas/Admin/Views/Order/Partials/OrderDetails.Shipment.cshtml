@@ -1,9 +1,9 @@
 ﻿@model OrderModel
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permisionService;
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService;
 <vc:admin-widget widget-zone="order_details_address_top" additional-data="Model" />
 @if (Model.IsShippable)
 {
-    @if (await permisionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.Shipments))
+    @if (await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.Shipments))
     {
         <div class="card col-md-12">
             <div class="card-body">

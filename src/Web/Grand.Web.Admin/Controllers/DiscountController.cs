@@ -124,7 +124,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!discount.LimitedToStores || (discount.LimitedToStores && discount.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && discount.Stores.Count > 1))
-                    Warning(_translationService.GetResource("admin.marketing.discounts.Permisions"));
+                    Warning(_translationService.GetResource("admin.marketing.discounts.Permissions"));
                 else
                 {
                     if (!discount.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))

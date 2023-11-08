@@ -130,7 +130,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!blogPost.LimitedToStores || (blogPost.LimitedToStores && blogPost.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && blogPost.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Permissions"));
                 else
                 {
                     if (!blogPost.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -340,7 +340,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!blogCategory.LimitedToStores || (blogCategory.LimitedToStores && blogCategory.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && blogCategory.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Content.Blog.BlogCategory.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Content.Blog.BlogCategory.Permissions"));
                 else
                 {
                     if (!blogCategory.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))

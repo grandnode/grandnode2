@@ -178,7 +178,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
                 if (!product.LimitedToStores || (product.LimitedToStores && product.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && product.Stores.Count > 1))
-                    Warning(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    Warning(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
                 else
                 {
                     if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
@@ -1899,7 +1899,7 @@ namespace Grand.Web.Admin.Controllers
             
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             await productAttributeService.DeleteProductAttributeMapping(productAttributeMapping, product.Id);
             return new JsonResult("");
@@ -1982,7 +1982,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
             return Content("");
@@ -2154,7 +2154,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             if (ModelState.IsValid)
             {
@@ -2230,7 +2230,7 @@ namespace Grand.Web.Admin.Controllers
             
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             await productAttributeService.DeleteProductAttributeCombination(combination, productId);
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
@@ -2271,7 +2271,7 @@ namespace Grand.Web.Admin.Controllers
             
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
             
             var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model);
             if (!warnings.Any())
@@ -2294,7 +2294,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             await _productViewModelService.GenerateAllAttributeCombinations(product);
 
@@ -2311,7 +2311,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    throw new ArgumentException(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             if (ModelState.IsValid)
             {
@@ -2359,7 +2359,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content("", _translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
             if (combination != null)
@@ -2378,7 +2378,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Content("", _translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return Content("", _translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
             if (combination != null)
@@ -2397,7 +2397,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
             if (combination != null)
@@ -2478,7 +2478,7 @@ namespace Grand.Web.Admin.Controllers
             
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
+                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permissions") });
 
             var reservations = await _productReservationService.GetProductReservationsByProductId(productId, null, null);
             if (reservations.Any())
@@ -2623,7 +2623,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
+                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permissions") });
 
             var toDelete = await _productReservationService.GetProductReservationsByProductId(productId, true, null);
             foreach (var record in toDelete)
@@ -2643,7 +2643,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
+                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permissions") });
 
             var toDelete = (await _productReservationService.GetProductReservationsByProductId(productId, true, null)).Where(x => x.Date < DateTime.UtcNow);
             foreach (var record in toDelete)
@@ -2664,7 +2664,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permisions"));
+                    return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
             var toDelete = await _productReservationService.GetProductReservation(model.ReservationId);
             if (toDelete != null)
@@ -2692,7 +2692,7 @@ namespace Grand.Web.Admin.Controllers
             
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
+                    return Json(new { errors = _translationService.GetResource("Admin.Catalog.Products.Permissions") });
 
             var (bidModels, totalCount) = await _productViewModelService.PrepareBidMode(productId, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
@@ -2712,7 +2712,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new DataSourceResult { Errors = _translationService.GetResource("Admin.Catalog.Products.Permisions") });
+                    return Json(new DataSourceResult { Errors = _translationService.GetResource("Admin.Catalog.Products.Permissions") });
 
             var toDelete = await _auctionService.GetBid(model.BidId);
             if (toDelete != null)
