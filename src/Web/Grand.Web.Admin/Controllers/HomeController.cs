@@ -76,7 +76,7 @@ namespace Grand.Web.Admin.Controllers
             model.OrdersPending = (await _orderReportService.GetOrderAverageReportLine(storeId: storeId, os: (int)OrderStatusSystem.Pending)).CountOrders;
             model.AbandonedCarts = (await _mediator.Send(new GetCustomerQuery { StoreId = storeId, LoadOnlyWithShoppingCart = true })).Count();
 
-            var lowStockProducts = await _productsReportService.LowStockProducts("", storeId);
+            var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
             model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
 
             model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery { RequestStatusId = 0, StoreId = storeId });

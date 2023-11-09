@@ -546,7 +546,7 @@ namespace Grand.Web.Admin.Controllers
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
-            var lowStockProducts = await _productsReportService.LowStockProducts("", storeId);
+            var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
 
             var models = new List<LowStockProductModel>();
             //products

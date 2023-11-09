@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="vendorId">Vendor identifier</param>
         /// <param name="storeId">Store identifier</param>
         /// <returns>Result</returns>
-        public virtual async Task<(IList<Product> products, IList<ProductsAttributeCombination> combinations)> LowStockProducts(string vendorId, string storeId)
+        public virtual async Task<(IList<Product> products, IList<ProductsAttributeCombination> combinations)> LowStockProducts(string vendorId = "", string storeId = "")
         {
             //Track inventory for product
             //simple products
