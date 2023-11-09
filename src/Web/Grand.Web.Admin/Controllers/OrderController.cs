@@ -419,7 +419,7 @@ namespace Grand.Web.Admin.Controllers
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, "");
+                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", $"order_{order.Id}.pdf");
@@ -474,7 +474,7 @@ namespace Grand.Web.Admin.Controllers
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, "");
+                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", "orders.pdf");
