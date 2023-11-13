@@ -111,8 +111,16 @@ namespace Grand.Web.Admin.Services
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
-            var items = _customerReportService.GetBestCustomersReport(model.StoreId, startDateValue, endDateValue,
-                orderStatus, paymentStatus, shippingStatus, 2, pageIndex - 1, pageSize);
+            var items = _customerReportService.GetBestCustomersReport(
+                storeId: model.StoreId, 
+                createdFromUtc: startDateValue, 
+                createdToUtc: endDateValue,
+                os: orderStatus, 
+                ps: paymentStatus, 
+                ss: shippingStatus,
+                orderBy: 2, 
+                pageIndex: pageIndex - 1, 
+                pageSize: pageSize);
 
             var report = new List<BestCustomerReportLineModel>();
             foreach (var x in items)

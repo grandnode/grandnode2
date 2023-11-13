@@ -203,7 +203,8 @@ namespace Grand.Business.Common.Services.Security
                         StandardPermission.ManageOrders,
                         StandardPermission.ManageVendorReviews,
                         StandardPermission.ManageShipments,
-                        StandardPermission.ManageMerchandiseReturns
+                        StandardPermission.ManageMerchandiseReturns,
+                        StandardPermission.ManageReports
                     }
                 },
                 new DefaultPermission

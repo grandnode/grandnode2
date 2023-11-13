@@ -53,13 +53,14 @@ namespace Grand.Business.System.Services.Reports
         /// Get "order by country" report
         /// </summary>
         /// <param name="storeId">Store identifier</param>
+        /// <param name="vendorId">Vendor identifier</param>
         /// <param name="os">Order status</param>
         /// <param name="ps">Payment status</param>
         /// <param name="ss">Shipping status</param>
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <returns>Result</returns>
-        public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId, int? os,
+        public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId, string vendorId, int? os,
             PaymentStatus? ps, ShippingStatus? ss, DateTime? startTimeUtc, DateTime? endTimeUtc)
         {
             var query = from p in _orderRepository.Table
@@ -79,23 +80,57 @@ namespace Grand.Business.System.Services.Reports
             if (endTimeUtc.HasValue)
                 query = query.Where(o => endTimeUtc.Value >= o.CreatedOnUtc);
 
-            var report = (from oq in query
-                          group oq by oq.BillingAddress.CountryId into result
-                          select new
-                          {
-                              CountryId = result.Key,
-                              TotalOrders = result.Count(),
-                              SumOrders = result.Sum(o => o.OrderTotal / o.CurrencyRate)
-                          }
-                       )
-                       .OrderByDescending(x => x.SumOrders)
-                       .Select(r => new OrderByCountryReportLine {
-                           CountryId = r.CountryId,
-                           TotalOrders = r.TotalOrders,
-                           SumOrders = r.SumOrders
-                       });
+            if (!string.IsNullOrEmpty(vendorId))
+            {
+                query = query
+                    .Where(o => o.OrderItems
+                        .Any(orderItem => orderItem.VendorId == vendorId));
+            }
 
-            return await Task.FromResult(report.ToList());
+            if (string.IsNullOrEmpty(vendorId))
+            {
+                var report = (from oq in query
+                        group oq by oq.BillingAddress.CountryId
+                        into result
+                        select new {
+                            CountryId = result.Key,
+                            TotalOrders = result.Count(),
+                            SumOrders = result.Sum(o => o.OrderTotal / o.CurrencyRate)
+                        }
+                    )
+                    .OrderByDescending(x => x.SumOrders)
+                    .Select(r => new OrderByCountryReportLine {
+                        CountryId = r.CountryId,
+                        TotalOrders = r.TotalOrders,
+                        SumOrders = r.SumOrders
+                    });
+
+                return await Task.FromResult(report.ToList());
+            }
+
+            var vendorQuery = from p in query
+                from item in p.OrderItems
+                select new { VendorId = item.VendorId, OrderCode = p.Code, CountryId = p.BillingAddress.CountryId, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
+            
+            vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
+            
+            var vendorReport = (from oq in vendorQuery
+                    group oq by oq.CountryId
+                    into result
+                    select new {
+                        CountryId = result.Key,
+                        TotalOrders = result.Count(),
+                        SumOrders = result.Sum(y => y.PriceInclTax / y.Rate)
+                    }
+                )
+                .OrderByDescending(x => x.SumOrders)
+                .Select(r => new OrderByCountryReportLine {
+                    CountryId = r.CountryId,
+                    TotalOrders = r.TotalOrders,
+                    SumOrders = r.SumOrders
+                });
+            return await Task.FromResult(vendorReport.ToList());
+            
         }
 
 

@@ -15,13 +15,15 @@ namespace Grand.Business.Core.Interfaces.System.Reports
         /// Get "order by country" report
         /// </summary>
         /// <param name="storeId">Store identifier; "" to load all records</param>
+        /// <param name="vendorId">Vendor identifier; "" to load all records</param>
         /// <param name="os">Order status</param>
         /// <param name="ps">Payment status</param>
         /// <param name="ss">Shipping status</param>
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <returns>Result</returns>
-        Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId = "", int? os = null,
+        Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId = "", 
+            string vendorId = "", int? os = null,
             PaymentStatus? ps = null, ShippingStatus? ss = null,
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null);
 

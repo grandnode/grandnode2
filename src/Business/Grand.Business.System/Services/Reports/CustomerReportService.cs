@@ -52,6 +52,7 @@ namespace Grand.Business.System.Services.Reports
         /// Get best customers
         /// </summary>
         /// <param name="storeId">Store ident</param>
+        /// <param name="vendorId">Vendor ident</param>
         /// <param name="createdFromUtc">Order created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Order created date to (UTC); null to load all records</param>
         /// <param name="os">Order status; null to load all records</param>
@@ -61,8 +62,8 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Report</returns>
-        public virtual IPagedList<BestCustomerReportLine> GetBestCustomersReport(string storeId, DateTime? createdFromUtc,
-            DateTime? createdToUtc, int? os, PaymentStatus? ps, ShippingStatus? ss, int orderBy,
+        public virtual IPagedList<BestCustomerReportLine> GetBestCustomersReport(string storeId = "", string vendorId = "", DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null, int orderBy = 0,
             int pageIndex = 0, int pageSize = 214748364)
         {
 
@@ -83,37 +84,57 @@ namespace Grand.Business.System.Services.Reports
             if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(o => o.StoreId == storeId);
 
-            var query2 = from co in query
-                         group co by co.CustomerId into g
-                         select new
-                         {
-                             CustomerId = g.Key,
-                             OrderTotal = g.Sum(x => x.OrderTotal / x.CurrencyRate),
-                             OrderCount = g.Count()
-                         };
-            switch (orderBy)
+            if (string.IsNullOrEmpty(vendorId))
             {
-                case 1:
+                var query2 = from co in query
+                    group co by co.CustomerId into g
+                    select new
                     {
-                        query2 = query2.OrderByDescending(x => x.OrderTotal);
-                    }
-                    break;
-                case 2:
-                    {
-                        query2 = query2.OrderByDescending(x => x.OrderCount);
-                    }
-                    break;
-                default:
-                    throw new ArgumentException("Wrong orderBy parameter", "orderBy");
-            }
+                        CustomerId = g.Key,
+                        OrderTotal = g.Sum(x => x.OrderTotal / x.CurrencyRate),
+                        OrderCount = g.Count()
+                    };
+                query2 = orderBy switch {
+                    1 => query2.OrderByDescending(x => x.OrderTotal),
+                    2 => query2.OrderByDescending(x => x.OrderCount),
+                    _ => throw new ArgumentException("Wrong orderBy parameter", "orderBy")
+                };
 
-            var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
-            return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine {
+                var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
+                return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine {
+                    CustomerId = x.CustomerId,
+                    OrderTotal = x.OrderTotal,
+                    OrderCount = x.OrderCount
+                }), tmp.PageIndex, tmp.PageSize, tmp.TotalCount);
+            }
+            
+            var vendorQuery = from p in query
+                from item in p.OrderItems
+                select new { VendorId = item.VendorId, CustomerId = p.CustomerId, OrderCode = p.Code, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
+            
+            vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
+            
+            var vendorQueryGroup = from co in vendorQuery
+                group co by co.CustomerId into g
+                select new
+                {
+                    CustomerId = g.Key,
+                    OrderTotal = g.Sum(x => x.PriceInclTax / x.Rate),
+                    OrderCount = g.Count()
+                };
+            vendorQueryGroup = orderBy switch {
+                1 => vendorQueryGroup.OrderByDescending(x => x.OrderTotal),
+                2 => vendorQueryGroup.OrderByDescending(x => x.OrderCount),
+                _ => throw new ArgumentException("Wrong orderBy parameter", "orderBy")
+            };
+
+            var vendorReport = new PagedList<dynamic>(vendorQueryGroup, pageIndex, pageSize);
+            return new PagedList<BestCustomerReportLine>(vendorReport.Select(x => new BestCustomerReportLine {
                 CustomerId = x.CustomerId,
                 OrderTotal = x.OrderTotal,
                 OrderCount = x.OrderCount
-            }),
-                tmp.PageIndex, tmp.PageSize, tmp.TotalCount);
+            }), vendorReport.PageIndex, vendorReport.PageSize, vendorReport.TotalCount);
+            
         }
 
         /// <summary>

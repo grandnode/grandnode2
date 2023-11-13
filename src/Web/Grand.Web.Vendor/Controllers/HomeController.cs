@@ -36,7 +36,12 @@ namespace Grand.Web.Vendor.Controllers
         {
             return View();
         }
-
+        
+        public IActionResult Statistics()
+        {
+            return View();
+        }
+        
         public IActionResult AccessDenied(string pageUrl)
         {
             _ = _logger.Information(

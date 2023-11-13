@@ -1315,6 +1315,9 @@
 	<Resource Name="Vendor.Dashboard.ReportLatestOrder" Area="Vendor">
 		<Value>Latest orders</Value>
 	</Resource>
+	<Resource Name="Vendor.Dashboard.Statistics" Area="Vendor">
+		<Value>Statistics</Value>
+	</Resource>
 	<Resource Name="Vendor.Dashboard.Summary" Area="Vendor">
 		<Value>Summary</Value>
 	</Resource>
@@ -1911,5 +1914,119 @@
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Permissions" Area="Vendor">
 		<Value>You can't edit this product, because it is not yours.</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers" Area="Vendor">
+		<Value>Bestsellers</Value>
+	</Resource>
+	<Resource Name="vendor.reports.bestsellers.byamount" Area="Vendor">
+		<Value>Bestsellers by amount</Value>
+	</Resource>
+	<Resource Name="vendor.reports.bestsellers.byquantity" Area="Vendor">
+		<Value>Bestsellers by quantity</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.BillingCountry" Area="Vendor">
+		<Value>Billing country</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.EndDate" Area="Vendor">
+		<Value>End date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.Fields.Name" Area="Vendor">
+		<Value>Product name</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.Fields.TotalAmount" Area="Vendor">
+		<Value>Total amount</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.Fields.TotalQuantity" Area="Vendor">
+		<Value>Total quantity</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.PaymentStatus" Area="Vendor">
+		<Value>Payment status</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.StartDate" Area="Vendor">
+		<Value>Start date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Bestsellers.RunReport" Area="Vendor">
+		<Value>Run report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country" Area="Vendor">
+		<Value>Country report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.EndDate" Area="Vendor">
+		<Value>End date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.Fields.CountryName" Area="Vendor">
+		<Value>Country name</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.Fields.SumOrders" Area="Vendor">
+		<Value>Sum orders</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.Fields.TotalOrders" Area="Vendor">
+		<Value>Total orders</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.PaymentStatus" Area="Vendor">
+		<Value>Payment status</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.RunReport" Area="Vendor">
+		<Value>Run report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Country.StartDate" Area="Vendor">
+		<Value>Start date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer" Area="Vendor">
+		<Value>Customer report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.EndDate" Area="Vendor">
+		<Value>End date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.Fields.Customer" Area="Vendor">
+		<Value>Customer name</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.Fields.OrderCount" Area="Vendor">
+		<Value>Order count</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.Fields.OrderTotal" Area="Vendor">
+		<Value>Order total</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.PaymentStatus" Area="Vendor">
+		<Value>Payment status</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.RunReport" Area="Vendor">
+		<Value>Run report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.Customer.BestBy.StartDate" Area="Vendor">
+		<Value>Start date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.LowStockReport" Area="Vendor">
+		<Value>Low stock report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.LowStockReport.Fields.Name" Area="Vendor">
+		<Value>Product name</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.LowStockReport.Fields.ManageInventoryMethod" Area="Vendor">
+		<Value>Manage inventory method</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.LowStockReport.Fields.Published" Area="Vendor">
+		<Value>Published</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.LowStockReport.Fields.StockQuantity" Area="Vendor">
+		<Value>Stock quantity</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold" Area="Vendor">
+		<Value>Products never purchased report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold" Area="Vendor">
+		<Value>Products never purchased report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold.EndDate" Area="Vendor">
+		<Value>End date</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold.Fields.Name" Area="Vendor">
+		<Value>Product name</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold.RunReport" Area="Vendor">
+		<Value>Run report</Value>
+	</Resource>
+	<Resource Name="Vendor.Reports.NeverSold.StartDate" Area="Vendor">
+		<Value>Start date</Value>
 	</Resource>
 </Language>
