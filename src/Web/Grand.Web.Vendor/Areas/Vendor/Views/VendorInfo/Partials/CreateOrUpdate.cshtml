@@ -1,0 +1,23 @@
+﻿@model VendorModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="vendor-edit" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Vendor.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Vendor.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:vendor-widget widget-zone="vendor_vendor_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

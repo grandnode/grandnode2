@@ -15996,6 +15996,9 @@
 	<Resource Name="Vendor.Address" Area="Front">
 		<Value>Address</Value>
 	</Resource>
+	<Resource Name="Vendor.Address.SelectState" Area="Vendor">
+		<Value>Select state</Value>
+	</Resource>
 	<Resource Name="Vendor.AccessDenied.Description" Area="Vendor">
 		<Value>You do not have permission to perform the selected operation.</Value>
 	</Resource>
@@ -17022,19 +17025,19 @@
 	<Resource Name="Vendor.Catalog.Products.Reviews" Area="Vendor">
 		<Value>Product Reviews</Value>
 	</Resource>
-	<Resource Name="admin.catalog.products.similarproducts" Area="Vendor">
+	<Resource Name="Vendor.catalog.products.similarproducts" Area="Vendor">
 		<Value>Similar products</Value>
 	</Resource>
-	<Resource Name="admin.catalog.products.similarproducts.addnew" Area="Vendor">
+	<Resource Name="Vendor.catalog.products.similarproducts.addnew" Area="Vendor">
 		<Value>Add new product</Value>
 	</Resource>
-	<Resource Name="admin.catalog.products.similarproducts.fields.displayorder" Area="Vendor">
+	<Resource Name="Vendor.catalog.products.similarproducts.fields.displayorder" Area="Vendor">
 		<Value>Display order</Value>
 	</Resource>
-	<Resource Name="admin.catalog.products.similarproducts.fields.product" Area="Vendor">
+	<Resource Name="Vendor.catalog.products.similarproducts.fields.product" Area="Vendor">
 		<Value>Products</Value>
 	</Resource>
-	<Resource Name="admin.catalog.products.similarproducts.savebeforeedit" Area="Vendor">
+	<Resource Name="Vendor.catalog.products.similarproducts.savebeforeedit" Area="Vendor">
 		<Value>You need to save the product before you can add similar products for this product page.</Value>
 	</Resource>
 	<Resource Name="vendor.catalog.products.similarproducts" Area="Admin">
@@ -17202,8 +17205,14 @@
 	<Resource Name="Vendor.Common.Update" Area="Vendor">
 		<Value>Update</Value>
 	</Resource>
+	<Resource Name="Vendor.Updated" Area="Vendor">
+		<Value>The vendor data has been updated successfully</Value>
+	</Resource>
 	<Resource Name="Vendor.Common.View" Area="Vendor">
 		<Value>View</Value>
+	</Resource>
+	<Resource Name="Vendor.Common.WrongEmail" Area="Vendor">
+		<Value>Wrong email</Value>
 	</Resource>
 	<Resource Name="Vendor.Configuration.Tax.Settings.TaxCategories.None" Area="Vendor">
 		<Value>[None]</Value>
@@ -17223,7 +17232,45 @@
 	<Resource Name="Vendor.Dashboard.Summary" Area="Vendor">
 		<Value>Summary</Value>
 	</Resource>
-
+	<Resource Name="Vendor.EditVendorDetails" Area="Vendor">
+		<Value>Edit vendor data</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.AllowCustomersToSelectPageSize" Area="Vendor">
+		<Value>Allow customers to select page size</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Description" Area="Vendor">
+		<Value>Description</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Email" Area="Vendor">
+		<Value>Vendor email</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Email.Required" Area="Vendor">
+		<Value>Email is required</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Name" Area="Vendor">
+		<Value>Vendor name</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Name.Required" Area="Vendor">
+		<Value>Name is required</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaDescription" Area="Vendor">
+		<Value>Meta description</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaKeywords" Area="Vendor">
+		<Value>Meta keywords</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaTitle" Area="Vendor">
+		<Value>Meta title</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.PageSize" Area="Vendor">
+		<Value>Page size</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.PageSizeOptions" Area="Vendor">
+		<Value>Page size options</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.SeName" Area="Vendor">
+		<Value>SeName</Value>
+	</Resource>
 	<Resource Name="Vendor.Header.Community" Area="Vendor">
 		<Value>Community</Value>
 	</Resource>

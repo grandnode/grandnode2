@@ -1,0 +1,29 @@
+﻿@model VendorModel
+@{
+    //page title
+    ViewBag.Title = Loc["Vendor.EditVendorDetails"];
+}
+<form asp-area="@Constants.AreaVendor" asp-controller="VendorInfo" asp-action="Edit" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Vendor.EditVendorDetails"] - @Model.Name
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                            <vc:vendor-widget widget-zone="vendor_vendor_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

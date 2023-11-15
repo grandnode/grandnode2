@@ -2029,4 +2029,54 @@
 	<Resource Name="Vendor.Reports.NeverSold.StartDate" Area="Vendor">
 		<Value>Start date</Value>
 	</Resource>
+
+	<Resource Name="Vendor.Common.WrongEmail" Area="Vendor">
+		<Value>Wrong email</Value>
+	</Resource>
+	<Resource Name="vendor.editvendordetails" Area="Vendor">
+		<Value>Edit vendor data</Value>
+	</Resource>
+	<Resource Name="Vendor.Updated" Area="Vendor">
+		<Value>The vendor data has been updated successfully</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.AllowCustomersToSelectPageSize" Area="Vendor">
+		<Value>Allow customers to select page size</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Description" Area="Vendor">
+		<Value>Description</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Email" Area="Vendor">
+		<Value>Vendor email</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Email.Required" Area="Vendor">
+		<Value>Email is required</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Name" Area="Vendor">
+		<Value>Vendor name</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.Name.Required" Area="Vendor">
+		<Value>Name is required</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaDescription" Area="Vendor">
+		<Value>Meta description</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaKeywords" Area="Vendor">
+		<Value>Meta keywords</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.MetaTitle" Area="Vendor">
+		<Value>Meta title</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.PageSize" Area="Vendor">
+		<Value>Page size</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.PageSizeOptions" Area="Vendor">
+		<Value>Page size options</Value>
+	</Resource>
+	<Resource Name="Vendor.Address.SelectState" Area="Vendor">
+		<Value>Select state</Value>
+	</Resource>
+	<Resource Name="Vendor.Fields.SeName" Area="Vendor">
+		<Value>SeName</Value>
+	</Resource>
+
 </Language>

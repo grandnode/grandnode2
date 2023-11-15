@@ -1,6 +1,11 @@
 ﻿@inject IWorkContext workContext
 @inject LanguageSettings languageSettings
+@inject VendorSettings vendorSettings
 @using Grand.Domain.Localization
+@using Grand.Domain.Vendors
+@using Grand.Web.Common.TagHelpers
+@using Grand.Web.Vendor.Components
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     var currentCustomer = workContext.CurrentCustomer;
     var currentVersion = GrandVersion.FullVersion;
@@ -110,6 +115,14 @@
                                     </a>
 
                                     <ul class="dropdown-menu dropdown-menu-right dropdown-menu-default">
+                                        @if (vendorSettings.AllowVendorsToEditInfo)
+                                        {
+                                            <li>
+                                                <a href="@Url.Action("Edit", "VendorInfo", new { area = Constants.AreaVendor })">
+                                                    <i class="icon-user"></i> @Loc["Vendor.Header.Profile"]
+                                                </a>
+                                            </li>
+                                        }
                                         <li>
                                             <a href="@Url.Action("Logout", "Home", new { area = Constants.AreaVendor }, null)">
                                                 <i class="icon-logout"></i> @Loc["Vendor.Header.Logout"]
