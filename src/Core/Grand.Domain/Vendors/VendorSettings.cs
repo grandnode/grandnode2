@@ -46,11 +46,6 @@ namespace Grand.Domain.Vendors
         /// </summary>
         public bool AllowVendorsToEditInfo { get; set; }
         /// <summary>
-        /// Get or sets a value indicating whether vendor can upload picture file
-        /// </summary>
-        public bool AllowToUploadFile { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the store owner is notified that the vendor information has been changed
         /// </summary>
         public bool NotifyStoreOwnerAboutVendorInformationChange { get; set; }

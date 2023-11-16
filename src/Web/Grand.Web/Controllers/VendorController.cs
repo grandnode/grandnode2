@@ -14,7 +14,6 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
@@ -113,7 +112,6 @@ namespace Grand.Web.Controllers
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage;
             model.Email = _workContext.CurrentCustomer.Email;
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
-            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             model.Address = await _mediator.Send(new GetVendorAddress {
@@ -137,28 +135,6 @@ namespace Grand.Web.Controllers
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
 
-            var contentType = string.Empty;
-            byte[] vendorPictureBinary = null;
-
-            if (_vendorSettings.AllowToUploadFile && uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
-            {
-                try
-                {
-                    contentType = uploadedFile.ContentType;
-                    if (string.IsNullOrEmpty(contentType))
-                        ModelState.AddModelError("", "Empty content type");
-                    else
-                        if (!contentType.StartsWith("image"))
-                        ModelState.AddModelError("", "Only image content type is allowed");
-
-                    vendorPictureBinary = uploadedFile.GetPictureBits();
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError("", _translationService.GetResource("Vendors.ApplyAccount.Picture.ErrorMessage"));
-                }
-            }
-
             if (ModelState.IsValid)
             {
                 var description = FormatText.ConvertText(model.Description);
@@ -173,13 +149,7 @@ namespace Grand.Web.Controllers
                     AllowCustomerReviews = _vendorSettings.DefaultAllowCustomerReview
                 };
                 model.Address.ToEntity(vendor.Address);
-                if (vendorPictureBinary != null && !string.IsNullOrEmpty(contentType))
-                {
-                    var picture = await _pictureService.InsertPicture(vendorPictureBinary, contentType, null, reference: Reference.Vendor, objectId: vendor.Id);
-                    if (picture != null)
-                        vendor.PictureId = picture.Id;
-                }
-
+                
                 await _vendorService.InsertVendor(vendor);
 
                 //search engine name (the same as vendor name)                
@@ -209,7 +179,6 @@ namespace Grand.Web.Controllers
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage;
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
-            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             model.Address = await _mediator.Send(new GetVendorAddress {
                 Language = _workContext.WorkingLanguage,
@@ -222,133 +191,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
-        [HttpGet]
-        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-        public virtual async Task<IActionResult> Info()
-        {
-            if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
-                return RedirectToRoute("CustomerInfo");
-
-            var model = new VendorInfoModel();
-            var vendor = _workContext.CurrentVendor;
-            model.Description = vendor.Description;
-            model.Email = vendor.Email;
-            model.Name = vendor.Name;
-            model.UserFields = vendor.UserFields;
-            model.AllowToUploadFile = _vendorSettings.AllowToUploadFile;
-            model.PictureUrl = await _pictureService.GetPictureUrl(vendor.PictureId);
-            var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress {
-                Language = _workContext.WorkingLanguage,
-                Address = vendor.Address,
-                ExcludeProperties = false,
-                LoadCountries = () => countries
-            });
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-        public virtual async Task<IActionResult> Info(VendorInfoModel model, IFormFile uploadedFile)
-        {
-            if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
-                return RedirectToRoute("CustomerInfo");
-
-            var contentType = string.Empty;
-            byte[] vendorPictureBinary = null;
-
-            if (_vendorSettings.AllowToUploadFile && uploadedFile != null && !string.IsNullOrEmpty(uploadedFile.FileName))
-            {
-                try
-                {
-                    contentType = uploadedFile.ContentType;
-                    if (string.IsNullOrEmpty(contentType))
-                        ModelState.AddModelError("", "Empty content type");
-                    else
-                        if (!contentType.StartsWith("image"))
-                        ModelState.AddModelError("", "Only image content type is allowed");
-
-                    vendorPictureBinary = uploadedFile.GetPictureBits();
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError("", _translationService.GetResource("Account.VendorInfo.Picture.ErrorMessage"));
-                }
-            }
-
-            var vendor = _workContext.CurrentVendor;
-            var prevPicture = await _pictureService.GetPictureById(vendor.PictureId);
-            if (prevPicture == null)
-                vendor.PictureId = "";
-
-            if (ModelState.IsValid)
-            {
-                var description = FormatText.ConvertText(model.Description);
-
-                vendor.Name = model.Name;
-                vendor.Email = model.Email;
-                vendor.Description = description;
-
-                if (vendorPictureBinary != null && !string.IsNullOrEmpty(contentType))
-                {
-                    var picture = await _pictureService.InsertPicture(vendorPictureBinary, contentType, null, reference: Reference.Vendor, objectId: vendor.Id);
-                    if (picture != null)
-                        vendor.PictureId = picture.Id;
-                    
-                    if (prevPicture != null)
-                        await _pictureService.DeletePicture(prevPicture);
-                }
-                //update picture seo file name
-                await UpdatePictureSeoNames(vendor);
-                model.Address.ToEntity(vendor.Address);
-
-                await _vendorService.UpdateVendor(vendor);
-
-                //notifications
-                if (_vendorSettings.NotifyStoreOwnerAboutVendorInformationChange)
-                    await _messageProviderService.SendVendorInformationChangeMessage(vendor, _workContext.CurrentStore, _languageSettings.DefaultAdminLanguageId);
-
-                return RedirectToAction("Info");
-            }
-            var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress {
-                Language = _workContext.WorkingLanguage,
-                Model = model.Address,
-                Address = vendor.Address,
-                ExcludeProperties = false,
-                LoadCountries = () => countries
-            });
-
-            return View(model);
-        }
-
-        [HttpGet]
-        [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-        public virtual async Task<IActionResult> RemovePicture()
-        {
-            if (_workContext.CurrentVendor == null || !_vendorSettings.AllowVendorsToEditInfo)
-                return RedirectToRoute("CustomerInfo");
-
-            var vendor = _workContext.CurrentVendor;
-            var picture = await _pictureService.GetPictureById(vendor.PictureId);
-
-            if (picture != null)
-                await _pictureService.DeletePicture(picture);
-
-            vendor.PictureId = "";
-            await _vendorService.UpdateVendor(vendor);
-
-            //notifications
-            if (_vendorSettings.NotifyStoreOwnerAboutVendorInformationChange)
-                await _messageProviderService.SendVendorInformationChangeMessage(vendor, _workContext.CurrentStore, _languageSettings.DefaultAdminLanguageId);
-
-            return RedirectToAction("Info");
-        }
-
-
+        
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]

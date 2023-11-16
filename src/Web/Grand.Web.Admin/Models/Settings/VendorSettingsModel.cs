@@ -36,8 +36,6 @@ namespace Grand.Web.Admin.Models.Settings
 
         [GrandResourceDisplayName("Admin.Settings.Vendor.TermsOfServiceEnabled")]
         public bool TermsOfServiceEnabled { get; set; }
-        [GrandResourceDisplayName("Admin.Settings.Vendor.AllowToUploadFile")]
-        public bool AllowToUploadFile { get; set; }
         //review vendor
         [GrandResourceDisplayName("Admin.Settings.Vendor.VendorReviewsMustBeApproved")]
         public bool VendorReviewsMustBeApproved { get; set; }

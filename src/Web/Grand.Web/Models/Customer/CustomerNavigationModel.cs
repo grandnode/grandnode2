@@ -16,7 +16,6 @@ namespace Grand.Web.Models.Customer
         public bool HideAuctions { get; set; }
         public bool HideNotes { get; set; }
         public bool HideDocuments { get; set; }
-        public bool ShowVendorInfo { get; set; }
         public bool HideReviews { get; set; }
         public bool HideCourses { get; set; }
         public bool HideSubAccounts { get; set; }

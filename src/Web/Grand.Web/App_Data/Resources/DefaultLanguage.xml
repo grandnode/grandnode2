@@ -11424,9 +11424,6 @@
 	<Resource Name="Admin.Settings.Vendor.AllowCustomersToContactVendors" Area="Admin">
 		<Value>Allow customers to contact vendors</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Vendor.AllowToUploadFile" Area="Admin">
-		<Value>Allow vendor to upload picture file</Value>
-	</Resource>
 	<Resource Name="Admin.Settings.Vendor.AllowSearchByVendor" Area="Admin">
 		<Value>Allow search by vendor in store advanced search</Value>
 	</Resource>

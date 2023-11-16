@@ -42,10 +42,6 @@ namespace Grand.Web.Features.Handlers.Customers
                 HideCourses = _customerSettings.HideCoursesTab,
                 HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId)
             };
-            if (_vendorSettings.AllowVendorsToEditInfo && request.Vendor != null)
-            {
-                model.ShowVendorInfo = true;
-            }
             model.SelectedTab = (AccountNavigationEnum)request.SelectedTabId;
 
             return await Task.FromResult(model);
