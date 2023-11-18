@@ -98,7 +98,7 @@ namespace Grand.Web.Controllers
 
             //display "edit" (manage) link
             var customer = _workContext.CurrentCustomer;
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
                 DisplayEditLink(Url.Action("EditCategory", "Knowledgebase", new { id = categoryId, area = "Admin" }));
 
             model.CurrentCategoryId = categoryId;
@@ -183,7 +183,7 @@ namespace Grand.Web.Controllers
                 return InvokeHttp404();
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
                 DisplayEditLink(Url.Action("EditArticle", "Knowledgebase", new { id = article.Id, area = "Admin" }));
 
             var model = new KnowledgebaseArticleModel();

@@ -8,12 +8,12 @@ namespace Grand.Business.Core.Utilities.Common.Security
     public static partial class StandardPermission
     {
         //admin area permissions
-        public static readonly Permission ManageAccessAdminPanel = new Permission
+        public static readonly Permission ManageAccessVendorPanel = new Permission
         {
-            Name = "Access admin",
-            SystemName = PermissionSystemName.AccessAdminPanel,
-            Area = "Admin area",
-            Category = "AccessAdmin"
+            Name = "Access vendor panel",
+            SystemName = PermissionSystemName.AccessVendorPanel,
+            Area = "Vendor area",
+            Category = "Access Vendor"
         };
     }
 }

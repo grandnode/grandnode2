@@ -123,7 +123,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
 
             //display "edit" (manage) link
-            if (await permissionService.Authorize(StandardPermission.AccessAdminPanel) && await permissionService.Authorize(StandardPermission.ManageBlog))
+            if (await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) && await permissionService.Authorize(StandardPermission.ManageBlog))
                 DisplayEditLink(Url.Action("Edit", "Blog", new { id = blogPost.Id, area = "Admin" }));
 
             return View(model);

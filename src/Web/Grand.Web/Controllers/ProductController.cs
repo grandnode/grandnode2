@@ -129,7 +129,7 @@ namespace Grand.Web.Controllers
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) &&
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
                 await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
             {
                 //a vendor should have access only to his products

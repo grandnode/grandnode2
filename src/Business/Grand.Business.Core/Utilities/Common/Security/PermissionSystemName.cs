@@ -3,6 +3,7 @@
     public static class PermissionSystemName
     {
         public const string AccessAdminPanel = "AccessAdminPanel";
+        public const string AccessVendorPanel = "AccessVendorPanel";
         public const string AllowCustomerImpersonation = "AllowCustomerImpersonation";
         public const string Products = "ManageProducts";
         public const string Categories = "ManageCategories";

@@ -88,7 +88,7 @@ namespace Grand.Web.Common.Filters
                 if (filterContext.Filters.Any(filter => filter is AuthorizeAdminFilter))
                 {
                     //authorize permission of access to the admin area
-                    if (!await _permissionService.Authorize(StandardPermission.AccessAdminPanel))
+                    if (!await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
                         filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                     //whether current customer is vendor

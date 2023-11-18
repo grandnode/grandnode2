@@ -92,7 +92,7 @@ namespace Grand.Web.Controllers
                 return InvokeHttp404();
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("Edit", "Course", new { id = course.Id, area = "Admin" }));
 
             //activity log
@@ -126,7 +126,7 @@ namespace Grand.Web.Controllers
                 return InvokeHttp404();
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("EditLesson", "Course", new { id = lesson.Id, area = "Admin" }));
 
             //activity log

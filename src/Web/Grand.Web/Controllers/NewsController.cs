@@ -87,7 +87,7 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManageNews))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel) && await _permissionService.Authorize(StandardPermission.ManageNews))
                 DisplayEditLink(Url.Action("Edit", "News", new { id = newsItem.Id, area = "Admin" }));
 
             return View(model);

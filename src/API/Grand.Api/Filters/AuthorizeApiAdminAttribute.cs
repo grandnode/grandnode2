@@ -81,7 +81,7 @@ namespace Grand.Api.Filters
                 if (filterContext.Filters.Any(filter => filter is AuthorizeApiAdminFilter))
                 {
                     //authorize permission of access to the admin area
-                    if (!await _permissionService.Authorize(StandardPermission.AccessAdminPanel))
+                    if (!await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
                         filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
 
                     //get allowed IP addresses

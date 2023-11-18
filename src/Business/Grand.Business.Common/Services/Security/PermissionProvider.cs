@@ -11,7 +11,8 @@ namespace Grand.Business.Common.Services.Security
         {
             return new[]
             {
-                StandardPermission.AccessAdminPanel,
+                StandardPermission.ManageAccessAdminPanel,
+                StandardPermission.ManageAccessVendorPanel,
                 StandardPermission.AllowCustomerImpersonation,
                 StandardPermission.ManageProducts,
                 StandardPermission.ManageCategories,
@@ -95,7 +96,7 @@ namespace Grand.Business.Common.Services.Security
                     CustomerGroupSystemName = SystemCustomerGroupNames.Administrators,
                     Permissions = new[]
                     {
-                        StandardPermission.AccessAdminPanel,
+                        StandardPermission.ManageAccessAdminPanel,
                         StandardPermission.AllowCustomerImpersonation,
                         StandardPermission.ManageProducts,
                         StandardPermission.ManageCategories,
@@ -197,6 +198,7 @@ namespace Grand.Business.Common.Services.Security
                     CustomerGroupSystemName = SystemCustomerGroupNames.Vendors,
                     Permissions = new[]
                     {
+                        StandardPermission.ManageAccessVendorPanel,
                         StandardPermission.ManageProducts,
                         StandardPermission.ManageFiles,
                         StandardPermission.ManagePictures,
@@ -212,7 +214,7 @@ namespace Grand.Business.Common.Services.Security
                     CustomerGroupSystemName = SystemCustomerGroupNames.Staff,
                     Permissions = new[]
                     {
-                        StandardPermission.AccessAdminPanel,
+                        StandardPermission.ManageAccessAdminPanel,
                         StandardPermission.ManageProducts,
                         StandardPermission.ManageFiles,
                         StandardPermission.ManagePictures,
@@ -232,7 +234,7 @@ namespace Grand.Business.Common.Services.Security
                     CustomerGroupSystemName = SystemCustomerGroupNames.SalesManager,
                     Permissions = new[]
                     {
-                        StandardPermission.AccessAdminPanel,
+                        StandardPermission.ManageAccessAdminPanel,
                         StandardPermission.ManageOrders,
                         StandardPermission.ManageCustomers
                     }

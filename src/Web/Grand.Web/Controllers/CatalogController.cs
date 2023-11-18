@@ -129,7 +129,7 @@ namespace Grand.Web.Controllers
             await SaveLastContinueShoppingPage(customer);
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCategories, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCategories, customer))
                 DisplayEditLink(Url.Action("Edit", "Category", new { id = category.Id, area = "Admin" }));
 
             //activity log
@@ -194,7 +194,7 @@ namespace Grand.Web.Controllers
             await SaveLastContinueShoppingPage(customer);
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageBrands, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageBrands, customer))
                 DisplayEditLink(Url.Action("Edit", "Brand", new { id = brand.Id, area = "Admin" }));
 
             //activity log
@@ -258,7 +258,7 @@ namespace Grand.Web.Controllers
             await SaveLastContinueShoppingPage(customer);
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
                 DisplayEditLink(Url.Action("Edit", "Collection", new { id = collection.Id, area = "Admin" }));
 
             //activity log
@@ -313,7 +313,7 @@ namespace Grand.Web.Controllers
             await SaveLastContinueShoppingPage(customer);
 
             //display "edit" (manage) link
-            if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
+            if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
                 DisplayEditLink(Url.Action("Edit", "Vendor", new { id = vendor.Id, area = "Admin" }));
 
             var model = await _mediator.Send(new GetVendor {

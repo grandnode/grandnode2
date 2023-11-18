@@ -289,7 +289,7 @@ namespace Grand.Web.Common.Infrastructure
                     !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>()
                         .DisplayMiniProfilerInPublicStore ||
                     request.HttpContext.RequestServices.GetRequiredService<IPermissionService>()
-                        .Authorize(StandardPermission.AccessAdminPanel).Result;
+                        .Authorize(StandardPermission.ManageAccessAdminPanel).Result;
             });
         }
 

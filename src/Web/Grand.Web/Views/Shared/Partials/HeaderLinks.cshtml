@@ -9,7 +9,7 @@
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
     var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
-    var isAdminAccess = await permissionService.Authorize(StandardPermission.AccessAdminPanel);
+    var isAdminAccess = await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel);
     var isVendor = workContext.CurrentVendor != null;
 }
 

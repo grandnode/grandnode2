@@ -42,7 +42,7 @@ namespace Grand.Web.Common.Security.Authorization
                 return;
 
             //authorize permission of access to the admin area
-            if (!await permissionService.Authorize(StandardPermission.AccessAdminPanel))
+            if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
                 context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
             else
             {
