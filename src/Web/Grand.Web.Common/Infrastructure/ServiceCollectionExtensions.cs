@@ -23,15 +23,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
-using System.IO.Compression;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using WebMarkupMin.AspNet.Common.Compressors;
-using WebMarkupMin.AspNet.Common.UrlMatchers;
-using WebMarkupMin.AspNetCore6;
-using WebMarkupMin.NUglify;
-using IWmmLogger = WebMarkupMin.Core.Loggers.ILogger;
-using WmmThrowExceptionLogger = WebMarkupMin.Core.Loggers.ThrowExceptionLogger;
 
 namespace Grand.Web.Common.Infrastructure
 {
@@ -322,61 +315,6 @@ namespace Grand.Web.Common.Infrastructure
             hcBuilder.AddMongoDb(connection.ConnectionString,
                 name: "mongodb-check",
                 tags: new[] { "mongodb" });
-        }
-
-        public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
-        {
-            var performanceConfig = new PerformanceConfig();
-            configuration.GetSection("Performance").Bind(performanceConfig);
-            if (performanceConfig.UseHtmlMinification)
-            {
-                // Add WebMarkupMin services
-                services.AddWebMarkupMin(options =>
-                    {
-                        options.AllowMinificationInDevelopmentEnvironment = true;
-                        options.AllowCompressionInDevelopmentEnvironment = true;
-                    })
-                    .AddHtmlMinification(options =>
-                    {
-                        options.MinificationSettings.RemoveOptionalEndTags = false;
-
-                        options.ExcludedPages = new List<IUrlMatcher> {
-                            new WildcardUrlMatcher("/swagger/*"),
-                            new WildcardUrlMatcher("/admin/*"),
-                            new ExactUrlMatcher("/admin")
-                        };
-                        options.CssMinifierFactory = new NUglifyCssMinifierFactory();
-                        options.JsMinifierFactory = new NUglifyJsMinifierFactory();
-                    })
-                    .AddXmlMinification(options =>
-                    {
-                        options.ExcludedPages = new List<IUrlMatcher> {
-                            new WildcardUrlMatcher("/swagger/*"),
-                            new WildcardUrlMatcher("/admin/*"),
-                            new ExactUrlMatcher("/admin")
-                        };
-                    })
-                    .AddHttpCompression(options =>
-                    {
-                        options.ExcludedPages = new List<IUrlMatcher> {
-                            new WildcardUrlMatcher("/swagger/*")
-                        };
-                        options.CompressorFactories = new List<ICompressorFactory> {
-                            new BuiltInBrotliCompressorFactory(new BuiltInBrotliCompressionSettings {
-                                Level = CompressionLevel.Fastest
-                            }),
-                            new DeflateCompressorFactory(new DeflateCompressionSettings {
-                                Level = CompressionLevel.Fastest
-                            }),
-                            new GZipCompressorFactory(new GZipCompressionSettings {
-                                Level = CompressionLevel.Fastest
-                            })
-                        };
-                    });
-            }
-
-            if (performanceConfig.HtmlMinificationErrors)
-                services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
 
         public static void AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)

@@ -16,12 +16,6 @@ namespace Grand.Infrastructure.Configuration
         public bool UseResponseCompression { get; set; }
         
         /// <summary>
-        /// Gets or sets a value indicating whether to enable html minification
-        /// </summary>
-        public bool UseHtmlMinification { get; set; }
-        public bool HtmlMinificationErrors { get; set; }
-        
-        /// <summary>
         /// Gets or sets a value indicating whether ignore InstallUrlMiddleware
         /// </summary>
         public bool IgnoreInstallUrlMiddleware { get; set; }

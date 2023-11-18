@@ -25,9 +25,6 @@ namespace Grand.Web.Common.Startup
             //add miniprofiler
             services.AddGrandMiniProfiler();
 
-            //add WebMarkupMin
-            services.AddHtmlMinification(configuration);
-
             //add ApplicationInsights
             services.AddApplicationInsights(configuration);
 

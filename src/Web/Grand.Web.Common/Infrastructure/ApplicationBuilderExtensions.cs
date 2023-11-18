@@ -21,7 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-using WebMarkupMin.AspNetCore6;
 
 namespace Grand.Web.Common.Infrastructure
 {
@@ -341,16 +340,7 @@ namespace Grand.Web.Common.Infrastructure
 
             application.UseSecurityHeaders(policyCollection);
         }
-
-        /// <summary>
-        /// Use WebMarkupMin for your application.
-        /// </summary>
-        /// <param name="application">Builder for configuring an application's request pipeline</param>
-        public static void UseHtmlMinification(this IApplicationBuilder application)
-        {
-            application.UseWebMarkupMin();
-        }
-
+        
         /// <summary>
         /// Configure middleware checking whether database is installed
         /// </summary>

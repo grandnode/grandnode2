@@ -100,12 +100,6 @@ namespace Grand.Web.Common.Startup
                 //gzip by default
                 application.UseResponseCompression();
             }
-
-            //Add webMarkupMin
-            if (performanceConfig.UseHtmlMinification)
-            {
-                application.UseHtmlMinification();
-            }
             
             //use static files feature
             application.UseGrandStaticFiles(appConfig);
