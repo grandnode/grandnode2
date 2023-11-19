@@ -89,8 +89,8 @@
                                                                 @{
                                                                     var groupList = pr.ToList();
                                                                 }
-                                                                <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category" aria-expanded="true" aria-controls="@groupList[0].Category-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
-                                                                <ul id="@groupList[0].Category-collapseMain" class="collapse show multi-collapse-@groupList[0].Category">
+                                                                <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category.GetHashCode()" aria-expanded="true" aria-controls="@groupList[0].Category.GetHashCode()-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                                                                <ul id="@groupList[0].Category.GetHashCode()-collapseMain" class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
                                                                     @foreach (var item in groupList)
                                                                     {
                                                                         <li>
@@ -106,7 +106,7 @@
                                                                         <span>@cr.Name</span>
                                                                         <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" onclick="checkCategory(this)" /> <div class="control__indicator"></div></label>
                                                                     </div>
-                                                                    <ul class="collapse show multi-collapse-@groupList[0].Category">
+                                                                    <ul class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
                                                                         @foreach (var item in groupList)
                                                                         {
                                                                             var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
