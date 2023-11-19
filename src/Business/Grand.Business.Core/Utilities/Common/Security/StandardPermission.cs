@@ -13,7 +13,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Name = "Access admin",
             SystemName = PermissionSystemName.AccessAdminPanel,
             Area = "Admin area",
-            Category = "AccessAdmin"
+            Category = "Access Admin"
         };
     }
 }
