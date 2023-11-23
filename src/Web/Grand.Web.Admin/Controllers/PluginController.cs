@@ -16,6 +16,7 @@ using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Reflection;
 
@@ -28,7 +29,7 @@ namespace Grand.Web.Admin.Controllers
 
         private readonly ITranslationService _translationService;
         private readonly IThemeProvider _themeProvider;
-        private readonly ILogger _logger;
+        private readonly ILogger<PluginController> _logger;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IServiceProvider _serviceProvider;
         private readonly IWorkContext _workContext;
@@ -40,7 +41,7 @@ namespace Grand.Web.Admin.Controllers
         public PluginController(
             ITranslationService translationService,
             IThemeProvider themeProvider,
-            ILogger logger,
+            ILogger<PluginController> logger,
             IHostApplicationLifetime applicationLifetime,
             IWorkContext workContext,
             IServiceProvider serviceProvider,
@@ -187,7 +188,7 @@ namespace Grand.Web.Admin.Controllers
 
                 Success(_translationService.GetResource("Admin.Plugins.Installed"));
 
-                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been installed by the user {_workContext.CurrentCustomer.Email}");
+                _logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
 
                 //stop application
                 _applicationLifetime.StopApplication();
@@ -220,7 +221,7 @@ namespace Grand.Web.Admin.Controllers
 
                 Success(_translationService.GetResource("Admin.Plugins.Uninstalled"));
 
-                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been uninstalled by the user {_workContext.CurrentCustomer.Email}");
+                _logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
 
                 //stop application
                 _applicationLifetime.StopApplication();
@@ -262,7 +263,7 @@ namespace Grand.Web.Admin.Controllers
                 //uninstall plugin
                 Success(_translationService.GetResource("Admin.Plugins.Removed"));
 
-                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been removed by the user {_workContext.CurrentCustomer.Email}");
+                _logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
 
                 //stop application
                 _applicationLifetime.StopApplication();
@@ -277,7 +278,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult ReloadList()
         {
-            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"Reload list of plugins by the user {_workContext.CurrentCustomer.Email}");
+            _logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
 
             //stop application
             _applicationLifetime.StopApplication();
@@ -326,7 +327,7 @@ namespace Grand.Web.Admin.Controllers
                     System.IO.File.Delete(zipFilePath);
             }
 
-            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been uploaded by the user {_workContext.CurrentCustomer.Email}");
+            _logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
 
             //stop application
             _applicationLifetime.StopApplication();
@@ -436,7 +437,7 @@ namespace Grand.Web.Admin.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _ = _logger.Error(ex.Message);
+                            _logger.LogError(ex, ex.Message);
                         }
                     }
                     if (!supportedVersion)

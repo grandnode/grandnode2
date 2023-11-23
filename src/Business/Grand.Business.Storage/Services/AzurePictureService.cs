@@ -1,6 +1,5 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Data;
@@ -8,6 +7,7 @@ using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Storage.Services
 {
@@ -27,7 +27,7 @@ namespace Grand.Business.Storage.Services
         #region Ctor
 
         public AzurePictureService(IRepository<Picture> pictureRepository,
-            ILogger logger,
+            ILogger<AzurePictureService> logger,
             IMediator mediator,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,

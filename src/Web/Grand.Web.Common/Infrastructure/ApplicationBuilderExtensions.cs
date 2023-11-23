@@ -1,8 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Common;
+﻿using Grand.Domain.Common;
 using Grand.Domain.Data;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
@@ -20,6 +17,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common.Infrastructure
@@ -72,15 +70,8 @@ namespace Grand.Web.Common.Infrastructure
                         if (DataSettingsManager.DatabaseIsInstalled())
                         {
                             var logger = context.RequestServices.GetRequiredService<ILogger>();
-                            //get current customer
-                            var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
-                            _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception.Message, exception.ToString(),
-                            customer: workContext.CurrentCustomer,
-                            ipAddress: context.Connection.RemoteIpAddress?.ToString(),
-                            pageUrl: context.Request.GetDisplayUrl(),
-                            referrerUrl: context.Request.GetTypedHeaders().Referer?.ToString());
                             //log error
-                            _ = logger.Error(exception.Message, exception, workContext.CurrentCustomer);
+                            logger.LogError(exception, exception.Message);
                         }
                     }
                     finally
@@ -118,14 +109,7 @@ namespace Grand.Web.Common.Infrastructure
                     if (commonSettings.Log404Errors)
                     {
                         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
-                        //get current customer
-                        var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-                        _ = logger.InsertLog(Domain.Logging.LogLevel.Error,
-                            $"Error 404. The requested page ({context.HttpContext.Request.GetDisplayUrl()}) was not found",
-                            customer: workContext.CurrentCustomer,
-                            ipAddress: context.HttpContext.Connection.RemoteIpAddress?.ToString(),
-                            pageUrl: context.HttpContext.Request.GetDisplayUrl(),
-                            referrerUrl: context.HttpContext.Request.GetTypedHeaders().Referer?.ToString());
+                        logger.LogError("Error 404. The requested page ({DisplayUrl}) was not found", context.HttpContext.Request.GetDisplayUrl());
                     }
                 }
                 await Task.CompletedTask;
@@ -149,11 +133,7 @@ namespace Grand.Web.Common.Infrastructure
 
                 if (apiRequest) return Task.CompletedTask;
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
-                var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-                _ = logger.InsertLog(Domain.Logging.LogLevel.Error, "Error 400. Bad request", null, customer: workContext.CurrentCustomer,
-                    ipAddress: context.HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    pageUrl: context.HttpContext.Request.GetDisplayUrl(),
-                    referrerUrl: context.HttpContext.Request.GetTypedHeaders().Referer?.ToString());
+                logger.LogError("Error 400. Bad request");
                 return Task.CompletedTask;
             });
         }
@@ -257,21 +237,6 @@ namespace Grand.Web.Common.Infrastructure
             {
                 application.UseMiniProfiler();
             }
-        }
-
-        /// <summary>
-        /// Save log application started
-        /// </summary>
-        /// <param name="application">Builder for configuring an application's request pipeline</param>
-        public static void LogApplicationStarted(this IApplicationBuilder application)
-        {
-            //whether database is already installed
-            if (!DataSettingsManager.DatabaseIsInstalled())
-                return;
-
-            var serviceProvider = application.ApplicationServices;
-            var logger = serviceProvider.GetRequiredService<ILogger>();
-            _ = logger.Information("Application started");
         }
 
         /// <summary>

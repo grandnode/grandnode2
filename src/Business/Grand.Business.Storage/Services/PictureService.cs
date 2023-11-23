@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Common;
@@ -10,6 +9,7 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using SkiaSharp;
 using System.Linq.Expressions;
 
@@ -24,7 +24,7 @@ namespace Grand.Business.Storage.Services
         #region Fields
 
         private readonly IRepository<Picture> _pictureRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<PictureService> _logger;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
         private readonly IMediaFileStore _mediaFileStore;
@@ -46,7 +46,7 @@ namespace Grand.Business.Storage.Services
         /// <param name="mediaSettings">Media settings</param>
         /// <param name="storageSettings">Storage settings</param>
         public PictureService(IRepository<Picture> pictureRepository,
-            ILogger logger,
+            ILogger<PictureService> logger,
             IMediator mediator,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
@@ -130,7 +130,7 @@ namespace Grand.Business.Storage.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
+                    _logger.LogError(ex, ex.Message);
                 }
             }
             return Task.CompletedTask;
@@ -212,12 +212,12 @@ namespace Grand.Business.Storage.Services
                     File.WriteAllBytes(file, binary ?? Array.Empty<byte>());
                 }
                 else
-                    _logger.InsertLog(Domain.Logging.LogLevel.Error, "Directory thumb not exist.");
+                    _logger.LogError("Directory thumb not exist");
 
             }
             catch (Exception ex)
             {
-                _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
+                _logger.LogError(ex, ex.Message);
             }
             return Task.CompletedTask;
         }
@@ -499,7 +499,7 @@ namespace Grand.Business.Storage.Services
                 }
                 catch (Exception ex)
                 {
-                    _ = _logger.Error(ex.Message, ex);
+                    _logger.LogError(ex, ex.Message);
                 }
             }
             await Task.CompletedTask;
@@ -699,7 +699,7 @@ namespace Grand.Business.Storage.Services
                 File.WriteAllBytes(filepath, pictureBinary);
             }
             else
-                _ = _logger.Error("Directory path not exist.");
+                _logger.LogError("Directory path not exist");
 
             return Task.CompletedTask;
         }
@@ -866,7 +866,7 @@ namespace Grand.Business.Storage.Services
             }
             catch (Exception ex)
             {
-                _logger.Error($"ApplyResize - format {format}", ex);
+                _logger.LogError(ex, "ApplyResize - format {Format}", format);
                 return null;
             }
 

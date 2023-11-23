@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.System.Services.Migrations;
 using Grand.Domain.Data;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -12,7 +13,7 @@ namespace Grand.Business.System.Tests.Services.Migrations
         private Mock<IRepository<MigrationDb>> _repository;
         private MigrationProcess _service;
         private Mock<IDatabaseContext> _dbContext;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<MigrationProcess>> _loggerMock;
         private IServiceProvider _serviceProvider;
 
         [TestInitialize]
@@ -23,7 +24,7 @@ namespace Grand.Business.System.Tests.Services.Migrations
 
             _repository = new Mock<IRepository<MigrationDb>>();
             _dbContext = new Mock<IDatabaseContext>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<MigrationProcess>>();
             _service = new MigrationProcess(_dbContext.Object, _serviceProvider, _loggerMock.Object, _repository.Object);
         }
         //TODO

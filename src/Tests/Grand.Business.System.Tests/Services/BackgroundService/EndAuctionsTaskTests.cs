@@ -13,6 +13,7 @@ using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Business.Core.Utilities.Checkout;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
 {
@@ -23,7 +24,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         private Mock<IMessageProviderService> _messageProviderMock;
         private Mock<IShoppingCartService> _shoppingCartMock;
         private Mock<ICustomerService> _customerServiceMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<EndAuctionsTask>> _loggerMock;
         private LanguageSettings _settings;
         private EndAuctionsTask _task;
 
@@ -34,7 +35,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _messageProviderMock = new Mock<IMessageProviderService>();
             _shoppingCartMock = new Mock<IShoppingCartService>();
             _customerServiceMock = new Mock<ICustomerService>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<EndAuctionsTask>>();
             _settings = new LanguageSettings();
             _task = new EndAuctionsTask(_auctionMock.Object, _messageProviderMock.Object, _settings, _shoppingCartMock.Object, _customerServiceMock.Object,
                 _loggerMock.Object);

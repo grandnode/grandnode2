@@ -19,6 +19,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace Grand.Web.Admin.Controllers
@@ -38,7 +39,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly ILogger _logger;
+        private readonly ILogger<SystemController> _logger;
 
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
@@ -59,7 +60,7 @@ namespace Grand.Web.Admin.Controllers
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
             IWebHostEnvironment webHostEnvironment,
-            ILogger logger,
+            ILogger<SystemController> logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
             ExtensionsConfig extConfig, AccessControlConfig accessControlConfig)
@@ -279,7 +280,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> ClearCache(string returnUrl, [FromServices] ICacheBase cacheBase)
         {
-            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"Clear cache has been done by the user: {_workContext.CurrentCustomer.Email}");
+            _logger.LogInformation($"Clear cache has been done by the user: {_workContext.CurrentCustomer.Email}");
 
             await cacheBase.Clear();
 
@@ -295,7 +296,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult RestartApplication(string returnUrl = "")
         {
-            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The application has been restarted by the user {_workContext.CurrentCustomer.Email}");
+            _logger.LogInformation($"The application has been restarted by the user {_workContext.CurrentCustomer.Email}");
 
             //stop application
             _applicationLifetime.StopApplication();

@@ -9,6 +9,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -28,7 +29,7 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         private CustomerSettings _customerSettings;
         private AddressSettings _addressSettings;
         private Mock<IGroupService> _groupServiceMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<TaxService>> _loggerMock;
 
         private IServiceProvider _serviceProvider;
         [TestInitialize()]
@@ -50,7 +51,7 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
             _customerSettings = new CustomerSettings();
             _addressSettings = new AddressSettings();
             _groupServiceMock = new Mock<IGroupService>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<TaxService>>();
             var providers = new List<ITaxProvider>();
             providers.Add(new FixedRateTestTaxProvider());
             _taxService = new TaxService( _workContext,_groupServiceMock.Object,

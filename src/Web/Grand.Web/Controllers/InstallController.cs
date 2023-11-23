@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
-using Grand.Domain.Logging;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;
@@ -16,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using LogLevel = Grand.Domain.Logging.LogLevel;
 
 namespace Grand.Web.Controllers
 {
@@ -243,8 +244,8 @@ namespace Grand.Web.Controllers
                     }
                     catch (Exception ex)
                     {
-                        var _logger = _serviceProvider.GetRequiredService<ILogger>();
-                        await _logger.InsertLog(LogLevel.Error, "Error during installing plugin " + pluginInfo.SystemName,
+                        var logger = _serviceProvider.GetRequiredService<ILogger>();
+                        logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
                             ex.Message + " " + ex.InnerException?.Message);
                     }
                 }

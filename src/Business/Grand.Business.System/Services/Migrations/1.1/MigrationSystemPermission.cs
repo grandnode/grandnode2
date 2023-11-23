@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._1._1
 {
@@ -26,7 +26,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
         {
             var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
             var groupService = serviceProvider.GetRequiredService<IGroupService>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
 
             try
             {
@@ -46,7 +46,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - UpdateAdminSiteMap", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap");
             }
             return true;
         }

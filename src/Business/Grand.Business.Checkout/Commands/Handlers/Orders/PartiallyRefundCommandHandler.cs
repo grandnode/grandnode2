@@ -4,12 +4,11 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
-using Grand.Domain.Logging;
 using Grand.SharedKernel;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -19,7 +18,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly IPaymentTransactionService _paymentTransactionService;
         private readonly IMediator _mediator;
         private readonly IMessageProviderService _messageProviderService;
-        private readonly ILogger _logger;
+        private readonly ILogger<PartiallyRefundCommandHandler> _logger;
         private readonly IOrderService _orderService;
         private readonly LanguageSettings _languageSettings;
 
@@ -28,7 +27,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             IPaymentTransactionService paymentTransactionService,
             IMediator mediator,
             IMessageProviderService messageProviderService,
-            ILogger logger,
+            ILogger<PartiallyRefundCommandHandler> logger,
             IOrderService orderService,
             LanguageSettings languageSettings)
         {
@@ -112,8 +111,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
 
             if (string.IsNullOrEmpty(error)) return result.Errors;
-            var logError = $"Error refunding order #{paymentTransaction.OrderCode}. Error: {error}";
-            await _logger.InsertLog(LogLevel.Error, logError, logError);
+            
+            _logger.LogError("Error refunding order #{PaymentTransactionOrderCode}. Error: {Error}", paymentTransaction.OrderCode, error);
             return result.Errors;
         }
     }

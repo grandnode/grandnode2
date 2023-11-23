@@ -1,9 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Utilities.Common.Security;
+﻿using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Admin;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._2._2
 {
@@ -24,7 +24,7 @@ namespace Grand.Business.System.Services.Migrations._2._2
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
             var repository = serviceProvider.GetRequiredService<IRepository<Domain.Admin.AdminSiteMap>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
             try
             {
@@ -45,7 +45,7 @@ namespace Grand.Business.System.Services.Migrations._2._2
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - UpdateAdminSiteMap", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap");
             }
             return true;
         }

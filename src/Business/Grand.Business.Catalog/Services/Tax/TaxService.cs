@@ -1,9 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -12,6 +10,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.Tax
 {
@@ -27,7 +26,7 @@ namespace Grand.Business.Catalog.Services.Tax
         private readonly IGeoLookupService _geoLookupService;
         private readonly ICountryService _countryService;
         private readonly IEnumerable<ITaxProvider> _taxProviders;
-        private readonly ILogger _logger;
+        private readonly ILogger<TaxService> _logger;
         private readonly TaxSettings _taxSettings;
         private readonly TaxProviderSettings _taxProviderSettings;
         private readonly CustomerSettings _customerSettings;
@@ -43,7 +42,7 @@ namespace Grand.Business.Catalog.Services.Tax
             IGeoLookupService geoLookupService,
             ICountryService countryService,
             IEnumerable<ITaxProvider> taxProviders,
-            ILogger logger,
+            ILogger<TaxService> logger,
             TaxSettings taxSettings,
             TaxProviderSettings taxProviderSettings,
             CustomerSettings customerSettings,
@@ -249,7 +248,7 @@ namespace Grand.Business.Catalog.Services.Tax
             {
                 foreach (var error in calculateTaxResult.Errors)
                 {
-                    _ = _logger.Error($"{activeTaxProvider.FriendlyName} - {error}", null, customer);
+                    _logger.LogError("{FriendlyName} - {Error}", activeTaxProvider.FriendlyName, error);
                 }
             }
             return (taxRate, isTaxable);

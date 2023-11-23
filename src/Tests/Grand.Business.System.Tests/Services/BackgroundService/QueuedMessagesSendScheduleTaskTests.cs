@@ -4,6 +4,7 @@ using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -15,7 +16,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         private Mock<IQueuedEmailService> _queuedEmailServiceMock;
         private Mock<IEmailSender> _emailSenderMock;
         private Mock<IEmailAccountService> _emailAccountServiceMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<QueuedMessagesSendScheduleTask>> _loggerMock;
         private QueuedMessagesSendScheduleTask _task;
 
         [TestInitialize]
@@ -24,7 +25,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
             _emailSenderMock = new Mock<IEmailSender>();
             _emailAccountServiceMock = new Mock<IEmailAccountService>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<QueuedMessagesSendScheduleTask>>();
             _task = new QueuedMessagesSendScheduleTask(_queuedEmailServiceMock.Object, _emailSenderMock.Object, _loggerMock.Object, _emailAccountServiceMock.Object);
         }
 

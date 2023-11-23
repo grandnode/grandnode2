@@ -45,9 +45,6 @@ namespace Grand.Web.Common.Startup
 
             //endpoint routing
             application.UseGrandEndpoints();
-
-            //save log application started
-            application.LogApplicationStarted();
         }
 
         /// <summary>
