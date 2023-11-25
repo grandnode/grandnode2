@@ -69,7 +69,7 @@ namespace Grand.Web.Common.Infrastructure
                         //check whether database is installed
                         if (DataSettingsManager.DatabaseIsInstalled())
                         {
-                            var logger = context.RequestServices.GetRequiredService<ILogger>();
+                            var logger = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("UseExceptionHandler");
                             //log error
                             logger.LogError(exception, exception.Message);
                         }
@@ -108,7 +108,7 @@ namespace Grand.Web.Common.Infrastructure
                     var commonSettings = context.HttpContext.RequestServices.GetRequiredService<CommonSettings>();
                     if (commonSettings.Log404Errors)
                     {
-                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("UseStatusCodePages");
                         logger.LogError("Error 404. The requested page ({DisplayUrl}) was not found", context.HttpContext.Request.GetDisplayUrl());
                     }
                 }
@@ -132,7 +132,7 @@ namespace Grand.Web.Common.Infrastructure
                 var apiRequest = authHeader != null && authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
 
                 if (apiRequest) return Task.CompletedTask;
-                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("UseBadRequestResult");
                 logger.LogError("Error 400. Bad request");
                 return Task.CompletedTask;
             });

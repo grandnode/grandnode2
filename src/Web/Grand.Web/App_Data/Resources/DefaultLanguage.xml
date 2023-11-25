@@ -14688,9 +14688,6 @@
 	<Resource Name="Permission.ManageStores" Area="Admin">
 		<Value>Admin area. Manage Stores</Value>
 	</Resource>
-	<Resource Name="Permission.ManageSystemLog" Area="Admin">
-		<Value>Admin area. Manage System Log</Value>
-	</Resource>
 	<Resource Name="Permission.ManageTaxSettings" Area="Admin">
 		<Value>Admin area. Manage Tax Settings</Value>
 	</Resource>

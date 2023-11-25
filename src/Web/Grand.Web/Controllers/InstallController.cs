@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using LogLevel = Grand.Domain.Logging.LogLevel;
 
 namespace Grand.Web.Controllers
 {
@@ -244,7 +243,7 @@ namespace Grand.Web.Controllers
                     }
                     catch (Exception ex)
                     {
-                        var logger = _serviceProvider.GetRequiredService<ILogger>();
+                        var logger = _serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("InstallController");
                         logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
                             ex.Message + " " + ex.InnerException?.Message);
                     }

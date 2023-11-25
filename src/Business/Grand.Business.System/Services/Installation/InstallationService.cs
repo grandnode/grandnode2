@@ -60,7 +60,6 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<TaxCategory> _taxCategoryRepository;
         private readonly IRepository<Language> _languageRepository;
         private readonly IRepository<TranslationResource> _lsrRepository;
-        private readonly IRepository<Log> _logRepository;
         private readonly IRepository<Currency> _currencyRepository;
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<CustomerGroup> _customerGroupRepository;
@@ -169,7 +168,6 @@ namespace Grand.Business.System.Services.Installation
             IRepository<TaxCategory> taxCategoryRepository,
             IRepository<Language> languageRepository,
             IRepository<TranslationResource> lsrRepository,
-            IRepository<Log> logRepository,
             IRepository<Currency> currencyRepository,
             IRepository<Customer> customerRepository,
             IRepository<CustomerGroup> customerGroupRepository,
@@ -266,7 +264,6 @@ namespace Grand.Business.System.Services.Installation
             _taxCategoryRepository = taxCategoryRepository;
             _languageRepository = languageRepository;
             _lsrRepository = lsrRepository;
-            _logRepository = logRepository;
             _currencyRepository = currencyRepository;
             _customerRepository = customerRepository;
             _customerGroupRepository = customerGroupRepository;
@@ -587,9 +584,6 @@ namespace Grand.Business.System.Services.Installation
             //newsletter
             await dbContext.CreateIndex(_newslettersubscriptionRepository, OrderBuilder<NewsLetterSubscription>.Create().Ascending(x => x.CustomerId), "CustomerId");
             await dbContext.CreateIndex(_newslettersubscriptionRepository, OrderBuilder<NewsLetterSubscription>.Create().Ascending(x => x.Email), "Email");
-
-            //Log
-            await dbContext.CreateIndex(_logRepository, OrderBuilder<Log>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //Campaign 
             await dbContext.CreateIndex(_campaignRepository, OrderBuilder<Campaign>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");

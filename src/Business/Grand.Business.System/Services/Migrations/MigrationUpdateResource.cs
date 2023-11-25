@@ -13,7 +13,7 @@ namespace Grand.Business.System.Services.Migrations
             string filename)
         {
             var langRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("ImportLanguageResourcesFromXml");
             var translationService = serviceProvider.GetRequiredService<ITranslationService>();
 
             try

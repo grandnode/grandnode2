@@ -30,7 +30,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
                 var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "System");
                 if (sitemapSystem != null)
                 {
-                    sitemapSystem.PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
+                    sitemapSystem.PermissionNames = new List<string> { PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
                         PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System };
                     var childnodeDevTools = sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Developer tools");
                     if (childnodeDevTools != null)

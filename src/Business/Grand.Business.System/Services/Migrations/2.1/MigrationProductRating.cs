@@ -1,10 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using LogLevel = Grand.Domain.Logging.LogLevel;
 
 namespace Grand.Business.System.Services.Migrations._2._1
 {

@@ -93,7 +93,7 @@ namespace Grand.Web.Common.Controllers
         /// <param name="exception">Exception</param>
         private void LogException(Exception exception)
         {
-            var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
+            var logger = HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("BaseController");
             logger.LogError(exception, exception.Message);
         }
 
