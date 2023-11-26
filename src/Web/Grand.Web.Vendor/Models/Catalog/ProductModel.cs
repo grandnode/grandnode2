@@ -625,6 +625,11 @@ namespace Grand.Web.Vendor.Models.Catalog
 
         }
 
+        public class TierPriceDeleteModel : BaseEntityModel, IProductValidVendor
+        {
+            public string ProductId { get; set; }
+        }
+        
         public class ProductWarehouseInventoryModel : BaseModel
         {
             [GrandResourceDisplayName("Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse")]

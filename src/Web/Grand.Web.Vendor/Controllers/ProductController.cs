@@ -1783,7 +1783,7 @@ namespace Grand.Web.Vendor.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> TierPriceDelete(ProductModel.TierPriceModel model)
+        public async Task<IActionResult> TierPriceDelete(ProductModel.TierPriceDeleteModel model)
         {
             if (ModelState.IsValid)
             {
