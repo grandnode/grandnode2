@@ -240,6 +240,17 @@
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
+                        },
+                        parameterMap: function (data, operation) {                            
+                            if (operation === "destroy") 
+                            {
+                                return { 
+                                    id: data.Id, 
+                                    productId: data.ProductId,
+                                    __RequestVerificationToken: data.__RequestVerificationToken
+                                };
+                            }
+                            return data;
                         }
                     },
                     schema: {

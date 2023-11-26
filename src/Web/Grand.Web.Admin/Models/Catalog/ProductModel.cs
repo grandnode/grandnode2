@@ -714,6 +714,8 @@ namespace Grand.Web.Admin.Models.Catalog
 
         }
 
+        public record TierPriceDeleteModel(string Id, string ProductId);
+
         public class ProductWarehouseInventoryModel : BaseModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse")]
