@@ -9,10 +9,9 @@ namespace Grand.Business.System.Services.Migrations._2._2
 {
     public class MigrationUpdateAdminSiteMap : IMigration
     {
-
         public int Priority => 0;
         public DbVersion Version => new(2, 2);
-        public Guid Identity => new("1025D405-FFF3-45E1-A240-2E5F2A92535F");
+        public Guid Identity => new("55E49962-66DD-4034-8AB2-7F4C33A5E0B2");
         public string Name => "Update standard admin site map - add admin menu";
 
         /// <summary>
@@ -28,10 +27,10 @@ namespace Grand.Business.System.Services.Migrations._2._2
 
             try
             {
-                var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "Configuration");
-                if (sitemapSystem != null)
+                var sitemapConfiguration = repository.Table.FirstOrDefault(x => x.SystemName == "Configuration");
+                if (sitemapConfiguration != null)
                 {
-                    sitemapSystem.ChildNodes.Add(new AdminSiteMap() {
+                    sitemapConfiguration.ChildNodes.Add(new AdminSiteMap() {
                         SystemName = "Admin menu",
                         ResourceName = "Admin.Configuration.Menu",
                         PermissionNames = new List<string> { PermissionSystemName.Maintenance },
@@ -40,6 +39,15 @@ namespace Grand.Business.System.Services.Migrations._2._2
                         DisplayOrder = 7,
                         IconClass = "fa fa-dot-circle-o"
                     });
+                    repository.Update(sitemapConfiguration);
+                }
+
+                var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "System");
+                if (sitemapSystem != null)
+                {
+                    var log = sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Log");
+                    sitemapSystem.ChildNodes.Remove(log);
+                    sitemapSystem.PermissionNames.Remove("ManageSystemLog");
                     repository.Update(sitemapSystem);
                 }
             }
@@ -47,6 +55,7 @@ namespace Grand.Business.System.Services.Migrations._2._2
             {
                 logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap");
             }
+
             return true;
         }
     }

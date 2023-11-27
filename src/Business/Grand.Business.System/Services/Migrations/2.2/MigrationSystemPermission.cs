@@ -13,8 +13,8 @@ namespace Grand.Business.System.Services.Migrations._2._2
     {
         public int Priority => 0;
         public DbVersion Version => new(2, 2);
-        public Guid Identity => new("BFBAEB25-288A-4114-BC0D-0272B57B1725");
-        public string Name => "Install new permission - ManageAccessVendorPanel";
+        public Guid Identity => new("3F4E87C6-8ECE-4034-8211-39C3D3EBC567");
+        public string Name => "Install new permission - ManageAccessVendorPanel / Delete permission - ManageSystemLog";
 
         /// <summary>
         /// Upgrade process
@@ -44,6 +44,12 @@ namespace Grand.Business.System.Services.Migrations._2._2
                     permissionAccessAdmin.CustomerGroups.Remove(customerGroupVendorId);
                     repository.Update(permissionAccessAdmin);
                 }
+                var permissionManageSystemLog = repository.Table.FirstOrDefault(x => x.SystemName == "ManageSystemLog");
+                if (permissionManageSystemLog != null)
+                {
+                    repository.Delete(permissionManageSystemLog);
+                }
+
             }
             catch (Exception ex)
             {
