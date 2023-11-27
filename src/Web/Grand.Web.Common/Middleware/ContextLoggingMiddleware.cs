@@ -23,7 +23,7 @@ public class ContextLoggingMiddleware
         requestTelemetry.Properties.TryAdd("Store", workContext?.CurrentStore?.Name);
         requestTelemetry.Properties.TryAdd("Currency", workContext?.WorkingCurrency?.Name);
         requestTelemetry.Properties.TryAdd("Language", workContext?.WorkingLanguage?.Name);
-
+        
         await _next(context);
     }
 }
