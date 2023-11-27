@@ -385,14 +385,10 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="currency">Currency</param>
         /// <param name="couponCodeToValidate">Coupon code</param>
         /// <returns>Discount validation result</returns>
-        public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string couponCodeToValidate)
+        public virtual Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string couponCodeToValidate)
         {
-            if (!string.IsNullOrEmpty(couponCodeToValidate))
-            {
-                return await ValidateDiscount(discount, customer, currency, new[] { couponCodeToValidate });
-            }
-
-            return await ValidateDiscount(discount, customer, currency, Array.Empty<string>());
+            var couponCodes = string.IsNullOrWhiteSpace(couponCodeToValidate) ? Array.Empty<string>() : new[] { couponCodeToValidate };
+            return ValidateDiscount(discount, customer, currency, couponCodes);
         }
 
         /// <summary>
