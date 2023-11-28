@@ -7,7 +7,6 @@ using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Common.Filters
 {

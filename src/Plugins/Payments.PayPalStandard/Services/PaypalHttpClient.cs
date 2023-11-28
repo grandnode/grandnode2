@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Net.Http;
 
 namespace Payments.PayPalStandard.Services

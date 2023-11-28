@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tax.FixedRate.Models;
