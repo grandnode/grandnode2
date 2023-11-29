@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Logging;
 using Grand.Infrastructure.Mapper;
-using Grand.Web.Admin.Models.Logging;
+using Grand.Web.Admin.Models.ActivityLog;
 
 namespace Grand.Web.Admin.Extensions.Mapping;
 

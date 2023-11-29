@@ -5,7 +5,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.ActivityLog;
-using Grand.Web.Admin.Models.Logging;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers
