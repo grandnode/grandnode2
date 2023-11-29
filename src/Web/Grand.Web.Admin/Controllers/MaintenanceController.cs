@@ -78,9 +78,6 @@ namespace Grand.Web.Admin.Controllers
             if (TempData["DeleteActivityLog"] != null)
                 model.DeleteActivityLog = (bool)TempData["DeleteActivityLog"];
 
-            if (TempData["DeleteSystemLog"] != null)
-                model.DeleteSystemLog = (bool)TempData["DeleteSystemLog"];
-
             if (TempData["NumberOfConvertItems"] != null)
             {
                 model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
