@@ -1,11 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Vendor.Controllers
 {
@@ -14,7 +13,7 @@ namespace Grand.Web.Vendor.Controllers
         #region Fields
 
         private readonly IWorkContext _workContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<HomeController> _logger;
         private readonly IGrandAuthenticationService _authenticationService;
 
         #endregion
@@ -23,7 +22,7 @@ namespace Grand.Web.Vendor.Controllers
 
         public HomeController(
             IWorkContext workContext,
-            ILogger logger,
+            ILogger<HomeController> logger,
             IGrandAuthenticationService authenticationService)
         {
             _workContext = workContext;
@@ -47,8 +46,7 @@ namespace Grand.Web.Vendor.Controllers
         
         public IActionResult AccessDenied(string pageUrl)
         {
-            _ = _logger.Information(
-                $"Access denied to user #{_workContext.CurrentCustomer.Email} on {pageUrl}");
+            _logger.LogInformation("Access denied to user #{CurrentCustomerEmail} on {PageUrl}", _workContext.CurrentCustomer.Email, pageUrl);
             return View();
         }
 

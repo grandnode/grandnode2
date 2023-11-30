@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {
@@ -12,12 +11,12 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     {
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
+        private readonly ILogger<QueuedMessagesSendScheduleTask> _logger;
         private readonly IEmailAccountService _emailAccountService;
 
 
         public QueuedMessagesSendScheduleTask(IQueuedEmailService queuedEmailService,
-            IEmailSender emailSender, ILogger logger, IEmailAccountService emailAccountService)
+            IEmailSender emailSender, ILogger<QueuedMessagesSendScheduleTask> logger, IEmailAccountService emailAccountService)
         {
             _queuedEmailService = queuedEmailService;
             _emailSender = emailSender;
@@ -63,7 +62,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 }
                 catch (Exception exc)
                 {
-                    _ = _logger.Error($"Error sending e-mail. {exc.Message}", exc);
+                    _logger.LogError(exc, "Error sending e-mail. {ExcMessage}", exc.Message);
                 }
                 finally
                 {

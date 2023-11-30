@@ -9,6 +9,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -23,7 +24,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         private Mock<IOrderService> _orderServiceMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<IMessageProviderService> _messageProviderServiceMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<RefundCommandHandler>> _loggerMock;
 
         [TestInitialize]
         public void Init()
@@ -33,7 +34,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
             _paymentTransactionMock = new Mock<IPaymentTransactionService>();
             _messageProviderServiceMock = new Mock<IMessageProviderService>();
             _paymentServiceMock = new Mock<IPaymentService>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<RefundCommandHandler>>();
 
             _handler = new RefundCommandHandler(_mediatorMock.Object, _paymentServiceMock.Object, _paymentTransactionMock.Object, _orderServiceMock.Object, _messageProviderServiceMock.Object, _loggerMock.Object, new Domain.Localization.LanguageSettings());
         }

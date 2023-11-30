@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Discounts;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

@@ -26,6 +26,7 @@ using Grand.Web.Models.Checkout;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Controllers
 {
@@ -44,7 +45,7 @@ namespace Grand.Web.Controllers
         private readonly IPickupPointService _pickupPointService;
         private readonly IPaymentService _paymentService;
         private readonly IPaymentTransactionService _paymentTransactionService;
-        private readonly ILogger _logger;
+        private readonly ILogger<CheckoutController> _logger;
         private readonly IOrderService _orderService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
@@ -71,7 +72,7 @@ namespace Grand.Web.Controllers
             IPickupPointService pickupPointService,
             IPaymentService paymentService,
             IPaymentTransactionService paymentTransactionService,
-            ILogger logger,
+            ILogger<CheckoutController> logger,
             IOrderService orderService,
             ICustomerActivityService customerActivityService,
             IMediator mediator,
@@ -516,7 +517,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -687,7 +688,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -772,7 +773,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -855,7 +856,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -915,7 +916,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -1026,7 +1027,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Json(new { error = 1, message = exc.Message });
             }
         }
@@ -1072,7 +1073,7 @@ namespace Grand.Web.Controllers
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning(exc.Message, exc, _workContext.CurrentCustomer);
+                _logger.LogWarning(exc.Message);
                 return Content(exc.Message);
             }
         }

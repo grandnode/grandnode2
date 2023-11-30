@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Seo;
 using Grand.Domain.Pages;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Pages;
 using Microsoft.AspNetCore.Mvc.Rendering;

@@ -12,7 +12,6 @@ using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
-using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

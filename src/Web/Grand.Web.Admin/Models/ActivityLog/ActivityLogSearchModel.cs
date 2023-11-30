@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Logging
+namespace Grand.Web.Admin.Models.ActivityLog
 {
     public class ActivityLogSearchModel : BaseModel
     {

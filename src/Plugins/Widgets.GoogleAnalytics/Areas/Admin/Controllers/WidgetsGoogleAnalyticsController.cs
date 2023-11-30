@@ -6,7 +6,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.GoogleAnalytics.Models;

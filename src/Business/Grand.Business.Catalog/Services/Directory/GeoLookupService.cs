@@ -1,12 +1,10 @@
 ﻿//This product contains GeoLite2 data created by MaxMind, from http://www.maxmind.com
-
 using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.SharedKernel.Extensions;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Exceptions;
 using MaxMind.GeoIP2.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.Directory
 {
@@ -17,13 +15,13 @@ namespace Grand.Business.Catalog.Services.Directory
     {
         #region Fields
 
-        private readonly ILogger _logger;
+        private readonly ILogger<GeoLookupService> _logger;
 
         #endregion
 
         #region Ctor
 
-        public GeoLookupService(ILogger logger)
+        public GeoLookupService(ILogger<GeoLookupService> logger)
         {
             _logger = logger;
         }
@@ -53,7 +51,7 @@ namespace Grand.Business.Catalog.Services.Directory
             }
             catch (Exception exc)
             {
-                _ = _logger.Warning("Cannot load MaxMind record", exc);
+                _logger.LogError(exc, "Cannot load MaxMind record");
                 return null;
             }
         }

@@ -1037,20 +1037,11 @@ namespace Grand.Business.Core.Utilities.System
                 new () {
                     SystemName = "System",
                     ResourceName = "Admin.System",
-                    PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
+                    PermissionNames = new List<string> { PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
                         PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System },
                     IconClass = "icon-info",
                     DisplayOrder = 10,
                     ChildNodes = new List<AdminSiteMap> {
-                        new () {
-                            SystemName = "Log",
-                            ResourceName = "Admin.System.Log",
-                            PermissionNames = new List<string> { PermissionSystemName.SystemLog },
-                            ControllerName = "Logger",
-                            ActionName = "List",
-                            DisplayOrder = 0,
-                            IconClass = "fa fa-dot-circle-o"
-                        },
                         new () {
                             SystemName = "System information",
                             ResourceName = "Admin.System.SystemInfo",

@@ -45,7 +45,6 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<IGiftVoucherViewModelService, GiftVoucherViewModelService>();
             services.AddScoped<IKnowledgebaseViewModelService, KnowledgebaseViewModelService>();
             services.AddScoped<ILanguageViewModelService, LanguageViewModelService>();
-            services.AddScoped<ILogViewModelService, LogViewModelService>();
             services.AddScoped<ICollectionViewModelService, CollectionViewModelService>();
             services.AddScoped<INewsViewModelService, NewsViewModelService>();
             services.AddScoped<IOrderViewModelService, OrderViewModelService>();

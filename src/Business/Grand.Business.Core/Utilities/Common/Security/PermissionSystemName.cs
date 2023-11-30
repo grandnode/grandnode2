@@ -60,7 +60,6 @@
         public const string EmailAccounts = "ManageEmailAccounts";
         public const string Stores = "ManageStores";
         public const string Plugins = "ManagePlugins";
-        public const string SystemLog = "ManageSystemLog";
         public const string MessageQueue = "ManageMessageQueue";
         public const string MessageContactForm = "ManageMessageContactForm";
         public const string Maintenance = "ManageMaintenance";

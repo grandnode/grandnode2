@@ -1,4 +1,4 @@
-﻿using Grand.Web.Admin.Models.Logging;
+﻿using Grand.Web.Admin.Models.ActivityLog;
 
 namespace Grand.Web.Admin.Interfaces
 {

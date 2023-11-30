@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Data;
+﻿using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._2._1
 {
@@ -23,7 +23,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
             var repository = serviceProvider.GetRequiredService<IRepository<ActivityLogType>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationActivityLogTypes>>();
             try
             {
                 var activityLogTypes = repository
@@ -46,7 +46,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
             }
             catch (Exception ex)
             {
-                logService.InsertLog(LogLevel.Error, "UpgradeProcess - RemoveOldActivityLogType", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - RemoveOldActivityLogType");
             }
             return true;
 

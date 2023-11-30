@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Mapper;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Common.Extensions;
 

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Net.Http;
 
 namespace Payments.PayPalStandard.Services
@@ -7,8 +7,8 @@ namespace Payments.PayPalStandard.Services
     {
         private readonly HttpClient _client;
         private readonly PayPalStandardPaymentSettings _paypalStandardPaymentSettings;
-        private readonly ILogger _logger;
-        public PaypalHttpClient(HttpClient client, PayPalStandardPaymentSettings paypalStandardPaymentSettings, ILogger logger)
+        private readonly ILogger<PaypalHttpClient> _logger;
+        public PaypalHttpClient(HttpClient client, PayPalStandardPaymentSettings paypalStandardPaymentSettings, ILogger<PaypalHttpClient> logger)
         {
             _client = client;
             _paypalStandardPaymentSettings = paypalStandardPaymentSettings;
@@ -39,7 +39,7 @@ namespace Payments.PayPalStandard.Services
             }
             catch (Exception ex)
             {
-                await _logger.InsertLog(Grand.Domain.Logging.LogLevel.Error, "VerifyIpn", ex.Message);
+                _logger.LogError(ex, "VerifyIpn");
             }
 
 
@@ -79,7 +79,7 @@ namespace Payments.PayPalStandard.Services
             }
             catch(Exception ex)
             {
-                await _logger.InsertLog(Grand.Domain.Logging.LogLevel.Error, "GetPdtDetails", ex.Message);
+                _logger.LogError(ex, "GetPdtDetails");
             }
             var content = await response.Content.ReadAsStringAsync();
 

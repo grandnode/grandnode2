@@ -5,6 +5,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;
 using Grand.Domain.PushNotifications;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
@@ -21,7 +22,7 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
         private IRepository<PushRegistration> _repositoryPushRegistration;
         private IRepository<PushMessage> _repositoryPushMessage;
         private Mock<IMediator> _mediatorMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<PushNotificationsService>> _loggerMock;
 
 
         [TestInitialize()]
@@ -30,7 +31,7 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
             _repositoryPushRegistration = new MongoDBRepositoryTest<PushRegistration>();
             _repositoryPushMessage = new MongoDBRepositoryTest<PushMessage>();
             _mediatorMock = new Mock<IMediator>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<PushNotificationsService>>();
 
             var mockMessageHandler = new Mock<HttpMessageHandler>();
 

@@ -3,12 +3,11 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Logging;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace Widgets.GoogleAnalytics.Components
@@ -17,13 +16,13 @@ namespace Widgets.GoogleAnalytics.Components
     public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
     {
         private readonly IWorkContext _workContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<WidgetsGoogleAnalyticsViewComponent> _logger;
         private readonly GoogleAnalyticsEcommerceSettings _googleAnalyticsEcommerceSettings;
         private readonly ICookiePreference _cookiePreference;
         private readonly IServiceProvider _serviceProvider;
 
         public WidgetsGoogleAnalyticsViewComponent(IWorkContext workContext,
-            ILogger logger,
+            ILogger<WidgetsGoogleAnalyticsViewComponent> logger,
             GoogleAnalyticsEcommerceSettings googleAnalyticsEcommerceSettings,
             ICookiePreference cookiePreference,
             IServiceProvider serviceProvider
@@ -70,7 +69,7 @@ namespace Widgets.GoogleAnalytics.Components
             }
             catch (Exception ex)
             {
-                await _logger.InsertLog(LogLevel.Error, "Error creating scripts for google ecommerce tracking", ex.ToString());
+                _logger.LogError(ex, "Error creating scripts for google ecommerce tracking");
             }
             return View("Default", globalScript);
         }

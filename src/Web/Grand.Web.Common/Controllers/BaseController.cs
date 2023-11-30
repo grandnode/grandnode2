@@ -1,6 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Events;
 using Grand.Web.Common.Extensions;
@@ -8,12 +6,12 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Page;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common.Controllers
 {
@@ -92,10 +90,8 @@ namespace Grand.Web.Common.Controllers
         /// <param name="exception">Exception</param>
         private void LogException(Exception exception)
         {
-            var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-            var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
-            _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception?.Message, exception?.ToString(), workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
-                HttpContext.Request.GetDisplayUrl(), HttpContext.Request.GetTypedHeaders().Referer?.ToString());
+            var logger = HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("BaseController");
+            logger.LogError(exception, exception.Message);
         }
 
         /// <summary>

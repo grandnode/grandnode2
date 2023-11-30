@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
@@ -18,6 +16,7 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -79,9 +78,6 @@ namespace Grand.Web.Admin.Controllers
             if (TempData["DeleteActivityLog"] != null)
                 model.DeleteActivityLog = (bool)TempData["DeleteActivityLog"];
 
-            if (TempData["DeleteSystemLog"] != null)
-                model.DeleteSystemLog = (bool)TempData["DeleteSystemLog"];
-
             if (TempData["NumberOfConvertItems"] != null)
             {
                 model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
@@ -129,20 +125,11 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MaintenanceDeleteSystemlog(MaintenanceModel model, [FromServices] ILogger logger)
-        {
-            await logger.ClearLog();
-            TempData["DeleteSystemLog"] = true;
-            return RedirectToAction("Maintenance");
-        }
-
-
-        [HttpPost]
         public async Task<IActionResult> MaintenanceConvertPicture(
             [FromServices] IPictureService pictureService,
             [FromServices] StorageSettings storageSettings,
             [FromServices] MediaSettings mediaSettings,
-            [FromServices] ILogger logger)
+            [FromServices] ILogger<MaintenanceController> logger)
         {
             var numberOfConvertItems = 0;
             if (storageSettings.PictureStoreInDb)
@@ -159,7 +146,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _ = logger.Error($"Error on converting picture with id {picture.Id} to webp format", ex);
+                        logger.LogError(ex, "Error on converting picture with id {PictureId} to webp format", picture.Id);
                     }
 
                 }

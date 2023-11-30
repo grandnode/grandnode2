@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using Grand.Domain.Vendors;
 using Grand.Web.Models.Catalog;
 using MediatR;
 

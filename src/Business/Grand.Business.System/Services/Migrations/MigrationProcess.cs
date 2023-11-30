@@ -1,6 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Data;
+﻿using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations
 {
@@ -8,14 +8,14 @@ namespace Grand.Business.System.Services.Migrations
     {
         private readonly IDatabaseContext _databaseContext;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger _logger;
+        private readonly ILogger<MigrationProcess> _logger;
 
         private readonly IRepository<MigrationDb> _repositoryMigration;
 
         public MigrationProcess(
             IDatabaseContext databaseContext,
             IServiceProvider serviceProvider,
-            ILogger logger,
+            ILogger<MigrationProcess> logger,
             IRepository<MigrationDb> repositoryMigration)
         {
             _databaseContext = databaseContext;
@@ -32,7 +32,7 @@ namespace Grand.Business.System.Services.Migrations
                 if (result.Success)
                     SaveMigration(result);
                 else
-                    _logger.InsertLog(Domain.Logging.LogLevel.Error, $"Something went wrong during migration process {migration.Name}");
+                    _logger.LogError("Something went wrong during migration process {MigrationName}", migration.Name);
                 return result;
             }
             catch (Exception ex)

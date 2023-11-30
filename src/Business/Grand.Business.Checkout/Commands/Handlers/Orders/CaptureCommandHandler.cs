@@ -3,12 +3,11 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Logging;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using MediatR;
 using Grand.Business.Core.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -18,14 +17,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly IPaymentTransactionService _paymentTransaction;
         private readonly IOrderService _orderService;
         private readonly IMediator _mediator;
-        private readonly ILogger _logger;
+        private readonly ILogger<CaptureCommandHandler> _logger;
 
         public CaptureCommandHandler(
             IPaymentService paymentService,
             IPaymentTransactionService paymentTransaction,
             IMediator mediator,
             IOrderService orderService,
-            ILogger logger)
+            ILogger<CaptureCommandHandler> logger)
         {
             _paymentService = paymentService;
             _paymentTransaction = paymentTransaction;
@@ -95,7 +94,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (!string.IsNullOrEmpty(error))
             {
                 //log it
-                await _logger.InsertLog(LogLevel.Error, $"Error capturing order code # {paymentTransaction.OrderCode}. Error: {error}", $"Error capturing order code # {paymentTransaction.OrderCode}. Error: {error}");
+                _logger.LogError("Error capturing order code # {PaymentTransactionOrderCode}. Error: {Error}", paymentTransaction.OrderCode, error);
             }
             return result.Errors;
         }

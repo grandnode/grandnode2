@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -20,13 +21,13 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         private Mock<IPaymentTransactionService> _paymentTransactionMock;
         private Mock<IOrderService> _orderServiceMock;
         private Mock<IMediator> _mediatorMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<CaptureCommandHandler>> _loggerMock;
 
         [TestInitialize]
         public void Init()
         {
             _mediatorMock = new Mock<IMediator>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<CaptureCommandHandler>>();
             _orderServiceMock = new Mock<IOrderService>();
             _paymentServiceMock = new Mock<IPaymentService>();
             _paymentTransactionMock = new Mock<IPaymentTransactionService>();

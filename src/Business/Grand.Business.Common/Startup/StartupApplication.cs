@@ -78,8 +78,6 @@ namespace Grand.Business.Common.Startup
         private void RegisterLoggingService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<ICustomerActivityService, CustomerActivityService>();
-            serviceCollection.AddScoped<ILogger, DefaultLogger>();
-
         }
         private void RegisterSecurityService(IServiceCollection serviceCollection)
         {

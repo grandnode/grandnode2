@@ -3,7 +3,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
@@ -11,6 +10,7 @@ using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Payments.PayPalStandard.Services;
 using System.Globalization;
@@ -23,7 +23,7 @@ namespace Payments.PayPalStandard.Controllers
         private readonly IWorkContext _workContext;
         private readonly IPaymentService _paymentService;
         private readonly IOrderService _orderService;
-        private readonly ILogger _logger;
+        private readonly ILogger<PaymentPayPalStandardController> _logger;
         private readonly IMediator _mediator;
         private readonly IPaymentTransactionService _paymentTransactionService;
         private readonly IPaypalHttpClient _paypalHttpClient;
@@ -35,7 +35,7 @@ namespace Payments.PayPalStandard.Controllers
             IWorkContext workContext,
             IPaymentService paymentService,
             IOrderService orderService,
-            ILogger logger,
+            ILogger<PaymentPayPalStandardController> logger,
             IMediator mediator,
             IPaymentTransactionService paymentTransactionService,
             IPaypalHttpClient paypalHttpClient,
@@ -94,7 +94,7 @@ namespace Payments.PayPalStandard.Controllers
                     }
                     catch (Exception exc)
                     {
-                        _ = _logger.Error("PayPal PDT. Error getting mc_gross", exc);
+                        _logger.LogError(exc, "PayPal PDT. Error getting mc_gross");
                     }
 
                     values.TryGetValue("payer_status", out var payer_status);
@@ -139,7 +139,7 @@ namespace Payments.PayPalStandard.Controllers
                     {
                         var errorStr =
                             $"PayPal PDT. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.OrderNumber}.";
-                        _ = _logger.Error(errorStr);
+                        _logger.LogError(errorStr);
 
                         //order note
                         await _orderService.InsertOrderNote(new OrderNote {
@@ -286,7 +286,7 @@ namespace Payments.PayPalStandard.Controllers
                                                 var errorStr =
                                                     $"PayPal IPN. Returned order total {mcGross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.Id}.";
                                                 //log
-                                                _ = _logger.Error(errorStr);
+                                                _logger.LogError(errorStr);
                                                 //order note
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
@@ -317,7 +317,7 @@ namespace Payments.PayPalStandard.Controllers
                                                 var errorStr =
                                                     $"PayPal IPN. Returned order total {mcGross} doesn't equal order total {order.OrderTotal * order.CurrencyRate}. Order# {order.Id}.";
                                                 //log
-                                                _ = _logger.Error(errorStr);
+                                                _logger.LogError(errorStr);
                                                 //order note
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
@@ -371,7 +371,7 @@ namespace Payments.PayPalStandard.Controllers
                             }
                             else
                             {
-                                _ = _logger.Error("PayPal IPN. Order is not found", new GrandException(sb.ToString()));
+                                _logger.LogError(new GrandException(sb.ToString()), "PayPal IPN. Order is not found");
                             }
                         }
                         #endregion
@@ -381,7 +381,7 @@ namespace Payments.PayPalStandard.Controllers
 
             }
 
-            _ = _logger.Error("PayPal IPN failed.", new GrandException(strRequest));
+            _logger.LogError(new GrandException(strRequest), "PayPal IPN failed");
 
             return BadRequest();
 

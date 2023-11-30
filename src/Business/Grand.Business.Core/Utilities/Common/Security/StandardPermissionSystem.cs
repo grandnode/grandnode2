@@ -5,14 +5,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
     public static partial class StandardPermission
     {
         private static string CategorySystem => "System";
-
-        public static readonly Permission ManageSystemLog = new()
-        {
-            Name = "Manage System Log",
-            SystemName = PermissionSystemName.SystemLog,
-            Area = "Admin area",
-            Category = CategorySystem
-        };
+        
         public static readonly Permission ManageMessageQueue = new()
         {
             Name = "Manage Message Queue",
