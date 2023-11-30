@@ -1,7 +1,7 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Logging
+namespace Grand.Web.Admin.Models.ActivityLog
 {
     public class ActivityLogModel : BaseEntityModel
     {

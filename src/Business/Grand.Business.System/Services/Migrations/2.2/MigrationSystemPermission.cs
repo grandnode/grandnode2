@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._2._2
 {
@@ -13,8 +13,8 @@ namespace Grand.Business.System.Services.Migrations._2._2
     {
         public int Priority => 0;
         public DbVersion Version => new(2, 2);
-        public Guid Identity => new("BFBAEB25-288A-4114-BC0D-0272B57B1725");
-        public string Name => "Install new permission - ManageAccessVendorPanel";
+        public Guid Identity => new("3F4E87C6-8ECE-4034-8211-39C3D3EBC567");
+        public string Name => "Install new permission - ManageAccessVendorPanel / Delete permission - ManageSystemLog";
 
         /// <summary>
         /// Upgrade process
@@ -26,7 +26,7 @@ namespace Grand.Business.System.Services.Migrations._2._2
         {
             var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
             var groupService = serviceProvider.GetRequiredService<IGroupService>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
 
             try
             {
@@ -44,10 +44,16 @@ namespace Grand.Business.System.Services.Migrations._2._2
                     permissionAccessAdmin.CustomerGroups.Remove(customerGroupVendorId);
                     repository.Update(permissionAccessAdmin);
                 }
+                var permissionManageSystemLog = repository.Table.FirstOrDefault(x => x.SystemName == "ManageSystemLog");
+                if (permissionManageSystemLog != null)
+                {
+                    repository.Delete(permissionManageSystemLog);
+                }
+
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - add new permission", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - add new permission");
             }
             return true;
         }

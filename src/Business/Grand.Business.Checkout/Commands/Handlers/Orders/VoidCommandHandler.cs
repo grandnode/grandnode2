@@ -3,11 +3,10 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Logging;
 using Grand.SharedKernel;
 using MediatR;
 using Grand.Business.Core.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -17,14 +16,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly IMediator _mediator;
         private readonly IPaymentService _paymentService;
         private readonly IPaymentTransactionService _paymentTransactionService;
-        private readonly ILogger _logger;
+        private readonly ILogger<VoidCommandHandler> _logger;
 
         public VoidCommandHandler(
             IOrderService orderService,
             IMediator mediator,
             IPaymentService paymentService,
             IPaymentTransactionService paymentTransactionService,
-            ILogger logger)
+            ILogger<VoidCommandHandler> logger)
         {
             _orderService = orderService;
             _mediator = mediator;
@@ -86,8 +85,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
 
             if (string.IsNullOrEmpty(error)) return result.Errors;
-            var logError = $"Error voiding order #{paymentTransaction.OrderCode}. Error: {error}";
-            await _logger.InsertLog(LogLevel.Error, logError, logError);
+            
+            _logger.LogError("Error voiding order #{PaymentTransactionOrderCode}. Error: {Error}", paymentTransaction.OrderCode, error);
             return result.Errors;
         }
     }

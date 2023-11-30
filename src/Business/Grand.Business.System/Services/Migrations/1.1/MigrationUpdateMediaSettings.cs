@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Grand.Business.System.Services.Migrations._1._1
@@ -27,7 +27,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
             var repository = serviceProvider.GetRequiredService<IRepository<Domain.Configuration.Setting>>();
             var mediaSettings = repository.Table.FirstOrDefault(x => x.Name == "mediasettings");
             var settingService = serviceProvider.GetRequiredService<ISettingService>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateMediaSettings>>();
 
             try
             {
@@ -43,7 +43,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - MigrationUpdateMediaSettings", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - MigrationUpdateMediaSettings");
             }
             return true;
         }

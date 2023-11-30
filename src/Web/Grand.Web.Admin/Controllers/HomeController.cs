@@ -1,9 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Queries.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
@@ -15,6 +13,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -29,7 +28,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IGroupService _groupService;
         private readonly IOrderReportService _orderReportService;
         private readonly IProductsReportService _productsReportService;
-        private readonly ILogger _logger;
+        private readonly ILogger<HomeController> _logger;
         private readonly IGrandAuthenticationService _authenticationService;
         private readonly IMediator _mediator;
 
@@ -45,7 +44,7 @@ namespace Grand.Web.Admin.Controllers
             IGroupService groupService,
             IOrderReportService orderReportService,
             IProductsReportService productsReportService,
-            ILogger logger,
+            ILogger<HomeController> logger,
             IGrandAuthenticationService authenticationService,
             IMediator mediator)
         {
@@ -200,13 +199,11 @@ namespace Grand.Web.Admin.Controllers
             var currentCustomer = _workContext.CurrentCustomer;
             if (currentCustomer == null || await _groupService.IsGuest(currentCustomer))
             {
-                _ = _logger.Information($"Access denied to anonymous request on {pageUrl}");
+                _logger.LogInformation("Access denied to anonymous request on {PageUrl}", pageUrl);
                 return View();
             }
 
-            _ = _logger.Information(
-                $"Access denied to user #{currentCustomer.Email} '{currentCustomer.Email}' on {pageUrl}");
-
+            _logger.LogInformation("Access denied to user #{CurrentCustomerEmail} \'{CurrentCustomerEmail}\' on {PageUrl}", currentCustomer.Email, currentCustomer.Email, pageUrl);
 
             return View();
         }

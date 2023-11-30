@@ -11,7 +11,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -32,6 +31,7 @@ using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -43,7 +43,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly IInventoryManageService _inventoryManageService;
         private readonly IPaymentService _paymentService;
         private readonly IPaymentTransactionService _paymentTransactionService;
-        private readonly ILogger _logger;
+        private readonly ILogger<PlaceOrderCommandHandler> _logger;
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly IPricingService _pricingService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -78,7 +78,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             IInventoryManageService inventoryManageService,
             IPaymentService paymentService,
             IPaymentTransactionService paymentTransactionService,
-            ILogger logger,
+            ILogger<PlaceOrderCommandHandler> logger,
             IOrderCalculationService orderTotalCalculationService,
             IPricingService priceCalculationService,
             IProductAttributeFormatter productAttributeFormatter,
@@ -205,7 +205,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             catch (Exception exc)
             {
-                _ = _logger.Error(exc.Message, exc);
+                _logger.LogError(exc, exc.Message);
                 result.AddError(exc.Message);
             }
 
@@ -221,8 +221,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             if (string.IsNullOrEmpty(error)) return result;
             //log it
-            var logError = $"Error while placing order. {error}";
-            _ = _logger.Error(logError);
+            _logger.LogError("Error while placing order. {Error}", error);
 
             #endregion
 
@@ -1088,7 +1087,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
                 catch (Exception ex)
                 {
-                    _ = _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
+                    _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", order.OrderNumber);
                 }
 
                 await messageProviderService
@@ -1105,7 +1104,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             catch (Exception e)
             {
-                await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Place order send notification error", e.Message);
+                _logger.LogError(e, "Place order send notification error");
             }
 
         }

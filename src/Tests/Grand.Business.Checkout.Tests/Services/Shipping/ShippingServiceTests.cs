@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -16,7 +17,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
     [TestClass]
     public class ShippingServiceTests
     {
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<ShippingService>> _loggerMock;
         private Mock<ITranslationService> _translationServiceMock;
         private Mock<ICountryService> _countryServiceMokc;
         private ShippingProviderSettings _shippingProviderSettings;
@@ -27,7 +28,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
         [TestInitialize]
         public void Init()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<ShippingService>>();
             _translationServiceMock = new Mock<ITranslationService>();
             _countryServiceMokc = new Mock<ICountryService>();
             _shippingProviderSettings = new ShippingProviderSettings();

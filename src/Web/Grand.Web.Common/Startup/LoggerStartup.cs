@@ -1,5 +1,7 @@
-﻿using Grand.Web.Common.Infrastructure;
+﻿using Grand.Domain.Data;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Grand.Web.Common.Startup
 {
     /// <summary>
-    /// Represents object for the configuring MVC on application startup
+    /// Represents object for the configuring logger middleware on application startup
     /// </summary>
-    public class GrandMvcStartup : IStartupApplication
+    public class LoggerStartup : IStartupApplication
     {
         /// <summary>
         /// Add and configure any of the middleware
@@ -19,18 +21,7 @@ namespace Grand.Web.Common.Startup
         /// <param name="configuration">Configuration root of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            //add healthChecks
-            services.AddGrandHealthChecks();
-
-            //add miniprofiler
-            services.AddGrandMiniProfiler();
-
-            //add ApplicationInsights
-            services.AddApplicationInsights(configuration);
-
-            //add and configure MVC feature
-            services.AddGrandMvc(configuration);
-
+            
         }
 
         /// <summary>
@@ -40,18 +31,22 @@ namespace Grand.Web.Common.Startup
         /// <param name="webHostEnvironment">WebHostEnvironment</param>
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            //add MiniProfiler
-            application.UseProfiler();
+            //check whether database is installed
+            if (!DataSettingsManager.DatabaseIsInstalled())
+                return;
 
-            //endpoint routing
-            application.UseGrandEndpoints();
+            var appConfig = application.ApplicationServices.GetRequiredService<AppConfig>();
+            
+            //set context logging
+            if(appConfig.EnableContextLoggingMiddleware)
+                application.UseMiddleware<ContextLoggingMiddleware>();
         }
 
         /// <summary>
         /// Gets order of this startup configuration implementation
         /// </summary>
-        public int Priority => 1000;
-        public bool BeforeConfigure => true;
+        public int Priority => 501;
+        public bool BeforeConfigure => false;
 
     }
 }

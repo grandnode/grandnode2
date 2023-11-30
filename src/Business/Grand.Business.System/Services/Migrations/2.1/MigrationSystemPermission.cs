@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Domain.Data;
+﻿using Grand.Domain.Data;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._2._1
 {
@@ -22,7 +22,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
             var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
             try
             {
                 var permissionManageActions = repository.Table.FirstOrDefault(x => x.SystemName == "ManageActions");
@@ -33,7 +33,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - RemoveOldPermissions", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - RemoveOldPermissions");
             }
             return true;
         }

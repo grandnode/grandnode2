@@ -1,8 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -10,6 +8,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Services.Shipping
 {
@@ -20,7 +19,7 @@ namespace Grand.Business.Checkout.Services.Shipping
     {
         #region Fields
 
-        private readonly ILogger _logger;
+        private readonly ILogger<ShippingService> _logger;
         private readonly ICountryService _countryService;
         private readonly IEnumerable<IShippingRateCalculationProvider> _shippingRateCalculationProvider;
         private readonly ShippingSettings _shippingSettings;
@@ -34,7 +33,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// Ctor
         /// </summary>
         public ShippingService(
-            ILogger logger,
+            ILogger<ShippingService> logger,
             ICountryService countryService,
             IEnumerable<IShippingRateCalculationProvider> shippingRateCalculationProvider,
             ShippingProviderSettings shippingProviderSettings,
@@ -196,7 +195,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                     foreach (var error in getShippingOptionResponse.Errors)
                     {
                         result.AddError(error);
-                        _ = _logger.Warning($"Shipping ({shippingRateMethod.FriendlyName}). {error}");
+                        _logger.LogWarning("Shipping ({FriendlyName}) {Error}", shippingRateMethod.FriendlyName, error);
                     }
                     //clear the shipping options in this case
                     break;

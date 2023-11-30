@@ -1,10 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Infrastructure;
 using Grand.Domain.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common.Infrastructure
 {
@@ -26,12 +25,12 @@ namespace Grand.Web.Common.Infrastructure
                 {
                     using var scope = _serviceProvider.CreateScope();
                     var serviceProvider = scope.ServiceProvider;
-                    var logger = serviceProvider.GetService<ILogger>();
+                    var logger = serviceProvider.GetService<ILogger<BackgroundServiceTask>>();
                     var scheduleTaskService = serviceProvider.GetService<IScheduleTaskService>();
                     var task = await scheduleTaskService.GetTaskByType(_taskType);
                     if (task == null)
                     {
-                        _ = logger.Information($"Task {_taskType} is not exists in the database");
+                        logger.LogInformation("Task {TaskType} is not exists in the database", _taskType);
                         break;
                     }
 
@@ -79,7 +78,7 @@ namespace Grand.Web.Common.Infrastructure
                                     {
                                         task.LastNonSuccessEndUtc = DateTime.UtcNow;
                                         task.Enabled = !task.StopOnError;
-                                        await logger.InsertLog(Domain.Logging.LogLevel.Error, $"Error while running the '{task.ScheduleTaskName}' schedule task", exc.Message);
+                                        logger.LogError(exc, "Error while running the \'{TaskScheduleTaskName}\' schedule task", task.ScheduleTaskName);
                                     }
                                 }
                             }
@@ -87,14 +86,14 @@ namespace Grand.Web.Common.Infrastructure
                             {
                                 task.Enabled = !task.StopOnError;
                                 task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                                await logger.InsertLog(Domain.Logging.LogLevel.Error, $"Type {_taskType} is not registered");
+                                logger.LogError("Type {TaskType} is not registered", _taskType);
                             }
                         }
                         else
                         {
                             task.Enabled = !task.StopOnError;
                             task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                            await logger.InsertLog(Domain.Logging.LogLevel.Error, $"Type {_taskType} is null (type not exists)");
+                            logger.LogError("Type {TaskType} is null (type not exists)", _taskType);
                         }
                         await scheduleTaskService.UpdateTask(task);
                         await Task.Delay(TimeSpan.FromMinutes(timeInterval), stoppingToken);

@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Utilities.Common.Security;
+﻿using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.System.Services.Migrations._1._1
 {
@@ -23,14 +23,14 @@ namespace Grand.Business.System.Services.Migrations._1._1
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
             var repository = serviceProvider.GetRequiredService<IRepository<Domain.Admin.AdminSiteMap>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
+            var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateAdminSiteMap>>();
 
             try
             {
                 var sitemapSystem = repository.Table.FirstOrDefault(x => x.SystemName == "System");
                 if (sitemapSystem != null)
                 {
-                    sitemapSystem.PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
+                    sitemapSystem.PermissionNames = new List<string> { PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
                         PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System };
                     var childnodeDevTools = sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Developer tools");
                     if (childnodeDevTools != null)
@@ -86,7 +86,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             catch (Exception ex)
             {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - UpdateAdminSiteMap", ex.Message).GetAwaiter().GetResult();
+                logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap");
             }
             return true;
         }

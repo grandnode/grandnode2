@@ -18,7 +18,9 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
 });
 
 //use serilog
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .Enrich.FromLogContext());
 
 //add configuration
 builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
@@ -37,9 +39,6 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     }
 
 });
-
-//create logger
-Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
 //add services
 Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Configuration);

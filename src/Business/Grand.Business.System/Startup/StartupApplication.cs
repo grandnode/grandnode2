@@ -43,7 +43,6 @@ namespace Grand.Business.System.Startup
 
             serviceCollection.AddScoped<IScheduleTask, QueuedMessagesSendScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, ClearCacheScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, ClearLogScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, GenerateSitemapXmlTask>();
             serviceCollection.AddScoped<IScheduleTask, DeleteGuestsScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();

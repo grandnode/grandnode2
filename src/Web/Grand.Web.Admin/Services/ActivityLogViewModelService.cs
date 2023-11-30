@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Logging;
+using Grand.Web.Admin.Models.ActivityLog;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services

@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
+﻿using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net.Http;
 
@@ -17,7 +17,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         private readonly IRepository<PushMessage> _pushMessagesRepository;
         private readonly IMediator _mediator;
         private readonly PushNotificationsSettings _pushNotificationsSettings;
-        private readonly ILogger _logger;
+        private readonly ILogger<PushNotificationsService> _logger;
         private readonly HttpClient _httpClient;
 
         private const string FcmUrl = "https://fcm.googleapis.com/fcm/send";
@@ -27,7 +27,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
             IRepository<PushMessage> pushMessagesRepository,
             IMediator mediator,
             PushNotificationsSettings pushNotificationsSettings,
-            ILogger logger,
+            ILogger<PushNotificationsService> logger,
             HttpClient httpClient)
         {
             _pushRegistrationRepository = pushRegistrationRepository;
@@ -192,7 +192,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error occured while sending push notification.", responseString);
+                    _logger.LogError("Error occured while sending push notification {ResponseString}", responseString);
                     return (false, responseString);
                 }
 

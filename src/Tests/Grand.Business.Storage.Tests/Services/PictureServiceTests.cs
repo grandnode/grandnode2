@@ -8,6 +8,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -17,7 +18,7 @@ namespace Grand.Business.Storage.Tests.Services
     public class PictureServiceTests
     {
         private Mock<IRepository<Picture>> _repoMock;
-        private Mock<ILogger> _logerMock;
+        private Mock<ILogger<PictureService>> _logerMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<IWebHostEnvironment> _webHostMock;
         private Mock<IWorkContext> _workContextMock;
@@ -33,7 +34,7 @@ namespace Grand.Business.Storage.Tests.Services
         {
             _webHostMock = new Mock<IWebHostEnvironment>();
             _repoMock = new Mock<IRepository<Picture>>();
-            _logerMock = new Mock<ILogger>();
+            _logerMock = new Mock<ILogger<PictureService>>();
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
             _cacheMock = new Mock<ICacheBase>();

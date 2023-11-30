@@ -11568,63 +11568,6 @@
 	<Resource Name="admin.system.developertools" Area="Admin">
 		<Value>Developer Tools</Value>
 	</Resource>
-	<Resource Name="Admin.System.Log" Area="Admin">
-		<Value>Log</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.BackToList" Area="Admin">
-		<Value>back to system log</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Cleared" Area="Admin">
-		<Value>The log has been cleared successfully.</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.ClearLog" Area="Admin">
-		<Value>Clear log</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Deleted" Area="Admin">
-		<Value>Log was successfully deleted</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.DeleteSelected" Area="Admin">
-		<Value>Delete selected</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.Customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.FullMessage" Area="Admin">
-		<Value>Full message</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.IPAddress" Area="Admin">
-		<Value>IP address</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.LogLevel" Area="Admin">
-		<Value>Log level</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.PageURL" Area="Admin">
-		<Value>Page URL</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.ReferrerURL" Area="Admin">
-		<Value>Referrer URL</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.Fields.ShortMessage" Area="Admin">
-		<Value>Short message</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.List.CreatedOnFrom" Area="Admin">
-		<Value>Created from</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.List.CreatedOnTo" Area="Admin">
-		<Value>Created to</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.List.LogLevel" Area="Admin">
-		<Value>Log level</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.List.Message" Area="Admin">
-		<Value>Message</Value>
-	</Resource>
-	<Resource Name="Admin.System.Log.ViewLogDetails" Area="Admin">
-		<Value>View log entry details</Value>
-	</Resource>
 	<Resource Name="Admin.System.Maintenance" Area="Admin">
 		<Value>Maintenance</Value>
 	</Resource>
@@ -11684,12 +11627,6 @@
 	</Resource>
 	<Resource Name="Admin.System.Maintenance.DeleteGuests.TotalDeleted" Area="Admin">
 		<Value>{0} customers were deleted</Value>
-	</Resource>
-	<Resource Name="Admin.System.Maintenance.DeleteSystemLog" Area="Admin">
-		<Value>Deleting system Log</Value>
-	</Resource>
-	<Resource Name="Admin.System.Maintenance.DeleteSystemLog.Deleted" Area="Admin">
-		<Value>Deleted system Log</Value>
 	</Resource>
 	<Resource Name="Admin.System.QueuedEmails" Area="Admin">
 		<Value>Message Queue</Value>
@@ -14687,9 +14624,6 @@
 	</Resource>
 	<Resource Name="Permission.ManageStores" Area="Admin">
 		<Value>Admin area. Manage Stores</Value>
-	</Resource>
-	<Resource Name="Permission.ManageSystemLog" Area="Admin">
-		<Value>Admin area. Manage System Log</Value>
 	</Resource>
 	<Resource Name="Permission.ManageTaxSettings" Area="Admin">
 		<Value>Admin area. Manage Tax Settings</Value>
