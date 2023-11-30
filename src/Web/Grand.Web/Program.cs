@@ -11,12 +11,6 @@ using StartupBase = Grand.Infrastructure.StartupBase;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//create logger
-Log.Logger = new LoggerConfiguration()
-    .CreateBootstrapLogger();
-
-Log.Information("Starting web application");
-
 builder.Host.UseDefaultServiceProvider((_, options) =>
 {
     options.ValidateScopes = false;
@@ -26,7 +20,9 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
 builder.Services.AddLogging();
     
 //use serilog
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .Enrich.FromLogContext());
 
 //add configuration
 builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
