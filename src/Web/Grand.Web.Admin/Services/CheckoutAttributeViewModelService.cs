@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -12,7 +11,6 @@ using Grand.Domain.Orders;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Http;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Web.Admin.Extensions.Mapping;
 
@@ -26,11 +24,9 @@ namespace Grand.Web.Admin.Services
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly IWorkContext _workContext;
         private readonly ICurrencyService _currencyService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CurrencySettings _currencySettings;
         private readonly IMeasureService _measureService;
         private readonly MeasureSettings _measureSettings;
-        private readonly ICustomerActivityService _customerActivityService;
 
 
         public CheckoutAttributeViewModelService(ICheckoutAttributeService checkoutAttributeService,
@@ -39,8 +35,6 @@ namespace Grand.Web.Admin.Services
             ITaxCategoryService taxCategoryService,
             IWorkContext workContext,
             ICurrencyService currencyService,
-            ICustomerActivityService customerActivityService,
-            IHttpContextAccessor httpContextAccessor,
             CurrencySettings currencySettings,
             IMeasureService measureService,
             MeasureSettings measureSettings
@@ -52,8 +46,6 @@ namespace Grand.Web.Admin.Services
             _taxCategoryService = taxCategoryService;
             _workContext = workContext;
             _currencyService = currencyService;
-            _customerActivityService = customerActivityService;
-            _httpContextAccessor = httpContextAccessor;
             _currencySettings = currencySettings;
             _measureService = measureService;
             _measureSettings = measureSettings;
@@ -225,10 +217,6 @@ namespace Grand.Web.Admin.Services
             var checkoutAttribute = model.ToEntity();
             await _checkoutAttributeService.InsertCheckoutAttribute(checkoutAttribute);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCheckoutAttribute", checkoutAttribute.Id,
-                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;
         }
         public virtual async Task<CheckoutAttribute> UpdateCheckoutAttributeModel(CheckoutAttribute checkoutAttribute, CheckoutAttributeModel model)
@@ -236,11 +224,6 @@ namespace Grand.Web.Admin.Services
             checkoutAttribute = model.ToEntity(checkoutAttribute);
             await SaveConditionAttributes(checkoutAttribute, model);
             await _checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCheckoutAttribute", checkoutAttribute.Id,
-                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;
         }
 

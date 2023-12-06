@@ -9,7 +9,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -59,7 +58,6 @@ namespace Grand.Web.Vendor.Services
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ILanguageService _languageService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IServiceProvider _serviceProvider;
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
@@ -91,7 +89,6 @@ namespace Grand.Web.Vendor.Services
             ILanguageService languageService,
             IProductAttributeFormatter productAttributeFormatter,
             IStockQuantityService stockQuantityService,
-            ICustomerActivityService customerActivityService,
             IServiceProvider serviceProvider,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
@@ -122,7 +119,6 @@ namespace Grand.Web.Vendor.Services
             _stockQuantityService = stockQuantityService;
             _languageService = languageService;
             _productAttributeFormatter = productAttributeFormatter;
-            _customerActivityService = customerActivityService;
             _serviceProvider = serviceProvider;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
@@ -1355,30 +1351,6 @@ namespace Grand.Web.Vendor.Services
             }
 
             return (bidsModel, bids.TotalCount);
-        }
-
-        public virtual async Task<(IEnumerable<ProductModel.ActivityLogModel> activityLogModels, int totalCount)>
-            PrepareActivityLogModel(string productId, int pageIndex, int pageSize)
-        {
-            var activityLog =
-                await _customerActivityService.GetProductActivities(null, null, productId, pageIndex - 1, pageSize);
-            var items = new List<ProductModel.ActivityLogModel>();
-            foreach (var x in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(x.CustomerId);
-                items.Add(
-                    new ProductModel.ActivityLogModel {
-                        Id = x.Id,
-                        ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))
-                            ?.Name,
-                        Comment = x.Comment,
-                        CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        CustomerId = x.CustomerId,
-                        CustomerEmail = customer != null ? customer.Email : "null"
-                    });
-            }
-
-            return (items, activityLog.TotalCount);
         }
 
         public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(

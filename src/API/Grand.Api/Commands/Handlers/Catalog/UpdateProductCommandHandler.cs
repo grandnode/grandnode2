@@ -5,7 +5,6 @@ using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
@@ -19,7 +18,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly IProductService _productService;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ISlugService _slugService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
@@ -31,7 +29,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public UpdateProductCommandHandler(
             IProductService productService,
             ISlugService slugService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             ILanguageService languageService,
             IOutOfStockSubscriptionService outOfStockSubscriptionService,
@@ -42,7 +39,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         {
             _productService = productService;
             _slugService = slugService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _languageService = languageService;
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
@@ -76,9 +72,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             {
                 await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
             switch (prevPublished)
             {

@@ -24,4 +24,9 @@
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
 		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Areas\Admin\Views\ActivityLog\ListLogs.cshtml" />
+	  <UpToDateCheckInput Remove="Areas\Admin\Views\ActivityLog\ListStats.cshtml" />
+	  <UpToDateCheckInput Remove="Areas\Admin\Views\ActivityLog\ListTypes.cshtml" />
+	</ItemGroup>
 </Project>

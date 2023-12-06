@@ -7,7 +7,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -46,14 +45,12 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerProductService _customerProductService;
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly IUserFieldService _userFieldService;
-        private readonly ICustomerManagerService _customerManagerService;
         private readonly IDateTimeService _dateTimeService;
         private readonly ITranslationService _translationService;
         private readonly ILoyaltyPointsService _loyaltyPointsService;
         private readonly ICountryService _countryService;
         private readonly IWorkContext _workContext;
         private readonly IVendorService _vendorService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IStoreService _storeService;
         private readonly ICustomerAttributeParser _customerAttributeParser;
         private readonly ICustomerAttributeService _customerAttributeService;
@@ -79,14 +76,12 @@ namespace Grand.Web.Admin.Services
             ICustomerProductService customerProductService,
             INewsLetterSubscriptionService newsLetterSubscriptionService,
             IUserFieldService userFieldService,
-            ICustomerManagerService customerManagerService,
             IDateTimeService dateTimeService,
             ITranslationService translationService,
             ILoyaltyPointsService loyaltyPointsService,
             ICountryService countryService,
             IWorkContext workContext,
             IVendorService vendorService,
-            ICustomerActivityService customerActivityService,
             IStoreService storeService,
             ICustomerAttributeParser customerAttributeParser,
             ICustomerAttributeService customerAttributeService,
@@ -110,7 +105,6 @@ namespace Grand.Web.Admin.Services
             _customerProductService = customerProductService;
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
             _userFieldService = userFieldService;
-            _customerManagerService = customerManagerService;
             _dateTimeService = dateTimeService;
             _translationService = translationService;
             _loyaltyPointsService = loyaltyPointsService;
@@ -121,7 +115,6 @@ namespace Grand.Web.Admin.Services
             _commonSettings = commonSettings;
             _workContext = workContext;
             _vendorService = vendorService;
-            _customerActivityService = customerActivityService;
             _addressSettings = addressSettings;
             _storeService = storeService;
             _customerAttributeParser = customerAttributeParser;
@@ -723,12 +716,8 @@ namespace Grand.Web.Admin.Services
                 customer.Groups.Add(customerGroup.Id);
                 await _customerService.InsertCustomerGroupInCustomer(customerGroup, customer.Id);
             }
-            
             //tags
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewCustomer"),  customer.Id);
 
             return customer;
         }
@@ -883,8 +872,6 @@ namespace Grand.Web.Admin.Services
             //tags
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
             return customer;
         }
 
@@ -899,9 +886,6 @@ namespace Grand.Web.Admin.Services
                 if (subscription != null)
                     await _newsLetterSubscriptionService.DeleteNewsLetterSubscription(subscription);
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
         }
 
         public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
@@ -915,8 +899,6 @@ namespace Grand.Web.Admin.Services
                 {
                     await _customerService.DeleteCustomer(customer);
                 }
-                //activity log
-                _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
             }
         }
 
@@ -945,7 +927,6 @@ namespace Grand.Web.Admin.Services
                         null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
-            _ = _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", customer, "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), model.Subject);
         }
 
         public virtual async Task<IEnumerable<CustomerModel.LoyaltyPointsHistoryModel>> PrepareLoyaltyPointsHistoryModel(string customerId)
@@ -967,9 +948,6 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(Customer customer, string storeId, int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
         {
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddLoyaltyPoints", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewLoyaltyPoints"), customer.Email, addLoyaltyPointsValue);
-
             return await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, addLoyaltyPointsValue, storeId, addLoyaltyPointsMessage);
         }
 
@@ -1144,10 +1122,6 @@ namespace Grand.Web.Admin.Services
             var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == shoppingCartId);
             if (cart != null)
             {
-                //activity log
-                _ = _customerActivityService.InsertActivity("CustomerAdmin.UpdateCartCustomer", customer.Id,_workContext.CurrentCustomer,"",
-                    _translationService.GetResource("ActivityLog.UpdateCartCustomer"), customer.Email, customer.Id, unitprice);
-
                 return await _serviceProvider.GetRequiredService<IShoppingCartService>()
                     .UpdateShoppingCartItem(
                     customer,
@@ -1281,23 +1255,6 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentException("No customerproduct found with the specified id");
 
             await _customerProductService.DeleteCustomerProduct(customerproduct);
-        }
-        public virtual async Task<(IEnumerable<CustomerModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string customerId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetAllActivities(null, null, null, customerId, "", null, pageIndex - 1, pageSize);
-            var items = new List<CustomerModel.ActivityLogModel>();
-            foreach (var x in activityLog)
-            {
-                var m = new CustomerModel.ActivityLogModel {
-                    Id = x.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
-                    Comment = x.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    IpAddress = x.IpAddress
-                };
-                items.Add(m);
-            }
-            return (items, activityLog.TotalCount);
         }
         public virtual async Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, int pageIndex, int pageSize)
         {

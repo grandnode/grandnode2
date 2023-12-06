@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -34,7 +33,6 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerService _customerService;
         private readonly ISlugService _slugService;
         private readonly IPictureService _pictureService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductService _productService;
         private readonly IVendorService _vendorService;
         private readonly IDateTimeService _dateTimeService;
@@ -55,7 +53,6 @@ namespace Grand.Web.Admin.Services
             ICustomerService customerService, 
             IPictureService pictureService,
             ISlugService slugService, 
-            ICustomerActivityService customerActivityService, 
             IProductService productService,
             IVendorService vendorService, 
             IDateTimeService dateTimeService, 
@@ -73,7 +70,6 @@ namespace Grand.Web.Admin.Services
             _storeService = storeService;
             _customerService = customerService;
             _slugService = slugService;
-            _customerActivityService = customerActivityService;
             _productService = productService;
             _pictureService = pictureService;
             _vendorService = vendorService;
@@ -205,12 +201,7 @@ namespace Grand.Web.Admin.Services
 
             //update picture seo file name
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
-
+            
             return category;
         }
 
@@ -255,19 +246,11 @@ namespace Grand.Web.Admin.Services
             //update picture seo file name
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
             return category;
         }
         public virtual async Task DeleteCategory(Category category)
         {
             await _categoryService.DeleteCategory(category);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
         }
 
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
@@ -352,25 +335,6 @@ namespace Grand.Web.Admin.Services
                     }
                 }
             }
-        }
-        public virtual async Task<(IEnumerable<CategoryModel.ActivityLogModel> activityLogModel, int totalCount)> PrepareActivityLogModel(string categoryId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetCategoryActivities(null, null, categoryId, pageIndex - 1, pageSize);
-            var activityLogModelList = new List<CategoryModel.ActivityLogModel>();
-            foreach (var item in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(item.CustomerId);
-                var m = new CategoryModel.ActivityLogModel {
-                    Id = item.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(item.ActivityLogTypeId))?.Name,
-                    Comment = item.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerId = item.CustomerId,
-                    CustomerEmail = customer != null ? customer.Email : "null"
-                };
-                activityLogModelList.Add(m);
-            }
-            return (activityLogModelList, activityLog.TotalCount);
         }
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CategoryModel.AddCategoryProductModel model, int pageIndex, int pageSize)
         {

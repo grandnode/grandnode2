@@ -880,21 +880,7 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
-        #region Activity log and message contact form
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        [HttpPost]
-        public async Task<IActionResult> ListActivityLog(DataSourceRequest command, string customerId)
-        {
-            var (activityLogModels, totalCount) = await _customerViewModelService.PrepareActivityLogModel(customerId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
-                Data = activityLogModels.ToList(),
-                Total = totalCount
-            };
-
-            return Json(gridModel);
-        }
+        #region Message contact form
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]

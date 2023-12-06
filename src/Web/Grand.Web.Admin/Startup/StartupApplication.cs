@@ -22,7 +22,6 @@ namespace Grand.Web.Admin.Startup
             
             #endregion
 
-            services.AddScoped<IActivityLogViewModelService, ActivityLogViewModelService>();
             services.AddScoped<IAddressAttributeViewModelService, AddressAttributeViewModelService>();
             services.AddScoped<IAffiliateViewModelService, AffiliateViewModelService>();
             services.AddScoped<IBlogViewModelService, BlogViewModelService>();

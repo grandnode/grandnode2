@@ -9,8 +9,6 @@ namespace Grand.Web.Admin.Interfaces
         Task PrepareCategory(KnowledgebaseCategoryModel model);
         Task PrepareCategory(KnowledgebaseArticleModel model);
         Task<(IEnumerable<KnowledgebaseArticleGridModel> knowledgebaseArticleGridModels, int totalCount)> PrepareKnowledgebaseArticleGridModel(string parentCategoryId, int pageIndex, int pageSize);
-        Task<(IEnumerable<KnowledgebaseCategoryModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareCategoryActivityLogModels(string categoryId, int pageIndex, int pageSize);
-        Task<(IEnumerable<KnowledgebaseArticleModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareArticleActivityLogModels(string articleId, int pageIndex, int pageSize);
         Task<KnowledgebaseCategoryModel> PrepareKnowledgebaseCategoryModel();
         Task<KnowledgebaseCategory> InsertKnowledgebaseCategoryModel(KnowledgebaseCategoryModel model);
         Task<KnowledgebaseCategory> UpdateKnowledgebaseCategoryModel(KnowledgebaseCategory knowledgebaseCategory, KnowledgebaseCategoryModel model);

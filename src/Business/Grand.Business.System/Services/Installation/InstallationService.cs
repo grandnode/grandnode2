@@ -17,7 +17,6 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Documents;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
-using Grand.Domain.Logging;
 using Grand.Domain.Messages;
 using Grand.Domain.News;
 using Grand.Domain.Orders;
@@ -98,8 +97,6 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<NewsLetterSubscription> _newslettersubscriptionRepository;
         private readonly IRepository<ShippingMethod> _shippingMethodRepository;
         private readonly IRepository<DeliveryDate> _deliveryDateRepository;
-        private readonly IRepository<ActivityLog> _activityLogRepository;
-        private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
         private readonly IRepository<ProductTag> _productTagRepository;
         private readonly IRepository<ProductReview> _productReviewRepository;
         private readonly IRepository<ProductLayout> _productLayoutRepository;
@@ -206,8 +203,6 @@ namespace Grand.Business.System.Services.Installation
             IRepository<NewsLetterSubscription> newslettersubscriptionRepository,
             IRepository<ShippingMethod> shippingMethodRepository,
             IRepository<DeliveryDate> deliveryDateRepository,
-            IRepository<ActivityLog> activityLogRepository,
-            IRepository<ActivityLogType> activityLogTypeRepository,
             IRepository<ProductTag> productTagRepository,
             IRepository<ProductReview> productReviewRepository,
             IRepository<ProductLayout> productLayoutRepository,
@@ -299,7 +294,6 @@ namespace Grand.Business.System.Services.Installation
             _newslettersubscriptionRepository = newslettersubscriptionRepository;
             _shippingMethodRepository = shippingMethodRepository;
             _deliveryDateRepository = deliveryDateRepository;
-            _activityLogTypeRepository = activityLogTypeRepository;
             _productTagRepository = productTagRepository;
             _productLayoutRepository = productLayoutRepository;
             _recentlyViewedProductRepository = recentlyViewedProductRepository;
@@ -338,7 +332,6 @@ namespace Grand.Business.System.Services.Installation
             _documentTypeRepository = documentTypeRepository;
             _documentRepository = documentRepository;
             _salesRepository = salesRepository;
-            _activityLogRepository = activityLogRepository;
             _vendorReviewRepository = vendorReviewRepository;
             _contactAttributeRepository = contactAttributeRepository;
             _newsletterCategoryRepository = newsletterCategoryRepository;
@@ -654,10 +647,6 @@ namespace Grand.Business.System.Services.Installation
             //page
             await dbContext.CreateIndex(_pageRepository, OrderBuilder<Page>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.SystemName), "DisplayOrder_SystemName");
 
-            //customeractivity 
-            await dbContext.CreateIndex(_activityLogTypeRepository, OrderBuilder<ActivityLogType>.Create().Ascending(x => x.Name), "Name");
-            await dbContext.CreateIndex(_activityLogRepository, OrderBuilder<ActivityLog>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-
             //warehouse
             await dbContext.CreateIndex(_warehouseRepository, OrderBuilder<Warehouse>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
@@ -762,7 +751,6 @@ namespace Grand.Business.System.Services.Installation
             await InstallPageLayouts();
             await InstallPages();
             await InstallLocaleResources();
-            await InstallActivityLogTypes();
             await HashDefaultCustomerPassword(defaultUserEmail, defaultUserPassword);
             await InstallProductLayouts();
             await InstallCategoryLayouts();

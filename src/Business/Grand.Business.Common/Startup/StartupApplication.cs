@@ -3,7 +3,6 @@ using Grand.Business.Common.Services.Configuration;
 using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.ExportImport;
 using Grand.Business.Common.Services.Localization;
-using Grand.Business.Common.Services.Logging;
 using Grand.Business.Common.Services.Pdf;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Common.Services.Seo;
@@ -13,7 +12,6 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -35,7 +33,6 @@ namespace Grand.Business.Common.Startup
             RegisterDirectoryService(services);
             RegisterConfigurationService(services);
             RegisterLocalizationService(services);
-            RegisterLoggingService(services);
             RegisterSecurityService(services);
             RegisterSeoService(services);
             RegisterStoresService(services);
@@ -74,10 +71,6 @@ namespace Grand.Business.Common.Startup
         {
             serviceCollection.AddScoped<ITranslationService, TranslationService>();
             serviceCollection.AddScoped<ILanguageService, LanguageService>();
-        }
-        private void RegisterLoggingService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<ICustomerActivityService, CustomerActivityService>();
         }
         private void RegisterSecurityService(IServiceCollection serviceCollection)
         {

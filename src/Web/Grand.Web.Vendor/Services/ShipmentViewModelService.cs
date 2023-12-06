@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -14,7 +13,6 @@ using Grand.Infrastructure;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Shipment;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Vendor.Services
@@ -29,11 +27,9 @@ namespace Grand.Web.Vendor.Services
         private readonly IWarehouseService _warehouseService;
         private readonly IMeasureService _measureService;
         private readonly IDateTimeService _dateTimeService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IShippingService _shippingService;
         private readonly IStockQuantityService _stockQuantityService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShippingProviderSettings _shippingProviderSettings;
@@ -47,11 +43,9 @@ namespace Grand.Web.Vendor.Services
             IWarehouseService warehouseService,
             IMeasureService measureService,
             IDateTimeService dateTimeService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IShippingService shippingService,
             IStockQuantityService stockQuantityService,
-            IHttpContextAccessor httpContextAccessor,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
             ShippingProviderSettings shippingProviderSettings)
@@ -64,11 +58,9 @@ namespace Grand.Web.Vendor.Services
             _warehouseService = warehouseService;
             _measureService = measureService;
             _dateTimeService = dateTimeService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _shippingService = shippingService;
             _stockQuantityService = stockQuantityService;
-            _httpContextAccessor = httpContextAccessor;
             _measureSettings = measureSettings;
             _shippingSettings = shippingSettings;
             _shippingProviderSettings = shippingProviderSettings;
@@ -267,14 +259,6 @@ namespace Grand.Web.Vendor.Services
 
             shipmentNote.ShipmentId = shipment.Id;
             await _shipmentService.DeleteShipmentNote(shipmentNote);
-        }
-
-        public virtual Task LogShipment(string shipmentId, string message)
-        {
-            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
-                message);
-            return Task.CompletedTask;
         }
 
         public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(

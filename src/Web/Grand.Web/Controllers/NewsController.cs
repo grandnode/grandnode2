@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
@@ -27,7 +26,6 @@ namespace Grand.Web.Controllers
         private readonly INewsService _newsService;
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IAclService _aclService;
         private readonly IPermissionService _permissionService;
         private readonly IMediator _mediator;
@@ -40,7 +38,6 @@ namespace Grand.Web.Controllers
         public NewsController(INewsService newsService,
             IWorkContext workContext,
             ITranslationService translationService,
-            ICustomerActivityService customerActivityService,
             IAclService aclService,
             IPermissionService permissionService,
             IMediator mediator,
@@ -49,7 +46,6 @@ namespace Grand.Web.Controllers
             _newsService = newsService;
             _workContext = workContext;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _aclService = aclService;
             _permissionService = permissionService;
             _mediator = mediator;
@@ -117,11 +113,6 @@ namespace Grand.Web.Controllers
 
                 //notification
                 await _mediator.Publish(new NewsCommentEvent(newsItem, model));
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("PublicStore.AddNewsComment", newsItem.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.PublicStore.AddNewsComment"));
 
                 return Json(new
                 {

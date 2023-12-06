@@ -4,17 +4,14 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Documents;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -33,10 +30,7 @@ namespace Grand.Web.Admin.Services
         private readonly ICollectionService _collectionService;
         private readonly IVendorService _vendorService;
         private readonly ISalesEmployeeService _salesEmployeeService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IDownloadService _downloadService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DocumentViewModelService(
             IDocumentService documentService,
@@ -51,10 +45,7 @@ namespace Grand.Web.Admin.Services
             ICollectionService collectionService,
             IVendorService vendorService,
             ISalesEmployeeService salesEmployeeService,
-            ICustomerActivityService customerActivityService,
-            IDownloadService downloadService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor)
+            IDownloadService downloadService)
         {
             _documentService = documentService;
             _documentTypeService = documentTypeService;
@@ -68,10 +59,7 @@ namespace Grand.Web.Admin.Services
             _collectionService = collectionService;
             _vendorService = vendorService;
             _salesEmployeeService = salesEmployeeService;
-            _customerActivityService = customerActivityService;
             _downloadService = downloadService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public virtual async Task<(IEnumerable<DocumentModel> documetListModel, int totalCount)> PrepareDocumentListModel(DocumentListModel model, int pageIndex, int pageSize)
@@ -219,21 +207,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Document> InsertDocument(DocumentModel model)
         {
-            if (!string.IsNullOrEmpty(model.CustomerEmail))
-                model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
-            else
-                model.CustomerId = string.Empty;
+            model.CustomerId = !string.IsNullOrEmpty(model.CustomerEmail) ? (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id : string.Empty;
 
             var document = model.ToEntity();
             document.CreatedOnUtc = DateTime.UtcNow;
-
             await _documentService.Insert(document);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewDocument", document.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewDocument"), document.Name);
-
             return document;
         }
         public virtual async Task<Document> UpdateDocument(Document document, DocumentModel model)
@@ -260,12 +238,6 @@ namespace Grand.Web.Admin.Services
                 if (prevAttachment != null)
                     await _downloadService.DeleteDownload(prevAttachment);
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditDocument", document.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditDocument"), document.Name);
-
             return document;
         }
 
@@ -280,12 +252,6 @@ namespace Grand.Web.Admin.Services
                 if (prevAttachment != null)
                     await _downloadService.DeleteDownload(prevAttachment);
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteDocument", document.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteDocument"), document.Name);
-
         }
     }
 }

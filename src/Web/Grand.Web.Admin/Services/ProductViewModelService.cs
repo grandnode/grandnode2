@@ -10,7 +10,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -63,13 +62,11 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerService _customerService;
         private readonly IStoreService _storeService;
         private readonly ISlugService _slugService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
         private readonly IDownloadService _downloadService;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ILanguageService _languageService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
@@ -101,13 +98,11 @@ namespace Grand.Web.Admin.Services
                ICustomerService customerService,
                IStoreService storeService,
                ISlugService slugService,
-               ICustomerActivityService customerActivityService,
                IOutOfStockSubscriptionService outOfStockSubscriptionService,
                IDownloadService downloadService,
                ILanguageService languageService,
                IProductAttributeFormatter productAttributeFormatter,
                IStockQuantityService stockQuantityService,
-               IHttpContextAccessor httpContextAccessor,
                IServiceProvider serviceProvider,
                CurrencySettings currencySettings,
                MeasureSettings measureSettings,
@@ -138,13 +133,11 @@ namespace Grand.Web.Admin.Services
             _customerService = customerService;
             _storeService = storeService;
             _slugService = slugService;
-            _customerActivityService = customerActivityService;
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
             _downloadService = downloadService;
             _stockQuantityService = stockQuantityService;
             _languageService = languageService;
             _productAttributeFormatter = productAttributeFormatter;
-            _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
@@ -896,11 +889,6 @@ namespace Grand.Web.Admin.Services
             }
             await _productService.UpdateProduct(product);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewProduct", product.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
-
             return product;
         }
         public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
@@ -975,10 +963,6 @@ namespace Grand.Web.Admin.Services
                 if (prevSampleDownload != null)
                     await _downloadService.DeleteDownload(prevSampleDownload);
             }
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditProduct", product.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
             return product;
         }
         public virtual async Task DeleteProduct(Product product)
@@ -999,10 +983,6 @@ namespace Grand.Web.Admin.Services
                 if (sampledownload != null)
                     await _downloadService.DeleteDownload(sampledownload);
             }
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteProduct", product.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
         }
         public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
         {
@@ -1564,25 +1544,6 @@ namespace Grand.Web.Admin.Services
                 });
             }
             return (bidsModel, bids.TotalCount);
-        }
-        public virtual async Task<(IEnumerable<ProductModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string productId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetProductActivities(null, null, productId, pageIndex - 1, pageSize);
-            var items = new List<ProductModel.ActivityLogModel>();
-            foreach (var x in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(x.CustomerId);
-                items.Add(
-                new ProductModel.ActivityLogModel {
-                    Id = x.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
-                    Comment = x.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerId = x.CustomerId,
-                    CustomerEmail = customer != null ? customer.Email : "null"
-                });
-            }
-            return (items, activityLog.TotalCount);
         }
         public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product)
         {

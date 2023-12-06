@@ -4,7 +4,6 @@ using Grand.Api.Extensions;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Seo;
@@ -18,7 +17,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly IBrandService _brandService;
         private readonly ISlugService _slugService;
         private readonly ILanguageService _languageService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IPictureService _pictureService;
         private readonly IWorkContext _workContext;
@@ -29,7 +27,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             IBrandService brandService,
             ISlugService slugService,
             ILanguageService languageService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IPictureService pictureService,
             IWorkContext workContext,
@@ -38,7 +35,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             _brandService = brandService;
             _slugService = slugService;
             _languageService = languageService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _pictureService = pictureService;
             _workContext = workContext;
@@ -71,9 +67,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
                 if (picture != null)
                     await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(brand.Name));
             }
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
-
             return brand.ToModel();
         }
     }

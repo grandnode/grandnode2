@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -37,7 +36,6 @@ namespace Grand.Web.Common.Filters
             private readonly ICustomerService _customerService;
             private readonly IWorkContext _workContext;
             private readonly IUserFieldService _userFieldService;
-            private readonly ICustomerActivityService _customerActivityService;
             private readonly CustomerSettings _customerSettings;
 
             #endregion
@@ -48,13 +46,11 @@ namespace Grand.Web.Common.Filters
                 ICustomerService customerService,
                 IWorkContext workContext,
                 IUserFieldService userFieldService,
-                ICustomerActivityService customerActivityService,
                 CustomerSettings customerSettings)
             {
                 _customerService = customerService;
                 _workContext = workContext;
                 _userFieldService = userFieldService;
-                _customerActivityService = customerActivityService;
                 _customerSettings = customerSettings;
             }
 
@@ -116,16 +112,6 @@ namespace Grand.Web.Common.Filters
                     if (previousUrlReferrer != referer)
                     {
                         await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LastUrlReferrer, referer);
-                    }
-                }
-
-                if (_customerSettings.SaveVisitedPage)
-                {
-                    if (!_workContext.CurrentCustomer.IsSearchEngineAccount())
-                    {
-                        //activity
-                        _ = _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, _workContext.CurrentCustomer,
-                            context.HttpContext?.Connection?.RemoteIpAddress?.ToString(), pageUrl);
                     }
                 }
             }
