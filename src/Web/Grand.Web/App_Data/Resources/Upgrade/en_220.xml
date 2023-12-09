@@ -238,21 +238,6 @@
 	<Resource Name="Vendor.Catalog.ProductReviews.Fields.Title" Area="Vendor">
 		<Value>Title</Value>
 	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog" Area="Vendor">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.ActivityLogType" Area="Vendor">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.Comment" Area="Vendor">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.CreatedOn" Area="Vendor">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.Customer" Area="Vendor">
-		<Value>Customer</Value>
-	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Added" Area="Vendor">
 		<Value>The new product has been added successfully.</Value>
 	</Resource>

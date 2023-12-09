@@ -56,18 +56,6 @@ namespace Grand.Web.Admin.Models.Knowledgebase
         public string[] Stores { get; set; }
         public bool LimitedToStores { get; set; }
 
-        public class ActivityLogModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-            [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLog.Comment")]
-            public string Comment { get; set; }
-            [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLog.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-            [GrandResourceDisplayName("Admin.Content.Knowledgebase.ActivityLog.Customer")]
-            public string CustomerId { get; set; }
-            public string CustomerEmail { get; set; }
-        }
     }
 
     public class KnowledgebaseCategoryLocalizedModel : ILocalizedModelLocal, ISlugModelLocal

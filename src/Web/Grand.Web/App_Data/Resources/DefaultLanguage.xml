@@ -909,327 +909,6 @@
 	<Resource Name="Account.YourPersonalDetails" Area="Front">
 		<Value>Your Personal Details</Value>
 	</Resource>
-	<Resource Name="ActivityLog.AbandonedCart" Area="Front">
-		<Value>Send email AbandonedCart - ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewBrand" Area="Front">
-		<Value>Added a new brand ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCategory" Area="Front">
-		<Value>Added a new category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCheckoutAttribute" Area="Front">
-		<Value>Added a new checkout attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCollection" Area="Front">
-		<Value>Added a new collection ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewContactAttribute" Area="Front">
-		<Value>Added a new contact attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCourse" Area="Front">
-		<Value>Added a new course ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCourseLesson" Area="Front">
-		<Value>Added a new lesson ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCustomer" Area="Front">
-		<Value>Added a new customer (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewCustomerGroup" Area="Front">
-		<Value>Added a new customer group ('{0}')</Value>
-	</Resource>	
-	<Resource Name="ActivityLog.AddNewCustomerTag" Area="Front">
-		<Value>Added a new customer tag ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewDiscount" Area="Front">
-		<Value>Added a new discount ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewDocument" Area="Front">
-		<Value>Added a new document ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewDocumentType" Area="Front">
-		<Value>Added a new document type ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewGiftVoucher" Area="Front">
-		<Value>Added a new gift voucher ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewLoyaltyPoints" Area="Front">
-		<Value>Added a loyalty points {1} to customer {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewPage" Area="Front">
-		<Value>Added a new page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewProduct" Area="Front">
-		<Value>Added a new product ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewProductAttribute" Area="Front">
-		<Value>Added a new product attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewSalesEmployee" Area="Front">
-		<Value>Added a new sales employee ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewSetting" Area="Front">
-		<Value>Added a new setting ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewSpecAttribute" Area="Front">
-		<Value>Added a new specification attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.AddNewWidget" Area="Front">
-		<Value>Added a new widget (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.CreateKnowledgebaseArticle" Area="Front">
-		<Value>Created knowledgebase article ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.CreateKnowledgebaseCategory" Area="Front">
-		<Value>Created knowledgebase category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteAccount" Area="Front">
-		<Value>Customer was deleted</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteBid" Area="Front">
-		<Value>Deleted a bid for product ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteBrand" Area="Front">
-		<Value>Deleted a brand ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCategory" Area="Front">
-		<Value>Deleted a category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCheckoutAttribute" Area="Front">
-		<Value>Deleted a checkout attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCollection" Area="Front">
-		<Value>Deleted a collection ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteContactAttribute" Area="Front">
-		<Value>Deleted a contact attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCourse" Area="Front">
-		<Value>Deleted a course ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCourseLesson" Area="Front">
-		<Value>Deleted a lesson ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCustomer" Area="Front">
-		<Value>Deleted a customer (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCustomerGroup" Area="Front">
-		<Value>Deleted a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteCustomerTag" Area="Front">
-		<Value>Deleted a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteDiscount" Area="Front">
-		<Value>Deleted a discount ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteDocument" Area="Front">
-		<Value>Deleted a document ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteDocumentType" Area="Front">
-		<Value>Deleted a document type ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteGiftVoucher" Area="Front">
-		<Value>Deleted a gift voucher ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteKnowledgebaseArticle" Area="Front">
-		<Value>Deleted knowledgebase article ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteKnowledgebaseCategory" Area="Front">
-		<Value>Deleted knowledgebase category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteMerchandiseReturn" Area="Front">
-		<Value>Deleted a merchandise return (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteOrder" Area="Front">
-		<Value>Deleted an order (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeletePage" Area="Front">
-		<Value>Deleted a page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteProduct" Area="Front">
-		<Value>Deleted a product ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteProductAttribute" Area="Front">
-		<Value>Deleted a product attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteSalesEmployee" Area="Front">
-		<Value>Deleted a sales employee ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteSetting" Area="Front">
-		<Value>Deleted a setting ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteSpecAttribute" Area="Front">
-		<Value>Deleted a specification attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.DeleteWidget" Area="Front">
-		<Value>Deleted a widget (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditBrand" Area="Front">
-		<Value>Edited a brand ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCategory" Area="Front">
-		<Value>Edited a category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCheckoutAttribute" Area="Front">
-		<Value>Edited a checkout attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCollection" Area="Front">
-		<Value>Edited a collection ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditContactAttribute" Area="Front">
-		<Value>Edited a contact attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCourse" Area="Front">
-		<Value>Edited a course ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCustomer" Area="Front">
-		<Value>Edited a customer (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCustomerGroup" Area="Front">
-		<Value>Edited a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditCustomerTag" Area="Front">
-		<Value>Edited a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditDiscount" Area="Front">
-		<Value>Edited a discount ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditDocument" Area="Front">
-		<Value>Edited a document ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditDocumentType" Area="Front">
-		<Value>Edited a document type ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditGiftVoucher" Area="Front">
-		<Value>Edited a gift voucher ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditLessonCourse" Area="Front">
-		<Value>Edited a lesson ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditMerchandiseReturn" Area="Front">
-		<Value>Edited a merchandise return (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditOrder" Area="Front">
-		<Value>Edited an order (ID = {0}). See order notes for details</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditPage" Area="Front">
-		<Value>Edited a page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditProduct" Area="Front">
-		<Value>Edited a product ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditProductAttribute" Area="Front">
-		<Value>Edited a product attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditSalesEmployee" Area="Front">
-		<Value>Edited a sales employee ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditSettings" Area="Front">
-		<Value>Edited settings</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditSpecAttribute" Area="Front">
-		<Value>Edited a specification attribute ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.EditWidget" Area="Front">
-		<Value>Edited a widget (ID = {0})</Value>
-	</Resource>
-	<Resource Name="Activitylog.lastactivity" Area="Front">
-		<Value>Public store. Last Activity </Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddArticleComment" Area="Front">
-		<Value>Added an article comment</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddArticleComment" Area="Front">
-		<Value>Added an article comment</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddBlogComment" Area="Front">
-		<Value>Added a blog comment</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddNewsComment" Area="Front">
-		<Value>Added a news comment</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddProductReview" Area="Front">
-		<Value>Added a product review ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddToBid" Area="Front">
-		<Value>A new bid has been added ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddToCompareList" Area="Front">
-		<Value>Added a product to compare list ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddToShoppingCart" Area="Front">
-		<Value>Added a product to shopping cart ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AddToWishlist" Area="Front">
-		<Value>Added a product to wishlist ('{0}')</Value>
-	</Resource>
-	<Resource Name="Activitylog.PublicStore.AddvendorReview" Area="Front">
-		<Value>Add vendor review</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.AskQuestion" Area="Front">
-		<Value>Ask a question about product</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ContactUs" Area="Front">
-		<Value>Used contact us form</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.Login" Area="Front">
-		<Value>Login</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.Logout" Area="Front">
-		<Value>Logout</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.PlaceOrder" Area="Front">
-		<Value>Placed a new order (ID = {0})</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.SendPM" Area="Front">
-		<Value>Sent PM to customer ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ViewBrand" Area="Front">
-		<Value>Public store. Viewed a brand details page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ViewCategory" Area="Front">
-		<Value>Public store. Viewed a category details page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ViewCourse" Area="Front">
-		<Value>Public store. Viewed a course details page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ViewLesson" Area="Front">
-		<Value>Public store. Viewed a lesson details page ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.ViewProduct" Area="Front">
-		<Value>Public store. Viewed a product details page ('{0}')</Value>
-	</Resource>
-	<Resource Name="Activitylog.Registeredcustomer" Area="Front">
-		<Value>Public store. Registered Customer </Value>
-	</Resource>
-	<Resource Name="ActivityLog.SendCampaign" Area="Front">
-		<Value>Email campaign {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.SendEmailfromAdminPanel">
-		<Value>Email (from admin panel) {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.SendPM" Area="Front">
-		<Value>PM (from admin panel) {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.SendPmFromAdminPanel">
-		<Value>Send pm from admin panel</Value>
-	</Resource>
-	<Resource Name="ActivityLog.UpdateCartCustomer" Area="Front">
-		<Value>Edited price for customer {0} (ID: {1}) price: {2}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.UpdateKnowledgebaseArticle" Area="Front">
-		<Value>Updated knowledgebase article ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.UpdateKnowledgebaseCategory" Area="Front">
-		<Value>Updated knowledgebase category ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.UploadNewPlugin" Area="Front">
-		<Value>UploadedNewPlugin</Value>
-	</Resource>
-	<Resource Name="ActivityLog.UploadNewTheme" Area="Front">
-		<Value>UploadedNewTheme</Value>
-	</Resource>
 	<Resource Name="Address" Area="Front">
 		<Value>Address</Value>
 	</Resource>
@@ -1662,18 +1341,6 @@
 	<Resource Name="Admin.Catalog" Area="Admin">
 		<Value>Catalog</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Articles.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity log type</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Articles.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Articles.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Articles.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
 	<Resource Name="Admin.Catalog.Attributes" Area="Admin">
 		<Value>Attributes</Value>
 	</Resource>
@@ -1956,21 +1623,6 @@
 	<Resource Name="Admin.Catalog.Brands.Acl" Area="Admin">
 		<Value>Access control list</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Brands.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Brands.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Brands.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Brands.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Brands.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
 	<Resource Name="Admin.Catalog.Brands.Added" Area="Admin">
 		<Value>The new brand has been added successfully.</Value>
 	</Resource>
@@ -2141,21 +1793,6 @@
 	</Resource>
 	<Resource Name="Admin.Catalog.Categories.Acl" Area="Admin">
 		<Value>Access control list</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Categories.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Categories.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Categories.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Categories.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Categories.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Categories.Added" Area="Admin">
 		<Value>The new category has been added successfully.</Value>
@@ -2357,21 +1994,6 @@
 	</Resource>
 	<Resource Name="Admin.Catalog.Collections.Acl" Area="Admin">
 		<Value>Access control list</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Collections.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Collections.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Collections.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Collections.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Collections.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Collections.Added" Area="Admin">
 		<Value>The new collection has been added successfully.</Value>
@@ -2621,21 +2243,6 @@
 	</Resource>
 	<Resource Name="Admin.Catalog.Products" Area="Admin">
 		<Value>Products</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
 	</Resource>
 	<Resource Name="Admin.Catalog.Products.Added" Area="Admin">
 		<Value>The new product has been added successfully.</Value>
@@ -4058,39 +3665,6 @@
 	</Resource>
 	<Resource Name="Admin.Configuration" Area="Admin">
 		<Value>Configuration</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.ActivityLogTypeColumn" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.Comment" Area="Admin">
-		<Value>Message</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.CreatedOn" Area="Admin">
-		<Value>Created On</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.CreatedOnFrom" Area="Admin">
-		<Value>Created From</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.CreatedOnTo" Area="Admin">
-		<Value>Created to</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.Customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.CustomerEmail" Area="Admin">
-		<Value>Customer Email</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.ActivityLog.ActivityLog.Fields.IpAddress" Area="Admin">
-		<Value>Ip address</Value>
 	</Resource>
 	<Resource Name="Admin.Configuration.Countries" Area="Admin">
 		<Value>Countries</Value>
@@ -5649,18 +5223,6 @@
 	<Resource Name="Admin.Content.Knowledgebase" Area="Admin">
 		<Value>Knowledgebase</Value>
 	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.ActivityLog.Customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.ActivityLogType" Area="Admin">
-		<Value>Activity log type</Value>
-	</Resource>
 	<Resource Name="Admin.Content.Knowledgebase.CreateKnowledgebaseArticle" Area="Admin">
 		<Value>Create article</Value>
 	</Resource>
@@ -5690,9 +5252,6 @@
 	</Resource>
 	<Resource Name="Admin.Content.Knowledgebase.KnowgledgebaseCategory.EditKnowgledgebaseCategory" Area="Admin">
 		<Value>Edit knowledgebase category</Value>
-	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.KnowledgebaseArticle.ActivityLog" Area="Admin">
-		<Value>Activity log</Value>
 	</Resource>
 	<Resource Name="Admin.Content.Knowledgebase.KnowledgebaseArticle.Added" Area="Admin">
 		<Value>Article added</Value>
@@ -5768,9 +5327,6 @@
 	</Resource>
 	<Resource Name="Admin.Content.Knowledgebase.KnowledgebaseArticle.Updated" Area="Admin">
 		<Value>Article updated</Value>
-	</Resource>
-	<Resource Name="Admin.Content.Knowledgebase.KnowledgebaseCategory.ActivityLog" Area="Admin">
-		<Value>Activity log</Value>
 	</Resource>
 	<Resource Name="Admin.Content.Knowledgebase.KnowledgebaseCategory.Added" Area="Admin">
 		<Value>Category added</Value>
@@ -6605,21 +6161,6 @@
 	</Resource>	
 	<Resource Name="Admin.Customers.Customers" Area="Admin">
 		<Value>Customers</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.ActivityLog" Area="Admin">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.ActivityLog.Comment" Area="Admin">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.ActivityLog.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.ActivityLog.IpAddress" Area="Admin">
-		<Value>Ip address</Value>
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.Added" Area="Admin">
 		<Value>The new customer has been added successfully.</Value>
@@ -9633,18 +9174,6 @@
 	<Resource Name="Admin.Reports" Area="Admin">
 		<Value>Reports</Value>
 	</Resource>
-	<Resource Name="Admin.Reports.ActivityLog.ActivityStats" Area="Admin">
-		<Value>Activity Stat</Value>
-	</Resource>
-	<Resource Name="Admin.Reports.ActivityLog.ActivityStats.Fields.ActivityLogType" Area="Admin">
-		<Value>Activity Types</Value>
-	</Resource>
-	<Resource Name="Admin.Reports.ActivityLog.ActivityStats.Fields.Count" Area="Admin">
-		<Value>Visit counter</Value>
-	</Resource>
-	<Resource Name="Admin.Reports.ActivityLog.ActivityStats.Fields.Name" Area="Admin">
-		<Value>Catalog name</Value>
-	</Resource>
 	<Resource Name="Admin.Reports.Average" Area="Admin">
 		<Value>Order totals</Value>
 	</Resource>
@@ -9884,18 +9413,6 @@
 	</Resource>
 	<Resource Name="Admin.Settings" Area="Admin">
 		<Value>Settings</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.ActivityLog.ActivityLogType" Area="Admin">
-		<Value>Activity log types</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.ActivityLog.ActivityLogType.Fields.Enabled" Area="Admin">
-		<Value>Is Enabled</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.ActivityLog.ActivityLogType.Fields.Name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.ActivityLog.ActivityLogType.Updated" Area="Admin">
-		<Value>The types have been updated successfully.</Value>
 	</Resource>
 	<Resource Name="Admin.Settings.AdminSearch" Area="Admin">
 		<Value>Admin search</Value>
@@ -11594,12 +11111,6 @@
 	</Resource>
 	<Resource Name="Admin.System.Maintenance.DeleteAbandonedCarts.TotalDeleted" Area="Admin">
 		<Value>{0} items were deleted</Value>
-	</Resource>
-	<Resource Name="Admin.System.Maintenance.DeleteActivityLog" Area="Admin">
-		<Value>Deleting activity Log</Value>
-	</Resource>
-	<Resource Name="Admin.System.Maintenance.DeleteActivityLog.Deleted" Area="Admin">
-		<Value>Deleted activity Log</Value>
 	</Resource>
 	<Resource Name="Admin.System.Maintenance.DeleteExportedFiles" Area="Admin">
 		<Value>Deleting old exported files</Value>
@@ -14508,9 +14019,6 @@
 	<Resource Name="Permission.ManageACL" Area="Admin">
 		<Value>Admin area. Manage ACL</Value>
 	</Resource>
-	<Resource Name="Permission.ManageActivityLog" Area="Admin">
-		<Value>Admin area. Manage Activity Log</Value>
-	</Resource>
 	<Resource Name="Permission.ManageAffiliates" Area="Admin">
 		<Value>Admin area. Manage Affiliates</Value>
 	</Resource>
@@ -16073,21 +15581,6 @@
 	</Resource>
 	<Resource Name="Vendor.Catalog.ProductReviews.Fields.Title" Area="Vendor">
 		<Value>Title</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog" Area="Vendor">
-		<Value>Activity Log</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.ActivityLogType" Area="Vendor">
-		<Value>Activity Log Type</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.Comment" Area="Vendor">
-		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.CreatedOn" Area="Vendor">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Vendor.Catalog.Products.ActivityLog.Customer" Area="Vendor">
-		<Value>Customer</Value>
 	</Resource>
 	<Resource Name="Vendor.Catalog.Products.Added" Area="Vendor">
 		<Value>The new product has been added successfully.</Value>

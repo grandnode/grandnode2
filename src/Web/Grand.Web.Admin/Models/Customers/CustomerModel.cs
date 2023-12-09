@@ -306,18 +306,6 @@ namespace Grand.Web.Admin.Models.Customers
             [GrandResourceDisplayName("Admin.Customers.Customers.Orders.CreatedOn")]
             public DateTime CreatedOn { get; set; }
         }
-
-        public class ActivityLogModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Admin.Customers.Customers.ActivityLog.ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-            [GrandResourceDisplayName("Admin.Customers.Customers.ActivityLog.Comment")]
-            public string Comment { get; set; }
-            [GrandResourceDisplayName("Admin.Customers.Customers.ActivityLog.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-            [GrandResourceDisplayName("Admin.Customers.Customers.ActivityLog.IpAddress")]
-            public string IpAddress { get; set; }
-        }
         public class ProductModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Customers.Customers.PersonalizedProduct.ProductName")]
