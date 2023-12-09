@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Marketing.Services.PushNotifications;
+﻿using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Data;

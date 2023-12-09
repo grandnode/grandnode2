@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Catalog.Services.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
