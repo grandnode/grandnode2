@@ -22,7 +22,6 @@ namespace Grand.Web.Admin.Services
         private readonly IProductService _productService;
         private readonly IStoreService _storeService;
         private readonly IVendorService _vendorService;
-        private readonly IDateTimeService _dateTimeService;
 
         #region Constructors
 
@@ -32,8 +31,7 @@ namespace Grand.Web.Admin.Services
             ITranslationService translationService,
             IProductService productService,
             IStoreService storeService,
-            IVendorService vendorService,
-            IDateTimeService dateTimeService)
+            IVendorService vendorService)
         {
             _groupService = groupService;
             _customerGroupProductService = customerGroupProductService;
@@ -41,7 +39,6 @@ namespace Grand.Web.Admin.Services
             _productService = productService;
             _storeService = storeService;
             _vendorService = vendorService;
-            _dateTimeService = dateTimeService;
         }
 
         #endregion
@@ -119,7 +116,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CustomerGroupProductModel.AddProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
         public virtual async Task InsertProductModel(CustomerGroupProductModel.AddProductModel model)
         {

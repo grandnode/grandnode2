@@ -1080,7 +1080,7 @@ namespace Grand.Web.Admin.Services
                 var taxService = _serviceProvider.GetRequiredService<ITaxService>();
                 var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
                 var priceFormatter = _serviceProvider.GetRequiredService<IPriceFormatter>();
-
+                var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
                 foreach (var sci in cart)
                 {
                     var store = await _storeService.GetStoreById(sci.StoreId);
@@ -1094,7 +1094,7 @@ namespace Grand.Web.Admin.Services
                             ProductId = sci.ProductId,
                             Quantity = sci.Quantity,
                             ProductName = product.Name,
-                            AttributeInfo = await _serviceProvider.GetRequiredService<IProductAttributeFormatter>().FormatAttributes(product, sci.Attributes),
+                            AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes),
                             UnitPrice = priceFormatter.FormatPrice(price),
                             UnitPriceValue = price,
                             Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product, (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice),
@@ -1194,7 +1194,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CustomerModel.AddProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
 
         public virtual async Task InsertCustomerAddProductModel(string customerId, bool personalized, CustomerModel.AddProductModel model)

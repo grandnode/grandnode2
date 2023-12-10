@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -22,22 +21,19 @@ namespace Grand.Web.Admin.Services
         private readonly IStoreService _storeService;
         private readonly IVendorService _vendorService;
         private readonly ICustomerTagService _customerTagService;
-        private readonly IDateTimeService _dateTimeService;
 
         public CustomerTagViewModelService(
            ITranslationService translationService,
            IProductService productService,
            IStoreService storeService,
            IVendorService vendorService,
-           ICustomerTagService customerTagService,
-           IDateTimeService dateTimeService)
+           ICustomerTagService customerTagService)
         {
             _translationService = translationService;
             _productService = productService;
             _storeService = storeService;
             _vendorService = vendorService;
             _customerTagService = customerTagService;
-            _dateTimeService = dateTimeService;
         }
 
         public virtual CustomerModel PrepareCustomerModelForList(Customer customer)
@@ -96,7 +92,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CustomerTagProductModel.AddProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
         public virtual async Task InsertProductModel(CustomerTagProductModel.AddProductModel model)
         {

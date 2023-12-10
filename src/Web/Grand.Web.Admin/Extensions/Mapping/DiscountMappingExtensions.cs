@@ -15,7 +15,11 @@ namespace Grand.Web.Admin.Extensions.Mapping
             discount.EndDate = entity.EndDateUtc.ConvertToUserTime(dateTimeService);
             return discount;
         }
-
+        public static DiscountModel ToModel(this Discount entity)
+        {
+            var discount = entity.MapTo<Discount, DiscountModel>();
+            return discount;
+        }
         public static Discount ToEntity(this DiscountModel model, IDateTimeService dateTimeService)
         {
             var discount = model.MapTo<DiscountModel, Discount>();

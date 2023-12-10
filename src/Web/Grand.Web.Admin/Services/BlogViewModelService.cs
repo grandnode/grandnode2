@@ -195,7 +195,7 @@ namespace Grand.Web.Admin.Services
         {
             model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
 
         public virtual async Task InsertProductModel(string blogPostId, BlogProductModel.AddProductModel model)

@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -35,7 +34,6 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly IDiscountService _discountService;
         private readonly IVendorService _vendorService;
-        private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
         private readonly SeoSettings _seoSettings;
@@ -55,7 +53,6 @@ namespace Grand.Web.Admin.Services
             ITranslationService translationService,
             IDiscountService discountService,
             IVendorService vendorService,
-            IDateTimeService dateTimeService,
             ILanguageService languageService,
             IWorkContext workContext,
             SeoSettings seoSettings)
@@ -70,7 +67,6 @@ namespace Grand.Web.Admin.Services
             _translationService = translationService;
             _discountService = discountService;
             _vendorService = vendorService;
-            _dateTimeService = dateTimeService;
             _languageService = languageService;
             _workContext = workContext;
             _seoSettings = seoSettings;
@@ -110,7 +106,7 @@ namespace Grand.Web.Admin.Services
 
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToCollections, storeId: _workContext.CurrentCustomer.Id, showHidden: true))
-                .Select(d => d.ToModel(_dateTimeService))
+                .Select(d => d.ToModel())
                 .ToList();
 
             if (!excludeProperties && collection != null)
@@ -223,7 +219,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CollectionModel.AddCollectionProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
 
         public virtual async Task<(IEnumerable<CollectionModel.CollectionProductModel> collectionProductModels, int totalCount)> PrepareCollectionProductModel(string collectionId, string storeId, int pageIndex, int pageSize)

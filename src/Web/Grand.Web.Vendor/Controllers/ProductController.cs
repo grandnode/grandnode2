@@ -2381,10 +2381,6 @@ namespace Grand.Web.Vendor.Controllers
 
         #endregion
 
-        #region Activity log
-
-        #endregion
-
         #region Reservation
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]

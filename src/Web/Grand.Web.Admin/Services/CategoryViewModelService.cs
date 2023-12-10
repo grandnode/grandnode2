@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -11,13 +10,11 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -30,16 +27,11 @@ namespace Grand.Web.Admin.Services
         private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
-        private readonly ICustomerService _customerService;
         private readonly ISlugService _slugService;
         private readonly IPictureService _pictureService;
         private readonly IProductService _productService;
         private readonly IVendorService _vendorService;
-        private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private readonly CatalogSettings _catalogSettings;
         private readonly SeoSettings _seoSettings;
 
@@ -50,15 +42,11 @@ namespace Grand.Web.Admin.Services
             IDiscountService discountService,
             ITranslationService translationService, 
             IStoreService storeService, 
-            ICustomerService customerService, 
             IPictureService pictureService,
             ISlugService slugService, 
             IProductService productService,
             IVendorService vendorService, 
-            IDateTimeService dateTimeService, 
             ILanguageService languageService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
             CatalogSettings catalogSettings, 
             SeoSettings seoSettings)
         {
@@ -68,16 +56,12 @@ namespace Grand.Web.Admin.Services
             _discountService = discountService;
             _translationService = translationService;
             _storeService = storeService;
-            _customerService = customerService;
             _slugService = slugService;
             _productService = productService;
             _pictureService = pictureService;
             _vendorService = vendorService;
             _languageService = languageService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
             _catalogSettings = catalogSettings;
-            _dateTimeService = dateTimeService;
             _seoSettings = seoSettings;
         }
 
@@ -103,7 +87,7 @@ namespace Grand.Web.Admin.Services
 
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToCategories, storeId: storeId, showHidden: true))
-                .Select(d => d.ToModel(_dateTimeService))
+                .Select(d => d.ToModel())
                 .ToList();
 
             if (!excludeProperties && category != null)
@@ -339,7 +323,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CategoryModel.AddCategoryProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
     }
 }
