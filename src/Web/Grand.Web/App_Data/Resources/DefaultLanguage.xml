@@ -4825,7 +4825,7 @@
 		<Value>Show payment info if cart is zero</Value>
 	</Resource>
 	<Resource Name="Admin.Configuration.Payment.Settings.SkipPaymentIfOnlyOne" Area="Admin">
-		<Value>Skip payment info if only one exist</Value>
+		<Value>Skip payment step if only one exist</Value>
 	</Resource>
 	<Resource Name="Admin.Configuration.Payment.Settings.SkipPaymentInfo" Area="Admin">
 		<Value>Skip payment info</Value>
