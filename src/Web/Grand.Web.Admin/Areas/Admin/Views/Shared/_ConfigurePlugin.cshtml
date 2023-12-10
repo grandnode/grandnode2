@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Controllers
 @using Grand.Infrastructure.Plugins
-@inject IServiceProvider serviceProvider
+@inject IServiceProvider ServiceProvider
 @{
-    var plugin = PluginManager.FindPlugin((ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo.AsType()).Instance(serviceProvider);
+    var plugin = PluginManager.FindPlugin((ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ControllerTypeInfo.AsType()).Instance(ServiceProvider);
     //friendly name
     var friendlyName = plugin?.PluginInfo.FriendlyName;
     Layout = "_AdminLayout";
