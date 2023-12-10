@@ -13,6 +13,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Shipping.ByWeight.Services;
 
@@ -24,11 +25,11 @@ namespace Shipping.ByWeight
 
         private readonly IShippingMethodService _shippingMethodService;
         private readonly IWorkContext _workContext;
-        private readonly IServiceProvider _serviceProvider;
         private readonly ITranslationService _translationService;
         private readonly IProductService _productService;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly ICurrencyService _currencyService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ByWeightShippingSettings _byWeightShippingSettings;
 
         #endregion
@@ -39,18 +40,18 @@ namespace Shipping.ByWeight
             IWorkContext workContext,
             ITranslationService translationService,
             IProductService productService,
-            IServiceProvider serviceProvider,
             ICheckoutAttributeParser checkoutAttributeParser,
             ICurrencyService currencyService,
+            IHttpContextAccessor httpContextAccessor,
             ByWeightShippingSettings byWeightShippingSettings)
         {
             _shippingMethodService = shippingMethodService;
             _workContext = workContext;
             _translationService = translationService;
             _productService = productService;
-            _serviceProvider = serviceProvider;
             _checkoutAttributeParser = checkoutAttributeParser;
             _currencyService = currencyService;
+            _httpContextAccessor = httpContextAccessor;
             _byWeightShippingSettings = byWeightShippingSettings;
         }
         #endregion
@@ -61,14 +62,13 @@ namespace Shipping.ByWeight
             string storeId, string warehouseId, string countryId, string stateProvinceId, string zip)
         {
 
-            var shippingByWeightService = _serviceProvider.GetRequiredService<IShippingByWeightService>();
-            var shippingByWeightSettings = _serviceProvider.GetRequiredService<ByWeightShippingSettings>();
+            var shippingByWeightService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShippingByWeightService>();
 
             var shippingByWeightRecord = await shippingByWeightService.FindRecord(shippingMethodId,
                 storeId, warehouseId, countryId, stateProvinceId, zip, weight);
             if (shippingByWeightRecord == null)
             {
-                if (shippingByWeightSettings.LimitMethodsToCreated)
+                if (_byWeightShippingSettings.LimitMethodsToCreated)
                     return null;
 
                 return 0;
@@ -211,7 +211,7 @@ namespace Shipping.ByWeight
 
             var zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
             double subTotal = 0;
-            var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
+            var priceCalculationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPricingService>();
 
             foreach (var packageItem in getShippingOptionRequest.Items)
             {

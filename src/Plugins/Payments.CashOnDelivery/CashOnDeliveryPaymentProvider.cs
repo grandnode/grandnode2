@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Payments.CashOnDelivery
@@ -14,18 +15,17 @@ namespace Payments.CashOnDelivery
     public class CashOnDeliveryPaymentProvider : IPaymentProvider
     {
         private readonly ITranslationService _translationService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly CashOnDeliveryPaymentSettings _cashOnDeliveryPaymentSettings;
 
         public CashOnDeliveryPaymentProvider(
             ITranslationService translationService,
-            IServiceProvider serviceProvider,
-            CashOnDeliveryPaymentSettings cashOnDeliveryPaymentSettings
-            )
+            IHttpContextAccessor httpContextAccessor,
+            CashOnDeliveryPaymentSettings cashOnDeliveryPaymentSettings)
         {
             _translationService = translationService;
-            _serviceProvider = serviceProvider;
+            _httpContextAccessor = httpContextAccessor;
             _cashOnDeliveryPaymentSettings = cashOnDeliveryPaymentSettings;
         }
 
@@ -88,7 +88,7 @@ namespace Payments.CashOnDelivery
             if (_cashOnDeliveryPaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
-                var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
+                var orderTotalCalculationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
                 result = (float)subtotal.subTotalWithDiscount * (float)_cashOnDeliveryPaymentSettings.AdditionalFee / 100f;
             }
@@ -99,8 +99,8 @@ namespace Payments.CashOnDelivery
             }
 
             if (!(result > 0)) return result;
-            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-            var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
+            var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
+            var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IWorkContext>();
             result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
 
             //return result;
@@ -159,7 +159,7 @@ namespace Payments.CashOnDelivery
         /// <returns>Result</returns>
         public async Task CancelPayment(PaymentTransaction paymentTransaction)
         {
-            var paymentTransactionService = _serviceProvider.GetRequiredService<IPaymentTransactionService>();
+            var paymentTransactionService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPaymentTransactionService>();
             paymentTransaction.TransactionStatus = TransactionStatus.Canceled;
             await paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
         }

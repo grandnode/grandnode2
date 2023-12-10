@@ -23,12 +23,11 @@ namespace Tax.CountryStateZip.Infrastructure.Cache
 
         private readonly ICacheBase _cacheBase;
 
-        public ModelCacheEventConsumer(IServiceProvider serviceProvider)
+        public ModelCacheEventConsumer(ICacheBase cacheBase)
         {
-            //TODO inject static cache manager using constructor
-            this._cacheBase = serviceProvider.GetRequiredService<ICacheBase>();
+            this._cacheBase = cacheBase;
         }
-
+        
         //tax rates
         public async Task Handle(EntityInserted<TaxRate> eventMessage, CancellationToken cancellationToken)
         {

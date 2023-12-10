@@ -30,10 +30,10 @@ namespace Payments.PayPalStandard
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITaxService _taxService;
         private readonly IProductService _productService;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IWorkContext _workContext;
         private readonly IOrderService _orderService;
-
+        private readonly ICountryService _countryService;
+        private readonly ICurrencyService _currencyService;
         #region Ctor
 
         public PayPalStandardPaymentProvider(
@@ -43,9 +43,10 @@ namespace Payments.PayPalStandard
             ITranslationService translationService,
             ITaxService taxService,
             IProductService productService,
-            IServiceProvider serviceProvider,
             IWorkContext workContext,
             IOrderService orderService,
+            ICountryService countryService, 
+            ICurrencyService currencyService,
             PayPalStandardPaymentSettings paypalStandardPaymentSettings)
         {
             _checkoutAttributeParser = checkoutAttributeParser;
@@ -54,9 +55,10 @@ namespace Payments.PayPalStandard
             _translationService = translationService;
             _taxService = taxService;
             _productService = productService;
-            _serviceProvider = serviceProvider;
             _workContext = workContext;
             _orderService = orderService;
+            _countryService = countryService;
+            _currencyService = currencyService;
             _paypalStandardPaymentSettings = paypalStandardPaymentSettings;
         }
 
@@ -101,15 +103,14 @@ namespace Payments.PayPalStandard
             var countryCode = "";
             if (!string.IsNullOrEmpty(order.ShippingAddress?.StateProvinceId))
             {
-                var countryService = _serviceProvider.GetRequiredService<ICountryService>();
-                var country = await countryService.GetCountryById(order.ShippingAddress?.CountryId);
+                var country = await _countryService.GetCountryById(order.ShippingAddress?.CountryId);
                 var state = country?.StateProvinces.FirstOrDefault(x => x.Id == order.ShippingAddress?.StateProvinceId);
                 if (state != null)
                     stateProvince = state.Abbreviation;
             }
             if (!string.IsNullOrEmpty(order.ShippingAddress?.CountryId))
             {
-                var country = await _serviceProvider.GetRequiredService<ICountryService>().GetCountryById(order.ShippingAddress?.CountryId);
+                var country = await _countryService.GetCountryById(order.ShippingAddress?.CountryId);
                 if (country != null)
                     countryCode = country.TwoLetterIsoCode;
             }
@@ -188,15 +189,12 @@ namespace Payments.PayPalStandard
 
             //add checkout attributes as order items
             var checkoutAttributeValues = await _checkoutAttributeParser.ParseCheckoutAttributeValue(order.CheckoutAttributes);
-            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-            var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
-            var customer = await _serviceProvider.GetRequiredService<ICustomerService>().GetCustomerById(order.CustomerId);
             foreach (var attributeValue in checkoutAttributeValues)
             {
-                var attributePrice = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer);
+                var attributePrice = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, _workContext.CurrentCustomer);
                 if (attributePrice.checkoutPrice > 0)
                 {
-                    var roundedAttributePrice = Math.Round(await currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, workContext.WorkingCurrency), 2);
+                    var roundedAttributePrice = Math.Round(await _currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, _workContext.WorkingCurrency), 2);
                     //add query parameters
                     if (attributeValue.ca != null)
                     {
@@ -378,7 +376,7 @@ namespace Payments.PayPalStandard
             if (_paypalStandardPaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
-                var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
+                var orderTotalCalculationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
                 result = (float)subtotal.subTotalWithDiscount * (float)_paypalStandardPaymentSettings.AdditionalFee / 100f;
             }
@@ -389,8 +387,7 @@ namespace Payments.PayPalStandard
             }
 
             if (!(result > 0)) return await Task.FromResult(result);
-            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-            result = await currencyService.ConvertFromPrimaryStoreCurrency(result, _workContext.WorkingCurrency);
+            result = await _currencyService.ConvertFromPrimaryStoreCurrency(result, _workContext.WorkingCurrency);
             //return result;
             return await Task.FromResult(result);
         }

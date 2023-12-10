@@ -21,20 +21,17 @@ namespace Payments.BrainTree
     {
         private readonly ITranslationService _translationService;
         private readonly ICustomerService _customerService;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
 
         public BrainTreePaymentProvider(
             ITranslationService translationService,
             ICustomerService customerService,
-            IServiceProvider serviceProvider,
             IHttpContextAccessor httpContextAccessor,
             BrainTreePaymentSettings brainTreePaymentSettings)
         {
             _translationService = translationService;
             _customerService = customerService;
-            _serviceProvider = serviceProvider;
             _httpContextAccessor = httpContextAccessor;
             _brainTreePaymentSettings = brainTreePaymentSettings;
         }
@@ -228,7 +225,7 @@ namespace Payments.BrainTree
             if (_brainTreePaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
-                var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
+                var orderTotalCalculationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
                 result = (float)subtotal.subTotalWithDiscount *
                     (float)_brainTreePaymentSettings.AdditionalFee / 100f;
@@ -240,8 +237,8 @@ namespace Payments.BrainTree
             }
 
             if (!(result > 0)) return await Task.FromResult(result);
-            var currencyService = _serviceProvider.GetRequiredService<ICurrencyService>();
-            var workContext = _serviceProvider.GetRequiredService<IWorkContext>();
+            var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
+            var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IWorkContext>();
             result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
 
             //return result;

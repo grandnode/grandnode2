@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,20 +20,19 @@ namespace Widgets.GoogleAnalytics.Components
         private readonly ILogger<WidgetsGoogleAnalyticsViewComponent> _logger;
         private readonly GoogleAnalyticsEcommerceSettings _googleAnalyticsEcommerceSettings;
         private readonly ICookiePreference _cookiePreference;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public WidgetsGoogleAnalyticsViewComponent(IWorkContext workContext,
             ILogger<WidgetsGoogleAnalyticsViewComponent> logger,
             GoogleAnalyticsEcommerceSettings googleAnalyticsEcommerceSettings,
             ICookiePreference cookiePreference,
-            IServiceProvider serviceProvider
-            )
+            IHttpContextAccessor httpContextAccessor)
         {
             _workContext = workContext;
             _logger = logger;
             _googleAnalyticsEcommerceSettings = googleAnalyticsEcommerceSettings;
             _cookiePreference = cookiePreference;
-            _serviceProvider = serviceProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
@@ -76,7 +76,7 @@ namespace Widgets.GoogleAnalytics.Components
 
         private async Task<Order> GetLastOrder()
         {
-            var orderService = _serviceProvider.GetRequiredService<IOrderService>();
+            var orderService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderService>();
             var order = (await orderService.SearchOrders(storeId: _workContext.CurrentStore.Id,
                 customerId: _workContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
             return order;
@@ -98,7 +98,7 @@ namespace Widgets.GoogleAnalytics.Components
 
             if (order != null)
             {
-                var countryService = _serviceProvider.GetRequiredService<ICountryService>();
+                var countryService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICountryService>();
                 var country = await countryService.GetCountryById(order.BillingAddress?.CountryId);
                 var state = country?.StateProvinces.FirstOrDefault(x => x.Id == order.BillingAddress?.StateProvinceId);
 
@@ -116,8 +116,8 @@ namespace Widgets.GoogleAnalytics.Components
 
                 var sb = new StringBuilder();
 
-                var productService = _serviceProvider.GetRequiredService<IProductService>();
-                var categoryService = _serviceProvider.GetRequiredService<ICategoryService>();
+                var productService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IProductService>();
+                var categoryService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICategoryService>();
 
                 foreach (var item in order.OrderItems)
                 {
