@@ -130,29 +130,7 @@ namespace Grand.Web.Controllers
             return warnings;
         }
 
-        private async Task<CheckoutPaymentMethodModel> GetCheckoutPaymentMethodModel(IList<ShoppingCartItem> cart)
-        {
-            var filterByCountryId = "";
-            if (_addressSettings.CountryEnabled &&
-                _workContext.CurrentCustomer.BillingAddress != null &&
-                !string.IsNullOrWhiteSpace(_workContext.CurrentCustomer.BillingAddress.CountryId))
-            {
-                filterByCountryId = _workContext.CurrentCustomer.BillingAddress.CountryId;
-            }
-
-            var paymentMethodModel = await _mediator.Send(new GetPaymentMethod {
-                Cart = cart,
-                Currency = _workContext.WorkingCurrency,
-                Customer = _workContext.CurrentCustomer,
-                FilterByCountryId = filterByCountryId,
-                Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
-            });
-
-            return paymentMethodModel;
-        }
-
-        protected IList<string> SerializeModelState(ModelStateDictionary modelState)
+        private IList<string> SerializeModelState(ModelStateDictionary modelState)
         {
             var errors = new List<string>();
             var valuerrors = modelState.Where(entry => entry.Value.Errors.Any());
@@ -395,8 +373,7 @@ namespace Grand.Web.Controllers
                 if (sciWarnings.Any())
                     return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
             }
-
-            var paymentMethodModel = await GetCheckoutPaymentMethodModel(cart);
+            
             var requiresShipping = cart.RequiresShipping();
             var model = new CheckoutModel {
                 ShippingRequired = requiresShipping,
@@ -414,8 +391,7 @@ namespace Grand.Web.Controllers
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
                     PrePopulateNewAddressWithCustomerFields = true
-                }),
-                HasSinglePaymentMethod = paymentMethodModel.PaymentMethods?.Count == 1
+                })
             };
             if (!requiresShipping && !model.BillingAddress.ExistingAddresses.Any())
             {
