@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Grand.Business.Checkout.Validators;
+﻿using Grand.Business.Checkout.Validators;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -8,8 +7,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Validators;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Business.Checkout.Services.Orders
 {
@@ -18,16 +17,16 @@ namespace Grand.Business.Checkout.Services.Orders
 
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
-        private readonly IServiceProvider _serviceProvider;
-
+        private readonly IValidatorFactory _validatorFactory;
+        
         public ShoppingCartValidator(
             IWorkContext workContext,
             IMediator mediator,
-            IServiceProvider serviceProvider)
+            IValidatorFactory validatorFactory)
         {
             _workContext = workContext;
             _mediator = mediator;
-            _serviceProvider = serviceProvider;
+            _validatorFactory = validatorFactory;
         }
 
         public virtual async Task<IList<string>> GetStandardWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem)
@@ -40,8 +39,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var warnings = new List<string>();
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartStandardValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartStandardValidatorRecord(customer, product, shoppingCartItem));
+            var result = await _validatorFactory.GetValidator<ShoppingCartStandardValidatorRecord>().ValidateAsync(new ShoppingCartStandardValidatorRecord(customer, product, shoppingCartItem));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -55,8 +53,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var warnings = new List<string>();
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartItemAttributeValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartItemAttributeValidatorRecord(customer, product, shoppingCartItem, ignoreNonCombinableAttributes));
+            var result = await _validatorFactory.GetValidator<ShoppingCartItemAttributeValidatorRecord>().ValidateAsync(new ShoppingCartItemAttributeValidatorRecord(customer, product, shoppingCartItem, ignoreNonCombinableAttributes));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -74,8 +71,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             //gift vouchers
             if (!product.IsGiftVoucher) return warnings;
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartGiftVoucherValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartGiftVoucherValidatorRecord(customer, product, shoppingCartItem));
+            var result = await _validatorFactory.GetValidator<ShoppingCartGiftVoucherValidatorRecord>().ValidateAsync(new ShoppingCartGiftVoucherValidatorRecord(customer, product, shoppingCartItem));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -86,8 +82,7 @@ namespace Grand.Business.Checkout.Services.Orders
         {
             var warnings = new List<string>();
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartInventoryProductValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartInventoryProductValidatorRecord(customer, product, shoppingCartItem));
+            var result = await _validatorFactory.GetValidator<ShoppingCartInventoryProductValidatorRecord>().ValidateAsync(new ShoppingCartInventoryProductValidatorRecord(customer, product, shoppingCartItem));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -99,8 +94,7 @@ namespace Grand.Business.Checkout.Services.Orders
         {
             var warnings = new List<string>();
             if (product.ProductTypeId != ProductType.Auction) return warnings;
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartAuctionValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartAuctionValidatorRecord(customer, product, null, bid));
+            var result = await _validatorFactory.GetValidator<ShoppingCartAuctionValidatorRecord>().ValidateAsync(new ShoppingCartAuctionValidatorRecord(customer, product, null, bid));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -114,8 +108,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (product.ProductTypeId != ProductType.Reservation)
                 return warnings;
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartReservationProductValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartReservationProductValidatorRecord(customer, product, shoppingCartItem));
+            var result = await _validatorFactory.GetValidator<ShoppingCartReservationProductValidatorRecord>().ValidateAsync(new ShoppingCartReservationProductValidatorRecord(customer, product, shoppingCartItem));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
@@ -128,16 +121,14 @@ namespace Grand.Business.Checkout.Services.Orders
             var warnings = new List<string>();
             checkoutAttributes ??= new List<CustomAttribute>();
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartWarningsValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartWarningsValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, shoppingCart));
+            var result = await _validatorFactory.GetValidator<ShoppingCartWarningsValidatorRecord>().ValidateAsync(new ShoppingCartWarningsValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, shoppingCart));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
             //validate checkout attributes
             if (validateCheckoutAttributes)
             {
-                var validatorCheckoutAttributes = _serviceProvider.GetRequiredService<IValidator<ShoppingCartCheckoutAttributesValidatorRecord>>();
-                var resultCheckoutAttributes = await validatorCheckoutAttributes.ValidateAsync(new ShoppingCartCheckoutAttributesValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore,
+                var resultCheckoutAttributes = await _validatorFactory.GetValidator<ShoppingCartCheckoutAttributesValidatorRecord>().ValidateAsync(new ShoppingCartCheckoutAttributesValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore,
                     shoppingCart, checkoutAttributes));
                 if (!resultCheckoutAttributes.IsValid)
                     warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
@@ -146,8 +137,7 @@ namespace Grand.Business.Checkout.Services.Orders
             //validate subtotal/total amount in the cart
             if (validateAmount)
             {
-                var validatorCheckoutAttributes = _serviceProvider.GetRequiredService<IValidator<ShoppingCartTotalAmountValidatorRecord>>();
-                var resultCheckoutAttributes = await validatorCheckoutAttributes.ValidateAsync(new ShoppingCartTotalAmountValidatorRecord(_workContext.CurrentCustomer, _workContext.WorkingCurrency, shoppingCart));
+                var resultCheckoutAttributes = await _validatorFactory.GetValidator<ShoppingCartTotalAmountValidatorRecord>().ValidateAsync(new ShoppingCartTotalAmountValidatorRecord(_workContext.CurrentCustomer, _workContext.WorkingCurrency, shoppingCart));
                 if (!resultCheckoutAttributes.IsValid)
                     warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
             }
@@ -164,8 +154,7 @@ namespace Grand.Business.Checkout.Services.Orders
         {
             var warnings = new List<string>();
 
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartCommonWarningsValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartCommonWarningsValidatorRecord(customer, _workContext.CurrentStore, currentCart,
+            var result = await _validatorFactory.GetValidator<ShoppingCartCommonWarningsValidatorRecord>().ValidateAsync(new ShoppingCartCommonWarningsValidatorRecord(customer, _workContext.CurrentStore, currentCart,
                 product, shoppingCartType, rentalStartDate, rentalEndDate, quantity, reservationId));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
@@ -223,8 +212,8 @@ namespace Grand.Business.Checkout.Services.Orders
             var warnings = new List<string>();
 
             if (!product.RequireOtherProducts) return warnings;
-            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartRequiredProductValidatorRecord>>();
-            var result = await validator.ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, product, shoppingCartItem));
+            
+            var result = await _validatorFactory.GetValidator<ShoppingCartRequiredProductValidatorRecord>().ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, product, shoppingCartItem));
             if (!result.IsValid)
                 warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
             return warnings;
