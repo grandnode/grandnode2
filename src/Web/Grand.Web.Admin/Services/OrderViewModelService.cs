@@ -30,7 +30,6 @@ using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
 namespace Grand.Web.Admin.Services
@@ -46,7 +45,6 @@ namespace Grand.Web.Admin.Services
         private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
         private readonly IPaymentTransactionService _paymentTransactionService;
@@ -67,7 +65,7 @@ namespace Grand.Web.Admin.Services
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly ICustomerService _customerService;
         private readonly IWarehouseService _warehouseService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
@@ -87,7 +85,6 @@ namespace Grand.Web.Admin.Services
             IDiscountService discountService,
             ITranslationService translationService,
             IWorkContext workContext,
-            IGroupService groupService,
             ICurrencyService currencyService,
             IPaymentService paymentService,
             IPaymentTransactionService paymentTransactionService,
@@ -108,14 +105,14 @@ namespace Grand.Web.Admin.Services
             IMerchandiseReturnService merchandiseReturnService,
             ICustomerService customerService,
             IWarehouseService warehouseService,
-            IServiceProvider serviceProvider,
             IShoppingCartValidator shoppingCartValidator,
             CurrencySettings currencySettings,
             TaxSettings taxSettings,
             AddressSettings addressSettings,
             IOrderTagService orderTagService,
             IOrderStatusService orderStatusService,
-            IMediator mediator)
+            IMediator mediator, 
+            IProductAttributeFormatter productAttributeFormatter)
         {
             _orderService = orderService;
             _pricingService = priceCalculationService;
@@ -124,7 +121,6 @@ namespace Grand.Web.Admin.Services
             _discountService = discountService;
             _translationService = translationService;
             _workContext = workContext;
-            _groupService = groupService;
             _currencyService = currencyService;
             _paymentService = paymentService;
             _paymentTransactionService = paymentTransactionService;
@@ -144,7 +140,6 @@ namespace Grand.Web.Admin.Services
             _taxService = taxService;
             _merchandiseReturnService = merchandiseReturnService;
             _warehouseService = warehouseService;
-            _serviceProvider = serviceProvider;
             _shoppingCartValidator = shoppingCartValidator;
             _currencySettings = currencySettings;
             _taxSettings = taxSettings;
@@ -153,6 +148,7 @@ namespace Grand.Web.Admin.Services
             _orderTagService = orderTagService;
             _orderStatusService = orderStatusService;
             _mediator = mediator;
+            _productAttributeFormatter = productAttributeFormatter;
         }
 
         #endregion
@@ -690,7 +686,7 @@ namespace Grand.Web.Admin.Services
                         model.ShippingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
                         model.ShippingAddressGoogleMapsUrl =
-                            $"http://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : ""))}";
+                            $"https://maps.google.com/maps?f=q&hl=en&ie=UTF8&oe=UTF8&geocode=&q={WebUtility.UrlEncode(order.ShippingAddress.Address1 + " " + order.ShippingAddress.ZipPostalCode + " " + order.ShippingAddress.City + " " + (!string.IsNullOrEmpty(order.ShippingAddress.CountryId) ? (await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name : ""))}";
                     }
                 }
                 else
@@ -1189,11 +1185,8 @@ namespace Grand.Web.Admin.Services
                     shoppingCartItem));
             if (warnings.Count == 0)
             {
-                //no errors
-                var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
-                //attributes
                 var attributeDescription =
-                    await productAttributeFormatter.FormatAttributes(product, customattributes, customer);
+                    await _productAttributeFormatter.FormatAttributes(product, customattributes, customer);
 
                 //save item
                 var orderItem = new OrderItem {

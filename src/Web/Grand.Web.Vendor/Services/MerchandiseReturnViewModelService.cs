@@ -17,7 +17,6 @@ using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.MerchandiseReturn;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Vendor.Services
 {
@@ -40,26 +39,27 @@ namespace Grand.Web.Vendor.Services
         private readonly ICountryService _countryService;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        #endregion Fields
+        #endregion Fields
 
         #region Constructors
 
-        public MerchandiseReturnViewModelService(IOrderService orderService,
+        public MerchandiseReturnViewModelService(
+            IOrderService orderService,
             IWorkContext workContext,
             IProductService productService,
-            ICustomerService customerService, IDateTimeService dateTimeService,
+            ICustomerService customerService, 
+            IDateTimeService dateTimeService,
             ITranslationService translationService,
-            IMessageProviderService messageProviderService, LanguageSettings languageSettings,
+            IMessageProviderService messageProviderService, 
+            LanguageSettings languageSettings,
             IMerchandiseReturnService merchandiseReturnService,
             IPriceFormatter priceFormatter,
             AddressSettings addressSettings,
             ICountryService countryService,
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser,
-            OrderSettings orderSettings,
-            IHttpContextAccessor httpContextAccessor)
+            OrderSettings orderSettings)
         {
             _orderService = orderService;
             _workContext = workContext;
@@ -76,7 +76,6 @@ namespace Grand.Web.Vendor.Services
             _addressAttributeService = addressAttributeService;
             _addressAttributeParser = addressAttributeParser;
             _orderSettings = orderSettings;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion

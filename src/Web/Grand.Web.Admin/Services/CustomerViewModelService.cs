@@ -32,6 +32,7 @@ using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Admin.Models.ShoppingCart;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
@@ -62,7 +63,7 @@ namespace Grand.Web.Admin.Services
         private readonly ISalesEmployeeService _salesEmployeeService;
         private readonly ICustomerNoteService _customerNoteService;
         private readonly IDownloadService _downloadService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly TaxSettings _taxSettings;
         private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
@@ -93,7 +94,7 @@ namespace Grand.Web.Admin.Services
             ISalesEmployeeService salesEmployeeService,
             ICustomerNoteService customerNoteService,
             IDownloadService downloadService,
-            IServiceProvider serviceProvider,
+            IHttpContextAccessor httpContextAccessor,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             LoyaltyPointsSettings loyaltyPointsSettings,
@@ -127,7 +128,7 @@ namespace Grand.Web.Admin.Services
             _salesEmployeeService = salesEmployeeService;
             _customerNoteService = customerNoteService;
             _downloadService = downloadService;
-            _serviceProvider = serviceProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Utilities
@@ -213,7 +214,7 @@ namespace Grand.Web.Admin.Services
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
-            var openAuthenticationService = _serviceProvider.GetRequiredService<IExternalAuthenticationService>();
+            var openAuthenticationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IExternalAuthenticationService>();
             var result = new List<CustomerModel.AssociatedExternalAuthModel>();
             foreach (var record in await openAuthenticationService.GetExternalIdentifiers(customer))
             {
@@ -249,7 +250,7 @@ namespace Grand.Web.Admin.Services
             };
         }
 
-        protected virtual async Task PrepareSelesEmployeeModel(CustomerModel model)
+        protected virtual async Task PrepareSalesEmployeeModel(CustomerModel model)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -504,20 +505,13 @@ namespace Grand.Web.Admin.Services
 
             model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
             model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
-            if (customer != null)
-            {
-                model.DisplayVatNumber = _taxSettings.EuVatEnabled;
-            }
-            else
-            {
-                model.DisplayVatNumber = false;
-            }
+            model.DisplayVatNumber = customer != null && _taxSettings.EuVatEnabled;
 
             //stores
             await PrepareStoresModel(model);
 
             //employees
-            await PrepareSelesEmployeeModel(model);
+            await PrepareSalesEmployeeModel(model);
 
             //customer attributes
             await PrepareCustomerAttributeModel(model, customer);
@@ -763,7 +757,7 @@ namespace Grand.Web.Admin.Services
                 {
                     if (!model.VatNumber.Equals(prevVatNumber, StringComparison.OrdinalIgnoreCase))
                     {
-                        var checkVatService = _serviceProvider.GetRequiredService<IVatService>();
+                        var checkVatService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IVatService>();
                         await _userFieldService.SaveField(customer,
                             SystemCustomerFieldNames.VatNumberStatusId,
                             (int)(await checkVatService.GetVatNumberStatus(model.VatNumber)).status);
@@ -892,21 +886,17 @@ namespace Grand.Web.Admin.Services
         {
             var customers = new List<Customer>();
             customers.AddRange(await _customerService.GetCustomersByIds(selectedIds.ToArray()));
-            for (var i = 0; i < customers.Count; i++)
+            foreach (var customer in customers.Where(customer => customer.Id != _workContext.CurrentCustomer.Id))
             {
-                var customer = customers[i];
-                if (customer.Id != _workContext.CurrentCustomer.Id)
-                {
-                    await _customerService.DeleteCustomer(customer);
-                }
+                await _customerService.DeleteCustomer(customer);
             }
         }
 
         public async Task SendEmail(Customer customer, CustomerModel.SendEmailModel model)
         {
-            var emailAccountService = _serviceProvider.GetRequiredService<IEmailAccountService>();
-            var emailAccountSettings = _serviceProvider.GetRequiredService<EmailAccountSettings>();
-            var queuedEmailService = _serviceProvider.GetRequiredService<IQueuedEmailService>();
+            var emailAccountService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IEmailAccountService>();
+            var emailAccountSettings = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<EmailAccountSettings>();
+            var queuedEmailService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IQueuedEmailService>();
 
             var emailAccount = await emailAccountService.GetEmailAccountById(emailAccountSettings.DefaultEmailAccountId) ??
                                (await emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
@@ -1015,8 +1005,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            if (model.Address == null)
-                model.Address = new AddressModel();
+            model.Address ??= new AddressModel();
 
             model.Address.NameEnabled = _addressSettings.NameEnabled;
             model.Address.FirstNameEnabled = true;
@@ -1077,10 +1066,10 @@ namespace Grand.Web.Admin.Services
             var items = new List<ShoppingCartItemModel>();
             if (cart.Any())
             {
-                var taxService = _serviceProvider.GetRequiredService<ITaxService>();
-                var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
-                var priceFormatter = _serviceProvider.GetRequiredService<IPriceFormatter>();
-                var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
+                var taxService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ITaxService>();
+                var priceCalculationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPricingService>();
+                var priceFormatter = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPriceFormatter>();
+                var productAttributeFormatter = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IProductAttributeFormatter>();
                 foreach (var sci in cart)
                 {
                     var store = await _storeService.GetStoreById(sci.StoreId);
@@ -1111,7 +1100,7 @@ namespace Grand.Web.Admin.Services
             var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == id);
             if (cart != null)
             {
-                await _serviceProvider.GetRequiredService<IShoppingCartService>()
+                await _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShoppingCartService>()
                     .DeleteShoppingCartItem(customer, cart, ensureOnlyActiveCheckoutAttributes: true);
                 await _customerService.UpdateCustomerInAdminPanel(customer);
             }
@@ -1122,7 +1111,7 @@ namespace Grand.Web.Admin.Services
             var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == shoppingCartId);
             if (cart != null)
             {
-                return await _serviceProvider.GetRequiredService<IShoppingCartService>()
+                return await _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShoppingCartService>()
                     .UpdateShoppingCartItem(
                     customer,
                     shoppingCartId,
@@ -1258,7 +1247,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)> PrepareContactFormModel(string customerId, int pageIndex, int pageSize)
         {
-            var contactUsService = _serviceProvider.GetRequiredService<IContactUsService>();
+            var contactUsService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IContactUsService>();
             var contactform = await contactUsService.GetAllContactUs(storeId: "", vendorId: "", customerId: customerId, pageIndex: pageIndex - 1, pageSize: pageSize);
             var items = new List<ContactFormModel>();
             foreach (var x in contactform)
@@ -1275,12 +1264,12 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IEnumerable<CustomerModel.OutOfStockSubscriptionModel> outOfStockSubscriptionModels, int totalCount)> PrepareOutOfStockSubscriptionModel(string customerId, int pageIndex, int pageSize)
         {
-            var outOfStockSubscriptionService = _serviceProvider.GetRequiredService<IOutOfStockSubscriptionService>();
+            var outOfStockSubscriptionService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOutOfStockSubscriptionService>();
             var subscriptions = await outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId(customerId, "", pageIndex - 1, pageSize);
             var items = new List<CustomerModel.OutOfStockSubscriptionModel>();
             if (subscriptions.Any())
             {
-                var productAttributeFormatter = _serviceProvider.GetRequiredService<IProductAttributeFormatter>();
+                var productAttributeFormatter = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IProductAttributeFormatter>();
                 foreach (var x in subscriptions)
                 {
                     var store = await _storeService.GetStoreById(x.StoreId);
@@ -1300,7 +1289,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<IList<CustomerModel.CustomerNote>> PrepareCustomerNoteList(string customerId)
         {
-            var downloadService = _serviceProvider.GetRequiredService<IDownloadService>();
+            var downloadService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IDownloadService>();
             var customerNoteModels = new List<CustomerModel.CustomerNote>();
             foreach (var customerNote in (await _customerNoteService.GetCustomerNotes(customerId))
                 .OrderByDescending(on => on.CreatedOnUtc))
@@ -1335,7 +1324,7 @@ namespace Grand.Web.Admin.Services
             if (displayToCustomer)
             {
                 //email
-                var messageProviderService = _serviceProvider.GetRequiredService<IMessageProviderService>();
+                var messageProviderService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IMessageProviderService>();
                 await messageProviderService.SendNewCustomerNoteMessage(customerNote,
                     await _customerService.GetCustomerById(customerId), _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 

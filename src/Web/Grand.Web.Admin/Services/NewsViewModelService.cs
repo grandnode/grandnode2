@@ -13,6 +13,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.News;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
@@ -26,7 +27,9 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly ISlugService _slugService;
         private readonly IPictureService _pictureService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ILanguageService _languageService;
+        private readonly ICustomerService _customerService;
+        private readonly SeoSettings _seoSettings;
         #endregion
 
         #region Constructors
@@ -36,14 +39,18 @@ namespace Grand.Web.Admin.Services
             ITranslationService translationService,
             ISlugService slugService,
             IPictureService pictureService,
-            IServiceProvider serviceProvider)
+            ILanguageService languageService,
+            ICustomerService customerService,
+            SeoSettings seoSettings)
         {
             _newsService = newsService;
             _dateTimeService = dateTimeService;
             _translationService = translationService;
             _slugService = slugService;
             _pictureService = pictureService;
-            _serviceProvider = serviceProvider;
+            _languageService = languageService;
+            _customerService = customerService;
+            _seoSettings = seoSettings;
         }
 
         #endregion
@@ -62,14 +69,13 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<NewsItem> InsertNewsItemModel(NewsItemModel model)
         {
-            var datetimeService = _serviceProvider.GetRequiredService<IDateTimeService>();
-            var newsItem = model.ToEntity(datetimeService);
+            var newsItem = model.ToEntity(_dateTimeService);
             newsItem.CreatedOnUtc = DateTime.UtcNow;
             await _newsService.InsertNews(newsItem);
 
-            var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
+            var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService, _languageService);
             newsItem.SeName = seName;
-            newsItem.Locales = await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
+            newsItem.Locales = await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService, _languageService);
             await _newsService.UpdateNews(newsItem);
             //search engine name
             await _slugService.SaveSlug(newsItem, seName, "");
@@ -82,9 +88,9 @@ namespace Grand.Web.Admin.Services
         {
             var prevPictureId = newsItem.PictureId;
             newsItem = model.ToEntity(newsItem, _dateTimeService);
-            var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
+            var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService, _languageService);
             newsItem.SeName = seName;
-            newsItem.Locales = await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _serviceProvider.GetRequiredService<SeoSettings>(), _slugService, _serviceProvider.GetRequiredService<ILanguageService>());
+            newsItem.Locales = await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService, _languageService);
             await _newsService.UpdateNews(newsItem);
 
             //search engine name
@@ -116,7 +122,6 @@ namespace Grand.Web.Admin.Services
                 //load all news comments
                 comments = await _newsService.GetAllComments("");
             }
-            var customerService = _serviceProvider.GetRequiredService<ICustomerService>();
             var items = new List<NewsCommentModel>();
             foreach (var newsComment in comments.PagedForCommand(pageIndex, pageSize))
             {
@@ -127,7 +132,7 @@ namespace Grand.Web.Admin.Services
                     NewsItemTitle = (await _newsService.GetNewsById(newsComment.NewsItemId))?.Title,
                     CustomerId = newsComment.CustomerId
                 };
-                var customer = await customerService.GetCustomerById(newsComment.CustomerId);
+                var customer = await _customerService.GetCustomerById(newsComment.CustomerId);
                 commentModel.CustomerInfo = !string.IsNullOrEmpty(customer.Email) ? customer.Email : _translationService.GetResource("Admin.Customers.Guest");
                 commentModel.CreatedOn = _dateTimeService.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc);
                 commentModel.CommentTitle = newsComment.CommentTitle;
