@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
@@ -18,7 +17,6 @@ namespace Grand.Web.Commands.Handler.Contact
         private readonly IContactAttributeParser _contactAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly IMessageProviderService _messageProviderService;
-        private readonly ICustomerActivityService _customerActivityService;
 
         private readonly CommonSettings _commonSettings;
 
@@ -26,14 +24,12 @@ namespace Grand.Web.Commands.Handler.Contact
             IContactAttributeParser contactAttributeParser,
             ITranslationService translationService,
             IMessageProviderService messageProviderService,
-            ICustomerActivityService customerActivityService,
             CommonSettings commonSettings)
         {
             _workContext = workContext;
             _contactAttributeParser = contactAttributeParser;
             _translationService = translationService;
             _messageProviderService = messageProviderService;
-            _customerActivityService = customerActivityService;
             _commonSettings = commonSettings;
         }
 
@@ -47,11 +43,6 @@ namespace Grand.Web.Commands.Handler.Contact
                 await _contactAttributeParser.FormatAttributes(_workContext.WorkingLanguage, attributes,
                     _workContext.CurrentCustomer);
             request.Model = await SendContactUs(request, _workContext.CurrentStore);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.ContactUs", "",
-                _workContext.CurrentCustomer, request.IpAddress,
-                _translationService.GetResource("ActivityLog.PublicStore.ContactUs"));
 
             return request.Model;
         }

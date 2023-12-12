@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
@@ -38,7 +37,6 @@ namespace Grand.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IAclService _aclService;
         private readonly IPermissionService _permissionService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
         private readonly CatalogSettings _catalogSettings;
         private readonly CaptchaSettings _captchaSettings;
@@ -55,7 +53,6 @@ namespace Grand.Web.Controllers
             IShoppingCartService shoppingCartService,
             IAclService aclService,
             IPermissionService permissionService,
-            ICustomerActivityService customerActivityService,
             IMediator mediator,
             CatalogSettings catalogSettings,
             CaptchaSettings captchaSettings
@@ -68,7 +65,6 @@ namespace Grand.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _aclService = aclService;
             _permissionService = permissionService;
-            _customerActivityService = customerActivityService;
             _mediator = mediator;
             _catalogSettings = catalogSettings;
             _captchaSettings = captchaSettings;
@@ -138,11 +134,6 @@ namespace Grand.Web.Controllers
                     DisplayEditLink(Url.Action("Edit", "Product", new { id = product.Id, area = "Admin" }));
                 }
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
-
             _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
 
             return View(productLayoutViewPath, model);
@@ -379,10 +370,6 @@ namespace Grand.Web.Controllers
             //save as recently viewed
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
-
             _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
 
             return Json(new
@@ -487,10 +474,6 @@ namespace Grand.Web.Controllers
 
                 //notification
                 await _mediator.Publish(new ProductReviewEvent(product, model.AddProductReview));
-
-                _ = _customerActivityService.InsertActivity("PublicStore.AddProductReview", product.Id,
-                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.PublicStore.AddProductReview"), product.Name);
 
                 //raise event
                 if (productReview.IsApproved)
@@ -694,10 +677,6 @@ namespace Grand.Web.Controllers
                 RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             });
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
             //return Json
             return Json(new
             {

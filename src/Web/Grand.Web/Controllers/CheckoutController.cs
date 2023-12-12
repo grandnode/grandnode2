@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
@@ -47,7 +46,6 @@ namespace Grand.Web.Controllers
         private readonly IPaymentTransactionService _paymentTransactionService;
         private readonly ILogger<CheckoutController> _logger;
         private readonly IOrderService _orderService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
         private readonly IProductService _productService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -74,7 +72,6 @@ namespace Grand.Web.Controllers
             IPaymentTransactionService paymentTransactionService,
             ILogger<CheckoutController> logger,
             IOrderService orderService,
-            ICustomerActivityService customerActivityService,
             IMediator mediator,
             IProductService productService,
             IShoppingCartValidator shoppingCartValidator,
@@ -96,7 +93,6 @@ namespace Grand.Web.Controllers
             _paymentTransactionService = paymentTransactionService;
             _logger = logger;
             _orderService = orderService;
-            _customerActivityService = customerActivityService;
             _mediator = mediator;
             _productService = productService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -956,11 +952,6 @@ namespace Grand.Web.Controllers
                 var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
                 if (placeOrderResult.Success)
                 {
-                    _ = _customerActivityService.InsertActivity("PublicStore.PlaceOrder", "",
-                        _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                        _translationService.GetResource("ActivityLog.PublicStore.PlaceOrder"),
-                        placeOrderResult.PlacedOrder.Id);
-
                     var paymentMethod =
                         _paymentService.LoadPaymentMethodBySystemName(placeOrderResult.PaymentTransaction
                             .PaymentMethodSystemName);

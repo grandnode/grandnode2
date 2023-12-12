@@ -2,7 +2,6 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -23,12 +22,11 @@ namespace Grand.Web.Admin.Controllers
         private readonly IProductAttributeService _productAttributeService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly SeoSettings _seoSettings;
 
-        #endregion Fields
+        #endregion Fields
 
         #region Constructors
 
@@ -37,7 +35,6 @@ namespace Grand.Web.Admin.Controllers
             IProductAttributeService productAttributeService,
             ILanguageService languageService,
             ITranslationService translationService,
-            ICustomerActivityService customerActivityService,
             IWorkContext workContext,
             IGroupService groupService,
             SeoSettings seoSettings)
@@ -46,7 +43,6 @@ namespace Grand.Web.Admin.Controllers
             _productAttributeService = productAttributeService;
             _languageService = languageService;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _workContext = workContext;
             _groupService = groupService;
             _seoSettings = seoSettings;
@@ -103,11 +99,6 @@ namespace Grand.Web.Admin.Controllers
 
                 await _productAttributeService.InsertProductAttribute(productAttribute);
 
-                //activity log
-                _ = _customerActivityService.InsertActivity("AddNewProductAttribute", productAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
-
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = productAttribute.Id }) : RedirectToAction("List");
             }
@@ -154,11 +145,6 @@ namespace Grand.Web.Admin.Controllers
                 }
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
 
-                //activity log
-                _ = _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.EditProductAttribute"), productAttribute.Name);
-
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Updated"));
                 if (continueEditing)
                 {
@@ -194,12 +180,6 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _productAttributeService.DeleteProductAttribute(productAttribute);
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.DeleteProductAttribute"), productAttribute.Name);
-
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Deleted"));
                 return RedirectToAction("List");
             }
@@ -335,7 +315,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var productAttribute = (await _productAttributeService.GetAllProductAttributes()).FirstOrDefault(x => x.PredefinedProductAttributeValues.Any(y => y.Id == id));
-                var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
+                var ppav = productAttribute?.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
                 if (ppav == null)
                     throw new ArgumentException("No predefined product attribute value found with the specified id");
                 productAttribute.PredefinedProductAttributeValues.Remove(ppav);

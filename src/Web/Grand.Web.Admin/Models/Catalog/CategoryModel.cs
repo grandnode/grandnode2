@@ -177,19 +177,6 @@ namespace Grand.Web.Admin.Models.Catalog
             public string[] SelectedProductIds { get; set; }
         }
 
-        public class ActivityLogModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Admin.Catalog.Categories.ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Categories.ActivityLog.Comment")]
-            public string Comment { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Categories.ActivityLog.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Categories.ActivityLog.Customer")]
-            public string CustomerId { get; set; }
-            public string CustomerEmail { get; set; }
-        }
-
         #endregion
     }
 

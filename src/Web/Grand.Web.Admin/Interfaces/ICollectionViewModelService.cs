@@ -17,6 +17,5 @@ namespace Grand.Web.Admin.Interfaces
         Task ProductUpdate(CollectionModel.CollectionProductModel model);
         Task ProductDelete(string id, string productId);
         Task InsertCollectionProductModel(CollectionModel.AddCollectionProductModel model);
-        Task<(IEnumerable<CollectionModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string collectionId, int pageIndex, int pageSize);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
@@ -10,7 +9,6 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
@@ -21,22 +19,16 @@ namespace Grand.Web.Admin.Services
         private readonly IContactAttributeParser _contactAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ContactAttributeViewModelService(IContactAttributeService contactAttributeService,
             IContactAttributeParser contactAttributeParser,
             ITranslationService translationService,
-            IWorkContext workContext,
-            ICustomerActivityService customerActivityService,
-            IHttpContextAccessor httpContextAccessor)
+            IWorkContext workContext)
         {
             _contactAttributeService = contactAttributeService;
             _contactAttributeParser = contactAttributeParser;
             _translationService = translationService;
             _workContext = workContext;
-            _customerActivityService = customerActivityService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Utilities
@@ -142,11 +134,6 @@ namespace Grand.Web.Admin.Services
         {
             var contactAttribute = model.ToEntity();
             await _contactAttributeService.InsertContactAttribute(contactAttribute);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewContactAttribute", contactAttribute.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewContactAttribute"), contactAttribute.Name);
             return contactAttribute;
         }
         public virtual async Task<ContactAttribute> UpdateContactAttributeModel(ContactAttribute contactAttribute, ContactAttributeModel model)
@@ -154,11 +141,6 @@ namespace Grand.Web.Admin.Services
             contactAttribute = model.ToEntity(contactAttribute);
             await SaveConditionAttributes(contactAttribute, model);
             await _contactAttributeService.UpdateContactAttribute(contactAttribute);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditContactAttribute", contactAttribute.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditContactAttribute"), contactAttribute.Name);
             return contactAttribute;
         }
 

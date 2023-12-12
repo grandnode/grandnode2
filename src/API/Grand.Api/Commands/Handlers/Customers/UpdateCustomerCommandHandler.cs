@@ -3,7 +3,6 @@ using Grand.Api.DTOs.Customers;
 using Grand.Api.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -15,7 +14,6 @@ namespace Grand.Api.Commands.Handlers.Customers
     {
         private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IUserFieldService _userFieldsService;
         private readonly IWorkContext _workContext;
@@ -23,14 +21,12 @@ namespace Grand.Api.Commands.Handlers.Customers
         public UpdateCustomerCommandHandler(
             ICustomerService customerService,
             IGroupService groupService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IUserFieldService userFieldsService,
             IWorkContext workContext)
         {
             _customerService = customerService;
             _groupService = groupService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _userFieldsService = userFieldsService;
             _workContext = workContext;
@@ -43,10 +39,6 @@ namespace Grand.Api.Commands.Handlers.Customers
             await _customerService.UpdateCustomer(customer);
             await SaveCustomerAttributes(request.Model, customer);
             await SaveCustomerGroups(request.Model, customer);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
-
             return customer.ToModel();
         }
 

@@ -13,8 +13,8 @@ namespace Grand.Business.System.Services.Migrations._2._2
     {
         public int Priority => 0;
         public DbVersion Version => new(2, 2);
-        public Guid Identity => new("3F4E87C6-8ECE-4034-8211-39C3D3EBC567");
-        public string Name => "Install new permission - ManageAccessVendorPanel / Delete permission - ManageSystemLog";
+        public Guid Identity => new("8F35D0AF-28EF-4734-BC93-9F8A0F63E79A");
+        public string Name => "Install new permission - ManageAccessVendorPanel / Delete permission - ManageSystemLog/ManageActivityLog";
 
         /// <summary>
         /// Upgrade process
@@ -48,6 +48,11 @@ namespace Grand.Business.System.Services.Migrations._2._2
                 if (permissionManageSystemLog != null)
                 {
                     repository.Delete(permissionManageSystemLog);
+                }
+                var permissionManageActivityLog = repository.Table.FirstOrDefault(x => x.SystemName == "ManageActivityLog");
+                if (permissionManageActivityLog != null)
+                {
+                    repository.Delete(permissionManageActivityLog);
                 }
 
             }

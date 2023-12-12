@@ -96,23 +96,6 @@ namespace Grand.Web.Admin.Models.Catalog
         //discounts
         public List<DiscountModel> AvailableDiscounts { get; set; }
         public string[] SelectedDiscountIds { get; set; }
-
-        #region Nested classes
-        
-        public class ActivityLogModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Admin.Catalog.Brands.ActivityLog.ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Brands.ActivityLog.Comment")]
-            public string Comment { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Brands.ActivityLog.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Brands.ActivityLog.Customer")]
-            public string CustomerId { get; set; }
-            public string CustomerEmail { get; set; }
-        }
-
-        #endregion
     }
 
     public class BrandLocalizedModel : ILocalizedModelLocal, ISlugModelLocal

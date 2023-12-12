@@ -17,7 +17,6 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteProductCategoryModel(string id, string productId);
         Task<CategoryModel.AddCategoryProductModel> PrepareAddCategoryProductModel(string storeId);
         Task InsertCategoryProductModel(CategoryModel.AddCategoryProductModel model);
-        Task<(IEnumerable<CategoryModel.ActivityLogModel> activityLogModel, int totalCount)> PrepareActivityLogModel(string categoryId, int pageIndex, int pageSize);
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CategoryModel.AddCategoryProductModel model, int pageIndex, int pageSize);
     }
 }

@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Localization;
@@ -11,7 +10,6 @@ using Grand.Domain.Orders;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Http;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Web.Admin.Extensions.Mapping;
 
@@ -30,9 +28,6 @@ namespace Grand.Web.Admin.Services
         private readonly LanguageSettings _languageSettings;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStoreService _storeService;
 
         #endregion
@@ -46,8 +41,7 @@ namespace Grand.Web.Admin.Services
             ICurrencyService currencyService,
             LanguageSettings languageSettings,
             ITranslationService translationService, ILanguageService languageService,
-            ICustomerActivityService customerActivityService, IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
+            IWorkContext workContext,
             IStoreService storeService)
         {
             _giftVoucherService = giftVoucherService;
@@ -59,9 +53,6 @@ namespace Grand.Web.Admin.Services
             _languageSettings = languageSettings;
             _translationService = translationService;
             _languageService = languageService;
-            _customerActivityService = customerActivityService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
             _storeService = storeService;
         }
 
@@ -142,11 +133,6 @@ namespace Grand.Web.Admin.Services
             var giftVoucher = model.ToEntity(_dateTimeService);
             giftVoucher.CreatedOnUtc = DateTime.UtcNow;
             await _giftVoucherService.InsertGiftVoucher(giftVoucher);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewGiftVoucher", giftVoucher.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewGiftVoucher"), giftVoucher.Code);
             return giftVoucher;
         }
 
@@ -200,10 +186,6 @@ namespace Grand.Web.Admin.Services
         {
             giftVoucher = model.ToEntity(giftVoucher, _dateTimeService);
             await _giftVoucherService.UpdateGiftVoucher(giftVoucher);
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditGiftVoucher", giftVoucher.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditGiftVoucher"), giftVoucher.Code);
 
             return giftVoucher;
         }
@@ -211,10 +193,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteGiftVoucher(GiftVoucher giftVoucher)
         {
             await _giftVoucherService.DeleteGiftVoucher(giftVoucher);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteGiftVoucher", giftVoucher.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteGiftVoucher"), giftVoucher.Code);
         }
 
         public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucher giftVoucher)

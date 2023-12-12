@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -11,16 +9,13 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Courses;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services
 {
@@ -34,13 +29,11 @@ namespace Grand.Web.Admin.Services
         private readonly IPictureService _pictureService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductCourseService _productCourseService;
         private readonly IDownloadService _downloadService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IStoreService _storeService;
+        private readonly IProductService _productService;
+        private readonly IVendorService _vendorService;
         private readonly SeoSettings _seoSettings;
 
         public CourseViewModelService(
@@ -52,12 +45,11 @@ namespace Grand.Web.Admin.Services
             IPictureService pictureService, 
             ILanguageService languageService,
             ITranslationService translationService, 
-            ICustomerActivityService customerActivityService, 
             IProductCourseService productCourseService,
             IDownloadService downloadService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
-            IServiceProvider serviceProvider,
+            IProductService productService,
+            IStoreService storeService, 
+            IVendorService vendorService,
             SeoSettings seoSettings)
         {
             _courseService = courseService;
@@ -68,13 +60,12 @@ namespace Grand.Web.Admin.Services
             _pictureService = pictureService;
             _languageService = languageService;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _productCourseService = productCourseService;
             _downloadService = downloadService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
-            _serviceProvider = serviceProvider;
+            _productService = productService;
             _seoSettings = seoSettings;
+            _storeService = storeService;
+            _vendorService = vendorService;
         }
 
         public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
@@ -95,8 +86,7 @@ namespace Grand.Web.Admin.Services
             }
             if (!string.IsNullOrEmpty(model.ProductId))
             {
-                var productService = _serviceProvider.GetRequiredService<IProductService>();
-                model.ProductName = (await productService.GetProductById(model.ProductId))?.Name;
+                model.ProductName = (await _productService.GetProductById(model.ProductId))?.Name;
             }
             return model;
         }
@@ -122,12 +112,6 @@ namespace Grand.Web.Admin.Services
             //course on the product 
             if (!string.IsNullOrEmpty(course.ProductId))
                 await _productCourseService.UpdateCourseOnProduct(course.ProductId, course.Id);
-
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCourse", course.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCourse"), course.Name);
 
             return course;
         }
@@ -163,21 +147,12 @@ namespace Grand.Web.Admin.Services
 
             if (!string.IsNullOrEmpty(course.ProductId))
                 await _productCourseService.UpdateCourseOnProduct(course.ProductId, course.Id);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCourse", course.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditCourse"), course.Name);
-
+            
             return course;
         }
         public virtual async Task DeleteCourse(Course course)
         {
             await _courseService.Delete(course);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCourse", course.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteCourse"), course.Name);
         }
 
         public virtual async Task<CourseLessonModel> PrepareCourseLessonModel(string courseId, CourseLessonModel model = null)
@@ -205,10 +180,7 @@ namespace Grand.Web.Admin.Services
         {
             var lesson = model.ToEntity();
             await _courseLessonService.Insert(lesson);
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCourseLesson", lesson.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCourseLesson"), lesson.Name);
+
             return lesson;
         }
 
@@ -245,11 +217,6 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(prevVideo);
             }
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditLessonCourse"), lesson.Name);
-
             return lesson;
         }
         public virtual async Task DeleteCourseLesson(CourseLesson lesson)
@@ -270,10 +237,6 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(prevAttachment);
             }
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteCourseLesson"), lesson.Name);
         }
 
         public virtual async Task<CourseModel.AssociateProductToCourseModel> PrepareAssociateProductToCourseModel()
@@ -281,14 +244,12 @@ namespace Grand.Web.Admin.Services
             var model = new CourseModel.AssociateProductToCourseModel();
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-            var storeService = _serviceProvider.GetRequiredService<IStoreService>();
-            foreach (var s in await storeService.GetAllStores())
+            foreach (var s in await _storeService.GetAllStores())
                 model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
             //vendors
             model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-            var vendorService = _serviceProvider.GetRequiredService<IVendorService>();
-            foreach (var v in await vendorService.GetAllVendors(showHidden: true))
+            foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
                 model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
             //product types
@@ -298,10 +259,8 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CourseModel.AssociateProductToCourseModel model, int pageIndex, int pageSize)
         {
-            var productService = _serviceProvider.GetRequiredService<IProductService>();
-            var dateTimeService = _serviceProvider.GetRequiredService<IDateTimeService>();
-            var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
+            var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
     }
 }

@@ -4,7 +4,6 @@ using Grand.Api.Extensions;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Seo;
@@ -18,7 +17,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly ICategoryService _categoryService;
         private readonly ISlugService _slugService;
         private readonly ILanguageService _languageService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IPictureService _pictureService;
         private readonly IWorkContext _workContext;
@@ -29,7 +27,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             ICategoryService categoryService,
             ISlugService slugService,
             ILanguageService languageService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IPictureService pictureService,
             IWorkContext workContext,
@@ -38,7 +35,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             _categoryService = categoryService;
             _slugService = slugService;
             _languageService = languageService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _pictureService = pictureService;
             _workContext = workContext;
@@ -58,7 +54,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             await _slugService.SaveSlug(category, request.Model.SeName, "");
             await _categoryService.UpdateCategory(category);
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)
@@ -71,8 +67,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
                 if (picture != null)
                     await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(category.Name));
             }
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCategory", category.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
             return category.ToModel();
         }
     }

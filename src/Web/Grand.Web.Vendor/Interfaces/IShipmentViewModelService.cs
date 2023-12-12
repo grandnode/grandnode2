@@ -10,7 +10,6 @@ namespace Grand.Web.Vendor.Interfaces
         Task<ShipmentModel> PrepareShipmentModel(Shipment shipment, bool prepareProducts, bool prepareShipmentEvent = false);
         Task<int> GetStockQty(Product product, string warehouseId);
         Task<int> GetReservedQty(Product product, string warehouseId);
-        Task LogShipment(string shipmentId, string message);
         Task<IList<ShipmentModel.ShipmentNote>> PrepareShipmentNotes(Shipment shipment);
         Task InsertShipmentNote(Shipment shipment, bool displayToCustomer, string message);
         Task DeleteShipmentNote(Shipment shipment, string id);

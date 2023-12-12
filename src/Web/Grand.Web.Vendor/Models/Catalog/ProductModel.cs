@@ -883,18 +883,6 @@ namespace Grand.Web.Vendor.Models.Catalog
 
             #endregion
         }
-        public class ActivityLogModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("Vendor.Catalog.Products.ActivityLog.ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-            [GrandResourceDisplayName("Vendor.Catalog.Products.ActivityLog.Comment")]
-            public string Comment { get; set; }
-            [GrandResourceDisplayName("Vendor.Catalog.Products.ActivityLog.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-            [GrandResourceDisplayName("Vendor.Catalog.Products.ActivityLog.Customer")]
-            public string CustomerId { get; set; }
-            public string CustomerEmail { get; set; }
-        }
         public class ProductAttributeValueLocalizedModel : ILocalizedModelLocal
         {
             public string LanguageId { get; set; }

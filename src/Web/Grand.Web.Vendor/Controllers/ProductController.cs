@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
@@ -40,7 +39,6 @@ namespace Grand.Web.Vendor.Controllers
         private readonly IAuctionService _auctionService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPermissionService _permissionService;
-        private readonly ICustomerActivityService _customerActivityService;
 
         #endregion
 
@@ -56,8 +54,7 @@ namespace Grand.Web.Vendor.Controllers
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             IDateTimeService dateTimeService,
-            IPermissionService permissionService,
-            ICustomerActivityService customerActivityService)
+            IPermissionService permissionService)
         {
             _productViewModelService = productViewModelService;
             _productService = productService;
@@ -69,7 +66,6 @@ namespace Grand.Web.Vendor.Controllers
             _auctionService = auctionService;
             _dateTimeService = dateTimeService;
             _permissionService = permissionService;
-            _customerActivityService = customerActivityService;
         }
 
         #endregion
@@ -151,12 +147,6 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 var product = await _productViewModelService.InsertProductModel(model);
-                //activity log
-                _ = _customerActivityService.InsertActivity("AddNewProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
-
-
                 Success(_translationService.GetResource("Vendor.Catalog.Products.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
             }
@@ -212,11 +202,6 @@ namespace Grand.Web.Vendor.Controllers
             {
                 product = await _productViewModelService.UpdateProductModel(product, model);
 
-                //activity log
-                _ = _customerActivityService.InsertActivity("EditProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
-
                 Success(_translationService.GetResource("Vendor.Catalog.Products.Updated"));
                 if (continueEditing)
                 {
@@ -247,12 +232,6 @@ namespace Grand.Web.Vendor.Controllers
             if (ModelState.IsValid)
             {
                 await _productViewModelService.DeleteProduct(product);
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("DeleteProduct", product.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
-
                 Success(_translationService.GetResource("Vendor.Catalog.Products.Deleted"));
                 return RedirectToAction("List");
             }
@@ -2402,29 +2381,6 @@ namespace Grand.Web.Vendor.Controllers
 
         #endregion
 
-        #region Activity log
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        [HttpPost]
-        public async Task<IActionResult> ListActivityLog(DataSourceRequest command, string productId)
-        {
-            var product = await _productService.GetProductById(productId);
-
-            var permission = await CheckAccessToProduct(product);
-            if (!permission.allow)
-                return ErrorForKendoGridJson(permission.message);
-
-            var (activityLogModels, totalCount) =
-                await _productViewModelService.PrepareActivityLogModel(productId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult {
-                Data = activityLogModels.ToList(),
-                Total = totalCount
-            };
-            return Json(gridModel);
-        }
-
-        #endregion
-
         #region Reservation
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -2702,10 +2658,6 @@ namespace Grand.Web.Vendor.Controllers
             {
                 if (string.IsNullOrEmpty(toDelete.OrderId))
                 {
-                    //activity log
-                    _ = _customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId,
-                        _workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
-                        _translationService.GetResource("ActivityLog.DeleteBid"), product.Name);
                     //delete bid
                     await _auctionService.DeleteBid(toDelete);
                     return Json("");

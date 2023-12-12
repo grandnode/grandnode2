@@ -2,7 +2,6 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -24,7 +23,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IProductService _productService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly SeoSettings _seoSettings;
@@ -37,7 +35,6 @@ namespace Grand.Web.Admin.Controllers
             ISpecificationAttributeService specificationAttributeService,
             ILanguageService languageService,
             ITranslationService translationService,
-            ICustomerActivityService customerActivityService,
             IWorkContext workContext,
             IGroupService groupService,
             IProductService productService,
@@ -46,7 +43,6 @@ namespace Grand.Web.Admin.Controllers
             _specificationAttributeService = specificationAttributeService;
             _languageService = languageService;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _workContext = workContext;
             _groupService = groupService;
             _productService = productService;
@@ -100,10 +96,7 @@ namespace Grand.Web.Admin.Controllers
                     model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
-                //activity log
-                _ = _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
+
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = specificationAttribute.Id }) : RedirectToAction("List");
             }
@@ -149,10 +142,6 @@ namespace Grand.Web.Admin.Controllers
                     model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
                 }
                 await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
-                //activity log
-                _ = _customerActivityService.InsertActivity("EditSpecAttribute", specificationAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
 
@@ -187,11 +176,6 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _specificationAttributeService.DeleteSpecificationAttribute(specificationAttribute);
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.DeleteSpecAttribute"), specificationAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Deleted"));
                 return RedirectToAction("List");

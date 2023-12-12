@@ -11,13 +11,11 @@ using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Shipping;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Web.Admin.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -41,7 +39,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly IStoreService _storeService;
         private readonly IGroupService _groupService;
-        private readonly IWorkContext _workContext;
+
         #endregion
 
         #region Constructors
@@ -57,8 +55,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             ILanguageService languageService,
             IStoreService storeService,
-            IGroupService groupService,
-            IWorkContext workContext)
+            IGroupService groupService)
         {
             _shippingService = shippingService;
             _shippingMethodService = shippingMethodService;
@@ -71,7 +68,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _storeService = storeService;
             _groupService = groupService;
-            _workContext = workContext;
         }
 
         #endregion
@@ -335,8 +331,7 @@ namespace Grand.Web.Admin.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Settings(ShippingSettingsModel model, 
-            [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Settings(ShippingSettingsModel model)
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
@@ -344,11 +339,6 @@ namespace Grand.Web.Admin.Controllers
             shippingSettings = model.ToEntity(shippingSettings);
 
             await _settingService.SaveSetting(shippingSettings, storeScope);
-
-            //activity log
-            _ = customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");

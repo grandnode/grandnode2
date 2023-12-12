@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -31,7 +30,6 @@ namespace Grand.Web.Controllers
         private readonly IAclService _aclService;
         private readonly ITranslationService _translationService;
         private readonly IMessageProviderService _messageProviderService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPermissionService _permissionService;
         private readonly CustomerSettings _customerSettings;
@@ -46,7 +44,6 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             ITranslationService translationService,
             IMessageProviderService messageProviderService,
-            ICustomerActivityService customerActivityService,
             IDateTimeService dateTimeService,
             IPermissionService permissionService,
             CustomerSettings customerSettings,
@@ -62,7 +59,6 @@ namespace Grand.Web.Controllers
             _captchaSettings = captchaSettings;
             _languageSettings = languageSettings;
             _messageProviderService = messageProviderService;
-            _customerActivityService = customerActivityService;
             _dateTimeService = dateTimeService;
             _customerSettings = customerSettings;
             _permissionService = permissionService;
@@ -284,11 +280,6 @@ namespace Grand.Web.Controllers
                 //notify a store owner
                 if (_knowledgebaseSettings.NotifyAboutNewArticleComments)
                     await _messageProviderService.SendArticleCommentMessage(article, comment, _languageSettings.DefaultAdminLanguageId);
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("PublicStore.AddArticleComment", comment.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.PublicStore.AddArticleComment"));
 
                 //The text boxes should be cleared after a comment has been posted
                 //That' why we reload the page

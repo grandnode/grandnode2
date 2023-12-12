@@ -462,25 +462,6 @@ namespace Grand.Web.Admin.Controllers
         }
         #endregion
 
-        #region Activity log
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        [HttpPost]
-        public async Task<IActionResult> ListActivityLog(DataSourceRequest command, string collectionId)
-        {
-            var collection = await _collectionService.GetCollectionById(collectionId);
-            var permission = await CheckAccessToCollection(collection);
-            if (!permission.allow)
-                return ErrorForKendoGridJson(permission.message);
-
-            var (activityLogModels, totalCount) = await _collectionViewModelService.PrepareActivityLogModel(collectionId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult {
-                Data = activityLogModels.ToList(),
-                Total = totalCount
-            };
-            return Json(gridModel);
-        }
-        #endregion
     }
 
 }

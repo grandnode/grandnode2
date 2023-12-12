@@ -2,7 +2,6 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Seo;
@@ -13,7 +12,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
@@ -23,12 +21,9 @@ namespace Grand.Web.Admin.Services
         private readonly IPageService _pageService;
         private readonly ISlugService _slugService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IStoreService _storeService;
         private readonly ILanguageService _languageService;
         private readonly IDateTimeService _dateTimeService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly SeoSettings _seoSettings;
 
         public PageViewModelService(
@@ -36,24 +31,18 @@ namespace Grand.Web.Admin.Services
             IPageService pageService, 
             ISlugService slugService, 
             ITranslationService translationService,
-            ICustomerActivityService customerActivityService, 
             IStoreService storeService, 
             ILanguageService languageService, 
             IDateTimeService dateTimeService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
             SeoSettings seoSettings)
         {
             _pageLayoutService = pageLayoutService;
             _pageService = pageService;
             _slugService = slugService;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _storeService = storeService;
             _languageService = languageService;
             _dateTimeService = dateTimeService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
             _seoSettings = seoSettings;
         }
 
@@ -97,11 +86,6 @@ namespace Grand.Web.Admin.Services
             page.SeName = model.SeName;
             await _pageService.UpdatePage(page);
             await _slugService.SaveSlug(page, model.SeName, "");
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewPage", page.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewPage"), page.Title ?? page.SystemName);
             return page;
         }
         public virtual async Task<Page> UpdatePageModel(Page page, PageModel model)
@@ -118,20 +102,11 @@ namespace Grand.Web.Admin.Services
 
             //search engine name
             await _slugService.SaveSlug(page, model.SeName, "");
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditPage", page.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditPage"), page.Title ?? page.SystemName);
-
             return page;
         }
         public virtual async Task DeletePage(Page page)
         {
             await _pageService.DeletePage(page);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeletePage", page.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeletePage"), page.Title ?? page.SystemName);
         }
     }
 }

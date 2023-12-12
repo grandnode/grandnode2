@@ -55,7 +55,6 @@
         public const string ShippingSettings = "ManageShippingSettings";
         public const string Currencies = "ManageCurrencies";
         public const string Measures = "ManageMeasures";
-        public const string ActivityLog = "ManageActivityLog";
         public const string Acl = "ManageACL";
         public const string EmailAccounts = "ManageEmailAccounts";
         public const string Stores = "ManageStores";

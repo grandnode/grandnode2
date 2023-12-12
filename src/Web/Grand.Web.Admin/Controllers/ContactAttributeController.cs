@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Web.Common.DataSource;
@@ -145,18 +144,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         public async Task<IActionResult> Delete(string id,
-            [FromServices] IWorkContext workContext,
-            [FromServices] ICustomerActivityService customerActivityService)
+            [FromServices] IWorkContext workContext)
         {
             if (ModelState.IsValid)
             {
                 var contactAttribute = await _contactAttributeService.GetContactAttributeById(id);
                 await _contactAttributeService.DeleteContactAttribute(contactAttribute);
-
-                //activity log
-                _ = customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id,
-                    workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ContactAttributes.Deleted"));
                 return RedirectToAction("List");

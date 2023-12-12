@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Storage;
@@ -22,7 +21,6 @@ namespace Grand.Web.Controllers
         private readonly IAclService _aclService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly ICourseService _courseService;
         private readonly ICourseLessonService _courseLessonService;
@@ -35,7 +33,6 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             IWorkContext workContext,
             IGroupService groupService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             ICourseService courseService,
             ICourseLessonService courseLessonService,
@@ -47,7 +44,6 @@ namespace Grand.Web.Controllers
             _aclService = aclService;
             _workContext = workContext;
             _groupService = groupService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _courseService = courseService;
             _courseLessonService = courseLessonService;
@@ -95,11 +91,6 @@ namespace Grand.Web.Controllers
             if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("Edit", "Course", new { id = course.Id, area = "Admin" }));
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.ViewCourse", course.Id,
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
-
             //model
             var model = await _mediator.Send(new GetCourse {
                 Course = course,
@@ -128,12 +119,7 @@ namespace Grand.Web.Controllers
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("EditLesson", "Course", new { id = lesson.Id, area = "Admin" }));
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
-
+            
             //model
             var model = await _mediator.Send(new GetLesson {
                 Course = course,

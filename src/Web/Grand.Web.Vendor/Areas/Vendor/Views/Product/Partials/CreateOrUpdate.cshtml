@@ -109,21 +109,14 @@
         </tabstrip-item>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
-            <tabstrip-item text="@Loc["Vendor.Catalog.Products.ActivityLog"]" tab-index="14">
-                <content>
-                    <div>
-                        <partial name="Partials/CreateOrUpdate.Activitylog" model="Model" />
-                    </div>
-                </content>
-            </tabstrip-item>
-            <tabstrip-item text="@Loc["Vendor.Catalog.Products.PurchasedWithOrders"]" tab-index="15" id="tab-purchased-product">
+            <tabstrip-item text="@Loc["Vendor.Catalog.Products.PurchasedWithOrders"]" tab-index="14" id="tab-purchased-product">
                 <content>
                     <div>
                         <partial name="Partials/CreateOrUpdate.PurchasedWithOrders" model="Model" />
                     </div>
                 </content>
             </tabstrip-item>
-            <tabstrip-item text="@Loc["Vendor.Catalog.Products.Reviews"]" tab-index="16">
+            <tabstrip-item text="@Loc["Vendor.Catalog.Products.Reviews"]" tab-index="15">
                 <content>
                     <div>
                         <partial name="Partials/CreateOrUpdate.Reviews" model="Model" />

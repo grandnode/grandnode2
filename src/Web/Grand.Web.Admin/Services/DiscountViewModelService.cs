@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -20,7 +19,6 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -31,7 +29,6 @@ namespace Grand.Web.Admin.Services
 
         private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ICurrencyService _currencyService;
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
@@ -43,7 +40,6 @@ namespace Grand.Web.Admin.Services
         private readonly IOrderService _orderService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IDateTimeService _dateTimeService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -54,7 +50,6 @@ namespace Grand.Web.Admin.Services
             ICurrencyService currencyService,
             ICategoryService categoryService,
             IProductService productService,
-            ICustomerActivityService customerActivityService,
             IWorkContext workContext,
             ICollectionService collectionService,
             IBrandService brandService,
@@ -62,15 +57,13 @@ namespace Grand.Web.Admin.Services
             IVendorService vendorService,
             IOrderService orderService,
             IPriceFormatter priceFormatter,
-            IDateTimeService dateTimeService,
-            IHttpContextAccessor httpContextAccessor)
+            IDateTimeService dateTimeService)
         {
             _discountService = discountService;
             _translationService = translationService;
             _currencyService = currencyService;
             _categoryService = categoryService;
             _productService = productService;
-            _customerActivityService = customerActivityService;
             _workContext = workContext;
             _collectionService = collectionService;
             _brandService = brandService;
@@ -79,7 +72,6 @@ namespace Grand.Web.Admin.Services
             _orderService = orderService;
             _priceFormatter = priceFormatter;
             _dateTimeService = dateTimeService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -174,10 +166,6 @@ namespace Grand.Web.Admin.Services
             var discount = model.ToEntity(_dateTimeService);
             await _discountService.InsertDiscount(discount);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewDiscount", discount.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewDiscount"), discount.Name);
             return discount;
         }
 
@@ -235,21 +223,12 @@ namespace Grand.Web.Admin.Services
                     break;
                 }
             }
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditDiscount", discount.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditDiscount"), discount.Name);
             return discount;
         }
 
         public virtual async Task DeleteDiscount(Discount discount)
         {
             await _discountService.DeleteDiscount(discount);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteDiscount", discount.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteDiscount"), discount.Name);
         }
 
         public virtual async Task InsertCouponCode(string discountId, string couponCode)
