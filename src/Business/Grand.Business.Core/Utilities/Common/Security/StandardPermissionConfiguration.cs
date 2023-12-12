@@ -77,14 +77,6 @@ namespace Grand.Business.Core.Utilities.Common.Security
                 PermissionActionName.Dimensions_List, PermissionActionName.Dimensions_Add, PermissionActionName.Dimensions_Edit, PermissionActionName.Dimensions_Delete
             }
         };
-        public static readonly Permission ManageActivityLog = new() 
-        { 
-            Name = "Manage Activity Log", 
-            SystemName = PermissionSystemName.ActivityLog,
-            Area = "Admin area",
-            Category = CategoryConfiguration, 
-            Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Delete } 
-        };
         public static readonly Permission ManageAcl = new() 
         { 
             Name = "Manage ACL", 

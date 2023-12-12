@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Web.Common.Extensions;
@@ -34,7 +33,6 @@ namespace Grand.Web.Vendor.Services
         private readonly ITranslationService _translationService;
         private readonly IMessageProviderService _messageProviderService;
         private readonly LanguageSettings _languageSettings;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly AddressSettings _addressSettings;
@@ -54,7 +52,6 @@ namespace Grand.Web.Vendor.Services
             ICustomerService customerService, IDateTimeService dateTimeService,
             ITranslationService translationService,
             IMessageProviderService messageProviderService, LanguageSettings languageSettings,
-            ICustomerActivityService customerActivityService,
             IMerchandiseReturnService merchandiseReturnService,
             IPriceFormatter priceFormatter,
             AddressSettings addressSettings,
@@ -72,7 +69,6 @@ namespace Grand.Web.Vendor.Services
             _translationService = translationService;
             _messageProviderService = messageProviderService;
             _languageSettings = languageSettings;
-            _customerActivityService = customerActivityService;
             _merchandiseReturnService = merchandiseReturnService;
             _priceFormatter = priceFormatter;
             _addressSettings = addressSettings;
@@ -277,11 +273,6 @@ namespace Grand.Web.Vendor.Services
             }
             merchandiseReturn.NotifyCustomer = model.NotifyCustomer;
             await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditMerchandiseReturn", merchandiseReturn.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditMerchandiseReturn"), merchandiseReturn.Id);
-
             if (model.NotifyCustomer)
                 await NotifyCustomer(merchandiseReturn);
             return merchandiseReturn;
@@ -289,10 +280,6 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)
         {
             await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteMerchandiseReturn", merchandiseReturn.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteMerchandiseReturn"), merchandiseReturn.Id);
         }
 
         public virtual async Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(MerchandiseReturn merchandiseReturn)

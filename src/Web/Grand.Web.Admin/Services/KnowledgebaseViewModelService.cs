@@ -1,57 +1,35 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
     public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     {
-        private readonly ITranslationService _translationService;
         private readonly IKnowledgebaseService _knowledgebaseService;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ICustomerService _customerService;
-        private readonly IDateTimeService _dateTimeService;
         private readonly ISlugService _slugService;
         private readonly ILanguageService _languageService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly SeoSettings _seoSettings;
 
-        public KnowledgebaseViewModelService(ITranslationService translationService,
+        public KnowledgebaseViewModelService(
             IKnowledgebaseService knowledgebaseService, 
-            ICustomerActivityService customerActivityService,
-            ICustomerService customerService, 
-            IDateTimeService dateTimeService, 
             ISlugService slugService,
             ILanguageService languageService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
             SeoSettings seoSettings)
         {
-            _translationService = translationService;
             _knowledgebaseService = knowledgebaseService;
-            _customerActivityService = customerActivityService;
-            _customerService = customerService;
-            _dateTimeService = dateTimeService;
             _slugService = slugService;
             _languageService = languageService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
             _seoSettings = seoSettings;
         }
 
@@ -141,46 +119,7 @@ namespace Grand.Web.Admin.Services
                 Id = x.Id
             }), articles.TotalCount);
         }
-        public virtual async Task<(IEnumerable<KnowledgebaseCategoryModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareCategoryActivityLogModels(string categoryId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetKnowledgebaseCategoryActivities(null, null, categoryId, pageIndex - 1, pageSize);
-            var items = new List<KnowledgebaseCategoryModel.ActivityLogModel>();
-            foreach (var x in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(x.CustomerId);
-                var m = new KnowledgebaseCategoryModel.ActivityLogModel
-                {
-                    Id = x.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
-                    Comment = x.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerId = x.CustomerId,
-                    CustomerEmail = customer != null ? customer.Email : "null"
-                };
-                items.Add(m);
-            }
-            return (items, activityLog.TotalCount);
-        }
-        public virtual async Task<(IEnumerable<KnowledgebaseArticleModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareArticleActivityLogModels(string articleId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetKnowledgebaseArticleActivities(null, null, articleId, pageIndex - 1, pageSize);
-            var items = new List<KnowledgebaseArticleModel.ActivityLogModel>();
-            foreach (var x in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(x.CustomerId);
-                var m = new KnowledgebaseArticleModel.ActivityLogModel
-                {
-                    Id = x.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
-                    Comment = x.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerId = x.CustomerId,
-                    CustomerEmail = customer != null ? customer.Email : "null"
-                };
-                items.Add(m);
-            }
-            return (items, activityLog.TotalCount);
-        }
+        
         public virtual async Task<KnowledgebaseCategoryModel> PrepareKnowledgebaseCategoryModel()
         {
             var model = new KnowledgebaseCategoryModel {
@@ -200,9 +139,6 @@ namespace Grand.Web.Admin.Services
             knowledgebaseCategory.SeName = model.SeName;
             await _knowledgebaseService.InsertKnowledgebaseCategory(knowledgebaseCategory);
             await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
-            _ = _customerActivityService.InsertActivity("CreateKnowledgebaseCategory", knowledgebaseCategory.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.CreateKnowledgebaseCategory"), knowledgebaseCategory.Name);
 
             return knowledgebaseCategory;
         }
@@ -215,18 +151,12 @@ namespace Grand.Web.Admin.Services
             knowledgebaseCategory.SeName = model.SeName;
             await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
             await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
-            _ = _customerActivityService.InsertActivity("UpdateKnowledgebaseCategory", knowledgebaseCategory.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.UpdateKnowledgebaseCategory"), knowledgebaseCategory.Name);
 
             return knowledgebaseCategory;
         }
         public virtual async Task DeleteKnowledgebaseCategoryModel(KnowledgebaseCategory knowledgebaseCategory)
         {
             await _knowledgebaseService.DeleteKnowledgebaseCategory(knowledgebaseCategory);
-            _ = _customerActivityService.InsertActivity("DeleteKnowledgebaseCategory", knowledgebaseCategory.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteKnowledgebaseCategory"), knowledgebaseCategory.Name);
         }
         public virtual async Task<KnowledgebaseArticleModel> PrepareKnowledgebaseArticleModel()
         {
@@ -249,9 +179,6 @@ namespace Grand.Web.Admin.Services
             knowledgebaseArticle.AllowComments = model.AllowComments;
             await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
             await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
-            _ = _customerActivityService.InsertActivity("CreateKnowledgebaseArticle", knowledgebaseArticle.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.CreateKnowledgebaseArticle"), knowledgebaseArticle.Name);
 
             return knowledgebaseArticle;
         }
@@ -265,18 +192,12 @@ namespace Grand.Web.Admin.Services
             knowledgebaseArticle.AllowComments = model.AllowComments;
             await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
             await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
-            _ = _customerActivityService.InsertActivity("UpdateKnowledgebaseArticle", knowledgebaseArticle.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.UpdateKnowledgebaseArticle"), knowledgebaseArticle.Name);
 
             return knowledgebaseArticle;
         }
         public virtual async Task DeleteKnowledgebaseArticle(KnowledgebaseArticle knowledgebaseArticle)
         {
             await _knowledgebaseService.DeleteKnowledgebaseArticle(knowledgebaseArticle);
-            _ = _customerActivityService.InsertActivity("DeleteKnowledgebaseArticle", knowledgebaseArticle.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteKnowledgebaseArticle"), knowledgebaseArticle.Name);
         }
         public virtual async Task InsertKnowledgebaseRelatedArticle(KnowledgebaseArticleModel.AddRelatedArticleModel model)
         {

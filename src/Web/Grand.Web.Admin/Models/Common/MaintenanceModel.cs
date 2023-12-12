@@ -19,8 +19,6 @@ namespace Grand.Web.Admin.Models.Common
         public DeleteExportedFilesModel DeleteExportedFiles { get; set; }
         public ConvertPictureModel ConvertedPictureModel { get; set; }
 
-        public bool DeleteActivityLog { get; set; }
-
         #region Nested classes
 
         public class DeleteGuestsModel : BaseModel

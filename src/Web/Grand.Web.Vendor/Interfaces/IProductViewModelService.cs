@@ -59,7 +59,6 @@ namespace Grand.Web.Vendor.Interfaces
         //tier-prices
         Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
         Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex, int pageSize);
-        Task<(IEnumerable<ProductModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string productId, int pageIndex, int pageSize);
         Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(Product product);
         Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model);
         Task<IList<ProductModel.ProductAttributeMappingModel>> PrepareProductAttributeMappingModels(Product product);

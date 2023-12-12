@@ -2,9 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -12,13 +10,11 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -31,17 +27,11 @@ namespace Grand.Web.Admin.Services
         private readonly IDiscountService _discountService;
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
-        private readonly ICustomerService _customerService;
         private readonly ISlugService _slugService;
         private readonly IPictureService _pictureService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductService _productService;
         private readonly IVendorService _vendorService;
-        private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private readonly CatalogSettings _catalogSettings;
         private readonly SeoSettings _seoSettings;
 
@@ -52,16 +42,11 @@ namespace Grand.Web.Admin.Services
             IDiscountService discountService,
             ITranslationService translationService, 
             IStoreService storeService, 
-            ICustomerService customerService, 
             IPictureService pictureService,
             ISlugService slugService, 
-            ICustomerActivityService customerActivityService, 
             IProductService productService,
             IVendorService vendorService, 
-            IDateTimeService dateTimeService, 
             ILanguageService languageService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor,
             CatalogSettings catalogSettings, 
             SeoSettings seoSettings)
         {
@@ -71,17 +56,12 @@ namespace Grand.Web.Admin.Services
             _discountService = discountService;
             _translationService = translationService;
             _storeService = storeService;
-            _customerService = customerService;
             _slugService = slugService;
-            _customerActivityService = customerActivityService;
             _productService = productService;
             _pictureService = pictureService;
             _vendorService = vendorService;
             _languageService = languageService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
             _catalogSettings = catalogSettings;
-            _dateTimeService = dateTimeService;
             _seoSettings = seoSettings;
         }
 
@@ -107,7 +87,7 @@ namespace Grand.Web.Admin.Services
 
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToCategories, storeId: storeId, showHidden: true))
-                .Select(d => d.ToModel(_dateTimeService))
+                .Select(d => d.ToModel())
                 .ToList();
 
             if (!excludeProperties && category != null)
@@ -205,12 +185,7 @@ namespace Grand.Web.Admin.Services
 
             //update picture seo file name
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
-
+            
             return category;
         }
 
@@ -255,19 +230,11 @@ namespace Grand.Web.Admin.Services
             //update picture seo file name
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
             return category;
         }
         public virtual async Task DeleteCategory(Category category)
         {
             await _categoryService.DeleteCategory(category);
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCategory", category.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
         }
 
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
@@ -353,29 +320,10 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
-        public virtual async Task<(IEnumerable<CategoryModel.ActivityLogModel> activityLogModel, int totalCount)> PrepareActivityLogModel(string categoryId, int pageIndex, int pageSize)
-        {
-            var activityLog = await _customerActivityService.GetCategoryActivities(null, null, categoryId, pageIndex - 1, pageSize);
-            var activityLogModelList = new List<CategoryModel.ActivityLogModel>();
-            foreach (var item in activityLog)
-            {
-                var customer = await _customerService.GetCustomerById(item.CustomerId);
-                var m = new CategoryModel.ActivityLogModel {
-                    Id = item.Id,
-                    ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(item.ActivityLogTypeId))?.Name,
-                    Comment = item.Comment,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerId = item.CustomerId,
-                    CustomerEmail = customer != null ? customer.Email : "null"
-                };
-                activityLogModelList.Add(m);
-            }
-            return (activityLogModelList, activityLog.TotalCount);
-        }
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CategoryModel.AddCategoryProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
     }
 }

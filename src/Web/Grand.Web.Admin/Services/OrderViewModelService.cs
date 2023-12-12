@@ -11,7 +11,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -30,7 +29,6 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.Extensions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
@@ -68,7 +66,6 @@ namespace Grand.Web.Admin.Services
         private readonly ITaxService _taxService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly ICustomerService _customerService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IWarehouseService _warehouseService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -110,7 +107,6 @@ namespace Grand.Web.Admin.Services
             ITaxService taxService,
             IMerchandiseReturnService merchandiseReturnService,
             ICustomerService customerService,
-            ICustomerActivityService customerActivityService,
             IWarehouseService warehouseService,
             IServiceProvider serviceProvider,
             IShoppingCartValidator shoppingCartValidator,
@@ -147,7 +143,6 @@ namespace Grand.Web.Admin.Services
             _pictureService = pictureService;
             _taxService = taxService;
             _merchandiseReturnService = merchandiseReturnService;
-            _customerActivityService = customerActivityService;
             _warehouseService = warehouseService;
             _serviceProvider = serviceProvider;
             _shoppingCartValidator = shoppingCartValidator;
@@ -1049,15 +1044,6 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual Task LogEditOrder(string orderId)
-        {
-            var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            _ = _customerActivityService.InsertActivity("EditOrder", orderId,
-                _workContext.CurrentCustomer, httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditOrder"), orderId);
-            return Task.CompletedTask;
-        }
-
         public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model,
             List<CustomAttribute> customAttributes)
         {
@@ -1072,7 +1058,6 @@ namespace Grand.Web.Admin.Services
                 CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
-            _ = LogEditOrder(order.Id);
             return address;
         }
 
@@ -1240,7 +1225,6 @@ namespace Grand.Web.Admin.Services
                 await _mediator.Send(new InsertOrderItemCommand
                     { Order = order, OrderItem = orderItem, Product = product });
 
-                _ = LogEditOrder(order.Id);
             }
 
             return warnings;

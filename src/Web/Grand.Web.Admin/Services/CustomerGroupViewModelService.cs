@@ -1,18 +1,15 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -22,13 +19,9 @@ namespace Grand.Web.Admin.Services
         private readonly IGroupService _groupService;
         private readonly ICustomerGroupProductService _customerGroupProductService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductService _productService;
         private readonly IStoreService _storeService;
         private readonly IVendorService _vendorService;
-        private readonly IDateTimeService _dateTimeService;
-        private readonly IWorkContext _workContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #region Constructors
 
@@ -36,24 +29,16 @@ namespace Grand.Web.Admin.Services
             IGroupService groupService,
             ICustomerGroupProductService customerGroupProductService,
             ITranslationService translationService,
-            ICustomerActivityService customerActivityService,
             IProductService productService,
             IStoreService storeService,
-            IVendorService vendorService,
-            IDateTimeService dateTimeService,
-            IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor)
+            IVendorService vendorService)
         {
             _groupService = groupService;
             _customerGroupProductService = customerGroupProductService;
             _translationService = translationService;
-            _customerActivityService = customerActivityService;
             _productService = productService;
             _storeService = storeService;
             _vendorService = vendorService;
-            _dateTimeService = dateTimeService;
-            _workContext = workContext;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -77,31 +62,17 @@ namespace Grand.Web.Admin.Services
         {
             var customerGroup = model.ToEntity();
             await _groupService.InsertCustomerGroup(customerGroup);
-            //activity log
-            _ = _customerActivityService.InsertActivity("AddNewCustomerGroup", customerGroup.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.AddNewCustomerGroup"), customerGroup.Name);
             return customerGroup;
         }
         public virtual async Task<CustomerGroup> UpdateCustomerGroupModel(CustomerGroup customerGroup, CustomerGroupModel model)
         {
             customerGroup = model.ToEntity(customerGroup);
             await _groupService.UpdateCustomerGroup(customerGroup);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
             return customerGroup;
         }
         public virtual async Task DeleteCustomerGroup(CustomerGroup customerGroup)
         {
             await _groupService.DeleteCustomerGroup(customerGroup);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
         }
         public virtual async Task<IList<CustomerGroupProductModel>> PrepareCustomerGroupProductModel(string customerGroupId)
         {
@@ -145,7 +116,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(CustomerGroupProductModel.AddProductModel model, int pageIndex, int pageSize)
         {
             var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId, model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId, model.SearchProductName, pageIndex, pageSize);
-            return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+            return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
         }
         public virtual async Task InsertProductModel(CustomerGroupProductModel.AddProductModel model)
         {

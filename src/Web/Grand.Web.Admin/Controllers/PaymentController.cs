@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
@@ -232,8 +231,7 @@ namespace Grand.Web.Admin.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Settings(PaymentSettingsModel model,
-            [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Settings(PaymentSettingsModel model)
         {
             var storeScope = await GetActiveStore();
 
@@ -241,11 +239,6 @@ namespace Grand.Web.Admin.Controllers
             paymentSettings = model.ToEntity(paymentSettings);
 
             await _settingService.SaveSetting(paymentSettings, storeScope);
-
-            //activity log
-            _ = customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");

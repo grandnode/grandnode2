@@ -1,7 +1,6 @@
 ﻿using Grand.Api.Commands.Models.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using MediatR;
@@ -13,7 +12,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly IProductService _productService;
         private readonly IInventoryManageService _inventoryManageService;
         private readonly IStockQuantityService _stockQuantityService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
         private readonly IWorkContext _workContext;
@@ -22,7 +20,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             IProductService productService,
             IInventoryManageService inventoryManageService,
             IStockQuantityService stockQuantityService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IOutOfStockSubscriptionService outOfStockSubscriptionService,
             IWorkContext workContext)
@@ -30,7 +27,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             _productService = productService;
             _inventoryManageService = inventoryManageService;
             _stockQuantityService = stockQuantityService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
             _workContext = workContext;
@@ -80,10 +76,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
                     }
                 }
                 await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
-
-                //activity log
-                _ = _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
-
             }
             return true;
         }

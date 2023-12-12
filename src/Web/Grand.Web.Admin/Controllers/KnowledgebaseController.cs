@@ -55,35 +55,6 @@ namespace Grand.Web.Admin.Controllers
             return Json(gridModel);
         }
 
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        [HttpPost]
-        public async Task<IActionResult> ListCategoryActivityLog(DataSourceRequest command, string categoryId)
-        {
-            var (activityLogModels, totalCount) = await _knowledgebaseViewModelService.PrepareCategoryActivityLogModels(categoryId, command.Page, command.PageSize);
-
-            var gridModel = new DataSourceResult
-            {
-                Data = activityLogModels.ToList(),
-                Total = totalCount
-            };
-
-            return Json(gridModel);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        [HttpPost]
-        public async Task<IActionResult> ListArticleActivityLog(DataSourceRequest command, string articleId)
-        {
-            var (activityLogModels, totalCount) = await _knowledgebaseViewModelService.PrepareArticleActivityLogModels(articleId, command.Page, command.PageSize);
-
-            var gridModel = new DataSourceResult
-            {
-                Data = activityLogModels.ToList(),
-                Total = totalCount
-            };
-            return Json(gridModel);
-        }
-
         [PermissionAuthorizeAction(PermissionActionName.Create)]
         public async Task<IActionResult> CreateCategory()
         {

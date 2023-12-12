@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
@@ -14,7 +13,6 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -23,19 +21,16 @@ namespace Grand.Web.Admin.Services
     {
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
-        private readonly IGroupService _groupService;
         private readonly IProductService _productService;
         private readonly IShipmentService _shipmentService;
         private readonly IWarehouseService _warehouseService;
         private readonly IMeasureService _measureService;
         private readonly IDateTimeService _dateTimeService;
         private readonly ICountryService _countryService;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IDownloadService _downloadService;
         private readonly IShippingService _shippingService;
         private readonly IStockQuantityService _stockQuantityService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShippingProviderSettings _shippingProviderSettings;
@@ -43,38 +38,32 @@ namespace Grand.Web.Admin.Services
         public ShipmentViewModelService(
             IOrderService orderService,
             IWorkContext workContext,
-            IGroupService groupService,
             IProductService productService,
             IShipmentService shipmentService,
             IWarehouseService warehouseService,
             IMeasureService measureService,
             IDateTimeService dateTimeService,
             ICountryService countryService,
-            ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IDownloadService downloadService,
             IShippingService shippingService,
             IStockQuantityService stockQuantityService,
-            IHttpContextAccessor httpContextAccessor,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
             ShippingProviderSettings shippingProviderSettings)
         {
             _orderService = orderService;
             _workContext = workContext;
-            _groupService = groupService;
             _productService = productService;
             _shipmentService = shipmentService;
             _warehouseService = warehouseService;
             _measureService = measureService;
             _dateTimeService = dateTimeService;
             _countryService = countryService;
-            _customerActivityService = customerActivityService;
             _translationService = translationService;
             _downloadService = downloadService;
             _shippingService = shippingService;
             _stockQuantityService = stockQuantityService;
-            _httpContextAccessor = httpContextAccessor;
             _measureSettings = measureSettings;
             _shippingSettings = shippingSettings;
             _shippingProviderSettings = shippingProviderSettings;
@@ -291,14 +280,6 @@ namespace Grand.Web.Admin.Services
                 if (attachment != null)
                     await _downloadService.DeleteDownload(attachment);
             }
-        }
-
-        public virtual Task LogShipment(string shipmentId, string message)
-        {
-            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId,
-                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
-                message);
-            return Task.CompletedTask;
         }
 
         public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(

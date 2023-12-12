@@ -299,7 +299,6 @@ namespace Grand.Business.System.Services.Installation
                 OnlineCustomerMinutes = 20,
                 OnlineShoppingCartMinutes = 60,
                 StoreLastVisitedPage = true,
-                SaveVisitedPage = false,
                 AllowUsersToDeleteAccount = false,
                 AllowUsersToExportData = false,
                 TwoFactorAuthenticationEnabled = false

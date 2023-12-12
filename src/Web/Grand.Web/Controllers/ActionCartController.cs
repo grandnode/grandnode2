@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -34,7 +33,6 @@ namespace Grand.Web.Controllers
         private readonly ITranslationService _translationService;
         private readonly ICurrencyService _currencyService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IMediator _mediator;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -49,7 +47,6 @@ namespace Grand.Web.Controllers
             ITranslationService translationService,
             ICurrencyService currencyService,
             IShoppingCartValidator shoppingCartValidator,
-            ICustomerActivityService customerActivityService,
             IMediator mediator,
             ShoppingCartSettings shoppingCartSettings)
         {
@@ -60,7 +57,6 @@ namespace Grand.Web.Controllers
             _translationService = translationService;
             _currencyService = currencyService;
             _shoppingCartValidator = shoppingCartValidator;
-            _customerActivityService = customerActivityService;
             _mediator = mediator;
             _shoppingCartSettings = shoppingCartSettings;
         }
@@ -265,11 +261,6 @@ namespace Grand.Web.Controllers
             {
                 case ShoppingCartType.Wishlist:
                     {
-                        //activity log
-                        _ = _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id,
-                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                            _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
-
                         if (_shoppingCartSettings.DisplayWishlistAfterAddingProduct || model.ForceRedirection)
                         {
                             //redirect to the wishlist page
@@ -295,11 +286,6 @@ namespace Grand.Web.Controllers
                 case ShoppingCartType.ShoppingCart:
                 default:
                     {
-                        //activity log
-                        _ = _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id,
-                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                            _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
-
                         if (_shoppingCartSettings.DisplayCartAfterAddingProduct || model.ForceRedirection)
                         {
                             //redirect to the shopping cart page
@@ -486,11 +472,6 @@ namespace Grand.Web.Controllers
             {
                 case ShoppingCartType.Wishlist:
                     {
-                        //activity log
-                        _ = _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id,
-                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                            _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
-
                         if (_shoppingCartSettings.DisplayWishlistAfterAddingProduct)
                         {
                             //redirect to the wishlist page
@@ -516,11 +497,6 @@ namespace Grand.Web.Controllers
                 case ShoppingCartType.ShoppingCart:
                 default:
                     {
-                        //activity log
-                        _ = _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id,
-                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                            _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
-
                         if (_shoppingCartSettings.DisplayCartAfterAddingProduct)
                         {
                             //redirect to the shopping cart page
@@ -852,14 +828,8 @@ namespace Grand.Web.Controllers
                     message = toReturn
                 });
             }
-
             //insert new bid
             await auctionService.NewBid(customer, product, _workContext.CurrentStore, _workContext.WorkingLanguage, warehouseId, bid);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.AddNewBid", product.Id,
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.AddToBid"), product.Name);
 
             var addtoCartModel = await _mediator.Send(new GetAddToCart {
                 Product = product,

@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
@@ -237,8 +236,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
 
-                _ = _orderViewModelService.LogEditOrder(order.Id);
-
                 Success("Successfully canceled order");
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -267,7 +264,7 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 await _orderViewModelService.SaveOrderTags(order, orderModel.OrderTags);
-                _ = _orderViewModelService.LogEditOrder(order.Id);
+
                 var model = new OrderModel();
                 await _orderViewModelService.PrepareOrderDetailsModel(model, order);
                 return RedirectToAction("Edit", "Order", new { id = order.Id });
@@ -312,7 +309,6 @@ namespace Grand.Web.Admin.Controllers
                     OrderId = order.Id
 
                 });
-                _ = _orderViewModelService.LogEditOrder(order.Id);
                 model = new OrderModel();
                 await _orderViewModelService.PrepareOrderDetailsModel(model, order);
                 return RedirectToAction("Edit", "Order", new { id });
@@ -350,8 +346,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(OrderDeleteModel model,
-            [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Delete(OrderDeleteModel model)
         {
             var order = await _orderService.GetOrderById(model.Id);
             if (order == null || await CheckSalesManager(order))
@@ -361,9 +356,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _mediator.Send(new DeleteOrderCommand { Order = order });
-                _ = customerActivityService.InsertActivity("DeleteOrder", model.Id,
-                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                    _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
+
                 return RedirectToAction("List");
             }
             Error(ModelState);
@@ -374,7 +367,6 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteSelected(
             ICollection<string> selectedIds,
-            [FromServices] ICustomerActivityService customerActivityService,
             [FromServices] IShipmentService shipmentService)
         {
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -394,9 +386,6 @@ namespace Grand.Web.Admin.Controllers
                     if (!shipments.Any())
                     {
                         await _mediator.Send(new DeleteOrderCommand { Order = order });
-                        _ = customerActivityService.InsertActivity("DeleteOrder", order.Id,
-                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                            _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
                     }
                 }
             }
@@ -517,7 +506,6 @@ namespace Grand.Web.Admin.Controllers
                 OrderId = order.Id
             });
 
-            _ = _orderViewModelService.LogEditOrder(order.Id);
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
             return RedirectToAction("Edit", "Order", new { id });
         }
@@ -546,7 +534,6 @@ namespace Grand.Web.Admin.Controllers
                 CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
-            _ = _orderViewModelService.LogEditOrder(order.Id);
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
@@ -571,7 +558,6 @@ namespace Grand.Web.Admin.Controllers
             order.UserFields = model.UserFields;
 
             await _orderService.UpdateOrder(order);
-            _ = _orderViewModelService.LogEditOrder(order.Id);
 
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
@@ -727,7 +713,6 @@ namespace Grand.Web.Admin.Controllers
 
             orderItem.DownloadCount = 0;
             await _orderService.UpdateOrder(order);
-            _ = _orderViewModelService.LogEditOrder(order.Id);
             var model = new OrderModel();
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
@@ -757,7 +742,6 @@ namespace Grand.Web.Admin.Controllers
             
             orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
             await _orderService.UpdateOrder(order);
-            _ = _orderViewModelService.LogEditOrder(order.Id);
             var model = new OrderModel();
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
@@ -823,7 +807,6 @@ namespace Grand.Web.Admin.Controllers
                 orderItem.LicenseDownloadId = null;
             await _orderService.UpdateOrder(order);
 
-            _ = _orderViewModelService.LogEditOrder(order.Id);
             //success
             ViewBag.RefreshPage = true;
 
@@ -851,8 +834,6 @@ namespace Grand.Web.Admin.Controllers
             //attach license
             orderItem.LicenseDownloadId = null;
             await _orderService.UpdateOrder(order);
-
-            _ = _orderViewModelService.LogEditOrder(order.Id);
 
             //success
             ViewBag.RefreshPage = true;

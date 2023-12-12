@@ -5,7 +5,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Models.Tax;
@@ -15,7 +14,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Admin.Models.Common;
 using Grand.Domain.Directory;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Extensions.Mapping.Settings;
 
@@ -27,7 +25,6 @@ namespace Grand.Web.Admin.Controllers
         #region Fields
 
         private readonly ITaxService _taxService;
-        private readonly IWorkContext _workContext;
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly ISettingService _settingService;
         private readonly IServiceProvider _serviceProvider;
@@ -40,7 +37,6 @@ namespace Grand.Web.Admin.Controllers
         #region Constructors
 
         public TaxController(ITaxService taxService,
-            IWorkContext workContext,
             ITaxCategoryService taxCategoryService,
             ISettingService settingService, 
             IServiceProvider serviceProvider,
@@ -49,7 +45,6 @@ namespace Grand.Web.Admin.Controllers
             ICountryService countryService)
         {
             _taxService = taxService;
-            _workContext = workContext;
             _taxCategoryService = taxCategoryService;
             _settingService = settingService;
             _serviceProvider = serviceProvider;
@@ -173,8 +168,7 @@ namespace Grand.Web.Admin.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Settings(TaxSettingsModel model, 
-            [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Settings(TaxSettingsModel model)
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
@@ -185,12 +179,7 @@ namespace Grand.Web.Admin.Controllers
 
             //now clear cache
             await ClearCache();
-
-            //activity log
-            _ = customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
-
+            
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");
         }

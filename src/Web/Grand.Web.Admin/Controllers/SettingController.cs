@@ -4,7 +4,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Admin;
@@ -53,7 +52,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IThemeProvider _themeProvider;
-        private readonly ICustomerActivityService _customerActivityService;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
@@ -71,7 +69,6 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IDateTimeService dateTimeService,
             IThemeProvider themeProvider,
-            ICustomerActivityService customerActivityService,
             IWorkContext workContext,
             IMediator mediator,
             IMerchandiseReturnService merchandiseReturnService,
@@ -85,7 +82,6 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _dateTimeService = dateTimeService;
             _themeProvider = themeProvider;
-            _customerActivityService = customerActivityService;
             _workContext = workContext;
             _mediator = mediator;
             _merchandiseReturnService = merchandiseReturnService;
@@ -145,11 +141,6 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
-
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Content");
         }
@@ -178,11 +169,6 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
-
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Vendor");
         }
@@ -208,11 +194,6 @@ namespace Grand.Web.Admin.Controllers
 
             //now clear cache
             await ClearCache();
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -342,11 +323,6 @@ namespace Grand.Web.Admin.Controllers
 
             //now clear cache
             await ClearCache();
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Sales");
@@ -577,12 +553,6 @@ namespace Grand.Web.Admin.Controllers
 
             //clear old Thumbs
             await _pictureService.ClearThumbs();
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
-
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Media");
         }
@@ -616,11 +586,6 @@ namespace Grand.Web.Admin.Controllers
 
             //now clear cache
             await ClearCache();
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -753,11 +718,6 @@ namespace Grand.Web.Admin.Controllers
 
             //now clear cache
             await ClearCache();
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -958,11 +918,6 @@ namespace Grand.Web.Admin.Controllers
 
             //save picture
             await SavePictureStorage(storeIdDb);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("EditSettings", "",
-                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.EditSettings"));
 
             //now clear cache
             await ClearCache();

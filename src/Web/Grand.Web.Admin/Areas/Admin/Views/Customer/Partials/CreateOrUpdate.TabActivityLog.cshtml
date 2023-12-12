@@ -5,78 +5,8 @@
     var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
     var gridPageSizes = adminAreaSettings.GridPageSizes;
 
-    <strong>@Loc["Admin.Configuration.Activitylog"]</strong>
-    <div class="panel panel-default">
-        <vc:admin-widget widget-zone="customer_details_activity_log_top" additional-data="Model" />
-        <div class="panel-body">
-            <div id="activitylog-grid"></div>
-        </div>
-        <vc:admin-widget widget-zone="customer_details_activity_log_bottom" additional-data="Model" />
-    </div>
-
-    <script>
-        $(document).ready(function () {
-            $("#activitylog-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("ListActivityLog", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(defaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(gridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "ActivityLogTypeName",
-                    title: "@Loc["Admin.Customers.Customers.ActivityLog.ActivityLogType"]",
-                    width: 140,
-                }, {
-                    field: "Comment",
-                    title: "@Loc["Admin.Customers.Customers.ActivityLog.Comment"]",
-                    width: 250,
-                }, {
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.Customers.Customers.ActivityLog.CreatedOn"]",
-                    width: 120,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "IpAddress",
-                    title: "@Loc["Admin.Customers.Customers.ActivityLog.IpAddress"]",
-                    width: 50,
-                }]
-            });
-        });
-    </script>
-
     if (Model.ShowMessageContactForm)
     {
-        <br />
         <strong>@Loc["Admin.System.ContactForm"]</strong>
 
         <div class="panel panel-default">

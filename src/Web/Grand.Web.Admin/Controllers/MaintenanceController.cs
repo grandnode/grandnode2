@@ -75,9 +75,6 @@ namespace Grand.Web.Admin.Controllers
             if (TempData["NumberOfDeletedCustomers"] != null)
                 model.DeleteGuests.NumberOfDeletedCustomers = (int)TempData["NumberOfDeletedCustomers"];
 
-            if (TempData["DeleteActivityLog"] != null)
-                model.DeleteActivityLog = (bool)TempData["DeleteActivityLog"];
-
             if (TempData["NumberOfConvertItems"] != null)
             {
                 model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
@@ -112,15 +109,6 @@ namespace Grand.Web.Admin.Controllers
         public IActionResult MaintenanceDeleteFiles(MaintenanceModel model)
         {
             //TO DO
-            return RedirectToAction("Maintenance");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> MaintenanceDeleteActivitylog(MaintenanceModel model)
-        {
-            await _mediator.Send(new DeleteActivitylogCommand());
-            TempData["DeleteActivityLog"] = true;
             return RedirectToAction("Maintenance");
         }
 

@@ -220,7 +220,7 @@ namespace Grand.Business.Core.Utilities.System
                 new () {
                     SystemName = "Customers",
                     ResourceName = "Admin.Customers",
-                    PermissionNames = new List<string> { PermissionSystemName.Customers, PermissionSystemName.Vendors, PermissionSystemName.VendorReviews, PermissionSystemName.ActivityLog,
+                    PermissionNames = new List<string> { PermissionSystemName.Customers, PermissionSystemName.Vendors, PermissionSystemName.VendorReviews, 
                         PermissionSystemName.CustomerTags, PermissionSystemName.CustomerGroups, PermissionSystemName.SalesEmployees },
                     IconClass = "icon-users",
                     DisplayOrder = 3,
@@ -296,15 +296,6 @@ namespace Grand.Business.Core.Utilities.System
                             PermissionNames = new List<string> { PermissionSystemName.AddressAttributes },
                             DisplayOrder = 7,
                             IconClass = "fa fa-dot-circle-o"
-                        },
-                        new () {
-                            SystemName = "Activity Log",
-                            ResourceName = "Admin.Configuration.ActivityLog",
-                            PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
-                            ControllerName = "ActivityLog",
-                            ActionName = "ListLogs",
-                            DisplayOrder = 8,
-                            IconClass = "fa fa-arrow-circle-o-right"
                         }
                     }
                 },
@@ -562,7 +553,7 @@ namespace Grand.Business.Core.Utilities.System
                 new () {
                     SystemName = "Reports",
                     ResourceName = "Admin.Reports",
-                    PermissionNames = new List<string> { PermissionSystemName.Reports, PermissionSystemName.ActivityLog },
+                    PermissionNames = new List<string> { PermissionSystemName.Reports },
                     IconClass = "icon-bar-chart",
                     DisplayOrder = 6,
                     ChildNodes = new List<AdminSiteMap> {
@@ -612,16 +603,7 @@ namespace Grand.Business.Core.Utilities.System
                             ActionName = "Customer",
                             DisplayOrder = 4,
                             IconClass = "fa fa-dot-circle-o"
-                        },
-                        new () {
-                            SystemName = "Activity Stats",
-                            ResourceName = "Admin.Reports.ActivityLog.ActivityStats",
-                            PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
-                            ControllerName = "ActivityLog",
-                            ActionName = "ListStats",
-                            DisplayOrder = 5,
-                            IconClass = "fa fa-dot-circle-o"
-                         }
+                        }
                     }
                 },
                 new () {
@@ -630,7 +612,7 @@ namespace Grand.Business.Core.Utilities.System
                     PermissionNames = new List<string> { PermissionSystemName.Countries, PermissionSystemName.Languages, PermissionSystemName.Settings,
                         PermissionSystemName.PaymentMethods, PermissionSystemName.ExternalAuthenticationMethods,
                         PermissionSystemName.TaxSettings, PermissionSystemName.ShippingSettings, PermissionSystemName.Currencies, PermissionSystemName.Measures,
-                        PermissionSystemName.ActivityLog, PermissionSystemName.Acl, PermissionSystemName.EmailAccounts, PermissionSystemName.Plugins, PermissionSystemName.Widgets, PermissionSystemName.Stores, PermissionSystemName.Maintenance },
+                        PermissionSystemName.Acl, PermissionSystemName.EmailAccounts, PermissionSystemName.Plugins, PermissionSystemName.Widgets, PermissionSystemName.Stores, PermissionSystemName.Maintenance },
                     IconClass = "icon-settings",
                     DisplayOrder = 7,
                     ChildNodes = new List<AdminSiteMap> {
@@ -902,7 +884,7 @@ namespace Grand.Business.Core.Utilities.System
                 },
                 new () {
                     SystemName = "Settings",
-                    PermissionNames = new List<string> { PermissionSystemName.Settings, PermissionSystemName.ActivityLog },
+                    PermissionNames = new List<string> { PermissionSystemName.Settings },
                     ResourceName = "Admin.Settings",
                     IconClass = "icon-wrench",
                     DisplayOrder = 8,
@@ -985,15 +967,6 @@ namespace Grand.Business.Core.Utilities.System
                                     ControllerName = "Setting",
                                     ActionName = "SystemSetting",
                                     DisplayOrder = 9,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new () {
-                                    SystemName = "Activity Types",
-                                    ResourceName = "Admin.Settings.ActivityLog.ActivityLogType",
-                                    PermissionNames = new List<string> { PermissionSystemName.ActivityLog },
-                                    ControllerName = "ActivityLog",
-                                    ActionName = "ListTypes",
-                                    DisplayOrder = 10,
                                     IconClass = "fa fa-dot-circle-o"
                                 }
                     }
