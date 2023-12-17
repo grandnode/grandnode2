@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace Grand.Data.Tests.MongoDb
 {
-    public partial class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where T : BaseEntity
+    public class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where T : BaseEntity
     {
         public MongoDBRepositoryTest():base(DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName), new AuditInfoProvider())
         {
@@ -23,20 +23,5 @@ namespace Grand.Data.Tests.MongoDb
         }
     }
     
-    public class AuditInfoProvider : IAuditInfoProvider
-    {
-        public AuditInfoProvider()
-        {
-        }
-
-        public string GetCurrentUser()
-        {
-            return "user";
-        }
-
-        public DateTime GetCurrentDateTime()
-        {
-            return DateTime.UtcNow;
-        }
-    }
+    
 }

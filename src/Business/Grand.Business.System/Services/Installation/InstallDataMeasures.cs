@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallMeasures()
+        protected virtual Task InstallMeasures()
         {
             var measureDimensions = new List<MeasureDimension>
             {
@@ -86,6 +86,7 @@ namespace Grand.Business.System.Services.Installation
                 }
             };
             measureUnits.ForEach(x=>_measureUnitRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

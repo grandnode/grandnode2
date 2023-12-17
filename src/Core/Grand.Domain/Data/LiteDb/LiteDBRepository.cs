@@ -12,6 +12,8 @@ namespace Grand.Domain.Data.LiteDb
     {
         #region Fields
 
+        private readonly IAuditInfoProvider _auditInfoProvider;
+        
         /// <summary>
         /// Gets the collection
         /// </summary>
@@ -49,8 +51,9 @@ namespace Grand.Domain.Data.LiteDb
         /// <summary>
         /// Ctor
         /// </summary>        
-        public LiteDBRepository()
+        public LiteDBRepository(IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             var connection = DataSettingsManager.LoadSettings();
 
             if (!string.IsNullOrEmpty(connection.ConnectionString))
@@ -59,16 +62,18 @@ namespace Grand.Domain.Data.LiteDb
                 _collection = _database.GetCollection<T>(typeof(T).Name);
             }
         }
-        public LiteDBRepository(string connectionString)
+        public LiteDBRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             _database = new LiteDatabase(connectionString);
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
 
 
-        public LiteDBRepository(LiteDatabase database)
+        public LiteDBRepository(LiteDatabase database, IAuditInfoProvider auditInfoProvider)
         {
             _database = database;
+            _auditInfoProvider = auditInfoProvider;
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
 
@@ -101,6 +106,8 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="entity">Entity</param>
         public virtual T Insert(T entity)
         {
+            entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
             _collection.Insert(entity);
             return entity;
         }
@@ -121,6 +128,8 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="entity">Entity</param>
         public virtual T Update(T entity)
         {
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
             _collection.Update(entity);
             return entity;
 
@@ -148,6 +157,8 @@ namespace Grand.Domain.Data.LiteDb
             var entity = _database.GetCollection(typeof(T).Name).FindById(new(id));
             var bsonValue = BsonMapper.Global.Serialize<U>(value);
             entity[GetName(expression)] = bsonValue;
+            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
             _database.GetCollection(typeof(T).Name).Update(entity);
 
             return Task.CompletedTask;
@@ -221,6 +232,10 @@ namespace Grand.Domain.Data.LiteDb
 
                 propertyInfo?.SetValue(entity, item.Value);
             }
+            
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
+
             _collection.Update(entity);
             return Task.CompletedTask;
         }
@@ -245,6 +260,8 @@ namespace Grand.Domain.Data.LiteDb
                 var list = entity[fieldName].AsArray.ToList();
                 list.Add(bsonValue);
                 entity[fieldName] = new BsonArray(list);
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -283,6 +300,8 @@ namespace Grand.Domain.Data.LiteDb
                     document[key] = bsonValue[key];
                 }
                 entity[fieldName] = new BsonArray(list);
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
 
@@ -323,6 +342,9 @@ namespace Grand.Domain.Data.LiteDb
 
                 var updateList = BsonMapper.Global.Serialize<IList<U>>(list);
                 entity[fieldName] = updateList;
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -356,6 +378,8 @@ namespace Grand.Domain.Data.LiteDb
                         list.Add(bsonValue);
                         list.Remove(oldbsonValue);
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }
@@ -412,6 +436,8 @@ namespace Grand.Domain.Data.LiteDb
                             list.Remove(document);
                         }
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }
@@ -447,6 +473,8 @@ namespace Grand.Domain.Data.LiteDb
 
                 var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
                 entity[fieldName] = updatelist;
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -487,6 +515,8 @@ namespace Grand.Domain.Data.LiteDb
                     {
                         list.Remove(new BsonValue(element));
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }

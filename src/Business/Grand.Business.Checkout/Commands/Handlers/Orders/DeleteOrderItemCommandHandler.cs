@@ -86,9 +86,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //delete item
             request.Order.OrderItems.Remove(request.OrderItem);
-
-            await _orderService.DeleteOrderItem(request.OrderItem);
-
+            
             request.Order.OrderSubtotalExclTax -= request.OrderItem.PriceExclTax;
             request.Order.OrderSubtotalInclTax -= request.OrderItem.PriceInclTax;
             request.Order.OrderTax -= request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax;

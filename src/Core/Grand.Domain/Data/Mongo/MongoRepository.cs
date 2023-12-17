@@ -239,7 +239,6 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
             await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
@@ -265,7 +264,7 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
+            
             await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
@@ -293,8 +292,6 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
-
             if (string.IsNullOrEmpty(id))
             {
                 await _collection.UpdateManyAsync(filter, combinedUpdate);
@@ -330,7 +327,6 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
 
             await _collection.UpdateManyAsync(filter, combinedUpdate);
         }
@@ -356,7 +352,6 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
 
             if (string.IsNullOrEmpty(id))
             {
@@ -385,8 +380,7 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
-            
+
             await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
@@ -404,7 +398,6 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            //TODO - do sprawdzenia
 
             if (string.IsNullOrEmpty(id))
             {
