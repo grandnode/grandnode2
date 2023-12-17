@@ -13,7 +13,7 @@ namespace Grand.Domain.Data.Mongo
         #region Fields
 
         private readonly IAuditInfoProvider _auditInfoProvider;
-        
+
         /// <summary>
         /// Gets the collection
         /// </summary>
@@ -169,7 +169,7 @@ namespace Grand.Domain.Data.Mongo
             var filter = builder.Eq(x => x.Id, id);
             var update = Builders<T>.Update
                 .Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime())
-                .Set(x=>x.UpdatedBy, _auditInfoProvider.GetCurrentUser())
+                .Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser())
                 .Set(expression, value);
 
             await _collection.UpdateOneAsync(filter, update);
@@ -235,7 +235,7 @@ namespace Grand.Domain.Data.Mongo
             var builder = Builders<T>.Filter;
             var filter = builder.Eq(x => x.Id, id);
             var update = Builders<T>.Update.AddToSet(field, value);
-            
+
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
@@ -264,7 +264,7 @@ namespace Grand.Domain.Data.Mongo
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-            
+
             await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
@@ -288,7 +288,7 @@ namespace Grand.Domain.Data.Mongo
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-            
+
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
@@ -323,7 +323,7 @@ namespace Grand.Domain.Data.Mongo
             };
 
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-            
+
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
@@ -376,7 +376,7 @@ namespace Grand.Domain.Data.Mongo
         {
             var filter = Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-            
+
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
@@ -394,7 +394,7 @@ namespace Grand.Domain.Data.Mongo
         public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
         {
             var update = Builders<T>.Update.Pull(field, element);
-            
+
             var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
             var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);

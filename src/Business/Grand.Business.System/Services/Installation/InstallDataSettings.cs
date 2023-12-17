@@ -298,7 +298,7 @@ namespace Grand.Business.System.Services.Installation
                 NewsletterBlockAllowToUnsubscribe = false,
                 OnlineCustomerMinutes = 20,
                 OnlineShoppingCartMinutes = 60,
-                StoreLastVisitedPage = true,
+                StoreLastVisitedPage = false,
                 AllowUsersToDeleteAccount = false,
                 AllowUsersToExportData = false,
                 TwoFactorAuthenticationEnabled = false
