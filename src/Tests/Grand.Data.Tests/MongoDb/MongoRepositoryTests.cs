@@ -264,7 +264,7 @@ namespace Grand.Data.Tests.MongoDb
 
 
         [TestMethod()]
-        public async Task Update_MongoRepository_Success()
+        public void Update_MongoRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",

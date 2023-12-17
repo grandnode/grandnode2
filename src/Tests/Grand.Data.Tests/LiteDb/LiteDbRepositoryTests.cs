@@ -256,7 +256,7 @@ namespace Grand.Data.Tests.LiteDb
 
 
         [TestMethod()]
-        public async Task Update_LiteRepository_Success()
+        public void Update_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
