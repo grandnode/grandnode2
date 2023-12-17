@@ -455,8 +455,6 @@ namespace Grand.Business.System.Services.Installation
             });
             await _countryRepository.InsertAsync(cUsa);
 
-
-
             var cCanada = new Country
             {
                 Name = "Canada",
@@ -3482,7 +3480,7 @@ namespace Grand.Business.System.Services.Installation
                                         Published = true
                                     }
                                 };
-            await _countryRepository.InsertAsync(countries);
+            countries.ForEach(x=>_countryRepository.Insert(x));
         }
     }
 }

@@ -28,12 +28,11 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetAllProductReviewsTest()
         {
             //Arrange
-            await _repository.InsertManyAsync(new[] {
-            new ProductReview(){ CustomerId = "1" },
-            new ProductReview(){ CustomerId = "1"},
-            new ProductReview(){ },
-            new ProductReview(){ }
-            });
+            
+            await _repository.InsertAsync(new ProductReview(){ CustomerId = "1" });
+            await _repository.InsertAsync(new ProductReview(){ CustomerId = "1"});
+            await _repository.InsertAsync(new ProductReview(){ });
+            await _repository.InsertAsync(new ProductReview(){ });
 
             //Act
             var result = await _productReviewService.GetAllProductReviews("1", null);

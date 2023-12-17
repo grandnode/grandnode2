@@ -41,7 +41,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var pa1 = new ProductAttribute();
             var pa2 = new ProductAttribute();
             var pa3 = new ProductAttribute();
-            await _repositoryproductAttribute.InsertManyAsync(new[] { pa1, pa2, pa3 });
+            await _repositoryproductAttribute.InsertAsync(pa1);
+            await _repositoryproductAttribute.InsertAsync(pa2);
+            await _repositoryproductAttribute.InsertAsync(pa3);
 
             //Act
             var result = await _productAttributeService.GetAllProductAttributes();
@@ -57,7 +59,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var pa1 = new ProductAttribute();
             var pa2 = new ProductAttribute();
             var pa3 = new ProductAttribute();
-            await _repositoryproductAttribute.InsertManyAsync(new[] { pa1, pa2, pa3 });
+            await _repositoryproductAttribute.InsertAsync(pa1);
+            await _repositoryproductAttribute.InsertAsync(pa2);
+            await _repositoryproductAttribute.InsertAsync(pa3);
 
             //Act
             var result = await _productAttributeService.GetProductAttributeById(pa1.Id);

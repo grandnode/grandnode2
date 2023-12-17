@@ -94,9 +94,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Course> InsertCourseModel(CourseModel model)
         {
             var course = model.ToEntity();
-            course.CreatedOnUtc = DateTime.UtcNow;
-            course.UpdatedOnUtc = DateTime.UtcNow;
-
             await _courseService.Insert(course);
 
             //locales
@@ -122,7 +119,6 @@ namespace Grand.Web.Admin.Services
             var prevProductId = course.ProductId;
 
             course = model.ToEntity(course);
-            course.UpdatedOnUtc = DateTime.UtcNow;
             model.SeName = await course.ValidateSeName(model.SeName, course.Name, true, _seoSettings, _slugService, _languageService);
             course.SeName = model.SeName;
             //locales

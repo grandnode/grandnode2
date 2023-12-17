@@ -50,8 +50,6 @@ namespace Grand.Web.Commands.Handler.Orders
                 CustomerComments = request.Model.Comments,
                 StaffNotes = string.Empty,
                 MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow,
                 PickupAddress = request.Address
             };
 

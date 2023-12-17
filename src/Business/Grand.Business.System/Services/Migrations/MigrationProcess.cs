@@ -56,7 +56,6 @@ namespace Grand.Business.System.Services.Migrations
                 Identity = migrationResult.Migration.Identity,
                 Name = migrationResult.Migration.Name,
                 Version = migrationResult.Migration.Version.ToString(),
-                CreatedOnUtc = DateTime.UtcNow,
                 InstallApp = install
             });
         }

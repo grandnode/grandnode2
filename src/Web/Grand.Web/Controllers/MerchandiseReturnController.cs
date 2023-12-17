@@ -94,7 +94,6 @@ namespace Grand.Web.Controllers
                 address = model.MerchandiseReturnNewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
                 model.NewAddressPreselected = true;
                 address.Attributes = customAttributes;
-                address.CreatedOnUtc = DateTime.UtcNow;
             }
 
             return address;

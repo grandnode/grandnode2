@@ -201,7 +201,6 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.BasepriceUnitId, product.BasepriceUnitId)
                 .Set(x => x.CallForPrice, product.CallForPrice)
                 .Set(x => x.CatalogPrice, product.CatalogPrice)
-                .Set(x => x.CreatedOnUtc, product.CreatedOnUtc)
                 .Set(x => x.EnteredPrice, product.EnteredPrice)
                 .Set(x => x.CustomerGroups, product.CustomerGroups)
                 .Set(x => x.DeliveryDateId, product.DeliveryDateId)

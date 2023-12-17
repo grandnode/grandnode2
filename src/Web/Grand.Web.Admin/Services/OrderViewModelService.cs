@@ -1009,8 +1009,7 @@ namespace Grand.Web.Admin.Services
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
                 DownloadId = downloadId,
-                OrderId = order.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                OrderId = order.Id
             };
             await _orderService.InsertOrderNote(orderNote);
 
@@ -1051,7 +1050,6 @@ namespace Grand.Web.Admin.Services
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = "Address has been edited",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
             return address;

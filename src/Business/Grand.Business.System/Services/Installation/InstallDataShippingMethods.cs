@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallShippingMethods()
+        protected virtual Task InstallShippingMethods()
         {
             var shippingMethods = new List<ShippingMethod>
                                 {
@@ -27,7 +27,8 @@ namespace Grand.Business.System.Services.Installation
                                             DisplayOrder = 3
                                         }
                                 };
-            await _shippingMethodRepository.InsertAsync(shippingMethods);
+            shippingMethods.ForEach(x=>_shippingMethodRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

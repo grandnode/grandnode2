@@ -137,8 +137,7 @@ namespace Grand.Web.Controllers
                     CustomerId = customer.Id,
                     ProductId = product.Id,
                     StoreId = _workContext.CurrentStore.Id,
-                    WarehouseId = warehouseId,
-                    CreatedOnUtc = DateTime.UtcNow
+                    WarehouseId = warehouseId
                 };
                 await _outOfStockSubscriptionService.InsertSubscription(subscription);
                 return Json(new {

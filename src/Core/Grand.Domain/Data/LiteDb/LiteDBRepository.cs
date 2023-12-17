@@ -8,7 +8,7 @@ namespace Grand.Domain.Data.LiteDb
     /// <summary>
     /// MongoDB repository
     /// </summary>
-    public partial class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
+    public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         #region Fields
 
@@ -96,15 +96,6 @@ namespace Grand.Domain.Data.LiteDb
         }
 
         /// <summary>
-        /// Get all entities in collection
-        /// </summary>
-        /// <returns>collection of entities</returns>
-        public virtual async Task<List<T>> GetAllAsync()
-        {
-            return await Task.FromResult(_collection.Query().ToList());
-        }
-       
-        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>
@@ -125,36 +116,6 @@ namespace Grand.Domain.Data.LiteDb
         }
 
         /// <summary>
-        /// Async Insert many entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual Task InsertManyAsync(IEnumerable<T> entities)
-        {
-            Insert(entities);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Insert(IEnumerable<T> entities)
-        {
-            _collection.InsertBulk(entities);
-        }
-
-        /// <summary>
-        /// Async Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> InsertAsync(IEnumerable<T> entities)
-        {
-            Insert(entities);
-            return await Task.FromResult(entities);
-        }
-
-
-        /// <summary>
         /// Update entity
         /// </summary>
         /// <param name="entity">Entity</param>
@@ -173,19 +134,6 @@ namespace Grand.Domain.Data.LiteDb
         {
             Update(entity);
             return await Task.FromResult(entity);
-        }
-
-
-        /// <summary>
-        /// Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Update(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                Update(entity);
-            }
         }
 
         /// <summary>
@@ -547,18 +495,6 @@ namespace Grand.Domain.Data.LiteDb
             return Task.CompletedTask;
 
         }
-        /// <summary>
-        /// Async Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> UpdateAsync(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                await UpdateAsync(entity);
-            }
-            return entities;
-        }
 
         /// <summary>
         /// Delete entity
@@ -578,19 +514,6 @@ namespace Grand.Domain.Data.LiteDb
             Delete(entity);
             return await Task.FromResult(entity);
         }
-
-        /// <summary>
-        /// Delete entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Delete(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                Delete(entity);
-            }
-        }
-
         /// <summary>
         /// Async Delete entities
         /// </summary>

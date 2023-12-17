@@ -268,7 +268,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private async Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
         {
             var update = false;
-            PaymentTransaction paymentTransaction = new PaymentTransaction { CreatedOnUtc = DateTime.UtcNow };
+            PaymentTransaction paymentTransaction = new PaymentTransaction();
             var paymentTransactionId = details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentTransaction, _workContext.CurrentStore.Id);
             if (!string.IsNullOrEmpty(paymentTransactionId))
             {
@@ -276,10 +276,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 if (paymentTransaction != null)
                 {
                     update = true;
-                    paymentTransaction.UpdatedOnUtc = DateTime.UtcNow;
                 }
                 else
-                     paymentTransaction = new PaymentTransaction { CreatedOnUtc = DateTime.UtcNow };
+                     paymentTransaction = new PaymentTransaction();
             }
 
             paymentTransaction.TransactionStatus = TransactionStatus.Pending;
@@ -953,8 +952,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 IsRecurring = details.IsRecurring,
                 RecurringCycleLength = details.RecurringCycleLength,
                 RecurringCyclePeriodId = details.RecurringCyclePeriodId,
-                RecurringTotalCycles = details.RecurringTotalCycles,
-                CreatedOnUtc = DateTime.UtcNow
+                RecurringTotalCycles = details.RecurringTotalCycles
             };
 
             foreach (var item in details.Taxes)
@@ -1055,7 +1053,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         Note =
                             $"Order placed by a store owner ('{originalCustomerIfImpersonated.Email}'. ID = {originalCustomerIfImpersonated.Id}) impersonating the customer.",
                         DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
                         OrderId = order.Id
                     });
                 }
@@ -1064,7 +1061,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     await orderService.InsertOrderNote(new OrderNote {
                         Note = "Order placed",
                         DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
                         OrderId = order.Id
 
                     });

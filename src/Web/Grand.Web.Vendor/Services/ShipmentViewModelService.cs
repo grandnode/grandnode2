@@ -245,8 +245,7 @@ namespace Grand.Web.Vendor.Services
             var shipmentNote = new ShipmentNote {
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
-                ShipmentId = shipment.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                ShipmentId = shipment.Id
             };
             await _shipmentService.InsertShipmentNote(shipmentNote);
         }
@@ -526,7 +525,6 @@ namespace Grand.Web.Vendor.Services
                 ShippedDateUtc = null,
                 DeliveryDateUtc = null,
                 AdminComment = model.AdminComment,
-                CreatedOnUtc = DateTime.UtcNow,
                 StoreId = order.StoreId,
                 VendorId = _workContext.CurrentVendor.Id
             };

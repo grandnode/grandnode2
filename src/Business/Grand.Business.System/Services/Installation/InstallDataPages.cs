@@ -173,7 +173,7 @@ namespace Grand.Business.System.Services.Installation
                                        Published = true
                                    }
                                };
-            await _pageRepository.InsertAsync(pages);
+            pages.ForEach(x=>_pageRepository.Insert(x));
 
             var lpages = from p in _pageRepository.Table
                          select p;

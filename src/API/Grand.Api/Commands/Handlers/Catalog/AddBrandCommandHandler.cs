@@ -32,8 +32,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public async Task<BrandDto> Handle(AddBrandCommand request, CancellationToken cancellationToken)
         {
             var brand = request.Model.ToEntity();
-            brand.CreatedOnUtc = DateTime.UtcNow;
-            brand.UpdatedOnUtc = DateTime.UtcNow;
             await _brandService.InsertBrand(brand);
             request.Model.SeName = await brand.ValidateSeName(request.Model.SeName, brand.Name, true, _seoSettings, _slugService, _languageService);
             brand.SeName = request.Model.SeName;

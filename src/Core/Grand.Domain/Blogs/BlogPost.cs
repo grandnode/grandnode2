@@ -93,11 +93,6 @@ namespace Grand.Domain.Blogs
         /// Gets or sets the sename
         /// </summary>
         public string SeName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-      
+        
     }
 }

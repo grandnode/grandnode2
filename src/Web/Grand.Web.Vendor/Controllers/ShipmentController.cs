@@ -175,7 +175,6 @@ namespace Grand.Web.Vendor.Controllers
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"A shipment #{shipment.ShipmentNumber} has been added",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
             Success(_translationService.GetResource("Admin.Orders.Shipments.Added"));
@@ -211,7 +210,6 @@ namespace Grand.Web.Vendor.Controllers
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = shipment.OrderId
             });
             Success(_translationService.GetResource("Admin.Orders.Shipments.Deleted"));

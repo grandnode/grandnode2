@@ -30,10 +30,5 @@
         /// </summary>
         public string PasswordSalt { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
     }
 }

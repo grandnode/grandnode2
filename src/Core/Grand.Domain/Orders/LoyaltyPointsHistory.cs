@@ -33,12 +33,7 @@ namespace Grand.Domain.Orders
         /// Gets or sets the message
         /// </summary>
         public string Message { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
+        
         public string UsedWithOrderId { get; set; }
        
     }

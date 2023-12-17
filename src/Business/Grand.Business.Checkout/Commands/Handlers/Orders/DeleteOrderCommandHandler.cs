@@ -92,7 +92,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 Note = "Order has been deleted",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = request.Order.Id
             });
 

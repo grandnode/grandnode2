@@ -109,7 +109,6 @@ namespace Grand.Business.Catalog.Services.Products
             }
             else
             {
-                recentlyViewedProduct.CreatedOnUtc = DateTime.UtcNow;
                 await _recentlyViewedProducts.UpdateAsync(recentlyViewedProduct);
             }
             var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;

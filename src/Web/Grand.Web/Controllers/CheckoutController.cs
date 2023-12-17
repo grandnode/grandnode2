@@ -462,9 +462,7 @@ namespace Grand.Web.Controllers
                                 : model.BillingNewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
 
                         address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.BillingNewAddress.SelectedAttributes });
-                        address.CreatedOnUtc = DateTime.UtcNow;
-                        address.AddressType =
-                            _addressSettings.AddressTypeEnabled ? AddressType.Billing : AddressType.Any;
+                        address.AddressType = _addressSettings.AddressTypeEnabled ? AddressType.Billing : AddressType.Any;
 
                         _workContext.CurrentCustomer.Addresses.Add(address);
                         await _customerService.InsertAddress(address, _workContext.CurrentCustomer.Id);
@@ -614,7 +612,6 @@ namespace Grand.Web.Controllers
                                     : model.ShippingNewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
 
                             address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.ShippingNewAddress.SelectedAttributes });
-                            address.CreatedOnUtc = DateTime.UtcNow;
                             address.AddressType = _addressSettings.AddressTypeEnabled
                                 ? model.BillToTheSameAddress ? AddressType.Any : AddressType.Shipping
                                 : AddressType.Any;

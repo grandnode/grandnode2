@@ -46,7 +46,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             var brand = await _brandService.GetBrandById(request.Model.Id);
             var prevPictureId = brand.PictureId;
             brand = request.Model.ToEntity(brand);
-            brand.UpdatedOnUtc = DateTime.UtcNow;
             request.Model.SeName = await brand.ValidateSeName(request.Model.SeName, brand.Name, true, _seoSettings, _slugService, _languageService);
             brand.SeName = request.Model.SeName;
             await _brandService.UpdateBrand(brand);

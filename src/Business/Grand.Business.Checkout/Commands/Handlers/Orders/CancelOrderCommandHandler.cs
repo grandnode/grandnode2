@@ -73,7 +73,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 Note = "Order has been cancelled",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = request.Order.Id
 
             });

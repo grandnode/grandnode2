@@ -26,11 +26,6 @@ namespace Grand.Domain.Orders
         public bool DisplayToCustomer { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of order note creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets value indicating whether this order note was create by customer
         /// </summary>
         public bool CreatedByCustomer { get; set; }

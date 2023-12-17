@@ -21,7 +21,6 @@ namespace Grand.Web.Commands.Handler.Orders
         {
             var orderNote = new OrderNote
             {
-                CreatedOnUtc = DateTime.UtcNow,
                 DisplayToCustomer = true,
                 Note = request.OrderNote.Note,
                 OrderId = request.OrderNote.OrderId,

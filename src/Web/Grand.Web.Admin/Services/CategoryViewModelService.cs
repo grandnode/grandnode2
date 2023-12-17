@@ -165,8 +165,6 @@ namespace Grand.Web.Admin.Services
         public async Task<Category> InsertCategoryModel(CategoryModel model)
         {
             var category = model.ToEntity();
-            category.CreatedOnUtc = DateTime.UtcNow;
-            category.UpdatedOnUtc = DateTime.UtcNow;
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
             foreach (var discount in allDiscounts)
             {
@@ -193,7 +191,6 @@ namespace Grand.Web.Admin.Services
         {
             var prevPictureId = category.PictureId;
             category = model.ToEntity(category);
-            category.UpdatedOnUtc = DateTime.UtcNow;
             model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService, _languageService);
             category.SeName = model.SeName;
             //locales

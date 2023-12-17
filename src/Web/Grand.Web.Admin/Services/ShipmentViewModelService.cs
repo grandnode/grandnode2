@@ -255,8 +255,7 @@ namespace Grand.Web.Admin.Services
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
                 DownloadId = downloadId,
-                ShipmentId = shipment.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                ShipmentId = shipment.Id
             };
             await _shipmentService.InsertShipmentNote(shipmentNote);
 
@@ -601,7 +600,6 @@ namespace Grand.Web.Admin.Services
                         ShippedDateUtc = null,
                         DeliveryDateUtc = null,
                         AdminComment = adminComment,
-                        CreatedOnUtc = DateTime.UtcNow,
                         StoreId = order.StoreId
                     };
                 }

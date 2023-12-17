@@ -682,8 +682,7 @@ namespace Grand.Web.Admin.Services
                                 CustomerId = customer.Id,
                                 Email = customer.Email,
                                 Active = true,
-                                StoreId = store.Id,
-                                CreatedOnUtc = DateTime.UtcNow
+                                StoreId = store.Id
                             });
                         }
                     }
@@ -825,8 +824,7 @@ namespace Grand.Web.Admin.Services
                                 CustomerId = customer.Id,
                                 Email = customer.Email,
                                 Active = true,
-                                StoreId = store.Id,
-                                CreatedOnUtc = DateTime.UtcNow
+                                StoreId = store.Id
                             });
                         }
                     }
@@ -912,7 +910,6 @@ namespace Grand.Web.Admin.Services
                 To = customer.Email,
                 Subject = model.Subject,
                 Body = model.Body,
-                CreatedOnUtc = DateTime.UtcNow,
                 DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
                         null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
@@ -943,7 +940,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IEnumerable<AddressModel>> PrepareAddressModel(Customer customer)
         {
-            var addresses = customer.Addresses.OrderByDescending(a => a.CreatedOnUtc).ThenByDescending(a => a.Id).ToList();
+            var addresses = customer.Addresses.ToList();
             var addressesListModel = new List<AddressModel>();
             foreach (var x in addresses)
             {
@@ -985,7 +982,6 @@ namespace Grand.Web.Admin.Services
         {
             var address = model.Address.ToEntity();
             address.Attributes = customAttributes;
-            address.CreatedOnUtc = DateTime.UtcNow;
             customer.Addresses.Add(address);
             await _customerService.UpdateCustomerInAdminPanel(customer);
             return address;
@@ -1315,8 +1311,7 @@ namespace Grand.Web.Admin.Services
                 Title = title,
                 Note = message,
                 DownloadId = downloadId,
-                CustomerId = customerId,
-                CreatedOnUtc = DateTime.UtcNow
+                CustomerId = customerId
             };
             await _customerNoteService.InsertCustomerNote(customerNote);
 

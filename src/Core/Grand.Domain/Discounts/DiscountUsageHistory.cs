@@ -26,11 +26,6 @@ namespace Grand.Domain.Discounts
         public string CustomerId { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the canceled identifier
         /// </summary>
         public bool Canceled { get; set; }

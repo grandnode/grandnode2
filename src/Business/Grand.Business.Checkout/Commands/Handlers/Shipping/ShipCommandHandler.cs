@@ -58,7 +58,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Shipment #{request.Shipment.ShipmentNumber} has been sent",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
 

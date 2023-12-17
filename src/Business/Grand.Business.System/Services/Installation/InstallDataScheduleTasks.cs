@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallScheduleTasks()
+        protected virtual Task InstallScheduleTasks()
         {
             //these tasks are default - they are created in order to insert them into database
             //and nothing above it
@@ -76,7 +76,8 @@ namespace Grand.Business.System.Services.Installation
                     TimeInterval = 1440
                 }
             };
-            await _scheduleTaskRepository.InsertAsync(tasks);
+            tasks.ForEach(x=>_scheduleTaskRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

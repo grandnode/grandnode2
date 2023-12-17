@@ -39,8 +39,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public async Task<CollectionDto> Handle(AddCollectionCommand request, CancellationToken cancellationToken)
         {
             var collection = request.Model.ToEntity();
-            collection.CreatedOnUtc = DateTime.UtcNow;
-            collection.UpdatedOnUtc = DateTime.UtcNow;
             await _collectionService.InsertCollection(collection);
             request.Model.SeName = await collection.ValidateSeName(request.Model.SeName, collection.Name, true, _seoSettings, _slugService, _languageService);
             collection.SeName = request.Model.SeName;

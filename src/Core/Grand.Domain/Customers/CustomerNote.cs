@@ -29,12 +29,6 @@ namespace Grand.Domain.Customers
         /// Gets or sets a value indicating whether a customer can see a note
         /// </summary>
         public bool DisplayToCustomer { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of order note creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
     }
 
 }

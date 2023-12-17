@@ -105,8 +105,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Brand> InsertBrandModel(BrandModel model)
         {
             var brand = model.ToEntity();
-            brand.CreatedOnUtc = DateTime.UtcNow;
-            brand.UpdatedOnUtc = DateTime.UtcNow;
             //discounts
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToBrands, showHidden: true);
             foreach (var discount in allDiscounts)
@@ -134,7 +132,6 @@ namespace Grand.Web.Admin.Services
         {
             var prevPictureId = brand.PictureId;
             brand = model.ToEntity(brand);
-            brand.UpdatedOnUtc = DateTime.UtcNow;
             brand.Locales = await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);
             //discounts
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToBrands, showHidden: true);

@@ -250,7 +250,6 @@ namespace Grand.Business.Customers.Services
                 CustomerGuid = Guid.NewGuid(),
                 Active = true,
                 StoreId = store.Id,
-                CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow
             };
             //add to 'Guests' group

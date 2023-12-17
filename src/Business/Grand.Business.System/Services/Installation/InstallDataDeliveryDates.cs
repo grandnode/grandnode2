@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallDeliveryDates()
+        protected virtual Task InstallDeliveryDates()
         {
             var deliveryDates = new List<DeliveryDate>
                                 {
@@ -24,7 +24,8 @@ namespace Grand.Business.System.Services.Installation
                                             DisplayOrder = 10
                                         }
                                 };
-            await _deliveryDateRepository.InsertAsync(deliveryDates);
+            deliveryDates.ForEach(x=>_deliveryDateRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

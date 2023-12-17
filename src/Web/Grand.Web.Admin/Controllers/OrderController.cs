@@ -305,7 +305,6 @@ namespace Grand.Web.Admin.Controllers
                 {
                     Note = $"Order status has been edited. New status: {status?.Name}",
                     DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
                     OrderId = order.Id
 
                 });
@@ -502,7 +501,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 Note = "Order totals have been edited",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
 
@@ -531,7 +529,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 Note = "Shipping method has been edited",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);

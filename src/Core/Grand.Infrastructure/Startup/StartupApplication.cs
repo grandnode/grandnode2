@@ -30,6 +30,8 @@ namespace Grand.Infrastructure.Startup
 
         private void RegisterDataLayer(IServiceCollection serviceCollection, IConfiguration configuration)
         {
+            serviceCollection.AddSingleton<IAuditInfoProvider, AuditInfoProvider>();
+
             var dbConfig = new DatabaseConfig();
             configuration.GetSection("Database").Bind(dbConfig);
 

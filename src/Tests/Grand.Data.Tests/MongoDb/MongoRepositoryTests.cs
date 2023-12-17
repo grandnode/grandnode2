@@ -35,7 +35,7 @@ namespace Grand.Data.Tests.MongoDb
             Assert.AreEqual(1, _myRepository.Table.Count());
         }
         [TestMethod()]
-        public async Task InsertManyAsync_MongoRepository_Success()
+        public void InsertManyAsync_MongoRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1" },
@@ -43,7 +43,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             Assert.IsTrue(_myRepository.Table.Count() == 3);
         }
@@ -131,29 +131,12 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test2" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.DeleteManyAsync(x => x.Name == "Test");
 
             Assert.IsTrue(_myRepository.Table.Count() == 1);
         }
-
-        [TestMethod()]
-        public async Task GetAllAsync_MongoRepository_Success()
-        {
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test" },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
-
-            };
-            await _myRepository.InsertManyAsync(products);
-
-            var p = await _myRepository.GetAllAsync();
-
-            Assert.IsTrue(p.Count() == 3);
-        }
-
 
         [TestMethod()]
         public async Task Pull_MongoRepository_Success()
@@ -168,7 +151,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.Pull("1", x => x.Phones, "Phone2");
 
@@ -189,7 +172,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.Pull(String.Empty, x => x.Phones, "Phone2");
 
@@ -215,7 +198,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
 
@@ -239,7 +222,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
 
@@ -269,7 +252,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.PullFilter(String.Empty, x => x.UserFields, x => x.Value, "value");
 
@@ -295,7 +278,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             var p1_update = products.FirstOrDefault();
             p1_update.Name = "update";
@@ -321,7 +304,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             var p1_update = products.FirstOrDefault();
             p1_update.Name = "update";
@@ -348,7 +331,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.UpdateField("1", x => x.Name, "update");
 
@@ -387,7 +370,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
             await _myRepository.UpdateManyAsync(x => x.Name == "Test",
                 UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
@@ -411,7 +394,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
             await _myRepository.UpdateOneAsync(x => x.Name == "Test",
                 UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
@@ -434,7 +417,7 @@ namespace Grand.Data.Tests.MongoDb
             new SampleCollection(){ Id = "3", Name = "Test3" }
 
             };
-            await _myRepository.InsertManyAsync(products);
+            products.ForEach(x=>_myRepository.Insert(x));
 
             await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField() { Key = "key", Value = "update", StoreId = "1" });
 

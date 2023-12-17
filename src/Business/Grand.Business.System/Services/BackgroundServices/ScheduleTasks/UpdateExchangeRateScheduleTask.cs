@@ -39,7 +39,6 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 var currency = await _currencyService.GetCurrencyByCode(exchangeRate.CurrencyCode);
                 if (currency == null) continue;
                 currency.Rate = exchangeRate.Rate;
-                currency.UpdatedOnUtc = DateTime.UtcNow;
                 await _currencyService.UpdateCurrency(currency);
             }
         }

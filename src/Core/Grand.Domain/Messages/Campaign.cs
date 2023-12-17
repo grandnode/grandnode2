@@ -46,11 +46,6 @@
         public CampaignCondition CustomerHasShoppingCart { get; set; }
        
         /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the used email account identifier
         /// </summary>
         public string EmailAccountId { get; set; }

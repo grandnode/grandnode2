@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallMerchandiseReturnActions()
+        protected virtual Task InstallMerchandiseReturnActions()
         {
             var merchandiseReturnActions = new List<MerchandiseReturnAction>
                                 {
@@ -24,7 +24,8 @@ namespace Grand.Business.System.Services.Installation
                                             DisplayOrder = 3
                                         }
                                 };
-            await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnActions);
+            merchandiseReturnActions.ForEach(x=>_merchandiseReturnActionRepository.Insert(x));
+            return Task.CompletedTask;
         }
 
     }

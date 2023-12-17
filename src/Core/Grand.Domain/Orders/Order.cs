@@ -254,11 +254,6 @@ namespace Grand.Domain.Orders
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of order creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the entity has been imported
         /// </summary>
         public bool Imported { get; set; }

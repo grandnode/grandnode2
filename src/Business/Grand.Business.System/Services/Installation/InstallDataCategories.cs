@@ -35,9 +35,7 @@ namespace Grand.Business.System.Services.Installation
                 Published = true,
                 Flag = "New",
                 FlagStyle = "badge-danger",
-                DisplayOrder = 100,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 100
             };
             categoryComputers.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_computers.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Computers"), reference: Domain.Common.Reference.Category, objectId: categoryComputers.Id)).Id;
             allCategories.Add(categoryComputers);
@@ -52,9 +50,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryComputers.DisplayOrder + 1,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryComputers.DisplayOrder + 1
             };
             categoryTablets.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_tablets.jpg"), "image/jpeg", pictureService.GetPictureSeName("Tablets"), reference: Domain.Common.Reference.Category, objectId: categoryTablets.Id)).Id;
             allCategories.Add(categoryTablets);
@@ -69,9 +65,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryComputers.DisplayOrder + 2,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryComputers.DisplayOrder + 2
             };
             categoryNotebooks.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_notebooks.jpg"), "image/jpeg", pictureService.GetPictureSeName("Notebooks"), reference: Domain.Common.Reference.Category, objectId: categoryNotebooks.Id)).Id;
             allCategories.Add(categoryNotebooks);
@@ -86,9 +80,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryComputers.DisplayOrder + 3,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryComputers.DisplayOrder + 3
             };
             categorySmartwatches.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_smartwatches.jpg"), "image/jpeg", pictureService.GetPictureSeName("Smartwatches"), reference: Domain.Common.Reference.Category, objectId: categorySmartwatches.Id)).Id;
             allCategories.Add(categorySmartwatches);
@@ -104,9 +96,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = false,
-                DisplayOrder = 200,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 200
             };
             categoryElectronics.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_electronics.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Electronics"), reference: Domain.Common.Reference.Category, objectId: categoryElectronics.Id)).Id;
             allCategories.Add(categoryElectronics);
@@ -121,9 +111,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryElectronics.DisplayOrder + 1,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryElectronics.DisplayOrder + 1
             };
             categoryDisplay.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_display.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Display"), reference: Domain.Common.Reference.Category, objectId: categoryDisplay.Id)).Id;
             allCategories.Add(categoryDisplay);
@@ -138,9 +126,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryElectronics.DisplayOrder + 2,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryElectronics.DisplayOrder + 2
             };
             categorySmartphones.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_smartphones.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Smartphones"), reference: Domain.Common.Reference.Category, objectId: categorySmartphones.Id)).Id;
             allCategories.Add(categorySmartphones);
@@ -156,9 +142,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categoryElectronics.DisplayOrder + 3,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categoryElectronics.DisplayOrder + 3
             };
             categoryOthers.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_accessories.jpg"), "image/jpeg", pictureService.GetPictureSeName("SmAccessoriesartphones"), reference: Domain.Common.Reference.Category, objectId: categoryOthers.Id)).Id;
 
@@ -175,9 +159,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = true,
-                DisplayOrder = 300,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 300
             };
             categorySport.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_sport.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Sport"), reference: Domain.Common.Reference.Category, objectId: categorySport.Id)).Id;
             allCategories.Add(categorySport);
@@ -192,9 +174,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categorySport.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categorySport.DisplayOrder + 1,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categorySport.DisplayOrder + 1
             };
             categoryShoes.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_shoes.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Shoes"), reference: Domain.Common.Reference.Category, objectId: categoryShoes.Id)).Id;
             allCategories.Add(categoryShoes);
@@ -209,9 +189,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categorySport.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categorySport.DisplayOrder + 2,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categorySport.DisplayOrder + 2
             };
             categoryApparel.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_sport.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Apparel"), reference: Domain.Common.Reference.Category, objectId: categoryApparel.Id)).Id;
 
@@ -227,9 +205,7 @@ namespace Grand.Business.System.Services.Installation
                 PageSizeOptions = "6, 3, 9",
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = categorySport.DisplayOrder + 3,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = categorySport.DisplayOrder + 3
             };
             categoryBalls.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_balls.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Balls"), reference: Domain.Common.Reference.Category, objectId: categoryBalls.Id)).Id;
             allCategories.Add(categoryBalls);
@@ -245,9 +221,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = false,
-                DisplayOrder = 400,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 400
             };
             categoryDigitalDownloads.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_digital_downloads.jpeg"), "image/jpeg", pictureService.GetPictureSeName("Digital downloads"), reference: Domain.Common.Reference.Category, objectId: categoryDigitalDownloads.Id)).Id;
             allCategories.Add(categoryDigitalDownloads);
@@ -267,9 +241,7 @@ namespace Grand.Business.System.Services.Installation
                 ShowOnHomePage = true,
                 DisplayOrder = 500,
                 Flag = "Promo!",
-                FlagStyle = "bg-success",
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                FlagStyle = "bg-success"
             };
             categoryLego.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_lego.jpeg"), "image/jpeg", pictureService.GetPictureSeName(categoryLego.Name), reference: Domain.Common.Reference.Category, objectId: categoryLego.Id)).Id;
             allCategories.Add(categoryLego);
@@ -284,14 +256,13 @@ namespace Grand.Business.System.Services.Installation
                 PageSizeOptions = "6, 3, 9",
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 600,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 600
             };
             categoryGiftVouchers.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "category_gift_cards.jpeg"), "image/jpeg", pictureService.GetPictureSeName(categoryGiftVouchers.Name), reference: Domain.Common.Reference.Category, objectId: categoryGiftVouchers.Id)).Id;
             allCategories.Add(categoryGiftVouchers);
 
-            await _categoryRepository.InsertAsync(allCategories);
+            allCategories.ForEach(x=>_categoryRepository.Insert(x));
+
             //search engine names
             foreach (var category in allCategories)
             {

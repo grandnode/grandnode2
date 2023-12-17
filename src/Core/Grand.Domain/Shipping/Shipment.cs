@@ -53,11 +53,6 @@ namespace Grand.Domain.Shipping
         public string AdminComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the entity creation date
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets the shipment number
         /// </summary>
         public virtual int ShipmentNumber { get; set; }

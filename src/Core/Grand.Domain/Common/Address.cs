@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Common
 {
-    public partial class Address : BaseEntity
+    public partial class Address : SubBaseEntity
     {
         public Address()
         {
@@ -92,9 +92,5 @@
         /// </summary>
         public AddressType AddressType { get; set; }
        
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
     }
 }
