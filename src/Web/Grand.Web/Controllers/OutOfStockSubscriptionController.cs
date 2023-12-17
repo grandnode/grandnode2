@@ -180,8 +180,7 @@ namespace Grand.Web.Controllers
                     ? ""
                     : await _productAttributeFormatter.FormatAttributes(product, attributes),
                 StoreId = _workContext.CurrentStore.Id,
-                WarehouseId = warehouseId,
-                CreatedOnUtc = DateTime.UtcNow
+                WarehouseId = warehouseId
             };
 
             await _outOfStockSubscriptionService.InsertSubscription(subscriptionAttributes);

@@ -28,9 +28,9 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetLoyaltyPointsBalanceTest()
         {
             //Assert
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 10, CreatedOnUtc = DateTime.UtcNow.AddDays(-3) });
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 20, CreatedOnUtc = DateTime.UtcNow.AddDays(-2) });
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 30, CreatedOnUtc = DateTime.UtcNow.AddDays(-1) });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 10 });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 20 });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 30 });
             //Act
             var result = await _loyaltyPointsService.GetLoyaltyPointsBalance("1", "");
             //Assert
@@ -53,9 +53,9 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetLoyaltyPointsHistoryTest()
         {
             //Assert
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 10, CreatedOnUtc = DateTime.UtcNow.AddDays(-3) });
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 20, CreatedOnUtc = DateTime.UtcNow.AddDays(-2) });
-            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 30, CreatedOnUtc = DateTime.UtcNow.AddDays(-1) });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 10 });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 20 });
+            await _repository.InsertAsync(new LoyaltyPointsHistory() { CustomerId = "1", StoreId = "", Points = 10, PointsBalance = 30 });
             //Act
             var result = await _loyaltyPointsService.GetLoyaltyPointsHistory("1");
             //Assert

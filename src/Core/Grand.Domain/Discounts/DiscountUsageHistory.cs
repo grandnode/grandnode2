@@ -3,7 +3,7 @@ namespace Grand.Domain.Discounts
     /// <summary>
     /// Represents a discount usage history entry
     /// </summary>
-    public partial class DiscountUsageHistory : BaseEntity
+    public class DiscountUsageHistory : BaseEntity
     {
         /// <summary>
         /// Gets or sets the discount identifier

@@ -762,8 +762,6 @@ namespace Grand.Web.Vendor.Services
         {
             //product
             var product = model.ToEntity(_dateTimeService);
-            product.CreatedOnUtc = DateTime.UtcNow;
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.VendorId = _workContext.CurrentVendor!.Id;
             await _productService.InsertProduct(product);
 
@@ -793,7 +791,6 @@ namespace Grand.Web.Vendor.Services
 
             //product
             product = model.ToEntity(product, _dateTimeService);
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
             model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService,
                 _languageService);

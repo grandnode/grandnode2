@@ -56,7 +56,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             var prevPublished = product.Published;
 
             product = request.Model.ToEntity(product);
-            product.UpdatedOnUtc = DateTime.UtcNow;
             request.Model.SeName = await product.ValidateSeName(request.Model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
             product.SeName = request.Model.SeName;
             //search engine name

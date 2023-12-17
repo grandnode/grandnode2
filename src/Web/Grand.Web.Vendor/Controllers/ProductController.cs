@@ -192,7 +192,7 @@ namespace Grand.Web.Vendor.Controllers
                 //No product found with the specified id
                 return RedirectToAction("List");
 
-            //if (model.Ticks != product.UpdatedOnUtc.Ticks)
+            if (model.Ticks != product.Ticks)
             {
                 Error(_translationService.GetResource("Vendor.Catalog.Products.Fields.ChangedWarning"));
                 return RedirectToAction("Edit", new { id = product.Id });

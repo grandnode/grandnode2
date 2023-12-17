@@ -629,7 +629,6 @@ namespace Grand.Web.Admin.Services
                 StoreId = _workContext.CurrentStore.Id,
                 OwnerId = ownerId,
                 Attributes = model.Attributes,
-                CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow
             };
 

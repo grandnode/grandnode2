@@ -218,7 +218,7 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("Edit", new { id = product.Id });
             }
 
-            //if (model.Ticks != product.UpdatedOnUtc.Ticks)
+            if (model.Ticks != product.Ticks)
             {
                 Error(_translationService.GetResource("Admin.Catalog.Products.Fields.ChangedWarning"));
                 return RedirectToAction("Edit", new { id = product.Id });

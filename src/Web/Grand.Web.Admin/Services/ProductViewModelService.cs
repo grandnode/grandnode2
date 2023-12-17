@@ -906,7 +906,6 @@ namespace Grand.Web.Admin.Services
 
             //product
             product = model.ToEntity(product, _dateTimeService);
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
             model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
             product.SeName = model.SeName;

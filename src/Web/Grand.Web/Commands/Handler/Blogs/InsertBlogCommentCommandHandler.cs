@@ -41,7 +41,6 @@ namespace Grand.Web.Commands.Handler.Blogs
                 CustomerId = customer.Id,
                 StoreId = _workContext.CurrentStore.Id,
                 CommentText = request.Model.CommentText,
-                CreatedOnUtc = DateTime.UtcNow,
                 BlogPostTitle = request.BlogPost.Title
             };
             await _blogService.InsertBlogComment(comment);

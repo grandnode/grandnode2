@@ -724,8 +724,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     SenderEmail = giftVoucherSenderEmail,
                     Message = giftVoucherMessage,
                     IsRecipientNotified = false,
-                    StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? _workContext.CurrentStore.Id : string.Empty,
-                    CreatedOnUtc = DateTime.UtcNow
+                    StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? _workContext.CurrentStore.Id : string.Empty
                 };
                 await _giftVoucherService.InsertGiftVoucher(gc);
             }
@@ -854,8 +853,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     DiscountId = discount.DiscountId,
                     CouponCode = discount.CouponCode,
                     OrderId = order.Id,
-                    CustomerId = order.CustomerId,
-                    CreatedOnUtc = DateTime.UtcNow
+                    CustomerId = order.CustomerId
                 };
                 await _discountService.InsertDiscountUsageHistory(duh);
             }

@@ -25,7 +25,7 @@ namespace Grand.Domain.Catalog
         private ICollection<RelatedProduct> _relatedProduct;
         private ICollection<SimilarProduct> _similarProduct;
         private ICollection<BundleProduct> _bundleProduct;
-        private ICollection<ProductPrice> _productprices;
+        private ICollection<ProductPrice> _productPrices;
         private ICollection<string> _productTags;
         public Product()
         {
@@ -553,6 +553,11 @@ namespace Grand.Domain.Catalog
         public string Flag { get; set; }
 
         /// <summary>
+        /// Gets or sets the ticks
+        /// </summary>
+        public long Ticks { get; set; }
+
+        /// <summary>
         /// Gets or sets the coordinates
         /// </summary>
         public GeoCoordinates Coordinates { get; set; }
@@ -628,8 +633,8 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the product prices
         /// </summary>
         public virtual ICollection<ProductPrice> ProductPrices {
-            get { return _productprices ??= new List<ProductPrice>(); }
-            protected set { _productprices = value; }
+            get { return _productPrices ??= new List<ProductPrice>(); }
+            protected set { _productPrices = value; }
         }
         /// <summary>
         /// Gets or sets the tier prices
