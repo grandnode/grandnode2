@@ -1082,7 +1082,7 @@ namespace Grand.Web.Admin.Services
                             UnitPrice = priceFormatter.FormatPrice(price),
                             UnitPriceValue = price,
                             Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product, (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice),
-                            UpdatedOn = _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc, DateTimeKind.Utc)
+                            UpdatedOn = sci.UpdatedOnUtc.HasValue ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc) : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)
                         };
                         items.Add(sciModel);
                     }

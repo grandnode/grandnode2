@@ -11,7 +11,5 @@ namespace Grand.Api.DTOs.Common
         public string CustomFormatting { get; set; }
         public bool Published { get; set; }
         public int DisplayOrder { get; set; }
-        public DateTime CreatedOnUtc { get; set; }
-        public DateTime UpdatedOnUtc { get; set; }
     }
 }
