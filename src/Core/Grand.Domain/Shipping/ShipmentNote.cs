@@ -24,12 +24,7 @@ namespace Grand.Domain.Shipping
         /// Gets or sets a value indicating whether a customer can see a note
         /// </summary>
         public bool DisplayToCustomer { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of shipment note creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
+        
         /// <summary>
         /// Gets or sets value indicating whether this shipment note was create by customer
         /// </summary>

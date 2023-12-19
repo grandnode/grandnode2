@@ -70,16 +70,6 @@ namespace Grand.Domain.Orders
         public int MerchandiseReturnStatusId { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of entity update
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the return status
         /// </summary>
         public MerchandiseReturnStatus MerchandiseReturnStatus

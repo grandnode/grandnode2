@@ -55,7 +55,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Order item has been canceled - {product.Name} - Qty: {request.OrderItem.OpenQty}",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = request.Order.Id
             });
 

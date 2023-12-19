@@ -47,7 +47,6 @@ namespace Grand.Web.Commands.Handler.Customers
                 OwnerId = request.Customer.Id,
                 CustomerGuid = Guid.NewGuid(),
                 StoreId = request.Store.Id,
-                CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow
             };
 

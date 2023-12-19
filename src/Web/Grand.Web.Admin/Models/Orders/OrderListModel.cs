@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Models.Orders
         public int PaymentStatusId { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.List.ShippingStatus")]
-        public int ShippingStatusId { get; set; }
+        public int? ShippingStatusId { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.List.PaymentMethod")]
         public string PaymentMethodSystemName { get; set; }

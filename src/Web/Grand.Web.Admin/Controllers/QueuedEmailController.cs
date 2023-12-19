@@ -185,7 +185,6 @@ namespace Grand.Web.Admin.Controllers
                 AttachmentFilePath = queuedEmail.AttachmentFilePath,
                 AttachmentFileName = queuedEmail.AttachmentFileName,
                 AttachedDownloads = queuedEmail.AttachedDownloads,
-                CreatedOnUtc = DateTime.UtcNow,
                 EmailAccountId = queuedEmail.EmailAccountId,
                 DontSendBeforeDateUtc = queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue ?
                     null : _dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)

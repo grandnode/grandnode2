@@ -262,23 +262,6 @@ namespace Grand.Business.Checkout.Services.Orders
             return Task.FromResult(query.FirstOrDefault());
         }
 
-        /// <summary>
-        /// Delete an order item
-        /// </summary>
-        /// <param name="orderItem">The order item</param>
-        public virtual async Task DeleteOrderItem(OrderItem orderItem)
-        {
-            if (orderItem == null)
-                throw new ArgumentNullException(nameof(orderItem));
-
-            var order = await GetOrderByOrderItemId(orderItem.Id);
-
-            await _orderRepository.PullFilter(order.Id, x => x.OrderItems, x => x.Id == orderItem.Id);
-
-            //event notification
-            await _mediator.EntityDeleted(orderItem);
-        }
-
         #endregion
 
         #region Orders notes

@@ -111,7 +111,7 @@ namespace Grand.Web.Admin.Services
             AddressSettings addressSettings,
             IOrderTagService orderTagService,
             IOrderStatusService orderStatusService,
-            IMediator mediator, 
+            IMediator mediator,
             IProductAttributeFormatter productAttributeFormatter)
         {
             _orderService = orderService;
@@ -218,9 +218,10 @@ namespace Grand.Web.Admin.Services
 
             //shipping statuses
             model.AvailableShippingStatuses =
-                ShippingStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+                ShippingStatus.ShippingNotRequired.ToSelectList(_translationService, _workContext, false).ToList();
             model.AvailableShippingStatuses.Insert(0,
                 new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+            
             if (shippingStatusId.HasValue)
             {
                 //pre-select value?
@@ -287,7 +288,7 @@ namespace Grand.Web.Admin.Services
             int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus =
-                model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
+                model.ShippingStatusId.HasValue ? (ShippingStatus?)model.ShippingStatusId : null;
 
 
             var filterByProductId = "";
@@ -409,7 +410,7 @@ namespace Grand.Web.Admin.Services
                     model.SalesEmployeeName = salesEmployee.Name;
                 }
             }
-            
+
             //order's tags
             if (order.OrderTags.Any())
             {
@@ -1009,8 +1010,7 @@ namespace Grand.Web.Admin.Services
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
                 DownloadId = downloadId,
-                OrderId = order.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                OrderId = order.Id
             };
             await _orderService.InsertOrderNote(orderNote);
 
@@ -1051,7 +1051,6 @@ namespace Grand.Web.Admin.Services
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = "Address has been edited",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
             return address;
@@ -1217,7 +1216,6 @@ namespace Grand.Web.Admin.Services
 
                 await _mediator.Send(new InsertOrderItemCommand
                     { Order = order, OrderItem = orderItem, Product = product });
-
             }
 
             return warnings;

@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallCategoryLayouts()
+        protected virtual Task InstallCategoryLayouts()
         {
             var categoryLayouts = new List<CategoryLayout>
                                {
@@ -15,7 +15,9 @@ namespace Grand.Business.System.Services.Installation
                                            DisplayOrder = 1
                                        }
                                };
-            await _categoryLayoutRepository.InsertAsync(categoryLayouts);
+            categoryLayouts.ForEach(x=>_categoryLayoutRepository.Insert(x));
+            return Task.CompletedTask;
+
         }
     }
 }

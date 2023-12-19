@@ -26,9 +26,7 @@ namespace Grand.Business.System.Services.Installation
                 AllowCustomersToSelectPageSize = true,
                 PageSizeOptions = "6, 3, 9",
                 Published = true,
-                DisplayOrder = 1,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 1
             };
             brandXiaomi.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "brand_xiaomi.jpg"), "image/pjpeg", pictureService.GetPictureSeName("Xiaomi"), "", "", false, Domain.Common.Reference.Brand, brandXiaomi.Id)).Id;
             await _brandRepository.InsertAsync(brandXiaomi);
@@ -42,9 +40,7 @@ namespace Grand.Business.System.Services.Installation
                 AllowCustomersToSelectPageSize = true,
                 PageSizeOptions = "6, 3, 9",
                 Published = true,
-                DisplayOrder = 5,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 5
             };
             brandDell.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "brand_dell.jpg"), "image/pjpeg", pictureService.GetPictureSeName("Dell"), "", "", false, Domain.Common.Reference.Brand, brandDell.Id)).Id;
 
@@ -59,9 +55,7 @@ namespace Grand.Business.System.Services.Installation
                 AllowCustomersToSelectPageSize = true,
                 PageSizeOptions = "6, 3, 9",
                 Published = true,
-                DisplayOrder = 5,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 5
             };
             brandAdidas.PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "brand_adidas.jpg"), "image/pjpeg", pictureService.GetPictureSeName("Adidas"), "", "", false, Domain.Common.Reference.Brand, brandAdidas.Id)).Id;
             await _brandRepository.InsertAsync(brandAdidas);

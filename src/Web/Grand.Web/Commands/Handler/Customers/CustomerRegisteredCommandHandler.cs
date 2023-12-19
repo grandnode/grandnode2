@@ -137,8 +137,7 @@ namespace Grand.Web.Commands.Handler.Customers
                             Email = request.Model.Email,
                             CustomerId = request.Customer.Id,
                             Active = true,
-                            StoreId = request.Store.Id,
-                            CreatedOnUtc = DateTime.UtcNow
+                            StoreId = request.Store.Id
                         };
                         categories?.ForEach(x => newsLetterSubscription.Categories.Add(x));
                         await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);
@@ -171,8 +170,7 @@ namespace Grand.Web.Commands.Handler.Customers
                 Address2 = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress2),
                 ZipPostalCode = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ZipPostalCode),
                 PhoneNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Phone),
-                FaxNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax),
-                CreatedOnUtc = request.Customer.CreatedOnUtc
+                FaxNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax)
             };
 
             if (await IsAddressValid(defaultAddress))

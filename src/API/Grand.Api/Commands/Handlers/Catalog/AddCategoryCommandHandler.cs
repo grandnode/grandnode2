@@ -39,8 +39,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public async Task<CategoryDto> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = request.Model.ToEntity();
-            category.CreatedOnUtc = DateTime.UtcNow;
-            category.UpdatedOnUtc = DateTime.UtcNow;
             await _categoryService.InsertCategory(category);
             request.Model.SeName = await category.ValidateSeName(request.Model.SeName,
                 category.Name, true, _seoSettings, _slugService, _languageService);

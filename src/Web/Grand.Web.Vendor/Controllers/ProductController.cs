@@ -166,7 +166,7 @@ namespace Grand.Web.Vendor.Controllers
                 return RedirectToAction("List");
 
             var model = product.ToModel(_dateTimeService);
-            model.Ticks = product.UpdatedOnUtc.Ticks;
+            //model.Ticks = product.UpdatedOnUtc.Ticks;
 
             await _productViewModelService.PrepareProductModel(model, product, false);
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -192,7 +192,7 @@ namespace Grand.Web.Vendor.Controllers
                 //No product found with the specified id
                 return RedirectToAction("List");
 
-            if (model.Ticks != product.UpdatedOnUtc.Ticks)
+            if (model.Ticks != product.Ticks)
             {
                 Error(_translationService.GetResource("Vendor.Catalog.Products.Fields.ChangedWarning"));
                 return RedirectToAction("Edit", new { id = product.Id });

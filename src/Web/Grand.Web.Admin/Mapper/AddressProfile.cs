@@ -41,7 +41,6 @@ namespace Grand.Web.Admin.Mapper
 
             //address
             CreateMap<AddressModel, Address>()
-                .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.Id, mo => mo.Ignore())
                 .ForMember(dest => dest.Attributes, mo => mo.Ignore());
 

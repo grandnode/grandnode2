@@ -32,8 +32,7 @@ namespace Grand.Business.Customers.Services
                 Password = customer.Password,
                 PasswordFormatId = customer.PasswordFormatId,
                 PasswordSalt = customer.PasswordSalt,
-                CustomerId = customer.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                CustomerId = customer.Id
             };
 
             await _customerHistoryPasswordProductRepository.InsertAsync(chp);

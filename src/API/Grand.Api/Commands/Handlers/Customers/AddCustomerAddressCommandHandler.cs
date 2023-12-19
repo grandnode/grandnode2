@@ -18,7 +18,6 @@ namespace Grand.Api.Commands.Handlers.Customers
         public async Task<AddressDto> Handle(AddCustomerAddressCommand request, CancellationToken cancellationToken)
         {
             var address = request.Address.ToEntity();
-            address.CreatedOnUtc = DateTime.UtcNow;
             address.Id = "";
             await _customerService.InsertAddress(address, request.Customer.Id);
             return address.ToModel();

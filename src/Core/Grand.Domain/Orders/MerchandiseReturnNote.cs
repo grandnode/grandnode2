@@ -31,11 +31,6 @@
         public bool DisplayToCustomer { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of merchandise return note creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets value indicating whether this merchandise return note was create by customer
         /// </summary>
         public bool CreatedByCustomer { get; set; }

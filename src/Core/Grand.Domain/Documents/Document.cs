@@ -138,20 +138,11 @@ namespace Grand.Domain.Documents
         public int Quantity { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of document creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of document update
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the date and time of document date
         /// </summary>
         public DateTime? DocDate { get; set; }
 
+        /// <summary>
         /// Gets or sets the date and time of document due date
         /// </summary>
         public DateTime? DueDate { get; set; }

@@ -259,7 +259,6 @@ namespace Grand.Web.Vendor.Services
             merchandiseReturn.StaffNotes = model.StaffNotes;
             merchandiseReturn.MerchandiseReturnStatusId = model.MerchandiseReturnStatusId;
             merchandiseReturn.ExternalId = model.ExternalId;
-            merchandiseReturn.UpdatedOnUtc = DateTime.UtcNow;
             merchandiseReturn.UserFields = model.UserFields;
 
             if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
@@ -307,8 +306,7 @@ namespace Grand.Web.Vendor.Services
             {
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
-                MerchandiseReturnId = merchandiseReturn.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                MerchandiseReturnId = merchandiseReturn.Id
             };
             await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 

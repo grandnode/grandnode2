@@ -76,7 +76,7 @@ namespace Grand.Web.Common.Filters
                     return;
 
                 //update last activity date
-                if (_workContext.CurrentCustomer.LastActivityDateUtc.AddMinutes(1.0) < DateTime.UtcNow)
+                if (_workContext.CurrentCustomer.LastActivityDateUtc.AddMinutes(3.0) < DateTime.UtcNow)
                 {
                     await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.LastActivityDateUtc, DateTime.UtcNow);
                 }

@@ -14,8 +14,7 @@ namespace Grand.Business.System.Services.Installation
                 City = "New York",
                 StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
                 CountryId = country?.Id,
-                ZipPostalCode = "10021",
-                CreatedOnUtc = DateTime.UtcNow
+                ZipPostalCode = "10021"
             };
 
             var point = new PickupPoint()

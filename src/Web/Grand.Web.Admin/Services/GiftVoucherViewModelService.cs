@@ -131,7 +131,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<GiftVoucher> InsertGiftVoucherModel(GiftVoucherModel model)
         {
             var giftVoucher = model.ToEntity(_dateTimeService);
-            giftVoucher.CreatedOnUtc = DateTime.UtcNow;
             await _giftVoucherService.InsertGiftVoucher(giftVoucher);
             return giftVoucher;
         }

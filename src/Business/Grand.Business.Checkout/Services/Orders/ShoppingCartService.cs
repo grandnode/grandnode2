@@ -222,7 +222,6 @@ namespace Grand.Business.Checkout.Services.Orders
 
             if (update) shoppingCartItem.Quantity += quantity;
             else {
-                DateTime now = DateTime.UtcNow;
                 shoppingCartItem = new ShoppingCartItem {
                     ShoppingCartTypeId = shoppingCartType,
                     StoreId = storeId,
@@ -238,8 +237,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     IsShipEnabled = product.IsShipEnabled,
                     IsTaxExempt = product.IsTaxExempt,
                     IsGiftVoucher = product.IsGiftVoucher,
-                    CreatedOnUtc = now,
-                    UpdatedOnUtc = now,
+                    CreatedOnUtc =  DateTime.UtcNow,
                     ReservationId = reservationId,
                     Parameter = parameter,
                     Duration = duration

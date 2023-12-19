@@ -98,8 +98,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             product.HighestBid = bid;
             product.HighestBidder = highestBidder;
-            product.UpdatedOnUtc = DateTime.UtcNow;
-
             await _productRepository.UpdateAsync(product);
 
             await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -117,7 +115,6 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool endDate = false)
         {
             product.AuctionEnded = ended;
-            product.UpdatedOnUtc = DateTime.UtcNow;
             if (endDate)
                 product.AvailableEndDateTimeUtc = DateTime.UtcNow;
 

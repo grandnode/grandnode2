@@ -35,7 +35,6 @@ namespace Grand.Api.Commands.Handlers.Customers
         public async Task<CustomerDto> Handle(AddCustomerCommand request, CancellationToken cancellationToken)
         {
             var customer = request.Model.ToEntity();
-            customer.CreatedOnUtc = DateTime.UtcNow;
             customer.LastActivityDateUtc = DateTime.UtcNow;
             if (string.IsNullOrEmpty(customer.Username))
                 customer.Username = customer.Email;

@@ -360,9 +360,10 @@ namespace Grand.Business.System.Services.Installation
             await _versionRepository.InsertAsync(version);
         }
 
-        protected virtual async Task InstallMenuAdminSiteMap()
+        protected virtual Task InstallMenuAdminSiteMap()
         {
-            await _adminRepository.InsertManyAsync(StandardAdminSiteMap.SiteMap);
+            StandardAdminSiteMap.SiteMap.ForEach(x=>_adminRepository.Insert(x));
+            return Task.CompletedTask;
         }
 
         protected virtual async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)

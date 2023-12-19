@@ -132,8 +132,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<KnowledgebaseCategory> InsertKnowledgebaseCategoryModel(KnowledgebaseCategoryModel model)
         {
             var knowledgebaseCategory = model.ToEntity();
-            knowledgebaseCategory.CreatedOnUtc = DateTime.UtcNow;
-            knowledgebaseCategory.UpdatedOnUtc = DateTime.UtcNow;
             knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await knowledgebaseCategory.ValidateSeName(model.SeName, knowledgebaseCategory.Name, true, _seoSettings, _slugService, _languageService);
             knowledgebaseCategory.SeName = model.SeName;
@@ -145,7 +143,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<KnowledgebaseCategory> UpdateKnowledgebaseCategoryModel(KnowledgebaseCategory knowledgebaseCategory, KnowledgebaseCategoryModel model)
         {
             knowledgebaseCategory = model.ToEntity(knowledgebaseCategory);
-            knowledgebaseCategory.UpdatedOnUtc = DateTime.UtcNow;
             knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await knowledgebaseCategory.ValidateSeName(model.SeName, knowledgebaseCategory.Name, true, _seoSettings, _slugService, _languageService);
             knowledgebaseCategory.SeName = model.SeName;
@@ -171,8 +168,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<KnowledgebaseArticle> InsertKnowledgebaseArticleModel(KnowledgebaseArticleModel model)
         {
             var knowledgebaseArticle = model.ToEntity();
-            knowledgebaseArticle.CreatedOnUtc = DateTime.UtcNow;
-            knowledgebaseArticle.UpdatedOnUtc = DateTime.UtcNow;
             knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await knowledgebaseArticle.ValidateSeName(model.SeName, knowledgebaseArticle.Name, true, _seoSettings, _slugService, _languageService);
             knowledgebaseArticle.SeName = model.SeName;
@@ -185,7 +180,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<KnowledgebaseArticle> UpdateKnowledgebaseArticleModel(KnowledgebaseArticle knowledgebaseArticle, KnowledgebaseArticleModel model)
         {
             knowledgebaseArticle = model.ToEntity(knowledgebaseArticle);
-            knowledgebaseArticle.UpdatedOnUtc = DateTime.UtcNow;
             knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name, _seoSettings, _slugService, _languageService);
             model.SeName = await knowledgebaseArticle.ValidateSeName(model.SeName, knowledgebaseArticle.Name, true, _seoSettings, _slugService, _languageService);
             knowledgebaseArticle.SeName = model.SeName;

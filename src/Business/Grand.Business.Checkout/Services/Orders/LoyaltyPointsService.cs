@@ -83,8 +83,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 PointsBalance = await GetLoyaltyPointsBalance(customerId, storeId) + points,
                 UsedAmount = usedAmount,
                 Message = message,
-                StoreId = storeId,
-                CreatedOnUtc = DateTime.UtcNow
+                StoreId = storeId
             };
             await _rphRepository.InsertAsync(loyaltyPointsHistory);
 

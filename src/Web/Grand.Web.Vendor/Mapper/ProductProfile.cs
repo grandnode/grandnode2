@@ -41,7 +41,6 @@ namespace Grand.Web.Vendor.Mapper
             CreateMap<ProductModel, Product>()
                 .ForMember(dest => dest.Id, mo => mo.Ignore())
                 .ForMember(dest => dest.Locales, mo => mo.Ignore())
-                .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.VendorId, mo => mo.Ignore())
                 .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.Coordinates, mo => mo.Ignore())

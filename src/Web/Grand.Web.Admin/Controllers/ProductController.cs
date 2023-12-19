@@ -186,7 +186,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var model = product.ToModel(_dateTimeService);
-            model.Ticks = product.UpdatedOnUtc.Ticks;
+            //model.Ticks = product.UpdatedOnUtc.Ticks;
 
             await _productViewModelService.PrepareProductModel(model, product, false, false);
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -218,7 +218,7 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("Edit", new { id = product.Id });
             }
 
-            if (model.Ticks != product.UpdatedOnUtc.Ticks)
+            if (model.Ticks != product.Ticks)
             {
                 Error(_translationService.GetResource("Admin.Catalog.Products.Fields.ChangedWarning"));
                 return RedirectToAction("Edit", new { id = product.Id });

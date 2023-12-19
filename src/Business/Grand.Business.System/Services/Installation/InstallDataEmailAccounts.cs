@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallEmailAccounts()
+        protected virtual Task InstallEmailAccounts()
         {
             var emailAccounts = new List<EmailAccount>
                                {
@@ -20,7 +20,8 @@ namespace Grand.Business.System.Services.Installation
                                            UseServerCertificateValidation = true
                                        }
                                };
-            await _emailAccountRepository.InsertAsync(emailAccounts);
+            emailAccounts.ForEach(x=>_emailAccountRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

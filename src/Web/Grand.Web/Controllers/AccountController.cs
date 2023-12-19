@@ -707,7 +707,6 @@ namespace Grand.Web.Controllers
             {
                 var address = model.Address.ToEntity(_workContext.CurrentCustomer, addressSettings);
                 address.Attributes = await _mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = model.Address.SelectedAttributes });
-                address.CreatedOnUtc = DateTime.UtcNow;
                 customer.Addresses.Add(address);
 
                 await _customerService.InsertAddress(address, customer.Id);

@@ -205,7 +205,6 @@ namespace Grand.Web.Admin.Controllers
                 await _orderService.InsertOrderNote(new OrderNote {
                     Note = $"A shipment #{shipment.ShipmentNumber} has been added",
                     DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
                     OrderId = order.Id
                 });
 
@@ -271,7 +270,6 @@ namespace Grand.Web.Admin.Controllers
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
             });
 

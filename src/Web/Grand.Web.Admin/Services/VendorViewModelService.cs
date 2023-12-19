@@ -199,8 +199,6 @@ namespace Grand.Web.Admin.Services
         {
             var vendor = model.ToEntity();
             vendor.Address = model.Address.ToEntity();
-            vendor.Address.CreatedOnUtc = DateTime.UtcNow;
-
             await _vendorService.InsertVendor(vendor);
 
             //discounts

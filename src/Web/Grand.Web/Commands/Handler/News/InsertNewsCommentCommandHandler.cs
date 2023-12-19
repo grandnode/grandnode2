@@ -40,8 +40,7 @@ namespace Grand.Web.Commands.Handler.News
                 CustomerId = _workContext.CurrentCustomer.Id,
                 StoreId = _workContext.CurrentStore.Id,
                 CommentTitle = request.Model.CommentTitle,
-                CommentText = request.Model.CommentText,
-                CreatedOnUtc = DateTime.UtcNow
+                CommentText = request.Model.CommentText
             };
             request.NewsItem.NewsComments.Add(comment);
 

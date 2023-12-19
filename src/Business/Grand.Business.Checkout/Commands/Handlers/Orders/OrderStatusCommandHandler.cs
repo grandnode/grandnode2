@@ -56,8 +56,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Order status has been changed to {request.Os.ToString()}",
                 DisplayToCustomer = false,
-                OrderId = request.Order.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                OrderId = request.Order.Id
             });
 
             var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
@@ -103,7 +102,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     await _orderService.InsertOrderNote(new OrderNote {
                         Note = "\"Order cancelled\" by customer.",
                         DisplayToCustomer = true,
-                        CreatedOnUtc = DateTime.UtcNow,
                         OrderId = request.Order.Id
                     });
                 }

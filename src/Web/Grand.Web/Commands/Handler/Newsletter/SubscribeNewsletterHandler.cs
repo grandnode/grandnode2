@@ -71,8 +71,7 @@ namespace Grand.Web.Commands.Handler.Newsletter
                         Email = email,
                         CustomerId = _workContext.CurrentCustomer.Id,
                         Active = false,
-                        StoreId = _workContext.CurrentStore.Id,
-                        CreatedOnUtc = DateTime.UtcNow
+                        StoreId = _workContext.CurrentStore.Id
                     };
                     await _newsLetterSubscriptionService.InsertNewsLetterSubscription(subscription);
 

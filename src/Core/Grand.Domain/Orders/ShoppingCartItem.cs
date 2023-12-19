@@ -65,7 +65,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the date and time of instance update
         /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
+        public DateTime? UpdatedOnUtc { get; set; }
         
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is free shipping

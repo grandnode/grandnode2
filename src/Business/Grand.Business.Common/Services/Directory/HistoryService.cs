@@ -23,7 +23,6 @@ namespace Grand.Business.Common.Services.Directory
                 throw new ArgumentNullException(nameof(entity));
             var history = new HistoryObject
             {
-                CreatedOnUtc = DateTime.UtcNow,
                 Object = entity
             };
             await _historyRepository.InsertAsync(history);

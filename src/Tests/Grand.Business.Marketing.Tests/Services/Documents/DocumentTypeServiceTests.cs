@@ -26,7 +26,7 @@ namespace Grand.Business.Marketing.Tests.Services.Documents
 
             _mediatorMock = new Mock<IMediator>();
             _documentTypeRepositoryMock = new Mock<IRepository<DocumentType>>();
-            var _mongoQueryableMock = new Mock<MongoRepository<DocumentType>>();
+            var _mongoQueryableMock = new Mock<MongoRepository<DocumentType>>(Mock.Of<IAuditInfoProvider>());
             _expected = new List<DocumentType>
             {
                 new DocumentType() {Name = "name1", Description = "t1", DisplayOrder = 0},

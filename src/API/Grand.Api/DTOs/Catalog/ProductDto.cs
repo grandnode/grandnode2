@@ -124,8 +124,6 @@ namespace Grand.Api.DTOs.Catalog
         public int DisplayOrderBrand { get; set; }
         public int DisplayOrderCollection { get; set; }
         public bool Published { get; set; }
-        public DateTime CreatedOnUtc { get; set; }
-        public DateTime UpdatedOnUtc { get; set; }
         public int Sold { get; set; }
         public Int64 Viewed { get; set; }
         public int OnSale { get; set; }

@@ -48,8 +48,7 @@ namespace Grand.Web.Commands.Handler.Vendors
                 Rating = rating,
                 HelpfulYesTotal = 0,
                 HelpfulNoTotal = 0,
-                IsApproved = isApproved,
-                CreatedOnUtc = DateTime.UtcNow
+                IsApproved = isApproved
             };
             await _vendorService.InsertVendorReview(vendorReview);
 

@@ -36,7 +36,7 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
 
             _casheManagerMock = new Mock<ICacheBase>();
             _categoryRepositoryMock = new Mock<IRepository<Category>>();
-            _productRepositoryMock = new Mock<MongoRepository<Product>>();
+            _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
             _workContextMock = new Mock<IWorkContext>();
             _mediatorMock = new Mock<IMediator>();
             _aclServiceMock = new Mock<IAclService>();

@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallTaxCategories()
+        protected virtual Task InstallTaxCategories()
         {
             var taxCategories = new List<TaxCategory>
                                {
@@ -34,8 +34,8 @@ namespace Grand.Business.System.Services.Installation
                                            DisplayOrder = 20
                                        }
                                };
-            await _taxCategoryRepository.InsertAsync(taxCategories);
-
+            taxCategories.ForEach(x=>_taxCategoryRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

@@ -106,7 +106,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
 
             var tempCheckoutAttributeRepo = new Mock<IRepository<CheckoutAttribute>>();
             {
-                var IMongoCollection = new Mock<MongoRepository<CheckoutAttribute>>().Object;
+                var IMongoCollection = new Mock<MongoRepository<CheckoutAttribute>>(Mock.Of<IAuditInfoProvider>()).Object;
                 IMongoCollection.Insert(ca1);
                 IMongoCollection.Insert(ca2);
                 IMongoCollection.Insert(ca3);

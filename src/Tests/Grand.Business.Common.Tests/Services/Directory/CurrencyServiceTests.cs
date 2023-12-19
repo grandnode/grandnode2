@@ -42,9 +42,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 DisplayLocale = "en-US",
                 CustomFormatting = "",
                 Published = true,
-                DisplayOrder = 1,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 1
             };
             currencyEUR = new Currency {
                 Id = "2",
@@ -54,9 +52,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 DisplayLocale = "",
                 CustomFormatting = "€0.00",
                 Published = true,
-                DisplayOrder = 2,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 2
             };
             currencyRUR = new Currency {
                 Id = "3",
@@ -66,14 +62,12 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 DisplayLocale = "ru-RU",
                 CustomFormatting = "",
                 Published = true,
-                DisplayOrder = 3,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow
+                DisplayOrder = 3
             };
 
             tempCurrencyRepository = new Mock<IRepository<Currency>>();
             {
-                var IMongoCollection = new Mock<MongoRepository<Currency>>().Object;
+                var IMongoCollection = new Mock<MongoRepository<Currency>>(Mock.Of<IAuditInfoProvider>()).Object;
                 IMongoCollection.Insert(currencyUSD);
                 IMongoCollection.Insert(currencyEUR);
                 IMongoCollection.Insert(currencyRUR);

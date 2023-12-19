@@ -53,7 +53,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 Note = "Order has been marked as paid",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id
 
             });
