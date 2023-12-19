@@ -172,7 +172,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Campaign> InsertCampaignModel(CampaignModel model)
         {
             var campaign = model.ToEntity();
-            campaign.CreatedOnUtc = DateTime.UtcNow;
             await _campaignService.InsertCampaign(campaign);
             return campaign;
         }

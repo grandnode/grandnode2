@@ -1,9 +1,9 @@
-﻿using Grand.Api.Models;
-
+﻿
 namespace Grand.Api.DTOs.Customers
 {
-    public class AddressDto : BaseApiEntityModel
+    public class AddressDto 
     {
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -19,7 +19,5 @@ namespace Grand.Api.DTOs.Customers
         public string FaxNumber { get; set; }
         public string Note { get; set; }
         public int AddressType { get; set; }
-        public DateTime CreatedOnUtc { get; set; }
-
     }
 }

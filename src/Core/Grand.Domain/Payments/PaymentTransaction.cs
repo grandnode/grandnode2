@@ -14,7 +14,6 @@
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>
-        /// <summary>
         /// Gets or sets transaction status
         /// </summary>
         public TransactionStatus TransactionStatus { get; set; }
@@ -100,15 +99,6 @@
         /// gets or sets errors
         /// </summary>
         public IList<string> Errors { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of transaction creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-        /// <summary>
-        /// Gets or sets the date and time of transaction updated
-        /// </summary>
-        public DateTime? UpdatedOnUtc { get; set; }
 
         /// <summary>
         /// Gets or sets

@@ -1,7 +1,7 @@
 namespace Grand.Domain
 {
 
-    public abstract partial class SubBaseEntity : ParentEntity
+    public abstract class SubBaseEntity : ParentEntity
     {
 
     }

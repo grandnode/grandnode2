@@ -454,7 +454,7 @@ namespace Grand.Web.Admin.Services
             {
                 //date
                 model.CreatedOn = _dateTimeService.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
-                model.UpdatedOn = _dateTimeService.ConvertToUserTime(product.UpdatedOnUtc, DateTimeKind.Utc);
+                model.UpdatedOn = product.UpdatedOnUtc.HasValue ? _dateTimeService.ConvertToUserTime(product.UpdatedOnUtc.Value, DateTimeKind.Utc) : null;
 
                 //parent grouped product
                 var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
@@ -864,9 +864,6 @@ namespace Grand.Web.Admin.Services
             
             //product
             var product = model.ToEntity(_dateTimeService);
-            product.CreatedOnUtc = DateTime.UtcNow;
-            product.UpdatedOnUtc = DateTime.UtcNow;
-
             await _productService.InsertProduct(product);
 
             model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
@@ -909,7 +906,6 @@ namespace Grand.Web.Admin.Services
 
             //product
             product = model.ToEntity(product, _dateTimeService);
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
             model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
             product.SeName = model.SeName;

@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallMeasures()
+        protected virtual Task InstallMeasures()
         {
             var measureDimensions = new List<MeasureDimension>
             {
@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Installation
                 }
             };
 
-            await _measureDimensionRepository.InsertAsync(measureDimensions);
+            measureDimensions.ForEach(x=>_measureDimensionRepository.Insert(x));
 
             var measureWeights = new List<MeasureWeight>
             {
@@ -65,7 +65,7 @@ namespace Grand.Business.System.Services.Installation
                 }
             };
 
-            await _measureWeightRepository.InsertAsync(measureWeights);
+            measureWeights.ForEach(x=>_measureWeightRepository.Insert(x));
 
             var measureUnits = new List<MeasureUnit>
             {
@@ -85,9 +85,8 @@ namespace Grand.Business.System.Services.Installation
                     DisplayOrder = 3
                 }
             };
-
-            await _measureUnitRepository.InsertAsync(measureUnits);
-
+            measureUnits.ForEach(x=>_measureUnitRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

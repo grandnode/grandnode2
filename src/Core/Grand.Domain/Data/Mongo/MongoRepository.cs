@@ -8,9 +8,11 @@ namespace Grand.Domain.Data.Mongo
     /// <summary>
     /// MongoDB repository
     /// </summary>
-    public partial class MongoRepository<T> : IRepository<T> where T : BaseEntity
+    public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         #region Fields
+
+        private readonly IAuditInfoProvider _auditInfoProvider;
 
         /// <summary>
         /// Gets the collection
@@ -36,6 +38,7 @@ namespace Grand.Domain.Data.Mongo
         /// Mongo Database
         /// </summary>
         protected IMongoDatabase _database;
+
         public IMongoDatabase Database {
             get {
                 return _database;
@@ -49,8 +52,9 @@ namespace Grand.Domain.Data.Mongo
         /// <summary>
         /// Ctor
         /// </summary>        
-        public MongoRepository()
+        public MongoRepository(IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             var connection = DataSettingsManager.LoadSettings();
 
             if (!string.IsNullOrEmpty(connection.ConnectionString))
@@ -61,8 +65,10 @@ namespace Grand.Domain.Data.Mongo
                 _collection = _database.GetCollection<T>(typeof(T).Name);
             }
         }
-        public MongoRepository(string connectionString)
+
+        public MongoRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             var client = new MongoClient(connectionString);
             var databaseName = new MongoUrl(connectionString).DatabaseName;
             _database = client.GetDatabase(databaseName);
@@ -70,9 +76,10 @@ namespace Grand.Domain.Data.Mongo
         }
 
 
-        public MongoRepository(IMongoDatabase database)
+        public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
         {
             _database = database;
+            _auditInfoProvider = auditInfoProvider;
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
 
@@ -89,6 +96,7 @@ namespace Grand.Domain.Data.Mongo
         {
             return _collection.Find(e => e.Id == id).FirstOrDefault();
         }
+
         /// <summary>
         /// Get async entity by identifier 
         /// </summary>
@@ -100,20 +108,13 @@ namespace Grand.Domain.Data.Mongo
         }
 
         /// <summary>
-        /// Get all entities in collection
-        /// </summary>
-        /// <returns>collection of entities</returns>
-        public virtual Task<List<T>> GetAllAsync()
-        {
-            return _collection.AsQueryable().ToListAsync();
-        }
-       
-        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>
         public virtual T Insert(T entity)
         {
+            entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
             _collection.InsertOne(entity);
             return entity;
         }
@@ -124,38 +125,11 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="entity">Entity</param>
         public virtual async Task<T> InsertAsync(T entity)
         {
+            entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
             await _collection.InsertOneAsync(entity);
             return entity;
         }
-
-        /// <summary>
-        /// Async Insert many entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task InsertManyAsync(IEnumerable<T> entities)
-        {
-            await _collection.InsertManyAsync(entities);
-        }
-
-        /// <summary>
-        /// Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Insert(IEnumerable<T> entities)
-        {
-            _collection.InsertMany(entities);
-        }
-
-        /// <summary>
-        /// Async Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> InsertAsync(IEnumerable<T> entities)
-        {
-            await _collection.InsertManyAsync(entities);
-            return entities;
-        }
-
 
         /// <summary>
         /// Update entity
@@ -163,9 +137,10 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="entity">Entity</param>
         public virtual T Update(T entity)
         {
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider?.GetCurrentUser();
             _collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions() { IsUpsert = false });
             return entity;
-
         }
 
         /// <summary>
@@ -174,21 +149,11 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="entity">Entity</param>
         public virtual async Task<T> UpdateAsync(T entity)
         {
-            await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity, new ReplaceOptions() { IsUpsert = false });
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
+            await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity,
+                new ReplaceOptions() { IsUpsert = false });
             return entity;
-        }
-
-
-        /// <summary>
-        /// Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Update(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                Update(entity);
-            }
         }
 
         /// <summary>
@@ -203,6 +168,8 @@ namespace Grand.Domain.Data.Mongo
             var builder = Builders<T>.Filter;
             var filter = builder.Eq(x => x.Id, id);
             var update = Builders<T>.Update
+                .Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime())
+                .Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser())
                 .Set(expression, value);
 
             await _collection.UpdateOneAsync(filter, update);
@@ -231,8 +198,11 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="filterexpression"></param>
         /// <param name="updateBuilder"></param>
         /// <returns></returns>
-        public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
-        {           
+        public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression,
+            UpdateBuilder<T> updateBuilder)
+        {
+            updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var update = Builders<T>.Update.Combine(updateBuilder.Fields);
             await _collection.UpdateOneAsync(filterexpression, update);
         }
@@ -243,8 +213,11 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="filterexpression"></param>
         /// <param name="updateBuilder"></param>
         /// <returns></returns>
-        public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
+        public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression,
+            UpdateBuilder<T> updateBuilder)
         {
+            updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
             var update = Builders<T>.Update.Combine(updateBuilder.Fields);
             await _collection.UpdateManyAsync(filterexpression, update);
         }
@@ -263,8 +236,10 @@ namespace Grand.Domain.Data.Mongo
             var filter = builder.Eq(x => x.Id, id);
             var update = Builders<T>.Update.AddToSet(field, value);
 
-            await _collection.UpdateOneAsync(filter, update);
-
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+            await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
         /// <summary>
@@ -277,16 +252,20 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
+        public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
+            Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
         {
-            var filter = Builders<T>.Filter.Eq(x => x.Id, id) 
-                & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+            var filter = Builders<T>.Filter.Eq(x => x.Id, id)
+                         & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
 
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
-            await _collection.UpdateOneAsync(filter, update);
+            await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
 
         /// <summary>
@@ -298,25 +277,31 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value)
+        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+            Expression<Func<U, bool>> elemFieldMatch, U value)
         {
-            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id)
-                & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
+            var filter = string.IsNullOrEmpty(id)
+                ? Builders<T>.Filter.Where(x => true)
+                : Builders<T>.Filter.Eq(x => x.Id, id)
+                  & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
 
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
             if (string.IsNullOrEmpty(id))
             {
-                await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(filter, combinedUpdate);
             }
             else
             {
-                await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(filter, combinedUpdate);
             }
-
         }
+
         /// <summary>
         /// Update subdocuments
         /// </summary>
@@ -333,15 +318,19 @@ namespace Grand.Domain.Data.Mongo
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
 
-            var filter = new BsonDocument
-            {
+            var filter = new BsonDocument {
                 new BsonElement(minfo.Name, elemFieldMatch.ToString())
             };
 
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-            await _collection.UpdateManyAsync(filter, update);
 
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+
+            await _collection.UpdateManyAsync(filter, combinedUpdate);
         }
+
         /// <summary>
         /// Delete subdocument
         /// </summary>
@@ -352,17 +341,25 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
         /// <returns></returns>
-        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
+            Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
         {
-            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
+            var filter = string.IsNullOrEmpty(id)
+                ? Builders<T>.Filter.Where(x => true)
+                : Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+
             if (string.IsNullOrEmpty(id))
             {
-                await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(filter, combinedUpdate);
             }
             else
             {
-                await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(filter, combinedUpdate);
             }
         }
 
@@ -374,12 +371,19 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="field"></param>
         /// <param name="elemFieldMatch"></param>
         /// <returns></returns>
-        public virtual async Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch)
+        public virtual async Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+            Expression<Func<U, bool>> elemFieldMatch)
         {
             var filter = Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-            await _collection.UpdateOneAsync(filter, update);
+
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+
+            await _collection.UpdateOneAsync(filter, combinedUpdate);
         }
+
         /// <summary>
         /// Delete subdocument
         /// </summary>
@@ -390,26 +394,19 @@ namespace Grand.Domain.Data.Mongo
         public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
         {
             var update = Builders<T>.Update.Pull(field, element);
+
+            var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+            var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+            var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+
             if (string.IsNullOrEmpty(id))
             {
-                await _collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), update);
+                await _collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate);
             }
             else
             {
-                await _collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), update);
+                await _collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
             }
-        }
-        /// <summary>
-        /// Async Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> UpdateAsync(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                await UpdateAsync(entity);
-            }
-            return entities;
         }
 
         /// <summary>
@@ -432,18 +429,6 @@ namespace Grand.Domain.Data.Mongo
         }
 
         /// <summary>
-        /// Delete entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Delete(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                _collection.FindOneAndDeleteAsync(e => e.Id == entity.Id);
-            }
-        }
-
-        /// <summary>
         /// Async Delete entities
         /// </summary>
         /// <param name="entities">Entities</param>
@@ -453,8 +438,10 @@ namespace Grand.Domain.Data.Mongo
             {
                 await DeleteAsync(entity);
             }
+
             return entities;
         }
+
         /// <summary>
         /// Delete a many entities
         /// </summary>

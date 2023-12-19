@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallMessageTemplates()
+        protected virtual Task InstallMessageTemplates()
         {
             var eaGeneral = _emailAccountRepository.Table.FirstOrDefault();
             if (eaGeneral == null)
@@ -574,7 +574,9 @@ namespace Grand.Business.System.Services.Installation
                                            EmailAccountId = eaGeneral.Id
                                        }
                                };
-            await _messageTemplateRepository.InsertAsync(messageTemplates);
+            
+            messageTemplates.ForEach(x=>_messageTemplateRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

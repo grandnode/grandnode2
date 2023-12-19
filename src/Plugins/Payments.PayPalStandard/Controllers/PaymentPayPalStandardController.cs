@@ -129,7 +129,6 @@ namespace Payments.PayPalStandard.Controllers
                     await _orderService.InsertOrderNote(new OrderNote {
                         Note = sb.ToString(),
                         DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
                         OrderId = order.Id
                     });
 
@@ -145,8 +144,7 @@ namespace Payments.PayPalStandard.Controllers
                         await _orderService.InsertOrderNote(new OrderNote {
                             Note = errorStr,
                             OrderId = order.Id,
-                            DisplayToCustomer = false,
-                            CreatedOnUtc = DateTime.UtcNow
+                            DisplayToCustomer = false
                         });
 
                         return RedirectToAction("Index", "Home", new { area = "" });
@@ -262,7 +260,6 @@ namespace Payments.PayPalStandard.Controllers
                                 await _orderService.InsertOrderNote(new OrderNote {
                                     Note = sb.ToString(),
                                     DisplayToCustomer = false,
-                                    CreatedOnUtc = DateTime.UtcNow,
                                     OrderId = order.Id
                                 });
                                 var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
@@ -291,7 +288,6 @@ namespace Payments.PayPalStandard.Controllers
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
                                                     DisplayToCustomer = false,
-                                                    CreatedOnUtc = DateTime.UtcNow,
                                                     OrderId = order.Id
                                                 });
                                             }
@@ -322,7 +318,6 @@ namespace Payments.PayPalStandard.Controllers
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
                                                     DisplayToCustomer = false,
-                                                    CreatedOnUtc = DateTime.UtcNow,
                                                     OrderId = order.Id
                                                 });
                                             }

@@ -18,7 +18,6 @@ namespace Grand.Business.Messages.Commands.Handlers.Common
         public async Task<bool> Handle(InsertContactUsCommand request, CancellationToken cancellationToken)
         {
             var contactus = new ContactUs {
-                CreatedOnUtc = DateTime.UtcNow,
                 CustomerId = request.CustomerId,
                 StoreId = request.StoreId,
                 VendorId = request.VendorId,

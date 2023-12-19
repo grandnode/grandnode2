@@ -46,7 +46,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
             var collection = await _collectionService.GetCollectionById(request.Model.Id);
             var prevPictureId = collection.PictureId;
             collection = request.Model.ToEntity(collection);
-            collection.UpdatedOnUtc = DateTime.UtcNow;
             request.Model.SeName = await collection.ValidateSeName(request.Model.SeName, collection.Name, true, _seoSettings, _slugService, _languageService);
             collection.SeName = request.Model.SeName;
             await _collectionService.UpdateCollection(collection);

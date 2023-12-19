@@ -62,6 +62,7 @@ namespace Grand.Web.Vendor.Services
         private readonly MeasureSettings _measureSettings;
         private readonly TaxSettings _taxSettings;
         private readonly SeoSettings _seoSettings;
+
         public ProductViewModelService(
             IProductService productService,
             IInventoryManageService inventoryManageService,
@@ -88,7 +89,7 @@ namespace Grand.Web.Vendor.Services
             ILanguageService languageService,
             IProductAttributeFormatter productAttributeFormatter,
             IStockQuantityService stockQuantityService,
-            IAuctionService auctionService, 
+            IAuctionService auctionService,
             IPriceFormatter priceFormatter,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
@@ -371,7 +372,9 @@ namespace Grand.Web.Vendor.Services
             {
                 //date
                 model.CreatedOn = _dateTimeService.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
-                model.UpdatedOn = _dateTimeService.ConvertToUserTime(product.UpdatedOnUtc, DateTimeKind.Utc);
+                model.UpdatedOn = product.UpdatedOnUtc.HasValue
+                    ? _dateTimeService.ConvertToUserTime(product.UpdatedOnUtc.Value, DateTimeKind.Utc)
+                    : null;
 
                 //parent grouped product
                 var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
@@ -759,12 +762,11 @@ namespace Grand.Web.Vendor.Services
         {
             //product
             var product = model.ToEntity(_dateTimeService);
-            product.CreatedOnUtc = DateTime.UtcNow;
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.VendorId = _workContext.CurrentVendor!.Id;
             await _productService.InsertProduct(product);
 
-            model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
+            model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService,
+                _languageService);
             product.SeName = model.SeName;
             product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name,
                 _seoSettings, _slugService, _languageService);
@@ -789,11 +791,12 @@ namespace Grand.Web.Vendor.Services
 
             //product
             product = model.ToEntity(product, _dateTimeService);
-            product.UpdatedOnUtc = DateTime.UtcNow;
             product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
-            model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);
+            model.SeName = await product.ValidateSeName(model.SeName, product.Name, true, _seoSettings, _slugService,
+                _languageService);
             product.SeName = model.SeName;
-            product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name, _seoSettings, _slugService, _languageService);
+            product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name, _seoSettings,
+                _slugService, _languageService);
 
             //search engine name
             await _slugService.SaveSlug(product, model.SeName, "");
@@ -1267,7 +1270,7 @@ namespace Grand.Web.Vendor.Services
                 //update
                 var product = await _productService.GetProductById(pModel.Id, true);
                 if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
-                
+
                 var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
 
                 product.Sku = pModel.Sku;
@@ -1299,7 +1302,7 @@ namespace Grand.Web.Vendor.Services
                 //delete
                 var product = await _productService.GetProductById(pModel.Id, true);
                 if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
-                
+
                 await _productService.DeleteProduct(product);
             }
         }
@@ -1367,7 +1370,8 @@ namespace Grand.Web.Vendor.Services
             return model;
         }
 
-        public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(ProductAttributeMapping productAttributeMapping)
+        public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
+            ProductAttributeMapping productAttributeMapping)
         {
             var model = productAttributeMapping.ToModel();
             foreach (var attribute in await _productAttributeService.GetAllProductAttributes())

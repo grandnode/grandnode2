@@ -1966,7 +1966,6 @@ namespace Grand.Business.Messages.Services
             email.AttachmentFilePath = attachmentFilePath;
             email.AttachmentFileName = attachmentFileName;
             email.AttachedDownloads = attachments;
-            email.CreatedOnUtc = DateTime.UtcNow;
             email.EmailAccountId = emailAccount.Id;
             email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
                     : (DateTime?)(DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));

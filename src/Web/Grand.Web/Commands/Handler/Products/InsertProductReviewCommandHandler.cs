@@ -65,8 +65,7 @@ namespace Grand.Web.Commands.Handler.Products
                 HelpfulYesTotal = 0,
                 HelpfulNoTotal = 0,
                 IsApproved = isApproved,
-                ConfirmedPurchase = confirmPurchased,
-                CreatedOnUtc = DateTime.UtcNow
+                ConfirmedPurchase = confirmPurchased
             };
 
             await _productReviewService.InsertProductReview(productReview);

@@ -112,12 +112,6 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <returns>Order item</returns>
         Task<OrderItem> GetOrderItemByGuid(Guid orderItemGuid);
 
-        /// <summary>
-        /// Delete an order item
-        /// </summary>
-        /// <param name="orderItem">The order item</param>
-        Task DeleteOrderItem(OrderItem orderItem);
-
         #endregion
 
         #region Order notes

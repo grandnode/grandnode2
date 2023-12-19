@@ -488,7 +488,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 var warehouse = model.ToEntity();
                 var address = model.Address.ToEntity();
-                address.CreatedOnUtc = DateTime.UtcNow;
                 warehouse.Address = address;
                 await _warehouseService.InsertWarehouse(warehouse);
 

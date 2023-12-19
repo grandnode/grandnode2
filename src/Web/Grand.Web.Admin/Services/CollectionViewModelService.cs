@@ -118,8 +118,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Collection> InsertCollectionModel(CollectionModel model)
         {
             var collection = model.ToEntity();
-            collection.CreatedOnUtc = DateTime.UtcNow;
-            collection.UpdatedOnUtc = DateTime.UtcNow;
             //discounts
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCollections, showHidden: true);
             foreach (var discount in allDiscounts)
@@ -147,7 +145,6 @@ namespace Grand.Web.Admin.Services
         {
             var prevPictureId = collection.PictureId;
             collection = model.ToEntity(collection);
-            collection.UpdatedOnUtc = DateTime.UtcNow;
             collection.Locales = await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService, _languageService);
             //discounts
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCollections, showHidden: true);

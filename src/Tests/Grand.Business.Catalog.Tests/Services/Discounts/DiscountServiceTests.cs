@@ -410,7 +410,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() { 
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -560,7 +559,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -592,14 +590,12 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
             };
             await _discountUsageHistoryRepository.InsertAsync(discountUsageHistory);
             var discountUsageHistory2 = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "124",
                 CouponCode = "TEST123"
@@ -630,7 +626,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -662,7 +657,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -696,7 +690,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
             var discountUsageHistory = new DiscountUsageHistory() {
-                CreatedOnUtc = DateTime.UtcNow,
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"

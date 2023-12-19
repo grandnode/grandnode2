@@ -334,7 +334,6 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 email.To = subscription.Email;
                 email.Subject = subject;
                 email.Body = body;
-                email.CreatedOnUtc = DateTime.UtcNow;
                 email.EmailAccountId = emailAccount.Id;
                 email.Reference = Domain.Common.Reference.Campaign;
                 email.ObjectId = campaign.Id;

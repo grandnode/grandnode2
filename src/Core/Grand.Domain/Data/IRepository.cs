@@ -5,7 +5,7 @@ namespace Grand.Domain.Data
     /// <summary>
     /// Repository
     /// </summary>
-    public partial interface IRepository<T> where T : BaseEntity
+    public interface IRepository<T> where T : BaseEntity
     {
 
         /// <summary>
@@ -29,12 +29,6 @@ namespace Grand.Domain.Data
         Task<T> GetByIdAsync(string id);
 
         /// <summary>
-        /// Get all entities in collection
-        /// </summary>
-        /// <returns>collection of entities</returns>
-        Task<List<T>> GetAllAsync();
-        
-        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>
@@ -47,24 +41,6 @@ namespace Grand.Domain.Data
         Task<T> InsertAsync(T entity);
 
         /// <summary>
-        /// Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        void Insert(IEnumerable<T> entities);
-
-        /// <summary>
-        /// Async Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        Task<IEnumerable<T>> InsertAsync(IEnumerable<T> entities);
-
-        /// <summary>
-        /// Async Insert many entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        Task InsertManyAsync(IEnumerable<T> entities);
-
-        /// <summary>
         /// Update entity
         /// </summary>
         /// <param name="entity">Entity</param>
@@ -75,12 +51,6 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <param name="entity">Entity</param>
         Task<T> UpdateAsync(T entity);
-
-        /// <summary>
-        /// Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        void Update(IEnumerable<T> entities);
 
         /// <summary>
         /// Update field for entity
@@ -196,27 +166,16 @@ namespace Grand.Domain.Data
         Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
 
         /// <summary>
-        /// Async Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        Task<IEnumerable<T>> UpdateAsync(IEnumerable<T> entities);
-
-        /// <summary>
         /// Delete entity
         /// </summary>
         /// <param name="entity">Entity</param>
         void Delete(T entity);
 
+        /// <summary>
         /// Async Delete entity
         /// </summary>
         /// <param name="entity">Entity</param>
         Task<T> DeleteAsync(T entity);
-
-        /// <summary>
-        /// Delete entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        void Delete(IEnumerable<T> entities);
 
         /// <summary>
         /// Async Delete entities

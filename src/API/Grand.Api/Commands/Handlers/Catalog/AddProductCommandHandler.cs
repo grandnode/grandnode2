@@ -40,8 +40,6 @@ namespace Grand.Api.Commands.Handlers.Catalog
         public async Task<ProductDto> Handle(AddProductCommand request, CancellationToken cancellationToken)
         {
             var product = request.Model.ToEntity();
-            product.CreatedOnUtc = DateTime.UtcNow;
-            product.UpdatedOnUtc = DateTime.UtcNow;
             await _productService.InsertProduct(product);
 
             request.Model.SeName = await product.ValidateSeName(request.Model.SeName, product.Name, true, _seoSettings, _slugService, _languageService);

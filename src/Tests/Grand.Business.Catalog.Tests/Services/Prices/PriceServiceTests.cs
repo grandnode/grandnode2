@@ -96,7 +96,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
             IRepository<Currency> _currencyRepository;
             var tempCurrencyRepository = new Mock<IRepository<Currency>>();
             {
-                var IMongoCollection = new Mock<MongoRepository<Currency>>().Object;
+                var IMongoCollection = new Mock<MongoRepository<Currency>>(Mock.Of<IAuditInfoProvider>()).Object;
                 IMongoCollection.Insert(_currency);
 
 

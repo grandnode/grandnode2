@@ -75,7 +75,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<BlogPost> InsertBlogPostModel(BlogPostModel model)
         {
             var blogPost = model.ToEntity(_dateTimeService);
-            blogPost.CreatedOnUtc = DateTime.UtcNow;
             await _blogService.InsertBlogPost(blogPost);
 
             //search engine name

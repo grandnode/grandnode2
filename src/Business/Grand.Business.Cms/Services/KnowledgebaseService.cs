@@ -68,7 +68,6 @@ namespace Grand.Business.Cms.Services
         /// <param name="kc"></param>
         public virtual async Task UpdateKnowledgebaseCategory(KnowledgebaseCategory kc)
         {
-            kc.UpdatedOnUtc = DateTime.UtcNow;
             await _knowledgebaseCategoryRepository.UpdateAsync(kc);
             await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
@@ -130,9 +129,6 @@ namespace Grand.Business.Cms.Services
         /// <param name="kc"></param>
         public virtual async Task InsertKnowledgebaseCategory(KnowledgebaseCategory kc)
         {
-            kc.CreatedOnUtc = DateTime.UtcNow;
-            kc.UpdatedOnUtc = DateTime.UtcNow;
-
             await _knowledgebaseCategoryRepository.InsertAsync(kc);
 
             await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
@@ -195,8 +191,6 @@ namespace Grand.Business.Cms.Services
         /// <param name="ka"></param>
         public virtual async Task InsertKnowledgebaseArticle(KnowledgebaseArticle ka)
         {
-            ka.CreatedOnUtc = DateTime.UtcNow;
-            ka.UpdatedOnUtc = DateTime.UtcNow;
             await _knowledgebaseArticleRepository.InsertAsync(ka);
             await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
@@ -209,7 +203,6 @@ namespace Grand.Business.Cms.Services
         /// <param name="ka"></param>
         public virtual async Task UpdateKnowledgebaseArticle(KnowledgebaseArticle ka)
         {
-            ka.UpdatedOnUtc = DateTime.UtcNow;
             await _knowledgebaseArticleRepository.UpdateAsync(ka);
             await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);

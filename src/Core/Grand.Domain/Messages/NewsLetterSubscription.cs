@@ -35,11 +35,6 @@ namespace Grand.Domain.Messages
         public string StoreId { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time when subscription was created
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the categories
         /// </summary>
         public virtual ICollection<string> Categories

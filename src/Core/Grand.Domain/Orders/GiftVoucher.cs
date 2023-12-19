@@ -75,11 +75,6 @@ namespace Grand.Domain.Orders
         public DateTime? ValidTo { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-        
-        /// <summary>
         /// Gets or sets the gift voucher usage history
         /// </summary>
         public virtual ICollection<GiftVoucherUsageHistory> GiftVoucherUsageHistory

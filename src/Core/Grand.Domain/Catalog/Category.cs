@@ -160,17 +160,7 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the hide on catalog page (subcategories)
         /// </summary>
         public bool HideOnCatalog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance update
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>

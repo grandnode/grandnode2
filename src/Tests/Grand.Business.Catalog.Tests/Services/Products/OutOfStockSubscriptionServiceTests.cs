@@ -44,8 +44,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var outOfStockSubscription3 = new OutOfStockSubscription() {
                 CustomerId = "2"
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
-
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
             //Act
             var result = await _outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId("1");
 
@@ -75,7 +76,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 StoreId = "",
                 WarehouseId = ""
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
             var result = await _outOfStockSubscriptionService.FindSubscription("1", "1", new List<CustomAttribute>(), "", "");
@@ -105,7 +108,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 StoreId = "",
                 WarehouseId = ""
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
             var result = await _outOfStockSubscriptionService.FindSubscription("1", "1", new List<CustomAttribute>(), "1", "");
@@ -135,7 +140,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 StoreId = "",
                 WarehouseId = ""
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
             var result = await _outOfStockSubscriptionService.GetSubscriptionById(outOfStockSubscription1.Id);
@@ -222,7 +229,10 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 StoreId = "",
                 WarehouseId = ""
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
+            
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
             await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product() { Id = "1" }, "");
@@ -255,7 +265,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 StoreId = "",
                 WarehouseId = ""
             };
-            await _repository.InsertManyAsync(new[] { outOfStockSubscription1, outOfStockSubscription2, outOfStockSubscription3 });
+            await _repository.InsertAsync(outOfStockSubscription1);
+            await _repository.InsertAsync(outOfStockSubscription2);
+            await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
             await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product() { Id = "1" }, new CustomAttribute[] { new CustomAttribute { Key = "MyKey", Value = "1" } }, "");

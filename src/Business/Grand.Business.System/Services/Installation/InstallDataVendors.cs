@@ -38,7 +38,7 @@ namespace Grand.Business.System.Services.Installation
                 }
             };
 
-            await _vendorRepository.InsertAsync(vendors);
+            vendors.ForEach(x=>_vendorRepository.Insert(x));
 
             //search engine names
             foreach (var vendor in vendors)

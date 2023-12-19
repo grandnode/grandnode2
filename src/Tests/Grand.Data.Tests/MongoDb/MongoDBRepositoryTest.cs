@@ -5,9 +5,9 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace Grand.Data.Tests.MongoDb
 {
-    public partial class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where T : BaseEntity
+    public class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where T : BaseEntity
     {
-        public MongoDBRepositoryTest():base(DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName))
+        public MongoDBRepositoryTest():base(DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName), new AuditInfoProvider())
         {
             var cp = new ConventionPack {
                 new IgnoreExtraElementsConvention(true)
@@ -22,4 +22,6 @@ namespace Grand.Data.Tests.MongoDb
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
     }
+    
+    
 }

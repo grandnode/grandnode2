@@ -629,7 +629,6 @@ namespace Grand.Web.Admin.Services
                 StoreId = _workContext.CurrentStore.Id,
                 OwnerId = ownerId,
                 Attributes = model.Attributes,
-                CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow
             };
 
@@ -682,8 +681,7 @@ namespace Grand.Web.Admin.Services
                                 CustomerId = customer.Id,
                                 Email = customer.Email,
                                 Active = true,
-                                StoreId = store.Id,
-                                CreatedOnUtc = DateTime.UtcNow
+                                StoreId = store.Id
                             });
                         }
                     }
@@ -825,8 +823,7 @@ namespace Grand.Web.Admin.Services
                                 CustomerId = customer.Id,
                                 Email = customer.Email,
                                 Active = true,
-                                StoreId = store.Id,
-                                CreatedOnUtc = DateTime.UtcNow
+                                StoreId = store.Id
                             });
                         }
                     }
@@ -912,7 +909,6 @@ namespace Grand.Web.Admin.Services
                 To = customer.Email,
                 Subject = model.Subject,
                 Body = model.Body,
-                CreatedOnUtc = DateTime.UtcNow,
                 DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue ?
                         null : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
@@ -943,7 +939,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IEnumerable<AddressModel>> PrepareAddressModel(Customer customer)
         {
-            var addresses = customer.Addresses.OrderByDescending(a => a.CreatedOnUtc).ThenByDescending(a => a.Id).ToList();
+            var addresses = customer.Addresses.ToList();
             var addressesListModel = new List<AddressModel>();
             foreach (var x in addresses)
             {
@@ -985,7 +981,6 @@ namespace Grand.Web.Admin.Services
         {
             var address = model.Address.ToEntity();
             address.Attributes = customAttributes;
-            address.CreatedOnUtc = DateTime.UtcNow;
             customer.Addresses.Add(address);
             await _customerService.UpdateCustomerInAdminPanel(customer);
             return address;
@@ -1087,7 +1082,7 @@ namespace Grand.Web.Admin.Services
                             UnitPrice = priceFormatter.FormatPrice(price),
                             UnitPriceValue = price,
                             Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product, (await priceCalculationService.GetSubTotal(sci, product)).subTotal)).productprice),
-                            UpdatedOn = _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc, DateTimeKind.Utc)
+                            UpdatedOn = sci.UpdatedOnUtc.HasValue ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc) : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)
                         };
                         items.Add(sciModel);
                     }
@@ -1315,8 +1310,7 @@ namespace Grand.Web.Admin.Services
                 Title = title,
                 Note = message,
                 DownloadId = downloadId,
-                CustomerId = customerId,
-                CreatedOnUtc = DateTime.UtcNow
+                CustomerId = customerId
             };
             await _customerNoteService.InsertCustomerNote(customerNote);
 

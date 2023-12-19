@@ -147,8 +147,6 @@ namespace Grand.Business.Catalog.Services.Products
                 AvailableEndDateTimeUtc = product.AvailableEndDateTimeUtc,
                 DisplayOrder = product.DisplayOrder,
                 Published = isPublished,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow,
                 Locales = product.Locales,
                 CustomerGroups = product.CustomerGroups,
                 Stores = product.Stores

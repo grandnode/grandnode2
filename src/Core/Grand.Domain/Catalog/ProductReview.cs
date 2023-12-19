@@ -65,17 +65,7 @@ namespace Grand.Domain.Catalog
         /// Review not helpful votes total
         /// </summary>
         public int HelpfulNoTotal { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance updated
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
-
+        
         /// <summary>
         /// Gets the entries of product review helpfulness
         /// </summary>

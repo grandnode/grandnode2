@@ -141,11 +141,6 @@ namespace Grand.Domain.Customers
         public string LastIpAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the date and time of last login
         /// </summary>
         public DateTime? LastLoginDateUtc { get; set; }

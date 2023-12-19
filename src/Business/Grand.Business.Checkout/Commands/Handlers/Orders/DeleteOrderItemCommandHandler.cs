@@ -79,7 +79,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Order item has been deleted - {product.Name}",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = request.Order.Id
             });
 
@@ -87,9 +86,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //delete item
             request.Order.OrderItems.Remove(request.OrderItem);
-
-            await _orderService.DeleteOrderItem(request.OrderItem);
-
+            
             request.Order.OrderSubtotalExclTax -= request.OrderItem.PriceExclTax;
             request.Order.OrderSubtotalInclTax -= request.OrderItem.PriceInclTax;
             request.Order.OrderTax -= request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax;

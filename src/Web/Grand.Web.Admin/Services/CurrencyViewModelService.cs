@@ -36,8 +36,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Currency> InsertCurrencyModel(CurrencyModel model)
         {
             var currency = model.ToEntity();
-            currency.CreatedOnUtc = DateTime.UtcNow;
-            currency.UpdatedOnUtc = DateTime.UtcNow;
             await _currencyService.InsertCurrency(currency);
 
             return currency;
@@ -46,7 +44,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<Currency> UpdateCurrencyModel(Currency currency, CurrencyModel model)
         {
             currency = model.ToEntity(currency);
-            currency.UpdatedOnUtc = DateTime.UtcNow;
             await _currencyService.UpdateCurrency(currency);
             return currency;
         }

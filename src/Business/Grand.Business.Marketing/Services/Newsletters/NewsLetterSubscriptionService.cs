@@ -368,7 +368,6 @@ namespace Grand.Business.Marketing.Services.Newsletters
             {
                 subscription = new NewsLetterSubscription {
                     Active = isActive,
-                    CreatedOnUtc = DateTime.UtcNow,
                     Email = email,
                     StoreId = storeId,
                     NewsLetterSubscriptionGuid = Guid.NewGuid()

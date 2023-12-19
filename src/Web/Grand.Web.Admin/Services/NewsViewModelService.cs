@@ -70,7 +70,6 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<NewsItem> InsertNewsItemModel(NewsItemModel model)
         {
             var newsItem = model.ToEntity(_dateTimeService);
-            newsItem.CreatedOnUtc = DateTime.UtcNow;
             await _newsService.InsertNews(newsItem);
 
             var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService, _languageService);

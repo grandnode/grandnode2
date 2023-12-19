@@ -87,16 +87,6 @@ namespace Grand.Domain.Courses
         public string SeName { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance update
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }

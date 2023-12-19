@@ -19,8 +19,7 @@ namespace Grand.Business.System.Services.Installation
                 ZipPostalCode = "10021",
                 PhoneNumber = "123456789",
                 StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
-                CountryId = country.Id,
-                CreatedOnUtc = DateTime.UtcNow
+                CountryId = country?.Id,
             };
             var affilate = new Affiliate
             {

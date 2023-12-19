@@ -122,6 +122,7 @@ namespace Grand.Domain.Customers
         /// Gets coupon codes
         /// </summary>
         /// <param name="customer">Customer</param>
+        /// <param name="key">key</param>
         /// <returns>Coupon codes</returns>
         public static string[] ParseAppliedCouponCodes(this Customer customer, string key)
         {
@@ -152,11 +153,13 @@ namespace Grand.Domain.Customers
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
             return string.IsNullOrEmpty(existingCouponCodes) ? couponCode : string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Append(couponCode).Distinct());
         }
+
         /// <summary>
         /// Adds a coupon codes
         /// </summary>
         /// <param name="customer">Customer</param>
-        /// <param name="couponCode">Coupon code</param>
+        /// <param name="key">key</param>
+        /// <param name="couponCodes">Coupon code</param>
         /// <returns>New coupon codes document</returns>
         public static string ApplyCouponCode(this Customer customer, string key, string[] couponCodes)
         {

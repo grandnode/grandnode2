@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
+using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
@@ -23,7 +24,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         {
             CommonPath.BaseDirectory = "";
             _cacheMock = new Mock<ICacheBase>();
-            _repositoryMock = new Mock<MongoRepository<AddressAttribute>>();
+            _repositoryMock = new Mock<MongoRepository<AddressAttribute>>(Mock.Of<IAuditInfoProvider>());
             _mediatorMock = new Mock<IMediator>();
             _service = new AddressAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object);
         }

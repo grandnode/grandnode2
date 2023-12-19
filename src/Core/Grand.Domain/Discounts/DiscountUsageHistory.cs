@@ -3,7 +3,7 @@ namespace Grand.Domain.Discounts
     /// <summary>
     /// Represents a discount usage history entry
     /// </summary>
-    public partial class DiscountUsageHistory : BaseEntity
+    public class DiscountUsageHistory : BaseEntity
     {
         /// <summary>
         /// Gets or sets the discount identifier
@@ -24,11 +24,6 @@ namespace Grand.Domain.Discounts
         /// Gets or sets the customer identifier
         /// </summary>
         public string CustomerId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
 
         /// <summary>
         /// Gets or sets the canceled identifier

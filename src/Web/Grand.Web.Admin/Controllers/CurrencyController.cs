@@ -140,7 +140,6 @@ namespace Grand.Web.Admin.Controllers
             if (currency != null)
             {
                 currency.Rate = _rate;
-                currency.UpdatedOnUtc = DateTime.UtcNow;
                 await _currencyService.UpdateCurrency(currency);
             }
             return Json(new { result = true });

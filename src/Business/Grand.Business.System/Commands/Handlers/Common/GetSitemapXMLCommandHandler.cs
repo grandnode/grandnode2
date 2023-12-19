@@ -248,7 +248,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
                         imageurl = await _pictureService.GetPictureUrl(category.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
                     }
                 }
-                categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, category.UpdatedOnUtc));
+                categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, category.UpdatedOnUtc.HasValue ? category.UpdatedOnUtc.Value : category.CreatedOnUtc));
                 categories.AddRange(await GetCategoryUrls(category.Id, language));
             }
             return categories;
@@ -275,7 +275,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
                         imageUrl = await _pictureService.GetPictureUrl(brand.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
                     }
                 }
-                brandUrls.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, brand.UpdatedOnUtc));
+                brandUrls.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, brand.UpdatedOnUtc.HasValue ? brand.UpdatedOnUtc.Value : brand.CreatedOnUtc));
             }
             return brandUrls;
         }
@@ -302,7 +302,8 @@ namespace Grand.Business.System.Commands.Handlers.Common
                         imageUrl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault()?.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
                     }
                 }
-                products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, product.UpdatedOnUtc));
+                products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, product.UpdatedOnUtc.HasValue ? product.UpdatedOnUtc.Value : product.CreatedOnUtc));
+
             }
             return products;
 

@@ -210,7 +210,6 @@ namespace Grand.Web.Admin.Services
             model.CustomerId = !string.IsNullOrEmpty(model.CustomerEmail) ? (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id : string.Empty;
 
             var document = model.ToEntity();
-            document.CreatedOnUtc = DateTime.UtcNow;
             await _documentService.Insert(document);
             return document;
         }
@@ -227,8 +226,6 @@ namespace Grand.Web.Admin.Services
                 model.CustomerId = string.Empty;
 
             document = model.ToEntity(document);
-            document.UpdatedOnUtc = DateTime.UtcNow;
-
             await _documentService.Update(document);
 
             //delete an old "attachment" file (if deleted or updated)

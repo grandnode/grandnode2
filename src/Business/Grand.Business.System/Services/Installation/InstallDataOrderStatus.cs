@@ -4,7 +4,7 @@ namespace Grand.Business.System.Services.Installation
 {
     public partial class InstallationService
     {
-        protected virtual async Task InstallOrderStatus()
+        protected virtual Task InstallOrderStatus()
         {
             var statuses = new List<OrderStatus>
             {
@@ -37,7 +37,8 @@ namespace Grand.Business.System.Services.Installation
                     DisplayOrder = 3
                 }
             };
-            await _orderStatusRepository.InsertManyAsync(statuses);
+            statuses.ForEach(x=> _orderStatusRepository.Insert(x));
+            return Task.CompletedTask;
         }
     }
 }

@@ -36,12 +36,6 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the customer identifier
         /// </summary>
         public string CustomerId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
     }
 
 }

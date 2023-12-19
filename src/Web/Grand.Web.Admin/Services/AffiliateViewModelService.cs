@@ -135,7 +135,6 @@ namespace Grand.Web.Admin.Services
             var friendlyUrlName = await affiliate.ValidateFriendlyUrlName(_affiliateService, _seoSettings, model.FriendlyUrlName, model.Name);
             affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();
             affiliate.Address = model.Address.ToEntity();
-            affiliate.Address.CreatedOnUtc = DateTime.UtcNow;
             //some validation
             await _affiliateService.InsertAffiliate(affiliate);
             return affiliate;

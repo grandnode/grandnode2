@@ -267,7 +267,6 @@ namespace Grand.Web.Controllers
                     ArticleId = article.Id,
                     CustomerId = customer.Id,
                     CommentText = model.AddNewComment.CommentText,
-                    CreatedOnUtc = DateTime.UtcNow,
                     ArticleTitle = article.Name
                 };
                 await _knowledgebaseService.InsertArticleComment(comment);

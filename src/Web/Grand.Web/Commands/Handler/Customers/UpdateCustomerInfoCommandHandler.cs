@@ -173,8 +173,7 @@ namespace Grand.Web.Commands.Handler.Customers
                         Email = request.Customer.Email,
                         CustomerId = request.Customer.Id,
                         Active = true,
-                        StoreId = request.Store.Id,
-                        CreatedOnUtc = DateTime.UtcNow
+                        StoreId = request.Store.Id
                     };
                     categories?.ForEach(x => newsLetterSubscription.Categories.Add(x));
                     await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);

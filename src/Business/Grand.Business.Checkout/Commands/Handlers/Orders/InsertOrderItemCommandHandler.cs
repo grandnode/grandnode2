@@ -69,7 +69,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 Note = "A new order item has been added",
                 DisplayToCustomer = false,
-                CreatedOnUtc = DateTime.UtcNow,
                 OrderId = request.Order.Id
             });
 
@@ -92,8 +91,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     //SenderName = senderName,
                     //SenderEmail = senderEmail,
                     //Message = giftVoucherMessage,
-                    IsRecipientNotified = false,
-                    CreatedOnUtc = DateTime.UtcNow
+                    IsRecipientNotified = false
                 };
                 await _giftVoucherService.InsertGiftVoucher(gc);
             }

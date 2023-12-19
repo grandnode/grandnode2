@@ -21,13 +21,7 @@ namespace Grand.Domain.Messages
         /// Gets or sets the IP address
         /// </summary>
         public string IpAddress { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-
+        
         /// <summary>
         /// Gets or sets the email
         /// </summary>

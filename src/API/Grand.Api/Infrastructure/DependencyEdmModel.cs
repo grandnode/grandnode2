@@ -284,7 +284,6 @@ namespace Grand.Api.Infrastructure
             addAddress.Parameter<string>(nameof(AddressDto.PhoneNumber));
             addAddress.Parameter<string>(nameof(AddressDto.Note));
             addAddress.Parameter<int>(nameof(AddressDto.AddressType));
-            addAddress.Parameter<DateTimeOffset>(nameof(AddressDto.CreatedOnUtc));
             addAddress.Parameter<string>(nameof(AddressDto.ZipPostalCode));
             addAddress.Parameter<string>(nameof(AddressDto.StateProvinceId));
             addAddress.Returns<AddressDto>();
@@ -304,7 +303,6 @@ namespace Grand.Api.Infrastructure
             updateAddress.Parameter<string>(nameof(AddressDto.PhoneNumber));
             updateAddress.Parameter<string>(nameof(AddressDto.Note));
             updateAddress.Parameter<int>(nameof(AddressDto.AddressType));
-            updateAddress.Parameter<DateTimeOffset>(nameof(AddressDto.CreatedOnUtc));
             updateAddress.Parameter<string>(nameof(AddressDto.ZipPostalCode));
             updateAddress.Parameter<string>(nameof(AddressDto.StateProvinceId));
             updateAddress.Returns<AddressDto>();

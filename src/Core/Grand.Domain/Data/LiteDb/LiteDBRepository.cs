@@ -8,10 +8,12 @@ namespace Grand.Domain.Data.LiteDb
     /// <summary>
     /// MongoDB repository
     /// </summary>
-    public partial class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
+    public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         #region Fields
 
+        private readonly IAuditInfoProvider _auditInfoProvider;
+        
         /// <summary>
         /// Gets the collection
         /// </summary>
@@ -49,8 +51,9 @@ namespace Grand.Domain.Data.LiteDb
         /// <summary>
         /// Ctor
         /// </summary>        
-        public LiteDBRepository()
+        public LiteDBRepository(IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             var connection = DataSettingsManager.LoadSettings();
 
             if (!string.IsNullOrEmpty(connection.ConnectionString))
@@ -59,16 +62,18 @@ namespace Grand.Domain.Data.LiteDb
                 _collection = _database.GetCollection<T>(typeof(T).Name);
             }
         }
-        public LiteDBRepository(string connectionString)
+        public LiteDBRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
         {
+            _auditInfoProvider = auditInfoProvider;
             _database = new LiteDatabase(connectionString);
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
 
 
-        public LiteDBRepository(LiteDatabase database)
+        public LiteDBRepository(LiteDatabase database, IAuditInfoProvider auditInfoProvider)
         {
             _database = database;
+            _auditInfoProvider = auditInfoProvider;
             _collection = _database.GetCollection<T>(typeof(T).Name);
         }
 
@@ -96,20 +101,13 @@ namespace Grand.Domain.Data.LiteDb
         }
 
         /// <summary>
-        /// Get all entities in collection
-        /// </summary>
-        /// <returns>collection of entities</returns>
-        public virtual async Task<List<T>> GetAllAsync()
-        {
-            return await Task.FromResult(_collection.Query().ToList());
-        }
-       
-        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>
         public virtual T Insert(T entity)
         {
+            entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
             _collection.Insert(entity);
             return entity;
         }
@@ -125,41 +123,13 @@ namespace Grand.Domain.Data.LiteDb
         }
 
         /// <summary>
-        /// Async Insert many entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual Task InsertManyAsync(IEnumerable<T> entities)
-        {
-            Insert(entities);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Insert(IEnumerable<T> entities)
-        {
-            _collection.InsertBulk(entities);
-        }
-
-        /// <summary>
-        /// Async Insert entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> InsertAsync(IEnumerable<T> entities)
-        {
-            Insert(entities);
-            return await Task.FromResult(entities);
-        }
-
-
-        /// <summary>
         /// Update entity
         /// </summary>
         /// <param name="entity">Entity</param>
         public virtual T Update(T entity)
         {
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
             _collection.Update(entity);
             return entity;
 
@@ -175,19 +145,6 @@ namespace Grand.Domain.Data.LiteDb
             return await Task.FromResult(entity);
         }
 
-
-        /// <summary>
-        /// Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Update(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                Update(entity);
-            }
-        }
-
         /// <summary>
         /// Update field for entity
         /// </summary>
@@ -200,6 +157,8 @@ namespace Grand.Domain.Data.LiteDb
             var entity = _database.GetCollection(typeof(T).Name).FindById(new(id));
             var bsonValue = BsonMapper.Global.Serialize<U>(value);
             entity[GetName(expression)] = bsonValue;
+            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
             _database.GetCollection(typeof(T).Name).Update(entity);
 
             return Task.CompletedTask;
@@ -273,6 +232,10 @@ namespace Grand.Domain.Data.LiteDb
 
                 propertyInfo?.SetValue(entity, item.Value);
             }
+            
+            entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+            entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
+
             _collection.Update(entity);
             return Task.CompletedTask;
         }
@@ -297,6 +260,8 @@ namespace Grand.Domain.Data.LiteDb
                 var list = entity[fieldName].AsArray.ToList();
                 list.Add(bsonValue);
                 entity[fieldName] = new BsonArray(list);
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -335,6 +300,8 @@ namespace Grand.Domain.Data.LiteDb
                     document[key] = bsonValue[key];
                 }
                 entity[fieldName] = new BsonArray(list);
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
 
@@ -375,6 +342,9 @@ namespace Grand.Domain.Data.LiteDb
 
                 var updateList = BsonMapper.Global.Serialize<IList<U>>(list);
                 entity[fieldName] = updateList;
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -408,6 +378,8 @@ namespace Grand.Domain.Data.LiteDb
                         list.Add(bsonValue);
                         list.Remove(oldbsonValue);
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }
@@ -464,6 +436,8 @@ namespace Grand.Domain.Data.LiteDb
                             list.Remove(document);
                         }
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }
@@ -499,6 +473,8 @@ namespace Grand.Domain.Data.LiteDb
 
                 var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
                 entity[fieldName] = updatelist;
+                entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                 collection.Update(entity);
             }
             return Task.CompletedTask;
@@ -539,6 +515,8 @@ namespace Grand.Domain.Data.LiteDb
                     {
                         list.Remove(new BsonValue(element));
                         entity[fieldName] = new BsonArray(list);
+                        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
+                        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
                         collection.Update(entity);
                     }
                 }
@@ -546,18 +524,6 @@ namespace Grand.Domain.Data.LiteDb
 
             return Task.CompletedTask;
 
-        }
-        /// <summary>
-        /// Async Update entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual async Task<IEnumerable<T>> UpdateAsync(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                await UpdateAsync(entity);
-            }
-            return entities;
         }
 
         /// <summary>
@@ -578,19 +544,6 @@ namespace Grand.Domain.Data.LiteDb
             Delete(entity);
             return await Task.FromResult(entity);
         }
-
-        /// <summary>
-        /// Delete entities
-        /// </summary>
-        /// <param name="entities">Entities</param>
-        public virtual void Delete(IEnumerable<T> entities)
-        {
-            foreach (T entity in entities)
-            {
-                Delete(entity);
-            }
-        }
-
         /// <summary>
         /// Async Delete entities
         /// </summary>

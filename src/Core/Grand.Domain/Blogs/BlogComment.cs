@@ -30,9 +30,5 @@ namespace Grand.Domain.Blogs
         /// </summary>
         public string BlogPostId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time of instance creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
     }
 }
