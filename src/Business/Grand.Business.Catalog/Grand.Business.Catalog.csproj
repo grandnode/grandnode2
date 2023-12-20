@@ -7,6 +7,6 @@
     <ProjectReference Include="..\Grand.Business.Core\Grand.Business.Core.csproj" />
   </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
+		<PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
 	</ItemGroup>
 </Project>

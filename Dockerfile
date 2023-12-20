@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 LABEL stage=build-env
 WORKDIR /app
 
@@ -35,7 +35,7 @@ RUN dotnet build /app/Web/Grand.Web/Grand.Web.csproj --no-restore -c Release -p:
 RUN dotnet publish /app/Web/Grand.Web --no-restore -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 EXPOSE 80
 ENV ASPNETCORE_URLS http://+:80
 WORKDIR /app
