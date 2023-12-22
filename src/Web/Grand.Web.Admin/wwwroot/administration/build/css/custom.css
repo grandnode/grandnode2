@@ -2260,7 +2260,7 @@ ul.msg_list li a .message {
     position: absolute;
     text-shadow: none;
     top: 100%;
-    z-index: 9998;
+    z-index: 9999;
     border: 1px solid #D9DEE4;
     border-top-left-radius: 0;
     border-top-right-radius: 0
