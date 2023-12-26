@@ -1,6 +1,6 @@
 ﻿using Grand.Domain;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
+using Grand.Data;
+using Grand.Data.Mongo;
 using MongoDB.Bson.Serialization.Conventions;
 
 namespace Grand.Data.Tests.MongoDb

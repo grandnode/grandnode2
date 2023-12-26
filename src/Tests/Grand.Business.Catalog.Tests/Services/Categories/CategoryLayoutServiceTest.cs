@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;

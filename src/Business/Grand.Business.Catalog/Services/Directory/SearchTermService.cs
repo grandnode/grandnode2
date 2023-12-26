@@ -2,7 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 

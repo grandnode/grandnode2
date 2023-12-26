@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Queries.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Vendors;
 using MediatR;
 

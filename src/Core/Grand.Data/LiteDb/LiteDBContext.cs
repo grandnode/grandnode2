@@ -1,6 +1,7 @@
-﻿using LiteDB;
+﻿using Grand.Domain;
+using LiteDB;
 
-namespace Grand.Domain.Data.LiteDb
+namespace Grand.Data.LiteDb
 {
     public class LiteDBContext : IDatabaseContext
     {        
@@ -31,7 +32,7 @@ namespace Grand.Domain.Data.LiteDb
 
         public async Task<bool> DatabaseExist()
         {
-            return await Task.FromResult(_database.CollectionExists(nameof(Common.GrandNodeVersion)));
+            return await Task.FromResult(_database.CollectionExists(nameof(Grand.Domain.Common.GrandNodeVersion)));
         }
 
         public Task CreateTable(string name, string collation)

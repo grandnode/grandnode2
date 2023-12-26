@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Authentication.Events;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Authentication.Tests.Events

@@ -1,7 +1,7 @@
 ﻿using Grand.SharedKernel.Extensions;
 using System.Text.Json;
 
-namespace Grand.Domain.Data
+namespace Grand.Data
 {
     /// <summary>
     /// Manager of data settings (connection string)

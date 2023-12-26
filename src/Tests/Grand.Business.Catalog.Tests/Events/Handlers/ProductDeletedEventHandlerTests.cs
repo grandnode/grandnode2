@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Seo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

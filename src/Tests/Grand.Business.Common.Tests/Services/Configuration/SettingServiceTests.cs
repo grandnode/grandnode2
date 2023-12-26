@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Services.Configuration;
 using Grand.Domain.Configuration;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

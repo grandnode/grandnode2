@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Affiliates;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;

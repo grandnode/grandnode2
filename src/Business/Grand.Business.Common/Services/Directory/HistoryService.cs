@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.History;
 
 namespace Grand.Business.Common.Services.Directory

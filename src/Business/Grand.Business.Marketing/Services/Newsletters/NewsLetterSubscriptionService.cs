@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Marketing.Extensions;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;

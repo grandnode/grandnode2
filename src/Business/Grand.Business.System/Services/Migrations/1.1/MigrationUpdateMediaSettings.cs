@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;

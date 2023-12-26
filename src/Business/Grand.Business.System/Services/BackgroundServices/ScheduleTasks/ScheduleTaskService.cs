@@ -1,5 +1,5 @@
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks

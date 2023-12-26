@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Marketing.Services.Contacts;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

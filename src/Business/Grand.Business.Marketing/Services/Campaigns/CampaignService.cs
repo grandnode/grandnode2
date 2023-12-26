@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;

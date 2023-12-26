@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;

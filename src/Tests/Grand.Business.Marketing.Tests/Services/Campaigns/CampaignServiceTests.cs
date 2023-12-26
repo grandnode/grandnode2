@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Marketing.Services.Campaigns;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;

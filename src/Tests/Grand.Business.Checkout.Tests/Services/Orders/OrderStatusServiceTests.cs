@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;

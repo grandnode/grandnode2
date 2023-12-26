@@ -3,7 +3,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Permissions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 

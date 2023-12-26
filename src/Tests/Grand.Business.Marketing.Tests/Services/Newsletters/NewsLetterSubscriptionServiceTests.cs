@@ -3,7 +3,7 @@ using Grand.Business.Core.Events.Marketing;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Marketing.Services.Newsletters;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;

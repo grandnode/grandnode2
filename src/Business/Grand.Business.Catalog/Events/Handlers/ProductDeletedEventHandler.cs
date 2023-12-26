@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Events;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Seo;
 using MediatR;
 using Newtonsoft.Json;

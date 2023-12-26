@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 

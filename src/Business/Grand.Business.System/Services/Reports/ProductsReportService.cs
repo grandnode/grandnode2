@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 
 namespace Grand.Business.System.Services.Reports
 {

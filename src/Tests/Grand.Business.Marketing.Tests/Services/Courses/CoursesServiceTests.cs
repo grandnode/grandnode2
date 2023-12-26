@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Marketing.Services.Courses;
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;

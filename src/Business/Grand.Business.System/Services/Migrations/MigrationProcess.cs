@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Data;
+﻿using Grand.Data;
+using Grand.Domain;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.Logging;
 

@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

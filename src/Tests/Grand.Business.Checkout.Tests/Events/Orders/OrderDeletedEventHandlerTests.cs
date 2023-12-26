@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Checkout.Events.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

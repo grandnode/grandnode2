@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

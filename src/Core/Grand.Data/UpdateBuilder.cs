@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Linq.Expressions;
 
-namespace Grand.Domain.Data
+namespace Grand.Data
 {
     public class UpdateBuilder<T>
     {

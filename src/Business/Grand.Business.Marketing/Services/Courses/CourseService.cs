@@ -2,7 +2,7 @@
 using Grand.Domain;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;

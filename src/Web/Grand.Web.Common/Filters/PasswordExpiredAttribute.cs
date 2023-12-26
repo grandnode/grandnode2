@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Queries.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

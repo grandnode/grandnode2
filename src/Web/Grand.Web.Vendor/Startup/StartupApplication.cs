@@ -1,4 +1,4 @@
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Web.Vendor.Infrastructure;
 using Grand.Web.Vendor.Interfaces;

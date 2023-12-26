@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

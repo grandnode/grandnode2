@@ -2,7 +2,7 @@
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
-using Grand.Domain.Data;
+using Grand.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Catalog.Tests.Services.Products

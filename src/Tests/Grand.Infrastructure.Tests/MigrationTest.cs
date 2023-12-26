@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Data;
+﻿using Grand.Data;
 using Grand.Infrastructure.Migrations;
 
 namespace Grand.Infrastructure.Tests

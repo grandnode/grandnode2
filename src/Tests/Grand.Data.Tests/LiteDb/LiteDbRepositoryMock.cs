@@ -1,6 +1,6 @@
 ﻿using Grand.Domain;
-using Grand.Domain.Data;
-using Grand.Domain.Data.LiteDb;
+using Grand.Data;
+using Grand.Data.LiteDb;
 using LiteDB;
 
 namespace Grand.Data.Tests.LiteDb

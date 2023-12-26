@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Infrastructure.Extensions;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Documents;
 using MediatR;
 

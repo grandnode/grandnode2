@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Checkout.Services.Shipping;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;

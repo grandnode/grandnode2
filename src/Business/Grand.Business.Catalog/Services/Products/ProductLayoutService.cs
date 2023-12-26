@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;

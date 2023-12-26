@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 
-namespace Grand.Domain.Data
+namespace Grand.Domain
 {
     public static class UniqueIdentifier
     {

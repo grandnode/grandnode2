@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Queries.Messages;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 
 namespace Grand.Business.Messages.Queries.Handlers

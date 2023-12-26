@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Services.Payments;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Events;
 using MediatR;
