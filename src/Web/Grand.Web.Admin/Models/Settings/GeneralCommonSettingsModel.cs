@@ -116,9 +116,6 @@ namespace Grand.Web.Admin.Models.Settings
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowToSelectStore")]
             public bool AllowToSelectStore { get; set; }
 
-            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.Log404Errors")]
-            public bool Log404Errors { get; set; }
-
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PopupForTermsOfServiceLinks")]
             public bool PopupForTermsOfServiceLinks { get; set; }
 

@@ -105,12 +105,6 @@ namespace Grand.Web.Common.Infrastructure
                         const string location = "/page-not-found";
                         context.HttpContext.Response.Redirect(context.HttpContext.Request.PathBase + location);
                     }
-                    var commonSettings = context.HttpContext.RequestServices.GetRequiredService<CommonSettings>();
-                    if (commonSettings.Log404Errors)
-                    {
-                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("UseStatusCodePages");
-                        logger.LogError("Error 404. The requested page ({DisplayUrl}) was not found", context.HttpContext.Request.GetDisplayUrl());
-                    }
                 }
                 await Task.CompletedTask;
             });

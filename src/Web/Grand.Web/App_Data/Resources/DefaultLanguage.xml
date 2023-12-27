@@ -10266,9 +10266,6 @@
 	<Resource Name="Admin.Settings.GeneralCommon.LinkedInLink" Area="Admin">
 		<Value>LinkedIn page URL</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.Log404Errors" Area="Admin">
-		<Value>Log 404 errors</Value>
-	</Resource>
 	<Resource Name="Admin.Settings.GeneralCommon.Logo" Area="Admin">
 		<Value>Logo</Value>
 	</Resource>

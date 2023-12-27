@@ -58,7 +58,6 @@ namespace Grand.Business.System.Services.Installation
                 SitemapIncludeCategories = true,
                 SitemapIncludeBrands = true,
                 SitemapIncludeProducts = false,
-                Log404Errors = true,
                 PopupForTermsOfServiceLinks = true,
                 AllowToSelectStore = false
             });
