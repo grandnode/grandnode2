@@ -6,7 +6,7 @@
 
         public static string LayoutVendor => $"~/Areas/{AreaVendor}/Views/Shared/_VendorLayout.cshtml";
         public static string LayoutVendorLogin => $"~/Areas/{AreaVendor}/Views/Shared/_VendorLoginLayout.cshtml";
-        public static string WwwRoot { get; set; } = "/_content/Grand.Web.Vendor";
+        public static string WwwRoot { get; set; } = "/_content/Grand.SharedUIResources";
 
     }
 }

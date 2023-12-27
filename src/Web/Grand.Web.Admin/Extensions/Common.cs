@@ -2,6 +2,6 @@
 {
     public static class Common
     {
-        public static string WwwRoot { get; set; } = "/_content/Grand.Web.Admin";
+        public static string WwwRoot { get; set; } = "/_content/Grand.SharedUIResources";
     }
 }
