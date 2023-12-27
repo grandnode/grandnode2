@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Data;
+﻿using Grand.Data;
 
 namespace Grand.Infrastructure.Migrations
 {

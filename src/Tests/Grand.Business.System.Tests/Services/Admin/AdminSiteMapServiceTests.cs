@@ -1,6 +1,6 @@
 ﻿using Grand.Business.System.Services.Admin;
 using Grand.Domain.Admin;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

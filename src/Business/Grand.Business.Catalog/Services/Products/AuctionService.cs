@@ -6,7 +6,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using MediatR;

@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Data
+﻿using Grand.Domain;
+
+namespace Grand.Data
 {
     public interface IDatabaseContext
     {

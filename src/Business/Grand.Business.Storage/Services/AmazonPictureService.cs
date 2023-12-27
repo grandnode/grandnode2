@@ -3,7 +3,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

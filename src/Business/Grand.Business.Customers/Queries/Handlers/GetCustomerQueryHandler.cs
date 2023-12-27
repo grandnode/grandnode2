@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 using System.Linq.Expressions;
 

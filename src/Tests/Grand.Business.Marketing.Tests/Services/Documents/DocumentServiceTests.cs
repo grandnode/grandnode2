@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Marketing.Services.Documents;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Events;
 using MediatR;

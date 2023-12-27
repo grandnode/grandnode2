@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Infrastructure.Caching;
 using Grand.Domain.Admin;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;

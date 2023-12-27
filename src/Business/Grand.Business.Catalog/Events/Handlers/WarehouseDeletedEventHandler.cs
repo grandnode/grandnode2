@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Data;
+﻿using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;

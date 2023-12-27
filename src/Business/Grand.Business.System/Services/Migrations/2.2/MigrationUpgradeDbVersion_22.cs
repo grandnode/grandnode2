@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;

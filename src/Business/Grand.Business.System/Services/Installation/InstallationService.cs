@@ -11,7 +11,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Configuration;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Documents;

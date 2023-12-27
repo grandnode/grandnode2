@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Vendors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

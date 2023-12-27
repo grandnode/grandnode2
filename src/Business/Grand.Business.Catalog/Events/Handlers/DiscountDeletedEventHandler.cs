@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;

@@ -1,9 +1,9 @@
-﻿namespace Grand.Domain.Data
+﻿namespace Grand.Data
 {
     /// <summary>
     /// Data settings (connection string information)
     /// </summary>
-    public partial class DataSettings
+    public class DataSettings
     {
 
         /// <summary>

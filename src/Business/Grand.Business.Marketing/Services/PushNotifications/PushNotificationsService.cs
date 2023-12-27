@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
 using MediatR;

@@ -1,9 +1,10 @@
+using Grand.Domain;
 using Grand.SharedKernel.Attributes;
 using LiteDB;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Grand.Domain.Data.LiteDb
+namespace Grand.Data.LiteDb
 {
     /// <summary>
     /// MongoDB repository

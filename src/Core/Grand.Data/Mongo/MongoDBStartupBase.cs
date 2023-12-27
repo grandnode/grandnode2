@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Grand.Domain.Data.Mongo
+namespace Grand.Data.Mongo
 {
     public class MongoDBStartupBase : IStartupBase
     {
@@ -26,7 +26,7 @@ namespace Grand.Domain.Data.Mongo
             };
             ConventionRegistry.Register("ApplicationConventions", cp, t => true);
 
-            BsonClassMap.RegisterClassMap<Media.Download>(cm =>
+            BsonClassMap.RegisterClassMap<Grand.Domain.Media.Download>(cm =>
             {
                 cm.AutoMap();
                 cm.UnmapMember(m => m.DownloadBinary);

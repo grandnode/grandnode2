@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

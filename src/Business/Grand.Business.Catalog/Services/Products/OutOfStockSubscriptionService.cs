@@ -4,7 +4,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 
 namespace Grand.Business.Catalog.Services.Products

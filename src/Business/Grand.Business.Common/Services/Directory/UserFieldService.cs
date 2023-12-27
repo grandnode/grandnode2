@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Common.Services.Directory

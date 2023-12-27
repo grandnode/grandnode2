@@ -1,6 +1,6 @@
 ﻿using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 
 namespace Grand.Api.Queries.Handlers.Common

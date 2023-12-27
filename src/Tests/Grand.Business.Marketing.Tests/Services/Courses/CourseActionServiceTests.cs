@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Marketing.Services.Courses;
 using Grand.Domain.Courses;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

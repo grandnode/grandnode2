@@ -3,7 +3,7 @@ using Grand.Business.Common.Services.ExportImport;
 using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 

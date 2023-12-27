@@ -1,7 +1,8 @@
-﻿using MongoDB.Bson;
+﻿using Grand.Domain;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Grand.Domain.Data.Mongo
+namespace Grand.Data.Mongo
 {
     public class MongoDBContext : IDatabaseContext
     {

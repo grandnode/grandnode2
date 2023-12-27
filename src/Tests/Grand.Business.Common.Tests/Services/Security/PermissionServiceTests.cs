@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

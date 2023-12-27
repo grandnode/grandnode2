@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Customers.Services;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Events;
 using MediatR;

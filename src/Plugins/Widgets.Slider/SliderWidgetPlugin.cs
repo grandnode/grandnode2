@@ -1,7 +1,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Widgets.Slider.Domain;

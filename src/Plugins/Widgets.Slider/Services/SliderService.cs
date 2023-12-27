@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Widgets.Slider.Domain;

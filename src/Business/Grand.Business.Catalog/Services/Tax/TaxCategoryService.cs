@@ -2,7 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Tax;
 using MediatR;
 

@@ -21,6 +21,7 @@
     <PackageReference Include="FluentValidation" Version="11.8.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Grand.Data\Grand.Data.csproj" />
     <ProjectReference Include="..\Grand.Domain\Grand.Domain.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;

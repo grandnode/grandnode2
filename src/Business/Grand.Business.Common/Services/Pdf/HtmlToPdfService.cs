@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;

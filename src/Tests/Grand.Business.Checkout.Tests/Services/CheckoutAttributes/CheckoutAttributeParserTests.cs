@@ -2,8 +2,8 @@
 using Grand.Business.Checkout.Services.CheckoutAttributes;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
+using Grand.Data;
+using Grand.Data.Mongo;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;

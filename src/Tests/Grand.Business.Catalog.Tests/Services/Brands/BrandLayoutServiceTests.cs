@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Catalog.Services.Brands;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;

@@ -1,9 +1,10 @@
+using Grand.Domain;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Grand.Domain.Data.Mongo
+namespace Grand.Data.Mongo
 {
     /// <summary>
     /// MongoDB repository

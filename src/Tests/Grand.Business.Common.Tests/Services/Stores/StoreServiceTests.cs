@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Services.Stores;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;

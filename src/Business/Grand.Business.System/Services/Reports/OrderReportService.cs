@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;

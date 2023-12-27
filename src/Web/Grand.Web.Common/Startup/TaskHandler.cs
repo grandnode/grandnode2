@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;

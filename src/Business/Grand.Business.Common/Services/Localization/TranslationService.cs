@@ -1,6 +1,6 @@
 using Grand.Business.Common.Utilities;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;

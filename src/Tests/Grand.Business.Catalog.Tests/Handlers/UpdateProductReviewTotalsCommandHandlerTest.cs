@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

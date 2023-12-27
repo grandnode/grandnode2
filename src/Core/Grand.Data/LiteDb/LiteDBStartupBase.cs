@@ -1,7 +1,7 @@
 ﻿using Grand.SharedKernel;
 using LiteDB;
 
-namespace Grand.Domain.Data.LiteDb
+namespace Grand.Data.LiteDb
 {
     public class LiteDBStartupBase : IStartupBase
     {

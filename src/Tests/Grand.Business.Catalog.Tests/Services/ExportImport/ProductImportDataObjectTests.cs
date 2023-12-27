@@ -16,7 +16,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

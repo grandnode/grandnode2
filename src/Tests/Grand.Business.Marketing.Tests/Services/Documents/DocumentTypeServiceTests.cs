@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Marketing.Services.Documents;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
+using Grand.Data;
+using Grand.Data.Mongo;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;

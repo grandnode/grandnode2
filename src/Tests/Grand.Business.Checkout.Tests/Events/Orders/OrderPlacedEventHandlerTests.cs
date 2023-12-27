@@ -3,7 +3,7 @@ using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

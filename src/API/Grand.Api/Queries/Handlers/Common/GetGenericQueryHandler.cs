@@ -1,7 +1,7 @@
 ﻿using Grand.Api.Models;
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 
 namespace Grand.Api.Queries.Handlers.Common

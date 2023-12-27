@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

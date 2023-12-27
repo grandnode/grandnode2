@@ -3,7 +3,7 @@ using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Pages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.PushNotifications;
 using MediatR;
 using Microsoft.Extensions.Logging;

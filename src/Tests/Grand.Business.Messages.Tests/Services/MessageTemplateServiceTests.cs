@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Messages.Services;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using Grand.Domain;
+using System.Linq.Expressions;
 
-namespace Grand.Domain.Data
+namespace Grand.Data
 {
     /// <summary>
     /// Repository

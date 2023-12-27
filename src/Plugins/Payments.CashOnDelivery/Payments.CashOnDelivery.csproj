@@ -20,6 +20,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+			<Private>false</Private>
+		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
 			<Private>false</Private>
 		</ProjectReference>

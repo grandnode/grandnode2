@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Common.Services.Seo;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

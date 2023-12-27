@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Data;
+﻿using Grand.Data;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

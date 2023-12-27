@@ -1,4 +1,3 @@
-using Grand.Domain.Data;
 using Grand.SharedKernel.Attributes;
 
 namespace Grand.Domain

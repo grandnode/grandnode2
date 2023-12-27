@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Payments;
 using MediatR;
 

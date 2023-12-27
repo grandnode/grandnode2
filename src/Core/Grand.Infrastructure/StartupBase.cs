@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;

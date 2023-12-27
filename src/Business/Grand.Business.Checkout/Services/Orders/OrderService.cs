@@ -2,7 +2,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;

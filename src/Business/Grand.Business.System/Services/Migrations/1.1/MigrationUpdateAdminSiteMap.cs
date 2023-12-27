@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

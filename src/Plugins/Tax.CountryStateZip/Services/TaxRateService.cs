@@ -1,5 +1,5 @@
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Extensions;
 using MediatR;

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Services.Directory;
 using Grand.Data.Tests.MongoDb;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

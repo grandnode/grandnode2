@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Directory;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
+using Grand.Data;
+using Grand.Data.Mongo;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;

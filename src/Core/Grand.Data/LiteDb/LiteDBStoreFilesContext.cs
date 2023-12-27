@@ -1,6 +1,7 @@
-﻿using LiteDB;
+﻿using Grand.Domain;
+using LiteDB;
 
-namespace Grand.Domain.Data.LiteDb
+namespace Grand.Data.LiteDb
 {
     public class LiteDBStoreFilesContext : IStoreFilesContext
     {

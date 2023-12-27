@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Customers.Services;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

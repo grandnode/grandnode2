@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Grand.Domain.Data.Mongo
+namespace Grand.Data.Mongo
 {
     public class BsonUtcDateTimeSerializer : DateTimeSerializer
     {

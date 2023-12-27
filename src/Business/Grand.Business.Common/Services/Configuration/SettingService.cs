@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Configuration;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using System.Text.Json;

@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Extensions;
 using MediatR;

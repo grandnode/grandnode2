@@ -2,7 +2,7 @@
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

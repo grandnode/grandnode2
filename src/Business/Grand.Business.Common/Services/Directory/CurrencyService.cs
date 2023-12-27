@@ -1,6 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;

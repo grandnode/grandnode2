@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Directory;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

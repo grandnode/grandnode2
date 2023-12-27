@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Commands.System.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.System.Installation;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;

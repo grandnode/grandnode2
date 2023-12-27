@@ -2,7 +2,7 @@
 using Grand.Business.Core.Events.Marketing;
 using Grand.Infrastructure;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using MediatR;
 
 namespace Grand.Business.Marketing.Services.Customers

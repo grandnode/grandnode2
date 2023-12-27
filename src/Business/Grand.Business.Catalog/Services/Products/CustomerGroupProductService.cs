@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Customers;
-using Grand.Domain.Data;
+using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
