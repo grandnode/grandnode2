@@ -6162,6 +6162,9 @@
 	<Resource Name="Admin.Customers.Customers" Area="Admin">
 		<Value>Customers</Value>
 	</Resource>
+	<Resource Name="Admin.Customers.Customers.ActivityLog" Area="Admin">
+		<Value>Activity</Value>
+	</Resource>
 	<Resource Name="Admin.Customers.Customers.Added" Area="Admin">
 		<Value>The new customer has been added successfully.</Value>
 	</Resource>
