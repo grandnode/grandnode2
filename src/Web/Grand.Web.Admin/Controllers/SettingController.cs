@@ -592,7 +592,7 @@ namespace Grand.Web.Admin.Controllers
             return RedirectToAction("Customer");
         }
 
-        public async Task<IActionResult> GeneralCommon()
+        public async Task<IActionResult> GeneralCommon([FromServices] IEnumerable<IThemeView> themes)
         {
             var model = new GeneralCommonSettingsModel();
             var storeScope = await GetActiveStore();
@@ -614,11 +614,18 @@ namespace Grand.Web.Admin.Controllers
             var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
             model.StoreInformationSettings = storeInformationSettings.ToModel();
 
-            //TODO
-            /*model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
-                .GetConfigurations()
-                .Select(x => x.ToModel(storeInformationSettings.DefaultStoreTheme)).ToList();*/
-
+            model.StoreInformationSettings.AvailableStoreThemes =
+                themes.Where(x => x.AreaName == "").Select(x =>
+                    new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel {
+                        ThemeName = x.ThemeName,
+                        ThemeTitle = x.ThemeInfo.Title,
+                        PreviewImageUrl = x.ThemeInfo.PreviewImageUrl,
+                        PreviewText = x.ThemeInfo.PreviewText,
+                        SupportRtl = x.ThemeInfo.SupportRtl,
+                        ThemeVersion = x.ThemeInfo.Version,
+                        Selected = x.ThemeName == storeInformationSettings.DefaultStoreTheme
+                    }).ToList();
+            
             //common
             var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
             model.CommonSettings = commonSettings.ToModel();

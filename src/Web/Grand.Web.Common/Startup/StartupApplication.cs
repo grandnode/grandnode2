@@ -94,7 +94,9 @@ namespace Grand.Web.Common.Startup
 
             //Default theme context
             serviceCollection.AddScoped<IThemeContext, ThemeContext>();
-
+            
+            //Default theme view
+            serviceCollection.AddScoped<IThemeView, DefaultThemeView>();
         }
 
 

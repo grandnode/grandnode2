@@ -340,58 +340,6 @@ namespace Grand.Web.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        [HttpPost]
-        public IActionResult UploadTheme(IFormFile zippedFile)
-        {
-            if (_extConfig.DisableUploadExtensions)
-            {
-                Error("Upload plugins/themes is disable");
-                return RedirectToAction("GeneralCommon", "Setting");
-            }
-
-            if (zippedFile == null || zippedFile.Length == 0)
-            {
-                Error(_translationService.GetResource("Admin.Common.UploadFile"));
-                return RedirectToAction("GeneralCommon", "Setting");
-            }
-
-            var zipFilePath = "";
-
-            try
-            {
-                if (!Path.GetExtension(zippedFile.FileName)
-                        ?.Equals(".zip", StringComparison.InvariantCultureIgnoreCase) ?? true)
-                    throw new Exception("Only zip archives are supported");
-
-                //ensure that temp directory is created
-                var tempDirectory = CommonPath.TmpUploadPath;
-                Directory.CreateDirectory(new DirectoryInfo(tempDirectory).FullName);
-
-                //copy original archive to the temp directory
-                zipFilePath = Path.Combine(tempDirectory, zippedFile.FileName);
-                using (var fileStream = new FileStream(zipFilePath, FileMode.Create))
-                    zippedFile.CopyTo(fileStream);
-
-                Upload(zipFilePath);
-
-                var message = _translationService.GetResource("Admin.Configuration.Themes.Uploaded");
-                Success(message);
-            }
-            catch (Exception ex)
-            {
-                var message = _translationService.GetResource("Admin.Configuration.Themes.Failed");
-                Error(message + "\r\n" + ex.Message);
-            }
-            finally
-            {
-                //delete temporary file
-                if (!string.IsNullOrEmpty(zipFilePath))
-                    System.IO.File.Delete(zipFilePath);
-            }
-
-            return RedirectToAction("GeneralCommon", "Setting");
-        }
-
         private void Upload(string archivePath)
         {
             var pluginsDirectory = CommonPath.PluginsPath;
