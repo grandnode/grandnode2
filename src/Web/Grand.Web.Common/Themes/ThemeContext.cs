@@ -1,11 +1,38 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Infrastructure;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Domain.Stores;
-using Grand.Domain.Vendors;
+﻿using Grand.Domain.Stores;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Web.Common.Themes
+namespace Grand.Web.Common.Themes;
+
+public class ThemeContext : ThemeContextBase
+{
+    private readonly StoreInformationSettings _storeInformationSettings;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public ThemeContext(IHttpContextAccessor contextAccessor, StoreInformationSettings storeInformationSettings) :
+        base(contextAccessor)
+    {
+        _storeInformationSettings = storeInformationSettings;
+        _contextAccessor = contextAccessor;
+    }
+
+    public override string AreaName => "";
+
+    public override string GetCurrentTheme()
+    {
+        var theme = "";
+        if (_storeInformationSettings.AllowCustomerToSelectTheme)
+        {
+            theme = _contextAccessor.HttpContext?.Session.GetString(this.SessionName);
+        }
+        //default store theme
+        if (string.IsNullOrEmpty(theme))
+            theme = _storeInformationSettings.DefaultStoreTheme;
+
+        return theme;
+    }
+}
+
+/*
 {
     /// <summary>
     /// Theme context
@@ -15,7 +42,6 @@ namespace Grand.Web.Common.Themes
         private readonly IWorkContext _workContext;
         private readonly IUserFieldService _userFieldService;
         private readonly StoreInformationSettings _storeInformationSettings;
-        private readonly VendorSettings _vendorSettings;
         private readonly IThemeProvider _themeProvider;
 
         private bool _themeIsCached, _adminThemeIsCached;
@@ -24,13 +50,11 @@ namespace Grand.Web.Common.Themes
         public ThemeContext(IWorkContext workContext,
             IUserFieldService userFieldService,
             StoreInformationSettings storeInformationSettings,
-            VendorSettings vendorSettings,
             IThemeProvider themeProvider)
         {
             _workContext = workContext;
             _userFieldService = userFieldService;
             _storeInformationSettings = storeInformationSettings;
-            _vendorSettings = vendorSettings;
             _themeProvider = themeProvider;
         }
 
@@ -97,13 +121,7 @@ namespace Grand.Web.Common.Themes
                             theme = customerTheme;
                     }
                 }
-
-                if (_workContext.CurrentVendor != null)
-                {
-                    if (!string.IsNullOrEmpty(_vendorSettings.DefaultAdminTheme))
-                        theme = _vendorSettings.DefaultAdminTheme;
-                }
-
+                
                 //cache theme
                 _cachedAdminThemeName = theme;
                 _themeIsCached = true;
@@ -131,3 +149,4 @@ namespace Grand.Web.Common.Themes
         }
     }
 }
+*/

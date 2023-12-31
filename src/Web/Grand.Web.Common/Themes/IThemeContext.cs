@@ -1,25 +1,22 @@
-﻿//Contribution https://github.com/smartstore/SmartStoreNET/blob/2.0.x/src/Presentation/SmartStore.Web.Framework/Themes/IThemeContext.cs
+﻿namespace Grand.Web.Common.Themes;
 
-namespace Grand.Web.Common.Themes
+/// <summary>
+/// Work context
+/// </summary>
+public interface IThemeContext
 {
     /// <summary>
-    /// Work context
+    /// Get area name
     /// </summary>
-    public interface IThemeContext
-    {
-        /// <summary>
-        /// Get current theme system name
-        /// </summary>
-        string WorkingThemeName { get; }
+    string AreaName { get; }
 
-        /// <summary>
-        /// Get admin area current theme name
-        /// </summary>
-        string AdminAreaThemeName { get; }
+    /// <summary>
+    /// Get current theme system name
+    /// </summary>
+    string GetCurrentTheme();
 
-        /// <summary>
-        /// Set current theme system name
-        /// </summary>
-        Task SetWorkingTheme(string themeName);
-    }
+    /// <summary>
+    /// Set current theme system name
+    /// </summary>
+    Task SetTheme(string themeName);
 }

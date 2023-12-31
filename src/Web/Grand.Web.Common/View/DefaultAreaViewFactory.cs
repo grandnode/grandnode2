@@ -1,19 +1,23 @@
-﻿namespace Grand.Web.Common.View;
+﻿using Grand.Web.Common.Themes;
+
+namespace Grand.Web.Common.View;
 
 public class DefaultAreaViewFactory : IAreaViewFactory
 {
     public string AreaName => "";
     
     private readonly IEnumerable<IThemeViewFactory> _themeFactories;
-
-    public DefaultAreaViewFactory(IEnumerable<IThemeViewFactory> themeFactories)
+    private readonly IThemeContext _themeContext;
+    
+    public DefaultAreaViewFactory(IEnumerable<IThemeViewFactory> themeFactories, IThemeContextFactory themeContextFactory)
     {
+        _themeContext = themeContextFactory.GetThemeContext(AreaName);
         _themeFactories = themeFactories.Where(x=>x.AreaName == AreaName);
     }
 
     public IEnumerable<string> GetViewLocations(IEnumerable<string> viewLocations)
     {
-        var themeName = "";
+        var themeName = _themeContext?.GetCurrentTheme();
         
         if(string.IsNullOrEmpty(themeName)) return GetDefaultViewLocations();
         

@@ -1,4 +1,5 @@
 ﻿using Grand.Web.Admin.Extensions;
+using Grand.Web.Common.Themes;
 using Grand.Web.Common.View;
 
 namespace Grand.Web.Admin.Infrastructure;
@@ -6,17 +7,16 @@ namespace Grand.Web.Admin.Infrastructure;
 public class AdminAreaViewFactory : IAreaViewFactory
 {
     public string AreaName => Constants.AreaAdmin;
-    public IEnumerable<string> GetViewLocations(IEnumerable<string> viewLocations)
+    private readonly IThemeContext _themeContext;
+
+    public AdminAreaViewFactory(IThemeContextFactory themeContextFactory)
     {
-        var basicViewLocations = new[] {
-            $"/Areas/{AreaName}/Views/{{1}}/{{0}}.cshtml",
-            $"/Areas/{AreaName}/Views/Shared/{{0}}.cshtml"
-        };
-        return basicViewLocations;
+        _themeContext = themeContextFactory.GetThemeContext(AreaName);
     }
 
-    public IEnumerable<string> GetViewLocations(string themeName)
+    public IEnumerable<string> GetViewLocations(IEnumerable<string> viewLocations)
     {
+        var themeName = _themeContext?.GetCurrentTheme();
         
         var basicViewLocations = new[] {
             $"/Areas/{AreaName}/Views/{{1}}/{{0}}.cshtml",
@@ -34,4 +34,5 @@ public class AdminAreaViewFactory : IAreaViewFactory
 
         return themeViewLocations.Concat(basicViewLocations);
     }
+
 }

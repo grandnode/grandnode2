@@ -7,7 +7,7 @@ public class ViewFactory : IViewFactory
     
     public ViewFactory(IEnumerable<IAreaViewFactory> areaFactories)
     {
-        _areaFactories = areaFactories.ToDictionary(f => f.AreaName, f => f);;
+        _areaFactories = areaFactories.ToDictionary(f => f.AreaName, f => f);
     }
 
     public void GetViewPath(string areaName, ref IEnumerable<string> viewLocations)

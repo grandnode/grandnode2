@@ -12,7 +12,8 @@
                  }).ToList();
 
         var returnurl = Context?.Request?.GetEncodedPathAndQuery();
-        if (availablThemes.Count > 1)
+        //TODO
+        @*if (availablThemes.Count > 1)
         {
             <b-dropdown class="mr-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext.WorkingThemeName)?.Name">
                 @foreach (var theme in availablThemes)
@@ -23,6 +24,6 @@
                     </b-dropdown-item>
                 }
             </b-dropdown>
-        }
+        }*@
     }
 }

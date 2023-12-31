@@ -89,6 +89,12 @@ namespace Grand.Web.Common.Startup
             //Default view area
             serviceCollection.AddScoped<IAreaViewFactory, DefaultAreaViewFactory>();
 
+            //Theme context factory
+            serviceCollection.AddScoped<IThemeContextFactory, ThemeContextFactory>();
+
+            //Default theme context
+            serviceCollection.AddScoped<IThemeContext, ThemeContext>();
+
         }
 
 
@@ -99,7 +105,6 @@ namespace Grand.Web.Common.Startup
             serviceCollection.AddSingleton<IThemeList, ThemeList>();
 
             serviceCollection.AddScoped<IThemeProvider, ThemeProvider>();
-            serviceCollection.AddScoped<IThemeContext, ThemeContext>();
 
             serviceCollection.AddScoped<SlugRouteTransformer>();
 

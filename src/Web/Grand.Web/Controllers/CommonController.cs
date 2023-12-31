@@ -307,7 +307,8 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> SetStoreTheme(
             [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
         {
-            await themeContext.SetWorkingTheme(themeName);
+            //TODO
+            //await themeContext.SetWorkingTheme(themeName);
 
             //notification
             await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
