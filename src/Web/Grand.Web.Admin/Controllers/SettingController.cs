@@ -51,7 +51,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IPictureService _pictureService;
         private readonly ITranslationService _translationService;
         private readonly IDateTimeService _dateTimeService;
-        private readonly IThemeProvider _themeProvider;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
@@ -68,7 +67,6 @@ namespace Grand.Web.Admin.Controllers
             IPictureService pictureService,
             ITranslationService translationService,
             IDateTimeService dateTimeService,
-            IThemeProvider themeProvider,
             IWorkContext workContext,
             IMediator mediator,
             IMerchandiseReturnService merchandiseReturnService,
@@ -81,7 +79,6 @@ namespace Grand.Web.Admin.Controllers
             _pictureService = pictureService;
             _translationService = translationService;
             _dateTimeService = dateTimeService;
-            _themeProvider = themeProvider;
             _workContext = workContext;
             _mediator = mediator;
             _merchandiseReturnService = merchandiseReturnService;
@@ -617,9 +614,10 @@ namespace Grand.Web.Admin.Controllers
             var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
             model.StoreInformationSettings = storeInformationSettings.ToModel();
 
-            model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
+            //TODO
+            /*model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
                 .GetConfigurations()
-                .Select(x => x.ToModel(storeInformationSettings.DefaultStoreTheme)).ToList();
+                .Select(x => x.ToModel(storeInformationSettings.DefaultStoreTheme)).ToList();*/
 
             //common
             var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);

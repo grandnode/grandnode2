@@ -102,10 +102,6 @@ namespace Grand.Web.Common.Startup
         {
             serviceCollection.AddScoped<IPageHeadBuilder, PageHeadBuilder>();
 
-            serviceCollection.AddSingleton<IThemeList, ThemeList>();
-
-            serviceCollection.AddScoped<IThemeProvider, ThemeProvider>();
-
             serviceCollection.AddScoped<SlugRouteTransformer>();
 
             serviceCollection.AddScoped<IResourceManager, ResourceManager>();

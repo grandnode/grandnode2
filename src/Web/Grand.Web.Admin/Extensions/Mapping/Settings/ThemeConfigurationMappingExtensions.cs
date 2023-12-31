@@ -4,7 +4,7 @@ using Grand.Web.Common.Themes;
 
 namespace Grand.Web.Admin.Extensions.Mapping.Settings
 {
-    public static class ThemeConfigurationMappingExtensions
+    /*public static class ThemeConfigurationMappingExtensions
     {
         public static GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel ToModel(this ThemeConfiguration entity, string defaultStoreTheme)
         {
@@ -12,5 +12,5 @@ namespace Grand.Web.Admin.Extensions.Mapping.Settings
             result.Selected = result.ThemeName.Equals(defaultStoreTheme, StringComparison.OrdinalIgnoreCase);
             return result;
         }
-    }
+    }*/
 }

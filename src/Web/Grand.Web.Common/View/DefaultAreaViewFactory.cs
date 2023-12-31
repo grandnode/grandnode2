@@ -6,10 +6,10 @@ public class DefaultAreaViewFactory : IAreaViewFactory
 {
     public string AreaName => "";
     
-    private readonly IEnumerable<IThemeViewFactory> _themeFactories;
+    private readonly IEnumerable<IThemeView> _themeFactories;
     private readonly IThemeContext _themeContext;
     
-    public DefaultAreaViewFactory(IEnumerable<IThemeViewFactory> themeFactories, IThemeContextFactory themeContextFactory)
+    public DefaultAreaViewFactory(IEnumerable<IThemeView> themeFactories, IThemeContextFactory themeContextFactory)
     {
         _themeContext = themeContextFactory.GetThemeContext(AreaName);
         _themeFactories = themeFactories.Where(x=>x.AreaName == AreaName);

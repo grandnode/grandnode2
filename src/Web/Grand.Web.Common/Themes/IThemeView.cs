@@ -1,6 +1,6 @@
-﻿namespace Grand.Web.Common.View;
+﻿namespace Grand.Web.Common.Themes;
 
-public interface  IThemeViewFactory
+public interface IThemeView
 {
     string AreaName { get; }
     string ThemeName { get; }

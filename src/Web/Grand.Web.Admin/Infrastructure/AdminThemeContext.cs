@@ -1,26 +1,28 @@
 ﻿using Grand.Domain.Stores;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Http;
 
-namespace Grand.Web.Common.Themes;
+namespace Grand.Web.Admin.Infrastructure;
 
-public class ThemeContext : ThemeContextBase
+public class AdminThemeContext : ThemeContextBase
 {
     private readonly StoreInformationSettings _storeInformationSettings;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public ThemeContext(IHttpContextAccessor contextAccessor, StoreInformationSettings storeInformationSettings) :
+    public AdminThemeContext(IHttpContextAccessor contextAccessor, StoreInformationSettings storeInformationSettings) :
         base(contextAccessor)
     {
         _storeInformationSettings = storeInformationSettings;
         _contextAccessor = contextAccessor;
     }
 
-    public override string AreaName => "";
+    public override string AreaName => Constants.AreaAdmin;
 
     public override string GetCurrentTheme()
     {
         var theme = "";
-        if (_storeInformationSettings.AllowCustomerToSelectTheme)
+        if (_storeInformationSettings.AllowToSelectAdminTheme)
         {
             theme = _contextAccessor.HttpContext?.Session.GetString(this.SessionName);
         }
