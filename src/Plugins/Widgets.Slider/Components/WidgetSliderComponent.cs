@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Infrastructure;
-using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
@@ -81,7 +80,7 @@ namespace Widgets.Slider.Components
             if (!model.Slide.Any())
                 return Content("");
 
-            return View(this.GetViewPath(), model);
+            return View(model);
         }
     }
 }

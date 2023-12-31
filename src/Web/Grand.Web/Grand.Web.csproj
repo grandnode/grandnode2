@@ -62,5 +62,8 @@
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Infrastructure\" />
 	</ItemGroup>	
 </Project>

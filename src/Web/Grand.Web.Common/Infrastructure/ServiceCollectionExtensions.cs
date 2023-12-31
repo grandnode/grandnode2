@@ -12,7 +12,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Themes;
+using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -91,7 +91,7 @@ namespace Grand.Web.Common.Infrastructure
             //themes support
             services.Configure<RazorViewEngineOptions>(options =>
             {
-                options.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
+                options.ViewLocationExpanders.Add(new ViewLocationExpander());
             });
         }
 

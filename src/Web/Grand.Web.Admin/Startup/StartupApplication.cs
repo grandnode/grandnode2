@@ -4,6 +4,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Services;
+using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -58,12 +59,14 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<IPictureViewModelService, PictureViewModelService>();
             services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
             services.AddScoped<IMenuViewModelService, MenuViewModelService>();
-            
+
+            services.AddScoped<IAreaViewFactory, AdminAreaViewFactory>();
+
             //themes support
-            services.Configure<RazorViewEngineOptions>(options =>
+            /*services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationExpanders.Add(new AdminViewLocationExpander());
-            });
+            });*/
 
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
