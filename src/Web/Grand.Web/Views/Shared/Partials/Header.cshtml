@@ -1,4 +1,6 @@
 ﻿@inject IWorkContext workContext
+@inject StoreInformationSettings StoreInformationSettings
+@inject CommonSettings CommonSettings
 @{ 
     var supportRtl = workContext.WorkingLanguage.Rtl;
 }
@@ -52,8 +54,15 @@
                                     <partial name="Partials/Selector_TaxType" />
                                     <partial name="Partials/Selector_Currency" />
                                     <partial name="Partials/Selector_Language" />
+                                    @if(CommonSettings.AllowToSelectStore)
+                                    {
+                                        <partial name="Partials/Selector_Store" />
+                                    }
                                     <partial name="Partials/Selector_Store" />
-                                    <partial name="Partials/Selector_Theme" />
+                                    @if (StoreInformationSettings.AllowCustomerToSelectTheme)
+                                    {
+                                        <partial name="Partials/Selector_Theme"/>
+                                    }
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
                                 </div>
                                 <partial name="Partials/HeaderLinks" />

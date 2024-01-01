@@ -311,8 +311,8 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         [HttpGet]
         public virtual async Task<IActionResult> SetStoreTheme(
-            StoreInformationSettings storeInformationSettings,
-            IThemeContextFactory themeContextFactory, string themeName, string returnUrl = "")
+            [FromServices] StoreInformationSettings storeInformationSettings,
+            [FromServices] IThemeContextFactory themeContextFactory, string themeName, string returnUrl = "")
         {
             if (!storeInformationSettings.AllowCustomerToSelectTheme) return Redirect(returnUrl);
 
