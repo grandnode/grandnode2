@@ -238,7 +238,7 @@ namespace Grand.Web.Admin.Controllers
         {
             if (_extConfig.DisableUploadExtensions)
             {
-                Error("Upload plugins/themes is disable");
+                Error("Upload plugins is disable");
                 return RedirectToAction("List");
             }
 
@@ -293,7 +293,7 @@ namespace Grand.Web.Admin.Controllers
         {
             if (_extConfig.DisableUploadExtensions)
             {
-                Error("Upload plugins/themes is disable");
+                Error("Upload plugins is disable");
                 return RedirectToAction("List");
             }
 

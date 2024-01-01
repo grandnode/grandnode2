@@ -62,12 +62,6 @@ namespace Grand.Web.Admin.Startup
 
             services.AddScoped<IAreaViewFactory, AdminAreaViewFactory>();
 
-            //themes support
-            /*services.Configure<RazorViewEngineOptions>(options =>
-            {
-                options.ViewLocationExpanders.Add(new AdminViewLocationExpander());
-            });*/
-
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
