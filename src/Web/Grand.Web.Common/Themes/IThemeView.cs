@@ -8,4 +8,4 @@ public interface IThemeView
     IEnumerable<string> GetViewLocations();
 }
 
-public record ThemeInfo(string Title, string PreviewImageUrl, string PreviewText, bool SupportRtl, string Version);
+public record ThemeInfo(string Title, string PreviewImageUrl, string PreviewText, bool SupportRtl);

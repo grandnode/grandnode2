@@ -622,7 +622,6 @@ namespace Grand.Web.Admin.Controllers
                         PreviewImageUrl = x.ThemeInfo.PreviewImageUrl,
                         PreviewText = x.ThemeInfo.PreviewText,
                         SupportRtl = x.ThemeInfo.SupportRtl,
-                        ThemeVersion = x.ThemeInfo.Version,
                         Selected = x.ThemeName == storeInformationSettings.DefaultStoreTheme
                     }).ToList();
             

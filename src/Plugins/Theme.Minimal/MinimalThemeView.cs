@@ -7,7 +7,7 @@ public class MinimalThemeView: IThemeView
     public string AreaName => "";
     public string ThemeName => "Minimal";
     
-    public ThemeInfo ThemeInfo => new ("Minimal theme", "~/assets/samples/default-theme.jpg", "Minimal theme", true, "1.0");
+    public ThemeInfo ThemeInfo => new ("Minimal theme", "~/assets/samples/default-theme.jpg", "Minimal theme", true);
 
     public IEnumerable<string> GetViewLocations()
     {
