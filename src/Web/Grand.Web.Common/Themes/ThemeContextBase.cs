@@ -13,12 +13,14 @@ public abstract class ThemeContextBase : IThemeContext
 
     public abstract string AreaName { get; }
 
-    public string SessionName => $"{AreaName}_Theme";
+    public string CookiesName => $"Grand.{AreaName}.Theme";
     public abstract string GetCurrentTheme();
 
     public Task SetTheme(string themeName)
     {
-        _contextAccessor.HttpContext?.Session.SetString(SessionName, themeName);
+        _contextAccessor.HttpContext?.Response.Cookies.Delete(CookiesName);
+        _contextAccessor.HttpContext?.Response.Cookies.Append(CookiesName, themeName,
+            new CookieOptions { HttpOnly = false, Expires = DateTimeOffset.Now.AddYears(1)});
         return Task.CompletedTask;
     }
 }

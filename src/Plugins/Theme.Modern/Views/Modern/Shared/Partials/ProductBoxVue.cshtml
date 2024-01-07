@@ -1,12 +1,9 @@
 ﻿<template id="product-box-vue" asp-footer="true">
     <div class="card product-box show product-provider mb-2">
-        <template v-if="Model.ProductPrice.OldPrice !== null">
-            <div class="sale-label">
-                <span>@Loc["View.Sale"]</span>
+    <template v-if="Model.Flag !== null">
+            <div class="flag-label">
+                <span v-html="Model.Flag"></span>
             </div>
-        </template>
-        <template v-if="Model.Flag !== null">
-            <div class="flag-label" v-html="Model.Flag"></div>
         </template>
         <div class="picture-container">
             <a class="img-container" :href="'/' + Model.SeName" :title="Model.DefaultPictureModel.Title">

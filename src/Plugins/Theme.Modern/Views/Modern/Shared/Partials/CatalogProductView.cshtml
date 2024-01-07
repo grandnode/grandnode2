@@ -36,13 +36,7 @@
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <b-card no-body tag="article" v-bind:class="{mobile: isMobile()}" class="product-box show product-provider mb-2" @@mouseover="hover = true" @@mouseleave="hover = false">
-    @if (!String.IsNullOrEmpty(Model.ProductPrice.OldPrice))
-    {
-        <div class="sale-label">
-            <span>@Loc["View.Sale"]</span>
-        </div>
-    }
-    @if (!String.IsNullOrEmpty(Model.Flag))
+    @if (!string.IsNullOrEmpty(Model.Flag))
     {
         <div class="flag-label">
             @Html.Raw(Model.Flag)

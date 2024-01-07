@@ -7,6 +7,7 @@ public class ThemeContext : ThemeContextBase
 {
     private readonly StoreInformationSettings _storeInformationSettings;
     private readonly IHttpContextAccessor _contextAccessor;
+    private string _themeName;
 
     public ThemeContext(IHttpContextAccessor contextAccessor, StoreInformationSettings storeInformationSettings) :
         base(contextAccessor)
@@ -19,15 +20,19 @@ public class ThemeContext : ThemeContextBase
 
     public override string GetCurrentTheme()
     {
+        if (!string.IsNullOrEmpty(_themeName))
+            return _themeName;
+
         var theme = "";
         if (_storeInformationSettings.AllowCustomerToSelectTheme)
         {
-            theme = _contextAccessor.HttpContext?.Session.GetString(this.SessionName);
+            theme = _contextAccessor.HttpContext?.Request.Cookies[this.CookiesName];
         }
+
         //default store theme
         if (string.IsNullOrEmpty(theme))
             theme = _storeInformationSettings.DefaultStoreTheme;
 
-        return theme;
+        return _themeName = theme;
     }
 }

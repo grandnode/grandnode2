@@ -125,7 +125,6 @@
                                                                     }
         @if (!Model.HideReviews)
         {
-            <!--todo change class customer-notes to other (change icon???) and mdi mdi-account-supervisor - also change-->
             <li class="customer-notes">
                 <a href="@Url.RouteUrl("CustomerReviews")" class="@if(Model.SelectedTab == AccountNavigationEnum.Reviews)
                                                                      {<text>active</text>}
@@ -135,7 +134,6 @@
                                                             }
         @if (!Model.HideSubAccounts)
         {
-            <!--todo change class customer-notes to other (change icon???) and mdi mdi-account-supervisor - also change-->
             <li class="customer-subaccounts">
                 <a href="@Url.RouteUrl("CustomerSubAccounts")" class="@if(Model.SelectedTab == AccountNavigationEnum.SubAccounts)
                                                                      {<text>active</text>}

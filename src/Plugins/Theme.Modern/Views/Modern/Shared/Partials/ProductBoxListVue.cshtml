@@ -1,8 +1,5 @@
 ﻿<template id="product-box-list-vue" asp-footer="true">
 <b-card no-body class="product-box show list product-provider mb-3">
-    <template v-if="Model.ProductPrice.OldPrice !== null">
-        <div class="sale-label"> <span>@Loc["View.Sale"]</span> </div>
-    </template>
     <template v-if="Model.Flag !== null">
         <div class="flag-label" v-html="Model.Flag"></div>
     </template> <div class="picture-container">
