@@ -1,0 +1,162 @@
+﻿@model Grand.Web.Models.Catalog.SearchModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Search"]);
+}
+<script asp-location="Footer">
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("@Html.IdFor(model => model.adv)").addEventListener('click', toggleAdvancedSearch);
+        toggleAdvancedSearch();
+    });
+    function toggleAdvancedSearch() {
+        if (document.getElementById('@Html.IdFor(model => model.adv)').checked) {
+            document.getElementById('advanced-search-block').style.display = "flex";
+        }
+        else {
+            document.getElementById('advanced-search-block').style.display = "none";
+        }
+    }
+</script>
+
+<div class="page search-page">
+    <h1 class="generalTitle h2"><div>@Loc["Search"]</div></h1>
+    <div class="search-input">
+        <form asp-route="ProductSearch" method="get">
+            <div class="fieldset">
+                <div class="form-fields">
+                    <div class="basic-search">
+                        <label class="col-form-label" asp-for="q">@Loc["Search.SearchTerm"]:</label>
+                        <div class="input-group mb-2">
+                            <input asp-for="q" type="search" class="form-control search-text" />
+                            <div class="input-group-append">
+                                <input type="submit" class="btn btn-secondary search-button" value="@Loc["Search.Button"]" />
+                            </div>
+                        </div>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_basic" })
+                        <div class="inputs reversed">
+                            <label for="adv" class="custom-control custom-checkbox">
+                                <span class="sr-only">adv</span>
+                                <input asp-for="adv" class="custom-control-input" />
+                                <span class="custom-control-label"></span>
+                                <span class="custom-control-description">@Loc["search.advancedsearch"]</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="advanced-search form-row" id="advanced-search-block">
+                        @if (Model.AvailableCategories.Any())
+                        {
+                            <div class="col-md-6 col-12">
+                                <div class="inputs">
+                                    <label class="col-form-label" asp-for="cid">@Loc["Search.Category"]:</label>
+                                    <select asp-for="cid" class="form-control" asp-items="Model.AvailableCategories"></select>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.AvailableCollections.Any())
+                        {
+                            <div class="col-md-6 col-12">
+                                <div class="inputs">
+                                    <label class="col-form-label" asp-for="mid">@Loc["Search.Collection"]:</label>
+                                    <select asp-for="mid" class="form-control mb-3" asp-items="Model.AvailableCollections"></select>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.asv && Model.AvailableVendors.Any())
+                        {
+                            <div class="col-md-6 col-12">
+                                <div class="inputs">
+                                    <label class="col-form-label" asp-for="vid">@Loc["Search.Vendor"]:</label>
+                                    <select asp-for="vid" class="form-control mb-3" asp-items="Model.AvailableVendors"></select>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-12 col-12">
+                            <div class="inputs pt-1">
+                                <div class="flex-sm-row">
+                                    <label class="col-form-label col-12 px-0 mt-1">@Loc["Search.PriceRange"]:</label>
+                                    <div class="price-range flex-sm-row row">
+                                        <div class="col">
+                                            <label class="col-form-label" asp-for="pf">@Loc["Search.PriceRange.From"]</label>
+                                            <input asp-for="pf" class="form-control price-from" />
+                                        </div>
+                                        <div class="col">
+                                            <label class="col-form-label" asp-for="pt">@Loc["Search.PriceRange.To"]</label>
+                                            <input asp-for="pt" class="form-control price-to" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="inputs reversed">
+                                <label for="sid" class="custom-control custom-checkbox">
+                                    <input asp-for="sid" class="custom-control-input" />
+                                    <span class="custom-control-label"></span>
+                                    <span class="custom-control-description">@Loc["search.searchindescriptions"]</span>
+                                </label>
+                            </div>
+                        </div>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_advanced" })
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
+    <div class="search-results">
+        <div id="catalog-products">
+            @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
+            <partial name="Partials/Selectors" />
+            <template v-if="catalog.Model.Products.length > 0">
+                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                    <b-col cols="12" class="product-grid px-0">
+                        <b-form-row>
+                            <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 mb-2">
+                                    <product-box-vue :Model="Model"></product-box-vue>
+                                </b-col>
+                            </template>
+                        </b-form-row>
+                    </b-col>
+                </template>
+                <template v-else>
+                    <div class="product-list">
+                        <b-col cols="12">
+                            <b-row>
+                                <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                    <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                </template>
+                            </b-row>
+                        </b-col>
+                    </div>
+                </template>
+                @*<partial name="Partials/Pagination" />*@
+                <partial name="Partials/ScrollPagination" />
+            </template>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.Warning))
+        {
+            <div class="warning alert alert-danger my-3">
+                @Model.Warning
+            </div>
+        }
+        @if (Model.NoResults)
+        {
+            <div class="no-result alert alert-info my-3">
+                @Loc["Search.NoResultsText"]
+            </div>
+        }
+    </div>
+</div>
+@await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_after_results" })
+
+@section filters
+{
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
+    }
+}
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

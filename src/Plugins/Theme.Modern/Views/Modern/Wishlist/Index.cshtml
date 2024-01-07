@@ -1,0 +1,200 @@
+﻿@model WishlistModel
+@inject IPageHeadBuilder pagebuilder
+
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Wishlist"]);
+}
+<div class="page wishlist-page mt-3" id="wishlistPage">
+    <h2 class="generalTitle text-center mt-3">
+        <div>
+            @if (Model.IsEditable)
+            {
+                @Loc["Wishlist"]
+            }
+            else
+            {
+                @String.Format(Loc["Wishlist.WishlistOf"], Model.CustomerFullname)
+            }
+        </div>
+    </h2>
+    <template v-if="vmwishlist.Model.Items.length > 0">
+        <div class="wishlist-content mt-3">
+            <template v-if="vmwishlist.Model.Warnings.length > 0">
+                <div class="message-error">
+                    <ul>
+                        <template v-for="warning in vmwishlist.Model.Warnings">
+                            <li>{{warning}}</li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+            <form asp-controller="Wishlist" asp-action="Index" method="post" id="wishlist-cart-form">
+                @if (!Model.IsEditable && Model.Items.Any())
+                {
+                    <input type="hidden" asp-for="@Model.CustomerGuid" />
+                }
+                <div class="shopping-cart-container">
+                    <div class="static-cart">
+                        <div id="wishlist-cart">
+                            <table id="cart-table" class="table b-table shopping-cart">
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <template v-if="vmwishlist.Model.ShowProductImages">
+                                            <th role="columnheader" scope="col" class="text-center">
+                                                <div>@Loc["ShoppingCart.Image"]</div>
+                                            </th>
+                                        </template>
+                                        <th role="columnheader" scope="col" class="text-center">
+                                            <div>@Loc["ShoppingCart.Product(s)"]</div>
+                                        </th>
+                                        <th role="columnheader" scope="col" class="text-center">
+                                            <div>@Loc["ShoppingCart.Quantity"]</div>
+                                        </th>
+                                        <th role="columnheader" scope="col" class="text-center">
+                                            <div>@Loc["ShoppingCart.UnitPrice"]</div>
+                                        </th>
+                                        <th role="columnheader" scope="col" class="text-center">
+                                            <div>@Loc["ShoppingCart.ItemTotal"]</div>
+                                        </th>
+                                        <template v-if="vmwishlist.Model.IsEditable || vmwishlist.Model.DisplayAddToCart">
+                                            <template v-if="vmwishlist.Model.IsEditable">
+                                                <th role="columnheader" scope="col" class="text-center">
+                                                    <div>@Loc["Remove"]</div>
+                                                </th>
+                                            </template>
+                                            <template v-if="vmwishlist.Model.DisplayAddToCart">
+                                                <th role="columnheader" scope="col" class="text-center">
+                                                    <div>@Loc["addToCart"]</div>
+                                                </th>
+                                            </template>
+                                        </template>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    <template v-for="item in vmwishlist.Model.Items">
+                                        <tr role="row">
+                                            <template v-if="vmwishlist.Model.ShowProductImages">
+                                                <td role="cell" class="text-center">
+                                                    <div>
+                                                        <a :href="item.ProductUrl">
+                                                            <img :alt="item.Picture.AlternateText" :src="item.Picture.ImageUrl" :title="item.Picture.Title" />
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </template>
+                                            <td role="cell" class="text-center">
+                                                <div class="d-inline-flex align-items-center">
+                                                    <a :href="item.ProductUrl" class="product-name">
+                                                        {{item.ProductName}}
+                                                    </a>
+                                                    <div v-if="vmwishlist.Model.IsEditable && item.AllowItemEditing" class="edit-item">
+                                                        <a class="btn btn-link" @@click="vmwishlist.getItemCart(item.Id)"><b-icon icon="pencil"></b-icon></a>
+                                                    </div>
+                                                </div>
+                                                <template v-if="vmwishlist.Model.ShowSku && item.Sku !== null">
+                                                    <span class="sku-number">{{item.Sku}}</span>
+                                                </template>
+                                                <template v-if="item.AttributeInfo !== ''">
+                                                    <div class="attributes small" v-html="item.AttributeInfo"></div>
+                                                </template>
+                                                <template v-if="item.Warnings.length > 0">
+                                                    <div class="warnings message-error small alert alert-danger mt-2 mb-0">
+                                                        <ul class="mb-0 p-0">
+                                                            <template v-for="warning in item.Warnings">
+                                                                <li>{{warning}}</li>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
+                                                </template>
+                                                <template v-if="item.RecurringInfo !== null">
+                                                    <div class="recurring-info" v-html="item.RecurringInfo"></div>
+                                                </template>
+                                            </td>
+                                            <template v-if="vmwishlist.Model.IsEditable">
+                                                <td role="cell" class="text-center">
+                                                    <template v-if="item.AllowedQuantities[0]">
+                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmwishlist.updateQuantity('itemquantity', item.Id)">
+                                                            <template v-for="qty in item.AllowedQuantities">
+                                                                <option :id="'itemqty' + item.Id" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
+                                                            </template>
+                                                        </select>
+                                                    </template>
+                                                    <template v-else>
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmwishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
+                                                    </template>
+                                                </td>
+                                            </template>
+                                            <template v-else>
+                                                <td role="cell" class="text-center">
+                                                    <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="text" :value="item.Quantity" class="qty-input-ro form-control text-center" readonly />
+                                                </td>
+                                            </template>
+                                            <td role="cell" class="text-center">
+                                                <span class="product-unit-price price">{{item.UnitPrice}}</span>
+                                            </td>
+                                            <template v-if="item.Discount !== null">
+                                                <td role="cell" class="text-center">
+                                                    <div class="d-flex flex-column">
+                                                        <p class="mb-0 prod-total">{{item.SubTotal}}</p><div class="discount text-success text-center"><span>@Loc["ShoppingCart.ItemYouSave"]: </span><span>{{item.Discount}}</span></div>
+                                                    </div>
+                                                </td>
+                                            </template>
+                                            <template v-else>
+                                                <td role="cell" class="text-center">
+                                                    <p class="mb-0 prod-total">{{item.SubTotal}}</p>
+                                                </td>
+                                            </template>
+                                            <template v-if="vmwishlist.Model.IsEditable || vmwishlist.Model.DisplayAddToCart">
+                                                <template v-if="vmwishlist.Model.IsEditable">
+                                                    <td>
+                                                        <b-button variant="link" @@click="vmwishlist.deleteFromWishlist(item.Id)">
+                                                            <b-icon icon="trash" font-scale="1.5" class="text-danger"></b-icon>
+                                                        </b-button>
+                                                    </td>
+                                                </template>
+                                                <template v-if="vmwishlist.Model.DisplayAddToCart">
+                                                    <td>
+                                                        <b-button variant="link" @@click="vmwishlist.addToCartFromWishlist(item.Id)">
+                                                            <b-icon icon="cart" font-scale="1.5" class="text-info"></b-icon>
+                                                        </b-button>
+                                                    </td>
+                                                </template>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.EmailWishlistEnabled">
+                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" @@click="$bvModal.show('ModalEmailWishlist')">
+                        <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
+                        <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
+                    </button>
+                </template>
+            </form>
+        </div>
+    </template>
+    <template v-else>
+        <div class="no-data alert alert-info text-center">
+            @Loc["Wishlist.CartIsEmpty"]
+        </div>
+    </template>
+    <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.Items.length > 0">
+        <div class="row">
+            <div class="col-12 share-info generalMarginSupporter text-center text-md-left">
+                <span class="share-label">@Loc["Wishlist.YourWishlistURL"]:</span>
+                <a href="@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid })" class="small ml-2">@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, "http")</a>
+            </div>
+        </div>
+    </template>
+</div>
+@if (Model.IsEditable && Model.Items.Any())
+{
+    @await      Component.InvokeAsync("EmailWishlist")
+}
+<partial name="Partials/ModelScript" model="Model" />

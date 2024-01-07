@@ -133,7 +133,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{BF4543
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.SharedUIResources", "src\Web\Grand.SharedUIResources\Grand.SharedUIResources.csproj", "{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme.Minimal", "src\Plugins\Theme.Minimal\Theme.Minimal.csproj", "{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme.Modern", "src\Plugins\Theme.Modern\Theme.Modern.csproj", "{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

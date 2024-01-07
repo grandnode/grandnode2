@@ -1,0 +1,64 @@
+﻿@inject IWorkContext workContext
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Checkout.Orders.IShoppingCartService shoppingCartService
+
+@inject ShoppingCartSettings shoppingCartSettings
+@inject CatalogSettings catalogSettings
+@using Grand.Business.Core.Utilities.Common.Security
+@{
+
+    var shoppingCartTypes = new List<ShoppingCartType>();
+    shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
+    shoppingCartTypes.Add(ShoppingCartType.Auctions);
+    if (shoppingCartSettings.AllowOnHoldCart)
+        shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
+
+    var shoppingCartEnabled = await permissionService.Authorize(StandardPermission.EnableShoppingCart);
+    var wishlistEnabled = await permissionService.Authorize(StandardPermission.EnableWishlist);
+    var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
+    var shoppingCartItems =
+        workContext.CurrentCustomer.ShoppingCartItems.Any() ?
+        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
+        .Sum(x => x.Quantity) : 0;
+
+    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ?
+        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+        .Sum(x => x.Quantity) : 0;
+
+}
+@if (catalogSettings.CompareProductsEnabled)
+{
+    <partial name="Partials/SidebarCompareProducts" />
+}
+@if (wishlistEnabled || shoppingCartEnabled)
+{
+    @if (miniShoppingCartEnabled)
+    {
+        if (wishlistEnabled)
+        {
+            <partial name="Partials/SidebarWishlist" model="wishlistItems" />
+        }
+        <partial name="Partials/SidebarShoppingCart" model="shoppingCartItems" />
+    }
+    else
+    {
+        if (wishlistEnabled)
+        {
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.RouteUrl("Wishlist")">
+                    <span class="icon-heart icons"></span>
+                    <div class="qty-indicator wishlist-qty" ref="wishlistQty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
+                </a>
+            </li>
+        }
+        if (shoppingCartEnabled)
+        {
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.RouteUrl("ShoppingCart")">
+                    <span class="icon-basket icons"></span>
+                    <div class="qty-indicator cart-qty">@Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]</div>
+                </a>
+            </li>
+        }
+    }
+}

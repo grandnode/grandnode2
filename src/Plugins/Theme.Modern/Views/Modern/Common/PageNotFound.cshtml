@@ -1,0 +1,17 @@
+﻿@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.PageNotFound"]);
+}
+<div class="page page-not-found">
+    <div class="not-found-container">
+        <h1 class="top">404</h1>
+        <div class="bottom">Error</div>
+        <div class="content">
+            @Loc["Title.PageNotFound"]
+        </div>
+    </div>
+    @await Component.InvokeAsync("PageBlock", new { systemName = "PageNotFound" })
+</div>

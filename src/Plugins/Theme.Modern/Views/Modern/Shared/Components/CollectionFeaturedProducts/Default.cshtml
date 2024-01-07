@@ -1,0 +1,29 @@
+﻿@model IList<CollectionModel>
+<template>
+    <div class="home-page-section">
+        <div id="CollectionFeaturedProducts" class="section">
+            <div class="featured-product-grid">
+                <b-tabs class="products-tabs" content-class="products-tabs-content">
+                    <template v-for="(Collection, index) in homePCollectionProducts.Model">
+                        <b-tab :title="Collection.Name" lazy>
+                            <div class="item-row">
+                                <div :key="Model.Id" class="col-for-5-xl col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6" v-for="Model in Collection.FeaturedProducts">
+                                    <product-box-vue :Model="Model"></product-box-vue>
+                                </div>
+                            </div>
+                        </b-tab>
+                    </template>
+                </b-tabs>
+            </div>
+        </div>
+    </div>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var homePCollectionProducts = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model)
+            }
+        }
+    });
+</script>

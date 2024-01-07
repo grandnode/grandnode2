@@ -1,0 +1,89 @@
+﻿@model BrandModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var collectionUrl = Url.RouteUrl("Brand", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(collectionUrl);
+    }
+    <script asp-location="Header" asp-src="/theme/script/catalog.js"></script>
+}
+
+<b-skeleton-wrapper :loading="catalog.loading == true">
+    <template #loading>
+        <div>
+            <b-skeleton width="100%" height="20vh" class="mb-3"></b-skeleton>
+            <b-skeleton width="100%" height="80vh"></b-skeleton>
+        </div>
+    </template>
+    <div class="page brand-page catalog-page mb-2">
+        <template v-if="catalog.Model.Description !== null">
+            <div v-html="catalog.Model.Description"></div>
+        </template>
+        <h1 class="generalTitle h2"><div>{{catalog.Model.Name}}</div></h1>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_top", additionalData = Model.Id })
+        @*Rendering description section*@
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_featured_products", additionalData = Model.Id })
+        @*Rendering featured products section*@
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_after_featured_products", additionalData = Model.Id })
+        <div id="catalog-products">
+            @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_filters", additionalData = Model.Id })
+            <partial name="Partials/Selectors" />
+            <template v-if="catalog.Model.Products.length > 0">
+                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                    <b-col cols="12" class="product-grid standard px-0">
+                        <b-form-row>
+                            <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 mb-2">
+                                    <product-box-vue :Model="Model"></product-box-vue>
+                                </b-col>
+                            </template>
+                        </b-form-row>
+                    </b-col>
+                </template>
+                <template v-else>
+                    <div class="product-list">
+                        <b-col cols="12">
+                            <b-row>
+                                <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                    <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                </template>
+                            </b-row>
+                        </b-col>
+                    </div>
+                </template>
+                @*<partial name="Partials/Pagination" />*@
+                <partial name="Partials/ScrollPagination" />
+            </template>
+            <template v-else>
+                <b-alert variant="info" show class="my-3">
+                    @Loc["search.noresultstext"]
+                </b-alert>
+            </template>
+        </div>
+        @*Rendering bottom description section*@
+        <template v-if="catalog.Model.BottomDescription !== null">
+            <div v-html="catalog.Model.BottomDescription"></div>
+        </template>
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_bottom", additionalData = Model.Id })
+    </div>
+</b-skeleton-wrapper>
+
+@section filters
+    {
+    @*Rendering filtering section*@
+    @*@if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering" />
+    }*@
+}
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

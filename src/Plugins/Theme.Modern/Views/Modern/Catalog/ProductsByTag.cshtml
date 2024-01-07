@@ -1,0 +1,65 @@
+﻿@model ProductsByTagModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(string.Format(Loc["Title.ProductsByTag"], Model.TagName));
+
+    //canonical URL
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(productsByTagUrl);
+    }
+}
+<b-skeleton-wrapper :loading="catalog.loading == true">
+    <template #loading>
+        <div>
+            <b-skeleton width="100%" height="20vh" class="mb-3"></b-skeleton>
+            <b-skeleton width="100%" height="80vh"></b-skeleton>
+        </div>
+    </template>
+    <div id="catalog-products" class="page product-tag-page">
+        <h1 class="generalTitle h2"><div>@String.Format(Loc["Products.Tags.ProductsTaggedWith"], Model.TagName)</div></h1>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_top", additionalData = Model.Id })
+        <div id="catalog-products">
+            <partial name="Partials/Selectors" />
+            <template v-if="catalog.Model.Products.length > 0">
+                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                    <b-col cols="12" class="product-grid px-0">
+                        <b-form-row>
+                            <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 mb-2">
+                                    <product-box-vue :Model="Model"></product-box-vue>
+                                </b-col>
+                            </template>
+                        </b-form-row>
+                    </b-col>
+                </template>
+                <template v-else>
+                    <div class="product-list">
+                        <b-col cols="12">
+                            <b-row>
+                                <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                    <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                </template>
+                            </b-row>
+                        </b-col>
+                    </div>
+                </template>
+                <partial name="Partials/ScrollPagination" />
+            </template>
+            <template v-else>
+                <b-alert variant="info" show class="my-3">
+                    @Loc["search.noresultstext"]
+                </b-alert>
+            </template>
+        </div>
+    </div>
+</b-skeleton-wrapper>
+@await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_bottom", additionalData = Model.Id })
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

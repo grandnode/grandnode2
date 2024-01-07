@@ -1,0 +1,146 @@
+﻿@model object
+<script asp-location="Footer" asp-order="300">
+    var catalog = new Vue({
+        data: function () {
+            return {
+                Model: [],
+                pager: [],
+                Count: []
+            }
+        },
+        methods: {
+            loadProducts(url) {
+                //set state
+                var stateurl = new URL(url);
+
+                stateurl.searchParams.delete('timestamp');
+                stateurl.searchParams.delete('pagenumber');
+
+                if (typeof AjaxFilter !== "undefined") {
+                    stateurl.searchParams.forEach(function (key, value) {
+                        document.querySelector("#ajaxfilter-form ." + value).value = key;
+                        AjaxFilter.setFilter(value);
+                    });
+                } else {
+                    catalog.getResponse(url);
+                }
+
+                window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
+            },
+            getResponse(url) {
+                url = new URL(url);
+                url.searchParams.set('timestamp', new Date().getTime());
+                const options = {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                };
+                axios.get(url, options)
+                    .then(response => {
+                        let currentPageNumber = response.data.PagingFilteringContext.PageNumber;
+
+                        if (currentPageNumber > 1 && response.data.PagingFilteringContext.PageNumber !== catalog.Model.PagingFilteringContext.PageNumber) {
+                            const oldProducts = catalog.Model.Products;
+                            catalog.Model = response.data;
+                            const products = oldProducts.concat(response.data.Products);
+                            catalog.Model.Products = products;
+                        } else {
+                            catalog.Model = response.data;
+                        }
+
+                        scrollpagination.stop = false;
+                    })
+                    .catch(err => {
+                        console.log(`${err} whilst contacting the catalog page.`)
+                    });
+            },
+            goToPage(page) {
+                let urlPagenumber = new URL(window.location.href);
+                catalog.loadProducts(urlPagenumber.href);
+            },
+            setCount(pageSize) {
+                if (pageSize > 0) {
+                    var p_size = pageSize;
+                } else {
+                    var p_size = 1;
+                }
+                var p_count = catalog.Model.Products.length;
+                totalPage = Math.ceil(p_count / p_size);
+                var p_numbers = Array.from(Array(totalPage).keys());
+
+                const originalObj = this.Count;
+                let newModel = { ...originalObj, p_numbers }
+                this.Count = newModel;
+            },
+            next() {
+                var currentPage = catalog.Model.PagingFilteringContext.PageNumber - 1;
+                var my_array = catalog.Model.Count;
+                var last_element = my_array[my_array.length - 1];
+                if (last_element > currentPage) {
+                    document.getElementById("PageNumber").value = currentPage + 1;
+                    AjaxFilter.setFilter('pagenumber');
+                }
+            },
+            pageScroll() {
+                const catalogProdH = document.getElementById("catalog-products").scrollHeight;
+                const TotalPages = catalog.Model.PagingFilteringContext.TotalPages;
+                let PageNumber = catalog.Model.PagingFilteringContext.PageNumber;
+
+                if (window.pageYOffset >= catalogProdH && PageNumber < TotalPages && !this.stop) {
+                    this.stop = true;
+                    this.next();
+                }
+            }
+        },
+        created() {
+            this.Model = @Model;
+        },
+        watch: {
+            Model: function(val) {
+                if (val) {
+                    catalog.pager = [];
+                    function getValMin() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber - 4) < 1) {
+                            i = 1;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.PageNumber - 4;
+                        }
+                        return i;
+                    }
+                    function getValMax() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber + 4) < catalog.Model.PagingFilteringContext.TotalPages) {
+                            i = catalog.Model.PagingFilteringContext.PageNumber + 4;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.TotalPages;
+                        }
+                        return i;
+                    }
+                    for (var i = getValMin(); i <= getValMax(); i++) {
+                        catalog.pager.push(i);
+                    }
+
+                    var notFilteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems;
+                    var filteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems;
+                    var filterName = 'SpecificationAttributeName';
+
+                    var groupBy = function (xs, key) {
+                        return xs.reduce(function (rv, x) {
+                            (rv[x[key]] = rv[x[key]] || []).push(x);
+                            return rv;
+                        }, {});
+                    };
+
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems = groupBy(notFilteredList, filterName);
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems = groupBy(filteredList, filterName);
+
+                    var pageSize = 0;
+                    this.setCount(pageSize);
+                }
+            }
+        }
+    });
+</script>

@@ -1,0 +1,116 @@
+﻿<div id="hpnslider" class="main-slider bottom-shadow row">
+    @await Component.InvokeAsync("PageBlock", new { systemName = "newproductsbackground" })
+    <swiper ref="HomePageNewProducts"
+            class="swiper"
+            :options="homePNewProducts.swiperOptions">
+        <swiper-slide class="slide-wide" v-for="Model in homePNewProducts.Model">
+            <product-box-slide-vue :key="'hpnp_' + Model.Id" :Model="Model"></product-box-slide-vue>
+        </swiper-slide>
+        <div class="swiper-pagination swiper-pagination-horizontal" slot="pagination"></div>
+        <div class="swiper-button-prev" slot="button-prev"></div>
+        <div class="swiper-button-next" slot="button-next"></div>
+        <div class="swiper-scrollbar" slot="scrollbar"></div>
+    </swiper>
+</div>
+<partial name="Partials/ProductBoxSlideVue" />
+<script asp-location="Footer" asp-order="118" type="module">
+            Vue.component('product-box-slide-vue', {
+                template: '#product-box-slide-vue',
+                props: {
+                    Model: null
+                }
+            });
+</script>
+<script asp-location="Footer" asp-order="300">
+    var homePNewProducts = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model),
+                swiperOptions: {
+                    effect: 'fade',
+                    lazy: {
+                        preloaderClass: 'preloader'
+                    },
+                    autoplay: {
+                        delay: 5000,
+                    },
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    pagination: {
+                        el: '#hpnslider .swiper-pagination',
+                        clickable: true
+                    },
+                    navigation: {
+                        nextEl: '#hpnslider .swiper-button-next',
+                        prevEl: '#hpnslider .swiper-button-prev'
+                    },
+                    scrollbar: {
+                        el: '#hpnslider .swiper-scrollbar',
+                        draggable: true,
+                        hide: false
+                    },
+                    slidesPerView: 1,
+                    on: {
+                        init: function () {
+                            homePNewProducts.progressBarIn(this);
+                            homePNewProducts.animateIn(this);
+                        },
+                        slideChangeTransitionStart: function () {
+                            homePNewProducts.progressBarIn(this);
+                            homePNewProducts.animateIn(this);
+                        },
+                        activeIndexChange: function () {
+                            homePNewProducts.progressBarOut(this);
+                            homePNewProducts.animateOut(this);
+                        },
+                    }
+                }
+            }
+        },
+        methods: {
+            animateIn(slider) {
+                if (typeof (homePNewProducts.Model) == 'object') {
+                    if (slider.slides.length > 0) {
+                        var active = slider.slides[slider.activeIndex];
+                        active.querySelectorAll('.animate__animated').forEach(function (element) {
+                            var delay = element.dataset.delay;
+                            var animation = element.dataset.animation;
+                            element.classList.add(delay);
+                            element.classList.add(animation);
+                        });
+                    }
+                }
+            },
+            animateOut(slider) {
+                if (typeof (homePNewProducts.Model) == 'object') {
+                    var prev = slider.slides[slider.previousIndex];
+                    prev.querySelectorAll('.animate__animated').forEach(function (element) {
+                        var delay = element.dataset.delay;
+                        var animation = element.dataset.animation;
+                        element.classList.remove(delay);
+                        element.classList.remove(animation);
+                    });
+                }
+            },
+            progressBarIn(slider) {
+                slider.scrollbar.init();
+                void slider.el.querySelector('#hpnslider .swiper-scrollbar').offsetWidth;
+                slider.el.querySelector('#hpnslider .swiper-scrollbar').classList.add('progressAnimation');
+                slider.scrollbar.dragEl.style.animationDuration = "5s";
+            },
+            progressBarOut(slider) {
+                slider.scrollbar.init();
+                void slider.el.querySelector('#hpnslider .swiper-scrollbar').offsetWidth;
+                slider.el.querySelector('#hpnslider .swiper-scrollbar').classList.remove('progressAnimation');
+                slider.scrollbar.dragEl.style.animationDuration = "0s";
+            },
+            groupBy(xs, key) {
+                return xs.reduce(function (rv, x) {
+                    (rv[x[key]] = rv[x[key]] || []).push(x);
+                    return rv;
+                }, {});
+            }
+        }
+    });
+</script>

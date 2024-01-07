@@ -1,0 +1,76 @@
+﻿@model CustomerOrderListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Account"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Orders })
+}
+<div class="page account-page order-list-page pl-lg-3 pt-lg-0 pt-3">
+    <h1 class="generalTitle h2"><div>@Loc["Account.CustomerOrders"]</div></h1>
+    <a class="left-side-toggler mb-3" onclick="sideToggle()">
+        <div class="inner">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="text">
+            @Loc["Account.Navigation"]
+        </div>
+    </a>
+    @if (Model.Orders.Any())
+    {
+        <div class="account-order table-responsive">
+            <table class="table table-bordered hover-table">
+                <thead>
+                    <tr>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderNumber"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderStatus"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderDate"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderTotal"]</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>
+                                <span>@order.OrderNumber</span>
+                            </td>
+                            <td>
+                                <span class="@order.OrderStatus.ToLower() badge status order-status">@order.OrderStatus</span>
+                            </td>
+                                <td>
+                                    <span>@order.CreatedOn.ToString("g")</span>
+                                </td>
+                            <td>
+                                <span class="order-total">@order.OrderTotal</span>
+                            </td>
+                            <td>
+                                <div class="buttons d-flex flex-column">
+                                    <input type="button" value="@Loc["Account.CustomerOrders.OrderDetails"]" class="btn btn-sm btn-info order-details-button" onclick="location = ('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')" />
+                                    @if (order.IsMerchandiseReturnAllowed)
+                                    {
+                                        <input type="button" value="@Loc["Account.CustomerOrders.ReturnItems"]" class="btn btn-sm btn-warning text-white return-items-button mt-1" onclick="location = ('@Url.RouteUrl("MerchandiseReturn", new { orderId = order.Id })')" />
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
+    }
+    else
+    {
+        <div class="no-data alert alert-info">
+            @Loc["Account.CustomerOrders.NoOrders"]
+        </div>
+    }
+</div>

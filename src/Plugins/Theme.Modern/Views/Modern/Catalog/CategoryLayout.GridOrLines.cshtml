@@ -1,0 +1,167 @@
+﻿@model CategoryModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(categoryUrl);
+    }
+}
+
+@* Rednering category breadcrumbs*@
+@section Breadcrumb
+    {
+    @if (Model.DisplayCategoryBreadcrumb)
+    {
+
+        var count = 0;
+
+       <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                <a href="@Url.RouteUrl("HomePage")" title="@Loc["Categories.Breadcrumb.Top"]">
+                    <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
+                    <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
+                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                          id="@Url.RouteUrl("HomePage")">
+                    </span>
+                    <meta itemprop="position" content="@count" />
+                </a>
+            </li>
+            @foreach (var cat in Model.CategoryBreadcrumb)
+            {
+                count++;
+                var isLastCategory = cat.Id == Model.Id;
+                @if (isLastCategory)
+                {
+                    <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                        <a>
+                            <strong class="current-item" itemprop="name">@cat.Name</strong>
+                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                            </span>
+                            <meta itemprop="position" content="@count" />
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                        <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                            <span itemprop="name">@cat.Name</span>
+                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new { SeName = cat.SeName })">
+                            </span>
+                            <meta itemprop="position" content="@count" />
+                        </a>
+                    </li>
+                }
+
+            }
+        </ol>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
+    }
+}
+        <div class="page category-page catalog-page mb-2">
+            <template v-if="catalog.Model.Description !== null">
+                <div v-html="catalog.Model.Description"></div>
+            </template>
+            <h1 class="generalTitle h2"><div>{{catalog.Model.Name}}</div></h1>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_top", additionalData = Model.Id })
+            @*Rendering category description*@
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_subcategories", additionalData = Model.Id })
+            @*Rendering subcategories*@
+            <template v-if="catalog.Model.SubCategories.length > 0">
+                <div id="subcatslider" class="mb-3">
+                    <swiper ref="SubCategories"
+                            :options="subcatslider.swiperOptions">
+                        <template v-for="item in catalog.Model.SubCategories">
+                            <swiper-slide>
+                                <b-link class="category-item" :href="'/' + item.SeName" :title="item.PictureModel.Title">
+                                    <img :src="item.PictureModel.ImageUrl" :alt="item.PictureModel.AlternateText" />
+                                    <div class="content">
+                                        <h6 class="title mb-0">{{item.Name}}</h6>
+                                    </div>
+                                </b-link>
+                            </swiper-slide>
+                        </template>
+                    </swiper>
+                </div>
+            </template>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_featured_products", additionalData = Model.Id })
+            @*Rendering featured products section*@
+            <template v-if="catalog.Model.FeaturedProducts.length > 0">
+                <b-col cols="12" class="product-grid featured-product-grid px-0">
+                    <h2 class="generalTitle mb-3">
+                        <span>@Loc["Products.FeaturedProducts"]</span>
+                    </h2>
+                    <div class="item-row">
+                        <template :key="Model" v-for="Model in catalog.Model.FeaturedProducts">
+                            <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 px-0 mb-2">
+                                <product-box-vue :Model="Model"></product-box-vue>
+                            </b-col>
+                        </template>
+                    </div>
+                </b-col>
+            </template>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
+            @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
+            <div id="catalog-products">
+                <template v-if="catalog.Model !== undefined">
+                    <partial name="Partials/Selectors" />
+                    <template v-if="catalog.Model.Products.length > 0">
+                        <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                            <b-col cols="12" class="product-grid standard px-0">
+                                <b-form-row>
+                                    <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                        <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
+                                            <product-box-vue :Model="Model"></product-box-vue>
+                                        </b-col>
+                                    </template>
+                                </b-form-row>
+                            </b-col>
+                        </template>
+                        <template v-else>
+                            <div class="product-list">
+                                <b-col cols="12">
+                                    <b-row>
+                                        <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                            <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                        </template>
+                                    </b-row>
+                                </b-col>
+                            </div>
+                        </template>
+                        @*<partial name="Partials/Pagination" />*@
+                        <partial name="Partials/ScrollPagination" />
+                    </template>
+                    <template v-else>
+                        <b-alert variant="info" show class="my-3">
+                            @Loc["search.noresultstext"]
+                        </b-alert>
+                    </template>
+                </template>
+            </div>
+            @*Rendering bottom description*@
+            <template v-if="catalog.Model.BottomDescription !== null">
+                <div v-html="catalog.Model.BottomDescription"></div>
+            </template>
+            @*Rendering rccently viewed products section*@
+            @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
+        </div>
+@section filters
+    {
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering" />
+    }
+}
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

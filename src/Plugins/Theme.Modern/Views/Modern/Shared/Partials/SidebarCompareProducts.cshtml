@@ -1,0 +1,73 @@
+﻿<li class="nav-item">
+    <ul class="sidebar-cart px-0">
+        <li class="nav-item">
+            <a class="nav-link" @@click="getCompareList('@Url.RouteUrl("CompareProducts")')" v-b-toggle.sidebar-compare>
+                <span class="icons icon-shuffle"></span>
+                <span class="qty-indicator">
+                    {{compareProductsQty}}
+                </span>
+            </a>
+        </li>
+        <template>
+            <li>
+                <b-sidebar id="sidebar-compare" backdrop right text-variant="standard">
+                    <template v-slot:title>
+                        @Loc["Products.Compare.Title"]
+                    </template>
+                    <template v-if="compareProductsQty > 0">
+                        <template v-if="compareproducts !== null">
+                            <template v-for="product in compareproducts.Products">
+                                <div class="item comapre-product d-inline-flex no-wrap">
+                                    <a :href="product.Url" :title="product.DefaultPictureModel.Title" v-if="product.DefaultPictureModel.ImageUrl">
+                                        <b-img :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" fluid></b-img>
+                                    </a>
+                                    <div class="col">
+                                        <a :href="product.Url">{{product.Name}}</a>
+                                        <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong></div>
+                                    </div>
+                                    <div>
+                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">
+                                            <b-icon icon="trash" variant="danger"></b-icon>
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                        <template v-if="loader">
+                            <div class="d-flex justify-content-center align-items-center h-100" v-if="wishlistitems == undefined">
+                                <div class="spinner-border text-info" role="status">
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                    <template v-else>
+                        <div class="d-flex flex-column justify-content-center align-items-center">
+                            <b-icon icon="shuffle" font-scale="7.5" variant="secondary"></b-icon>
+                            <div class="text-center text-muted mt-3">@Loc["Products.Compare.NoItems"]</div>
+                        </div>
+                    </template>
+                    <template v-slot:footer>
+                        <template v-if="compareProductsQty > 0">
+                            <b-col class="p-3">
+                                <div class="form-row">
+                                    <div class="col-lg-6 col-12">
+                                        <a class="btn btn-secondary d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("CompareProducts")">
+                                            <b-icon icon="shuffle" class="pr-2"></b-icon>
+                                            @Loc["Products.Compare.Title"]
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-6 col-12 mt-lg-0 mt-2">
+                                        <a class="btn btn-secondary d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" @@click="removeFromCompareList()">
+                                            <b-icon icon="trash" class="pr-2"></b-icon>
+                                            @Loc["Products.Compare.Clear"]
+                                        </a>
+                                    </div>
+                                </div>
+                            </b-col>
+                        </template>
+                    </template>
+                </b-sidebar>
+            </li>
+        </template>
+    </ul>
+</li>

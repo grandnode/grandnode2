@@ -1,0 +1,69 @@
+﻿@model CoursesModel
+@using Grand.Web.Models.Customer;
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Courses"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Courses })
+}
+
+<div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
+    <h1 class="h2 generalTitle"><div>@Loc["Account.Courses"]</div></h1>
+    <a class="left-side-toggler mb-3" onclick="sideToggle()">
+        <div class="inner">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="text">
+            @Loc["Account.Navigation"]
+        </div>
+    </a>
+    @if (Model.CourseList.Any())
+    {
+        foreach (var item in Model.CourseList)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="h5 mb-0 d-inline-flex">
+                        <a href="@Url.RouteUrl("Course", new { SeName = item.SeName })">
+                            @item.Name
+                        </a>
+                    </h3>
+                    <div class="d-inline-flex flex-column align-items-end">
+                        @if (item.Approved)
+                        {
+                            <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                                <input type="checkbox" class="custom-control-input" id="customControlInline" checked disabled>
+                                <label class="custom-control-label" for="customControlInline"></label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
+                                <input type="checkbox" class="custom-control-input" id="customControlInline" disabled>
+                                <label class="custom-control-label" for="customControlInline"></label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(item.ShortDescription))
+                {
+                    <div class="card-body">
+                        @Html.Raw(item.ShortDescription)
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-data alert alert-info my-3">
+            @Loc["Account.Courses.NoExists"]
+        </div>
+    }
+</div>

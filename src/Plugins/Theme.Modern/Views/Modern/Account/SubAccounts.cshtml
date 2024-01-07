@@ -1,0 +1,101 @@
+﻿@model IList<SubAccountSimpleModel>
+    @using Grand.Web.Models.Customer;
+    @inject IPageHeadBuilder pagebuilder
+    @{
+        Layout = "_TwoColumns";
+
+        //title
+        pagebuilder.AddTitleParts(Loc["Title.SubAccounts"]);
+    }
+    @section left
+{
+        @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.SubAccounts })
+    }
+    <vc:widget widget-zone="customer-subaccounts" additional-data="@Model"></vc:widget>
+    <div class="page account-page subaccounts-list-page pl-lg-3 pt-lg-0 pt-3">
+        @Html.AntiForgeryToken()
+        <h1 class="h2 generalTitle"><div>@Loc["Account.SubAccounts"]</div></h1>
+        <a class="left-side-toggler mb-3" onclick="sideToggle()">
+            <div class="inner">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="text">
+                @Loc["Account.Navigation"]
+            </div>
+        </a>
+        <div class="w-100">
+            <button class="btn btn-outline-secondary add-address-button my-3" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
+                <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
+            </button>
+        </div>
+        @if (Model.Any())
+        {
+            <div class="col-12 px-0">
+                <div class="row account-list">
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var account = Model[i];
+                        <div class="col-md-6 col-12 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><strong>@account.FirstName @account.LastName</strong></h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="account-item">
+                                        @account.Email
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group">
+                                        <button class="btn btn-secondary edit-subaccount-button" onclick="location = '@(Url.RouteUrl("CustomerSubAccountEdit", new { id = account.Id }))'">
+                                            @Loc["Common.Edit"]
+                                        </button>
+                                        <button class="btn btn-danger delete-subaccount-button" onclick="deletecustomersubaccount('@(account.Id)')">
+                                            @Loc["Common.Delete"]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <script asp-location="Footer">
+                function deletecustomersubaccount(accountId) {
+                    if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+                        var postData = {
+                            Id: accountId
+                        };
+                        addAntiForgeryToken(postData);
+
+                        var bodyFormData = new FormData();
+                        bodyFormData.append('Id', accountId)
+                        bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
+                        axios({
+                            method: 'post',
+                            url: '@(Url.RouteUrl("CustomerSubAccountDelete"))',
+                            data: bodyFormData,
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                        }).then(function (response) {
+                            if (response.data.success) {
+                                location = response.data.redirect;
+                            }
+                            else {
+                                alert(response.error);
+                            }
+                        }).catch(function (error) {
+                            alert(error);
+                        })
+                    }
+                }
+            </script>
+        }
+        else
+        {
+            <div class="no-data alert alert-info my-3">
+                @Loc["Account.SubAccounts.NotExists"]
+            </div>
+        }
+    </div>

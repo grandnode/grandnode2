@@ -1,0 +1,183 @@
+﻿@model BlogPostModel
+@using Grand.Web.Models.Blogs;
+@inject IWorkContext workContext
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+}
+@section left {
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_before" })
+    @await Component.InvokeAsync("BlogCategories")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before_blog_archive" })
+    @await Component.InvokeAsync("BlogMonths")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_blog_archive" })
+    @await Component.InvokeAsync("BlogTags")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_after" })
+}
+<div class="page news-item-page">
+    <div class="container">
+        <a class="left-side-toggler" onclick="sideToggle()">
+            <div class="inner">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="text">
+                @Loc["catalog.selectors.fiters"]
+            </div>
+        </a>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_top", additionalData = Model.Id })
+        <b-card class="card post-news mt-3">
+            <template v-slot:header>
+                @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
+                {
+                    <img class="img-fluid" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" />
+                }
+                <div class="content">
+                    <h1 class="h5 title generalTitle">
+                        @Model.Title
+                    </h1>
+                    <div class="date">
+                        @Model.CreatedOn.ToString("D")
+                    </div>
+                </div>
+            </template>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_body", additionalData = Model.Id })
+            @Html.Raw(Model.Body)
+        </b-card>
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_products", additionalData = Model.Id })
+
+        @await Component.InvokeAsync("BlogPostProducts", new { blogPostId = Model.Id })
+
+        @if (Model.Tags.Any())
+        {
+            <div class="tags generalMarginSupporter">
+                <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
+                @for (int i = 0; i < Model.Tags.Count; i++)
+                {
+                    var tag = Model.Tags[i];
+                    <b-button variant="light" size="sm" class="mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</b-button>
+                }
+            </div>
+        }
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_comments", additionalData = Model.Id })
+        @if (Model.AllowComments)
+        {
+            <div class="fieldset new-comment generalMarginSupporter d-flex flex-column w-100" id="comments">
+                <h4 class="generalTitle generalMarginSupporter">@Loc["Blog.Comments.LeaveYourComment"]</h4>
+                <div class="notifications">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    @{
+                        var result = TempData["Grand.blog.addcomment.result"] as string;
+                    }
+                    @if (!String.IsNullOrEmpty(result))
+                    {
+                        <div class="alert alert-info">@result</div>
+                    }
+                </div>
+                <validation-observer v-slot="{ handleSubmit }">
+                                <form id="addBlogComment" asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="handleSubmit(blog.submitBlogComment)">
+                                    <input type="hidden" name="Id" value="@Model.Id"/>
+                                    <div class="form-fields">
+                                        <div class="form-group">
+                                            <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
+                                                <label for="CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
+                                                <textarea name="CommentText" v-model="blog.CommentText" 
+                                                    data-val-required="Enter comment"
+                                                    v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                            </validation-provider>
+                                        </div>
+                                        @if (Model.AddNewComment.DisplayCaptcha)
+                                        {
+                                            <div class="captcha-box">
+                                                <captcha/>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                                        <input type="submit" asp-action="BlogCommentAdd" name="add-comment" class="btn btn-info blog-post-add-comment-button" value="@Loc["Blog.Comments.SubmitButton"]"/>
+                                    </div>
+                                </form>
+                            </validation-observer>
+                            <script asp-location="Footer" asp-order="300">
+                                var blog = new Vue({
+                                    data: function () {
+                                        return {
+                                            Model: null,
+                                            CommentText: ''
+                                        }
+                                    },
+                                    created() {
+                                        this.Model = @Json.Serialize(Model.Comments);
+                                    },
+                                    methods: {
+                                        submitBlogComment() {
+                                            var form = document.getElementById("addBlogComment");
+                                            var url = form.getAttribute("action");
+                                            var bodyFormData = new FormData(form);
+                                            axios({
+                                                url: url,
+                                                data: bodyFormData,
+                                                method: 'post',
+                                                headers: {
+                                                'Accept': 'application/json'                                    
+                                            }
+                                            }).then(function (response) {
+                                                if (response.data.success == true){
+                                                    blog.CommentText = ' ';
+                                                    vm.displayBarNotification(response.data.message, '', 'success', 3000);
+                                                    if (response.data.model){
+                                                        blog.addComment(response.data.model)
+                                                    }
+                                                } else {
+                                                    vm.displayBarNotification(response.data.message, '', 'error', 3500);
+                                                }
+                                            })
+                                        },
+                                        addComment(model) {
+                                              // Add object item to array
+                                              this.Model.push(model);
+                                        }
+                                    }
+                                });
+                            </script>
+            </div>
+            <template v-if="blog.Model.length > 0">
+                <div class="comment-list">
+                    <h4 class="generalTitle generalMarginSupporter">
+                        <strong>@Loc["Blog.Comments"]</strong>
+                    </h4>
+                    <div class="comments">
+                        <template v-for="comment in blog.Model">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <div class="d-inline-flex w-100">
+                                        <h6 class="mb-0">{{comment.CustomerName}}</h6>
+                                        <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                        <small class="date text-muted">
+                                            <span>@Loc["Blog.Comments.CreatedOn"]:</span>
+                                            <span>{{new Date( comment.CreatedOn).toDateString()}}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    {{comment.CommentText}}
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_after_comments", additionalData = Model.Id })
+        @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_bottom", additionalData = Model.Id })
+    </div>
+</div>

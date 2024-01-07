@@ -1,0 +1,30 @@
+﻿@model IList<CategoryModel>
+<div class="home-page-section">
+    <div id="HomePageCategories">
+        <div class="section">
+            <div class="col-12 px-0">
+                <div class="row">
+                    <template :key="Model.Id" v-for="Model in homePCategories.Model">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
+                            <a class="category-item" :href="'/' + Model.SeName">
+                                <b-img-lazy :src="Model.PictureModel.ImageUrl" :alt="Model.PictureModel.Title" class="img-fluid gallery-img"></b-img-lazy>
+                                <div class="content">
+                                    <h6 class="title mb-0">{{Model.Name}}</h6>
+                                </div>
+                            </a>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    var homePCategories = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model)
+            }
+        }
+    });
+</script>

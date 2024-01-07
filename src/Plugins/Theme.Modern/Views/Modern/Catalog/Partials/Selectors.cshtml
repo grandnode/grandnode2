@@ -1,0 +1,91 @@
+﻿<template v-if="catalog.Model.Products.length > 0">
+    <div class="categoryGrid catalog-selectors mb-3">
+        @*Rendering mobile left side trigger*@
+        <div class="d-flex flex-row row align-items-end px-3">
+            <a class="left-side-toggler" onclick="sideToggle()">
+                <div class="inner">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="text">
+                    @Loc["catalog.selectors.fiters"]
+                </div>
+            </a>
+            @*Rendering sorting*@
+            <template v-if="catalog.Model.PagingFilteringContext.AllowProductSorting">
+                <div class="sort-container column">
+                    <label class="col-form-label">@Loc["Catalog.OrderBy"]</label>
+                    <select class="custom-select form-control" id="AvailableSortOption" name="AvailableSortOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.OrderBy"]">
+                        <template v-for="item in catalog.Model.PagingFilteringContext.AvailableSortOptions">
+                            <option :selected="item.Selected" :value="item.Value" :disabled="false">
+                                {{item.Text}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
+            </template>
+            <div class="item-statistics d-sm-flex d-none align-items-center mx-auto order-2" id="items_statistics">
+                <div class="items-page-size d-none">{{catalog.Model.PagingFilteringContext.TotalItems}}</div>
+                <div class="items-per-page d-lg-inline-flex">
+                    <span>@Loc["catalog.selectors.items"]</span>
+                    <span class="number">
+                        <template v-if="catalog.Model.Products.length > 0">
+                            <span>1</span>
+                            <span> - </span>
+                            <span>{{catalog.Model.Products.length}}</span>
+                        </template>
+                    </span>
+                </div>
+                <div class="items-separator">@Loc["catalog.selectors.of"]</div>
+                <div class="items-total">{{catalog.Model.PagingFilteringContext.TotalItems}}</div>
+            </div>
+            @*page size*@
+            <template v-if="catalog.Model.PagingFilteringContext.AllowCustomersToSelectPageSize">
+                <div class="sort-container column">
+                    <label class="col-form-label">@Loc["Catalog.PageSize"]</label>
+                    <select class="custom-select form-control" id="PageSizeOption" name="PageSizeOption" v-on:change="catalog.loadProducts($event.target.value)" aria-label="@Loc["Catalog.PageSize"]">
+                        <template v-for="item in catalog.Model.PagingFilteringContext.PageSizeOptions">
+                            <option :selected="item.Selected" :value="item.Value" :disabled="false">
+                                {{item.Text}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
+            </template>
+            @*Rendering view mode selectors*@
+            <template v-if="catalog.Model.PagingFilteringContext.AllowProductViewModeChanging">
+                <template v-if="catalog.Model.PagingFilteringContext.AvailableViewModes.length > 1">
+                    <div class="sort-container order-3 d-inline-flex ml-sm-0 ml-auto change-view">
+                        <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
+                            <template v-if="viewmode.Text == 'Grid'">
+                                <b-link @@click="localStorage.setItem('catalogProdCols', 'grid'); catalog.loadProducts(viewmode.Value)" class="viewmode-icon align-items-center grid mr-3" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" data-cols="5" :title="viewmode.Text">
+                                    @*<b-icon scale="2" icon="@if(gridMode.Selected){<text>grid3x2-gap-fill</text>} else { <text>grid3x2-gap</text> }"></b-icon>*@
+                                    <span class="grid-icon cols-5">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </span>
+                                    <span class="sr-only">viewmode grid</span>
+                                </b-link>
+                            </template>
+                            <template v-else>
+                                <b-link @@click="localStorage.setItem('catalogProdCols', 'list'); catalog.loadProducts(viewmode.Value)" class="viewmode-icon align-items-center list" data-cols="2" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" :title="viewmode.Text">
+                                    @*<b-icon scale="2" icon="@if(gridMode.Selected){<text>grid3x2-gap-fill</text>} else { <text>grid3x2-gap</text> }"></b-icon>*@
+                                    <span class="list-icon">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </span>
+                                    <span class="sr-only">viewmode list</span>
+                                </b-link>
+                            </template>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>

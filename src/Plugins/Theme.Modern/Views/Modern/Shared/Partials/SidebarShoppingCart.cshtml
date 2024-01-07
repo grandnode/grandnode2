@@ -1,0 +1,79 @@
+﻿@model int
+<li class="nav-item">
+    <ul class="sidebar-cart cart-only px-0">
+        <li class="nav-item">
+            <a class="nav-link" @@click="if(flycartfirstload){updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")')}" v-b-toggle.sidebar-cart>
+                <span class="icon-basket icons"></span>
+                <span class="qty-indicator cart-qty">
+                    <template v-if="flycartindicator == null">
+                        @Loc["ShoppingCart.HeaderQuantity", Model]
+                    </template>
+                    <template v-else>
+                        {{flycartindicator}}
+                    </template>
+                </span>
+            </a>
+        </li>
+        <template>
+            <li>
+                <b-sidebar id="sidebar-cart" backdrop right text-variant="standard">
+                    <template v-slot:title v-if="flycartindicator > 0">
+                        @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], string.Format("<a href=\"{0}\">{1}</a>", Url.RouteUrl("ShoppingCart"), string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}"))))
+                    </template>
+                    <template v-slot:title v-else>
+                        @Loc["ShoppingCart.Mini.NoItems"]
+                    </template>
+                    <div class="d-flex justify-content-center align-items-center h-100" v-if="flycartitems == undefined">
+                        <div class="spinner-border text-info" role="status">
+                        </div>
+                    </div>
+                    <div v-for="item in flycartitems" class="item d-inline-flex no-wrap">
+                        <a :href="item.ProductUrl" :title="item.Picture.Title" v-if="item.Picture.ImageUrl">
+                            <b-img :alt="item.Picture.AlternateText" :src="item.Picture.ImageUrl" :title="item.Picture.Title" fluid></b-img>
+                        </a>
+                        <div class="col">
+                            <a :href="item.ProductUrl">{{item.ProductName}}</a>
+                            <div class="attributes p-2" v-if="item.AttributeInfo">
+                                <div v-html="item.AttributeInfo"></div>
+                            </div>
+                            <div class="price"><span>@Loc["ShoppingCart.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong></div>
+                            <div class="quantity"><span>@Loc["ShoppingCart.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong></div>
+                        </div>
+                        <div>
+                            <a class="deleteitem" @@click="deletecartitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id)">
+                                <b-icon icon="trash" class="deleteitem" variant="danger"></b-icon>
+                            </a>
+                        </div>
+                    </div>
+                    <template v-slot:footer v-if="flycartindicator > 0">
+                        <div class="p-3 col-12">
+                            <div class="row">
+                                <div class="col-lg-6 col-5 text-center text-white d-flex flex-column">
+                                    <span class="h5 mb-0">@Loc["ShoppingCart.Totals.SubTotal"]:</span>
+                                    <span class="h4 mb-0">{{flycart.SubTotal}}</span>
+                                </div>
+                                <div class="col-lg-6 col-7 text-center d-flex justify-content-center align-items-center">
+                                    <a v-if="flycart.DisplayShoppingCartButton" class="btn cart-button w-100 h-100 text-uppercase btn-secondary" @@click="location='@Url.RouteUrl("ShoppingCart")'">@Loc["ShoppingCart.Mini.ViewCart"]</a>
+                                    <div v-if="flycart.DisplayCheckoutButton" class="w-100 h-100">
+                                        <div v-if="flycart.CurrentCustomerIsGuest && flycart.CurrentCustomerIsGuest">
+                                            <a class="btn cart-button w-100 h-100 text-uppercase btn-secondary" onclick="location='@Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") })'">@Loc["Checkout.Button"]</a>
+                                        </div>
+                                        <div v-else>
+                                            <a class="btn cart-button w-100 h-100 text-uppercase btn-secondary" onclick="location='@Url.RouteUrl("Checkout")'">@Loc["Checkout.Button"]</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else-if="flycartindicator !== undefined">
+                        <div class="d-flex flex-column justify-content-center align-items-center">
+                            <b-icon icon="cart-x" font-scale="7.5" variant="secondary"></b-icon>
+                            <div class="text-center text-muted mt-3">@Loc["ShoppingCart.Mini.NoDataText"]</div>
+                        </div>
+                    </template>
+                </b-sidebar>
+            </li>
+        </template>
+    </ul>
+</li>

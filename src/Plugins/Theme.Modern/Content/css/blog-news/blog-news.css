@@ -1,0 +1,140 @@
+﻿.card.post-news,
+.post-news .card-header,
+.post-news .card-footer {
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+}
+.card.post-news {
+    height: 100%;
+    padding: 0;
+    border: 0;
+}
+.card.post-news .card-header {
+    padding: 0;
+}
+.card.post-news .card-body,
+.card.post-news .card-footer {
+    color: #555;
+    padding: 10px 0;
+}
+.card.post-news .card-footer {
+    padding: 10px 0 0 0;
+}
+.card.post-news .img-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.card.post-news img {
+    max-width: 100%;
+}
+.card.post-news .category {
+    display: table;
+    margin: 10px 0 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+}
+.card.post-news .title {
+    margin: 5px 0;
+}
+.card.post-news .title a {
+    font-size: 16px;
+    font-weight: 700;
+}
+.card.post-news .date {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.card.post-news .date {
+    color: #25b232;
+    font-size: 14px;
+    font-weight: 500;
+}
+.card.post-news .date .part:not(:last-child) {
+    margin: 0 3px 0 0;
+}
+.card.post-news .date .month {
+    text-transform: capitalize;
+}
+.card.post-news .date .month::after {
+    content: ",";
+    position: relative;
+}
+.card.post-news .post-date {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: c;
+    align-items: center;
+    padding: 10px;
+    border-left: 1px solid #d6d6d6;
+    border-bottom: 1px solid #d6d6d6;
+    background-color: #fff;
+    line-height: 1;
+}
+.card.post-news .post-date .day {
+    color: #000;
+    font-size: 24px;
+    font-weight: 700;
+}
+.card.post-news .post-date .month {
+    margin: 0 0 2px 5px;
+    color: #4faacd;
+    font-size: 16px;
+    font-weight: 400;
+}
+.card.post-news .short {
+    color: #777;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+}
+.card.post-news .short {
+    color: #555;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+}
+.post-col {
+    -webkit-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+@media (min-width: 1200px) {
+    .generalLeftSide.show + .generalSideRight .post-col {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+@media (max-width: 575px) {
+    .post-news, .post-news .card-header, .post-news .card-footer {
+        text-align: center;
+    }
+}
+
+.post-news-page.card {
+   display: block;
+   background-color: transparent;
+   border: 0;
+}
+.post-news-page .card-header {
+    position: relative;
+    background-color: transparent;
+    border: 0;
+    float: left;
+    padding: 0;
+    margin: 0 15px 15px 0;
+    min-width: 320px;
+    min-height: 100px;
+}
+.post-news-page .card-body {
+    padding: 0;
+}
