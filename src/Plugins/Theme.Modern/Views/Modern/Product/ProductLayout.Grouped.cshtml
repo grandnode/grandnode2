@@ -1,21 +1,19 @@
 ﻿@model ProductDetailsModel
-@using Microsoft.AspNetCore.Http.Extensions
 @inject SeoSettings seoSettings
-@inject IWorkContext workContext
 @inject IPageHeadBuilder pagebuilder
 
 @{
     Layout = "_SingleColumn";
 
     //title, meta
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     //canonical URL
     if (seoSettings.CanonicalUrlsEnabled)
     {
-        var productUrl = Url.RouteUrl("Product", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var productUrl = Url.RouteUrl("Product", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(productUrl);
     }
 }
@@ -50,8 +48,7 @@
     <div class="page product-details-page product-standard product-grouped">
         @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_top", additionalData = Model.Id })
         <validation-observer ref="ProductFormObserver">
-            <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
-                <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
+            <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
                     <div class="product-essential">
                         <b-col>
                             <b-row>
@@ -141,76 +138,67 @@
                             <!--associated products-->
                             @foreach (var variant in Model.AssociatedProducts)
                             {
-                                <b-card no-body class="overflow-hidden associatedItem mb-3">
+                                <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{variant.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
+                                    <b-card no-body class="overflow-hidden associatedItem mb-3">
                                     <b-row no-gutters>
-                                        <b-col lg="3" md="4">
-                                            <b-card-img id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"></b-card-img>
-                                        </b-col>
-                                        <b-col lg="9" md="8">
-                                            <b-card-body class="overview" title="@variant.Name">
-                                                <b-card-text>
-                                                    @Html.Raw(variant.ShortDescription)
-                                                </b-card-text>
-                                                <!--availability-->
-                                                <partial name="Partials/Availability" model="variant" />
-                                                <!--Code products - SKU, MAN, GTIN, Vendor info -->
-                                                <partial name="Partials/Codes" model="variant" />
-                                                <!--delivery-->
-                                                @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
-                                        || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
+                                    <b-col lg="3" md="4">
+                                        <b-card-img id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"></b-card-img>
+                                    </b-col>
+                                    <b-col lg="9" md="8">
+                                        <b-card-body class="overview" title="@variant.Name">
+                                            <b-card-text>
+                                                @Html.Raw(variant.ShortDescription)
+                                            </b-card-text>
+                                            <!--availability-->
+                                            <partial name="Partials/Availability" model="variant" />
+                                            <!--Code products - SKU, MAN, GTIN, Vendor info -->
+                                            <partial name="Partials/Codes" model="variant" />
+                                            <!--delivery-->
+                                            @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
+                                                 || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
+                                            {
+                                                <partial name="Partials/DeliveryInfo" model="variant" />
+                                            }
+                                            <!--sample download-->
+                                            @if (variant.HasSampleDownload)
+                                            {
+                                                <partial name="Partials/DownloadSample" model="variant" />
+                                            }
+                                            <!--attributes-->
+                                            @{
+                                                if (variant.ProductAttributes.Any())
                                                 {
-                                                    <partial name="Partials/DeliveryInfo" model="variant" />
+                                                    <partial name="Partials/ProductAttributes" model="variant" />
                                                 }
-                                                <!--sample download-->
-                                                @if (variant.HasSampleDownload)
+                                            }
+                                            <!--gift voucher-->
+                                            @{
+                                                if (variant.GiftVoucher.IsGiftVoucher)
                                                 {
-                                                    <partial name="Partials/DownloadSample" model="variant" />
+                                                    <partial name="Partials/GiftVoucherInfo" model="variant.GiftVoucher" />
                                                 }
-                                                <!--attributes-->
-                                                @{
-                                                    if (variant.ProductAttributes.Any())
-                                                    {
-                                                        var dataDictAttributes = new ViewDataDictionary(ViewData);
-                                                        dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", variant.Id);
-                                                        <partial name="Partials/ProductAttributes" model="variant.ProductAttributes" view-data="dataDictAttributes" />
-                                                    }
-                                                }
-                                                <!--gift voucher-->
-                                                @{
-                                                    if (variant.GiftVoucher.IsGiftVoucher)
-                                                    {
-                                                        var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
-                                                        dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", variant.Id);
-                                                        <partial name="Partials/GiftVoucherInfo" model="variant.GiftVoucher" view-data="dataDictGiftVoucher" />
-                                                    }
-                                                }
-                                                <!--price breaks-->
-                                                @if (variant.TierPrices.Any())
-                                                {
-                                                    <partial name="Partials/TierPrices" model="variant.TierPrices" />
-                                                }
-                                                @{
-                                                    var dataDictAddToCart = new ViewDataDictionary(ViewData);
-                                                    dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
-                                                }
-                                                <!--price & add to cart-->
-                                                @{
-                                                    var dataDictPrice = new ViewDataDictionary(ViewData);
-                                                    dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", variant.Id);
-                                                    <partial name="Partials/Prices" model="variant.ProductPrice" view-data="dataDictPrice" />
-                                                }
-                                                @{
-                                                    <partial name="Partials/AddToCart" model="variant.AddToCart" view-data="dataDictAddToCart" />
-                                                    var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
-                                                    dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
-                                                    <div class="mt-2">
-                                                        <partial name="Partials/AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
-                                                    </div>
-                                                }
-                                            </b-card-body>
-                                        </b-col>
-                                    </b-row>
+                                            }
+                                            <!--price breaks-->
+                                            @if (variant.TierPrices.Any())
+                                            {
+                                                <partial name="Partials/TierPrices" model="variant.TierPrices" />
+                                            }
+                                            @{
+                                                var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                                                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
+                                            }
+                                            <!--price & add to cart-->
+                                            <partial name="Partials/Prices" model="variant.ProductPrice"/>
+                                            <partial name="Partials/AddToCart" model="variant.AddToCart"/>
+                                            <div class="mt-2">
+                                                <partial name="Partials/AddToWishlist" model="variant.AddToCart"/>
+                                            </div>                                                
+                                                
+                                        </b-card-body>
+                                    </b-col>
+                                </b-row>
                                 </b-card>
+                                </form>
                             }
 
                             @if (Model.AssociatedProducts.Count == 0)
@@ -222,8 +210,7 @@
                         </div>
                     </div>
                 </div>
-                @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
-            </form>
+            @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
         </validation-observer>
         @if (Model.EmailAFriendEnabled)
         {
