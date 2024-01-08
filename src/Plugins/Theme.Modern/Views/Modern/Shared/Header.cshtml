@@ -1,12 +1,21 @@
-﻿<div class="header-nav">
+﻿@inject StoreInformationSettings StoreInformationSettings
+@inject CommonSettings CommonSettings
+
+<div class="header-nav">
     <nav class="navbar navbar-light navbar-expand">
         <b-container fluid id="header-container">
             <ul class="navbar-nav selectors">
-                <partial name="Partials/Selector_TaxType" />
-                <partial name="Partials/Selector_Currency" />
-                <partial name="Partials/Selector_Language" />
-                <partial name="Partials/Selector_Store" />
-                <partial name="Partials/Selector_Theme" />
+                <partial name="Partials/Selector_TaxType"/>
+                <partial name="Partials/Selector_Currency"/>
+                <partial name="Partials/Selector_Language"/>
+                @if (CommonSettings.AllowToSelectStore)
+                {
+                    <partial name="Partials/Selector_Store"/>
+                }
+                @if (StoreInformationSettings.AllowCustomerToSelectTheme)
+                {
+                    <partial name="Partials/Selector_Theme"/>
+                }
             </ul>
             <swiper class="swiper-info" ref="topHeaderInfo" :options="topHeaderInfo.swiperOptions">
                 @await Component.InvokeAsync("PageBlock", new { systemName = "topHeaderInfo" })
