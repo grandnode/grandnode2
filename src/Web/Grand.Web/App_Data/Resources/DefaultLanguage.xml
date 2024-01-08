@@ -17470,6 +17470,12 @@
 	<Resource Name="Vendors.ViewAll" Area="Front">
 		<Value>View all</Value>
 	</Resource>
+	<Resource Name="View.Nomore" Area="Front">
+		<Value>No more products</Value>
+	</Resource>
+	<Resource Name="View.ScrollDown" Area="Front">
+		<Value>Scroll down to view more products</Value>
+	</Resource>
 	<Resource Name="voicenavigator.voice.annotation" Area="Front">
 		<Value>Say what do you want to do in the store, i.e Show me the cart</Value>
 	</Resource>
