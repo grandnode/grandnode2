@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Stores;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;
@@ -9,8 +10,11 @@ public class ThemeContext : ThemeContextBase
     private readonly IHttpContextAccessor _contextAccessor;
     private string _themeName;
 
-    public ThemeContext(IHttpContextAccessor contextAccessor, StoreInformationSettings storeInformationSettings) :
-        base(contextAccessor)
+    public ThemeContext(
+        IHttpContextAccessor contextAccessor, 
+        SecurityConfig securityConfig, 
+        StoreInformationSettings storeInformationSettings) :
+        base(contextAccessor, securityConfig)
     {
         _storeInformationSettings = storeInformationSettings;
         _contextAccessor = contextAccessor;

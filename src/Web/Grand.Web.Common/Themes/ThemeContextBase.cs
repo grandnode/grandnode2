@@ -1,19 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Grand.Infrastructure.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;
 
 public abstract class ThemeContextBase : IThemeContext
 {
     private readonly IHttpContextAccessor _contextAccessor;
-
-    protected ThemeContextBase(IHttpContextAccessor contextAccessor)
+    private readonly SecurityConfig _securityConfig; 
+    protected ThemeContextBase(IHttpContextAccessor contextAccessor, SecurityConfig securityConfig)
     {
         _contextAccessor = contextAccessor;
+        _securityConfig = securityConfig;
     }
 
     public abstract string AreaName { get; }
 
-    public string CookiesName => $"Grand.{AreaName}.Theme";
+    public string CookiesName => $"{_securityConfig.CookiePrefix}.{AreaName}.Theme";
     public abstract string GetCurrentTheme();
 
     public Task SetTheme(string themeName)
