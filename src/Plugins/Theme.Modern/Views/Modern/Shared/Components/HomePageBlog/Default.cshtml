@@ -1,0 +1,48 @@
+﻿@model HomePageBlogItemsModel
+<template>
+    <div id="HomePageBlog" class="home-page-section">
+        <div class="section">
+            <div class="col-12">
+                <h2 class="generalTitle text-center"><span>@Loc["Blog.Latest"]</span></h2>
+                <div class="col-12 px-0">
+                    <div class="row">
+                        <template :key="Item.Id" v-for="Item in homePBlog.Model.Items">
+                            <div class="col-xl-4 col-lg-6 col-md-4 col-sm-6 col-12 mb-3">
+                                <div class="blog-post" @@click="window.location.href = '' + Item.SeName + ''">
+                                    <a>
+                                        <template v-if="Item.PictureModel !== null">
+                                            <b-img-lazy :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText"></b-img-lazy>
+                                        </template>
+                                        <span v-if="Item.Category !== null" class="category">{{Item.Category}}</span>
+                                        <div class="content">
+                                            <h3 class="title">
+                                                {{Item.Title}}
+                                            </h3>
+                                            <div class="date">
+                                                <div class="day part" v-html="new Date(Item.CreatedOn).getUTCDate()"></div>
+                                                <div class="month part" v-html="new Date(Item.CreatedOn).toLocaleString('default', { month: 'long' })"></div>
+                                                <div class="year part" v-html="new Date(Item.CreatedOn).getUTCFullYear()"></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="view-all text-center mt-3">
+                    <a class="btn btn-outline-secondary" href="@Url.RouteUrl("Blog")">@Loc["Blog.ViewAll"]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var homePBlog = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model)
+            }
+        }
+    });
+</script>

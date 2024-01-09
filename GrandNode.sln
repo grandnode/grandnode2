@@ -133,6 +133,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{BF4543
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.SharedUIResources", "src\Web\Grand.SharedUIResources\Grand.SharedUIResources.csproj", "{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme.Modern", "src\Plugins\Theme.Modern\Theme.Modern.csproj", "{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -350,6 +352,10 @@ Global
 		{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -408,6 +414,7 @@ Global
 		{BF4543A8-0731-4FDD-BB6B-0ADB9561F981} = {38ECA068-176F-463C-A1D7-044341D4CACB}
 		{1A6A0104-F610-4DD3-88BE-C4029034E5DA} = {BF4543A8-0731-4FDD-BB6B-0ADB9561F981}
 		{09958AAA-44BC-42DE-86D1-0E39EF3C0C68} = {BF4543A8-0731-4FDD-BB6B-0ADB9561F981}
+		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05} = {F6F48227-B3C5-4A51-B33F-FF9AD96352DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88B478F4-FD3B-4C24-9E84-4FAAF0254397}

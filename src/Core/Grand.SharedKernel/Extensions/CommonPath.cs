@@ -47,18 +47,6 @@
         /// Maps a theme path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string ThemePath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, "Themes");
-            }
-        }
-
-        /// <summary>
-        /// Maps a theme path to a physical disk path.
-        /// </summary>
-        /// <returns>The physical path.</returns>
         public static string PluginsPath
         {
             get

@@ -1,133 +1,42 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Infrastructure;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Domain.Stores;
-using Grand.Domain.Vendors;
+﻿using Grand.Domain.Stores;
+using Grand.Infrastructure.Configuration;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Web.Common.Themes
+namespace Grand.Web.Common.Themes;
+
+public class ThemeContext : ThemeContextBase
 {
-    /// <summary>
-    /// Theme context
-    /// </summary>
-    public class ThemeContext : IThemeContext
+    private readonly StoreInformationSettings _storeInformationSettings;
+    private readonly IHttpContextAccessor _contextAccessor;
+    private string _themeName;
+
+    public ThemeContext(
+        IHttpContextAccessor contextAccessor, 
+        SecurityConfig securityConfig, 
+        StoreInformationSettings storeInformationSettings) :
+        base(contextAccessor, securityConfig)
     {
-        private readonly IWorkContext _workContext;
-        private readonly IUserFieldService _userFieldService;
-        private readonly StoreInformationSettings _storeInformationSettings;
-        private readonly VendorSettings _vendorSettings;
-        private readonly IThemeProvider _themeProvider;
+        _storeInformationSettings = storeInformationSettings;
+        _contextAccessor = contextAccessor;
+    }
 
-        private bool _themeIsCached, _adminThemeIsCached;
-        private string _cachedThemeName, _cachedAdminThemeName;
+    public override string AreaName => "";
 
-        public ThemeContext(IWorkContext workContext,
-            IUserFieldService userFieldService,
-            StoreInformationSettings storeInformationSettings,
-            VendorSettings vendorSettings,
-            IThemeProvider themeProvider)
+    public override string GetCurrentTheme()
+    {
+        if (!string.IsNullOrEmpty(_themeName))
+            return _themeName;
+
+        var theme = "";
+        if (_storeInformationSettings.AllowCustomerToSelectTheme)
         {
-            _workContext = workContext;
-            _userFieldService = userFieldService;
-            _storeInformationSettings = storeInformationSettings;
-            _vendorSettings = vendorSettings;
-            _themeProvider = themeProvider;
+            theme = _contextAccessor.HttpContext?.Request.Cookies[this.CookiesName];
         }
 
-        /// <summary>
-        /// Get current theme system name
-        /// </summary>
-        public string WorkingThemeName
-        {
-            get
-            {
-                if (_themeIsCached)
-                    return _cachedThemeName;
+        //default store theme
+        if (string.IsNullOrEmpty(theme))
+            theme = _storeInformationSettings.DefaultStoreTheme;
 
-                var theme = "";
-                if (_storeInformationSettings.AllowCustomerToSelectTheme)
-                {
-                    if (_workContext.CurrentCustomer != null)
-                        theme = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.WorkingThemeName, _workContext.CurrentStore.Id);
-                }
-
-                //default store theme
-                if (string.IsNullOrEmpty(theme))
-                    theme = _storeInformationSettings.DefaultStoreTheme;
-
-                //ensure that theme exists
-                if (!_themeProvider.ThemeConfigurationExists(theme))
-                {
-                    var themeInstance = _themeProvider.GetConfigurations()
-                        .FirstOrDefault();
-                    if (themeInstance == null)
-                        throw new Exception("No theme could be loaded");
-                    theme = themeInstance.Name;
-                }
-
-                //cache theme
-                _cachedThemeName = theme;
-                _adminThemeIsCached = true;
-                return theme;
-            }
-        }
-
-        /// <summary>
-        /// Get current theme system name
-        /// </summary>
-        public string AdminAreaThemeName
-        {
-            get
-            {
-
-                if (_adminThemeIsCached)
-                    return _cachedAdminThemeName;
-
-                var theme = "Default";
-
-                if (!string.IsNullOrEmpty(_workContext.CurrentStore.DefaultAdminTheme))
-                    theme = _workContext.CurrentStore.DefaultAdminTheme;
-
-                if (_storeInformationSettings.AllowToSelectAdminTheme)
-                {
-                    if (_workContext.CurrentCustomer != null)
-                    {
-                        var customerTheme = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminThemeName, _workContext.CurrentStore.Id);
-                        if (!string.IsNullOrEmpty(customerTheme))
-                            theme = customerTheme;
-                    }
-                }
-
-                if (_workContext.CurrentVendor != null)
-                {
-                    if (!string.IsNullOrEmpty(_vendorSettings.DefaultAdminTheme))
-                        theme = _vendorSettings.DefaultAdminTheme;
-                }
-
-                //cache theme
-                _cachedAdminThemeName = theme;
-                _themeIsCached = true;
-                return theme;
-            }
-        }
-
-        /// <summary>
-        /// Set current theme system name
-        /// </summary>
-        /// <param name="themeName"></param>
-        /// <returns></returns>
-        public virtual async Task SetWorkingTheme(string themeName)
-        {
-            if (!_storeInformationSettings.AllowCustomerToSelectTheme)
-                return;
-
-            if (_workContext.CurrentCustomer == null)
-                return;
-
-            await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.WorkingThemeName, themeName, _workContext.CurrentStore.Id);
-
-            //clear cache
-            _themeIsCached = false;
-        }
+        return _themeName = theme;
     }
 }

@@ -2063,5 +2063,10 @@
 	<Resource Name="Vendor.Fields.SeName" Area="Vendor">
 		<Value>SeName</Value>
 	</Resource>
-
+	<Resource Name="View.Nomore" Area="Front">
+		<Value>No more products</Value>
+	</Resource>
+	<Resource Name="View.ScrollDown" Area="Front">
+		<Value>Scroll down to view more products</Value>
+	</Resource>
 </Language>

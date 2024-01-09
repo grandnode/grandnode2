@@ -1,0 +1,158 @@
+﻿@model LoginModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Login"]);
+
+    //register URL with return URL (if specified)
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+}
+<div class="page login-page">
+    <h2 class="generalTitle text-center mt-3"><div>@Loc["Account.Login.Welcome"]</div></h2>
+    <div cols="12">
+        <div class="my-3">
+            @* login main block *@
+            <div class="col-12 mx-lg-0 mx-auto mt-3">
+                <validation-observer v-slot="{ handleSubmit }">
+                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="h5 mb-0 text-center">
+                                    @Loc["Account.Login.ReturningCustomer"]
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="message-error w-100 alert alert-danger pb-0 text-center">@Loc["Account.Login.Unsuccessful"]</div>
+                                <div class="col-12 form-group mb-0">
+                                    @if (Model.UsernamesEnabled)
+                                    {
+                                        <div class="row form-group">
+                                            <div class="col-12 col-lg-3 d-flex align-items-start justify-content-sm-start">
+                                                <label asp-for="Username" class="col-form-label">@Loc["Account.Login.Fields.UserName"]:</label>
+                                            </div>
+                                            <div class="col-lg-9 col-12">
+                                                <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors, classes }">
+                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']"  />
+                                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                                    <span asp-validation-for="Username"></span>
+                                                </validation-provider>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row form-group">
+                                            <div class="col-lg-3 col-12 d-flex align-items-start justify-content-start">
+                                                <label asp-for="Email" class="col-form-label">@Loc["Account.Login.Fields.Email"]:</label>
+                                            </div>
+                                            <div class="col-lg-9 col-12">
+                                                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']"  />
+                                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                                    <span asp-validation-for="Email"></span>
+                                                </validation-provider>
+
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="row form-group">
+                                        <div class="col-lg-3 col-12 d-flex align-items-center justify-content-start">
+                                            <label asp-for="Password" class="col-form-label">@Loc["Account.Login.Fields.Password"]:</label>
+                                        </div>
+                                        <div class="col-lg-9 col-12">
+                                            <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
+                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" />
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                                <span asp-validation-for="Password"></span>
+                                            </validation-provider>
+                                        </div>
+                                    </div>
+                                    <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
+                                        <label class="custom-control custom-checkbox">
+                                            <input class="custom-control-input" asp-for="RememberMe" />
+                                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
+                                            <span class="custom-control-label"></span>
+                                            <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
+                                        </label>
+                                        <span class="ml-3 forgot-password">
+                                            <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
+                                        </span>
+                                    </div>
+                                    @if (Model.DisplayCaptcha)
+                                    {
+                                        <div class="captcha-box">
+                                            <captcha />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="buttons text-center">
+                                    <button class="btn btn-info login-button px-4" type="submit">@Loc["Account.Login.LoginButton"]</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </validation-observer>
+                <div class="external-authentication row mx-lg-0 mx-auto mt-3">
+                    @await Component.InvokeAsync("ExternalMethods")
+                </div>
+            </div>
+            @if (Model.CheckoutAsGuest)
+            {
+                <div class="col-12 new-wrapper checkout-as-guest-or-register-block mt-3 mx-lg-0 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="h5 mb-0 text-center">
+                                @Loc["Account.Login.CheckoutAsGuestOrRegister"]
+                            </h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="row text">
+                                <div class="col-12">
+                                    @await Component.InvokeAsync("PageBlock", new { systemName = "CheckoutAsGuestOrRegister" })
+                                </div>
+                            </div>
+                            <div class="btn-group buttons text-center mt-1 areYouGuest">
+                                <button class="btn btn-secondary checkout-as-guest-button" onclick="location.href='@Url.RouteUrl("Checkout")'">
+                                    @Loc["Account.Login.CheckoutAsGuest"]
+                                </button>
+                                <button class="btn btn-secondary register-button" onclick="location.href='@registerUrl'">
+                                    @Loc["Account.Register"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-12 mx-lg-0 mx-auto mt-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center generalMarginSupporter">
+                                @Loc["Account.Login.NewCustomer"]
+                            </div>
+                            <div class="d-inline-flex align-items-center justify-content-center w-100">
+                                <a class="btn btn-info ml-3 register-button px-5" href="@registerUrl">
+                                    @Loc["Account.Register"]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    var login = new Vue({
+        data: () => ({
+            Username: '',
+            Email: '',
+            Password: '',
+        })
+    });
+</script>

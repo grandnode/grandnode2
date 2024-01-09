@@ -1,0 +1,81 @@
+﻿@model HomePageNewsItemsModel
+<template>
+    <div class="home-page-section">
+        <div id="HomePageNews" class="section mb-3">
+            <div class="product-grid">
+                <h2 class="generalTitle text-center"><span>@Loc["News"]</span></h2>
+                <div class="col-12 px-0">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 post-container mb-2" :key="Item.Id" v-for="Item in homePNews.Model.NewsItems">
+                            <div class="card post-news">
+                                <div class="card-header">
+                                    <a class="img-container" v-if="Item.PictureModel.ImageUrl !== null">
+                                        <b-img-lazy width="300" height="300" :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText" />
+                                    </a>
+                                    <h3 class="h5 title">
+                                        <a :href="'/' + Item.SeName">
+                                            {{Item.Title}}
+                                        </a>
+                                    </h3>
+                                    <div class="date">
+                                        <div class="day part" v-html="new Date(Item.CreatedOn).getUTCDate()"></div>
+                                        <div class="month part" v-html="new Date(Item.CreatedOn).toLocaleString('default', { month: 'long' })"></div>
+                                        <div class="year part" v-html="new Date(Item.CreatedOn).getUTCFullYear()"></div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="short" v-html="Item.Short"></div>
+                                </div>
+                                <div class="card-footer">
+                                    <a :href="'/' + Item.SeName" class="btn btn-outline-secondary">
+                                        @Loc["News.MoreInfo"]
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 w-100 text-center">
+                        <a class="btn btn-outline-secondary" href="@Url.RouteUrl("NewsArchive")">@Loc["News.ViewAll"]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var homePNews = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model),
+                swiperOptions: {
+                    lazy: {
+                        preloaderClass: 'preloader'
+                    },
+                    autoplay: {
+                        delay: 5000,
+                    },
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    slidesPerView: 1,
+                    spaceBetween: 15,
+                    navigation: {
+                        nextEl: '#HomePageNews .swiper-button-next',
+                        prevEl: '#HomePageNews .swiper-button-prev'
+                    },
+                    breakpoints: {
+                        320: {
+                            slidesPerView: 1
+                        },
+                        575: {
+                            slidesPerView: 2,
+                        },
+                        992: {
+                            slidesPerView: 3,
+                        }
+                    }
+                },
+            }
+        }
+    });
+</script>

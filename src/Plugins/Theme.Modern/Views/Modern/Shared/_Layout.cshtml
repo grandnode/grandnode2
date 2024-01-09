@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html use-lang="true">
+<head>
+    <title asp-default-title="true"></title>
+    <meta charset="utf-8">
+    <meta-description>
+        <meta-keywords>
+            <meta name="generator" content="grandnode">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+            @RenderSection("meta", required: false)
+            <head-custom>
+                <partial name="Head" />
+                <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
+                <canonical-urls>
+                    @*Favicon - upload favicon.ico file to the wwwroot directory*@
+                    <partial name="Partials/Favicons" />
+                    <resources asp-type="HeadLink" />
+                    <resources asp-type="HeadScript" />
+                    @RenderSection("head", required: false)
+</head>
+<body>
+    <resources asp-type="ScriptHeader" />
+    @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
+
+    <div id="app" v-cloak>
+        <div class="page-loader-container">
+            <div class="page-loader"></div>
+        </div>
+        <partial name="Partials/Notifications" />
+        <vc:get-coordinate></vc:get-coordinate>
+        <b-container fluid class="main-container">
+            @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
+            <div class="row">
+                <div class="left-side-container" v-bind:class="{ toggled : !menuToggled}">
+                    <div class="container px-0">
+                        <partial name="Header" />
+                        <div class="header-nav-bottom">
+                            <partial name="Partials/Logo" />
+                            @await Component.InvokeAsync("SearchBox")
+                            <ul class="navbar-nav top-header-items">
+                                <template>
+                                    <li class="nav-item">
+                                        <a class="nav-link" v-b-toggle.sidebar-right>
+                                            <span class="icons icon-user"></span>
+                                        </a>
+                                        <template>
+                                            <b-sidebar id="sidebar-right" bg-variant="white" text-variant="standard" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
+                                                <partial name="Partials/HeaderLinks" />
+                                            </b-sidebar>
+                                        </template>
+                                    </li>
+                                </template>
+                                <partial name="Partials/ShoppingCartLinks" />
+                            </ul>
+                        </div>
+                        <div class="top-menu-container">
+                            <div id="menu-toggler" class="menu-toggler d-lg-none d-flex" @@click="openMenu($event.target, 'mainMenu')">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <div id="menu-button" @@click="menuButton()" v-bind:class="{ show: menuToggled }" class="menu-button d-lg-flex d-none">
+                                <span class="icon">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </span>
+                                <span class="title">@Loc["Categories"]</span>
+                            </div>
+                            <ul class="Menu -vertical" id="mainMenu">
+                                @await Component.InvokeAsync("Menu")
+                            </ul>
+                            <ul id="links-container" class="p-0 mb-0"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="container right-container">
+                    @if (IsSectionDefined("Breadcrumb"))
+                    {
+                        @RenderSection("Breadcrumb")
+                    }
+                    @RenderBody()
+                </div>
+            </div>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
+        </b-container>
+        <div id="backdrop-menu" class="backdrop-menu"></div>
+        @await Component.InvokeAsync("Footer")
+        <partial name="Partials/Cookie" />
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
+    <partial name="Partials/ProductBoxVue" />
+    <resources asp-type="ScriptFooter" />
+    <resources asp-type="TemplateFooter" />
+</body>
+</html>

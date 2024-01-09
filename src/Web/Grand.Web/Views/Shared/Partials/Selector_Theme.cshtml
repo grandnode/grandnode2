@@ -1,28 +1,25 @@
-﻿@inject StoreInformationSettings storeInformationSettings
-@inject IThemeProvider themeProvider
-@inject IThemeContext themeContext
+﻿@inject IThemeContextFactory ThemeContext
+@inject IEnumerable<IThemeView> Themes
 @{
-    if (storeInformationSettings.AllowCustomerToSelectTheme)
-    {
-        var availablThemes = themeProvider.GetConfigurations()
-                 .Select(x => new StoreThemeModel
-                 {
-                     Name = x.Name,
-                     Title = x.Title
-                 }).ToList();
-
-        var returnurl = Context?.Request?.GetEncodedPathAndQuery();
-        if (availablThemes.Count > 1)
+    var themeContext = ThemeContext.GetThemeContext("");
+    var availablThemes = Themes.Where(x => x.AreaName == "").ToList()
+        .Select(x => new StoreThemeModel
         {
-            <b-dropdown class="mr-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext.WorkingThemeName)?.Name">
-                @foreach (var theme in availablThemes)
-                {
-                    var className = theme.Name == themeContext.WorkingThemeName ? "active" : "";
-                    <b-dropdown-item class="@className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
-                        @theme.Name
-                    </b-dropdown-item>
-                }
-            </b-dropdown>
-        }
+            Name = x.ThemeName,
+            Title = x.ThemeInfo?.Title
+        }).ToList();
+
+    var returnurl = Context?.Request?.GetEncodedPathAndQuery();
+    if (availablThemes.Count > 1)
+    {
+        <b-dropdown class="mr-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name">
+            @foreach (var theme in availablThemes)
+            {
+                var className = theme.Name == themeContext?.GetCurrentTheme() ? "active" : "";
+                <b-dropdown-item class="@className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
+                    @theme.Name
+                </b-dropdown-item>
+            }
+        </b-dropdown>
     }
 }

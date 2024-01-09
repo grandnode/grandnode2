@@ -5010,12 +5010,6 @@
 	<Resource Name="Admin.Configuration.Themes.Failed" Area="Admin">
 		<Value>Failed to upload theme. Make sure you are not uploading already existing one. If so, try deleting it manually before resubmitting.</Value>
 	</Resource>
-	<Resource Name="Admin.Configuration.Themes.Upload" Area="Admin">
-		<Value>Upload theme</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.Themes.Uploaded" Area="Admin">
-		<Value>Theme uploaded</Value>
-	</Resource>
 	<Resource Name="Admin.Configuration.Updated" Area="Admin">
 		<Value>The settings have been updated successfully.</Value>
 	</Resource>
@@ -17475,6 +17469,12 @@
 	</Resource>
 	<Resource Name="Vendors.ViewAll" Area="Front">
 		<Value>View all</Value>
+	</Resource>
+	<Resource Name="View.Nomore" Area="Front">
+		<Value>No more products</Value>
+	</Resource>
+	<Resource Name="View.ScrollDown" Area="Front">
+		<Value>Scroll down to view more products</Value>
 	</Resource>
 	<Resource Name="voicenavigator.voice.annotation" Area="Front">
 		<Value>Say what do you want to do in the store, i.e Show me the cart</Value>

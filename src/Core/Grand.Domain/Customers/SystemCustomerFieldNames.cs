@@ -49,8 +49,6 @@ namespace Grand.Domain.Customers
         public static string ShippingOptionAttributeDescription { get { return "ShippingOptionAttributeDescription"; } }
         public static string ShippingOptionAttribute { get { return "ShippingOptionAttribute"; } }
         public static string LastContinueShoppingPage { get { return "LastContinueShoppingPage"; } }
-        public static string WorkingThemeName { get { return "WorkingThemeName"; } }
-        public static string AdminThemeName { get { return "AdminThemeName"; } }
         public static string TaxDisplayTypeId { get { return "TaxDisplayTypeId"; } }
         public static string UseLoyaltyPointsDuringCheckout { get { return "UseLoyaltyPointsDuringCheckout"; } }
         public static string CookieAccepted { get { return "Cookie.Accepted"; } }

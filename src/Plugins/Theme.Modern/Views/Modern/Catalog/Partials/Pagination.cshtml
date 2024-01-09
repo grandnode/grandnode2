@@ -1,0 +1,31 @@
+﻿<template v-if="catalog.Model !== null">
+    <template v-if="catalog.Model.PagingFilteringContext.TotalPages > 1">
+        <div class="vue-pager">
+            <template v-if="(catalog.Model.PagingFilteringContext.PageIndex >= 3) && (catalog.Model.PagingFilteringContext.TotalPages > 5)">
+                <div class="page-item prev" @@click="catalog.goToPage(1)">
+                    @Loc["pager.firstpagetitle"]
+                </div>
+            </template>
+            <template v-if="catalog.Model.PagingFilteringContext.HasPreviousPage">
+                <div class="page-item" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.PageNumber - 1)">
+                    @Loc["pager.previouspagetitle"]
+                </div>
+            </template>
+            <template v-for="item in catalog.pager">
+                <div class="page-item" v-bind:class="{ current: (catalog.Model.PagingFilteringContext.PageNumber) == item }" @@click="catalog.goToPage(item)">
+                    {{item}}
+                </div>
+            </template>
+            <template v-if="catalog.Model.PagingFilteringContext.HasNextPage">
+                <div class="page-item next" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.PageNumber + 1)">
+                    @Loc["pager.nextpagetitle"]
+                </div>
+            </template>
+            <template v-if="((catalog.Model.PagingFilteringContext.PageIndex + 3) < catalog.Model.PagingFilteringContext.TotalPages) && (catalog.Model.PagingFilteringContext.TotalPages > 5)">
+                <div class="page-item last" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.TotalPages)">
+                    @Loc["pager.lastpagetitle"]
+                </div>
+            </template>
+        </div>
+    </template>
+</template>

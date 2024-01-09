@@ -15,6 +15,7 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
 using Grand.Web.Common.Validators;
+using Grand.Web.Common.View;
 using Grand.Web.Common.ViewRender;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -81,17 +82,27 @@ namespace Grand.Web.Common.Startup
 
             //helper for Settings
             serviceCollection.AddScoped<IStoreHelper, StoreHelper>();
+            
+            //View factory
+            serviceCollection.AddScoped<IViewFactory, ViewFactory>();
+            
+            //Default view area
+            serviceCollection.AddScoped<IAreaViewFactory, DefaultAreaViewFactory>();
+
+            //Theme context factory
+            serviceCollection.AddScoped<IThemeContextFactory, ThemeContextFactory>();
+
+            //Default theme context
+            serviceCollection.AddScoped<IThemeContext, ThemeContext>();
+            
+            //Default theme view
+            serviceCollection.AddScoped<IThemeView, DefaultThemeView>();
         }
 
 
         private void RegisterFramework(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IPageHeadBuilder, PageHeadBuilder>();
-
-            serviceCollection.AddSingleton<IThemeList, ThemeList>();
-
-            serviceCollection.AddScoped<IThemeProvider, ThemeProvider>();
-            serviceCollection.AddScoped<IThemeContext, ThemeContext>();
 
             serviceCollection.AddScoped<SlugRouteTransformer>();
 

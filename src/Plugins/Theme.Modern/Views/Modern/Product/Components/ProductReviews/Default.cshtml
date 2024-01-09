@@ -1,0 +1,189 @@
+﻿@model ProductReviewsModel
+
+<template v-if="productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview">
+    <div class="mb-3">
+        <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
+    </div>
+</template>
+<template v-else>
+    <div class="alert alert-danger">
+        @Loc["reviews.onlyregistereduserscanwritereviews"]
+    </div>
+</template>
+<partial name="Partials/ProductReview.Modal.cshtml" model="Model" />
+
+<template id="product-review-list" v-if="productreviews.Model !== null">
+    <div class="product-review-list">
+        <template v-if="productreviews.Model.Items.length > 0">
+            <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
+            <template v-for="review in productreviews.Model.Items">
+                <div class="card product-review-item mb-3">
+                    <div class="card-header">
+                        <div class="review-info d-inline-flex w-100">
+                            <div class="user d-inline-flex align-items-center">
+                                <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
+                                <h6 class="mb-0">{{review.CustomerName}}</h6>
+                            </div>
+                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                            <small class="date text-muted">
+                                <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                <span>{{review.WrittenOnStr}}</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="review-title mb-3">
+                            <h5 class="mb-0">{{review.Title}}</h5>
+                            <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline :value='review.Rating'></b-form-rating>
+                        </div>
+                        <div class="review-content">
+                            <div class="review-text">
+                                {{review.ReviewText}}
+                            </div>
+                        </div>
+                    </div>
+                    <template v-if="review.ReplyText !== null">
+                        <div class="reply-content">
+                            <blockquote class="administration-response px-3">
+                                <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
+                                <span>{{review.ReplyText}}</span>
+                                <figcaption class="blockquote-footer">
+                                    {{review.Signature}}
+                                </figcaption>
+                            </blockquote>
+                        </div>
+                    </template>
+                    <div class="card-footer">
+                        <div class="product-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
+                            <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
+                            <span class="vote-options btn-group">
+                                <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'true' , review.Id, '@Model.ProductId' , '@Loc[" Reviews.Helpfulness.WasHelpful?"]' )" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
+                                <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'false' , review.Id, '@Model.ProductId' , '@Loc[" Reviews.Helpfulness.WasHelpful?"]' )" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
+                            </span>
+                            <span class="vote-stats d-inline-flex">
+                                (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template v-else>
+            <div class="alert alert-info">@Loc["Products.Reviews.Empty"]</div>
+        </template>
+    </div>
+</template>
+
+<script asp-location="Footer" asp-order="300">
+    var productreviews = new Vue({
+        data: function () {
+            return {
+                Model: null,
+                rating: null,
+                captcha: null
+            }
+        },
+        created() {
+            this.Model = @Json.Serialize(Model);
+        },
+        methods: {
+            setProductReviewHelpfulness(url, wasHelpful, reviewId, productId, toastTitle) {
+                axios({
+                    url: url,
+                    method: 'post',
+                    params: { "productReviewId": reviewId, "productId": productId, "washelpful": wasHelpful },
+                    headers: {
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    document.getElementById("helpfulness-vote-yes-" + reviewId + "").innerHTML = response.data.TotalYes
+                    document.getElementById("helpfulness-vote-no-" + reviewId + "").innerHTML = response.data.TotalNo;
+                    new Vue({
+                        el: ".modal-place",
+                        methods: {
+                            toast() {
+                                this.$bvToast.toast(response.data.Result, {
+                                    title: toastTitle,
+                                    variant: 'info',
+                                    autoHideDelay: 3000,
+                                    solid: true
+                                })
+                            }
+                        },
+                        mounted: function () {
+                            this.toast();
+                        }
+                    });
+                }).catch(function (error) {
+                    alert(error);
+                })
+            },
+            addProductReview: function () {
+                vm.$refs['ModalProductReview'].show();
+            },
+            modalReviewShown: function () {
+                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null && !productreviews.Model.AddProductReview.SuccessfullyAdded) {
+                    var html = document.getElementById("captcha-box");
+                    document.getElementById("captcha-popup").prepend(html);
+                }
+                productreviews.Model = Object.assign({}, productreviews.Model, { ReviewTitle: '', ReviewText: '' })
+            },
+            modalReviewClose: function () {
+                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") !== null) {
+                    var html = document.getElementById("captcha-box");
+                    document.getElementById("captcha-container").prepend(html);
+                }
+            },
+            submitProductReview: function () {
+                var form = document.getElementById("addReviewForm");
+                var url = form.getAttribute("action");
+                var resultTitle = form.getAttribute("data-title");
+                var bodyFormData = new FormData(form);
+                axios({
+                    method: "post",
+                    url: url,
+                    data: bodyFormData,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    productreviews.Model = response.data;
+                    var result = response.data.AddProductReview.Result;
+                    var variant = "";
+
+                    if (response.data.AddProductReview.SuccessfullyAdded) {
+
+                        variant = "info";
+                        vm.$refs['ModalProductReview'].hide();
+
+                    } else {
+                        variant = "danger";
+                    }
+
+                    new Vue({
+                        el: ".modal-place",
+                        methods: {
+                            toast() {
+                                this.$bvToast.toast(result, {
+                                    title: resultTitle,
+                                    variant: variant,
+                                    autoHideDelay: 3000,
+                                    solid: true
+                                })
+                            }
+                        },
+                        mounted: function () {
+                            this.toast();
+                        }
+                    });
+
+                    if (response.data.ProductReviewOverviewModel !== null) {
+                        productreviewsoverview.Model = response.data.ProductReviewOverviewModel;
+                    }
+                });
+                return
+            }
+        }
+    });
+</script>

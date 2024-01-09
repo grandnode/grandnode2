@@ -1,0 +1,15 @@
+﻿@model IList<ProductOverviewModel>
+
+    <div class="product-grid blogpost-product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center">
+            @Loc["Blog.Products"]
+        </h2>
+        <div class=" form-row flex-grid">
+            @foreach (var product in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-2">
+                    <partial name="Partials/CatalogProductView" model="product" />
+                </div>
+            }
+        </div>
+    </div>

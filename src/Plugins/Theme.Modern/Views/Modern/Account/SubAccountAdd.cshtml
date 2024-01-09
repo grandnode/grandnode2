@@ -1,0 +1,35 @@
+﻿@model SubAccountCreateModel
+@using Grand.Web.Models.Customer;
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Account"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.SubAccounts })
+}
+<validation-observer v-slot="{ handleSubmit }">
+    <form asp-route="CustomerSubAccountAdd" asp-antiforgery="true" method="post" autocomplete="off" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+        <div class="page account-page subaccount-edit-page pl-lg-3 mb-3 pt-lg-0 pt-3">
+            <h1 class="generalTitle h2"><div>@Loc["Account.SubAccount.AddNew"]</div></h1>
+            <a class="left-side-toggler mb-3" onclick="sideToggle()">
+                <div class="inner">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="text">
+                    @Loc["Account.Navigation"]
+                </div>
+            </a>
+            <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger my-3"></div>
+            <partial name="Partials/CreateOrUpdateSubAccount" model="Model" />
+            <div class="buttons generalMarginSupporter">
+                <input type="submit" class="btn btn-info save-subaccount-button" value="@Loc["Common.Save"]" />
+            </div>
+        </div>
+    </form>
+</validation-observer>

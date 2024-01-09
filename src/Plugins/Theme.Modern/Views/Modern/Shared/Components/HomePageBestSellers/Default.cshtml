@@ -1,0 +1,26 @@
+﻿@model IList<ProductOverviewModel>
+<template>
+    <div class="home-page-section">
+        <div id="HomePageBestSellers" class="section">
+            <div class="product-grid">
+                <h2 class="generalTitle text-center"><span>@Loc["Bestsellers"]</span></h2>
+                <div class="col-12 px-0">
+                    <div class="item-row">
+                        <div :key="Model.Id" v-for="Model in homePBest.Model" class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-6 product-container mb-2">
+                            <product-box-vue :Model="Model"></product-box-vue>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var homePBest = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model)
+            }
+        }
+    });
+</script>

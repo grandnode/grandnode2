@@ -1,0 +1,54 @@
+﻿<div id="ajax-preloader-container" class="d-flex justify-content-center align-items-center">
+    <div class="alert-info alert">
+        <template v-if="catalog.Model.PagingFilteringContext.PageNumber !== catalog.Model.PagingFilteringContext.TotalPages">
+            <div class="d-inline-flex align-items-center w-100">
+                <div class="spinner-border text-info mr-3" role="status"></div>
+                <div>@Loc["View.ScrollDown"]</div>
+            </div>
+        </template>
+        <template v-else>
+            @Loc["View.Nomore"]
+        </template>
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    var scrollpagination = new Vue({
+        data: function () {
+            return {
+                stop: false
+            }
+        },
+        methods: {
+            next() {
+                let currentPage = catalog.Model.PagingFilteringContext.PageNumber;
+                let nextPage = currentPage + 1;
+                let my_array = catalog.Count.p_numbers;
+                let last_element = my_array[my_array.length - 1];
+                if (last_element > currentPage && last_element !== currentPage) {
+                    if (typeof AjaxFilter === 'undefined') {
+                        let urlPagenumber = new URL(window.location.href);
+                        urlPagenumber.searchParams.set('pagenumber', nextPage)
+                        catalog.loadProducts(urlPagenumber);
+                    } else {
+                        document.getElementById("PageNumber").value = currentPage;
+                        AjaxFilter.setFilter('pagenumber');
+                    }
+                }
+            },
+            pageScroll() {
+                let catalogProdH = document.getElementById("catalog-products").scrollHeight * .5;
+                let TotalPages = catalog.Model.PagingFilteringContext.TotalPages;
+                let PageNumber = catalog.Model.PagingFilteringContext.PageNumber;
+                if (window.pageYOffset >= catalogProdH && PageNumber < TotalPages && !this.stop) {
+                    this.stop = true;
+                    this.next();
+                }
+            }
+        },
+        created() {
+            document.addEventListener("DOMContentLoaded", function () {
+                window.addEventListener('scroll', scrollpagination.pageScroll);
+            });
+        }
+    })
+</script>

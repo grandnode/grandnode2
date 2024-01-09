@@ -1,0 +1,24 @@
+﻿@{
+    var warehouseLink = @Url.Action("productdetails_warehousechange", "product");
+}
+<template v-if="PopupQuickViewVueModal.AllowToSelectWarehouse">
+    <template v-if="PopupQuickViewVueModal.ProductWarehouses.length > 0">
+        <div class="mb-3">
+            <label for="warehouseId" class="col-form-label">@Loc["Products.Warehouse"]:</label>
+            <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
+                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="vm.attrchange(PopupQuickViewVueModal.Id)">
+                    <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
+                        <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
+                    </template>
+                </select>
+            </template>
+            <template v-else>
+                <select class="custom-select form-control" name="WarehouseId" id="WarehouseId" @@change="warehouse_change_handler(PopupQuickViewVueModal.Id, '@warehouseLink')">
+                    <template v-for="warehouse in PopupQuickViewVueModal.ProductWarehouses">
+                        <option :selected="warehouse.Selected" :value="warehouse.WarehouseId">{{warehouse.Name}}</option>
+                    </template>
+                </select>
+            </template>
+        </div>
+    </template>
+</template>

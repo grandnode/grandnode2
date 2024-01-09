@@ -189,18 +189,6 @@ namespace Grand.Web.Common.Infrastructure
 
             });
 
-            //themes
-            if (Directory.Exists(CommonPath.ThemePath))
-                application.UseStaticFiles(new StaticFileOptions {
-                    FileProvider = new PhysicalFileProvider(CommonPath.ThemePath),
-                    RequestPath = new PathString("/Themes"),
-                    OnPrepareResponse = ctx =>
-                    {
-                        if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
-                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
-                    }
-                });
-
             //plugins
             if (Directory.Exists(CommonPath.PluginsPath))
                 application.UseStaticFiles(new StaticFileOptions {

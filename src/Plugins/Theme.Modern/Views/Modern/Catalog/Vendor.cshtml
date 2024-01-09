@@ -1,0 +1,203 @@
+﻿@model VendorModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var vendorUrl = Url.RouteUrl("Vendor", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(vendorUrl);
+    }
+}
+
+<div class="page vendor-page">
+    <div class="card mt-3">
+        <div class="col-12 card-body">
+            <div class="row">
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <img class="img-fluid" alt="@Model.PictureModel.AlternateText" src="@Model.PictureModel.ImageUrl">
+                </div>
+                <div class="col-xl-10 col-lg-9 col-md-8 align-items-center d-flex">
+                    <div>
+                        <h1 class="h2 generalTitle w-100">
+                            {{catalog.Model.Name}}
+                        </h1>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "vendordetails_top", additionalData = Model.Id })
+                        @*rendering review section*@
+                        @if (Model.VendorReviewOverview.AllowCustomerReviews)
+                        {
+                            <div>
+                                <partial name="Partials/VendorReviewOverview" model="Model.VendorReviewOverview" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <b-tabs class="mt-3" content-class="mt-3" align="center">
+                        @if (!String.IsNullOrEmpty(Model.Description))
+                        {
+                            <b-tab id="description-tab" title="@Loc["vendor.Description"]" active>
+                                <article class="text-xs-center generalMarginSupporter vendor-description" v-html="catalog.Model.Description"></article>
+                            </b-tab>
+                        }
+                        @if (Model.Address != null)
+                        {
+                            <b-tab id="address-tab" title="@Loc["Vendor.Address"]">
+                                <ul class="info px-0 mb-0">
+                                    @if (Model.Address.CompanyEnabled && !String.IsNullOrEmpty(Model.Address.Company))
+                                    {
+                                        <li class="company">
+                                            <label class="col-form-label">@Loc["Address.Fields.Company"]:</label>
+                                            @Model.Address.Company
+                                        </li>
+                                    }
+                                    @if (Model.Address.StreetAddressEnabled && !String.IsNullOrEmpty(Model.Address.Address1))
+                                    {
+                                        <li class="address1">
+                                            <label class="col-form-label w-100">@Loc["Address.Fields.Address1"]:</label>
+                                            @Model.Address.Address1
+                                        </li>
+                                    }
+                                    @if (Model.Address.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.Address.Address2))
+                                    {
+                                        <li class="address2">
+                                            <label class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
+                                            @Model.Address.Address2
+                                        </li>
+                                    }
+                                    @if (Model.Address.CityEnabled || Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
+                                    {
+                                        var cityStateZip = "";
+                                        if (Model.Address.CityEnabled && !String.IsNullOrEmpty(Model.Address.City))
+                                        {
+                                            cityStateZip = Model.Address.City;
+                                            if (Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
+                                            {
+                                                cityStateZip += ",";
+                                            }
+                                        }
+                                        if (Model.Address.StateProvinceEnabled)
+                                        {
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += Model.Address.StateProvinceName;
+                                        }
+                                        if (Model.Address.ZipPostalCodeEnabled)
+                                        {
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += Model.Address.ZipPostalCode;
+                                        }
+                                        if (!String.IsNullOrEmpty(cityStateZip))
+                                        {
+                                            <li class="city-state-zip">
+                                                @cityStateZip
+                                            </li>
+                                        }
+                                    }
+                                    @if (Model.Address.CountryEnabled && !String.IsNullOrEmpty(Model.Address.CountryName))
+                                    {
+                                        <li class="country">
+                                            @Model.Address.CountryName
+                                        </li>
+                                    }
+                                    @if (Model.Address.PhoneEnabled && !String.IsNullOrEmpty(Model.Address.PhoneNumber))
+                                    {
+                                        <li class="phone">
+                                            <label class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
+                                            @Model.Address.PhoneNumber
+                                        </li>
+                                    }
+                                    @if (Model.Address.FaxEnabled && !String.IsNullOrEmpty(Model.Address.FaxNumber))
+                                    {
+                                        <li class="fax">
+                                            <label class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
+                                            @Model.Address.FaxNumber
+                                        </li>
+                                    }
+                                </ul>
+                            </b-tab>
+                        }
+                        @if (Model.VendorReviewOverview.AllowCustomerReviews)
+                        {
+                            <b-tab id="review-tab" title="@Loc["vendor.Reviews"]" :active="active ? true : false">
+                                @await Component.InvokeAsync("VendorReviews", new { vendorId = Model.Id })
+                            </b-tab>
+                        }
+                        @if (Model.AllowCustomersToContactVendors)
+                        {
+                            <b-tab id="contact-tab" title="@Loc["ContactVendor"]" @@click="contactvendor.getCaptcha()">
+                                @await Component.InvokeAsync("VendorContact", new { vendorId = Model.Id })
+                            </b-tab>
+                        }
+                    </b-tabs>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="catalog-products">
+        <partial name="Partials/Selectors" />
+        <template v-if="catalog.Model.Products.length > 0">
+            <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                <b-col cols="12" class="product-grid standard px-0">
+                    <b-form-row>
+                        <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                            <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 px-0 mb-2">
+                                <product-box-vue :Model="Model"></product-box-vue>
+                            </b-col>
+                        </template>
+                    </b-form-row>
+                </b-col>
+            </template>
+            <template v-else>
+                <div class="product-list">
+                    <b-col cols="12">
+                        <b-row>
+                            <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                <product-box-list-vue :Model="Model"></product-box-list-vue>
+                            </template>
+                        </b-row>
+                    </b-col>
+                </div>
+            </template>
+            @*<partial name="Partials/Pagination" />*@
+            <partial name="Partials/ScrollPagination" />
+        </template>
+        <template v-else>
+            <div class="alert alert-info my-3">
+                @Loc["search.noresultstext"]
+            </div>
+        </template>
+    </div>
+</div>
+@if (Model.RenderCaptcha)
+{
+    <div id="captcha-container">
+        <div class="captcha-box" id="captcha-box">
+            <captcha />
+        </div>
+    </div>
+}
+@await Component.InvokeAsync("Widget", new { widgetZone = "vendordetails_bottom", additionalData = Model.Id })
+
+@section filters
+{
+    @*Rendering filtering*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
+    }
+}
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

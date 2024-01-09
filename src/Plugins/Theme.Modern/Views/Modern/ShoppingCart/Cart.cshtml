@@ -1,0 +1,14 @@
+﻿@inject IPageHeadBuilder pagebuilder
+@model ShoppingCartModel
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.ShoppingCart"]);
+}
+<div class="page shopping-cart-page">
+    <h2 class="generalTitle text-center mt-3"><div>@Loc["ShoppingCart"]</div></h2>
+    <div class="page-body">
+        <partial name="Partials/CartSummary" model="Model" />
+    </div>
+</div>
