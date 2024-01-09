@@ -24,6 +24,7 @@ RUN dotnet build /app/Plugins/Tax.FixedRate -c Release -p:SourceRevisionId=$GIT_
 RUN dotnet build /app/Plugins/Widgets.FacebookPixel -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Widgets.GoogleAnalytics -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Widgets.Slider -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
+RUN dotnet build /app/Plugins/Theme.Modern -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # restore
 RUN dotnet restore /app/Web/Grand.Web/Grand.Web.csproj
