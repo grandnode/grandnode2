@@ -71,7 +71,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites (develop version)
 
-GrandNode requires .NET Core 6.0, MongoDB 4.0+, and OS-specific dependency tools. 
+GrandNode requires .NET Core 8.0, MongoDB 4.0+, and OS-specific dependency tools. 
 
 ### Installation
 
@@ -94,7 +94,7 @@ Run the project in the Visual Studio 2022+, extract the source code package down
 
 * Host on Linux server 
 
-Before you start - please install, configure the nginx server, .NET Core 6.0+ and MongoDB 4.0+
+Before you start - please install, configure the nginx server, .NET Core 8.0+ and MongoDB 4.0+
 ```
 mkdir ~/source
 cd ~/source
@@ -106,7 +106,7 @@ dotnet restore GrandNode.sln
 ```
 Now it's time to rebuild all of our plugins and publish application (command is pretty long because we've combined all commands in a single line, to ease up your work):
 ```
-sudo dotnet build src/Plugins/Authentication.Facebook && sudo dotnet build src/Plugins/Authentication.Google && sudo dotnet build src/Plugins/DiscountRules.Standard && sudo dotnet build src/Plugins/ExchangeRate.McExchange && sudo dotnet build src/Plugins/Payments.BrainTree && sudo dotnet build src/Plugins/Payments.CashOnDelivery && sudo dotnet build src/Plugins/Payments.PayPalStandard && sudo dotnet build src/Plugins/Shipping.ByWeight && sudo dotnet build src/Plugins/Shipping.FixedRateShipping && sudo dotnet build src/Plugins/Shipping.ShippingPoint && sudo dotnet build src/Plugins/Tax.CountryStateZip && sudo dotnet build src/Plugins/Tax.FixedRate && sudo dotnet build src/Plugins/Widgets.FacebookPixel && sudo dotnet build src/Plugins/Widgets.GoogleAnalytics && sudo dotnet build src/Plugins/Widgets.Slider && sudo dotnet publish src/Web/Grand.Web -c Release -o /var/webapps/grandnode 
+sudo dotnet build src/Plugins/Authentication.Facebook && sudo dotnet build src/Plugins/Authentication.Google && sudo dotnet build src/Plugins/DiscountRules.Standard && sudo dotnet build src/Plugins/ExchangeRate.McExchange && sudo dotnet build src/Plugins/Payments.BrainTree && sudo dotnet build src/Plugins/Payments.CashOnDelivery && sudo dotnet build src/Plugins/Payments.PayPalStandard && sudo dotnet build src/Plugins/Shipping.ByWeight && sudo dotnet build src/Plugins/Shipping.FixedRateShipping && sudo dotnet build src/Plugins/Shipping.ShippingPoint && sudo dotnet build src/Plugins/Tax.CountryStateZip && sudo dotnet build src/Plugins/Tax.FixedRate && sudo dotnet build src/Plugins/Widgets.FacebookPixel && sudo dotnet build src/Plugins/Widgets.GoogleAnalytics && sudo dotnet build src/Plugins/Widgets.Slider && sudo dotnet build src/Plugins/Theme.Modern && sudo dotnet publish src/Web/Grand.Web -c Release -o /var/webapps/grandnode 
 ```
 Optional: Create the service file, to automatically restart your application.
 ```
