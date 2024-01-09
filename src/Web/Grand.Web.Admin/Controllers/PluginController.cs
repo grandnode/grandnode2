@@ -343,8 +343,6 @@ namespace Grand.Web.Admin.Controllers
         private void Upload(string archivePath)
         {
             var pluginsDirectory = CommonPath.PluginsPath;
-            var themesDirectory = CommonPath.ThemePath;
-
             var uploadedItemDirectoryName = "";
             PluginInfo _pluginInfo = null;
             using (var archive = ZipFile.Open(archivePath, ZipArchiveMode.Update))
@@ -416,8 +414,7 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(uploadedItemDirectoryName))
                 throw new Exception($"Cannot get the plugin directory name");
 
-            var directoryPath = _pluginInfo != null ? pluginsDirectory : themesDirectory;
-            var pathToUpload = Path.Combine(directoryPath, uploadedItemDirectoryName);
+            var pathToUpload = Path.Combine(pluginsDirectory, uploadedItemDirectoryName);
 
             try
             {
@@ -426,7 +423,7 @@ namespace Grand.Web.Admin.Controllers
             }
             catch { }
 
-            ZipFile.ExtractToDirectory(archivePath, directoryPath);
+            ZipFile.ExtractToDirectory(archivePath, pluginsDirectory);
         }
 
         #endregion

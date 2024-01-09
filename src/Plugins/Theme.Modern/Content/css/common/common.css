@@ -1857,6 +1857,20 @@ ul.Menu.-vertical {
     margin: 10px auto;
     line-height: 1;
 }
+
+h5.generalTitle {
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    display: table;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: left;
+    margin: 10px auto;
+    line-height: 1;
+}
+
 .generalTitle > span {
     background-color: #fff;
     display: table;
