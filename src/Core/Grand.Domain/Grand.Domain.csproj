@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
-    <PackageReference Include="MongoDB.Bson" Version="2.23.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.23.1" />
     <PackageReference Include="DotLiquid" Version="2.2.692" />
   </ItemGroup>
 
