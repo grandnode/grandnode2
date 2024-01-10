@@ -10,6 +10,8 @@ namespace Grand.Web.Models.Catalog
             AvailableCategories = new List<SelectListItem>();
         }
         public bool AutoCompleteEnabled { get; set; }
+        
+        public bool VoiceNavigatioEnabled { get; set; }
         public bool ShowProductImagesInSearchAutoComplete { get; set; }
         public int SearchTermMinimumLength { get; set; }
         public string SearchCategoryId { get; set; }

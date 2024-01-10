@@ -24,22 +24,25 @@
                     @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
                     <div class="input-group-append">
-                        <button id="voiceSearchButton"
-                                v-if="searchbox.allowed"
-                                @@touchstart="searchbox.recording = true" 
-                                @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
-                                @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
-                                @@mousedown="searchbox.recording = true" 
-                                @@mouseup="searchbox.recording = false" 
-                                @@mouseleave="searchbox.recording = false" 
-                                v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
-                            <template v-if="searchbox.recording">
-                                <b-icon icon="mic" variant="info"></b-icon>
-                            </template>
-                            <template v-else>
-                                <b-icon icon="mic-mute" variant="danger"></b-icon>
-                            </template>
-                        </button>
+                        @if (Model.VoiceNavigatioEnabled)
+                        {
+                            <button id="voiceSearchButton"
+                                    v-if="searchbox.allowed"
+                                    @@touchstart="searchbox.recording = true"
+                                    @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')"
+                                    @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')"
+                                    @@mousedown="searchbox.recording = true"
+                                    @@mouseup="searchbox.recording = false"
+                                    @@mouseleave="searchbox.recording = false"
+                                    v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                                <template v-if="searchbox.recording">
+                                    <b-icon icon="mic" variant="info"></b-icon>
+                                </template>
+                                <template v-else>
+                                    <b-icon icon="mic-mute" variant="danger"></b-icon>
+                                </template>
+                            </button>
+                        }
                         <button type="submit" class="btn btn-link search-box-button float-sm-right d-inline-flex align-items-center">
                             <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
                             <b-icon icon="search"></b-icon>

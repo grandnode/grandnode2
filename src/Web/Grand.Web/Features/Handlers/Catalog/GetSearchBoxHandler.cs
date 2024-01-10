@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
@@ -17,17 +18,19 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly ICategoryService _categoryService;
         private readonly ITranslationService _translationService;
         private readonly CatalogSettings _catalogSettings;
-
+        private readonly StoreInformationSettings _storeInformationSettings;
         public GetSearchBoxHandler(
             ICacheBase cacheBase,
             ICategoryService categoryService,
             ITranslationService translationService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings, 
+            StoreInformationSettings storeInformationSettings)
         {
             _cacheBase = cacheBase;
             _categoryService = categoryService;
             _translationService = translationService;
             _catalogSettings = catalogSettings;
+            _storeInformationSettings = storeInformationSettings;
         }
 
         public async Task<SearchBoxModel> Handle(GetSearchBox request, CancellationToken cancellationToken)
@@ -52,7 +55,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                     AutoCompleteEnabled = _catalogSettings.ProductSearchAutoCompleteEnabled,
                     ShowProductImagesInSearchAutoComplete = _catalogSettings.ShowProductImagesInSearchAutoComplete,
                     SearchTermMinimumLength = _catalogSettings.ProductSearchTermMinimumLength,
-                    AvailableCategories = availableCategories
+                    AvailableCategories = availableCategories,
+                    VoiceNavigatioEnabled = _storeInformationSettings.VoiceNavigation
                 };
 
                 return model;
