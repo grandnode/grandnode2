@@ -239,7 +239,38 @@ extend('required', {
         return 'The ' + fieldName + ' field is required.'
     }
 });
+extend('max', {
+    params: ['target'],
+    options: {
+        hasTarget: true
+    },
+    validate: function (value, ref) {
+        const maxVal = ref.target;
+        const length = value.length;
 
+        if (!value) {
+            return true;
+        }
+
+        if (length > maxVal) {
+            return false;
+        }
+        if (length === maxVal) {
+            return true;
+        }
+        return true;
+    },
+    message: (fieldName) => {
+        const text = vee_getMessage(fieldName, 'max');
+        if (text) {
+            return text;
+        }
+        const element = document.getElementsByName(fieldName);
+        let maxLength = element[0].maxLength;
+
+        return 'This ' + fieldName + ' should be at most ' + maxLength + ' characters.';
+    }
+});
 extend('min', {
     params: ['target'],
     options: {
