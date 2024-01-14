@@ -43,9 +43,6 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Vendor.AllowAnonymousUsersToReviewVendor")]
         public bool AllowAnonymousUsersToReviewVendor { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.Vendor.DefaultAdminTheme")]
-        public string DefaultAdminTheme { get; set; }
-
         [GrandResourceDisplayName("Admin.Settings.Vendor.VendorReviewPossibleOnlyAfterPurchasing")]
         public bool VendorReviewPossibleOnlyAfterPurchasing { get; set; }
 

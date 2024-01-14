@@ -10941,9 +10941,6 @@
 	<Resource Name="Admin.Settings.Vendor.AllowVendorsToEditInfo" Area="Admin">
 		<Value>Allow vendors to edit info</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Vendor.DefaultAdminTheme" Area="Admin">
-		<Value>Default admin theme</Value>
-	</Resource>
 	<Resource Name="Admin.Settings.Vendor.DefaultAllowCustomerReview" Area="Admin">
 		<Value>Vendor Reviews Allowed by default</Value>
 	</Resource>
