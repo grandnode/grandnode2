@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "animate.css": "^4.1.1",
-    "axios": "^0.27.2",
+    "axios": "^1.6.5",
     "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
     "pikaday": "^1.8.2",
