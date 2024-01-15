@@ -1968,7 +1968,7 @@ namespace Grand.Business.Messages.Services
             email.AttachedDownloads = attachments;
             email.EmailAccountId = emailAccount.Id;
             email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
-                    : (DateTime?)(DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));
+                    : (DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));
             email.Reference = reference;
             email.ObjectId = objectId;
 
