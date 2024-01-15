@@ -9,7 +9,7 @@
             <h5 class="card-header"><strong>@Loc["Vendor.Login.Title"]</strong></h5>
             <div class="card-body">
                 <div class="row">
-                    <div asp-validation-summary="ModelOnly" class="message-error w-100 text-center">@Loc["Vendor.Login.Unsuccessful"]</div>
+                    <div asp-validation-summary="All" class="message-error text-center"></div>
                     <div class="col-12 form-group mb-0">
                         @if (Model.UsernamesEnabled)
                         {

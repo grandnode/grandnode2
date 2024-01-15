@@ -73,7 +73,7 @@
             <div class="fieldset new-comment generalMarginSupporter d-flex flex-column w-100" id="comments">
                 <h4 class="generalTitle generalMarginSupporter">@Loc["Blog.Comments.LeaveYourComment"]</h4>
                 <div class="notifications">
-                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div asp-validation-summary="All" class="message-error"></div>
                     @{
                         var result = TempData["Grand.blog.addcomment.result"] as string;
                     }

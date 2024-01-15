@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.SharedKernel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
@@ -12,11 +13,13 @@ namespace Grand.Web.Models.Customer
         }
         public bool CheckoutAsGuest { get; set; }
 
+        [MaxLength(FieldSizeLimits.EmailMaxLength)]
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Login.Fields.Email")]
         public string Email { get; set; }
 
         public bool UsernamesEnabled { get; set; }
+        [MaxLength(FieldSizeLimits.NameMaxLength)]
         [GrandResourceDisplayName("Account.Login.Fields.UserName")]
         public string Username { get; set; }
 

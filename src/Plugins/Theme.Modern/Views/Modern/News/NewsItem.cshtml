@@ -43,7 +43,7 @@
                 <fieldset class="new-comment py-3 px-0" id="comments">
                     <h5><strong>@Loc["News.Comments.LeaveYourComment"]</strong></h5>
                     <div class="notifications">
-                        <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                        <div asp-validation-summary="All" class="message-error"></div>
                         @{
                             var result = TempData["Grand.news.addcomment.result"] as string;
                         }
