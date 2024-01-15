@@ -10,7 +10,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
     {
         public int Priority => 0;
         public DbVersion Version => new(2, 1);
-        public Guid Identity => new("E87B6FE8-5723-4753-948E-E6D641EF8A86");
+        public Guid Identity => new("D5FA1ACE-34A5-4CE4-A4CE-6A6DE2CEFFD2");
         public string Name => "Remove old permissions";
 
         /// <summary>
@@ -26,9 +26,9 @@ namespace Grand.Business.System.Services.Migrations._2._1
             try
             {
                 var permissionManageActions = repository.Table.FirstOrDefault(x => x.SystemName == "ManageActions");
-                if (permissionManageActions == null) repository.Delete(permissionManageActions);
+                if (permissionManageActions != null) repository.Delete(permissionManageActions);
                 var permissionManageReminders = repository.Table.FirstOrDefault(x => x.SystemName == "ManageReminders");
-                if (permissionManageReminders == null) repository.Delete(permissionManageReminders);
+                if (permissionManageReminders != null) repository.Delete(permissionManageReminders);
 
             }
             catch (Exception ex)
