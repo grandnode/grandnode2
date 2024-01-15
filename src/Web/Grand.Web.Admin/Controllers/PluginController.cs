@@ -306,8 +306,7 @@ namespace Grand.Web.Admin.Controllers
             var zipFilePath = "";
             try
             {
-                if (!Path.GetExtension(zippedFile.FileName)
-                        ?.Equals(".zip", StringComparison.InvariantCultureIgnoreCase) ?? true)
+                if (!Path.GetExtension(zippedFile.FileName).Equals(".zip", StringComparison.InvariantCultureIgnoreCase))
                     throw new Exception("Only zip archives are supported");
 
                 //ensure that temp directory is created
