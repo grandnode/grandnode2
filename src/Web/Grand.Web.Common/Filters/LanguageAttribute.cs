@@ -60,12 +60,6 @@ namespace Grand.Web.Common.Filters
             /// <param name="next">Action execution delegate</param>
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context?.HttpContext?.Request == null)
-                {
-                    await next();
-                    return;
-                }
-
                 if (!DataSettingsManager.DatabaseIsInstalled())
                 {
                     await next();
@@ -94,7 +88,7 @@ namespace Grand.Web.Common.Filters
                 }
 
                 //check whether current page URL is already localized URL
-                var pageUrl = context.HttpContext?.Request?.GetEncodedPathAndQuery();
+                var pageUrl = context.HttpContext.Request?.GetEncodedPathAndQuery();
                 if (await IsLocalized(pageUrl, context.HttpContext.Request.PathBase))
                 {
                     await next();
@@ -107,7 +101,7 @@ namespace Grand.Web.Common.Filters
 
             private async Task<bool> IsLocalized(string url, PathString pathBase)
             {
-                var _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
+                _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
                 url = WebUtility.UrlDecode(result);
 
                 var firstSegment = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;

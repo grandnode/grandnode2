@@ -85,8 +85,8 @@ namespace Grand.Web.Common.Filters
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 await next();
-
-                if (context?.HttpContext.Request == null)
+                
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //check request query parameters
@@ -94,9 +94,7 @@ namespace Grand.Web.Common.Filters
                 if (!request.Query.Any())
                     return;
 
-                if (!DataSettingsManager.DatabaseIsInstalled())
-                    return;
-
+                
                 //try to find by ID
                 var affiliateIds = request.Query[IdQueryParameterName];
                 if (affiliateIds.Any())

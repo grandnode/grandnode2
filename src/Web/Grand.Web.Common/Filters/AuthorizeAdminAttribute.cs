@@ -93,7 +93,7 @@ namespace Grand.Web.Common.Filters
 
                     //whether current customer is vendor
                     if (await _groupService.IsVendor(_workContext.CurrentCustomer) || _workContext.CurrentVendor is not null)
-                        filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());;
+                        filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                     //get allowed IP addresses
                     var ipAddresses = _securitySettings.AdminAreaAllowedIpAddresses;

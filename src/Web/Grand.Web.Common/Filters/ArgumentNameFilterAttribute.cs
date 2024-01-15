@@ -9,11 +9,7 @@ namespace Grand.Web.Common.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context?.HttpContext.Request == null)
-                return;
-
             context.ActionArguments[Argument] = context.HttpContext.Request.Form.Keys.Any(key => key.Equals(KeyName));
-
         }
     }
 }
