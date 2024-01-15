@@ -740,6 +740,10 @@ button.close:hover {
     background-color: #25b232;
     border: 1px solid #25b232;
 }
+.quick-view .add-cart-text-view
+{
+    font-size: 14px;
+}
 .quick-view .spec-container tr {
    /* width: 100%;
     border-bottom: 1px solid #dee2e6;*/

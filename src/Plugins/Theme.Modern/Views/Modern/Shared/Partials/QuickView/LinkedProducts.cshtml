@@ -1,0 +1,12 @@
+﻿<template v-if="RelatedProducts !== null">
+    <div v-if="RelatedProducts.length > 0" class="related-products-grid linked-product-grid product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center"><span>@Loc["Products.RelatedProducts"]</span></h2>
+        <div class="item-row">
+            <template :key="Model.Id" v-for="Model in RelatedProducts">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">
+                    <product-box-vue :Model="Model"></product-box-vue>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
