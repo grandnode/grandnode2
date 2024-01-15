@@ -471,12 +471,12 @@ namespace Grand.Web.Controllers
                 model.adv = true;
             }
             //Prepare model
-            var isSearchTermSpecified = HttpContext?.Request?.Query.ContainsKey("q");
+            var isSearchTermSpecified = HttpContext.Request.Query.ContainsKey("q");
             var searchModel = await _mediator.Send(new GetSearch {
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
-                IsSearchTermSpecified = isSearchTermSpecified ?? false,
+                IsSearchTermSpecified = isSearchTermSpecified,
                 Language = _workContext.WorkingLanguage,
                 Model = model,
                 Store = _workContext.CurrentStore
