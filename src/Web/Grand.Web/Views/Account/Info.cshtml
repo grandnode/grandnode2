@@ -80,7 +80,7 @@
     <h2 class="generalTitle">@Loc["Account.CustomerInfo"]</h2>
     <validation-observer v-slot="{ handleSubmit }">
         <form asp-route="CustomerInfo" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <div asp-validation-summary="All" class="message-error"></div>
             <div class="card mb-3">
                 <h3 class="card-header">@Loc["Account.YourPersonalDetails"]</h3>
                 <div class="card-body">
@@ -121,7 +121,7 @@
                             else
                             {
                                 <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
-                                <input asp-for="FirstName" class="form-control" />
+                                <input asp-for="FirstName" class="form-control" data-val-length="The field FirstName must be a string with a maximum length of 200."/>
                             }
                         </fieldset>
                         <fieldset class="form-group col-sm-6 col-12">

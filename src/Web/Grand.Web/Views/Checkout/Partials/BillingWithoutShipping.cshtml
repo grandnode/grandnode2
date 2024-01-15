@@ -55,7 +55,7 @@
                 };
                 <partial name="Partials/CreateOrUpdateAddress" model="Model.BillingNewAddress" view-data="dataDictAddress" />
             }
-            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <div asp-validation-summary="All" class="message-error"></div>
             <template v-if="vmorder.billingAddressErrors !== null">
                 <div class="alert alert-danger">
                     <ul class="m-0 p-0">

@@ -33,7 +33,7 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_middle" })
     <div class="section new-billing-address" id="billing-new-address-form" v-if="vmorder.BillingNewAddressPreselected">
         <div class="enter-address">
-            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <div asp-validation-summary="All" class="message-error"></div>
             @{
                 var dataDictAddress = new ViewDataDictionary(ViewData)
                 {

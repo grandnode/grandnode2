@@ -21,7 +21,7 @@
     {
         <validation-observer v-slot="{ handleSubmit }">
             <form asp-route="ApplyVendorAccount" method="post" enctype="multipart/form-data" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-                <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                <div asp-validation-summary="All" class="message-error"></div>
                 <div class="form-fields">
                     <div class="form-group">
                         <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
@@ -53,7 +53,7 @@
                             <captcha />
                         </div>
                     }
-                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div asp-validation-summary="All" class="message-error"></div>
                     @{
                         var dataDictAddress = new ViewDataDictionary(ViewData)
                         {
