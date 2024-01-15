@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Infrastructure.Validators
 {
-    public class FluentValidationFilter : IAsyncActionFilter
+    public class ValidationFilter : IAsyncActionFilter
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace Grand.Infrastructure.Validators
 
         #region Ctor
 
-        public FluentValidationFilter(IServiceProvider serviceProvider)
+        public ValidationFilter(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -38,7 +38,7 @@ namespace Grand.Infrastructure.Validators
                 await next();
                 return;
             }
-            
+
             foreach (var argument in context.ActionArguments.Where(x => !CommonHelper.IsSimpleType(x.Value?.GetType())))
             {
                 Type targetType = argument.Value!.GetType();
@@ -51,6 +51,7 @@ namespace Grand.Infrastructure.Validators
                     {
                         continue;
                     }
+
                     var contextValidator = new ValidationContext<object>(argument.Value);
                     var result = await validator.ValidateAsync(contextValidator);
                     if (result.IsValid) continue;
@@ -59,17 +60,18 @@ namespace Grand.Infrastructure.Validators
                         context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                     }
                 }
+            }
 
-                var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
-                if (!hasJsonData) continue;
-                if (context.ModelState.IsValid) continue;
+            var hasJsonData = context.HttpContext.Request.ContentType?.Contains("application/json") ?? false;
+            if (hasJsonData && !context.ModelState.IsValid)
+            {
                 context.Result = new BadRequestObjectResult(context.ModelState);
                 return;
-                
             }
 
             await next();
         }
+
         #endregion
     }
 }

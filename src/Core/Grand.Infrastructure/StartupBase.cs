@@ -229,11 +229,10 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            
-            services.AddTransient<FluentValidationFilter>();
+            services.AddTransient<ValidationFilter>();
             var mvcCoreBuilder = services.AddMvcCore(options =>
             {
-                options.Filters.AddService<FluentValidationFilter>();
+                options.Filters.AddService<ValidationFilter>();
                 var frontConfig = new FrontendAPIConfig();
                 configuration.GetSection("FrontendAPI").Bind(frontConfig);
                 if (frontConfig.JsonContentType)
