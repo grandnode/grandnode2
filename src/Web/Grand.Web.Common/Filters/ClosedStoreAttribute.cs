@@ -72,12 +72,6 @@ namespace Grand.Web.Common.Filters
             /// <param name="next">Action execution delegate</param>
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-
-                if (context?.HttpContext?.Request == null)
-                {
-                    await next();
-                    return;
-                }
                 //check whether this filter has been overridden for the Action
                 var actionFilter = context.ActionDescriptor.FilterDescriptors
                     .Where(f => f.Scope == FilterScope.Action)
