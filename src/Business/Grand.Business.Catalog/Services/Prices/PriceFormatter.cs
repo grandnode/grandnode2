@@ -38,7 +38,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (targetCurrency == null)
                 return amount.ToString("C");
 
-            var result = "";
+            string result;
             if (!string.IsNullOrEmpty(targetCurrency.CustomFormatting))
             {
                 var cultureInfo = !string.IsNullOrEmpty(targetCurrency.DisplayLocale)
