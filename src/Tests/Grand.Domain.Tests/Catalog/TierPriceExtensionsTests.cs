@@ -11,21 +11,21 @@ namespace Grand.Domain.Tests.Catalog
         public TierPriceExtensionsTests()
         {
             _tierPrices = new List<TierPrice>();
-            _tierPrices.Add(new TierPrice() {
+            _tierPrices.Add(new TierPrice {
                 CurrencyCode = "USD",
                 CustomerGroupId = null,
                 Price = 10,
                 Quantity = 1,
                 StoreId = "1"
             });
-            _tierPrices.Add(new TierPrice() {
+            _tierPrices.Add(new TierPrice {
                 CurrencyCode = "USD",
                 CustomerGroupId = "1",
                 Price = 12,
                 Quantity = 1,
                 StoreId = "1"
             });
-            _tierPrices.Add(new TierPrice() {
+            _tierPrices.Add(new TierPrice {
                 CurrencyCode = "USD",
                 CustomerGroupId = "2",
                 Price = 10,
@@ -33,7 +33,7 @@ namespace Grand.Domain.Tests.Catalog
                 StoreId = "2",
                 EndDateTimeUtc = DateTime.UtcNow.AddDays(1)
             });
-            _tierPrices.Add(new TierPrice() {
+            _tierPrices.Add(new TierPrice {
                 CurrencyCode = "EUR",
                 CustomerGroupId = "3",
                 Price = 10,

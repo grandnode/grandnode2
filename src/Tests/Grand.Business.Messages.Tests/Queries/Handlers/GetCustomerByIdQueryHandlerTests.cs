@@ -14,7 +14,7 @@ namespace Grand.Business.Messages.Tests.Queries.Handlers
         public void Init()
         {
             var _repository = new MongoDBRepositoryTest<Customer>();
-            _repository.Insert(new Customer() { Id = "1" });
+            _repository.Insert(new Customer { Id = "1" });
             _repository.Insert(new Customer());
             _repository.Insert(new Customer());
             _repository.Insert(new Customer());

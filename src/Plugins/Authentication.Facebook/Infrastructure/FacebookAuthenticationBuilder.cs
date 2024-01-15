@@ -30,7 +30,7 @@ namespace Authentication.Facebook.Infrastructure
                 options.AppSecret = !string.IsNullOrWhiteSpace(appSecret) ? appSecret : "000";
                 options.SaveTokens = true;
                 //handles exception thrown by external auth provider
-                options.Events = new OAuthEvents() {
+                options.Events = new OAuthEvents {
                     OnRemoteFailure = ctx =>
                     {
                         ctx.HandleResponse();

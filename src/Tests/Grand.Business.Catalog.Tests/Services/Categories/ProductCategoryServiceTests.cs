@@ -30,10 +30,10 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
 
             _repository = new MongoDBRepositoryTest<Product>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _productCategoryService = new ProductCategoryService(_repository, _cacheBase, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
         }
 
@@ -43,12 +43,12 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
         {
             //Arrange
             var p1 = new Product();
-            p1.ProductCategories.Add(new ProductCategory() { CategoryId = "1" });
-            p1.ProductCategories.Add(new ProductCategory() { CategoryId = "2" });
+            p1.ProductCategories.Add(new ProductCategory { CategoryId = "1" });
+            p1.ProductCategories.Add(new ProductCategory { CategoryId = "2" });
             await _repository.InsertAsync(p1);
             var p2 = new Product();
-            p2.ProductCategories.Add(new ProductCategory() { CategoryId = "2" });
-            p2.ProductCategories.Add(new ProductCategory() { CategoryId = "3" });
+            p2.ProductCategories.Add(new ProductCategory { CategoryId = "2" });
+            p2.ProductCategories.Add(new ProductCategory { CategoryId = "3" });
             await _repository.InsertAsync(p2);
 
             //Act
@@ -70,8 +70,8 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             await _repository.InsertAsync(p2);
 
             //Act
-            await _productCategoryService.InsertProductCategory(new ProductCategory() { CategoryId = "1", DisplayOrder = 10 }, p1.Id);
-            await _productCategoryService.InsertProductCategory(new ProductCategory() { CategoryId = "2" }, p1.Id);
+            await _productCategoryService.InsertProductCategory(new ProductCategory { CategoryId = "1", DisplayOrder = 10 }, p1.Id);
+            await _productCategoryService.InsertProductCategory(new ProductCategory { CategoryId = "2" }, p1.Id);
 
             var pc1 = await _productCategoryService.GetProductCategoriesByCategoryId("1");
 
@@ -90,9 +90,9 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             await _repository.InsertAsync(p2);
 
             //Act
-            var pc = new ProductCategory() { CategoryId = "1", DisplayOrder = 10 };
+            var pc = new ProductCategory { CategoryId = "1", DisplayOrder = 10 };
             await _productCategoryService.InsertProductCategory(pc, p1.Id);
-            await _productCategoryService.InsertProductCategory(new ProductCategory() { CategoryId = "2" }, p1.Id);
+            await _productCategoryService.InsertProductCategory(new ProductCategory { CategoryId = "2" }, p1.Id);
 
             pc.CategoryId = "10";
             pc.DisplayOrder = 5;
@@ -115,9 +115,9 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             await _repository.InsertAsync(p2);
 
             //Act
-            var pc = new ProductCategory() { CategoryId = "1", DisplayOrder = 10 };
+            var pc = new ProductCategory { CategoryId = "1", DisplayOrder = 10 };
             await _productCategoryService.InsertProductCategory(pc, p1.Id);
-            await _productCategoryService.InsertProductCategory(new ProductCategory() { CategoryId = "2" }, p1.Id);
+            await _productCategoryService.InsertProductCategory(new ProductCategory { CategoryId = "2" }, p1.Id);
 
             await _productCategoryService.DeleteProductCategory(pc, p1.Id);
 

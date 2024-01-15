@@ -11,9 +11,9 @@ namespace Grand.Domain.Tests.Common
         public UserFieldExtensionsTests()
         {
             entity = new Domain.Customers.Customer();
-            entity.UserFields.Add(new UserField() { Key = "FirstName", Value = "Sara", StoreId = "" });
-            entity.UserFields.Add(new UserField() { Key = "LastName", Value = "Name", StoreId = "" });
-            entity.UserFields.Add(new UserField() { Key = "Registered", Value = "1", StoreId = "1" });
+            entity.UserFields.Add(new UserField { Key = "FirstName", Value = "Sara", StoreId = "" });
+            entity.UserFields.Add(new UserField { Key = "LastName", Value = "Name", StoreId = "" });
+            entity.UserFields.Add(new UserField { Key = "Registered", Value = "1", StoreId = "1" });
         }
 
         [TestMethod()]

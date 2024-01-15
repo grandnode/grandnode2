@@ -34,11 +34,11 @@ namespace Grand.Business.Cms.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             
             _aclService = new AclService(new AccessControlConfig());
 
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _pageService = new PageService(_repository, _workContextMock.Object, _aclService, _mediatorMock.Object, _cacheBase, new AccessControlConfig());
@@ -48,7 +48,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task GetPageByIdTest()
         {
             //Arrange
-            var page = new Page() { };
+            var page = new Page { };
             await _repository.InsertAsync(page);
             //Act
             var result = await _pageService.GetPageById(page.Id);
@@ -60,7 +60,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task GetPageBySystemNameTest()
         {
             //Arrange
-            var page = new Page() { SystemName = "test" };
+            var page = new Page { SystemName = "test" };
             await _repository.InsertAsync(page);
             //Act
             var result = await _pageService.GetPageBySystemName(page.SystemName);
@@ -72,7 +72,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task GetAllPagesTest()
         {
             //Arrange
-            var page = new Page() { SystemName = "test", Published = true };
+            var page = new Page { SystemName = "test", Published = true };
             await _repository.InsertAsync(page);
             //Act
             var result = await _pageService.GetAllPages("");
@@ -84,7 +84,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task InsertPageTest()
         {
             //Arrange
-            var page = new Page() { };
+            var page = new Page { };
             //Act
             await _pageService.InsertPage(page);
             //Assert
@@ -95,7 +95,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task UpdatePageTest()
         {
             //Arrange
-            var page = new Page() { };
+            var page = new Page { };
             await _pageService.InsertPage(page);
             //Act
             page.SystemName = "test";
@@ -108,7 +108,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task DeletePageTest()
         {
             //Arrange
-            var page = new Page() { };
+            var page = new Page { };
             await _pageService.InsertPage(page);
             //Act
             await _pageService.DeletePage(page);

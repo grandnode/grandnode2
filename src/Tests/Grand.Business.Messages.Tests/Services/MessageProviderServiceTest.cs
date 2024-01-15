@@ -56,7 +56,7 @@ namespace Grand.Business.Messages.Tests.Services
             _messageTokenProviderMock = new Mock<IMessageTokenProvider>();
 
             _storeServiceMock = new Mock<IStoreService>();
-            _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>())).Returns(Task.FromResult(new Store() { Url = "https://localhost:44350/" }));
+            _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>())).Returns(Task.FromResult(new Store { Url = "https://localhost:44350/" }));
             _storeServiceMock.Setup(x => x.GetAllStores()).Returns(Task.FromResult(new List<Store>() as IList<Store>));
 
             _storeHelperServiceMock = new Mock<IStoreHelper>();
@@ -100,7 +100,7 @@ namespace Grand.Business.Messages.Tests.Services
         [TestMethod()]
         public async Task SendNewVendorAccountApplyStoreOwnerNotificationRetunsCorrectResult()
         {
-            var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(), new Store() { Url = "https://localhost:44350/" }, "123");
+            var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(), new Store { Url = "https://localhost:44350/" }, "123");
             Assert.AreEqual(result, 1);
         }
 

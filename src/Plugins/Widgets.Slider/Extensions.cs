@@ -59,8 +59,7 @@ namespace Widgets.Slider
                     }
 
                     if (insert && prop.GetValue(item) != null)
-                        local.Add(new TranslationEntity()
-                        {
+                        local.Add(new TranslationEntity {
                             LanguageId = item.LanguageId,
                             LocaleKey = prop.Name,
                             LocaleValue = prop.GetValue(item)?.ToString()

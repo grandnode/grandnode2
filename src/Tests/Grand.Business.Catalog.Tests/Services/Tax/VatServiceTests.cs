@@ -13,7 +13,7 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         [TestInitialize()]
         public void Init()
         {
-            _taxSettings = new TaxSettings() { EuVatAssumeValid = true, EuVatUseWebService = false };
+            _taxSettings = new TaxSettings { EuVatAssumeValid = true, EuVatUseWebService = false };
             _vatService = new VatService(_taxSettings);
         }
 

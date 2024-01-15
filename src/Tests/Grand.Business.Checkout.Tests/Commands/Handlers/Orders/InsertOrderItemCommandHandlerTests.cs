@@ -40,7 +40,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new InsertOrderItemCommand() { Order = new Order() { OrderStatusId = (int)OrderStatusSystem.Pending }, OrderItem = new OrderItem() { Quantity = 1, OpenQty = 1, Status = OrderItemStatus.Open }, Product = new Product() };
+            var command = new InsertOrderItemCommand { Order = new Order { OrderStatusId = (int)OrderStatusSystem.Pending }, OrderItem = new OrderItem { Quantity = 1, OpenQty = 1, Status = OrderItemStatus.Open }, Product = new Product() };
             _giftVoucherServiceMock.Setup(c => c.GetGiftVouchersByPurchasedWithOrderItemId(It.IsAny<string>())).ReturnsAsync(new List<GiftVoucher>());
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);

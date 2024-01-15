@@ -29,11 +29,11 @@ namespace Grand.Business.Common.Tests.Services.Localization
             _repository = new MongoDBRepositoryTest<TranslationResource>();
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _workContextMock = new Mock<IWorkContext>();
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store());
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
-            _workContextMock.Setup(c => c.WorkingLanguage).Returns(() => new Language() { Id = "1" });
+            _workContextMock.Setup(c => c.WorkingLanguage).Returns(() => new Language { Id = "1" });
 
             _translationService = new TranslationService(_cacheBase, _workContextMock.Object, _repository, _mediatorMock.Object);
         }
@@ -56,7 +56,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task GetTranslateResourceByNameTest()
         {
             //Arrange
-            var translationResource = new TranslationResource() { Name = "name", LanguageId = "1" };
+            var translationResource = new TranslationResource { Name = "name", LanguageId = "1" };
             await _repository.InsertAsync(translationResource);
 
             //Act
@@ -70,9 +70,9 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task GetAllResourcesTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource() { LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource() { LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource() { LanguageId = "2" });
+            await _repository.InsertAsync(new TranslationResource { LanguageId = "1" });
+            await _repository.InsertAsync(new TranslationResource { LanguageId = "1" });
+            await _repository.InsertAsync(new TranslationResource { LanguageId = "2" });
 
             //Act
             var result = _translationService.GetAllResources("1");
@@ -85,7 +85,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task InsertTranslateResourceTest()
         {
             //Arrange
-            var translationResource = new TranslationResource() { Name = "name", LanguageId = "1" };
+            var translationResource = new TranslationResource { Name = "name", LanguageId = "1" };
 
             //Act
             await _translationService.InsertTranslateResource(translationResource);
@@ -98,7 +98,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task UpdateTranslateResourceTest()
         {
             //Arrange
-            var translationResource = new TranslationResource() { Name = "name", Value = "value", LanguageId = "1" };
+            var translationResource = new TranslationResource { Name = "name", Value = "value", LanguageId = "1" };
             await _translationService.InsertTranslateResource(translationResource);
 
             //Act
@@ -113,7 +113,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task DeleteTranslateResourceTest()
         {
             //Arrange
-            var translationResource = new TranslationResource() { Name = "name", Value = "value", LanguageId = "1" };
+            var translationResource = new TranslationResource { Name = "name", Value = "value", LanguageId = "1" };
             await _translationService.InsertTranslateResource(translationResource);
 
             //Act
@@ -127,9 +127,9 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task GetResourceTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource() { Name = "name1", Value = "value1", LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource() { Name = "name2", Value = "value2", LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource() { Name = "name3", Value = "value3", LanguageId = "2" });
+            await _repository.InsertAsync(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
+            await _repository.InsertAsync(new TranslationResource { Name = "name2", Value = "value2", LanguageId = "1" });
+            await _repository.InsertAsync(new TranslationResource { Name = "name3", Value = "value3", LanguageId = "2" });
 
             //Act
             var result = _translationService.GetResource("name1");
@@ -143,10 +143,10 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task ExportResourcesToXmlTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource() { Name = "name1", Value = "value1", LanguageId = "1" });
+            await _repository.InsertAsync(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
 
             //Act
-            var result = await _translationService.ExportResourcesToXml(new Language() { Id = "1", Name = "en"});
+            var result = await _translationService.ExportResourcesToXml(new Language { Id = "1", Name = "en"});
 
             //Assert
             Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name1\" Area=\"Common\"><Value>value1</Value></Resource></Language>", result);
@@ -156,7 +156,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task ImportResourcesFromXmlTest()
         {
             //Act
-            await _translationService.ImportResourcesFromXml(new Language() { Id = "1", Name = "en" }, "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name1\" Area=\"Common\"><Value>value1</Value></Resource></Language>");
+            await _translationService.ImportResourcesFromXml(new Language { Id = "1", Name = "en" }, "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name1\" Area=\"Common\"><Value>value1</Value></Resource></Language>");
 
             //Assert
             Assert.IsTrue(_repository.Table.Any());
@@ -166,7 +166,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task ImportResourcesFromXmlInstallTest()
         {
             //Act
-            await _translationService.ImportResourcesFromXmlInstall(new Language() { Id = "1", Name = "en" }, "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name1\" Area=\"Common\"><Value>value1</Value></Resource></Language>");
+            await _translationService.ImportResourcesFromXmlInstall(new Language { Id = "1", Name = "en" }, "<?xml version=\"1.0\" encoding=\"utf-16\"?><Language Name=\"en\"><Resource Name=\"name1\" Area=\"Common\"><Value>value1</Value></Resource></Language>");
 
             //Assert
             Assert.IsTrue(_repository.Table.Any());

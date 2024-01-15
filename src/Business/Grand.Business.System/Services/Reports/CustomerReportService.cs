@@ -110,7 +110,12 @@ namespace Grand.Business.System.Services.Reports
             
             var vendorQuery = from p in query
                 from item in p.OrderItems
-                select new { VendorId = item.VendorId, CustomerId = p.CustomerId, OrderCode = p.Code, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
+                select new {
+                    item.VendorId,
+                    p.CustomerId, OrderCode = p.Code,
+                    item.Quantity,
+                    item.PriceInclTax,
+                    p.Rate };
             
             vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
             
@@ -194,7 +199,9 @@ namespace Grand.Business.System.Services.Reports
             if (daydiff > 31)
             {
                 var query = builderquery.GroupBy(x => new
-                { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
+                {
+                    x.CreatedOnUtc.Year,
+                    x.CreatedOnUtc.Month })
                     .Select(g => new CustomerStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
@@ -202,7 +209,7 @@ namespace Grand.Business.System.Services.Reports
                     }).ToList();
                 foreach (var item in query)
                 {
-                    report.Add(new CustomerByTimeReportLine() {
+                    report.Add(new CustomerByTimeReportLine {
                         Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
                         Registered = item.Count
                     });
@@ -211,7 +218,7 @@ namespace Grand.Business.System.Services.Reports
             else
             {
                 var query = builderquery.GroupBy(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
+                    new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month, x.CreatedOnUtc.Day })
                     .Select(g => new CustomerStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
@@ -220,7 +227,7 @@ namespace Grand.Business.System.Services.Reports
                     }).ToList();
                 foreach (var item in query)
                 {
-                    report.Add(new CustomerByTimeReportLine() {
+                    report.Add(new CustomerByTimeReportLine {
                         Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         Registered = item.Count
                     });

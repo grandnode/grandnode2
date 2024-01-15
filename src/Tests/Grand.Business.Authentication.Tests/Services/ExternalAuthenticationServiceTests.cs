@@ -40,8 +40,9 @@ namespace Grand.Business.Authentication.Tests.Services
             _externalAuthenticationProviders = new List<IExternalAuthenticationProvider> { new ExternalAuthenticationProviderTest() };
 
             var externalAuthenticationSetting = new ExternalAuthenticationSettings();
-            externalAuthenticationSetting.ActiveAuthenticationMethodSystemNames = new List<string>();
-            externalAuthenticationSetting.ActiveAuthenticationMethodSystemNames.Add("ExternalAuthenticationProviderTest");
+            externalAuthenticationSetting.ActiveAuthenticationMethodSystemNames = [
+                "ExternalAuthenticationProviderTest"
+            ];
 
             _externalAuthenticationService = new ExternalAuthenticationService(_authenticationServiceMock.Object, _customerManagerServiceMock.Object, _customerServiceMock.Object,
                 _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository, _workContextMock.Object, _externalAuthenticationProviders,
@@ -97,7 +98,7 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task AssociateCustomerTest()
         {
             //Act
-            await _externalAuthenticationService.AssociateCustomer(new Customer(), new Core.Utilities.Authentication.ExternalAuthParam() { ProviderSystemName = "ExternalAuthenticationProviderTest" });
+            await _externalAuthenticationService.AssociateCustomer(new Customer(), new Core.Utilities.Authentication.ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest" });
             //Assert
             Assert.IsTrue(_externalAuthenticationRecordRepository.Table.Any());
         }
@@ -106,11 +107,11 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task GetCustomerTest()
         {
             //Arrange
-            var expectedCustomer = new Customer() { Username = "John", Active = true };
+            var expectedCustomer = new Customer { Username = "John", Active = true };
             _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(() => Task.FromResult(expectedCustomer));
-            await _externalAuthenticationService.AssociateCustomer(expectedCustomer, new Core.Utilities.Authentication.ExternalAuthParam() { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
+            await _externalAuthenticationService.AssociateCustomer(expectedCustomer, new Core.Utilities.Authentication.ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
             //Act
-            var customer = await _externalAuthenticationService.GetCustomer(new Core.Utilities.Authentication.ExternalAuthParam() { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
+            var customer = await _externalAuthenticationService.GetCustomer(new Core.Utilities.Authentication.ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
             //Assert
             Assert.IsNotNull(customer);
             Assert.AreEqual(customer.Username, expectedCustomer.Username);
@@ -120,8 +121,8 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task GetExternalIdentifiersTest()
         {
             //Arrange
-            var customer = new Customer() { Username = "John", Active = true };
-            await _externalAuthenticationService.AssociateCustomer(customer, new Core.Utilities.Authentication.ExternalAuthParam() { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
+            var customer = new Customer { Username = "John", Active = true };
+            await _externalAuthenticationService.AssociateCustomer(customer, new Core.Utilities.Authentication.ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
             //Act
             var result = await _externalAuthenticationService.GetExternalIdentifiers(customer);
             //Assert
@@ -132,8 +133,8 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task DeleteExternalAuthenticationTest()
         {
             //Arrange
-            var customer = new Customer() { Username = "John", Active = true };
-            var externalAuthParam = new Core.Utilities.Authentication.ExternalAuthParam() { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
+            var customer = new Customer { Username = "John", Active = true };
+            var externalAuthParam = new Core.Utilities.Authentication.ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" };
             await _externalAuthenticationService.AssociateCustomer(customer, externalAuthParam);
             //Act
             await _externalAuthenticationService.DeleteExternalAuthentication(_externalAuthenticationRecordRepository.Table.FirstOrDefault(x=>x.ExternalIdentifier == externalAuthParam.Identifier));

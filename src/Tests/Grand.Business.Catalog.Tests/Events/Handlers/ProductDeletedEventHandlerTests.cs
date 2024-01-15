@@ -46,12 +46,12 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             //Arrange
             var product = new Product();
             product.RecommendedProduct.Add("1");
-            product.RelatedProducts.Add(new RelatedProduct() { ProductId2 = "1" });
+            product.RelatedProducts.Add(new RelatedProduct { ProductId2 = "1" });
             product.CrossSellProduct.Add("1");
-            product.SimilarProducts.Add(new SimilarProduct() { ProductId2 = "1" });
+            product.SimilarProducts.Add(new SimilarProduct { ProductId2 = "1" });
             await _repository.InsertAsync(product);
             //Act
-            await _handler.Handle(new Infrastructure.Events.EntityDeleted<Product>(new Product() { Id = "1" }), CancellationToken.None);
+            await _handler.Handle(new Infrastructure.Events.EntityDeleted<Product>(new Product { Id = "1" }), CancellationToken.None);
 
             //Assert
             var result = _repository.Table.FirstOrDefault(x => x.Id == product.Id);

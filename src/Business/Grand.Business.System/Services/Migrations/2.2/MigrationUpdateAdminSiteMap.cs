@@ -32,7 +32,7 @@ namespace Grand.Business.System.Services.Migrations._2._2
                 {
                     if (sitemapConfiguration.ChildNodes.FirstOrDefault(x => x.SystemName == "Admin menu") == null)
                     {
-                        sitemapConfiguration.ChildNodes.Add(new AdminSiteMap() {
+                        sitemapConfiguration.ChildNodes.Add(new AdminSiteMap {
                             SystemName = "Admin menu",
                             ResourceName = "Admin.Configuration.Menu",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },

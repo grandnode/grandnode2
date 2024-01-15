@@ -22,11 +22,12 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public void TestInitialize()
         {
             _paymentSettings = new PaymentSettings();
-            _paymentSettings.ActivePaymentProviderSystemNames = new List<string>();
-            _paymentSettings.ActivePaymentProviderSystemNames.Add("Payments.TestMethod");
+            _paymentSettings.ActivePaymentProviderSystemNames = [
+                "Payments.TestMethod"
+            ];
             _settingService = new Mock<ISettingService>();
             _paymentProviderMock = new Mock<IPaymentProvider>();
-            _paymentService = new PaymentService(_paymentSettings, new List<IPaymentProvider>() { _paymentProviderMock.Object }, _settingService.Object);
+            _paymentService = new PaymentService(_paymentSettings, new List<IPaymentProvider> { _paymentProviderMock.Object }, _settingService.Object);
         }
 
         [TestMethod()]
@@ -42,10 +43,10 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public void GetRestrictedCountryIds()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
-            var expectedResult = new List<string>() { "1", "2", "3", "4" };
+            var expectedResult = new List<string> { "1", "2", "3", "4" };
             var expectedKey = "PaymentMethodRestictions.systemName";
             _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
-                .Returns(() => new PaymentRestrictedSettings() { Ids = expectedResult });
+                .Returns(() => new PaymentRestrictedSettings { Ids = expectedResult });
 
             var result = _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
             Assert.IsTrue(expectedResult.SequenceEqual(result));
@@ -69,7 +70,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public async Task SaveRestictedCountryIds_InvokeSettingsService()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
-            var countryIds = new List<string>() { "1", "2", "3", "4" };
+            var countryIds = new List<string> { "1", "2", "3", "4" };
             var expectedKey = "PaymentMethodRestictions.systemName";
 
             await _paymentService.SaveRestrictedCountryIds(_paymentProviderMock.Object, countryIds);
@@ -89,7 +90,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public async Task ProcessPayment_InvokeProcessPaymentFromPaymentMethod()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
-            var request = new PaymentTransaction() { PaymentMethodSystemName = "systemName", TransactionAmount = 500 };
+            var request = new PaymentTransaction { PaymentMethodSystemName = "systemName", TransactionAmount = 500 };
 
 
             await _paymentService.ProcessPayment(request);
@@ -100,7 +101,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public void ProcessPayment_NotFoundPaymentMethod_ThrowException()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName2");
-            var request = new PaymentTransaction() { PaymentMethodSystemName = "systemName", TransactionAmount = 500 };
+            var request = new PaymentTransaction { PaymentMethodSystemName = "systemName", TransactionAmount = 500 };
             Assert.ThrowsExceptionAsync<GrandException>(async () => await _paymentService.ProcessPayment(request));
         }
 
@@ -108,7 +109,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public async Task PostProcessPayment_InvokePostProccessFromPaymentMethod()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
-            var request = new PaymentTransaction() { PaymentMethodSystemName = "systemName", TransactionAmount = 500, TransactionStatus = TransactionStatus.Authorized };
+            var request = new PaymentTransaction { PaymentMethodSystemName = "systemName", TransactionAmount = 500, TransactionStatus = TransactionStatus.Authorized };
             await _paymentService.PostProcessPayment(request);
             _paymentProviderMock.Verify(m => m.PostProcessPayment(request), Times.Once);
         }
@@ -117,7 +118,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public void PostProcessPayment_NotFoundPaymentMethod_ThrowException()
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
-            var request = new PaymentTransaction() { PaymentMethodSystemName = "systemName2", TransactionAmount = 500, TransactionStatus = TransactionStatus.Authorized };
+            var request = new PaymentTransaction { PaymentMethodSystemName = "systemName2", TransactionAmount = 500, TransactionStatus = TransactionStatus.Authorized };
             Assert.ThrowsExceptionAsync<GrandException>(async () => await _paymentService.PostProcessPayment(request), "Payment method couldn't be loaded");
         }
 
@@ -126,7 +127,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
             _paymentProviderMock.Setup(c => c.CanRePostRedirectPayment(It.IsAny<PaymentTransaction>())).ReturnsAsync(true);
-            var request = new PaymentTransaction() { PaymentMethodSystemName = "systemName" };
+            var request = new PaymentTransaction { PaymentMethodSystemName = "systemName" };
             _paymentSettings.AllowRePostingPayments = false;
             Assert.IsFalse(await _paymentService.CanRePostRedirectPayment(request));
             _paymentSettings.AllowRePostingPayments = true;
@@ -146,8 +147,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
             _paymentProviderMock.Setup(c => c.GetAdditionalHandlingFee(It.IsAny<IList<ShoppingCartItem>>())).ReturnsAsync(100);
-            var cart = new List<ShoppingCartItem>()
-            {
+            var cart = new List<ShoppingCartItem> {
                 new ShoppingCartItem(),
                 new ShoppingCartItem()
             };
@@ -159,8 +159,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
             _paymentProviderMock.Setup(c => c.GetAdditionalHandlingFee(It.IsAny<IList<ShoppingCartItem>>())).ReturnsAsync(100);
-            var cart = new List<ShoppingCartItem>()
-            {
+            var cart = new List<ShoppingCartItem> {
                 new ShoppingCartItem(),
                 new ShoppingCartItem()
             };

@@ -62,12 +62,11 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         // Will soon need to be shared with the default editor templates implementations.
         internal static List<SelectListItem> TriStateValues(bool? value)
         {
-            return new List<SelectListItem>
-            {
+            return [
                 new SelectListItem("Not Set", string.Empty, !value.HasValue),
                 new SelectListItem("True", "true", value == true),
                 new SelectListItem("False", "false", value == false)
-            };
+            ];
         }
 
         public static async Task<IHtmlContent> CollectionTemplate(IHtmlHelper htmlHelper)

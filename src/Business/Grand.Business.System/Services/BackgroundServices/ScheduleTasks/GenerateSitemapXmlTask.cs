@@ -43,8 +43,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 var storeLanguages = await _languageService.GetAllLanguages(storeId: store.Id);
                 foreach (var lang in storeLanguages)
                 {
-                    var siteMap = await _mediator.Send(new GetSitemapXmlCommand()
-                    {
+                    var siteMap = await _mediator.Send(new GetSitemapXmlCommand {
                         Language = lang,
                         Store = store
                     });

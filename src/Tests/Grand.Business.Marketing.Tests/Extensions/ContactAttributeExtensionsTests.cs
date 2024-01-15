@@ -11,11 +11,11 @@ namespace Grand.Business.Marketing.Tests.Extensions
         [TestMethod()]
         public void ShouldHaveValues_ReturnExpentedResult()
         {
-            var ca = new ContactAttribute() { AttributeControlType = AttributeControlType.TextBox };
-            var ca2 = new ContactAttribute() { AttributeControlType = AttributeControlType.MultilineTextbox };
-            var ca3 = new ContactAttribute() { AttributeControlType = AttributeControlType.Datepicker };
-            var ca4 = new ContactAttribute() { AttributeControlType = AttributeControlType.FileUpload };
-            var ca5 = new ContactAttribute() { AttributeControlType = AttributeControlType.DropdownList };
+            var ca = new ContactAttribute { AttributeControlType = AttributeControlType.TextBox };
+            var ca2 = new ContactAttribute { AttributeControlType = AttributeControlType.MultilineTextbox };
+            var ca3 = new ContactAttribute { AttributeControlType = AttributeControlType.Datepicker };
+            var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
+            var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
             ContactAttribute ca6 = null;
             Assert.AreEqual(false, ca.ShouldHaveValues());
             Assert.AreEqual(false, ca6.ShouldHaveValues());
@@ -28,11 +28,11 @@ namespace Grand.Business.Marketing.Tests.Extensions
         [TestMethod()]
         public void CanBeUsedAsCondition_ReturnExpentedResult()
         {
-            var ca = new ContactAttribute() { AttributeControlType = AttributeControlType.TextBox };
-            var ca2 = new ContactAttribute() { AttributeControlType = AttributeControlType.MultilineTextbox };
-            var ca3 = new ContactAttribute() { AttributeControlType = AttributeControlType.Datepicker };
-            var ca4 = new ContactAttribute() { AttributeControlType = AttributeControlType.FileUpload };
-            var ca5 = new ContactAttribute() { AttributeControlType = AttributeControlType.DropdownList };
+            var ca = new ContactAttribute { AttributeControlType = AttributeControlType.TextBox };
+            var ca2 = new ContactAttribute { AttributeControlType = AttributeControlType.MultilineTextbox };
+            var ca3 = new ContactAttribute { AttributeControlType = AttributeControlType.Datepicker };
+            var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
+            var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
             ContactAttribute ca6 = null;
             Assert.AreEqual(false, ca.CanBeUsedAsCondition());
             Assert.AreEqual(false, ca6.CanBeUsedAsCondition());

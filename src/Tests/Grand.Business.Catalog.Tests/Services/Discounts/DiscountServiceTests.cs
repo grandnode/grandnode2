@@ -44,10 +44,10 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             _discountUsageHistoryRepository = new MongoDBRepositoryTest<DiscountUsageHistory>();
             _workContextMock = new Mock<IWorkContext>();
             _translationServiceMock = new Mock<ITranslationService>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
             _discountProviders = new List<IDiscountProvider> { new DiscountProviderTest() };
             _discountAmountProviders = new List<IDiscountAmountProvider> { new DiscountAmountProviderTests() };
@@ -60,7 +60,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountByIdTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test"
             };
             await _dicountService.InsertDiscount(discount);
@@ -77,13 +77,13 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetAllDiscountsTest()
         {
             //Arrange
-            var discount1 = new Discount() {
+            var discount1 = new Discount {
                 Name = "test1",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount1);
             
-            var discount2 = new Discount() {
+            var discount2 = new Discount {
                 Name = "test2",
                 IsEnabled = true
             };
@@ -102,7 +102,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task InsertDiscountTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test"
             };
             //Act
@@ -118,7 +118,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task UpdateDiscountTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test"
             };
             await _dicountService.InsertDiscount(discount);
@@ -136,7 +136,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task DeleteDiscountTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test"
             };
             await _dicountService.InsertDiscount(discount);
@@ -178,13 +178,13 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountByCouponCodeTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
@@ -202,13 +202,13 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ExistsCodeInDiscountTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
@@ -225,23 +225,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetAllCouponCodesByDiscountIdTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
-            var discountCoupon1 = new DiscountCoupon() {
+            var discountCoupon1 = new DiscountCoupon {
                 CouponCode = "TEST124",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon1);
-            var discountCoupon2 = new DiscountCoupon() {
+            var discountCoupon2 = new DiscountCoupon {
                 CouponCode = "TEST125",
                 DiscountId = "id"
             };
@@ -256,23 +256,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountCodeByIdTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
-            var discountCoupon1 = new DiscountCoupon() {
+            var discountCoupon1 = new DiscountCoupon {
                 CouponCode = "TEST124",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon1);
-            var discountCoupon2 = new DiscountCoupon() {
+            var discountCoupon2 = new DiscountCoupon {
                 CouponCode = "TEST125",
                 DiscountId = "id"
             };
@@ -288,23 +288,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountCodeByCodeTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
-            var discountCoupon1 = new DiscountCoupon() {
+            var discountCoupon1 = new DiscountCoupon {
                 CouponCode = "TEST124",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon1);
-            var discountCoupon2 = new DiscountCoupon() {
+            var discountCoupon2 = new DiscountCoupon {
                 CouponCode = "TEST125",
                 DiscountId = "id"
             };
@@ -320,23 +320,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task DeleteDiscountCouponTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
-            var discountCoupon1 = new DiscountCoupon() {
+            var discountCoupon1 = new DiscountCoupon {
                 CouponCode = "TEST124",
                 DiscountId = discount.Id
             };
             await _discountCouponRepository.InsertAsync(discountCoupon1);
-            var discountCoupon2 = new DiscountCoupon() {
+            var discountCoupon2 = new DiscountCoupon {
                 CouponCode = "TEST125",
                 DiscountId = "id"
             };
@@ -352,13 +352,13 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task InsertDiscountCouponTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
@@ -373,13 +373,13 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task DiscountCouponSetAsUsedTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
 
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id
             };
@@ -397,19 +397,19 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task CancelDiscountTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() { 
+            var discountUsageHistory = new DiscountUsageHistory { 
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -428,22 +428,22 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ValidateDiscountTest_Valid_CouponCodesToValidate()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true,
                 CurrencyCode = "USD"
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
             var customer = new Customer();
-            customer.UserFields.Add(new Domain.Common.UserField() { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST123", StoreId = "" });
+            customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST123", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency() { CurrencyCode = "USD" });
+            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsTrue(result.IsValid);
         }
@@ -451,23 +451,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ValidateDiscountTest_InValid_CouponCodesToValidate()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true,
                 CurrencyCode = "USD",
                 RequiresCouponCode = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
             var customer = new Customer();
-            customer.UserFields.Add(new Domain.Common.UserField() { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
+            customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency() { CurrencyCode = "USD" });
+            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -475,22 +475,22 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ValidateDiscountTest_InValid_CurrencyCode()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true,
                 CurrencyCode = "EUR"
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
             var customer = new Customer();
-            customer.UserFields.Add(new Domain.Common.UserField() { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
+            customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency() { CurrencyCode = "USD" });
+            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -499,23 +499,23 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ValidateDiscountTest_InValid_EndDateUtc()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true,
                 CurrencyCode = "USD",
                 EndDateUtc = DateTime.UtcNow.AddDays(-1)
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
             var customer = new Customer();
-            customer.UserFields.Add(new Domain.Common.UserField() { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
+            customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency() { CurrencyCode = "USD" });
+            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -523,22 +523,22 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task ValidateDiscountTest_InValid_Disable()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = false,
                 CurrencyCode = "USD"
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
             var customer = new Customer();
-            customer.UserFields.Add(new Domain.Common.UserField() { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
+            customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency() { CurrencyCode = "USD" });
+            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -546,19 +546,19 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountUsageHistoryByIdTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() {
+            var discountUsageHistory = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -577,25 +577,25 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetAllDiscountUsageHistoryTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() {
+            var discountUsageHistory = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
             };
             await _discountUsageHistoryRepository.InsertAsync(discountUsageHistory);
-            var discountUsageHistory2 = new DiscountUsageHistory() {
+            var discountUsageHistory2 = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "124",
                 CouponCode = "TEST123"
@@ -613,19 +613,19 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task InsertDiscountUsageHistoryTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() {
+            var discountUsageHistory = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -644,19 +644,19 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task UpdateDiscountUsageHistoryTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() {
+            var discountUsageHistory = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -677,19 +677,19 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task DeleteDiscountUsageHistoryTest()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 IsEnabled = true
             };
             await _dicountService.InsertDiscount(discount);
-            var discountCoupon = new DiscountCoupon() {
+            var discountCoupon = new DiscountCoupon {
                 CouponCode = "TEST123",
                 DiscountId = discount.Id,
                 Used = true
             };
             await _discountCouponRepository.InsertAsync(discountCoupon);
 
-            var discountUsageHistory = new DiscountUsageHistory() {
+            var discountUsageHistory = new DiscountUsageHistory {
                 DiscountId = discount.Id,
                 OrderId = "123",
                 CouponCode = "TEST123"
@@ -708,7 +708,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountAmountTest_global()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 DiscountAmount = 10,
                 CurrencyCode = "USD",
@@ -719,7 +719,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             //Act            
             var discountamount = await _dicountService.GetDiscountAmount(discount, 
                 new Customer(), 
-                new Domain.Directory.Currency() { CurrencyCode = "USD" },new Product(), 100);
+                new Domain.Directory.Currency { CurrencyCode = "USD" },new Product(), 100);
 
             //Assert
             Assert.AreEqual(discount.DiscountAmount, discountamount);
@@ -727,7 +727,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountAmountTest_AssignedToAllProducts()
         {
             //Arrange
-            var discount = new Discount() {
+            var discount = new Discount {
                 Name = "test",
                 DiscountAmount = 10,
                 CurrencyCode = "USD",
@@ -739,7 +739,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             //Act            
             var discountamount = await _dicountService.GetDiscountAmount(discount,
                 new Customer(),
-                new Domain.Directory.Currency() { CurrencyCode = "USD" }, new Product(), 100);
+                new Domain.Directory.Currency { CurrencyCode = "USD" }, new Product(), 100);
 
             //Assert
             Assert.AreEqual(discount.DiscountAmount, discountamount);
@@ -748,7 +748,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetPreferredDiscountTest()
         {
             //Arrange
-            var discount1 = new Discount() {
+            var discount1 = new Discount {
                 Name = "test",
                 DiscountAmount = 10,
                 CurrencyCode = "USD",
@@ -756,7 +756,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
                 DiscountTypeId = DiscountType.AssignedToAllProducts
             };
             await _dicountService.InsertDiscount(discount1);
-            var discount2 = new Discount() {
+            var discount2 = new Discount {
                 Name = "test",
                 DiscountAmount = 20,
                 CurrencyCode = "USD",
@@ -767,11 +767,11 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             //Act            
             var discountamount = await _dicountService.GetPreferredDiscount(
                 new List<ApplyDiscount> { 
-                    new ApplyDiscount() { DiscountId = discount1.Id, IsCumulative = false },
-                    new ApplyDiscount() { DiscountId = discount2.Id, IsCumulative = false }
+                    new ApplyDiscount { DiscountId = discount1.Id, IsCumulative = false },
+                    new ApplyDiscount { DiscountId = discount2.Id, IsCumulative = false }
                 },
                 new Customer(),
-                new Domain.Directory.Currency() { CurrencyCode = "USD" }, new Product(), 100);
+                new Domain.Directory.Currency { CurrencyCode = "USD" }, new Product(), 100);
 
             //Assert
             Assert.AreEqual(discount2.DiscountAmount, discountamount.discountAmount);
@@ -781,7 +781,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetPreferredDiscountTest_IsCumulative_True()
         {
             //Arrange
-            var discount1 = new Discount() {
+            var discount1 = new Discount {
                 Name = "test",
                 DiscountAmount = 10,
                 CurrencyCode = "USD",
@@ -789,7 +789,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
                 DiscountTypeId = DiscountType.AssignedToAllProducts
             };
             await _dicountService.InsertDiscount(discount1);
-            var discount2 = new Discount() {
+            var discount2 = new Discount {
                 Name = "test",
                 DiscountAmount = 20,
                 CurrencyCode = "USD",
@@ -800,11 +800,11 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             //Act            
             var discountamount = await _dicountService.GetPreferredDiscount(
                 new List<ApplyDiscount> {
-                    new ApplyDiscount() { DiscountId = discount1.Id, IsCumulative = true },
-                    new ApplyDiscount() { DiscountId = discount2.Id, IsCumulative = true }
+                    new ApplyDiscount { DiscountId = discount1.Id, IsCumulative = true },
+                    new ApplyDiscount { DiscountId = discount2.Id, IsCumulative = true }
                 },
                 new Customer(),
-                new Domain.Directory.Currency() { CurrencyCode = "USD" }, new Product(), 100);
+                new Domain.Directory.Currency { CurrencyCode = "USD" }, new Product(), 100);
 
             //Assert
             Assert.AreEqual(discount1.DiscountAmount + discount2.DiscountAmount, discountamount.discountAmount);
@@ -814,7 +814,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public async Task GetDiscountAmountProviderTest()
         {
             //Arrange
-            var discount1 = new Discount() {
+            var discount1 = new Discount {
                 Name = "test",
                 DiscountAmount = 10,
                 CurrencyCode = "USD",

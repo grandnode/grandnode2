@@ -44,11 +44,11 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new VoidCommand() { PaymentTransaction = new PaymentTransaction() };
+            var command = new VoidCommand { PaymentTransaction = new PaymentTransaction() };
             _mediatorMock.Setup(x => x.Send(It.IsAny<CanVoidQuery>(), default))
                 .Returns(Task.FromResult(true));
             _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));
-            _paymentServiceMock.Setup(x => x.Void(It.IsAny<PaymentTransaction>())).Returns(Task.FromResult(new VoidPaymentResult() { NewTransactionStatus = TransactionStatus.Voided }));
+            _paymentServiceMock.Setup(x => x.Void(It.IsAny<PaymentTransaction>())).Returns(Task.FromResult(new VoidPaymentResult { NewTransactionStatus = TransactionStatus.Voided }));
             _paymentTransactionMock.Setup(x => x.GetById(It.IsAny<string>())).Returns(Task.FromResult(new PaymentTransaction()));
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);

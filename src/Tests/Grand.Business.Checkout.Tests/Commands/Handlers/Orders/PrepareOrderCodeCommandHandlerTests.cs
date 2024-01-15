@@ -12,7 +12,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         [TestInitialize]
         public void Init()
         {
-            _handler = new PrepareOrderCodeCommandHandler(new Domain.Orders.OrderSettings() { LengthCode = LengthCode });
+            _handler = new PrepareOrderCodeCommandHandler(new Domain.Orders.OrderSettings { LengthCode = LengthCode });
         }
 
         [TestMethod()]

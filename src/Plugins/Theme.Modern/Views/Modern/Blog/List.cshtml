@@ -79,7 +79,7 @@
                             </b-link>
                         }
                         <h3 class="h5 title">
-                            <b-link href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
+                            <b-link href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                 @item.Title
                             </b-link>
                         </h3>
@@ -88,7 +88,7 @@
                         </div>
                     </template>                    
                     <div class="buttons mt-3">
-                        <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">@Loc["Blog.MoreInfo"]</a>
+                        <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("BlogPost", new { item.SeName })">@Loc["Blog.MoreInfo"]</a>
                     </div>
                 </b-card>
             </b-col>

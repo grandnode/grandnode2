@@ -11,14 +11,13 @@ namespace Grand.Business.Cms.Tests.Extensions
         [TestInitialize()]
         public void Init()
         {
-            _blogPosts = new List<BlogPost>()
-            {
-                new BlogPost(){StartDateUtc=DateTime.Now.AddDays(4),Id="5"},
-                new BlogPost(){StartDateUtc=DateTime.Now.AddDays(3),Id="4"},
-                new BlogPost(){StartDateUtc=DateTime.Now.AddDays(2),Id="3"},
-                new BlogPost(){StartDateUtc=DateTime.Now.AddDays(1),Id="2"},
-                new BlogPost(){StartDateUtc=DateTime.Now,Id="1"}
-            };
+            _blogPosts = [
+                new BlogPost { StartDateUtc = DateTime.Now.AddDays(4), Id = "5" },
+                new BlogPost { StartDateUtc = DateTime.Now.AddDays(3), Id = "4" },
+                new BlogPost { StartDateUtc = DateTime.Now.AddDays(2), Id = "3" },
+                new BlogPost { StartDateUtc = DateTime.Now.AddDays(1), Id = "2" },
+                new BlogPost { StartDateUtc = DateTime.Now, Id = "1" }
+            ];
         }
 
         [TestMethod()]

@@ -37,8 +37,8 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //Arrange
             //Act
-            await _customerHistoryPasswordService.InsertCustomerPassword(new Customer() {Id = "1" });
-            await _customerHistoryPasswordService.InsertCustomerPassword(new Customer() { Id = "1" });
+            await _customerHistoryPasswordService.InsertCustomerPassword(new Customer {Id = "1" });
+            await _customerHistoryPasswordService.InsertCustomerPassword(new Customer { Id = "1" });
 
             //Act
             var result = await _customerHistoryPasswordService.GetPasswords("1", 1);

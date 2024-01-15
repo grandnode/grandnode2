@@ -26,23 +26,23 @@ namespace Grand.Business.Customers.Tests.Services
             }
 
             _parser = new CustomerAttributeParser(_customerAtrServiceMock.Object);
-            customAtr = new List<CustomAttribute>()
-            {
-                new CustomAttribute(){Key="key1",Value="value1" },
-                new CustomAttribute(){Key="key2",Value="value2" },
-                new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" }
-            };
+            customAtr = [
+                new CustomAttribute { Key = "key1", Value = "value1" },
+                new CustomAttribute { Key = "key2", Value = "value2" },
+                new CustomAttribute { Key = "key3", Value = "value3" },
+                new CustomAttribute { Key = "key4", Value = "value4" }
+            ];
 
-            _customerAtr = new List<CustomerAttribute>()
-            {
-                new CustomerAttribute(){Id="key1", Name="name1", AttributeControlTypeId = Domain.Catalog.AttributeControlType.TextBox},
-                new CustomerAttribute(){Id="key2", Name="name2"},
-                new CustomerAttribute(){Id="key3", Name="name3"},
-                new CustomerAttribute(){Id="key4", Name="name4"},
-                new CustomerAttribute(){Id="key5", Name="name5"}
-            };
-            _customerAtr.ForEach(c => c.CustomerAttributeValues.Add(new CustomerAttributeValue() { Id = "value" + c.Id.Last() }));
+            _customerAtr = [
+                new CustomerAttribute {
+                    Id = "key1", Name = "name1", AttributeControlTypeId = Domain.Catalog.AttributeControlType.TextBox
+                },
+                new CustomerAttribute { Id = "key2", Name = "name2" },
+                new CustomerAttribute { Id = "key3", Name = "name3" },
+                new CustomerAttribute { Id = "key4", Name = "name4" },
+                new CustomerAttribute { Id = "key5", Name = "name5" }
+            ];
+            _customerAtr.ForEach(c => c.CustomerAttributeValues.Add(new CustomerAttributeValue { Id = "value" + c.Id.Last() }));
         }
 
         [TestMethod()]
@@ -85,7 +85,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //not exist
 
-            var result = _parser.AddCustomerAttribute(customAtr, new CustomerAttribute() { Id = "key7" }, "value7");
+            var result = _parser.AddCustomerAttribute(customAtr, new CustomerAttribute { Id = "key7" }, "value7");
             Assert.IsTrue(result.Count == 5);
             Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
         }
@@ -113,8 +113,8 @@ namespace Grand.Business.Customers.Tests.Services
             _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes()).Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
             _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) => Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
             var result = await _parser.FormatAttributes(new Domain.Localization.Language(),
-                new List<CustomAttribute>() {
-                    new CustomAttribute(){Key="key1",Value="value1" }
+                new List<CustomAttribute> {
+                    new CustomAttribute {Key="key1",Value="value1" }
                 });
             Assert.IsTrue(result == "name1: value1");
         }

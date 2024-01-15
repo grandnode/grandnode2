@@ -27,7 +27,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task DeleteContactUsTest()
         {
             //Arrange
-            var contactUs = new ContactUs() {
+            var contactUs = new ContactUs {
                 FullName = "test"
             };
             await _contactUsService.InsertContactUs(contactUs);
@@ -74,7 +74,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task GetContactUsByIdTest()
         {
             //Arrange
-            var contactUs = new ContactUs() {
+            var contactUs = new ContactUs {
                 FullName = "test"
             };
             await _contactUsService.InsertContactUs(contactUs);
@@ -91,7 +91,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task InsertContactUsTest()
         {
             //Act
-            var contactUs = new ContactUs() {
+            var contactUs = new ContactUs {
                 FullName = "test"
             };
             await _contactUsService.InsertContactUs(contactUs);

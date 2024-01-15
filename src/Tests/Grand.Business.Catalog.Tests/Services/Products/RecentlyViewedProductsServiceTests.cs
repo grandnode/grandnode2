@@ -27,9 +27,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repository = new MongoDBRepositoryTest<RecentlyViewedProduct>();
             _mediatorMock = new Mock<IMediator>();
             _productServiceMock = new Mock<IProductService>();
-            _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() => Task.FromResult((IList<Product>)new List<Product>() { new Product() { Id = "1", Published = true }, new Product() { Id = "2", Published = true }, new Product() { Id = "3", Published = true } }));
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
-            _service = new RecentlyViewedProductsService(_productServiceMock.Object, _cacheBase, new CatalogSettings() { RecentlyViewedProductsEnabled = true, RecentlyViewedProductsNumber = 10 }, _repository);
+            _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() => Task.FromResult((IList<Product>)new List<Product> { new Product { Id = "1", Published = true }, new Product { Id = "2", Published = true }, new Product { Id = "3", Published = true } }));
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
+            _service = new RecentlyViewedProductsService(_productServiceMock.Object, _cacheBase, new CatalogSettings { RecentlyViewedProductsEnabled = true, RecentlyViewedProductsNumber = 10 }, _repository);
         }
 
 

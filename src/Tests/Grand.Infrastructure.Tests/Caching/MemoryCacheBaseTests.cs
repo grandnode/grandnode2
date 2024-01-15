@@ -19,7 +19,7 @@ namespace Grand.Infrastructure.Tests.Caching
         [TestInitialize]
         public void Init()
         {
-            _config = new CacheConfig() { DefaultCacheTimeMinutes = 1 };
+            _config = new CacheConfig { DefaultCacheTimeMinutes = 1 };
             var services = new ServiceCollection();
             services.AddMemoryCache();
             services.AddSingleton<CacheConfig>(_config);

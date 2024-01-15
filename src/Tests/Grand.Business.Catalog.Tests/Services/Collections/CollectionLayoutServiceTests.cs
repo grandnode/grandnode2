@@ -25,7 +25,7 @@ namespace Grand.Business.Catalog.Tests.Services.Collections
             _repository = new MongoDBRepositoryTest<CollectionLayout>();
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _collectionLayoutService = new CollectionLayoutService(_repository, _cacheBase, _mediatorMock.Object);
         }
 
@@ -49,7 +49,7 @@ namespace Grand.Business.Catalog.Tests.Services.Collections
         public async Task GetCollectionLayoutByIdTest()
         {
             //Arrange
-            var collectionLayout = new CollectionLayout() {
+            var collectionLayout = new CollectionLayout {
                 Name = "test"
             };
             await _collectionLayoutService.InsertCollectionLayout(collectionLayout);
@@ -75,7 +75,7 @@ namespace Grand.Business.Catalog.Tests.Services.Collections
         public async Task UpdateCollectionLayoutTest()
         {
             //Arrange
-            var categoryLayout = new CollectionLayout() {
+            var categoryLayout = new CollectionLayout {
                 Name = "test"
             };
             await _collectionLayoutService.InsertCollectionLayout(categoryLayout);
@@ -93,11 +93,11 @@ namespace Grand.Business.Catalog.Tests.Services.Collections
         {
 
             //Arrange
-            var collectionLayout1 = new CollectionLayout() {
+            var collectionLayout1 = new CollectionLayout {
                 Name = "test1"
             };
             await _collectionLayoutService.InsertCollectionLayout(collectionLayout1);
-            var collectionLayout2 = new CollectionLayout() {
+            var collectionLayout2 = new CollectionLayout {
                 Name = "test2"
             };
             await _collectionLayoutService.InsertCollectionLayout(collectionLayout2);

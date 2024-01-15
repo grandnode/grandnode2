@@ -110,7 +110,12 @@ namespace Grand.Business.System.Services.Reports
 
             var vendorQuery = from p in query
                 from item in p.OrderItems
-                select new { VendorId = item.VendorId, OrderCode = p.Code, CountryId = p.BillingAddress.CountryId, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
+                select new {
+                    item.VendorId, OrderCode = p.Code,
+                    p.BillingAddress.CountryId,
+                    item.Quantity,
+                    item.PriceInclTax,
+                    p.Rate };
             
             vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
             
@@ -163,7 +168,7 @@ namespace Grand.Business.System.Services.Reports
             if (daydiff > 31)
             {
                 var query = builderquery.GroupBy(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
+                    new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month })
                     .Select(g => new OrderStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
@@ -173,7 +178,7 @@ namespace Grand.Business.System.Services.Reports
                
                 foreach (var item in query)
                 {
-                    report.Add(new OrderByTimeReportLine() {
+                    report.Add(new OrderByTimeReportLine {
                         Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
                         TotalOrders = item.Count
@@ -183,7 +188,7 @@ namespace Grand.Business.System.Services.Reports
             else
             {
                 var query = builderquery.GroupBy(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
+                    new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month, x.CreatedOnUtc.Day })
                     .Select(g => new OrderStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
@@ -194,7 +199,7 @@ namespace Grand.Business.System.Services.Reports
 
                 foreach (var item in query)
                 {
-                    report.Add(new OrderByTimeReportLine() {
+                    report.Add(new OrderByTimeReportLine {
                         Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
                         TotalOrders = item.Count
@@ -431,14 +436,19 @@ namespace Grand.Business.System.Services.Reports
 
             var query = from p in builderquery
                         from item in p.OrderItems
-                        select new {VendorId = item.VendorId, ProductId = item.ProductId, Quantity = item.Quantity, PriceInclTax = item.PriceInclTax, Rate = p.Rate };
+                        select new {
+                            item.VendorId,
+                            item.ProductId,
+                            item.Quantity,
+                            item.PriceInclTax,
+                            p.Rate };
 
             if (!string.IsNullOrEmpty(vendorId))
             {
                 query = query.Where(x => x.VendorId == vendorId);
             }
 
-            var queryItem = query.GroupBy(x => new { ProductId = x.ProductId }).Select(x => new BestsellersReportLine() {
+            var queryItem = query.GroupBy(x => new { x.ProductId }).Select(x => new BestsellersReportLine {
                 ProductId = x.Key.ProductId,
                 TotalAmount = x.Sum(y => y.PriceInclTax / y.Rate),
                 TotalQuantity = x.Sum(y => y.Quantity)
@@ -471,7 +481,7 @@ namespace Grand.Business.System.Services.Reports
                         && (string.IsNullOrEmpty(storeId) || o.StoreId == storeId)
                         && (string.IsNullOrEmpty(salesEmployeeId) || o.SeId == salesEmployeeId)
                         group o by 1 into g
-                        select new ReportPeriodOrder() { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
+                        select new ReportPeriodOrder { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
             var report = query.ToList()?.FirstOrDefault();
             if (report == null)
                 report = new ReportPeriodOrder();

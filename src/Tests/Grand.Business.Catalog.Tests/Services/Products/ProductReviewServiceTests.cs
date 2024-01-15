@@ -29,10 +29,10 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         {
             //Arrange
             
-            await _repository.InsertAsync(new ProductReview(){ CustomerId = "1" });
-            await _repository.InsertAsync(new ProductReview(){ CustomerId = "1"});
-            await _repository.InsertAsync(new ProductReview(){ });
-            await _repository.InsertAsync(new ProductReview(){ });
+            await _repository.InsertAsync(new ProductReview { CustomerId = "1" });
+            await _repository.InsertAsync(new ProductReview { CustomerId = "1"});
+            await _repository.InsertAsync(new ProductReview { });
+            await _repository.InsertAsync(new ProductReview { });
 
             //Act
             var result = await _productReviewService.GetAllProductReviews("1", null);
@@ -54,7 +54,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateProductReviewTest()
         {
             //Arrange
-            var productReview = new ProductReview() {
+            var productReview = new ProductReview {
                 ReviewText = "test"
             };
             await _productReviewService.InsertProductReview(productReview);
@@ -71,7 +71,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteProductReviewTest()
         {
             //Arrange
-            var productReview = new ProductReview() {
+            var productReview = new ProductReview {
                 ReviewText = "test"
             };
             await _productReviewService.InsertProductReview(productReview);
@@ -87,7 +87,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetProductReviewByIdTest()
         {
             //Arrange
-            var productReview = new ProductReview() {
+            var productReview = new ProductReview {
                 ReviewText = "test"
             };
             await _productReviewService.InsertProductReview(productReview);

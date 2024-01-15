@@ -30,7 +30,7 @@ namespace Authentication.Google.Infrastructure
                 options.SaveTokens = true;
 
                 //handles exception thrown by external auth provider
-                options.Events = new OAuthEvents() {
+                options.Events = new OAuthEvents {
                     OnRemoteFailure = ctx =>
                     {
                         ctx.HandleResponse();

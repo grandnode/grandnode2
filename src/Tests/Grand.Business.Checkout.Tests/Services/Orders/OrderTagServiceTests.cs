@@ -28,7 +28,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
 
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
             _service = new OrderTagService(_orderTagRepository, _orderRepository, _cacheBase, _mediatorMock.Object);
         }
@@ -52,7 +52,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetOrderTagByIdTest()
         {
             //Arrange
-            await _orderTagRepository.InsertAsync(new OrderTag() { Id = "1"});
+            await _orderTagRepository.InsertAsync(new OrderTag { Id = "1"});
             await _orderTagRepository.InsertAsync(new OrderTag());
             await _orderTagRepository.InsertAsync(new OrderTag());
 
@@ -67,7 +67,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetOrderTagByNameTest()
         {
             //Arrange
-            await _orderTagRepository.InsertAsync(new OrderTag() { Id = "1", Name = "test" });
+            await _orderTagRepository.InsertAsync(new OrderTag { Id = "1", Name = "test" });
             await _orderTagRepository.InsertAsync(new OrderTag());
             await _orderTagRepository.InsertAsync(new OrderTag());
 

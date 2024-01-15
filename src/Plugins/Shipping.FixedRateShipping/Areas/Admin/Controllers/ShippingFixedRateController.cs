@@ -65,8 +65,7 @@ namespace Shipping.FixedRateShipping.Areas.Admin.Controllers
                 return Content("Access denied");
 
             var shippingMethodId = model.ShippingMethodId;
-            var rate = new FixedShippingRate()
-            {
+            var rate = new FixedShippingRate {
                 Rate = model.Rate
             };
 

@@ -150,8 +150,7 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 if (latest.CustomerId != customer.Id)
                 {
-                    await _mediator.Send(new SendOutBidCustomerCommand()
-                    {
+                    await _mediator.Send(new SendOutBidCustomerCommand {
                         Product = product,
                         Bid = latest,
                         Language = language

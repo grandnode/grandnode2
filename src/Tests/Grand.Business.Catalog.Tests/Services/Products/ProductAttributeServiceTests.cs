@@ -29,7 +29,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repository = new MongoDBRepositoryTest<Product>();
             _repositoryproductAttribute = new MongoDBRepositoryTest<ProductAttribute>();
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
             _productAttributeService = new ProductAttributeService(_cacheBase, _repositoryproductAttribute, _repository, _mediatorMock.Object);
         }

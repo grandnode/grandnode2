@@ -24,7 +24,7 @@ namespace Grand.Business.Messages.Tests.Commands
         [TestMethod]
         public async Task Handler_InsertEntity()
         {
-            var command = new InsertContactUsCommand() {
+            var command = new InsertContactUsCommand {
                 ContactAttributeDescription = "d",
                 Email = "grand@gmail.com",
                 ContactAttributes = new List<CustomAttribute>()

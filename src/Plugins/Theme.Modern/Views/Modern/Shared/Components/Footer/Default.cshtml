@@ -107,7 +107,7 @@
                         @foreach (var topic in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
                         {
                             <li>
-                                <b-link href="@Url.RouteUrl("Page", new { SeName = topic.SeName })">@topic.Name</b-link>
+                                <b-link href="@Url.RouteUrl("Page", new { topic.SeName })">@topic.Name</b-link>
                             </li>
                         }
                         @if (Model.NewsEnabled)
@@ -174,7 +174,7 @@
                         }
                         @foreach (var topic in Model.Pages.Where(x => x.IncludeInFooterRow2).ToList())
                         {
-                            <b-link href="@Url.RouteUrl("Page", new { SeName = topic.SeName })" target="_blank">@topic.Name</b-link>
+                            <b-link href="@Url.RouteUrl("Page", new { topic.SeName })" target="_blank">@topic.Name</b-link>
                         }
                     </ul>
                 </b-col>

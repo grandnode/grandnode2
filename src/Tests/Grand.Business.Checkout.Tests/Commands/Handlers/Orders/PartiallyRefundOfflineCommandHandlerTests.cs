@@ -36,7 +36,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new PartiallyRefundOfflineCommand() { PaymentTransaction = new PaymentTransaction() };
+            var command = new PartiallyRefundOfflineCommand { PaymentTransaction = new PaymentTransaction() };
             _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundOfflineQuery>(), default))
                 .Returns(Task.FromResult(true));
             _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));

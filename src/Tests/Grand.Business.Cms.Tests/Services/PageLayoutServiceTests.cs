@@ -31,9 +31,9 @@ namespace Grand.Business.Cms.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _pageLayoutService = new PageLayoutService(_repository, _cacheBase, _mediatorMock.Object);
@@ -43,7 +43,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task GetAllPageLayoutsTest()
         {
             //Arrange
-            var pageLayout = new PageLayout() { };
+            var pageLayout = new PageLayout { };
             await _repository.InsertAsync(pageLayout);
             //Act
             var result = await _pageLayoutService.GetAllPageLayouts();
@@ -55,7 +55,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task GetPageLayoutByIdTest()
         {
             //Arrange
-            var pageLayout = new PageLayout() { };
+            var pageLayout = new PageLayout { };
             await _repository.InsertAsync(pageLayout);
             //Act
             var result = await _pageLayoutService.GetPageLayoutById(pageLayout.Id);
@@ -67,7 +67,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task InsertPageLayoutTest()
         {
             //Arrange
-            var pageLayout = new PageLayout() { };
+            var pageLayout = new PageLayout { };
             //Act
             await _pageLayoutService.InsertPageLayout(pageLayout);
             //Assert
@@ -78,7 +78,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task UpdatePageLayoutTest()
         {
             //Arrange
-            var pageLayout = new PageLayout() { };
+            var pageLayout = new PageLayout { };
             await _pageLayoutService.InsertPageLayout(pageLayout);
             //Act
             pageLayout.Name = "test";
@@ -91,7 +91,7 @@ namespace Grand.Business.Cms.Tests.Services
         public async Task DeletePageLayoutTest()
         {
             //Arrange
-            var pageLayout = new PageLayout() { };
+            var pageLayout = new PageLayout { };
             await _pageLayoutService.InsertPageLayout(pageLayout);
             //Act
             await _pageLayoutService.DeletePageLayout(pageLayout);

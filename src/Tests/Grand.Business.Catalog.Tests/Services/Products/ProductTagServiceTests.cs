@@ -29,7 +29,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repositoryProductTag = new MongoDBRepositoryTest<ProductTag>();
             _productRepository = new MongoDBRepositoryTest<Product>();
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _productTagService = new ProductTagService(_repositoryProductTag, _productRepository, _cacheBase, _mediatorMock.Object);
         }
 
@@ -54,7 +54,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         {
             //Arrange
             await _repositoryProductTag.InsertAsync(new ProductTag());
-            await _repositoryProductTag.InsertAsync(new ProductTag() { Id = "1", Name = "test" });
+            await _repositoryProductTag.InsertAsync(new ProductTag { Id = "1", Name = "test" });
             await _repositoryProductTag.InsertAsync(new ProductTag());
 
             //Act
@@ -70,7 +70,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         {
             //Arrange
             await _repositoryProductTag.InsertAsync(new ProductTag());
-            await _repositoryProductTag.InsertAsync(new ProductTag() { Id = "1", Name = "test" });
+            await _repositoryProductTag.InsertAsync(new ProductTag { Id = "1", Name = "test" });
             await _repositoryProductTag.InsertAsync(new ProductTag());
 
             //Act
@@ -86,7 +86,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         {
             //Arrange
             await _repositoryProductTag.InsertAsync(new ProductTag());
-            await _repositoryProductTag.InsertAsync(new ProductTag() { Id = "1", Name = "test", SeName = "test" });
+            await _repositoryProductTag.InsertAsync(new ProductTag { Id = "1", Name = "test", SeName = "test" });
             await _repositoryProductTag.InsertAsync(new ProductTag());
 
             //Act

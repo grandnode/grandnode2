@@ -52,11 +52,11 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
             _slugServiceMock = new Mock<ISlugService>();
             _languageServiceMock = new Mock<ILanguageService>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _categoryService = new CategoryService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
 
             _categoryImportDataObject = new CategoryImportDataObject(_categoryService, _pictureServiceMock.Object, _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new Domain.Seo.SeoSettings());
@@ -67,13 +67,13 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         {
             //Arrange
             var categorys = new List<CategoryDto>();
-            categorys.Add(new CategoryDto() { Name = "test1", Published = true });
-            categorys.Add(new CategoryDto() { Name = "test2", Published = true });
-            categorys.Add(new CategoryDto() { Name = "test3", Published = true });
+            categorys.Add(new CategoryDto { Name = "test1", Published = true });
+            categorys.Add(new CategoryDto { Name = "test2", Published = true });
+            categorys.Add(new CategoryDto { Name = "test3", Published = true });
             _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CategoryLayout()));
-            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout>() { new CategoryLayout() }));
+            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new CategoryLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _categoryImportDataObject.Execute(categorys);
 
@@ -86,29 +86,29 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Update()
         {
             //Arrange
-            var category1 = new Category() {
+            var category1 = new Category {
                 Name = "insert1"
             };
             await _categoryService.InsertCategory(category1);
-            var category2 = new Category() {
+            var category2 = new Category {
                 Name = "insert2"
             };
             await _categoryService.InsertCategory(category2);
-            var category3 = new Category() {
+            var category3 = new Category {
                 Name = "insert3"
             };
             await _categoryService.InsertCategory(category3);
 
 
             var categorys = new List<CategoryDto>();
-            categorys.Add(new CategoryDto() { Id = category1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
-            categorys.Add(new CategoryDto() { Id = category2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
-            categorys.Add(new CategoryDto() { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            categorys.Add(new CategoryDto { Id = category1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
+            categorys.Add(new CategoryDto { Id = category2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
+            categorys.Add(new CategoryDto { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CategoryLayout()));
-            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout>() { new CategoryLayout() }));
+            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new CategoryLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _categoryImportDataObject.Execute(categorys);
 
@@ -125,20 +125,20 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Insert_Update()
         {
             //Arrange
-            var category3 = new Category() {
+            var category3 = new Category {
                 Name = "insert3"
             };
             await _categoryService.InsertCategory(category3);
 
             var categorys = new List<CategoryDto>();
-            categorys.Add(new CategoryDto() { Name = "update1", Published = false, DisplayOrder = 1 });
-            categorys.Add(new CategoryDto() { Name = "update2", Published = false, DisplayOrder = 2 });
-            categorys.Add(new CategoryDto() { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            categorys.Add(new CategoryDto { Name = "update1", Published = false, DisplayOrder = 1 });
+            categorys.Add(new CategoryDto { Name = "update2", Published = false, DisplayOrder = 2 });
+            categorys.Add(new CategoryDto { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CategoryLayout()));
-            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout>() { new CategoryLayout() }));
+            _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts()).Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new CategoryLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _categoryImportDataObject.Execute(categorys);
 

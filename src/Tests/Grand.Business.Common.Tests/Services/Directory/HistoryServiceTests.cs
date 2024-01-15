@@ -30,7 +30,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         [TestMethod()]
         public async Task SaveObject_InvokeRepositoryWithCorrectObject()
         {
-            var product = new Product() { Id = "1" };
+            var product = new Product { Id = "1" };
             await _historyService.SaveObject<Product>(product);
             _mockHistoryRepository.Verify(c => c.InsertAsync(It.Is<HistoryObject>(h => h.Object.Id.Equals(product.Id))), Times.Once);
         }

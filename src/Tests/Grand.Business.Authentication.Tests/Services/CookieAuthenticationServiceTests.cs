@@ -45,7 +45,7 @@ namespace Grand.Business.Authentication.Tests.Services
             serviceProviderMock
                 .Setup(_ => _.GetService(typeof(IAuthenticationService)))
                 .Returns(_authServiceMock.Object);
-            _httpContext = new DefaultHttpContext() { RequestServices = serviceProviderMock.Object };
+            _httpContext = new DefaultHttpContext { RequestServices = serviceProviderMock.Object };
             _httpAccessorMock.Setup(c => c.HttpContext).Returns(_httpContext);
         }
 
@@ -88,7 +88,7 @@ namespace Grand.Business.Authentication.Tests.Services
         [TestMethod()]
         public async Task GetAuthenticatedCustomer_UsernameEnableRegisterd_ReturnCustomer()
         {
-            var expectedCustomer = new Customer() { Username = "John", Active = true };
+            var expectedCustomer = new Customer { Username = "John", Active = true };
 
             _customerSettings.UsernamesEnabled = true;
             var cliaim = new Claim(ClaimTypes.Name, "Johny", "", "grandnode");
@@ -109,7 +109,7 @@ namespace Grand.Business.Authentication.Tests.Services
         [TestMethod()]
         public async Task GetAuthenticatedCustomer_UsernameEnableGuests_ReturnNull()
         {
-            var expectedCustomer = new Customer() { Username = "John", Active = true };
+            var expectedCustomer = new Customer { Username = "John", Active = true };
             _customerSettings.UsernamesEnabled = true;
             var cliaim = new Claim(ClaimTypes.Name, "Johny", "", "grandnode");
             IList<Claim> claims = new List<Claim>

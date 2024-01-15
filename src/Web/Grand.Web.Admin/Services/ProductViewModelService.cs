@@ -859,7 +859,7 @@ namespace Grand.Web.Admin.Services
             //a staff should have access only to his products
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
-                model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
+                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
             }
             
             //product
@@ -895,7 +895,7 @@ namespace Grand.Web.Admin.Services
             //a staff should have access only to his products
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
             {
-                model.Stores = new[] { _workContext.CurrentCustomer.StaffStoreId };
+                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
             }
 
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);

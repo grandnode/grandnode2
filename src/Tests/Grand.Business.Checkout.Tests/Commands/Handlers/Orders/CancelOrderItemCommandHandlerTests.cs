@@ -40,13 +40,13 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             var command = new CancelOrderItemCommand();
-            command.Order = new Order() {
+            command.Order = new Order {
                 Id = "id"
             };
-            command.OrderItem = new OrderItem() { OpenQty = 1, Status = OrderItemStatus.Open };
+            command.OrderItem = new OrderItem { OpenQty = 1, Status = OrderItemStatus.Open };
 
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "2", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
             await _handler.Handle(command, default);
 
             _inventoryMock.Verify(c => c.AdjustReserved(It.IsAny<Product>(), It.IsAny<int>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Once);

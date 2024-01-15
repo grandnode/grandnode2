@@ -85,7 +85,7 @@
                     var attributeControlTypes = ((AttributeControlType)Model.AttributeControlTypeId)
                         .ToSelectList(Context, valuesToExclude:
                             //custom customer attributes don't support some attribute control types
-                            new[] { (int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares, (int)AttributeControlType.ReadonlyCheckboxes });
+                            [(int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares, (int)AttributeControlType.ReadonlyCheckboxes]);
                 }
                 <admin-select asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" />
                 <span asp-validation-for="AttributeControlTypeId"></span>

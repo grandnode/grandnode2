@@ -10,7 +10,7 @@ namespace Grand.Business.System.Services.Installation
         {
             var url = store.SslEnabled ? store.SecureUrl : store.Url;
 
-            var robotsTxt = new RobotsTxt() {
+            var robotsTxt = new RobotsTxt {
                 Name = "RobotsTXT",
                 StoreId = store.Id,
                 Text = @$"User-agent: *

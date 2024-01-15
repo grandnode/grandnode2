@@ -35,12 +35,12 @@ namespace Grand.Business.Common.Tests.Services.Security
         [TestMethod]
         public async Task Authorize_ReturnTrue()
         {
-            Permission permission = new Permission() { SystemName = "permistion" };
+            Permission permission = new Permission { SystemName = "permistion" };
             var fakeCustomer = new Customer();
             fakeCustomer.Groups.Add("group1");
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(fakeCustomer);
             _cacheMock.Setup(c => c.GetAsync<bool>(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>())).Returns(Task.FromResult(true));
-            _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>() { new CustomerGroup() }));
+            _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new CustomerGroup() }));
             Assert.IsTrue(await _service.Authorize(permission));
         }
 
@@ -52,7 +52,7 @@ namespace Grand.Business.Common.Tests.Services.Security
             fakeCustomer.Groups.Add("group1");
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(fakeCustomer);
             _cacheMock.Setup(c => c.GetAsync<bool>(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>())).Returns(Task.FromResult(true));
-            _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>() { new CustomerGroup() }));
+            _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new CustomerGroup() }));
             Assert.IsFalse(await _service.Authorize(permission));
         }
 

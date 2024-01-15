@@ -25,7 +25,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
             _repository = new MongoDBRepositoryTest<CustomerGroup>();
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _groupService = new GroupService(_repository, _cacheBase, _mediatorMock.Object);
         }
 
@@ -47,7 +47,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         {
             //Arrange
             const string systemName = "system";
-            var customerGroup = new CustomerGroup() { SystemName = systemName };
+            var customerGroup = new CustomerGroup { SystemName = systemName };
             await _repository.InsertAsync(customerGroup);
             //Act
             var result = await _groupService.GetCustomerGroupBySystemName(systemName);
@@ -59,7 +59,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetAllCustomerGroupsTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { Active = true };
+            var customerGroup = new CustomerGroup { Active = true };
             await _repository.InsertAsync(customerGroup);
             //Act
             var result = await _groupService.GetAllCustomerGroups();
@@ -108,7 +108,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsStaffTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.Staff, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.Staff, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -123,7 +123,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsAdminTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.Administrators, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.Administrators, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -138,7 +138,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsSalesManagerTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.SalesManager, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.SalesManager, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -152,7 +152,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsVendorTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.Vendors, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.Vendors, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -166,7 +166,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsOwnerTest()
         {
             //Arrange
-            var customer = new Customer() { OwnerId = ""};
+            var customer = new Customer { OwnerId = ""};
             //Act
             var result = await _groupService.IsOwner(customer);
             //Assert
@@ -177,7 +177,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsGuestTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.Guests, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.Guests, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -191,7 +191,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task IsRegisteredTest()
         {
             //Arrange
-            var customerGroup = new CustomerGroup() { IsSystem = true, SystemName = SystemCustomerGroupNames.Registered, Active = true };
+            var customerGroup = new CustomerGroup { IsSystem = true, SystemName = SystemCustomerGroupNames.Registered, Active = true };
             await _groupService.InsertCustomerGroup(customerGroup);
             var customer = new Customer();
             customer.Groups.Add(customerGroup.Id);
@@ -208,7 +208,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
             var customerGroup = new CustomerGroup();
             await _repository.InsertAsync(customerGroup);
             //Act
-            var result = await _groupService.GetAllByIds(new[] { customerGroup.Id });
+            var result = await _groupService.GetAllByIds([customerGroup.Id]);
             //Assert
             Assert.AreEqual(1, result.Count);
         }

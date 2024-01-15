@@ -41,15 +41,15 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var order = new Order() { OrderStatusId = (int)OrderStatusSystem.Pending };
+            var order = new Order { OrderStatusId = (int)OrderStatusSystem.Pending };
             var orderItem = new OrderItem();
             order.OrderItems.Add(orderItem);
 
-            var command = new UpdateOrderItemCommand() { Order = order, OrderItem = orderItem };
+            var command = new UpdateOrderItemCommand { Order = order, OrderItem = orderItem };
             _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(order));
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
             _giftVoucherServiceMock.Setup(c => c.GetGiftVouchersByPurchasedWithOrderItemId(It.IsAny<string>())).ReturnsAsync(new List<GiftVoucher>());
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "2", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);
             //Assert

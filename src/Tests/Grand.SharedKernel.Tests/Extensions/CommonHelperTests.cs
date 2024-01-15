@@ -101,13 +101,13 @@ namespace Grand.SharedKernel.Tests.Extensions
         [TestMethod()]
         public void ArraysEqualTest_True()
         {
-            Assert.IsTrue(CommonHelper.ArraysEqual(new string[] { "a1", "a2" }, new string[] { "a1", "a2" }));
+            Assert.IsTrue(CommonHelper.ArraysEqual(["a1", "a2"], ["a1", "a2"]));
         }
 
         [TestMethod()]
         public void ArraysEqualTest_False()
         {
-            Assert.IsFalse(CommonHelper.ArraysEqual(new string[] { "a1", "a2" }, new string[] { "a2", "a3" }));
+            Assert.IsFalse(CommonHelper.ArraysEqual(["a1", "a2"], ["a2", "a3"]));
         }
 
         [TestMethod()]

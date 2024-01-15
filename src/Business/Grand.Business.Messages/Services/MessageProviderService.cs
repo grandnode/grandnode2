@@ -827,7 +827,7 @@ namespace Grand.Business.Messages.Services
                 var subjectReplaced = LiquidExtensions.Render(liquidObject, subject);
                 var bodyReplaced = LiquidExtensions.Render(liquidObject, body);
 
-                await _mediator.Send(new InsertContactUsCommand() {
+                await _mediator.Send(new InsertContactUsCommand {
                     CustomerId = customer.Id,
                     StoreId = store.Id,
                     VendorId = product.VendorId,
@@ -845,7 +845,7 @@ namespace Grand.Business.Messages.Services
 
             if (!string.IsNullOrEmpty(product?.VendorId))
             {
-                var vendor = await _mediator.Send(new GetVendorByIdQuery() { Id = product.VendorId });
+                var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = product.VendorId });
                 if (vendor != null)
                 {
                     toEmail = vendor.Email;
@@ -900,7 +900,7 @@ namespace Grand.Business.Messages.Services
 
             if (!string.IsNullOrEmpty(merchandiseReturn.VendorId))
             {
-                var vendor = await _mediator.Send(new GetVendorByIdQuery() { Id = merchandiseReturn.VendorId });
+                var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = merchandiseReturn.VendorId });
                 if (vendor != null)
                 {
                     var vendorEmail = vendor.Email;
@@ -1239,7 +1239,7 @@ namespace Grand.Business.Messages.Services
             //customer
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = vendorReview.CustomerId });
             //vendor
-            var vendor = await _mediator.Send(new GetVendorByIdQuery() { Id = vendorReview.VendorId });
+            var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = vendorReview.VendorId });
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
@@ -1579,7 +1579,7 @@ namespace Grand.Business.Messages.Services
             //store in database
             if (_commonSettings.StoreInDatabaseContactUsForm)
             {
-                await _mediator.Send(new InsertContactUsCommand() {
+                await _mediator.Send(new InsertContactUsCommand {
                     CustomerId = customer.Id,
                     StoreId = store.Id,
                     VendorId = "",
@@ -1660,7 +1660,7 @@ namespace Grand.Business.Messages.Services
             //store in database
             if (_commonSettings.StoreInDatabaseContactUsForm)
             {
-                await _mediator.Send(new InsertContactUsCommand() {
+                await _mediator.Send(new InsertContactUsCommand {
                     CustomerId = customer.Id,
                     StoreId = store.Id,
                     VendorId = vendor.Id,
@@ -1747,7 +1747,7 @@ namespace Grand.Business.Messages.Services
                 .AddStoreTokens(store, language, emailAccount);
             LiquidObject liquidObject = await builder.BuildAsync();
 
-            var bids = (await _mediator.Send(new GetBidsByProductIdQuery() { ProductId = bid.ProductId })).Where(x => x.CustomerId != bid.CustomerId).GroupBy(x => x.CustomerId);
+            var bids = (await _mediator.Send(new GetBidsByProductIdQuery { ProductId = bid.ProductId })).Where(x => x.CustomerId != bid.CustomerId).GroupBy(x => x.CustomerId);
             foreach (var item in bids)
             {
                 var builder2 = new LiquidObjectBuilder(_mediator, liquidObject);
@@ -1791,7 +1791,7 @@ namespace Grand.Business.Messages.Services
                    .AddStoreTokens(store, language, emailAccount);
 
             LiquidObject liquidObject = await builder.BuildAsync();
-            var bids = (await _mediator.Send(new GetBidsByProductIdQuery() { ProductId = product.Id })).Where(x => x.CustomerId != customerId).GroupBy(x => x.CustomerId);
+            var bids = (await _mediator.Send(new GetBidsByProductIdQuery { ProductId = product.Id })).Where(x => x.CustomerId != customerId).GroupBy(x => x.CustomerId);
             foreach (var item in bids)
             {
                 var builder2 = new LiquidObjectBuilder(_mediator, liquidObject);
@@ -1968,7 +1968,7 @@ namespace Grand.Business.Messages.Services
             email.AttachedDownloads = attachments;
             email.EmailAccountId = emailAccount.Id;
             email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
-                    : (DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));
+                    : DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value));
             email.Reference = reference;
             email.ObjectId = objectId;
 

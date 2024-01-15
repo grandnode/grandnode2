@@ -73,7 +73,7 @@ namespace DiscountRules.Standard.Areas.Admin.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesHasOneProduct{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View((object)model);
+            return View(model);
         }
 
         [HttpPost]
@@ -139,7 +139,7 @@ namespace DiscountRules.Standard.Areas.Admin.Controllers
             ViewBag.productIdsInput = productIdsInput;
             ViewBag.btnId = btnId;
 
-            return View((object)model);
+            return View(model);
         }
 
         [HttpPost]

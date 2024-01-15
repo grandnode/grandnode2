@@ -21,20 +21,19 @@ namespace Grand.Business.Common.Tests.Services.Addresses
             _atrService = new Mock<IAddressAttributeService>();
             _translationService = new Mock<ITranslationService>();
             _parser = new AddressAttributeParser(_atrService.Object);
-            customAtr = new List<CustomAttribute>()
-            {
-                new CustomAttribute(){Key="key1",Value="value1" },
-                new CustomAttribute(){Key="key2",Value="value2" },
-                new CustomAttribute(){Key="key3",Value="value3" },
-                new CustomAttribute(){Key="key4",Value="value4" }
-            };
+            customAtr = [
+                new CustomAttribute { Key = "key1", Value = "value1" },
+                new CustomAttribute { Key = "key2", Value = "value2" },
+                new CustomAttribute { Key = "key3", Value = "value3" },
+                new CustomAttribute { Key = "key4", Value = "value4" }
+            ];
         }
 
         [TestMethod()]
         public async Task ParseAddressAttributes_ReturnExpectedValues()
         {
-            _atrService.Setup(c => c.GetAddressAttributeById("key1")).Returns(Task.FromResult(new AddressAttribute() { Id = "key1" }));
-            _atrService.Setup(c => c.GetAddressAttributeById("key2")).Returns(Task.FromResult(new AddressAttribute() { Id = "key2" }));
+            _atrService.Setup(c => c.GetAddressAttributeById("key1")).Returns(Task.FromResult(new AddressAttribute { Id = "key1" }));
+            _atrService.Setup(c => c.GetAddressAttributeById("key2")).Returns(Task.FromResult(new AddressAttribute { Id = "key2" }));
             var result = await _parser.ParseAddressAttributes(customAtr);
             Assert.IsTrue(result.Count == 2);
             Assert.IsTrue(result.First().Id.Equals("key1"));
@@ -43,7 +42,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public void AddAddressAttribute_ReturnExpectedValues()
         {
-            var atr = new AddressAttribute() { Id = "added" };
+            var atr = new AddressAttribute { Id = "added" };
             var result = _parser.AddAddressAttribute(customAtr, atr, "new-added-value");
             Assert.IsTrue(result.Count == 5);
             Assert.IsTrue(result.Any(c => c.Key.Equals("added")));

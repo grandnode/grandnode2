@@ -29,12 +29,12 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task GenerateCodeSetupTest_AppVerification()
         {
             //Arrange
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             //Act
             var result = await _twoFactorAuthenticationService.GenerateCodeSetup(Guid.NewGuid().ToString(), 
-                new Customer() { Email = "test@test.com" }, 
-                new Domain.Localization.Language() { LanguageCulture = "en" }, TwoFactorAuthenticationType.AppVerification);
+                new Customer { Email = "test@test.com" }, 
+                new Domain.Localization.Language { LanguageCulture = "en" }, TwoFactorAuthenticationType.AppVerification);
             //Assert
             Assert.IsTrue(result.CustomValues.ContainsKey("QrCodeImageUrl"));
             Assert.IsTrue(result.CustomValues.ContainsKey("ManualEntryQrCode"));
@@ -43,12 +43,12 @@ namespace Grand.Business.Authentication.Tests.Services
         public async Task GenerateCodeSetupTest_Email()
         {
             //Arrange
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             //Act
             var result = await _twoFactorAuthenticationService.GenerateCodeSetup(Guid.NewGuid().ToString(),
-                new Customer() { Email = "test@test.com" },
-                new Domain.Localization.Language() { LanguageCulture = "en" }, TwoFactorAuthenticationType.EmailVerification);
+                new Customer { Email = "test@test.com" },
+                new Domain.Localization.Language { LanguageCulture = "en" }, TwoFactorAuthenticationType.EmailVerification);
             //Assert
             Assert.IsTrue(result.CustomValues.ContainsKey("Token"));
         }

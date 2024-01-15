@@ -172,7 +172,7 @@ namespace Grand.Business.System.Services.Installation
                 var resourceName = resNameAttribute!.Value.Trim();
                 var resourceValue = resValueNode!.InnerText.Trim();
 
-                _availableCollation.Add(new InstallationCollation() {
+                _availableCollation.Add(new InstallationCollation {
                     Name = resourceName,
                     Value = resourceValue
                 });

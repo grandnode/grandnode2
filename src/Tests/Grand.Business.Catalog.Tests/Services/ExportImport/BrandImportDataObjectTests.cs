@@ -51,11 +51,11 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
             _slugServiceMock = new Mock<ISlugService>();
             _languageServiceMock = new Mock<ILanguageService>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
 
             _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object, _brandLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new Domain.Seo.SeoSettings());
@@ -66,13 +66,13 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         {
             //Arrange
             var brands = new List<BrandDto>();
-            brands.Add(new BrandDto() { Name = "test1", Published = true });
-            brands.Add(new BrandDto() { Name = "test2", Published = true });
-            brands.Add(new BrandDto() { Name = "test3", Published = true });
+            brands.Add(new BrandDto { Name = "test1", Published = true });
+            brands.Add(new BrandDto { Name = "test2", Published = true });
+            brands.Add(new BrandDto { Name = "test3", Published = true });
             _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new BrandLayout()));
-            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout>() { new BrandLayout() }));
+            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new BrandLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _brandImportDataObject.Execute(brands);
 
@@ -85,29 +85,29 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Update()
         {
             //Arrange
-            var brand1 = new Brand() {
+            var brand1 = new Brand {
                 Name = "insert1"
             };
             await _brandService.InsertBrand(brand1);
-            var brand2 = new Brand() {
+            var brand2 = new Brand {
                 Name = "insert2"
             };
             await _brandService.InsertBrand(brand2);
-            var brand3 = new Brand() {
+            var brand3 = new Brand {
                 Name = "insert3"
             };
             await _brandService.InsertBrand(brand3);
 
 
             var brands = new List<BrandDto>();
-            brands.Add(new BrandDto() { Id = brand1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
-            brands.Add(new BrandDto() { Id = brand2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
-            brands.Add(new BrandDto() { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            brands.Add(new BrandDto { Id = brand1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
+            brands.Add(new BrandDto { Id = brand2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
+            brands.Add(new BrandDto { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new BrandLayout()));
-            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout>() { new BrandLayout() }));
+            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new BrandLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _brandImportDataObject.Execute(brands);
 
@@ -124,20 +124,20 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Insert_Update()
         {
             //Arrange
-            var brand3 = new Brand() {
+            var brand3 = new Brand {
                 Name = "insert3"
             };
             await _brandService.InsertBrand(brand3);
 
             var brands = new List<BrandDto>();
-            brands.Add(new BrandDto() { Name = "update1", Published = false, DisplayOrder = 1 });
-            brands.Add(new BrandDto() { Name = "update2", Published = false, DisplayOrder = 2 });
-            brands.Add(new BrandDto() { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            brands.Add(new BrandDto { Name = "update1", Published = false, DisplayOrder = 1 });
+            brands.Add(new BrandDto { Name = "update2", Published = false, DisplayOrder = 2 });
+            brands.Add(new BrandDto { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new BrandLayout()));
-            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout>() { new BrandLayout() }));
+            _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts()).Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new BrandLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _brandImportDataObject.Execute(brands);
 

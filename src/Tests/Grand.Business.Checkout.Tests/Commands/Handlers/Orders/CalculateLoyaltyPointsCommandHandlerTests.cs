@@ -23,7 +23,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         {
             _settings.Enabled = true;
             _settings.PointsForPurchases_Amount = 20;
-            var command = new CalculateLoyaltyPointsCommand() {
+            var command = new CalculateLoyaltyPointsCommand {
                 Customer = null
             };
             var result = await _handler.Handle(command, default);
@@ -35,7 +35,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         {
             _settings.Enabled = false;
             _settings.PointsForPurchases_Amount = 20;
-            var command = new CalculateLoyaltyPointsCommand() {
+            var command = new CalculateLoyaltyPointsCommand {
                 Customer = new Domain.Customers.Customer()
             };
             var result = await _handler.Handle(command, default);
@@ -48,7 +48,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
             _settings.Enabled = true;
             _settings.PointsForPurchases_Amount = 10;
             _settings.PointsForPurchases_Points = 2;
-            var command = new CalculateLoyaltyPointsCommand() {
+            var command = new CalculateLoyaltyPointsCommand {
                 Customer = new Domain.Customers.Customer(),
                 Amount = 100
             };

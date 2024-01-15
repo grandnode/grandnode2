@@ -35,7 +35,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Shipping
             //Arrange
             _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
             _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>())).Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
-            var shipCommand = new Core.Commands.Checkout.Shipping.ShipCommand() { NotifyCustomer = true, Shipment = new Domain.Shipping.Shipment() {  } };
+            var shipCommand = new Core.Commands.Checkout.Shipping.ShipCommand { NotifyCustomer = true, Shipment = new Domain.Shipping.Shipment {  } };
             //Act
             var result = await _shipCommandHandler.Handle(shipCommand, CancellationToken.None);
             //Assert

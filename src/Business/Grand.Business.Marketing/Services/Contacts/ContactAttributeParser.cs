@@ -93,7 +93,7 @@ namespace Grand.Business.Marketing.Services.Contacts
             ContactAttribute ca, string value)
         {
             customAttributes ??= new List<CustomAttribute>();
-            customAttributes.Add(new CustomAttribute() { Key = ca.Id, Value = value });
+            customAttributes.Add(new CustomAttribute { Key = ca.Id, Value = value });
             return customAttributes;
         }
 

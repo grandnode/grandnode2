@@ -35,9 +35,9 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task GetOnlineCustomersTest()
         {
             //Assert
-            await _repository.InsertAsync(new Customer() { LastActivityDateUtc = DateTime.UtcNow.AddDays(-1) });
-            await _repository.InsertAsync(new Customer() { LastActivityDateUtc = DateTime.UtcNow });
-            await _repository.InsertAsync(new Customer() { LastActivityDateUtc = DateTime.UtcNow });
+            await _repository.InsertAsync(new Customer { LastActivityDateUtc = DateTime.UtcNow.AddDays(-1) });
+            await _repository.InsertAsync(new Customer { LastActivityDateUtc = DateTime.UtcNow });
+            await _repository.InsertAsync(new Customer { LastActivityDateUtc = DateTime.UtcNow });
             //Act
             var result = await _customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-1), null);
             //Assert
@@ -48,10 +48,10 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task GetCountOnlineShoppingCartTest()
         {
             //Assert
-            await _repository.InsertAsync(new Customer() { LastActivityDateUtc = DateTime.UtcNow.AddDays(-1) });
-            await _repository.InsertAsync(new Customer() { LastActivityDateUtc = DateTime.UtcNow });
-            var customer = new Customer() { LastUpdateCartDateUtc = DateTime.UtcNow, Active = true };
-            customer.ShoppingCartItems.Add(new Domain.Orders.ShoppingCartItem() { CreatedOnUtc = DateTime.UtcNow, ShoppingCartTypeId = Domain.Orders.ShoppingCartType.ShoppingCart });
+            await _repository.InsertAsync(new Customer { LastActivityDateUtc = DateTime.UtcNow.AddDays(-1) });
+            await _repository.InsertAsync(new Customer { LastActivityDateUtc = DateTime.UtcNow });
+            var customer = new Customer { LastUpdateCartDateUtc = DateTime.UtcNow, Active = true };
+            customer.ShoppingCartItems.Add(new Domain.Orders.ShoppingCartItem { CreatedOnUtc = DateTime.UtcNow, ShoppingCartTypeId = Domain.Orders.ShoppingCartType.ShoppingCart });
             await _repository.InsertAsync(customer);
             //Act
             var result = await _customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-1), null);
@@ -63,7 +63,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task GetCustomerByIdTest()
         {
             //Assert
-            await _repository.InsertAsync(new Customer() { Id = "1" });
+            await _repository.InsertAsync(new Customer { Id = "1" });
             //Act
             var result = await _customerService.GetCustomerById("1");
             //Assert
@@ -74,11 +74,11 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task GetCustomersByIdsTest()
         {
             //Assert
-            await _repository.InsertAsync(new Customer() { Id = "1" });
-            await _repository.InsertAsync(new Customer() { Id = "2" });
-            await _repository.InsertAsync(new Customer() { Id = "3" });
+            await _repository.InsertAsync(new Customer { Id = "1" });
+            await _repository.InsertAsync(new Customer { Id = "2" });
+            await _repository.InsertAsync(new Customer { Id = "3" });
             //Act
-            var result = await _customerService.GetCustomersByIds(new[] { "1", "2" });
+            var result = await _customerService.GetCustomersByIds(["1", "2"]);
             //Assert
             Assert.AreEqual(2, result.Count);
         }
@@ -88,7 +88,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //Assert
             var guid = Guid.NewGuid();
-            await _repository.InsertAsync(new Customer() { CustomerGuid = guid });
+            await _repository.InsertAsync(new Customer { CustomerGuid = guid });
             //Act
             var result = await _customerService.GetCustomerByGuid(guid);
             //Assert
@@ -100,7 +100,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //Assert
             var email = "email@email.com";
-            await _repository.InsertAsync(new Customer() { Email = email });
+            await _repository.InsertAsync(new Customer { Email = email });
             //Act
             var result = await _customerService.GetCustomerByEmail(email);
             //Assert
@@ -112,7 +112,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //Assert
             var systemName = "sample";
-            await _repository.InsertAsync(new Customer() { SystemName = systemName });
+            await _repository.InsertAsync(new Customer { SystemName = systemName });
             //Act
             var result = await _customerService.GetCustomerBySystemName(systemName);
             //Assert
@@ -124,7 +124,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             //Assert
             var userName = "user";
-            await _repository.InsertAsync(new Customer() { Username = userName });
+            await _repository.InsertAsync(new Customer { Username = userName });
             //Act
             var result = await _customerService.GetCustomerByUsername(userName);
             //Assert
@@ -140,7 +140,7 @@ namespace Grand.Business.Customers.Tests.Services
                 .Returns(Task.FromResult(cg));
 
             //Act
-            await _customerService.InsertGuestCustomer(new Domain.Stores.Store() { Id = "1" });
+            await _customerService.InsertGuestCustomer(new Domain.Stores.Store { Id = "1" });
             //Assert
             Assert.IsTrue(_repository.Table.Any());
             Assert.IsTrue(_repository.Table.Where(x => x.StoreId == "1").Any());
@@ -159,7 +159,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateCustomerFieldTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             await _customerService.UpdateCustomerField(customer, x => x.Email, "sample@sample.pl");
@@ -171,7 +171,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateCustomerFieldTest_Type()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             await _customerService.UpdateCustomerField<string>(customer, x => x.Username, "username");
@@ -183,7 +183,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateCustomerTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             customer.Email = "sample@sample.com";
@@ -196,7 +196,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task DeleteCustomerTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             await _customerService.DeleteCustomer(customer);
@@ -208,7 +208,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task DeleteCustomerTest_Hard()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             await _customerService.DeleteCustomer(customer, true);
@@ -220,7 +220,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateCustomerLastLoginDateTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             var date = DateTime.UtcNow;
@@ -234,7 +234,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateCustomerinAdminPanelTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             customer.AdminComment = "test";
@@ -248,7 +248,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateActiveTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com", Active = true };
+            var customer = new Customer { Email = "email@email.com", Active = true };
             await _repository.InsertAsync(customer);
             //Act
             customer.Active = false;
@@ -261,7 +261,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task UpdateContributionsTest()
         {
             //Assert
-            var customer = new Customer() { Email = "email@email.com" };
+            var customer = new Customer { Email = "email@email.com" };
             await _repository.InsertAsync(customer);
             //Act
             customer.Active = false;
@@ -278,10 +278,10 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
                 .Returns(Task.FromResult(cg));
 
-            var customer = new Customer() { };
+            var customer = new Customer { };
             customer.Groups.Add(cg.Id);
             await _repository.InsertAsync(customer);
-            var customer2 = new Customer() { };
+            var customer2 = new Customer { };
             customer2.Groups.Add("1");
             await _repository.InsertAsync(customer2);
             //Act
@@ -413,7 +413,7 @@ namespace Grand.Business.Customers.Tests.Services
             customer.ShoppingCartItems.Add(cart2);
             await _repository.InsertAsync(customer);
             //Act
-            await _customerService.ClearShoppingCartItem(customer.Id, new List<ShoppingCartItem>() { cart });
+            await _customerService.ClearShoppingCartItem(customer.Id, new List<ShoppingCartItem> { cart });
             //Assert
             Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems.Count);
         }

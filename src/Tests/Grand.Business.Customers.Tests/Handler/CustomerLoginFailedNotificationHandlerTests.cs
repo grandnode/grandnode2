@@ -18,7 +18,7 @@ namespace Grand.Business.Customers.Tests.Handler
         public void Init()
         {
             _customerServiceMock = new Mock<ICustomerService>();
-            _customerSettings = new CustomerSettings(){ FailedPasswordAllowedAttempts = 10 };
+            _customerSettings = new CustomerSettings { FailedPasswordAllowedAttempts = 10 };
             _handler = new CustomerLoginFailedEventHandler(_customerServiceMock.Object, _customerSettings);
         }
 

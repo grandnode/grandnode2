@@ -77,11 +77,11 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
             _productCollectionServiceMock = new Mock<IProductCollectionService>();
 
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _productService = new ProductService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AclService(new AccessControlConfig()));
 
             _productImportDataObject = new ProductImportDataObject
@@ -97,27 +97,27 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         {
             //Arrange
             var products = new List<ProductDto>();
-            products.Add(new ProductDto() { Name = "test1", Published = true });
-            products.Add(new ProductDto() { Name = "test2", Published = true });
-            products.Add(new ProductDto() { Name = "test3", Published = true });
+            products.Add(new ProductDto { Name = "test1", Published = true });
+            products.Add(new ProductDto { Name = "test2", Published = true });
+            products.Add(new ProductDto { Name = "test3", Published = true });
             
             _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new ProductLayout()));
-            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout>() { new ProductLayout() }));
+            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new ProductLayout() }));
 
             _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.DeliveryDate()));
-            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate>() { new Domain.Shipping.DeliveryDate() }));
+            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate> { new Domain.Shipping.DeliveryDate() }));
 
             _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Tax.TaxCategory()));
-            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory>() { new Domain.Tax.TaxCategory() }));
+            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory> { new Domain.Tax.TaxCategory() }));
 
             _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.Warehouse()));
-            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse>() { new Domain.Shipping.Warehouse() }));
+            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse> { new Domain.Shipping.Warehouse() }));
 
             _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Directory.MeasureUnit()));
-            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit>() { new Domain.Directory.MeasureUnit() }));
+            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit> { new Domain.Directory.MeasureUnit() }));
 
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
 
             //Act
             await _productImportDataObject.Execute(products);
@@ -131,42 +131,42 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Update()
         {
             //Arrange
-            var product1 = new Product() {
+            var product1 = new Product {
                 Name = "insert1"
             };
             await _productService.InsertProduct(product1);
-            var product2 = new Product() {
+            var product2 = new Product {
                 Name = "insert2"
             };
             await _productService.InsertProduct(product2);
-            var product3 = new Product() {
+            var product3 = new Product {
                 Name = "insert3"
             };
             await _productService.InsertProduct(product3);
 
 
             var products = new List<ProductDto>();
-            products.Add(new ProductDto() { Id = product1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
-            products.Add(new ProductDto() { Id = product2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
-            products.Add(new ProductDto() { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            products.Add(new ProductDto { Id = product1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
+            products.Add(new ProductDto { Id = product2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
+            products.Add(new ProductDto { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new ProductLayout()));
-            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout>() { new ProductLayout() }));
+            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new ProductLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
 
             _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.DeliveryDate()));
-            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate>() { new Domain.Shipping.DeliveryDate() }));
+            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate> { new Domain.Shipping.DeliveryDate() }));
 
             _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Tax.TaxCategory()));
-            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory>() { new Domain.Tax.TaxCategory() }));
+            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory> { new Domain.Tax.TaxCategory() }));
 
             _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.Warehouse()));
-            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse>() { new Domain.Shipping.Warehouse() }));
+            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse> { new Domain.Shipping.Warehouse() }));
 
             _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Directory.MeasureUnit()));
-            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit>() { new Domain.Directory.MeasureUnit() }));
+            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit> { new Domain.Directory.MeasureUnit() }));
 
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _productImportDataObject.Execute(products);
 
@@ -183,33 +183,33 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Insert_Update()
         {
             //Arrange
-            var product3 = new Product() {
+            var product3 = new Product {
                 Name = "insert3"
             };
             await _productService.InsertProduct(product3);
 
             var products = new List<ProductDto>();
-            products.Add(new ProductDto() { Name = "update1", Published = false, DisplayOrder = 1 });
-            products.Add(new ProductDto() { Name = "update2", Published = false, DisplayOrder = 2 });
-            products.Add(new ProductDto() { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            products.Add(new ProductDto { Name = "update1", Published = false, DisplayOrder = 1 });
+            products.Add(new ProductDto { Name = "update2", Published = false, DisplayOrder = 2 });
+            products.Add(new ProductDto { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new ProductLayout()));
-            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout>() { new ProductLayout() }));
+            _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts()).Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new ProductLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
 
             _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.DeliveryDate()));
-            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate>() { new Domain.Shipping.DeliveryDate() }));
+            _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates()).Returns(Task.FromResult<IList<Domain.Shipping.DeliveryDate>>(new List<Domain.Shipping.DeliveryDate> { new Domain.Shipping.DeliveryDate() }));
 
             _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Tax.TaxCategory()));
-            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory>() { new Domain.Tax.TaxCategory() }));
+            _taxServiceMock.Setup(c => c.GetAllTaxCategories()).Returns(Task.FromResult<IList<Domain.Tax.TaxCategory>>(new List<Domain.Tax.TaxCategory> { new Domain.Tax.TaxCategory() }));
 
             _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Shipping.Warehouse()));
-            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse>() { new Domain.Shipping.Warehouse() }));
+            _warehouseServiceMock.Setup(c => c.GetAllWarehouses()).Returns(Task.FromResult<IList<Domain.Shipping.Warehouse>>(new List<Domain.Shipping.Warehouse> { new Domain.Shipping.Warehouse() }));
 
             _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Directory.MeasureUnit()));
-            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit>() { new Domain.Directory.MeasureUnit() }));
+            _measureServiceMock.Setup(c => c.GetAllMeasureUnits()).Returns(Task.FromResult<IList<Domain.Directory.MeasureUnit>>(new List<Domain.Directory.MeasureUnit> { new Domain.Directory.MeasureUnit() }));
 
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _productImportDataObject.Execute(products);
 

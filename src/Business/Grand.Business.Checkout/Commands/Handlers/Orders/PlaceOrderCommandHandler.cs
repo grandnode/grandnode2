@@ -818,7 +818,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 await _auctionService.UpdateAuctionEnded(product, true, true);
                 await _auctionService.UpdateHighestBid(product, product.Price, order.CustomerId);
                 await _messageProviderService.SendAuctionEndedBinCustomerMessage(product, order.CustomerId, order.CustomerLanguageId, order.StoreId);
-                await _auctionService.InsertBid(new Bid() {
+                await _auctionService.InsertBid(new Bid {
                     CustomerId = order.CustomerId,
                     OrderId = order.Id,
                     Amount = product.Price,
@@ -1076,8 +1076,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         await pdfService.PrintOrderToPdf(order, order.CustomerLanguageId) : null;
                     orderPlacedAttachmentFileName = orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !orderSettings.AttachPdfInvoiceToBinary ?
                         "order.pdf" : null;
-                    orderPlacedAttachments = orderSettings.AttachPdfInvoiceToOrderPlacedEmail && orderSettings.AttachPdfInvoiceToBinary ?
-                        new List<string> { await pdfService.SaveOrderToBinary(order, order.CustomerLanguageId) } : new List<string>();
+                    orderPlacedAttachments = orderSettings.AttachPdfInvoiceToOrderPlacedEmail && orderSettings.AttachPdfInvoiceToBinary ? [
+                            await pdfService.SaveOrderToBinary(order, order.CustomerLanguageId)
+                        ]
+                        : [];
                 }
                 catch (Exception ex)
                 {
@@ -1089,7 +1091,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
                 if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
                 {
-                    var vendors = await mediator.Send(new GetVendorsInOrderQuery() { Order = order });
+                    var vendors = await mediator.Send(new GetVendorsInOrderQuery { Order = order });
                     foreach (var vendor in vendors)
                     {
                         await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor, languageSettings.DefaultAdminLanguageId);

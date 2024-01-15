@@ -28,7 +28,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             _mediatorMock = new Mock<IMediator>();
             _repository = new MongoDBRepositoryTest<Product>();
             _entityUrlRepository = new MongoDBRepositoryTest<EntityUrl>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
             _handler = new CollectionDeletedEventHandler(_entityUrlRepository, _repository, _cacheBase);
         }
@@ -40,13 +40,13 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             //Arrange
             var collection = new Collection();
             var product = new Product();
-            product.ProductCollections.Add(new ProductCollection() { CollectionId = collection.Id });
+            product.ProductCollections.Add(new ProductCollection { CollectionId = collection.Id });
             await _repository.InsertAsync(product);
             var product2 = new Product();
-            product2.ProductCollections.Add(new ProductCollection() { CollectionId = collection.Id });
+            product2.ProductCollections.Add(new ProductCollection { CollectionId = collection.Id });
             await _repository.InsertAsync(product2);
             var product3 = new Product();
-            product3.ProductCollections.Add(new ProductCollection() { CollectionId = "1" });
+            product3.ProductCollections.Add(new ProductCollection { CollectionId = "1" });
             await _repository.InsertAsync(product3);
 
             //Act

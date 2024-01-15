@@ -110,7 +110,7 @@ namespace Grand.Business.Catalog.Services.Products
         {
             if (string.IsNullOrEmpty(productId))
                 return null;
-            var product = await GetProductById(productId) ?? await _mediator.Send(new GetProductArchByIdQuery() { Id = productId });
+            var product = await GetProductById(productId) ?? await _mediator.Send(new GetProductArchByIdQuery { Id = productId });
             return product;
         }
         /// <summary>

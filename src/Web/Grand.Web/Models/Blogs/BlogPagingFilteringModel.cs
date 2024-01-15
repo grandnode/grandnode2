@@ -10,7 +10,7 @@ namespace Grand.Web.Models.Blogs
         {
             DateTime? result = null;
             if (string.IsNullOrEmpty(Month)) return null;
-            var tempDate = Month.Split(new [] { '-' });
+            var tempDate = Month.Split(['-']);
             if (tempDate.Length != 2) return null;
             int.TryParse(tempDate[0], out var year);
             int.TryParse(tempDate[1], out var month);

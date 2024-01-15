@@ -34,7 +34,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task CopyProduct_InserAndReturnNewProduct()
         {
             _langServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            var product = new Product() {
+            var product = new Product {
                 Name = "name",
                 Price = 49,
                 ShortDescription = "Desc"

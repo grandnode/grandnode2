@@ -43,7 +43,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var amount = await _currencyService.ConvertToPrimaryStoreCurrency(request.Order.OrderTotal - request.Order.OrderShippingInclTax, currency);
 
-            var points = await _mediator.Send(new CalculateLoyaltyPointsCommand() { Customer = customer, Amount = amount }, cancellationToken);
+            var points = await _mediator.Send(new CalculateLoyaltyPointsCommand { Customer = customer, Amount = amount }, cancellationToken);
             if (points <= 0)
                 return false;
 

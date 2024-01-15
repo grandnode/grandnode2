@@ -45,7 +45,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task LoginCustomerTest_WrongPassword()
         {
             //Arrange
-            var customer = new Customer() { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "12345" };
+            var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "12345" };
             _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
             _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
             //Act
@@ -57,7 +57,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task LoginCustomerTest_Successful()
         {
             //Arrange
-            var customer = new Customer() { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+            var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
             _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
             _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
             //Act
@@ -70,7 +70,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task ChangePasswordTest_Success()
         {
             //Arrange
-            var customer = new Customer() { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+            var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
             _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult<Customer>(customer));
 
             var changepassword = new Core.Utilities.Customers.ChangePasswordRequest("admin@admin.com",

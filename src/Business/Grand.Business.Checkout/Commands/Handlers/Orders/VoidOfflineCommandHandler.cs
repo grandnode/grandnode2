@@ -38,7 +38,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            if (!await _mediator.Send(new CanVoidOfflineQuery() { PaymentTransaction = paymentTransaction }, cancellationToken))
+            if (!await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }, cancellationToken))
                 throw new GrandException("You can't void this order");
 
             order.PaymentStatusId = PaymentStatus.Voided;
@@ -48,7 +48,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _mediator.Publish(new PaymentTransactionVoidOfflineEvent(paymentTransaction), cancellationToken);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order }, cancellationToken);
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
             return true;
         }
     }

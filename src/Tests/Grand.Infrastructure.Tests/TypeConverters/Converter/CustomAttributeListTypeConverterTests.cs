@@ -43,9 +43,10 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
         [TestMethod()]
         public void ConvertToTest()
         {
-            List<CustomAttribute> customAttributes = new List<CustomAttribute>();
-            customAttributes.Add(new CustomAttribute() { Key = "FirstName", Value = "Lucas" });
-            customAttributes.Add(new CustomAttribute() { Key = "LastName", Value = "Scott" });
+            List<CustomAttribute> customAttributes = [
+                new CustomAttribute { Key = "FirstName", Value = "Lucas" },
+                new CustomAttribute { Key = "LastName", Value = "Scott" }
+            ];
             var result = _converter.ConvertTo(customAttributes, typeof(string));
             Assert.IsNotNull(result);
         }

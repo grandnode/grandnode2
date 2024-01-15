@@ -59,7 +59,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task InsertAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            await _service.InsertAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
+            await _service.InsertAddressAttributeValue(new AddressAttributeValue { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
         }
@@ -67,7 +67,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task DeleteAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            await _service.DeleteAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
+            await _service.DeleteAddressAttributeValue(new AddressAttributeValue { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
         }
@@ -75,7 +75,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task UpdateAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            await _service.UpdateAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
+            await _service.UpdateAddressAttributeValue(new AddressAttributeValue { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
         }

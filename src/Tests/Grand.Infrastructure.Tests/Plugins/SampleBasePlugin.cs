@@ -7,7 +7,7 @@ namespace Grand.Infrastructure.Tests.Plugins
         private PluginInfo _pluginInfo;
         public SampleBasePlugin()
         {
-            _pluginInfo = new PluginInfo() {
+            _pluginInfo = new PluginInfo {
                 Author = "grandnode",
                 DisplayOrder = 0,
                 FriendlyName = "sample plugin",

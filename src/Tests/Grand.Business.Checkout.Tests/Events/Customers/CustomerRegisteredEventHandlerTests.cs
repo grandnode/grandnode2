@@ -18,7 +18,7 @@ namespace Grand.Business.Checkout.Tests.Events.Customers
             var translationServiceMock = new Mock<ITranslationService>();
             translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
             _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
-            _loyaltyPointsSettings = new Domain.Orders.LoyaltyPointsSettings() { Enabled = true, PointsForRegistration = 10 };
+            _loyaltyPointsSettings = new Domain.Orders.LoyaltyPointsSettings { Enabled = true, PointsForRegistration = 10 };
             _customerRegisteredEventHandler = new CustomerRegisteredEventHandler(translationServiceMock.Object, _loyaltyPointsServiceMock.Object, _loyaltyPointsSettings);
         }
 

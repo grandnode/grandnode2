@@ -50,7 +50,7 @@ namespace DiscountRules.Standard.Areas.Admin.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesShoppingCart{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View((object)model);
+            return View(model);
         }
 
 

@@ -50,7 +50,7 @@ namespace Grand.Business.Messages.Tests.Services
         {
 
             _cacheMock.Setup(c => c.GetAsync<List<EmailAccount>>(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
-              .Returns(Task.FromResult(new List<EmailAccount>() { new EmailAccount(), new EmailAccount() }));
+              .Returns(Task.FromResult(new List<EmailAccount> { new EmailAccount(), new EmailAccount() }));
             await _service.DeleteEmailAccount(new EmailAccount());
             _repository.Verify(c => c.DeleteAsync(It.IsAny<EmailAccount>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<EmailAccount>>(), default), Times.Once);
@@ -62,7 +62,7 @@ namespace Grand.Business.Messages.Tests.Services
         {
             //we can't delete account if exist only one
             _cacheMock.Setup(c => c.GetAsync<List<EmailAccount>>(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
-              .Returns(Task.FromResult(new List<EmailAccount>() { new EmailAccount() }));
+              .Returns(Task.FromResult(new List<EmailAccount> { new EmailAccount() }));
             Assert.ThrowsExceptionAsync<GrandException>(async () => await _service.DeleteEmailAccount(new EmailAccount()));
         }
     }

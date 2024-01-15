@@ -43,7 +43,7 @@ namespace Grand.Business.Messages.Tests.Services
         [TestMethod]
         public async Task CopyMessageTemplate_InsertCopyEntity()
         {
-            var template = new MessageTemplate() {
+            var template = new MessageTemplate {
                 Id = "id1",
                 Name = "Name"
             };

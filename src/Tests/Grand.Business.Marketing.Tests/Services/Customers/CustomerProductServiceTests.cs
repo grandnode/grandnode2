@@ -27,7 +27,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
             _repositoryCustomerProduct = new MongoDBRepositoryTest<CustomerProduct>();
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _customerProductService = new CustomerProductService(_repositoryCustomerProductPrice, _repositoryCustomerProduct, _cacheBase, _mediatorMock.Object);
         }
 
@@ -35,7 +35,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerProductPriceByIdTest()
         {
             //Arrange
-            var customerProductPrice = new CustomerProductPrice() { Price = 10 };
+            var customerProductPrice = new CustomerProductPrice { Price = 10 };
 
             await _repositoryCustomerProductPrice.InsertAsync(customerProductPrice);
 
@@ -51,7 +51,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetPriceByCustomerProductTest()
         {
             //Arrange
-            var customerProductPrice = new CustomerProductPrice() { Price = 10, CustomerId = "1", ProductId = "1" };
+            var customerProductPrice = new CustomerProductPrice { Price = 10, CustomerId = "1", ProductId = "1" };
 
             await _repositoryCustomerProductPrice.InsertAsync(customerProductPrice);
 
@@ -67,7 +67,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task InsertCustomerProductPriceTest()
         {
             //Act
-            var customerProductPrice = new CustomerProductPrice() { Price = 10, CustomerId = "1", ProductId = "1" };
+            var customerProductPrice = new CustomerProductPrice { Price = 10, CustomerId = "1", ProductId = "1" };
             await _customerProductService.InsertCustomerProductPrice(customerProductPrice);
 
             //Assert
@@ -78,7 +78,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task UpdateCustomerProductPriceTest()
         {
             //Arrange
-            var customerProductPrice = new CustomerProductPrice() { Price = 10, CustomerId = "1", ProductId = "1" };
+            var customerProductPrice = new CustomerProductPrice { Price = 10, CustomerId = "1", ProductId = "1" };
 
             await _repositoryCustomerProductPrice.InsertAsync(customerProductPrice);
 
@@ -96,7 +96,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task DeleteCustomerProductPriceTest()
         {
             //Arrange
-            var customerProductPrice = new CustomerProductPrice() { Price = 10, CustomerId = "1", ProductId = "1" };
+            var customerProductPrice = new CustomerProductPrice { Price = 10, CustomerId = "1", ProductId = "1" };
 
             await _repositoryCustomerProductPrice.InsertAsync(customerProductPrice);
 
@@ -112,9 +112,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetProductsPriceByCustomerTest()
         {
             //Arrange
-            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice() { CustomerId = "1" });
-            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice() { CustomerId = "1" });
-            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice() { CustomerId = "1" });
+            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice { CustomerId = "1" });
+            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice { CustomerId = "1" });
+            await _repositoryCustomerProductPrice.InsertAsync(new CustomerProductPrice { CustomerId = "1" });
 
             //Act
             var result = await _customerProductService.GetProductsPriceByCustomer("1");
@@ -127,7 +127,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerProductTest()
         {
             //Arrange
-            var customerProduct = new CustomerProduct() { CustomerId = "1" };
+            var customerProduct = new CustomerProduct { CustomerId = "1" };
 
             await _repositoryCustomerProduct.InsertAsync(customerProduct);
 
@@ -143,7 +143,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerProductTest_Customer_Product()
         {
             //Arrange
-            var customerProduct = new CustomerProduct() { CustomerId = "1", ProductId = "1" };
+            var customerProduct = new CustomerProduct { CustomerId = "1", ProductId = "1" };
 
             await _repositoryCustomerProduct.InsertAsync(customerProduct);
 
@@ -159,7 +159,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task InsertCustomerProductTest()
         {
             //Act
-            var customerProduct = new CustomerProduct() { CustomerId = "1", ProductId = "1" };
+            var customerProduct = new CustomerProduct { CustomerId = "1", ProductId = "1" };
             await _customerProductService.InsertCustomerProduct(customerProduct);
 
             //Assert
@@ -170,7 +170,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task UpdateCustomerProductTest()
         {
             //Arrange
-            var customerProduct = new CustomerProduct() { CustomerId = "1", ProductId = "1", DisplayOrder = 1 };
+            var customerProduct = new CustomerProduct { CustomerId = "1", ProductId = "1", DisplayOrder = 1 };
 
             await _repositoryCustomerProduct.InsertAsync(customerProduct);
 
@@ -188,7 +188,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task DeleteCustomerProductTest()
         {
             //Arrange
-            var customerProduct = new CustomerProduct() { CustomerId = "1", ProductId = "1" };
+            var customerProduct = new CustomerProduct { CustomerId = "1", ProductId = "1" };
 
             await _repositoryCustomerProduct.InsertAsync(customerProduct);
 
@@ -204,9 +204,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetProductsByCustomerTest()
         {
             //Arrange
-            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct() { CustomerId = "1" });
-            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct() { CustomerId = "1" });
-            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct() { CustomerId = "1" });
+            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct { CustomerId = "1" });
+            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct { CustomerId = "1" });
+            await _repositoryCustomerProduct.InsertAsync(new CustomerProduct { CustomerId = "1" });
 
             //Act
             var result = await _customerProductService.GetProductsByCustomer("1");

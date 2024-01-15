@@ -28,8 +28,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             //Arrange
             var product = new Product();
             var customer = new Customer();
-            customer.ShoppingCartItems.Add(new Domain.Orders.ShoppingCartItem() 
-            { 
+            customer.ShoppingCartItems.Add(new Domain.Orders.ShoppingCartItem { 
                 ProductId = product.Id,
                 IsFreeShipping = !product.IsFreeShipping,
                 IsShipEnabled = !product.IsShipEnabled,

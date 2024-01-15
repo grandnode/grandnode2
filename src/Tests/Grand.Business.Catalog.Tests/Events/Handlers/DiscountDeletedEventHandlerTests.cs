@@ -37,7 +37,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
             _collectionRepository = new MongoDBRepositoryTest<Collection>();
             _vendorRepository = new MongoDBRepositoryTest<Vendor>();
             _discountCouponRepository = new MongoDBRepositoryTest<DiscountCoupon>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
 
             _handler = new DiscountDeletedEventHandler(_productRepository, _categoryRepository,
                 _brandRepository, _collectionRepository, _vendorRepository, _discountCouponRepository, _cacheBase);
@@ -47,7 +47,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         public async Task Handle_Product_Test()
         {
             //Arrange
-            var discount = new Discount() { DiscountTypeId = DiscountType.AssignedToSkus };
+            var discount = new Discount { DiscountTypeId = DiscountType.AssignedToSkus };
             var product = new Product();
             product.AppliedDiscounts.Add(discount.Id);
             await _productRepository.InsertAsync(product);
@@ -65,7 +65,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         public async Task Handle_Category_Test()
         {
             //Arrange
-            var discount = new Discount() { DiscountTypeId = DiscountType.AssignedToCategories };
+            var discount = new Discount { DiscountTypeId = DiscountType.AssignedToCategories };
             var category = new Category();
             category.AppliedDiscounts.Add(discount.Id);
             await _categoryRepository.InsertAsync(category);
@@ -84,7 +84,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         public async Task Handle_Collection_Test()
         {
             //Arrange
-            var discount = new Discount() { DiscountTypeId = DiscountType.AssignedToCollections };
+            var discount = new Discount { DiscountTypeId = DiscountType.AssignedToCollections };
             var collection = new Collection();
             collection.AppliedDiscounts.Add(discount.Id);
             await _collectionRepository.InsertAsync(collection);
@@ -102,7 +102,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         public async Task Handle_Vendor_Test()
         {
             //Arrange
-            var discount = new Discount() { DiscountTypeId = DiscountType.AssignedToVendors };
+            var discount = new Discount { DiscountTypeId = DiscountType.AssignedToVendors };
             var vendor = new Vendor();
             vendor.AppliedDiscounts.Add(discount.Id);
             await _vendorRepository.InsertAsync(vendor);

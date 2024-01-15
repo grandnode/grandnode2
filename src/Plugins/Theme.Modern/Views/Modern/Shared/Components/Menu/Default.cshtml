@@ -22,7 +22,7 @@
             @foreach (var brand in Model.Brands)
             {
                 <li>
-                    <a href="@Url.RouteUrl("Brand", new { SeName = brand.SeName })">
+                    <a href="@Url.RouteUrl("Brand", new { brand.SeName })">
                         <span class="title">@brand.Name</span>
                         @if (!string.IsNullOrEmpty(brand.Icon))
                         {
@@ -47,7 +47,7 @@
             @foreach (var collect in Model.Collections)
             {
                 <li>
-                    <a href="@Url.RouteUrl("Collection", new { SeName = collect.SeName })">
+                    <a href="@Url.RouteUrl("Collection", new { collect.SeName })">
                         <span class="title">@collect.Name</span>
                         @if (!string.IsNullOrEmpty(collect.Icon))
                         {
@@ -77,7 +77,7 @@
             @foreach (var mpage in Model.Pages)
             {
                 <li>
-                    <a href="@Url.RouteUrl("Page", new { SeName=mpage.SeName })">
+                    <a href="@Url.RouteUrl("Page", new { mpage.SeName })">
                         <span class="title">@mpage.Name</span>
                     </a>
                 </li>
@@ -130,5 +130,5 @@
             @{
                 var rootCategoriesResponsive = Model.Categories.ToList();
                 //name it "Categories" if we have only categories. Otherwise, "Menu"
-                var responsiveMenuTitle = (rootCategoriesResponsive.Any() && Model.Pages.Any()) ? Loc["Categories"] : Loc["Menu"];
+                var responsiveMenuTitle = rootCategoriesResponsive.Any() && Model.Pages.Any() ? Loc["Categories"] : Loc["Menu"];
             }

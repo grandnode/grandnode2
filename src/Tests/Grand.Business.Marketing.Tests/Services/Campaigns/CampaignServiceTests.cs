@@ -100,7 +100,7 @@ namespace Grand.Business.Marketing.Tests.Services.Campaigns
         public async Task GetCampaignByIdTest()
         {
             //Arrange
-            var campaign = new Campaign() {
+            var campaign = new Campaign {
                 Name = "test"
             };
             await _campaignRepository.InsertAsync(campaign);
@@ -132,12 +132,12 @@ namespace Grand.Business.Marketing.Tests.Services.Campaigns
         public async Task GetCampaignHistoryTest()
         {
             //Arrange
-            var campaign = new Campaign() {
+            var campaign = new Campaign {
                 Name = "test"
             };
             await _campaignRepository.InsertAsync(campaign);
-            await _campaignHistoryRepository.InsertAsync(new CampaignHistory() { CampaignId = campaign.Id });
-            await _campaignHistoryRepository.InsertAsync(new CampaignHistory() { CampaignId = campaign.Id });
+            await _campaignHistoryRepository.InsertAsync(new CampaignHistory { CampaignId = campaign.Id });
+            await _campaignHistoryRepository.InsertAsync(new CampaignHistory { CampaignId = campaign.Id });
 
             //Act
             var result = await _campaignService.GetCampaignHistory(campaign);
@@ -150,12 +150,12 @@ namespace Grand.Business.Marketing.Tests.Services.Campaigns
         public async Task CustomerSubscriptionsTest()
         {
             //Arrange
-            var campaign = new Campaign() {
+            var campaign = new Campaign {
                 Name = "test",
                 StoreId = "1"
             };
             await _campaignRepository.InsertAsync(campaign);
-            await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription() { StoreId = "1", Active = true });
+            await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription { StoreId = "1", Active = true });
             //Act
             var result = await _campaignService.CustomerSubscriptions(campaign);
 
@@ -167,12 +167,12 @@ namespace Grand.Business.Marketing.Tests.Services.Campaigns
         public async Task SendCampaignTest()
         {
             //Arrange
-            var campaign = new Campaign() {
+            var campaign = new Campaign {
                 Name = "test",
                 StoreId = "1"
             };
             await _campaignRepository.InsertAsync(campaign);
-            await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription() { StoreId = "1", Active = true, Email = "test@test.com" });
+            await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription { StoreId = "1", Active = true, Email = "test@test.com" });
 
             _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>()))
                .Returns(Task.FromResult(new Language()));
@@ -180,7 +180,7 @@ namespace Grand.Business.Marketing.Tests.Services.Campaigns
                .Returns(Task.FromResult(new Domain.Stores.Store()));
 
             //Act
-            await _campaignService.SendCampaign(campaign, new EmailAccount() { Host = "host.com" }, "test@test.com");
+            await _campaignService.SendCampaign(campaign, new EmailAccount { Host = "host.com" }, "test@test.com");
 
             //Assert
             _emailSenderMock.Verify(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null,null, null, null, null, null, null), Times.Once);

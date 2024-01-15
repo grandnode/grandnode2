@@ -24,15 +24,15 @@ namespace Grand.Business.Messages.Tests.Services
         public async Task BuilderTest()
         {
             var builder = new LiquidObjectBuilder(_mediatorMock.Object);
-            var vendor = new Vendor() { Id = "VendorId", Name = "vendorName" };
-            var product = new Product() { Id = "productId", Name = "ProductName" };
-            var vendorReview = new VendorReview() { Id = "RevId" };
+            var vendor = new Vendor { Id = "VendorId", Name = "vendorName" };
+            var product = new Product { Id = "productId", Name = "ProductName" };
+            var vendorReview = new VendorReview { Id = "RevId" };
             _mediatorMock.Setup(c => c.Send<LiquidVendor>(It.IsAny<IRequest<LiquidVendor>>(), default)).ReturnsAsync(new LiquidVendor(vendor));
 
             var liquidObject = await builder
                 .AddVendorReviewTokens(vendor, vendorReview)
                 .AddVendorTokens(vendor, new Language())
-                .AddOutOfStockTokens(product, new OutOfStockSubscription(), new Store(), new DomainHost() { Url = "https://localhost:44350/" }, new Language())
+                .AddOutOfStockTokens(product, new OutOfStockSubscription(), new Store(), new DomainHost { Url = "https://localhost:44350/" }, new Language())
                 .BuildAsync();
 
 

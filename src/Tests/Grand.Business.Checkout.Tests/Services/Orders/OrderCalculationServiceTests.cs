@@ -67,7 +67,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
             _shoppingCartSettings = new ShoppingCartSettings();
             _catalogSettings = new CatalogSettings();
 
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "", Name = "test store" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             var customer = new Customer();
             customer.Groups.Add("1");
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => customer);
@@ -83,11 +83,11 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         [TestMethod()]
         public async Task GetShoppingCartSubTotalTest()
         {
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "1", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
             _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>())).Returns(() => Task.FromResult((IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount>() { }));
+            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount> { }));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1 } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1 } };
             var result = await _service.GetShoppingCartSubTotal(shoppingCartItem, false);
 
             Assert.IsNotNull(result);
@@ -97,11 +97,11 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetShoppingCartAdditionalShippingChargeTest()
         {
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
             //Act
             var result = await _service.GetShoppingCartAdditionalShippingCharge(shoppingCartItem);
             //Assert
@@ -112,11 +112,11 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task IsFreeShippingTest()
         {
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
             //Act
             var result = await _service.GetShoppingCartAdditionalShippingCharge(shoppingCartItem);
             //Assert
@@ -127,11 +127,11 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task AdjustShippingRateTest()
         {
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
             //Act
             var result = await _service.AdjustShippingRate(10, shoppingCartItem);
 
@@ -143,14 +143,14 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         public async Task GetShoppingCartShippingTotalTest()
         {
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "1", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
             _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>())).Returns(() => Task.FromResult((IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount>() { }));
+            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount> { }));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
             //Act
             var result = await _service.GetShoppingCartShippingTotal(shoppingCartItem);
 
@@ -163,14 +163,14 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         {
             //TODO
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "1", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
             _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>())).Returns(() => Task.FromResult((IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount>() { }));
+            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount> { }));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
             //Act
             var result = await _service.GetTaxTotal(shoppingCartItem, false);
             //Assert
@@ -182,14 +182,14 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         {
             //TODO
             //Arrange
-            var cgs = new List<CustomerGroup>() { new CustomerGroup() };
+            var cgs = new List<CustomerGroup> { new CustomerGroup() };
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
                 .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product() { Id = "1", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
             _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>())).Returns(() => Task.FromResult((IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount>() { }));
+            _discountServiceMock.Setup(a => a.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(() => Task.FromResult((IList<Discount>)new List<Discount> { }));
 
-            var shoppingCartItem = new List<ShoppingCartItem>() { new ShoppingCartItem() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
+            var shoppingCartItem = new List<ShoppingCartItem> { new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true } };
             //Act
             var result = await _service.GetShoppingCartTotal(shoppingCartItem, false, false);
             //Assert

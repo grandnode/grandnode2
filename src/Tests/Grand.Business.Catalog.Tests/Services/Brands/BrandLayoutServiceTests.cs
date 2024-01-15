@@ -25,7 +25,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
             _repository = new MongoDBRepositoryTest<BrandLayout>();
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _brandLayoutService = new BrandLayoutService(_repository, _cacheBase, _mediatorMock.Object);
         }
 
@@ -49,7 +49,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task GetBrandLayoutByIdTest()
         {
             //Arrange
-            var brandLayout = new BrandLayout() {
+            var brandLayout = new BrandLayout {
                 Name = "test"
             };
             await _brandLayoutService.InsertBrandLayout(brandLayout);
@@ -75,7 +75,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task UpdateBrandLayoutTest()
         {
             //Arrange
-            var categoryLayout = new BrandLayout() {
+            var categoryLayout = new BrandLayout {
                 Name = "test"
             };
             await _brandLayoutService.InsertBrandLayout(categoryLayout);
@@ -93,11 +93,11 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         {
 
             //Arrange
-            var brandLayout1 = new BrandLayout() {
+            var brandLayout1 = new BrandLayout {
                 Name = "test1"
             };
             await _brandLayoutService.InsertBrandLayout(brandLayout1);
-            var brandLayout2 = new BrandLayout() {
+            var brandLayout2 = new BrandLayout {
                 Name = "test2"
             };
             await _brandLayoutService.InsertBrandLayout(brandLayout2);

@@ -93,7 +93,7 @@ namespace Shipping.ShippingPoint
         {
             data.TryGetValue("selectedShippingOption", out var shippingOptionId);
             
-            var shippingMethodName = shippingOption?.Split(new[] { ':' })[0];
+            var shippingMethodName = shippingOption?.Split([':'])[0];
 
             if (string.IsNullOrEmpty(shippingOptionId))
                 return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };

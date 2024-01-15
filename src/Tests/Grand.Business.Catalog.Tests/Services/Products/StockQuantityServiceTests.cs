@@ -137,7 +137,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
                 DisplayStockQuantity = true
             };
             //Act
-            var result = _stockQuantityService.GetTotalStockQuantityForCombination(product, new ProductAttributeCombination() { StockQuantity = 10 });
+            var result = _stockQuantityService.GetTotalStockQuantityForCombination(product, new ProductAttributeCombination { StockQuantity = 10 });
             //Assert
             Assert.AreEqual(10, result);
         }

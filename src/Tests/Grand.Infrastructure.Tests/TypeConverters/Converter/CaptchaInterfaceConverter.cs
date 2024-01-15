@@ -12,7 +12,7 @@ public class CaptchaInterfaceConverter
     {
         //Arrange
         var sample = new SampleClass();
-        sample.CaptchaValidModel = new CaptchaModel() {
+        sample.CaptchaValidModel = new CaptchaModel {
             ReCaptchaResponse = "xxx",
             ReCaptchaResponseField = "yyy",
             ReCaptchaChallengeField = "zzz",

@@ -50,7 +50,7 @@ namespace Grand.Business.Checkout.Validators
                         {
                             var totalQty = value.ShoppingCartItem.Quantity * attributeValue.Quantity;
                             var associatedProductWarnings = await GetShoppingCartItemWarnings(
-                                value with { Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem() {
+                                value with { Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem {
                                     ShoppingCartTypeId = value.ShoppingCartItem.ShoppingCartTypeId,
                                     StoreId = value.ShoppingCartItem.Id,
                                     Quantity = totalQty,

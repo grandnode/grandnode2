@@ -64,9 +64,9 @@
             }
 
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
-            @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })
+            @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId, currentProductId })
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
-            @await Component.InvokeAsync("CollectionNavigation", new { currentCollectionId = currentCollectionId })
+            @await Component.InvokeAsync("CollectionNavigation", new { currentCollectionId })
             @await Component.InvokeAsync("VendorNavigation")
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
         }

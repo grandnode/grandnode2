@@ -91,7 +91,7 @@ namespace Grand.Business.Authentication.Tests.Services
                  new Claim("Token", "123")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer() { Active = false }));
+            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = false }));
             var result = await _jwtBearerAuthenticationService.Valid(context);
             Assert.IsFalse(result);
             Assert.AreEqual(await _jwtBearerAuthenticationService.ErrorMessage(), "Email not exists/or not active in the customer table");
@@ -108,8 +108,8 @@ namespace Grand.Business.Authentication.Tests.Services
                  new Claim("Token", "123")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer() { Active = true }));
-            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi() { IsActive = false, Token = "123" }));
+            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = true }));
+            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi { IsActive = false, Token = "123" }));
             var result = await _jwtBearerAuthenticationService.Valid(context);
             Assert.IsFalse(result);
             Assert.AreEqual("User api not exists/or not active in the user api table", await _jwtBearerAuthenticationService.ErrorMessage());
@@ -125,8 +125,8 @@ namespace Grand.Business.Authentication.Tests.Services
                  new Claim("Token", "123")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer() { Active = true }));
-            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi() { IsActive = true, Token = "321" }));
+            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = true }));
+            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "321" }));
             var result = await _jwtBearerAuthenticationService.Valid(context);
             Assert.IsFalse(result);
             Assert.AreEqual("Wrong token, generate again", await _jwtBearerAuthenticationService.ErrorMessage());
@@ -142,8 +142,8 @@ namespace Grand.Business.Authentication.Tests.Services
                  new Claim("Token", "123")
             };
             context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer() { Active = true }));
-            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi() { IsActive = true, Token = "123" }));
+            _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = true }));
+            _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>())).Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
             var result = await _jwtBearerAuthenticationService.Valid(context);
             Assert.IsTrue(result);
         }
@@ -153,7 +153,7 @@ namespace Grand.Business.Authentication.Tests.Services
         [TestMethod()]
         public async Task GetAuthenticatedCustomer_NullAuthHeader_GetNull()
         {
-            var customer = new Customer() { Email = "johny@gmail.com" };
+            var customer = new Customer { Email = "johny@gmail.com" };
             var httpContext = new Mock<HttpContext>();
             var req = new Mock<HttpRequest>();
             req.Setup(c => c.Path).Returns(new PathString("/api/..."));

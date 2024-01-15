@@ -56,8 +56,7 @@ namespace Grand.Business.System.Services.Reports
                            (vendorId == "" || p.VendorId == vendorId) &&
                            (storeId == "" || p.Stores.Contains(storeId))
                            from c in p.ProductAttributeCombinations
-                           select new ProductsAttributeCombination()
-                           {
+                           select new ProductsAttributeCombination {
                                ProductId = p.Id,
                                StockQuantity = c.StockQuantity,
                                Attributes = c.Attributes,

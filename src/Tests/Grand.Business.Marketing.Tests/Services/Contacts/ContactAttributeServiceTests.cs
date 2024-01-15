@@ -28,10 +28,10 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
             _repository = new MongoDBRepositoryTest<ContactAttribute>();
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             var accessControlConfig = new AccessControlConfig();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _contactAttributeService = new ContactAttributeService(_cacheBase, _repository, _mediatorMock.Object, _workContextMock.Object, accessControlConfig);
         }
 
@@ -39,7 +39,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task DeleteContactAttributeTest()
         {
             //Arrange
-            var contactAttribute = new ContactAttribute() {
+            var contactAttribute = new ContactAttribute {
                 Name = "test"
             };
             await _contactAttributeService.InsertContactAttribute(contactAttribute);
@@ -71,7 +71,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task GetContactAttributeByIdTest()
         {
             //Arrange
-            var contactAttribute = new ContactAttribute() {
+            var contactAttribute = new ContactAttribute {
                 Name = "test"
             };
             await _contactAttributeService.InsertContactAttribute(contactAttribute);
@@ -88,7 +88,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task InsertContactAttributeTest()
         {
             //Act
-            var contactAttribute = new ContactAttribute() {
+            var contactAttribute = new ContactAttribute {
                 Name = "test"
             };
             await _contactAttributeService.InsertContactAttribute(contactAttribute);
@@ -101,7 +101,7 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         public async Task UpdateContactAttributeTest()
         {
             //Arrange
-            var contactAttribute = new ContactAttribute() {
+            var contactAttribute = new ContactAttribute {
                 Name = "test"
             };
             await _contactAttributeService.InsertContactAttribute(contactAttribute);

@@ -31,9 +31,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetProductReservationsByProductIdTest()
         {
             //Arrange
-            await _repository.InsertAsync(new ProductReservation() { ProductId = "1" });
-            await _repository.InsertAsync(new ProductReservation() { ProductId = "1" });
-            await _repository.InsertAsync(new ProductReservation() { ProductId = "2" });
+            await _repository.InsertAsync(new ProductReservation { ProductId = "1" });
+            await _repository.InsertAsync(new ProductReservation { ProductId = "1" });
+            await _repository.InsertAsync(new ProductReservation { ProductId = "2" });
             //Act
             var result = await _service.GetProductReservationsByProductId("1", null, null);
 
@@ -44,7 +44,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task InsertProductReservationTest()
         {
             //Arrange
-            var p = new ProductReservation() { ProductId = "1" };
+            var p = new ProductReservation { ProductId = "1" };
             //Act
             await _service.InsertProductReservation(p);
             //Assert
@@ -55,7 +55,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateProductReservationTest()
         {
             //Arrange
-            var p = new ProductReservation() { ProductId = "1" };
+            var p = new ProductReservation { ProductId = "1" };
             await _repository.InsertAsync(p);
             //Act
             p.ProductId = "2";
@@ -68,7 +68,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteProductReservationTest()
         {
             //Arrange
-            var p = new ProductReservation() { ProductId = "1" };
+            var p = new ProductReservation { ProductId = "1" };
             await _repository.InsertAsync(p);
             //Act
             await _service.DeleteProductReservation(p);
@@ -80,7 +80,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetProductReservationTest()
         {
             //Arrange
-            var p = new ProductReservation() { ProductId = "1" };
+            var p = new ProductReservation { ProductId = "1" };
             await _repository.InsertAsync(p);
             //Act
             var result = await _service.GetProductReservation(p.Id);
@@ -116,8 +116,8 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task CancelReservationsByOrderIdTest()
         {
             //Arrange
-            await _repository.InsertAsync(new ProductReservation() { OrderId = "1" });
-            await _repository.InsertAsync(new ProductReservation() { OrderId = "2" });
+            await _repository.InsertAsync(new ProductReservation { OrderId = "1" });
+            await _repository.InsertAsync(new ProductReservation { OrderId = "2" });
             //Act
             await _service.CancelReservationsByOrderId("1");
             //Assert
@@ -128,7 +128,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetCustomerReservationsHelperByIdTest()
         {
             //Arrange
-            var p = new CustomerReservationsHelper() { CustomerId = "1" };
+            var p = new CustomerReservationsHelper { CustomerId = "1" };
             await _repositoryCustomerReservationsHelper.InsertAsync(p);
             //Act
             var result = await _service.GetCustomerReservationsHelperById(p.Id);
@@ -141,9 +141,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetCustomerReservationsHelpersTest()
         {
             //Arrange
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { CustomerId = "1" });
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { CustomerId = "1" });
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { CustomerId = "2" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { CustomerId = "1" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { CustomerId = "1" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { CustomerId = "2" });
             //Act
             var result = await _service.GetCustomerReservationsHelpers("1");
             //Assert
@@ -155,9 +155,9 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetCustomerReservationsHelperBySciIdTest()
         {
             //Arrange
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { ShoppingCartItemId = "1" });
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { ShoppingCartItemId = "1" });
-            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper() { CustomerId = "2" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { ShoppingCartItemId = "1" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { ShoppingCartItemId = "1" });
+            await _repositoryCustomerReservationsHelper.InsertAsync(new CustomerReservationsHelper { CustomerId = "2" });
             //Act
             var result = await _service.GetCustomerReservationsHelperBySciId("1");
             //Assert

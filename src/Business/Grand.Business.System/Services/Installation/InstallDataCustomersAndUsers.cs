@@ -95,8 +95,8 @@ namespace Grand.Business.System.Services.Installation
             adminUser.ShippingAddress = defaultAdminUserAddress;
             adminUser.Groups.Add(crAdministrators.Id);
             adminUser.Groups.Add(crRegistered.Id);
-            adminUser.UserFields.Add(new UserField() { Key = SystemCustomerFieldNames.FirstName, Value = "John", StoreId = "" });
-            adminUser.UserFields.Add(new UserField() { Key = SystemCustomerFieldNames.LastName, Value = "Smith", StoreId = "" });
+            adminUser.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.FirstName, Value = "John", StoreId = "" });
+            adminUser.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.LastName, Value = "Smith", StoreId = "" });
             await _customerRepository.InsertAsync(adminUser);
 
             //Anonymous user

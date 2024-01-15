@@ -44,7 +44,7 @@ namespace Grand.Business.Marketing.Tests.Services.Newsletters
         public async Task InsertNewsLetterSubscription_ActiveSubcription_InvokeRepositoryAndPublishSubscriptionEvent()
         {
             var email = "johny@gmail.com";
-            var newsLetterSubscription = new NewsLetterSubscription() { Email = email, Active = true };
+            var newsLetterSubscription = new NewsLetterSubscription { Email = email, Active = true };
             await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);
             _subscriptionRepository.Verify(r => r.InsertAsync(newsLetterSubscription), Times.Once);
             _historyServiceMock.Verify(h => h.SaveObject(It.IsAny<BaseEntity>()), Times.Once);
@@ -56,7 +56,7 @@ namespace Grand.Business.Marketing.Tests.Services.Newsletters
         public async Task InsertNewsLetterSubscription_InactiveSubcription_InvokeRepository()
         {
             var email = "johny@gmail.com";
-            var newsLetterSubscription = new NewsLetterSubscription() { Email = email, Active = false };
+            var newsLetterSubscription = new NewsLetterSubscription { Email = email, Active = false };
             await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription);
             _subscriptionRepository.Verify(r => r.InsertAsync(newsLetterSubscription), Times.Once);
             _historyServiceMock.Verify(h => h.SaveObject(It.IsAny<BaseEntity>()), Times.Once);
@@ -68,7 +68,7 @@ namespace Grand.Business.Marketing.Tests.Services.Newsletters
         public async Task UpdateNewsLetterSubscription_InvokeRepository()
         {
             var email = "johny@gmail.com";
-            var newsLetterSubscription = new NewsLetterSubscription() { Email = email, Active = false };
+            var newsLetterSubscription = new NewsLetterSubscription { Email = email, Active = false };
             await _newsLetterSubscriptionService.UpdateNewsLetterSubscription(newsLetterSubscription);
             _subscriptionRepository.Verify(r => r.UpdateAsync(newsLetterSubscription), Times.Once);
             _historyServiceMock.Verify(h => h.SaveObject(It.IsAny<BaseEntity>()), Times.Once);
@@ -79,7 +79,7 @@ namespace Grand.Business.Marketing.Tests.Services.Newsletters
         public async Task DeleteNewsLetterSubscription_InvokeRepositoryAndEmailUnsubscribedEvent()
         {
             var email = "johny@gmail.com";
-            var newsLetterSubscription = new NewsLetterSubscription() { Email = email, Active = false };
+            var newsLetterSubscription = new NewsLetterSubscription { Email = email, Active = false };
             await _newsLetterSubscriptionService.DeleteNewsLetterSubscription(newsLetterSubscription);
             _subscriptionRepository.Verify(r => r.DeleteAsync(newsLetterSubscription), Times.Once);
             _mediatorMock.Verify(m => m.Publish<EmailUnsubscribedEvent>(It.IsAny<EmailUnsubscribedEvent>(), default(CancellationToken)), Times.Once);

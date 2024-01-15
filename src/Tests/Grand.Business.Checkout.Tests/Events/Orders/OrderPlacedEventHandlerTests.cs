@@ -31,9 +31,9 @@ namespace Grand.Business.Checkout.Tests.Events.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var order = new Order() { RedeemedLoyaltyPointsAmount = 10 };
-            order.OrderItems.Add(new OrderItem() { ProductId = "1" });
-            order.OrderItems.Add(new OrderItem() { ProductId = "2" });
+            var order = new Order { RedeemedLoyaltyPointsAmount = 10 };
+            order.OrderItems.Add(new OrderItem { ProductId = "1" });
+            order.OrderItems.Add(new OrderItem { ProductId = "2" });
             var notification = new OrderPlacedEvent(order);
             //Act
             await _orderPlacedEventHandler.Handle(notification, CancellationToken.None);

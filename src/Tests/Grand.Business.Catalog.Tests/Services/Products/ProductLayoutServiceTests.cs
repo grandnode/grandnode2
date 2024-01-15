@@ -25,7 +25,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repository = new MongoDBRepositoryTest<ProductLayout>();
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _productLayoutService = new ProductLayoutService(_repository, _cacheBase, _mediatorMock.Object);
         }
 
@@ -49,7 +49,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetProductLayoutByIdTest()
         {
             //Arrange
-            var productLayout = new ProductLayout() {
+            var productLayout = new ProductLayout {
                 Name = "test"
             };
             await _productLayoutService.InsertProductLayout(productLayout);
@@ -75,7 +75,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateProductLayoutTest()
         {
             //Arrange
-            var categoryLayout = new ProductLayout() {
+            var categoryLayout = new ProductLayout {
                 Name = "test"
             };
             await _productLayoutService.InsertProductLayout(categoryLayout);
@@ -92,11 +92,11 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteProductLayoutTest()
         {
             //Arrange
-            var productLayout1 = new ProductLayout() {
+            var productLayout1 = new ProductLayout {
                 Name = "test1"
             };
             await _productLayoutService.InsertProductLayout(productLayout1);
-            var productLayout2 = new ProductLayout() {
+            var productLayout2 = new ProductLayout {
                 Name = "test2"
             };
             await _productLayoutService.InsertProductLayout(productLayout2);

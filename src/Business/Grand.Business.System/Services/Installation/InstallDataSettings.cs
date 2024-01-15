@@ -107,59 +107,58 @@ namespace Grand.Business.System.Services.Installation
                 CanonicalUrlsEnabled = false,
                 TwitterMetaTags = true,
                 OpenGraphMetaTags = true,
-                ReservedEntityUrlSlugs = new List<string>
-                    {
-                        "admin",
-                        "install",
-                        "recentlyviewedproducts",
-                        "newproducts",
-                        "compareproducts",
-                        "clearcomparelist",
-                        "setproductreviewhelpfulness",
-                        "login",
-                        "register",
-                        "logout",
-                        "cart",
-                        "wishlist",
-                        "emailwishlist",
-                        "checkout",
-                        "onepagecheckout",
-                        "contactus",
-                        "passwordrecovery",
-                        "subscribenewsletter",
-                        "blog",
-                        "knowledgebase",
-                        "news",
-                        "sitemap",
-                        "search",
-                        "config",
-                        "cookieaccept",
-                        "access-denied",
-                        "page-not-found",
-                        "home",
-                        "con",
-                        "lpt1",
-                        "lpt2",
-                        "lpt3",
-                        "lpt4",
-                        "lpt5",
-                        "lpt6",
-                        "lpt7",
-                        "lpt8",
-                        "lpt9",
-                        "com1",
-                        "com2",
-                        "com3",
-                        "com4",
-                        "com5",
-                        "com6",
-                        "com7",
-                        "com8",
-                        "com9",
-                        "null",
-                        "prn",
-                        "aux"
-                    }
+                ReservedEntityUrlSlugs = [
+                    "admin",
+                    "install",
+                    "recentlyviewedproducts",
+                    "newproducts",
+                    "compareproducts",
+                    "clearcomparelist",
+                    "setproductreviewhelpfulness",
+                    "login",
+                    "register",
+                    "logout",
+                    "cart",
+                    "wishlist",
+                    "emailwishlist",
+                    "checkout",
+                    "onepagecheckout",
+                    "contactus",
+                    "passwordrecovery",
+                    "subscribenewsletter",
+                    "blog",
+                    "knowledgebase",
+                    "news",
+                    "sitemap",
+                    "search",
+                    "config",
+                    "cookieaccept",
+                    "access-denied",
+                    "page-not-found",
+                    "home",
+                    "con",
+                    "lpt1",
+                    "lpt2",
+                    "lpt3",
+                    "lpt4",
+                    "lpt5",
+                    "lpt6",
+                    "lpt7",
+                    "lpt8",
+                    "lpt9",
+                    "com1",
+                    "com2",
+                    "com3",
+                    "com4",
+                    "com5",
+                    "com6",
+                    "com7",
+                    "com8",
+                    "com9",
+                    "null",
+                    "prn",
+                    "aux"
+                ]
             });
 
             await _settingService.SaveSetting(new AdminAreaSettings {
@@ -422,16 +421,15 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new ShippingProviderSettings {
-                ActiveSystemNames = new List<string> { "Shipping.FixedRate" }
+                ActiveSystemNames = ["Shipping.FixedRate"]
             });
 
             await _settingService.SaveSetting(new PaymentSettings {
-                ActivePaymentProviderSystemNames = new List<string>
-                    {
-                        "Payments.CashOnDelivery",
-                        "Payments.PayPalStandard",
-                        "Payments.BrainTree"
-                    },
+                ActivePaymentProviderSystemNames = [
+                    "Payments.CashOnDelivery",
+                    "Payments.PayPalStandard",
+                    "Payments.BrainTree"
+                ],
                 AllowRePostingPayments = true,
                 SkipPaymentIfOnlyOne = true,
                 ShowPaymentDescriptions = true,
@@ -552,7 +550,7 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new WidgetSettings {
-                ActiveWidgetSystemNames = new List<string> { "Widgets.Slider" }
+                ActiveWidgetSystemNames = ["Widgets.Slider"]
             });
         }
     }

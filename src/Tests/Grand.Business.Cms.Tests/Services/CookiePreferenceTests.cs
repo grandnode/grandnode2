@@ -26,7 +26,7 @@ namespace Grand.Business.Cms.Tests.Services
             cookie2.Setup(c => c.SystemName).Returns("cookie2");
 
             _userFieldServiceMock = new Mock<IUserFieldService>();
-            _cookiePreferences = new CookiePreference(_userFieldServiceMock.Object, new List<IConsentCookie>() { cookie1.Object, cookie2.Object });
+            _cookiePreferences = new CookiePreference(_userFieldServiceMock.Object, new List<IConsentCookie> { cookie1.Object, cookie2.Object });
         }
 
         [TestMethod()]

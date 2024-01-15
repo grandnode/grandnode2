@@ -22,9 +22,9 @@ namespace Grand.Business.Messages.Tests.Queries.Handlers
         public async Task HandleTest()
         {
             //Arrange
-            await _repository.InsertAsync(new Vendor() { Id = "1" });
+            await _repository.InsertAsync(new Vendor { Id = "1" });
             //Act
-            var result = await handler.Handle(new Core.Queries.Messages.GetVendorByIdQuery() { Id = "1" }, CancellationToken.None);
+            var result = await handler.Handle(new Core.Queries.Messages.GetVendorByIdQuery { Id = "1" }, CancellationToken.None);
             //Arrange
             Assert.IsNotNull(result);
         }

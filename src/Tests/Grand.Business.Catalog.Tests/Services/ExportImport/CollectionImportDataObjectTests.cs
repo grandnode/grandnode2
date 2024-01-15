@@ -52,11 +52,11 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
             _slugServiceMock = new Mock<ISlugService>();
             _languageServiceMock = new Mock<ILanguageService>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _collectionService = new CollectionService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
 
             _collectionImportDataObject = new CollectionImportDataObject(_collectionService, _pictureServiceMock.Object, _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new Domain.Seo.SeoSettings());
@@ -67,13 +67,13 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         {
             //Arrange
             var collections = new List<CollectionDto>();
-            collections.Add(new CollectionDto() { Name = "test1", Published = true });
-            collections.Add(new CollectionDto() { Name = "test2", Published = true });
-            collections.Add(new CollectionDto() { Name = "test3", Published = true });
+            collections.Add(new CollectionDto { Name = "test1", Published = true });
+            collections.Add(new CollectionDto { Name = "test2", Published = true });
+            collections.Add(new CollectionDto { Name = "test3", Published = true });
             _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CollectionLayout()));
-            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout>() { new CollectionLayout() }));
+            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new CollectionLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _collectionImportDataObject.Execute(collections);
 
@@ -86,29 +86,29 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Update()
         {
             //Arrange
-            var collection1 = new Collection() {
+            var collection1 = new Collection {
                 Name = "insert1"
             };
             await _collectionService.InsertCollection(collection1);
-            var collection2 = new Collection() {
+            var collection2 = new Collection {
                 Name = "insert2"
             };
             await _collectionService.InsertCollection(collection2);
-            var collection3 = new Collection() {
+            var collection3 = new Collection {
                 Name = "insert3"
             };
             await _collectionService.InsertCollection(collection3);
 
 
             var collections = new List<CollectionDto>();
-            collections.Add(new CollectionDto() { Id = collection1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
-            collections.Add(new CollectionDto() { Id = collection2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
-            collections.Add(new CollectionDto() { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            collections.Add(new CollectionDto { Id = collection1.Id, Name = "update1", Published = false, DisplayOrder = 1 });
+            collections.Add(new CollectionDto { Id = collection2.Id, Name = "update2", Published = false, DisplayOrder = 2 });
+            collections.Add(new CollectionDto { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CollectionLayout()));
-            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout>() { new CollectionLayout() }));
+            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new CollectionLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _collectionImportDataObject.Execute(collections);
 
@@ -125,20 +125,20 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport
         public async Task ExecuteTest_Import_Insert_Update()
         {
             //Arrange
-            var collection3 = new Collection() {
+            var collection3 = new Collection {
                 Name = "insert3"
             };
             await _collectionService.InsertCollection(collection3);
 
             var collections = new List<CollectionDto>();
-            collections.Add(new CollectionDto() { Name = "update1", Published = false, DisplayOrder = 1 });
-            collections.Add(new CollectionDto() { Name = "update2", Published = false, DisplayOrder = 2 });
-            collections.Add(new CollectionDto() { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
+            collections.Add(new CollectionDto { Name = "update1", Published = false, DisplayOrder = 1 });
+            collections.Add(new CollectionDto { Name = "update2", Published = false, DisplayOrder = 2 });
+            collections.Add(new CollectionDto { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
             _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>())).Returns(Task.FromResult(new CollectionLayout()));
-            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout>() { new CollectionLayout() }));
+            _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts()).Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new CollectionLayout() }));
             _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl() { Slug = "slug" }));
+            _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>())).Returns(Task.FromResult(new Domain.Seo.EntityUrl { Slug = "slug" }));
             //Act
             await _collectionImportDataObject.Execute(collections);
 

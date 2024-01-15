@@ -27,7 +27,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         public async Task DeleteTest()
         {
             //Arrange
-            var courseLevel = new CourseLevel() {
+            var courseLevel = new CourseLevel {
                 Name = "test"
             };
             await _courseLevelService.Insert(courseLevel);
@@ -59,7 +59,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         public async Task GetByIdTest()
         {
             //Arrange
-            var courseLevel = new CourseLevel() {
+            var courseLevel = new CourseLevel {
                 Name = "test"
             };
             await _courseLevelService.Insert(courseLevel);
@@ -76,7 +76,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         public async Task InsertTest()
         {
             //Act
-            var courseLevel = new CourseLevel() {
+            var courseLevel = new CourseLevel {
                 Name = "test"
             };
             await _courseLevelService.Insert(courseLevel);
@@ -89,7 +89,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
         public async Task UpdateTest()
         {
             //Arrange
-            var courseLevel = new CourseLevel() {
+            var courseLevel = new CourseLevel {
                 Name = "test"
             };
             await _courseLevelService.Insert(courseLevel);

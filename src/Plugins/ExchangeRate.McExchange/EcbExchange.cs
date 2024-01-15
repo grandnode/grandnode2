@@ -34,7 +34,7 @@ namespace ExchangeRate.McExchange
             var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
             foreach (XmlNode node2 in node.ChildNodes)
             {
-                exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate() {
+                exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate {
                     CurrencyCode = node2.Attributes["currency"].Value,
                     Rate = double.Parse(node2.Attributes["rate"].Value, provider),
                     UpdatedOn = updateDate

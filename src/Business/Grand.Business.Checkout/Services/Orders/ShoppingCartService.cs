@@ -250,7 +250,7 @@ namespace Grand.Business.Checkout.Services.Orders
             else shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, automaticallyAddRequiredProductsIfEnabled);
 
             if (product.ProductTypeId == ProductType.Reservation)
-                await _mediator.Send(new AddCustomerReservationCommand() {
+                await _mediator.Send(new AddCustomerReservationCommand {
                     Customer = customer,
                     Product = product,
                     ShoppingCartItem = shoppingCartItem,
@@ -286,7 +286,7 @@ namespace Grand.Business.Checkout.Services.Orders
             await _mediator.Publish(new AddToCartEvent(customer, shoppingCartItem, product));
             if (automaticallyAddRequiredProductsIfEnabled)
             {
-                await _mediator.Send(new AddRequiredProductsCommand() {
+                await _mediator.Send(new AddRequiredProductsCommand {
                     Customer = customer,
                     Product = product,
                     ShoppingCartType = shoppingCartItem.ShoppingCartTypeId,

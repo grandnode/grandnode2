@@ -46,7 +46,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         {
             //Arrange
             var customer = new Customer();
-            customer.UserFields.Add(new UserField() { Key = "Field", Value = "empty", StoreId = "" });
+            customer.UserFields.Add(new UserField { Key = "Field", Value = "empty", StoreId = "" });
             _repositoryCustomer.Insert(customer);
             //Act
             await _userFieldService.SaveField(customer, "Field", "Value");
@@ -60,7 +60,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         {
             //Arrange
             var customer = new Customer();
-            customer.UserFields.Add(new UserField() { Key = "Field", Value = "Value", StoreId = "" });
+            customer.UserFields.Add(new UserField { Key = "Field", Value = "Value", StoreId = "" });
             _repositoryCustomer.Insert(customer);
             //Act
             await _userFieldService.SaveField(customer, "Field", String.Empty);

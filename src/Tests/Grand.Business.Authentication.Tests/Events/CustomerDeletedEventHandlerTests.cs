@@ -23,9 +23,9 @@ namespace Grand.Business.Authentication.Tests.Events
         public async Task HandleTest()
         {
             //Arrange
-            await _repository.InsertAsync(new ExternalAuthentication() { CustomerId = "1" });
+            await _repository.InsertAsync(new ExternalAuthentication { CustomerId = "1" });
             //Act
-            await _handler.Handle(new Infrastructure.Events.EntityDeleted<Customer>(new Customer() { Id = "1" }), CancellationToken.None);
+            await _handler.Handle(new Infrastructure.Events.EntityDeleted<Customer>(new Customer { Id = "1" }), CancellationToken.None);
             //Assert
             Assert.AreEqual(0, _repository.Table.Count());
         }

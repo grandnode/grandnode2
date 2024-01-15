@@ -51,7 +51,7 @@ namespace Tax.FixedRate.Areas.Admin.Controllers
             var taxCategoryId = model.TaxCategoryId;
             var rate = model.Rate;
 
-            await _settingService.SetSetting($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}", new FixedTaxRate() { Rate = rate });
+            await _settingService.SetSetting($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}", new FixedTaxRate { Rate = rate });
 
             return new JsonResult("");
         }

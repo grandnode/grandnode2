@@ -10,11 +10,11 @@ namespace Grand.Business.Catalog.Tests.Extensions
         [TestMethod()]
         public void ShouldHaveValues_ReturnExpentedResult()
         {
-            var pam = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.TextBox };
-            var pam2 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
-            var pam3 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.Datepicker };
-            var pam4 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.FileUpload };
-            var pam5 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.DropdownList };
+            var pam = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.TextBox };
+            var pam2 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
+            var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
+            var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
+            var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
             ProductAttributeMapping pam6 = null;
             Assert.AreEqual(false, pam.ShouldHaveValues());
             Assert.AreEqual(false, pam2.ShouldHaveValues());
@@ -28,11 +28,11 @@ namespace Grand.Business.Catalog.Tests.Extensions
         [TestMethod()]
         public void ValidationRulesAllowed_ReturnExpentedResult()
         {
-            var pam = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.TextBox };
-            var pam2 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
-            var pam3 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.Datepicker };
-            var pam4 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.FileUpload };
-            var pam5 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.DropdownList };
+            var pam = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.TextBox };
+            var pam2 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
+            var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
+            var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
+            var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
             ProductAttributeMapping pam6 = null;
             Assert.AreEqual(true, pam.ValidationRulesAllowed());
             Assert.AreEqual(true, pam2.ValidationRulesAllowed());
@@ -45,11 +45,11 @@ namespace Grand.Business.Catalog.Tests.Extensions
         [TestMethod()]
         public void CanBeUsedAsCondition_ReturnExpentedResult()
         {
-            var pam = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.TextBox };
-            var pam2 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
-            var pam3 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.Datepicker };
-            var pam4 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.FileUpload };
-            var pam5 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.DropdownList };
+            var pam = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.TextBox };
+            var pam2 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
+            var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
+            var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
+            var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
             ProductAttributeMapping pam6 = null;
             Assert.AreEqual(false, pam.CanBeUsedAsCondition());
             Assert.AreEqual(false, pam2.CanBeUsedAsCondition());
@@ -62,13 +62,13 @@ namespace Grand.Business.Catalog.Tests.Extensions
         [TestMethod()]
         public void IsNonCombinable_ReturnExpentedResult()
         {
-            var pam = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.TextBox };
-            var pam2 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
-            var pam3 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.Datepicker };
-            var pam4 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.FileUpload };
-            var pam5 = new ProductAttributeMapping() { AttributeControlTypeId = AttributeControlType.DropdownList };
+            var pam = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.TextBox };
+            var pam2 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
+            var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
+            var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
+            var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
             ProductAttributeMapping pam6 = null;
-            var pam7 = new ProductAttributeMapping() { Combination = true };
+            var pam7 = new ProductAttributeMapping { Combination = true };
             Assert.AreEqual(true, pam.IsNonCombinable());
             Assert.AreEqual(true, pam2.IsNonCombinable());
             Assert.AreEqual(true, pam4.IsNonCombinable());

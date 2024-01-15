@@ -156,8 +156,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand()
-            {
+            var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand {
                 Product = product,
                 Warehouse = warehouse
             });
@@ -178,8 +177,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand()
-            {
+            var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand {
                 Product = product,
                 Warehouse = warehouse,
                 Attributes = attributes

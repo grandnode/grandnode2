@@ -58,7 +58,7 @@ namespace DiscountRules.Standard.Areas.Admin.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesCustomerGroups{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View((object)model);
+            return View(model);
         }
 
         [HttpPost]

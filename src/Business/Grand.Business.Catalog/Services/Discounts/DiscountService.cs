@@ -387,7 +387,9 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <returns>Discount validation result</returns>
         public virtual Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string couponCodeToValidate)
         {
-            var couponCodes = string.IsNullOrWhiteSpace(couponCodeToValidate) ? Array.Empty<string>() : new[] { couponCodeToValidate };
+            var couponCodes = string.IsNullOrWhiteSpace(couponCodeToValidate) ? Array.Empty<string>() : [
+                couponCodeToValidate
+            ];
             return ValidateDiscount(discount, customer, currency, couponCodes);
         }
 

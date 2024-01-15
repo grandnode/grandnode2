@@ -21,7 +21,7 @@
                         @Loc["Admin.Configuration.Menu.Edit"]  - @Model.SystemName
                         @if (parent != null && parent.Id != Model.Id)
                         {
-                            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[parent.ResourceName], "Edit", new { Id = parent.Id, area = @Constants.AreaAdmin })</small>
+                            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[parent.ResourceName], "Edit", new { parent.Id, area = @Constants.AreaAdmin })</small>
                         }
                         else
                         {

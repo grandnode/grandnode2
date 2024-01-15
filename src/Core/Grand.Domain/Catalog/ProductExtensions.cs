@@ -223,7 +223,7 @@ namespace Grand.Domain.Catalog
             if (customAttributes == null)
                 customAttributes = new List<CustomAttribute>();
 
-            customAttributes.Add(new CustomAttribute() { Key = productAttributeMapping.Id, Value = value });
+            customAttributes.Add(new CustomAttribute { Key = productAttributeMapping.Id, Value = value });
 
             return customAttributes;
         }
@@ -445,8 +445,8 @@ namespace Grand.Domain.Catalog
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            if (String.IsNullOrEmpty(product.RequiredProductIds))
-                return new string[0];
+            if (string.IsNullOrEmpty(product.RequiredProductIds))
+                return Array.Empty<string>();
 
             var ids = new List<string>();
 

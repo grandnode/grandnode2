@@ -37,7 +37,7 @@ namespace Grand.Data.Tests.MongoDb
         public async Task GetById_MongoRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
             
             //Act
@@ -51,7 +51,7 @@ namespace Grand.Data.Tests.MongoDb
         public async Task GetByIdAsync_MongoRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
             //Act
             var p = await _myRepository.GetByIdAsync("1");
@@ -64,7 +64,7 @@ namespace Grand.Data.Tests.MongoDb
         [TestMethod()]
         public async Task ClearAsync_MongoRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             await _myRepository.ClearAsync();
@@ -76,15 +76,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task AddToSet_MongoRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             await _myRepository.AddToSet("1", x => x.UserFields,
-                new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" });
+                new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" });
 
             //Act
             await _myRepository.AddToSet("1", x => x.UserFields,
-            new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" });
+            new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" });
 
             var p = _myRepository.GetById("1");
 
@@ -100,7 +100,7 @@ namespace Grand.Data.Tests.MongoDb
         public async Task Delete_MongoRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             //Act
@@ -115,7 +115,7 @@ namespace Grand.Data.Tests.MongoDb
         public async Task DeleteAsync_MongoRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             //Act
@@ -129,10 +129,10 @@ namespace Grand.Data.Tests.MongoDb
         public async Task DeleteManyAsync_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test" },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test2" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test" },
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test2" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -148,14 +148,14 @@ namespace Grand.Data.Tests.MongoDb
         public async Task Pull_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
                     Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "2", Name = "Test2",
+            new SampleCollection { Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -176,14 +176,14 @@ namespace Grand.Data.Tests.MongoDb
         public async Task Pull_Many_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
                     Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "2", Name = "Test2",
+            new SampleCollection { Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -207,16 +207,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task PullFilter_1_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -239,16 +238,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task PullFilter_2_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -270,23 +268,21 @@ namespace Grand.Data.Tests.MongoDb
         public async Task PullFilter_2_Many_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            new SampleCollection { Id = "2", Name = "Test2",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 }
             },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -311,16 +307,15 @@ namespace Grand.Data.Tests.MongoDb
         public void Update_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -342,16 +337,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task UpdateAsync_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -372,16 +366,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task UpdateField_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -399,7 +392,7 @@ namespace Grand.Data.Tests.MongoDb
         [TestMethod()]
         public async Task IncField_MongoRepository_Success()
         {
-            var sample = new SampleCollection() { Id = "1", Name = "Test" };
+            var sample = new SampleCollection { Id = "1", Name = "Test" };
             await _myRepository.InsertAsync(sample);
 
             await _myRepository.IncField("1", x => x.Count, 1);
@@ -415,16 +408,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task UpdateManyAsync_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -444,16 +436,15 @@ namespace Grand.Data.Tests.MongoDb
         public async Task UpdateOneAsync_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -474,21 +465,20 @@ namespace Grand.Data.Tests.MongoDb
         public async Task UpdateToSet_MongoRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
             //Act
-            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField() { Key = "key", Value = "update", StoreId = "1" });
+            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
             var p = _myRepository.GetById("1");
 
             //Assert

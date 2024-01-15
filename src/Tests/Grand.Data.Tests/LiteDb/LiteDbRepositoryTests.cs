@@ -21,7 +21,7 @@ namespace Grand.Data.Tests.LiteDb
         public void Insert_LiteRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection(){Id = "1"};
+            var product = new SampleCollection {Id = "1"};
             //Act
             _myRepository.Insert(product);
             //Assert
@@ -33,7 +33,7 @@ namespace Grand.Data.Tests.LiteDb
         public async Task InsertAsync_LiteRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection(){ Id = "11"};
+            var product = new SampleCollection { Id = "11"};
             //Act
             await _myRepository.InsertAsync(product);
             var p = _myRepository.GetById("11");
@@ -46,7 +46,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task GetById_LiteRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             var p = _myRepository.GetById("1");
@@ -57,7 +57,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task GetByIdAsync_LiteRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             var p = await _myRepository.GetByIdAsync("1");
@@ -68,7 +68,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task ClearAsync_LiteRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             await _myRepository.ClearAsync();
@@ -80,15 +80,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task AddToSet_LiteRepository_Success()
         {
             //Arrange
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             await _myRepository.AddToSet("1", x => x.UserFields,
-                new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" });
+                new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" });
 
             //Act
             await _myRepository.AddToSet("1", x => x.UserFields,
-            new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" });
+            new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" });
             var p = _myRepository.GetById("1");
             
             //Assert
@@ -101,7 +101,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task Delete_LiteRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             _myRepository.Delete(product);
@@ -114,7 +114,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task DeleteAsync_LiteRepository_Success()
         {
-            var product = new SampleCollection() { Id = "1" };
+            var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
 
             await _myRepository.DeleteAsync(product);
@@ -126,9 +126,9 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task DeleteManyAsync_LiteRepository_Success()
         {
-            await _myRepository.InsertAsync(new SampleCollection(){ Id = "1", Name = "Test" });
-            await _myRepository.InsertAsync(new SampleCollection(){ Id = "2", Name = "Test" });
-            await _myRepository.InsertAsync(new SampleCollection(){ Id = "3", Name = "Test2" });
+            await _myRepository.InsertAsync(new SampleCollection { Id = "1", Name = "Test" });
+            await _myRepository.InsertAsync(new SampleCollection { Id = "2", Name = "Test" });
+            await _myRepository.InsertAsync(new SampleCollection { Id = "3", Name = "Test2" });
 
             await _myRepository.DeleteManyAsync(x => x.Name == "Test");
 
@@ -139,14 +139,14 @@ namespace Grand.Data.Tests.LiteDb
         public async Task Pull_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
                     Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "2", Name = "Test2",
+            new SampleCollection { Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -163,14 +163,14 @@ namespace Grand.Data.Tests.LiteDb
         public async Task Pull_Many_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
                     Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "2", Name = "Test2",
+            new SampleCollection { Id = "2", Name = "Test2",
                 Phones = new [] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -193,16 +193,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task PullFilter_1_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -222,16 +221,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task PullFilter_2_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -251,23 +249,21 @@ namespace Grand.Data.Tests.LiteDb
         public async Task PullFilter_2_Many_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            new SampleCollection { Id = "2", Name = "Test2",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 }
             },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -289,16 +285,15 @@ namespace Grand.Data.Tests.LiteDb
         public void Update_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -321,16 +316,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateAsync_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -351,16 +345,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateField_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test2" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -378,7 +371,7 @@ namespace Grand.Data.Tests.LiteDb
         [TestMethod()]
         public async Task IncField_MongoRepository_Success()
         {
-            var sample = new SampleCollection() { Id = "1", Name = "Test" };
+            var sample = new SampleCollection { Id = "1", Name = "Test" };
             await _myRepository.InsertAsync(sample);
 
             await _myRepository.IncField("1", x => x.Count, 1);
@@ -393,16 +386,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateManyAsync_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -424,16 +416,15 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateOneAsync_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
@@ -453,22 +444,21 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateToSet_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
             
             //Act
-            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField() { Key = "key", Value = "update", StoreId = "1" });
+            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
             var p = _myRepository.GetById("1");
             
             //Assert
@@ -482,21 +472,20 @@ namespace Grand.Data.Tests.LiteDb
         public async Task UpdateToSet_2_LiteRepository_Success()
         {
             //Arrange
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField>()
-                {
-                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+            var products = new List<SampleCollection> {
+            new SampleCollection { Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField> {
+                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
                 } },
-            new SampleCollection(){ Id = "2", Name = "Test" },
-            new SampleCollection(){ Id = "3", Name = "Test3" }
+            new SampleCollection { Id = "2", Name = "Test" },
+            new SampleCollection { Id = "3", Name = "Test3" }
 
             };
             products.ForEach(x=>_myRepository.Insert(x));
             //Act
-            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key", new Domain.Common.UserField() { Key = "key", Value = "update", StoreId = "1" });
+            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
 
             var p = _myRepository.GetById("1");
 

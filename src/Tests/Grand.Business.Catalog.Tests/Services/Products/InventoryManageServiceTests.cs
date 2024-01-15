@@ -41,11 +41,11 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repositoryInventoryJournal = new MongoDBRepositoryTest<InventoryJournal>();
             _workContextMock = new Mock<IWorkContext>();
             _translationService = new Mock<ITranslationService>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
             _settings = new CatalogSettings();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _stockQuantityService = new StockQuantityService();
             _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal, _stockQuantityService, _cacheBase, _mediatorMock.Object, _settings);
         }
@@ -56,7 +56,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task AdjustReservedTest_ManageStock_Reserve()
         {
             //Arrange
-            var product = new Product() {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 ReservedQuantity = 5
             };
@@ -72,7 +72,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task AdjustReservedTest_ManageStock_UnblockReserved()
         {
             //Arrange
-            var product = new Product() {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 ReservedQuantity = 10
             };
@@ -88,7 +88,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task BookReservedInventoryTest_ManageStock()
         {
             //Arrange
-            var product = new Product() {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10,
                 ReservedQuantity = 10
@@ -96,7 +96,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             await _repository.InsertAsync(product);
 
             var shipment = new Shipment();
-            var shipmentItem = new Domain.Shipping.ShipmentItem() { Quantity = 10 };
+            var shipmentItem = new Domain.Shipping.ShipmentItem { Quantity = 10 };
 
             //Act
             await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
@@ -110,7 +110,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task ReverseBookedInventoryTest()
         {
             //Arrange
-            var product = new Product() {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10,
                 ReservedQuantity = 10
@@ -118,7 +118,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             await _repository.InsertAsync(product);
 
             var shipment = new Shipment();
-            var shipmentItem = new Domain.Shipping.ShipmentItem() { Quantity = 10 };
+            var shipmentItem = new Domain.Shipping.ShipmentItem { Quantity = 10 };
             await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
 
             //Act
@@ -135,7 +135,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateStockProductTest()
         {
             //Arrange
-            var product = new Product() {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 StockQuantity = 0,
                 ReservedQuantity = 0

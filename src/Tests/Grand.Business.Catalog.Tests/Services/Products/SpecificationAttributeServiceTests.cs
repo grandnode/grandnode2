@@ -30,8 +30,8 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             _repositoryProduct = new MongoDBRepositoryTest<Product>();
             _mediatorMock = new Mock<IMediator>();
             _productServiceMock = new Mock<IProductService>();
-            _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() => Task.FromResult((IList<Product>)new List<Product>() { new Product() { Id = "1", Published = true }, new Product() { Id = "2", Published = true }, new Product() { Id = "3", Published = true } }));
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() => Task.FromResult((IList<Product>)new List<Product> { new Product { Id = "1", Published = true }, new Product { Id = "2", Published = true }, new Product { Id = "3", Published = true } }));
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             service = new SpecificationAttributeService(_cacheBase, _repository, _repositoryProduct, _mediatorMock.Object);
         }       
 
@@ -39,7 +39,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetSpecificationAttributeByIdTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test"
             };
             await service.InsertSpecificationAttribute(specificationAttribute);
@@ -56,7 +56,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetSpecificationAttributeBySeNameTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };
@@ -90,7 +90,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task InsertSpecificationAttributeTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };
@@ -106,7 +106,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateSpecificationAttributeTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };
@@ -124,7 +124,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteSpecificationAttributeTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };
@@ -141,7 +141,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetSpecificationAttributeByOptionIdTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };
@@ -161,7 +161,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteSpecificationAttributeOptionTest()
         {
             //Arrange
-            var specificationAttribute = new SpecificationAttribute() {
+            var specificationAttribute = new SpecificationAttribute {
                 Name = "test",
                 SeName = "test"
             };

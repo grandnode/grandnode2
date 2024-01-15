@@ -42,7 +42,7 @@ namespace Grand.Business.Checkout.Tests.Services.GiftVouchers
         [TestMethod]
         public async Task InsertGiftVoucher_InovokeExpectedMethods()
         {
-            await _service.InsertGiftVoucher(new GiftVoucher() { Code = "code" });
+            await _service.InsertGiftVoucher(new GiftVoucher { Code = "code" });
             _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<GiftVoucher>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<GiftVoucher>>(), default(CancellationToken)), Times.Once);
         }
@@ -56,7 +56,7 @@ namespace Grand.Business.Checkout.Tests.Services.GiftVouchers
         [TestMethod]
         public async Task UpdateGiftVoucher_InovokeExpectedMethods()
         {
-            await _service.UpdateGiftVoucher(new GiftVoucher() { Code = "code" });
+            await _service.UpdateGiftVoucher(new GiftVoucher { Code = "code" });
             _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<GiftVoucher>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<GiftVoucher>>(), default(CancellationToken)), Times.Once);
         }

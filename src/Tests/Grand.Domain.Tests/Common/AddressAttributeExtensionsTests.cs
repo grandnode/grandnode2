@@ -17,10 +17,10 @@ namespace Grand.Domain.Tests.Common
         [TestMethod()]
         public void ShouldHaveValues__ReturnFalse()
         {
-            AddressAttribute addressAttribute = new AddressAttribute() { AttributeControlType = AttributeControlType.TextBox };
-            AddressAttribute addressAttribute2 = new AddressAttribute() { AttributeControlType = AttributeControlType.MultilineTextbox };
-            AddressAttribute addressAttribute3 = new AddressAttribute() { AttributeControlType = AttributeControlType.Datepicker };
-            AddressAttribute addressAttribute4 = new AddressAttribute() { AttributeControlType = AttributeControlType.FileUpload };
+            AddressAttribute addressAttribute = new AddressAttribute { AttributeControlType = AttributeControlType.TextBox };
+            AddressAttribute addressAttribute2 = new AddressAttribute { AttributeControlType = AttributeControlType.MultilineTextbox };
+            AddressAttribute addressAttribute3 = new AddressAttribute { AttributeControlType = AttributeControlType.Datepicker };
+            AddressAttribute addressAttribute4 = new AddressAttribute { AttributeControlType = AttributeControlType.FileUpload };
             Assert.IsFalse(addressAttribute.ShouldHaveValues());
             Assert.IsFalse(addressAttribute2.ShouldHaveValues());
             Assert.IsFalse(addressAttribute3.ShouldHaveValues());
@@ -31,10 +31,10 @@ namespace Grand.Domain.Tests.Common
         [TestMethod()]
         public void ShouldHaveValues__ReturnTrue()
         {
-            AddressAttribute addressAttribute = new AddressAttribute() { AttributeControlType = AttributeControlType.DropdownList };
-            AddressAttribute addressAttribute2 = new AddressAttribute() { AttributeControlType = AttributeControlType.ImageSquares };
-            AddressAttribute addressAttribute3 = new AddressAttribute() { AttributeControlType = AttributeControlType.RadioList };
-            AddressAttribute addressAttribute4 = new AddressAttribute() { AttributeControlType = AttributeControlType.ReadonlyCheckboxes };
+            AddressAttribute addressAttribute = new AddressAttribute { AttributeControlType = AttributeControlType.DropdownList };
+            AddressAttribute addressAttribute2 = new AddressAttribute { AttributeControlType = AttributeControlType.ImageSquares };
+            AddressAttribute addressAttribute3 = new AddressAttribute { AttributeControlType = AttributeControlType.RadioList };
+            AddressAttribute addressAttribute4 = new AddressAttribute { AttributeControlType = AttributeControlType.ReadonlyCheckboxes };
             Assert.IsTrue(addressAttribute.ShouldHaveValues());
             Assert.IsTrue(addressAttribute2.ShouldHaveValues());
             Assert.IsTrue(addressAttribute3.ShouldHaveValues());

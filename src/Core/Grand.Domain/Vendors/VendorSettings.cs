@@ -171,8 +171,7 @@ namespace Grand.Domain.Vendors
         /// </summary>
         public bool FaxRequired { get; set; }
 
-        public AddressSettings AddressSettings => new AddressSettings()
-        {
+        public AddressSettings AddressSettings => new AddressSettings {
             CityEnabled = CityEnabled,
             CityRequired = CityRequired,
             CompanyEnabled = CompanyEnabled,

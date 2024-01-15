@@ -17,8 +17,7 @@ namespace Grand.Business.System.Services.Installation
                 ZipPostalCode = "10021"
             };
 
-            var point = new PickupPoint()
-            {
+            var point = new PickupPoint {
                 Address = addresspoint,
                 Name = "My Store - New York"
             };

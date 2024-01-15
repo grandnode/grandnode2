@@ -22,7 +22,7 @@ namespace Grand.Web.Common.Filters
         public PublicStoreAttribute(bool ignore = false) : base(typeof(AccessPublicStoreFilter))
         {
             _ignoreFilter = ignore;
-            Arguments = new object[] { ignore };
+            Arguments = [ignore];
         }
 
         public bool IgnoreFilter => _ignoreFilter;

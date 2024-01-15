@@ -34,7 +34,7 @@ namespace Grand.Business.Checkout.Tests.Events.Shipping
             _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(order));
 
             var shipment = new Shipment();
-            shipment.ShipmentItems.Add(new ShipmentItem() { OrderItemId = "!" });
+            shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "!" });
             var notification = new Infrastructure.Events.EntityDeleted<Shipment>(shipment);
             //Act
             await _shipmentDeletedEventHandler.Handle(notification, CancellationToken.None);

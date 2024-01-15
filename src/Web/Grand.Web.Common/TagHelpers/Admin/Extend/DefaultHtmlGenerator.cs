@@ -26,11 +26,11 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
         // See: (http://www.w3.org/TR/html5/forms.html#the-input-element)
         private static readonly string[] _placeholderInputTypes =
-            new[] { "text", "search", "url", "tel", "email", "password", "number" };
+            ["text", "search", "url", "tel", "email", "password", "number"];
 
         // See: (http://www.w3.org/TR/html5/sec-forms.html#apply)
         private static readonly string[] _maxLengthInputTypes =
-            new[] { "text", "search", "url", "tel", "email", "password" };
+            ["text", "search", "url", "tel", "email", "password"];
 
         private readonly IAntiforgery _antiforgery;
         private readonly IModelMetadataProvider _metadataProvider;
@@ -1064,7 +1064,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
                     {
                         // E.g. got a string from ModelState.
                         var methodInfo = ConvertEnumFromStringMethod.MakeGenericMethod(innerType);
-                        enumValue = (Enum)methodInfo.Invoke(obj: null, parameters: new[] { stringValue });
+                        enumValue = (Enum)methodInfo.Invoke(obj: null, parameters: [stringValue]);
                     }
                 }
 
@@ -1593,7 +1593,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             if (optionLabel != null)
             {
                 listItemBuilder.AppendLine(GenerateOption(
-                    new SelectListItem() {
+                    new SelectListItem {
                         Text = optionLabel,
                         Value = string.Empty,
                         Selected = false

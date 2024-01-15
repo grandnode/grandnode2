@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Create()
         {
-            return View(new PermissionCreateModel() { Area = "Area admin" });
+            return View(new PermissionCreateModel { Area = "Area admin" });
         }
         
         [HttpPost]

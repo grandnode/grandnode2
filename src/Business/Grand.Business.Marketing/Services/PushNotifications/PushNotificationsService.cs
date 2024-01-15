@@ -172,7 +172,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                 notification = new
                 {
                     body = text,
-                    title = title,
+                    title,
                     icon = pictureUrl,
                     click_action = clickUrl
                 }
@@ -225,7 +225,8 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
         public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string customerId, string clickUrl)
         {
-            return await SendPushNotification(title, text, pictureUrl, clickUrl, new List<string> { GetPushReceiverByCustomerId(customerId).Id.ToString() });
+            return await SendPushNotification(title, text, pictureUrl, clickUrl,
+                [GetPushReceiverByCustomerId(customerId).Id.ToString()]);
         }
 
         /// <summary>

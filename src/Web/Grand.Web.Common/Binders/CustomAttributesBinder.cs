@@ -20,7 +20,7 @@ public class CustomAttributesBinder : IModelBinder
             foreach (var form in formCollection)
             {
                 if (form.Key.StartsWith("attributes"))
-                    model.Add(new CustomAttributeModel() { Key = GetKey(form.Key), Value = form.Value });
+                    model.Add(new CustomAttributeModel { Key = GetKey(form.Key), Value = form.Value });
             }
 
             bindingContext.Result = ModelBindingResult.Success(model);

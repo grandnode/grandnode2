@@ -105,7 +105,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             RelativePath = path
         };
 
-        var templateParameters = parsedTemplate?.Parameters.ToList() ?? new List<TemplatePart>();
+        var templateParameters = parsedTemplate?.Parameters.ToList() ?? [];
 
         var parameterContext = new ApiParameterContext(_modelMetadataProvider, action, templateParameters);
         foreach (var parameter in GetParameters(parameterContext,
@@ -401,9 +401,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     {
         if (contentTypes.Count == 0)
         {
-            contentTypes = new MediaTypeCollection {
-                "application/json"
-            };
+            contentTypes = ["application/json"];
         }
 
         var results = new List<ApiRequestFormat>();

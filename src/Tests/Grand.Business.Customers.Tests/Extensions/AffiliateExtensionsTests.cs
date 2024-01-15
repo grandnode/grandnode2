@@ -36,7 +36,7 @@ namespace Grand.Business.Customers.Tests.Extensions
         {
             var firstName = "Test name";
             Affiliate affiliate = new Affiliate {
-                Address = new Domain.Common.Address() { FirstName = firstName }
+                Address = new Domain.Common.Address { FirstName = firstName }
             };
             Assert.AreEqual(firstName, affiliate.GetFullName());
         }
@@ -46,7 +46,7 @@ namespace Grand.Business.Customers.Tests.Extensions
         {
             var lastName = "Test name";
             Affiliate affiliate = new Affiliate {
-                Address = new Domain.Common.Address() { LastName = lastName }
+                Address = new Domain.Common.Address { LastName = lastName }
             };
             Assert.AreEqual(lastName, affiliate.GetFullName());
         }
@@ -56,7 +56,7 @@ namespace Grand.Business.Customers.Tests.Extensions
         {
             var fullName = string.Format("{0} {1}", "first name", "lastName");
             Affiliate affiliate = new Affiliate {
-                Address = new Domain.Common.Address() { LastName = "lastName", FirstName = "first name" }
+                Address = new Domain.Common.Address { LastName = "lastName", FirstName = "first name" }
             };
             Assert.AreEqual(fullName, affiliate.GetFullName());
         }
@@ -79,10 +79,10 @@ namespace Grand.Business.Customers.Tests.Extensions
         public void GenerateUrl_NullFriendlyUrlName_UseId()
         {
             var id = "id";
-            Affiliate affiliate = new Affiliate() {
+            Affiliate affiliate = new Affiliate {
                 Id = id
             };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(new Domain.Stores.Store() { Url = _fakeStoreUrl });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(new Domain.Stores.Store { Url = _fakeStoreUrl });
             Assert.AreEqual(string.Format(_expectedFormat, "affiliateid", id), affiliate.GenerateUrl("http://localhost/"));
             //_webHelperMock.Verify(c => c.ModifyQueryString(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
@@ -91,10 +91,10 @@ namespace Grand.Business.Customers.Tests.Extensions
         public void GenerateUrl_ValideParameters()
         {
             var friendlyUrl = "friendlyurl";
-            Affiliate affiliate = new Affiliate() {
+            Affiliate affiliate = new Affiliate {
                 FriendlyUrlName = friendlyUrl
             };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(new Domain.Stores.Store() { Url = _fakeStoreUrl });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(new Domain.Stores.Store { Url = _fakeStoreUrl });
             Assert.AreEqual(string.Format(_expectedFormat, "affiliate", friendlyUrl), affiliate.GenerateUrl("http://localhost/"));
         }
 
@@ -105,7 +105,7 @@ namespace Grand.Business.Customers.Tests.Extensions
             _affiliateServiceMock.Setup(c => c.GetAffiliateByFriendlyUrlName(It.IsAny<string>()))
               .Returns(() => Task.FromResult<Affiliate>(null));
             var friendlyUrl = "macbool-pro";
-            Affiliate affiliate = new Affiliate() {
+            Affiliate affiliate = new Affiliate {
                 FriendlyUrlName = friendlyUrl
             };
             var result = await affiliate.ValidateFriendlyUrlName(_affiliateServiceMock.Object, new Domain.Seo.SeoSettings(), friendlyUrl, "");
@@ -125,7 +125,7 @@ namespace Grand.Business.Customers.Tests.Extensions
               }).Callback(() => invokeNumber++);
             var friendlyUrl = "macbool-pro";
             var expectedUrl = "macbool-pro-3";
-            Affiliate affiliate = new Affiliate() {
+            Affiliate affiliate = new Affiliate {
                 FriendlyUrlName = friendlyUrl
             };
             var result = await affiliate.ValidateFriendlyUrlName(_affiliateServiceMock.Object, new Domain.Seo.SeoSettings(), friendlyUrl, "");

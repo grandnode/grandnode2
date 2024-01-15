@@ -25,7 +25,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         {
             //Arrange
             var command = new Core.Commands.Checkout.Orders.ReturnBackRedeemedLoyaltyPointsCommand();
-            command.Order = new Domain.Orders.Order() { RedeemedLoyaltyPoints = 10 };
+            command.Order = new Domain.Orders.Order { RedeemedLoyaltyPoints = 10 };
             _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
             //Act
             await _handler.Handle(command, CancellationToken.None);

@@ -72,8 +72,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var orderCompletedAttachmentFileName = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ?
                     "order.pdf" : null;
 
-                var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail && _orderSettings.AttachPdfInvoiceToBinary ?
-                    new List<string> { await _pdfService.SaveOrderToBinary(request.Order, "") } : new List<string>();
+                var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail && _orderSettings.AttachPdfInvoiceToBinary ? [
+                        await _pdfService.SaveOrderToBinary(request.Order, "")
+                    ]
+                    : new List<string>();
 
                 await _messageProviderService
                     .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId, orderCompletedAttachmentFilePath,

@@ -36,10 +36,10 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             CommonPath.BaseDirectory = "";
 
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _productAttributeServiceMock = new Mock<IProductAttributeService>();
-            _productAttributeServiceMock.Setup(x => x.GetProductAttributeById(It.IsAny<string>())).Returns(Task.FromResult(new ProductAttribute() { Name = "test" }));
+            _productAttributeServiceMock.Setup(x => x.GetProductAttributeById(It.IsAny<string>())).Returns(Task.FromResult(new ProductAttribute { Name = "test" }));
             _translationServiceMock = new Mock<ITranslationService>();
             _translationServiceMock.Setup(x => x.GetResource("GiftVoucherAttribute.From.Virtual")).Returns("Name {0}, Email {1}");
             _translationServiceMock.Setup(x => x.GetResource("GiftVoucherAttribute.For.Virtual")).Returns("RecName {0}, RecEmail {1}");
@@ -68,15 +68,14 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task FormatAttributesTest_GiftVoucher()
         {
             //Arrange
-            var product = new Product() { GiftVoucherTypeId = GiftVoucherType.Virtual, IsGiftVoucher = true };
+            var product = new Product { GiftVoucherTypeId = GiftVoucherType.Virtual, IsGiftVoucher = true };
             //Act
-            var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute>()
-            {
-                    new CustomAttribute() { Key = "RecipientName", Value =  "John" },
-                    new CustomAttribute() { Key = "RecipientEmail", Value =  "John@john.com" },
-                    new CustomAttribute() { Key = "SenderName", Value =  "Will" },
-                    new CustomAttribute() { Key = "SenderEmail", Value =  "Will@will.com" },
-                    new CustomAttribute() { Key = "Message", Value =  "" }
+            var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute> {
+                    new CustomAttribute { Key = "RecipientName", Value =  "John" },
+                    new CustomAttribute { Key = "RecipientEmail", Value =  "John@john.com" },
+                    new CustomAttribute { Key = "SenderName", Value =  "Will" },
+                    new CustomAttribute { Key = "SenderEmail", Value =  "Will@will.com" },
+                    new CustomAttribute { Key = "Message", Value =  "" }
             });
             //Assert
             Assert.AreEqual("Will &lt;Will@will.com&gt;<br />John &lt;John@john.com&gt;", result);
@@ -86,13 +85,12 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         {
             //Arrange
             var product = new Product();
-            var productAttributeMapping = new ProductAttributeMapping() { Id = "1", AttributeControlTypeId = AttributeControlType.Checkboxes };
-            productAttributeMapping.ProductAttributeValues.Add(new ProductAttributeValue() { Id = "1", Name = "aa" });
+            var productAttributeMapping = new ProductAttributeMapping { Id = "1", AttributeControlTypeId = AttributeControlType.Checkboxes };
+            productAttributeMapping.ProductAttributeValues.Add(new ProductAttributeValue { Id = "1", Name = "aa" });
             product.ProductAttributeMappings.Add(productAttributeMapping);
             //Act
-            var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute>()
-            {
-                    new CustomAttribute() { Key = "1", Value =  "1" }
+            var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute> {
+                    new CustomAttribute { Key = "1", Value =  "1" }
             });
             //Assert
             Assert.AreEqual("test: aa", result);

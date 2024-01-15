@@ -16,7 +16,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         {
             if (value is not string valueStr) return base.ConvertFrom(context, culture, value);
             List<ShippingOption> shippingOptions = null;
-            if (string.IsNullOrEmpty(valueStr)) return (List<ShippingOption>)null;
+            if (string.IsNullOrEmpty(valueStr)) return null;
             try
             {
                 shippingOptions = JsonSerializer.Deserialize<List<ShippingOption>>(valueStr);

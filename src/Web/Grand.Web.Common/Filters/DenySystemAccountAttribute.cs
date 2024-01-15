@@ -21,7 +21,7 @@ namespace Grand.Web.Common.Filters
         public DenySystemAccountAttribute(bool ignore = false) : base(typeof(DenySystemAccountFilter))
         {
             _ignoreFilter = ignore;
-            Arguments = new object[] { ignore };
+            Arguments = [ignore];
         }
 
         public bool IgnoreFilter => _ignoreFilter;

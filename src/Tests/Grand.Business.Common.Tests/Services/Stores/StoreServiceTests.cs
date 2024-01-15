@@ -48,7 +48,7 @@ namespace Grand.Business.Common.Tests.Services.Stores
         public async Task DeleteStore_ValidArgument_InvokeExpectedMethods()
         {
             _cacheMock.Setup(c => c.GetAsync<List<Store>>(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-                .Returns(Task.FromResult(new List<Store>() { new Store(), new Store() }));
+                .Returns(Task.FromResult(new List<Store> { new Store(), new Store() }));
             await _service.DeleteStore(new Store());
             _repository.Verify(c => c.DeleteAsync(It.IsAny<Store>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Store>>(), default), Times.Once);
@@ -60,7 +60,7 @@ namespace Grand.Business.Common.Tests.Services.Stores
         {
             //can not remove store if it is only one 
             _cacheMock.Setup(c => c.GetAsync<List<Store>>(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-                .Returns(Task.FromResult(new List<Store>() { new Store() }));
+                .Returns(Task.FromResult(new List<Store> { new Store() }));
             Assert.ThrowsExceptionAsync<Exception>(async () => await _service.DeleteStore(new Store()));
         }
     }

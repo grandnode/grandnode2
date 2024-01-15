@@ -10,7 +10,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var collectionUrl = Url.RouteUrl("Collection", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var collectionUrl = Url.RouteUrl("Collection", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
 }

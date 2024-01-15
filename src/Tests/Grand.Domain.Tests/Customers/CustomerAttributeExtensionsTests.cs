@@ -17,10 +17,10 @@ namespace Grand.Domain.Tests.Customers
         [TestMethod()]
         public void ShouldHaveValues__ReturnFalse()
         {
-            var customerAttribute1 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.TextBox };
-            var customerAttribute2 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
-            var customerAttribute3 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.Datepicker };
-            var customerAttribute4 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.FileUpload };
+            var customerAttribute1 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.TextBox };
+            var customerAttribute2 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.MultilineTextbox };
+            var customerAttribute3 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.Datepicker };
+            var customerAttribute4 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.FileUpload };
             Assert.IsFalse(customerAttribute1.ShouldHaveValues());
             Assert.IsFalse(customerAttribute2.ShouldHaveValues());
             Assert.IsFalse(customerAttribute3.ShouldHaveValues());
@@ -31,10 +31,10 @@ namespace Grand.Domain.Tests.Customers
         [TestMethod()]
         public void ShouldHaveValues__ReturnTrue()
         {
-            var addressAttribute1 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.DropdownList };
-            var addressAttribute2 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.ImageSquares };
-            var addressAttribute3 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.RadioList };
-            var addressAttribute4 = new CustomerAttribute() { AttributeControlTypeId = AttributeControlType.ReadonlyCheckboxes };
+            var addressAttribute1 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.DropdownList };
+            var addressAttribute2 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.ImageSquares };
+            var addressAttribute3 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.RadioList };
+            var addressAttribute4 = new CustomerAttribute { AttributeControlTypeId = AttributeControlType.ReadonlyCheckboxes };
             Assert.IsTrue(addressAttribute1.ShouldHaveValues());
             Assert.IsTrue(addressAttribute2.ShouldHaveValues());
             Assert.IsTrue(addressAttribute3.ShouldHaveValues());

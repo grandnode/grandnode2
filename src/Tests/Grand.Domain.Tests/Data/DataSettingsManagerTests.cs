@@ -24,7 +24,7 @@ namespace Grand.Domain.Tests.Data
         [TestMethod()]
         public async Task SaveSettings_LoadSettings_Test()
         {
-            await DataSettingsManager.SaveSettings(new DataSettings() { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
+            await DataSettingsManager.SaveSettings(new DataSettings { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
             var settings = DataSettingsManager.LoadSettings();
             Assert.IsNotNull(settings);
             Assert.IsTrue(DataSettingsManager.DatabaseIsInstalled());
@@ -35,7 +35,7 @@ namespace Grand.Domain.Tests.Data
         [TestMethod()]
         public async Task DatabaseIsInstalledTest_True()
         {
-            await DataSettingsManager.SaveSettings(new DataSettings() { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
+            await DataSettingsManager.SaveSettings(new DataSettings { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
             Assert.IsTrue(DataSettingsManager.DatabaseIsInstalled());
         }
 

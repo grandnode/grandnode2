@@ -31,7 +31,7 @@ public class AuthorizeMenuAttributeTests
     public void Setup()
     {
         CommonPath.BaseDirectory = "";
-        DataSettingsManager.SaveSettings(new DataSettings() { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB }).GetAwaiter().GetResult();
+        DataSettingsManager.SaveSettings(new DataSettings { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB }).GetAwaiter().GetResult();
         var settings = DataSettingsManager.LoadSettings();
         _mockPermissionService = new Mock<IPermissionService>();
         _mockAdminSiteMapService = new Mock<IAdminSiteMapService>();

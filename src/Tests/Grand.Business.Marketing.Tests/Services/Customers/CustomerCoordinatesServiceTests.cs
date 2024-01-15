@@ -24,7 +24,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
             _repository = new MongoDBRepositoryTest<Customer>();
             _mediatorMock = new Mock<IMediator>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _customer = new Customer();
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => _customer);
 

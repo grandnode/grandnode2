@@ -28,7 +28,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task GetDownloadById_InvokeExpectedMethod()
         {
-            _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Download() { DownloadUrl = "url", UseDownloadUrl = true }));
+            _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Download { DownloadUrl = "url", UseDownloadUrl = true }));
             var result = await _service.GetDownloadById("id");
             _repositoryMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
             Assert.AreEqual(result.DownloadUrl, "url");
@@ -37,7 +37,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task InsertDownload_InvokeExpectedMethod()
         {
-            await _service.InsertDownload(new Download() { UseDownloadUrl = true });
+            await _service.InsertDownload(new Download { UseDownloadUrl = true });
             _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<Download>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Download>>(), default), Times.Once);
         }
@@ -51,7 +51,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task UpdateDownload_InvokeExpectedMethod()
         {
-            await _service.UpdateDownload(new Download() { UseDownloadUrl = true });
+            await _service.UpdateDownload(new Download { UseDownloadUrl = true });
             _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Download>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Download>>(), default), Times.Once);
         }
@@ -65,7 +65,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task DeleteDownload_InvokeExpectedMethod()
         {
-            await _service.DeleteDownload(new Download() { UseDownloadUrl = true });
+            await _service.DeleteDownload(new Download { UseDownloadUrl = true });
             _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Download>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Download>>(), default), Times.Once);
         }

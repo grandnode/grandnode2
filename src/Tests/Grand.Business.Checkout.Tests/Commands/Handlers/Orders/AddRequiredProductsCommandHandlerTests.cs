@@ -34,13 +34,13 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
             //Arrange
             var command = new Core.Commands.Checkout.Orders.AddRequiredProductsCommand();
             command.Customer = new Domain.Customers.Customer();
-            command.Customer.ShoppingCartItems.Add(new ShoppingCartItem() { ProductId = "1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
-            command.Product = new Domain.Catalog.Product() { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true };
+            command.Customer.ShoppingCartItems.Add(new ShoppingCartItem { ProductId = "1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
+            command.Product = new Domain.Catalog.Product { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true };
             command.ShoppingCartType = ShoppingCartType.ShoppingCart;
             command.StoreId = "";
 
-            _productServiceMock.Setup(a => a.GetProductById("2", false)).Returns(() => Task.FromResult(new Product() { Id = "2", Published = true, Price = 10 }));
-            _productServiceMock.Setup(a => a.GetProductById("3", false)).Returns(() => Task.FromResult(new Product() { Id = "3", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById("2", false)).Returns(() => Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
+            _productServiceMock.Setup(a => a.GetProductById("3", false)).Returns(() => Task.FromResult(new Product { Id = "3", Published = true, Price = 10 }));
 
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);

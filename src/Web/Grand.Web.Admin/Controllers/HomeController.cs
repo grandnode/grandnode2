@@ -82,7 +82,8 @@ namespace Grand.Web.Admin.Controllers
             model.TodayRegisteredCustomers =
                 (await _mediator.Send(new GetCustomerQuery {
                     StoreId = storeId,
-                    CustomerGroupIds = new[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
+                    CustomerGroupIds = [(await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id
+                    ],
                     CreatedFromUtc = DateTime.UtcNow.Date
                 })).Count();
             return model;
@@ -160,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new List<dynamic> { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
 
             var country = await countryService.GetCountryById(countryId);
-            var states = country != null ? country.StateProvinces.ToList() : new List<StateProvince>();
+            var states = country != null ? country.StateProvinces.ToList() : [];
             var result = (from s in states
                           select new { id = s.Id, name = s.Name }).ToList();
             if (addAsterisk.HasValue && addAsterisk.Value)

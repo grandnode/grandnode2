@@ -105,7 +105,7 @@ namespace Grand.Business.Catalog.Services.Products
             var recentlyViewedProduct = recentlyViewedProducts.FirstOrDefault(x => x.ProductId == productId);
             if (recentlyViewedProduct == null)
             {
-                await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct() { CustomerId = customerId, ProductId = productId });
+                await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct { CustomerId = customerId, ProductId = productId });
             }
             else
             {

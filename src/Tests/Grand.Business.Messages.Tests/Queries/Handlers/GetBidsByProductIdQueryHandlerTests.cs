@@ -15,7 +15,7 @@ namespace Grand.Business.Messages.Tests.Queries.Handlers
         public void Init()
         {
             var _repository = new MongoDBRepositoryTest<Bid>();
-            _repository.Insert(new Bid() { Id = "1", ProductId = "1" });
+            _repository.Insert(new Bid { Id = "1", ProductId = "1" });
             _repository.Insert(new Bid());
             _repository.Insert(new Bid());
             _repository.Insert(new Bid());
@@ -27,7 +27,7 @@ namespace Grand.Business.Messages.Tests.Queries.Handlers
         public async Task HandleTest()
         {
             //Act
-            var result = await handler.Handle(new Core.Queries.Messages.GetBidsByProductIdQuery() { ProductId = "1" }, CancellationToken.None);
+            var result = await handler.Handle(new Core.Queries.Messages.GetBidsByProductIdQuery { ProductId = "1" }, CancellationToken.None);
             //Assert
             Assert.IsNotNull(result);
         }

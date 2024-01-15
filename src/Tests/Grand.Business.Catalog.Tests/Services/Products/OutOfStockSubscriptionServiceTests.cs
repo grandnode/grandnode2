@@ -35,13 +35,13 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetAllSubscriptionsByCustomerIdTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1"
             };
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1"
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2"
             };
             await _repository.InsertAsync(outOfStockSubscription1);
@@ -58,19 +58,19 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task FindSubscriptionTest_IsNotNull()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
@@ -90,19 +90,19 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task FindSubscriptionTest_IsNull()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
@@ -122,19 +122,19 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetSubscriptionByIdTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2",
                 ProductId = "3",
                 StoreId = "",
@@ -156,7 +156,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task InsertSubscriptionTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
@@ -174,7 +174,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateSubscriptionTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
@@ -192,7 +192,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task DeleteSubscriptionTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
@@ -211,19 +211,19 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task SendNotificationsToSubscribersTest()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2",
                 ProductId = "1",
                 StoreId = "",
@@ -235,7 +235,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product() { Id = "1" }, "");
+            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product { Id = "1" }, "");
 
             //Assert
             _mediatorMock.Verify(c => c.Send(It.IsAny<SendNotificationsToSubscribersCommand>(), default), Times.AtLeastOnce);            
@@ -245,21 +245,21 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task SendNotificationsToSubscribersTest1()
         {
             //Arange
-            var outOfStockSubscription1 = new OutOfStockSubscription() {
+            var outOfStockSubscription1 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "1",
                 StoreId = "",
                 WarehouseId = ""
             };
-            outOfStockSubscription1.Attributes.Add(new CustomAttribute() { Key = "MyKey", Value = "1" });
+            outOfStockSubscription1.Attributes.Add(new CustomAttribute { Key = "MyKey", Value = "1" });
 
-            var outOfStockSubscription2 = new OutOfStockSubscription() {
+            var outOfStockSubscription2 = new OutOfStockSubscription {
                 CustomerId = "1",
                 ProductId = "2",
                 StoreId = "",
                 WarehouseId = ""
             };
-            var outOfStockSubscription3 = new OutOfStockSubscription() {
+            var outOfStockSubscription3 = new OutOfStockSubscription {
                 CustomerId = "2",
                 ProductId = "1",
                 StoreId = "",
@@ -270,7 +270,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             await _repository.InsertAsync(outOfStockSubscription3);
 
             //Act
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product() { Id = "1" }, new CustomAttribute[] { new CustomAttribute { Key = "MyKey", Value = "1" } }, "");
+            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product { Id = "1" }, new CustomAttribute[] { new CustomAttribute { Key = "MyKey", Value = "1" } }, "");
 
             //Assert
             _mediatorMock.Verify(c => c.Send(It.IsAny<SendNotificationsToSubscribersCommand>(), default), Times.AtLeastOnce);

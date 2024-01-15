@@ -73,7 +73,7 @@ namespace Authentication.Facebook.Controllers
         public IActionResult FacebookSignInFailed(string error_code, string error_message, string state)
         {
             //handle exception and display message to user
-            var model = new FailedModel() {
+            var model = new FailedModel {
                 ErrorCode = error_code,
                 ErrorMessage = error_message
             };

@@ -26,7 +26,7 @@ namespace Grand.Business.Messages.Tests.Services
         [TestMethod()]
         public void SendEmailTest()
         {
-            Assert.ThrowsExceptionAsync<SocketException>(async () => await _sender.SendEmail(new Domain.Messages.EmailAccount() { Host = "admin@admin.com" }, "subject", "body", "admin@store.com", "admin store", "customer@email.com", "Customer name"));
+            Assert.ThrowsExceptionAsync<SocketException>(async () => await _sender.SendEmail(new Domain.Messages.EmailAccount { Host = "admin@admin.com" }, "subject", "body", "admin@store.com", "admin store", "customer@email.com", "Customer name"));
         }
     }
 }

@@ -42,11 +42,11 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new RefundCommand() { PaymentTransaction = new PaymentTransaction() };
+            var command = new RefundCommand { PaymentTransaction = new PaymentTransaction() };
             _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default))
                 .Returns(Task.FromResult(true));
             _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));
-            _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).Returns(Task.FromResult(new RefundPaymentResult() { NewTransactionStatus = TransactionStatus.Refunded }));
+            _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).Returns(Task.FromResult(new RefundPaymentResult { NewTransactionStatus = TransactionStatus.Refunded }));
             _paymentTransactionMock.Setup(x => x.GetById(It.IsAny<string>())).Returns(Task.FromResult(new PaymentTransaction()));
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);

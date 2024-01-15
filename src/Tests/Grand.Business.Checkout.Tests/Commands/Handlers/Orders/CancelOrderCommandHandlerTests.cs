@@ -58,7 +58,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public void Handle_AlreadyCancelled_ThrowException()
         {
             var command = new CancelOrderCommand();
-            command.Order = new Order() { OrderStatusId = (int)OrderStatusSystem.Cancelled };
+            command.Order = new Order { OrderStatusId = (int)OrderStatusSystem.Cancelled };
             Assert.ThrowsExceptionAsync<Exception>(async () => await _handler.Handle(command, default));
         }
 
@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task Handle_InvokeExpectedMethods()
         {
             var command = new CancelOrderCommand();
-            command.Order = new Order() {
+            command.Order = new Order {
                 Id = "id"
             };
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder("id")).ReturnsAsync(new List<Shipment>());

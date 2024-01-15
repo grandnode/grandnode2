@@ -25,7 +25,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
             _repository = new MongoDBRepositoryTest<Country>();
             
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase, new AccessControlConfig());
         }
 
@@ -33,8 +33,8 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetAllCountriesTest()
         {
             //Arrange
-            await _countryService.InsertCountry(new Country() { Published = true });
-            await _countryService.InsertCountry(new Country() { Published = true });
+            await _countryService.InsertCountry(new Country { Published = true });
+            await _countryService.InsertCountry(new Country { Published = true });
             //Act
             var result = await _countryService.GetAllCountries();
             //Assert
@@ -45,8 +45,8 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetAllCountriesForBillingTest()
         {
             //Arrange
-            await _countryService.InsertCountry(new Country() { Published = true, AllowsBilling = true });
-            await _countryService.InsertCountry(new Country() { Published = true });
+            await _countryService.InsertCountry(new Country { Published = true, AllowsBilling = true });
+            await _countryService.InsertCountry(new Country { Published = true });
             //Act
             var result = await _countryService.GetAllCountriesForBilling();
             //Assert
@@ -57,8 +57,8 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetAllCountriesForShippingTest()
         {
             //Arrange
-            await _countryService.InsertCountry(new Country() { Published = true, AllowsShipping = true });
-            await _countryService.InsertCountry(new Country() { Published = true });
+            await _countryService.InsertCountry(new Country { Published = true, AllowsShipping = true });
+            await _countryService.InsertCountry(new Country { Published = true });
             //Act
             var result = await _countryService.GetAllCountriesForShipping();
             //Assert
@@ -71,8 +71,8 @@ namespace Grand.Business.Common.Tests.Services.Directory
             //Arrange
             var country = new Country();
             await _repository.InsertAsync(country);
-            await _repository.InsertAsync(new Country() { Published = true, AllowsShipping = true });
-            await _repository.InsertAsync(new Country() { Published = true });
+            await _repository.InsertAsync(new Country { Published = true, AllowsShipping = true });
+            await _repository.InsertAsync(new Country { Published = true });
             //Act
             var result = await _countryService.GetCountryById(country.Id);
             //Assert
@@ -85,10 +85,10 @@ namespace Grand.Business.Common.Tests.Services.Directory
             //Arrange
             var country = new Country();
             await _repository.InsertAsync(country);
-            await _repository.InsertAsync(new Country() { Published = true, AllowsShipping = true });
-            await _repository.InsertAsync(new Country() { Published = true });
+            await _repository.InsertAsync(new Country { Published = true, AllowsShipping = true });
+            await _repository.InsertAsync(new Country { Published = true });
             //Act
-            var result = await _countryService.GetCountriesByIds(new[] { country.Id });
+            var result = await _countryService.GetCountriesByIds([country.Id]);
             //Assert
             Assert.IsTrue(result.Count == 1);
         }
@@ -97,10 +97,10 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetCountryByTwoLetterIsoCodeTest()
         {
             //Arrange
-            var country = new Country() { TwoLetterIsoCode = "US" };
+            var country = new Country { TwoLetterIsoCode = "US" };
             await _repository.InsertAsync(country);
-            await _repository.InsertAsync(new Country() { Published = true, AllowsShipping = true });
-            await _repository.InsertAsync(new Country() { Published = true });
+            await _repository.InsertAsync(new Country { Published = true, AllowsShipping = true });
+            await _repository.InsertAsync(new Country { Published = true });
             //Act
             var result = await _countryService.GetCountryByTwoLetterIsoCode(country.TwoLetterIsoCode);
             //Assert
@@ -111,10 +111,10 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetCountryByThreeLetterIsoCodeTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA" };
+            var country = new Country { ThreeLetterIsoCode = "USA" };
             await _repository.InsertAsync(country);
-            await _repository.InsertAsync(new Country() { Published = true, AllowsShipping = true });
-            await _repository.InsertAsync(new Country() { Published = true });
+            await _repository.InsertAsync(new Country { Published = true, AllowsShipping = true });
+            await _repository.InsertAsync(new Country { Published = true });
             //Act
             var result = await _countryService.GetCountryByThreeLetterIsoCode(country.ThreeLetterIsoCode);
             //Assert
@@ -134,7 +134,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task UpdateCountryTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             await _repository.InsertAsync(country);
             //Act
             country.Name = "USA";
@@ -147,7 +147,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task DeleteCountryTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             await _repository.InsertAsync(country);
             //Act
             await _countryService.DeleteCountry(country);
@@ -159,7 +159,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task GetStateProvincesByCountryIdTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             country.StateProvinces.Add(new StateProvince());
             await _repository.InsertAsync(country);
             //Act
@@ -172,7 +172,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task InsertStateProvinceTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             await _repository.InsertAsync(country);
             //Act
             await _countryService.InsertStateProvince(new StateProvince(), country.Id);
@@ -185,7 +185,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task UpdateStateProvinceTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             await _repository.InsertAsync(country);
             var state = new StateProvince();
             await _countryService.InsertStateProvince(state, country.Id);
@@ -202,7 +202,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         public async Task DeleteStateProvinceTest()
         {
             //Arrange
-            var country = new Country() { ThreeLetterIsoCode = "USA", Name = "United States" };
+            var country = new Country { ThreeLetterIsoCode = "USA", Name = "United States" };
             await _repository.InsertAsync(country);
             var state = new StateProvince();
             await _countryService.InsertStateProvince(state, country.Id);

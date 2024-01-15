@@ -73,7 +73,7 @@ namespace Authentication.Google.Controllers
         public IActionResult GoogleSignInFailed(string error_message)
         {
             //handle exception and display message to user
-            var model = new FailedModel() {
+            var model = new FailedModel {
                 ErrorMessage = error_message
             };
             return View(model);

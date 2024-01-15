@@ -39,7 +39,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidStore = await _mediator.Send(new GetStoreTokensCommand() { Store = store, Language = language, EmailAccount = emailAccount });
+                var liquidStore = await _mediator.Send(new GetStoreTokensCommand { Store = store, Language = language, EmailAccount = emailAccount });
                 liquidObject.Store = liquidStore;
                 await _mediator.EntityTokensAdded(store, liquidStore, liquidObject);
             });
@@ -50,7 +50,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidOrder = await _mediator.Send(new GetOrderTokensCommand() {
+                var liquidOrder = await _mediator.Send(new GetOrderTokensCommand {
                     Order = order,
                     Customer = customer,
                     Vendor = vendor,
@@ -70,7 +70,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             _chain.Add(async liquidObject =>
             {
 
-                var liquidShipment = await _mediator.Send(new GetShipmentTokensCommand() { Shipment = shipment, Order = order, Store = store, Host = host, Language = language });
+                var liquidShipment = await _mediator.Send(new GetShipmentTokensCommand { Shipment = shipment, Order = order, Store = store, Host = host, Language = language });
                 liquidObject.Shipment = liquidShipment;
                 await _mediator.EntityTokensAdded(shipment, liquidShipment, liquidObject);
             });
@@ -81,7 +81,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidMerchandiseReturn = await _mediator.Send(new GetMerchandiseReturnTokensCommand() { Order = order, Language = language, MerchandiseReturn = merchandiseReturn, MerchandiseReturnNote = merchandiseReturnNote, Store = store, Host = host });
+                var liquidMerchandiseReturn = await _mediator.Send(new GetMerchandiseReturnTokensCommand { Order = order, Language = language, MerchandiseReturn = merchandiseReturn, MerchandiseReturnNote = merchandiseReturnNote, Store = store, Host = host });
                 liquidObject.MerchandiseReturn = liquidMerchandiseReturn;
                 await _mediator.EntityTokensAdded(merchandiseReturn, liquidMerchandiseReturn, liquidObject);
             });
@@ -92,7 +92,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidGiftCart = await _mediator.Send(new GetGiftVoucherTokensCommand() { GiftVoucher = giftVoucher, Language = language });
+                var liquidGiftCart = await _mediator.Send(new GetGiftVoucherTokensCommand { GiftVoucher = giftVoucher, Language = language });
                 liquidObject.GiftVoucher = liquidGiftCart;
                 await _mediator.EntityTokensAdded(giftVoucher, liquidGiftCart, liquidObject);
             });
@@ -117,7 +117,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand() {
+                var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand {
                     Customer = customer,
                     Language = language,
                     Store = store
@@ -133,7 +133,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidVendor = await _mediator.Send(new GetVendorTokensCommand() { Vendor = vendor, Language = language });
+                var liquidVendor = await _mediator.Send(new GetVendorTokensCommand { Vendor = vendor, Language = language });
                 liquidObject.Vendor = liquidVendor;
                 await _mediator.EntityTokensAdded(vendor, liquidVendor, liquidObject);
             });
@@ -222,7 +222,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             _chain.Add(async liquidObject =>
             {
 
-                var liquidAttributeCombination = await _mediator.Send(new GetAttributeCombinationTokensCommand() { Product = product, Combination = combination });
+                var liquidAttributeCombination = await _mediator.Send(new GetAttributeCombinationTokensCommand { Product = product, Combination = combination });
                 liquidObject.AttributeCombination = liquidAttributeCombination;
                 await _mediator.EntityTokensAdded(combination, liquidAttributeCombination, liquidObject);
             });
@@ -244,7 +244,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidAuctions = await _mediator.Send(new GetAuctionTokensCommand() { Product = product, Bid = bid });
+                var liquidAuctions = await _mediator.Send(new GetAuctionTokensCommand { Product = product, Bid = bid });
                 liquidObject.Auctions = liquidAuctions;
                 await _mediator.EntityTokensAdded(bid, liquidAuctions, liquidObject);
             });

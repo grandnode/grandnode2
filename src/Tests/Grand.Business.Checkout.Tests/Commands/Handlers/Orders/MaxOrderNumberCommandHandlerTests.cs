@@ -23,7 +23,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Act
-            var result = await _handler.Handle(new Core.Commands.Checkout.Orders.MaxOrderNumberCommand() { OrderNumber = 10 }, CancellationToken.None);
+            var result = await _handler.Handle(new Core.Commands.Checkout.Orders.MaxOrderNumberCommand { OrderNumber = 10 }, CancellationToken.None);
             //Assert
             Assert.AreEqual(10, result);
         }

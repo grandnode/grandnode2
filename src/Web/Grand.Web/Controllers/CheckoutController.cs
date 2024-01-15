@@ -110,7 +110,7 @@ namespace Grand.Web.Controllers
         [NonAction]
         protected IShippingRateCalculationProvider GetShippingComputation(string input)
         {
-            var shippingMethodName = input.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            var shippingMethodName = input.Split([":"], StringSplitOptions.RemoveEmptyEntries)[1];
             var shippingMethod = _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingMethodName);
             if (shippingMethod == null)
                 throw new Exception("Shipping method is not selected");
@@ -683,7 +683,7 @@ namespace Grand.Web.Controllers
                 if (string.IsNullOrEmpty(model.ShippingOption))
                     throw new Exception("Selected shipping method can't be parsed");
                 
-                var splitOption = model.ShippingOption.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                var splitOption = model.ShippingOption.Split([":"], StringSplitOptions.RemoveEmptyEntries);
                 if (splitOption.Length != 2)
                     throw new Exception("Selected shipping method can't be parsed");
 

@@ -11,23 +11,23 @@
     {
         if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
         }
         else
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity });
         }
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
+        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity });
     }
     else
     {
         if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
         }
         else
         {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId });
+            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
         }
         addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
     }
@@ -43,7 +43,7 @@
         </div>
     }
     <div class="picture-container">
-        <b-link class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
+        <b-link class="img-container" href="@Url.RouteUrl("Product", new { Model.SeName })" title="@Model.DefaultPictureModel.Title">
             <b-card-img-lazy alt="@Model.DefaultPictureModel.AlternateText" class="main-product-img" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title"></b-card-img-lazy>
             @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
             {
@@ -73,12 +73,12 @@
                                                 case AttributeControlType.RadioList:
                                                 case AttributeControlType.Checkboxes:
                                                 case AttributeControlType.ReadonlyCheckboxes:
-                                                    <b-button variant="light" size="sm" class="name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    <b-button variant="light" size="sm" class="name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                         @Html.Raw(spec.Name)
                                                     </b-button>
                                                     break;
                                                 case AttributeControlType.ColorSquares:
-                                                    if ((spec.PictureModel.FullSizeImageUrl) != null)
+                                                    if (spec.PictureModel.FullSizeImageUrl != null)
                                                     {
                                                         <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
@@ -86,13 +86,13 @@
                                                     }
                                                     else
                                                     {
-                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
                                                         </b-button>
                                                     }
                                                     break;
                                                 case AttributeControlType.ImageSquares:
-                                                    if ((spec.PictureModel.FullSizeImageUrl) != null)
+                                                    if (spec.PictureModel.FullSizeImageUrl != null)
                                                     {
                                                         <b-button variant="light" size="sm" class="p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
@@ -100,7 +100,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <b-button variant="light" size="sm" class="p-1 name image-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <b-button variant="light" size="sm" class="p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
                                                         </b-button>
                                                     }
@@ -171,7 +171,7 @@
     </div>
     <b-card-body>
         <h5 class="card-title mb-0">
-            <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">
+            <a href="@Url.RouteUrl("Product", new { Model.SeName })">
                 @Model.Name
             </a>
         </h5>
@@ -185,12 +185,12 @@
                 decimal ratingValue = 0;
                 if (Model.ReviewOverviewModel.TotalReviews != 0)
                 {
-                    ratingValue = Convert.ToDecimal(((Model.ReviewOverviewModel.RatingSum * (double)100) / Model.ReviewOverviewModel.TotalReviews) / (double)100);
+                    ratingValue = Convert.ToDecimal(Model.ReviewOverviewModel.RatingSum * (double)100 / Model.ReviewOverviewModel.TotalReviews / 100);
                 }
                 <template>
                     <div class="rating">
                         <b-form-rating id="rating-inline-grid-@Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
-                        <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
+                        <b-link href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
                     </div>
                 </template>
             }

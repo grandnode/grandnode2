@@ -3655,7 +3655,7 @@ namespace Grand.Business.System.Services.Installation
                 product.ApprovedTotalReviews += 1;
                 product.AvgRating = rating / product.ApprovedTotalReviews;
             }
-            allProducts.ForEach((x=>_productRepository.Update(x)));
+            allProducts.ForEach(x=>_productRepository.Update(x));
         }
         private async Task AddProductTag(Product product, string tag)
         {

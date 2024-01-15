@@ -10,12 +10,12 @@ namespace Grand.Domain.Tests.Orders
         [TestMethod]
         public void IsDownloadAllowed_ReturnExpectedResult()
         {
-            var order1 = new Order() { PaymentStatusId = Domain.Payments.PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
+            var order1 = new Order { PaymentStatusId = Domain.Payments.PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
             Order order2 = null;
-            var product1 = new Product() { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
-            var product2 = new Product() { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
-            var product3 = new Product() { IsDownload = false };
-            var orderItem = new OrderItem() { IsDownloadActivated = true };
+            var product1 = new Product { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
+            var product2 = new Product { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
+            var product3 = new Product { IsDownload = false };
+            var orderItem = new OrderItem { IsDownloadActivated = true };
 
             Assert.IsTrue(order1.IsDownloadAllowed(orderItem, product1));
             Assert.IsTrue(order1.IsDownloadAllowed(orderItem, product2));
@@ -29,13 +29,13 @@ namespace Grand.Domain.Tests.Orders
         [TestMethod]
         public void IsLicenseDownloadAllowed_ReturnExpectedResults()
         {
-            var order1 = new Order() { PaymentStatusId = Domain.Payments.PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
+            var order1 = new Order { PaymentStatusId = Domain.Payments.PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
             Order order2 = null;
-            var product1 = new Product() { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
-            var product2 = new Product() { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
-            var product3 = new Product() { IsDownload = false };
-            var orderItem = new OrderItem() { IsDownloadActivated = true, LicenseDownloadId = "idlicense" };
-            var orderItem2 = new OrderItem() { IsDownloadActivated = true, LicenseDownloadId = null };
+            var product1 = new Product { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
+            var product2 = new Product { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
+            var product3 = new Product { IsDownload = false };
+            var orderItem = new OrderItem { IsDownloadActivated = true, LicenseDownloadId = "idlicense" };
+            var orderItem2 = new OrderItem { IsDownloadActivated = true, LicenseDownloadId = null };
             Assert.IsTrue(order1.IsLicenseDownloadAllowed(orderItem, product1));
             Assert.IsTrue(order1.IsLicenseDownloadAllowed(orderItem, product2));
             Assert.IsFalse(order1.IsLicenseDownloadAllowed(orderItem2, product1));
@@ -47,9 +47,9 @@ namespace Grand.Domain.Tests.Orders
         public void HasItemsToAddToShipment_ReturnExpectedResult()
         {
             var order = new Order();
-            order.OrderItems.Add(new OrderItem() { IsShipEnabled = false, OpenQty = 1 });
+            order.OrderItems.Add(new OrderItem { IsShipEnabled = false, OpenQty = 1 });
             Assert.IsFalse(order.HasItemsToAddToShipment());
-            order.OrderItems.Add(new OrderItem() { IsShipEnabled = true, OpenQty = 1 });
+            order.OrderItems.Add(new OrderItem { IsShipEnabled = true, OpenQty = 1 });
             Assert.IsTrue(order.HasItemsToAddToShipment());
         }
 
@@ -64,7 +64,7 @@ namespace Grand.Domain.Tests.Orders
         public void OrderTagExists_ReturnExpectedResult()
         {
             var order = new Order();
-            var tag = new OrderTag() { Id = "id" };
+            var tag = new OrderTag { Id = "id" };
             order.OrderTags.Add("1");
             Assert.IsFalse(order.OrderTagExists(tag));
             order.OrderTags.Add("id");

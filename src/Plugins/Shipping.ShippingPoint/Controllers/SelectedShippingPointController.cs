@@ -55,7 +55,7 @@ namespace Shipping.ShippingPoint.Controllers
 
         public async Task<IActionResult> Points(string shippingOption)
         {
-            var parameter = shippingOption.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[0];
+            var parameter = shippingOption.Split([":"], StringSplitOptions.RemoveEmptyEntries)[0];
 
             if (parameter != _translationService.GetResource("Shipping.ShippingPoint.PluginName"))
                 return Content("ShippingPointController: given Shipping Option doesn't exist");

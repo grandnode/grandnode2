@@ -30,10 +30,10 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
 
             _repository = new MongoDBRepositoryTest<Brand>();
             _workContextMock = new Mock<IWorkContext>();
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
         }
 
@@ -42,9 +42,9 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task GetAllBrandsTest()
         {
             //Arrange
-            await _brandService.InsertBrand(new Brand() { Published = true });
-            await _brandService.InsertBrand(new Brand() { Published = true });
-            await _brandService.InsertBrand(new Brand() { Published = true });
+            await _brandService.InsertBrand(new Brand { Published = true });
+            await _brandService.InsertBrand(new Brand { Published = true });
+            await _brandService.InsertBrand(new Brand { Published = true });
 
             //Act
             var brand = await _brandService.GetAllBrands();
@@ -57,7 +57,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task GetBrandByIdTest()
         {
             //Arrange
-            var brand = new Brand() {
+            var brand = new Brand {
                 Name = "test"
             };
             await _brandService.InsertBrand(brand);
@@ -83,7 +83,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task UpdateBrandTest()
         {
             //Arrange
-            var brand = new Brand() {
+            var brand = new Brand {
                 Name = "test"
             };
             await _brandService.InsertBrand(brand);
@@ -100,11 +100,11 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task DeleteBrandTest()
         {
             //Arrange
-            var brand1 = new Brand() {
+            var brand1 = new Brand {
                 Name = "test1"
             };
             await _brandService.InsertBrand(brand1);
-            var brand2 = new Brand() {
+            var brand2 = new Brand {
                 Name = "test2"
             };
             await _brandService.InsertBrand(brand2);
@@ -121,11 +121,11 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
         public async Task GetAllBrandsByDiscountTest()
         {
             //Arrange
-            var brand1 = new Brand() {
+            var brand1 = new Brand {
                 Name = "test1"
             };
             await _brandService.InsertBrand(brand1);
-            var brand2 = new Brand() {
+            var brand2 = new Brand {
                 Name = "test2"
             };
             brand2.AppliedDiscounts.Add("disc1");

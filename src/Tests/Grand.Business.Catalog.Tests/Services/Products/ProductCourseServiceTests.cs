@@ -27,7 +27,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetCourseByProductIdTest()
         {
             //Arrange
-            var course1 = new Course() { ProductId = "1" };
+            var course1 = new Course { ProductId = "1" };
             await _courseRepository.InsertAsync(course1);
             //Act
             var result = await _courseService.GetCourseByProductId("1");
@@ -40,7 +40,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task GetProductByCourseIdTest()
         {
             //Arrange
-            var product = new Product() { CourseId = "1", Id = "1"};
+            var product = new Product { CourseId = "1", Id = "1"};
             await _repository.InsertAsync(product);
             //Act
             var result = await _courseService.GetProductByCourseId("1");
@@ -55,7 +55,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
         public async Task UpdateCourseOnProductTest()
         {
             //Arrange
-            var product = new Product() { CourseId = "1", Id = "1" };
+            var product = new Product { CourseId = "1", Id = "1" };
             await _repository.InsertAsync(product);
 
             //Act

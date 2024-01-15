@@ -30,7 +30,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
             _repositoryCustomer = new MongoDBRepositoryTest<Customer>();
             _mediatorMock = new Mock<IMediator>();
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig(){ DefaultCacheTimeMinutes = 1});
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _customerTagService = new CustomerTagService(_repositoryCustomerTag, _repositoryCustomerTagProduct, _repositoryCustomer, _mediatorMock.Object, _cacheBase);
         }
 
@@ -70,7 +70,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
             customer3.CustomerTags.Add("1");
             await _repositoryCustomer.InsertAsync(customer3);
 
-            var customerTag = new CustomerTag() { Id = "1" };
+            var customerTag = new CustomerTag { Id = "1" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
 
             //Act
@@ -103,7 +103,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagByIdTest()
         {
             //Assert
-            var customerTag = new CustomerTag() { Id = "1", Name = "test" };
+            var customerTag = new CustomerTag { Id = "1", Name = "test" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
@@ -121,7 +121,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagByNameTest()
         {
             //Assert
-            var customerTag = new CustomerTag() { Id = "1", Name = "test" };
+            var customerTag = new CustomerTag { Id = "1", Name = "test" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
@@ -139,9 +139,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagsByNameTest()
         {
             //Assert
-            var customerTag = new CustomerTag() { Id = "1", Name = "test" };
+            var customerTag = new CustomerTag { Id = "1", Name = "test" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
-            await _repositoryCustomerTag.InsertAsync(new CustomerTag() { Name = "test" });
+            await _repositoryCustomerTag.InsertAsync(new CustomerTag { Name = "test" });
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
             await _repositoryCustomerTag.InsertAsync(new CustomerTag());
 
@@ -156,7 +156,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task InsertCustomerTagTest()
         {
             //Assert
-            var customerTag = new CustomerTag() { Id = "1", Name = "test" };
+            var customerTag = new CustomerTag { Id = "1", Name = "test" };
 
             //Act
             await _customerTagService.InsertCustomerTag(customerTag);
@@ -169,10 +169,10 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task InsertTagToCustomerTest()
         {
             //Arrange
-            var customer = new Customer() {Id = "1" };
+            var customer = new Customer {Id = "1" };
             await _repositoryCustomer.InsertAsync(customer);
 
-            var customerTag = new CustomerTag() { Id = "1" };
+            var customerTag = new CustomerTag { Id = "1" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
 
             //Act
@@ -186,11 +186,11 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task DeleteTagFromCustomerTest()
         {
             //Arrange
-            var customer = new Customer() { Id = "1" };
+            var customer = new Customer { Id = "1" };
             customer.CustomerTags.Add("1");
             await _repositoryCustomer.InsertAsync(customer);
 
-            var customerTag = new CustomerTag() { Id = "1" };
+            var customerTag = new CustomerTag { Id = "1" };
             await _repositoryCustomerTag.InsertAsync(customerTag);
 
             //Act
@@ -204,7 +204,7 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task UpdateCustomerTagTest()
         {
             //Assert
-            var customerTag = new CustomerTag() { Id = "1", Name = "test" };
+            var customerTag = new CustomerTag { Id = "1", Name = "test" };
             await _customerTagService.InsertCustomerTag(customerTag);
 
             //Act
@@ -240,9 +240,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagProductsTest()
         {
             //Assert
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "2" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "2" });
 
             //Act
             var result = await _customerTagService.GetCustomerTagProducts("1");
@@ -255,9 +255,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagProductTest()
         {
             //Assert
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "1", ProductId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "2" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "1", ProductId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "2" });
 
             //Act
             var result = await _customerTagService.GetCustomerTagProduct("1", "1");
@@ -270,9 +270,9 @@ namespace Grand.Business.Marketing.Tests.Services.Customers
         public async Task GetCustomerTagProductByIdTest()
         {
             //Assert
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "1", ProductId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { Id = "1", CustomerTagId = "1" });
-            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct() { CustomerTagId = "2" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "1", ProductId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { Id = "1", CustomerTagId = "1" });
+            await _repositoryCustomerTagProduct.InsertAsync(new CustomerTagProduct { CustomerTagId = "2" });
 
             //Act
             var result = await _customerTagService.GetCustomerTagProductById("1");

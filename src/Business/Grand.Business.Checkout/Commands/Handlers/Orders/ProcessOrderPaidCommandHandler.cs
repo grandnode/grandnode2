@@ -64,8 +64,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var orderPaidAttachmentFileName = _orderSettings.AttachPdfInvoiceToOrderPaidEmail && !_orderSettings.AttachPdfInvoiceToBinary ?
                     "order.pdf" : null;
 
-                var orderPaidAttachments = _orderSettings.AttachPdfInvoiceToOrderPaidEmail && _orderSettings.AttachPdfInvoiceToBinary ?
-                    new List<string> { await _pdfService.SaveOrderToBinary(order, "") } : new List<string>();
+                var orderPaidAttachments = _orderSettings.AttachPdfInvoiceToOrderPaidEmail && _orderSettings.AttachPdfInvoiceToBinary ? [
+                        await _pdfService.SaveOrderToBinary(order, "")
+                    ]
+                    : new List<string>();
 
                 await _messageProviderService.SendOrderPaidCustomerMessage(order, customer, order.CustomerLanguageId,
                     orderPaidAttachmentFilePath, orderPaidAttachmentFileName, orderPaidAttachments);

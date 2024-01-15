@@ -27,7 +27,7 @@ namespace Grand.Business.System.Tests.Commands
         public async Task Handle_InvokeExpectedMethods()
         {
             _settings.DefaultAdminLanguageId = "1";
-            var command = new SendQuantityBelowStoreOwnerCommand() {
+            var command = new SendQuantityBelowStoreOwnerCommand {
                 Product = new Domain.Catalog.Product(),
                 ProductAttributeCombination = null
             };

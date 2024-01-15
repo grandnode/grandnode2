@@ -81,7 +81,7 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
         public void GetCategoryBreadCrumb_ShouldReturnEmptyList()
         {
             var allCategory = GetMockCategoryList();
-            var category = new Category() { ParentCategoryId = "3" };
+            var category = new Category { ParentCategoryId = "3" };
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
@@ -92,8 +92,8 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
         public void GetCategoryBreadCrumb_ShouldReturnTwoElement()
         {
             var allCategory = GetMockCategoryList();
-            var category = new Category() { Id = "6", ParentCategoryId = "3", Published = true };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
@@ -106,8 +106,8 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
         public void GetCategoryBreadCrumb_ShouldReturnThreeElement()
         {
             var allCategory = GetMockCategoryList();
-            var category = new Category() { Id = "6", ParentCategoryId = "1", Published = true };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
+            var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
+            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
@@ -122,7 +122,7 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
         {
             var exprectedString = "cat5 >> cat1 >> cat6";
             var allCategory = GetMockCategoryList();
-            var category = new Category() { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
+            var category = new Category { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
             _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
             var result = _categoryService.GetFormattedBreadCrumb(category, allCategory);
@@ -178,13 +178,12 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
 
         private IList<Category> GetMockCategoryList()
         {
-            return new List<Category>()
-            {
-                new Category(){ Id="1" ,Name="cat1",Published=true,ParentCategoryId="5"},
-                new Category(){ Id="2" ,Name="cat2",Published=true},
-                new Category(){ Id="3" ,Name="cat3",Published=true},
-                new Category(){ Id="4" ,Name="cat4",Published=true},
-                new Category(){ Id="5" ,Name="cat5",Published=true}
+            return new List<Category> {
+                new Category { Id="1" ,Name="cat1",Published=true,ParentCategoryId="5"},
+                new Category { Id="2" ,Name="cat2",Published=true},
+                new Category { Id="3" ,Name="cat3",Published=true},
+                new Category { Id="4" ,Name="cat4",Published=true},
+                new Category { Id="5" ,Name="cat5",Published=true}
             };
         }
 

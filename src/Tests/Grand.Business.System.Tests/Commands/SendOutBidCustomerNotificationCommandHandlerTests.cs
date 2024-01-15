@@ -23,7 +23,7 @@ namespace Grand.Business.System.Tests.Commands
         [TestMethod]
         public async Task Handle_InvokeExpectedMethod()
         {
-            var command = new SendOutBidCustomerCommand() {
+            var command = new SendOutBidCustomerCommand {
                 Product = new Domain.Catalog.Product(),
                 Bid = new Domain.Catalog.Bid(),
                 Language = new Domain.Localization.Language()

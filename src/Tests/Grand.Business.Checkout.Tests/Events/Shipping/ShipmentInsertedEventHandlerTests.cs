@@ -35,7 +35,7 @@ namespace Grand.Business.Checkout.Tests.Events.Shipping
             _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false)).Returns(Task.FromResult(new Domain.Catalog.Product()));
 
             var shipment = new Shipment();
-            shipment.ShipmentItems.Add(new ShipmentItem() { OrderItemId = "!" });
+            shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "!" });
             var notification = new Infrastructure.Events.EntityInserted<Shipment>(shipment);
             //Act
             await _shipmentInsertedEventHandler.Handle(notification, CancellationToken.None);

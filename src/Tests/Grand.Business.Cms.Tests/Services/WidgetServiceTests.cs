@@ -19,11 +19,11 @@ namespace Grand.Business.Cms.Tests.Services
         {
             _widgetProvider1 = new Mock<IWidgetProvider>();
             _widgetProvider1.Setup(c => c.SystemName).Returns("name1");
-            _widgetProvider1.Setup(c => c.GetWidgetZones().Result).Returns(new List<string>() { "widgetzone1" });
+            _widgetProvider1.Setup(c => c.GetWidgetZones().Result).Returns(new List<string> { "widgetzone1" });
             _widgetProvider2 = new Mock<IWidgetProvider>();
             _widgetProvider2.Setup(c => c.SystemName).Returns("name2");
-            _widgetProvider2.Setup(c => c.GetWidgetZones().Result).Returns(new List<string>() { "widgetzone2" });
-            var providers = new List<IWidgetProvider>() { _widgetProvider1.Object, _widgetProvider2.Object };
+            _widgetProvider2.Setup(c => c.GetWidgetZones().Result).Returns(new List<string> { "widgetzone2" });
+            var providers = new List<IWidgetProvider> { _widgetProvider1.Object, _widgetProvider2.Object };
             _settings = new WidgetSettings();
             _widgedService = new WidgetService(providers, _settings);
         }
@@ -31,7 +31,7 @@ namespace Grand.Business.Cms.Tests.Services
         [TestMethod()]
         public void LoadActiveWidgets_SettingsNotContainsSystemName_ReturnEmptyList()
         {
-            _settings.ActiveWidgetSystemNames = new List<string>();
+            _settings.ActiveWidgetSystemNames = [];
             var result = _widgedService.LoadActiveWidgets();
             Assert.IsTrue(result.Count == 0);
         }
@@ -39,7 +39,7 @@ namespace Grand.Business.Cms.Tests.Services
         [TestMethod()]
         public void LoadActiveWidgets_SettingsContainsSystemName_ReturnList()
         {
-            _settings.ActiveWidgetSystemNames = new List<string>() { "name1", "name2" };
+            _settings.ActiveWidgetSystemNames = ["name1", "name2"];
             var result = _widgedService.LoadActiveWidgets();
             Assert.IsTrue(result.Count == _settings.ActiveWidgetSystemNames.Count);
         }
@@ -54,7 +54,7 @@ namespace Grand.Business.Cms.Tests.Services
         [TestMethod()]
         public async Task LoadActiveWidgetsByWidgetZone()
         {
-            _settings.ActiveWidgetSystemNames = new List<string>() { "name1", "name2" };
+            _settings.ActiveWidgetSystemNames = ["name1", "name2"];
             var result = await _widgedService.LoadActiveWidgetsByWidgetZone("widgetZone1");
             Assert.IsTrue(result.Count == 1);
         }

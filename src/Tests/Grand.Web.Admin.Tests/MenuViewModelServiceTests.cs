@@ -124,7 +124,7 @@ namespace Grand.Web.Admin.Tests;
             {
                 new AdminSiteMap { Id = "1", SystemName = "Item 1" },
                 new AdminSiteMap { Id = "2", SystemName = "Item 2", 
-                    ChildNodes = new List<AdminSiteMap>(){new (){Id = "3", SystemName = "Item 3"} }}
+                    ChildNodes = new List<AdminSiteMap> {new (){Id = "3", SystemName = "Item 3"} }}
             };
 
             _adminSiteMapServiceMock.Setup(x => x.GetSiteMap()).ReturnsAsync(siteMap);
@@ -163,7 +163,7 @@ namespace Grand.Web.Admin.Tests;
             var idToDelete = "3";
             var siteMap = new List<AdminSiteMap>
             {
-                new AdminSiteMap { Id = "1", SystemName = "Item 1", ChildNodes = new List<AdminSiteMap>() { new AdminSiteMap(){ Id = idToDelete } } },
+                new AdminSiteMap { Id = "1", SystemName = "Item 1", ChildNodes = new List<AdminSiteMap> { new AdminSiteMap { Id = idToDelete } } },
                 new AdminSiteMap { Id = "2", SystemName = "Item 2" }
             };
 

@@ -22,7 +22,7 @@ namespace Grand.Business.Common.Tests.Events
         {
             _languageServiceMock = new Mock<ILanguageService>();
             _settingServiceMock = new Mock<ISettingService>();
-            _languageSettings = new LanguageSettings() { DefaultAdminLanguageId = "1" };
+            _languageSettings = new LanguageSettings { DefaultAdminLanguageId = "1" };
             _handler = new LanguageDeletedEventHandler(_languageServiceMock.Object, _settingServiceMock.Object,
                 _languageSettings);
         }
@@ -34,7 +34,7 @@ namespace Grand.Business.Common.Tests.Events
             _languageServiceMock.Setup(x => x.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult(
                 new List<Language> { new Language { Name = "English" }, new Language { Name = "Polish" } } as IList<Language>));
 
-            var notification = new Infrastructure.Events.EntityDeleted<Language>(new Language() { Id = "1" });
+            var notification = new Infrastructure.Events.EntityDeleted<Language>(new Language { Id = "1" });
             //Act
             await _handler.Handle(notification, CancellationToken.None);
 

@@ -104,7 +104,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                     select item;
 
                 var groupQuerySpec = spec.Where(x => x.AllowFiltering).GroupBy(x =>
-                    new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
+                    new { x.SpecificationAttributeOptionId }).ToList();
                 IList<string> specification =
                     groupQuerySpec.Select(item => item.Key.SpecificationAttributeOptionId).ToList();
 

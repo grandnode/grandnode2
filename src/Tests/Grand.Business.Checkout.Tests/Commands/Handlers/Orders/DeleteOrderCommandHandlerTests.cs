@@ -47,7 +47,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new DeleteOrderCommand() { Order = new Order() { OrderStatusId = (int)OrderStatusSystem.Pending } };
+            var command = new DeleteOrderCommand { Order = new Order { OrderStatusId = (int)OrderStatusSystem.Pending } };
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
             //Act
             var result = await _handler.Handle(command, CancellationToken.None);

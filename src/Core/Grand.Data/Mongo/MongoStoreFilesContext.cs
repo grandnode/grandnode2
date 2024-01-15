@@ -24,7 +24,7 @@ namespace Grand.Data.Mongo
         public async Task<byte[]> BucketDownload(string id)
         {
             var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
-            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true });
+            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions { CheckMD5 = true });
             return binary;
 
         }

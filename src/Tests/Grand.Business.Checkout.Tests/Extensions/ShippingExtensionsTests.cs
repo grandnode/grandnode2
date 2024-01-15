@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
             var method = new ShippingMethod();
             var countryId = "countryId";
             Assert.IsFalse(method.CountryRestrictionExists(countryId));
-            method.RestrictedCountries.Add(new Domain.Directory.Country() { Id = countryId });
+            method.RestrictedCountries.Add(new Domain.Directory.Country { Id = countryId });
             Assert.IsTrue(method.CountryRestrictionExists(countryId));
         }
 

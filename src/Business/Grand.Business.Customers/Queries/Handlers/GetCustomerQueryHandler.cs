@@ -110,7 +110,7 @@ namespace Grand.Business.Customers.Queries.Handlers
             MethodCallExpression call = Expression.Call(
                 typeof(Queryable),
                 "OrderByDescending",
-                new[] { typeof(T), property.Type },
+                [typeof(T), property.Type],
                 source.Expression,
                 Expression.Quote(sort));
 

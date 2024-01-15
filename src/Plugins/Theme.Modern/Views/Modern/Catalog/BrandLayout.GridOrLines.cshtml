@@ -11,7 +11,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var collectionUrl = Url.RouteUrl("Brand", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var collectionUrl = Url.RouteUrl("Brand", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
     <script asp-location="Header" asp-src="/theme/script/catalog.js"></script>

@@ -25,11 +25,11 @@ namespace Grand.Domain.Orders
             if (customAttributes == null)
                 customAttributes = new List<CustomAttribute>();
 
-            customAttributes.Add(new CustomAttribute() { Key = "RecipientName", Value = recipientName });
-            customAttributes.Add(new CustomAttribute() { Key = "RecipientEmail", Value = recipientEmail });
-            customAttributes.Add(new CustomAttribute() { Key = "SenderName", Value = senderName });
-            customAttributes.Add(new CustomAttribute() { Key = "SenderEmail", Value = senderEmail });
-            customAttributes.Add(new CustomAttribute() { Key = "Message", Value = giftVoucherMessage });
+            customAttributes.Add(new CustomAttribute { Key = "RecipientName", Value = recipientName });
+            customAttributes.Add(new CustomAttribute { Key = "RecipientEmail", Value = recipientEmail });
+            customAttributes.Add(new CustomAttribute { Key = "SenderName", Value = senderName });
+            customAttributes.Add(new CustomAttribute { Key = "SenderEmail", Value = senderEmail });
+            customAttributes.Add(new CustomAttribute { Key = "Message", Value = giftVoucherMessage });
 
             return customAttributes;
         }

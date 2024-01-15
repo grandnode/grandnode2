@@ -119,7 +119,7 @@ namespace Grand.Business.Catalog.Services.Products
                 var p1 = await _productRepository.GetByIdAsync(item.ProductId);
                 if (p1 == null || p1.Id == product.Id ||
                     p1.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
-                var shipmentItem1 = new ShipmentItem() {
+                var shipmentItem1 = new ShipmentItem {
                     Id = shipmentItem.Id,
                     Attributes = shipmentItem.Attributes,
                     OrderItemId = shipmentItem.OrderItemId,
@@ -145,7 +145,7 @@ namespace Grand.Business.Catalog.Services.Products
                     || associatedProduct.Id == product.Id
                     || associatedProduct.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
                 if (await CheckExistsInventoryJournal(associatedProduct, shipmentItem)) continue;
-                var item = new ShipmentItem() {
+                var item = new ShipmentItem {
                     Id = shipmentItem.Id,
                     Attributes = shipmentItem.Attributes,
                     OrderItemId = shipmentItem.OrderItemId,
@@ -383,7 +383,7 @@ namespace Grand.Business.Catalog.Services.Products
                 //send email notification
                 if (quantityToChange < 0 && _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) < product.NotifyAdminForQuantityBelow)
                 {
-                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand() {
+                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
                         Product = product
                     });
                 }
@@ -402,7 +402,7 @@ namespace Grand.Business.Catalog.Services.Products
                     //send email notification
                     if (quantityToChange < 0 && combination.StockQuantity < combination.NotifyAdminForQuantityBelow)
                     {
-                        await _mediator.Send(new SendQuantityBelowStoreOwnerCommand() {
+                        await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
                             Product = product,
                             ProductAttributeCombination = combination
                         });

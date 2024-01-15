@@ -51,7 +51,7 @@ namespace DiscountRules.Standard.Areas.Admin.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix =
                 $"DiscountRulesHadSpentAmount{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
-            return View((object)model);
+            return View(model);
         }
 
         [HttpPost]

@@ -72,7 +72,7 @@ namespace Grand.Web.Admin.Services
         {
             var allowedFileTypes = new List<string>();
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
-                allowedFileTypes = new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
+                allowedFileTypes = [".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp"];
             else
                 allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
 

@@ -149,7 +149,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 i++;
             }
 
-            return new[] { picture1, picture2, picture3 };
+            return [picture1, picture2, picture3];
         }
     }
 }

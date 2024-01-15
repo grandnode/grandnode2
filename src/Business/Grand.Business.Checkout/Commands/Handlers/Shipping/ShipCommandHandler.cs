@@ -67,7 +67,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
                 await _messageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
             }
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order }, cancellationToken);
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             //event
             await _mediator.PublishShipmentSent(request.Shipment);

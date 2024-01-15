@@ -33,7 +33,7 @@ namespace Grand.Data
             {
                 //Try to read file
                 var connectionString = File.ReadLines(CommonPath.SettingsPath).FirstOrDefault();
-                _dataSettings = new DataSettings() { ConnectionString = connectionString, DbProvider = DbProvider.MongoDB };
+                _dataSettings = new DataSettings { ConnectionString = connectionString, DbProvider = DbProvider.MongoDB };
 
             }
             return _dataSettings;

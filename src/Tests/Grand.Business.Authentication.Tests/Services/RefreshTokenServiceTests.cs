@@ -17,7 +17,7 @@ namespace Grand.Business.Authentication.Tests.Services
         public void Init()
         {
             _userFieldServiceMock = new Mock<IUserFieldService>();
-            _service = new RefreshTokenService(_userFieldServiceMock.Object, new Infrastructure.Configuration.FrontendAPIConfig() {
+            _service = new RefreshTokenService(_userFieldServiceMock.Object, new Infrastructure.Configuration.FrontendAPIConfig {
                 SecretKey = "JWTRefreshTokenHIGHsecuredPasswordVVVp1OH7Xzyr",
                 ValidIssuer = "http://localhost:4200",
                 ValidAudience = "http://localhost:4200",
@@ -58,7 +58,7 @@ namespace Grand.Business.Authentication.Tests.Services
         {
             //Arrange
             _userFieldServiceMock.Setup(c => c.GetFieldsForEntity<RefreshToken>(It.IsAny<BaseEntity>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(new RefreshToken() { Token = "123" }));
+                .Returns(Task.FromResult(new RefreshToken { Token = "123" }));
             //Act
             var result = await _service.GetCustomerRefreshToken(new Domain.Customers.Customer());
             //Assert

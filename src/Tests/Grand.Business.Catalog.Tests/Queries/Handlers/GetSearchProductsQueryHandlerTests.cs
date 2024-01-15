@@ -18,7 +18,7 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers
         public void Init()
         {
             _repository = new MongoDBRepositoryTest<Product>();
-            handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object, new CatalogSettings() { IgnoreFilterableSpecAttributeOption = true}, new AccessControlConfig());
+            handler = new GetSearchProductsQueryHandler(_repository, new Mock<ISpecificationAttributeService>().Object, new CatalogSettings { IgnoreFilterableSpecAttributeOption = true}, new AccessControlConfig());
         }
 
 
@@ -26,7 +26,7 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers
         public async Task HandleTest()
         {
             //Arrange
-            await _repository.InsertAsync(new Product() { Published = true, VisibleIndividually = true });
+            await _repository.InsertAsync(new Product { Published = true, VisibleIndividually = true });
             var searchProductsQuery = new Core.Queries.Catalog.GetSearchProductsQuery();
             searchProductsQuery.Customer = new Domain.Customers.Customer();
             //Act

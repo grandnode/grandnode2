@@ -10,7 +10,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var categoryUrl = Url.RouteUrl("Category", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(categoryUrl);
     }
 }
@@ -44,7 +44,7 @@
                         <a>
                             <strong class="current-item" itemprop="name">@cat.Name</strong>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                                  id="@Url.RouteUrl("Category", new { cat.SeName})">
                             </span>
                             <meta itemprop="position" content="@count" />
                         </a>
@@ -53,10 +53,10 @@
                 else
                 {
                     <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
-                        <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                        <a href="@Url.RouteUrl("Category", new { cat.SeName })" title="@cat.Name" itemprop="item">
                             <span itemprop="name">@cat.Name</span>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new { SeName = cat.SeName })">
+                                  id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
                             <meta itemprop="position" content="@count" />
                         </a>

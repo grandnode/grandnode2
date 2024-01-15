@@ -140,7 +140,7 @@ namespace Grand.Data.Mongo
         {
             entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
             entity.UpdatedBy = _auditInfoProvider?.GetCurrentUser();
-            _collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions() { IsUpsert = false });
+            _collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });
             return entity;
         }
 
@@ -153,7 +153,7 @@ namespace Grand.Data.Mongo
             entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
             entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
             await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity,
-                new ReplaceOptions() { IsUpsert = false });
+                new ReplaceOptions { IsUpsert = false });
             return entity;
         }
 

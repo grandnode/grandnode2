@@ -16,8 +16,8 @@ namespace Grand.Business.Common.Tests.Extensions
             //prepare  ITranslationEntity
             var product = new Product();
             product.Name = "stname";
-            product.Locales.Add(new Domain.Localization.TranslationEntity() { LanguageId = "PL", LocaleKey = "Name", LocaleValue = "PLName" });
-            product.Locales.Add(new Domain.Localization.TranslationEntity() { LanguageId = "UK", LocaleKey = "Name", LocaleValue = "UKName" });
+            product.Locales.Add(new Domain.Localization.TranslationEntity { LanguageId = "PL", LocaleKey = "Name", LocaleValue = "PLName" });
+            product.Locales.Add(new Domain.Localization.TranslationEntity { LanguageId = "UK", LocaleKey = "Name", LocaleValue = "UKName" });
 
             Assert.AreEqual(product.GetTranslation(c => c.Name, "PL"), "PLName");
             Assert.AreEqual(product.GetTranslation(c => c.Name, "UK"), "UKName");

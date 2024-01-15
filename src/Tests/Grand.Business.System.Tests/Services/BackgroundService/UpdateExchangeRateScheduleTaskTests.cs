@@ -27,10 +27,10 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         public async Task Execute_InvokeExpectedMethods()
         {
             _settings.AutoUpdateEnabled = true;
-            _currencyServiceMock.Setup(c => c.GetPrimaryExchangeRateCurrency()).ReturnsAsync(new Currency() { CurrencyCode = "EU" });
+            _currencyServiceMock.Setup(c => c.GetPrimaryExchangeRateCurrency()).ReturnsAsync(new Currency { CurrencyCode = "EU" });
             _exchangeRateServiceMock.Setup(c => c.GetCurrencyLiveRates(It.IsAny<string>()))
-                .ReturnsAsync(new List<ExchangeRate>() { new ExchangeRate() { CurrencyCode = "PL", Rate = 10 } });
-            _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>())).ReturnsAsync(new Currency() { Rate = 10 });
+                .ReturnsAsync(new List<ExchangeRate> { new ExchangeRate { CurrencyCode = "PL", Rate = 10 } });
+            _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>())).ReturnsAsync(new Currency { Rate = 10 });
             await _task.Execute();
 
             _currencyServiceMock.Verify(c => c.UpdateCurrency(It.IsAny<Currency>()), Times.Once);

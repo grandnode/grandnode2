@@ -24,7 +24,7 @@ namespace Grand.Web.Common.Filters
         public AuthorizeMenuAttribute(bool ignore = false) : base(typeof(AuthorizeMenuFilter))
         {
             _ignoreFilter = ignore;
-            Arguments = new object[] { ignore };
+            Arguments = [ignore];
         }
 
         public bool IgnoreFilter => _ignoreFilter;
@@ -104,14 +104,14 @@ namespace Grand.Web.Common.Filters
                 {
                     if (menuSiteMap.AllPermissions)
                     {
-                        if (!(await menuSiteMap.PermissionNames.AllAsync(async x =>
-                                await _permissionService.Authorize(x, _workContext.CurrentCustomer))))
+                        if (!await menuSiteMap.PermissionNames.AllAsync(async x =>
+                                await _permissionService.Authorize(x, _workContext.CurrentCustomer)))
                             filterContext.Result = new ForbidResult();
                     }
                     else
                     {
-                        if (!(await menuSiteMap.PermissionNames.AnyAsync(async x =>
-                                await _permissionService.Authorize(x, _workContext.CurrentCustomer))))
+                        if (!await menuSiteMap.PermissionNames.AnyAsync(async x =>
+                                await _permissionService.Authorize(x, _workContext.CurrentCustomer)))
                             filterContext.Result = new ForbidResult();
                     }
                 }

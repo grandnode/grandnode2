@@ -23,7 +23,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
             var provider = new Mock<IExchangeRateProvider>();
             provider.Setup(c => c.SystemName).Returns("sysname");
             _settings.ActiveExchangeRateProviderSystemName = "sysname";
-            var exchangeRateService = new ExchangeRateService(new List<IExchangeRateProvider>() { provider.Object }, _settings);
+            var exchangeRateService = new ExchangeRateService(new List<IExchangeRateProvider> { provider.Object }, _settings);
             await exchangeRateService.GetCurrencyLiveRates("rate");
             provider.Verify(c => c.GetCurrencyLiveRates(It.IsAny<string>()), Times.Once);
         }
@@ -33,7 +33,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         {
             var provider = new Mock<IExchangeRateProvider>();
             provider.Setup(c => c.SystemName).Returns("sysname");
-            var exchangeRateService = new ExchangeRateService(new List<IExchangeRateProvider>() { provider.Object }, _settings);
+            var exchangeRateService = new ExchangeRateService(new List<IExchangeRateProvider> { provider.Object }, _settings);
             var result = exchangeRateService.LoadExchangeRateProviderBySystemName("sysname");
             Assert.IsNotNull(result);
             Assert.AreEqual(result.SystemName, "sysname");
