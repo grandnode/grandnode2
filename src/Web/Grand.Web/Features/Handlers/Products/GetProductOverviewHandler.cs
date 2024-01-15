@@ -260,7 +260,7 @@ namespace Grand.Web.Features.Handlers.Products
                                     priceModel.OldPrice = null;
                                     priceModel.Price = res["Products.CallForPrice"];
                                 }
-                                else if (minPossiblePrice.HasValue)
+                                else
                                 {
                                     //calculate prices
                                     var finalPrice = (await _taxService.GetProductPrice(minPriceProduct,
