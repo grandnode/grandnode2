@@ -93,7 +93,7 @@ namespace Grand.Web.Controllers
             var page = await _mediator.Send(new GetPageBlock { PageId = model.Id, Password = model.Password });
 
             if (page is not { IsPasswordProtected: true })
-                return Json(new { Authenticated = authResult, Title = title, Body = body, Error = error });
+                return Json(new { Authenticated = false, Title = title, Body = body, Error = error });
             if (page.Password != null && page.Password.Equals(model.Password))
             {
                 authResult = true;
