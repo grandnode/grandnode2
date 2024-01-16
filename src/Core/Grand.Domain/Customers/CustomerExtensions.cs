@@ -83,10 +83,12 @@ namespace Grand.Domain.Customers
             }
             return fullName;
         }
+
         /// <summary>
         /// Formats the customer name
         /// </summary>
         /// <param name="customer">Source</param>
+        /// <param name="customerNameFormat"></param>
         /// <returns>Formatted text</returns>
         public static string FormatUserName(this Customer customer, CustomerNameFormat customerNameFormat)
         {
@@ -143,6 +145,7 @@ namespace Grand.Domain.Customers
         /// Adds a coupon code
         /// </summary>
         /// <param name="customer">Customer</param>
+        /// <param name="key"></param>
         /// <param name="couponCode">Coupon code</param>
         /// <returns>New coupon codes document</returns>
         public static string ApplyCouponCode(this Customer customer, string key, string couponCode)
@@ -176,10 +179,12 @@ namespace Grand.Domain.Customers
             coupons.AddRange(couponCodes.ToList());
             return string.Join(CouponSeparator, coupons.Distinct());
         }
+
         /// <summary>
         /// Adds a coupon code
         /// </summary>
         /// <param name="customer">Customer</param>
+        /// <param name="key"></param>
         /// <param name="couponCode">Coupon code</param>
         /// <returns>New coupon codes document</returns>
         public static string RemoveCouponCode(this Customer customer, string key, string couponCode)

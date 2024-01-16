@@ -64,6 +64,7 @@ namespace Grand.Business.Common.Utilities
         /// <summary>
         /// Sets the property of the specified object to the specified value.
         /// </summary>
+        /// <param name="columnInfo"></param>
         /// <param name="o">The object whose property to set.</param>
         /// <param name="val">The value.</param>
         /// <param name="cell">The cell where the value originates from.</param>

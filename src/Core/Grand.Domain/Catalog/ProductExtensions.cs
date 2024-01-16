@@ -9,13 +9,13 @@ namespace Grand.Domain.Catalog
     /// </summary>
     public static class ProductExtensions
     {
-
         /// <summary>
         /// Used to get an appropriate tier price
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
         /// <param name="storeId">Store id</param>
+        /// <param name="currencyCode"></param>
         /// <param name="quantity">Quantity</param>
         /// <returns>Price</returns>
         public static TierPrice GetPreferredTierPrice(this Product product, Customer customer, string storeId, string currencyCode, int quantity)
@@ -39,7 +39,7 @@ namespace Grand.Domain.Catalog
         /// Check if product tag exists
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="productTagId">Product tag id</param>
+        /// <param name="productTagName"></param>
         /// <returns>Result</returns>
         public static bool ProductTagExists(this Product product,
             string productTagName)
@@ -85,7 +85,6 @@ namespace Grand.Domain.Catalog
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="attributes">Attributes</param>
-        /// <param name="productAttributeParser">Product attribute service</param>
         /// <param name="sku">SKU</param>
         /// <param name="mpn">MPN</param>
         /// <param name="gtin">GTIN</param>
@@ -140,6 +139,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets selected product attribute mappings
         /// </summary>
+        /// <param name="product"></param>
         /// <param name="customAttributes">Attributes</param>
         /// <returns>Selected product attribute mappings</returns>
         public static IList<ProductAttributeMapping> ParseProductAttributeMappings(this Product product, IList<CustomAttribute> customAttributes)
@@ -150,7 +150,7 @@ namespace Grand.Domain.Catalog
 
             foreach (var customAttribute in customAttributes.GroupBy(x => x.Key))
             {
-                var attribute = product.ProductAttributeMappings.Where(x => x.Id == customAttribute.Key).FirstOrDefault();
+                var attribute = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == customAttribute.Key);
                 if (attribute != null)
                 {
                     result.Add(attribute);
@@ -162,6 +162,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Get product attribute values
         /// </summary>
+        /// <param name="product"></param>
         /// <param name="customAttributes">Attributes</param>
         /// <returns>Product attribute values</returns>
         public static IList<ProductAttributeValue> ParseProductAttributeValues(this Product product, IList<CustomAttribute> customAttributes)
@@ -183,7 +184,7 @@ namespace Grand.Domain.Catalog
                     {
                         if (attribute.ProductAttributeValues.Where(x => x.Id == valueStr).Count() > 0)
                         {
-                            var value = attribute.ProductAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
+                            var value = attribute.ProductAttributeValues.FirstOrDefault(x => x.Id == valueStr);
                             if (value != null)
                             {
                                 values.Add(value);
@@ -214,7 +215,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes"></param>
         /// <param name="productAttributeMapping">Product attribute mapping</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
@@ -227,19 +228,22 @@ namespace Grand.Domain.Catalog
 
             return customAttributes;
         }
+
         /// <summary>
         /// Remove an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes"></param>
         /// <param name="productAttributeMapping">Product attribute mapping</param>
         /// <returns>Updated result (XML format)</returns>
         public static IList<CustomAttribute> RemoveProductAttribute(IList<CustomAttribute> customAttributes, ProductAttributeMapping productAttributeMapping)
         {
             return customAttributes.Where(x => x.Key != productAttributeMapping.Id).ToList();
         }
+
         /// <summary>
         /// Are attributes equal
         /// </summary>
+        /// <param name="product"></param>
         /// <param name="customAttributes1">The attributes of the first product</param>
         /// <param name="customAttributes2">The attributes of the second product</param>
         /// <param name="ignoreNonCombinableAttributes">A value indicating whether we should ignore non-combinable attributes</param>
@@ -315,6 +319,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Check whether condition of some attribute is met (if specified). Return "null" if not condition is specified
         /// </summary>
+        /// <param name="product"></param>
         /// <param name="pam">Product attribute</param>
         /// <param name="selectedAttributes">Selected attributes</param>
         /// <returns>Result</returns>
@@ -423,7 +428,6 @@ namespace Grand.Domain.Catalog
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="attributes">Attributes</param>
-        /// <param name="productAttributeParser">Product attribute service</param>
         /// <returns>GTIN</returns>
         public static string FormatGtin(this Product product, IList<CustomAttribute> attributes = null)
         {
