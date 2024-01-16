@@ -1,4 +1,5 @@
-﻿@model OrderDetailsModel
+﻿@using System.Globalization
+@model OrderDetailsModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -703,7 +704,7 @@ else
                             {
                                 <tr class="row mx-0">
                                     <td class="created-on col-4">
-                                        @item.CreatedOn.ToString()
+                                        @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                     </td>
                                     <td class="note col-8">
                                         @Html.Raw(item.Note)

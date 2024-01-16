@@ -12,7 +12,7 @@
     <div class="page-toolbar">
         <div id="dashboard-report-range" class="pull-right btn btn-sm">
             <i class="icon-calendar"></i>&nbsp;
-            <span class="thin uppercase">@DateTime.Now.ToLocalTime().ToString()</span>&nbsp;
+            <span class="thin uppercase">@DateTime.Now.ToLocalTime().ToString(CultureInfo.InvariantCulture)</span>&nbsp;
         </div>
     </div>
 </div>

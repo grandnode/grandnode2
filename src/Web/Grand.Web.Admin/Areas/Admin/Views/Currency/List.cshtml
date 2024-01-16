@@ -191,7 +191,7 @@
                                 <text>
                                 {
                                     CurrencyCode: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(rate.CurrencyCode) ? "" : rate.CurrencyCode)))",
-                                    Rate: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(rate.Rate.ToString())))"
+                                    Rate: "@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(rate.Rate.ToString(CultureInfo.InvariantCulture)))"
                                 }
                                 </text>
                                 if (i != rates.Count - 1)

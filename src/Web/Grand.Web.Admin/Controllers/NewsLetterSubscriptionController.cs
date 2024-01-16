@@ -13,6 +13,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -126,7 +127,7 @@ namespace Grand.Web.Admin.Controllers
                 var m = x.ToModel();
                 var store = await _storeService.GetStoreById(x.StoreId);
                 m.StoreName = store != null ? store.Shortcut : "Unknown store";
-                m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc).ToString();
+                m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc).ToString(CultureInfo.InvariantCulture);
                 m.Categories = await GetCategoryNames(x.Categories.ToList());
                 items.Add(m);
             }

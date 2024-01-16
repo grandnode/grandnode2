@@ -1,4 +1,5 @@
-﻿@model ProductOverviewModel
+﻿@using System.Globalization
+@model ProductOverviewModel
 @{
     //prepare "Add to cart" Axios link
     string addtocartlink = "";
@@ -219,7 +220,7 @@
                         {
                             <div class="d-inline-flex flex-wrap justify-content-center">
                                 <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
-                                <div class="count-date">@Model.EndTimeLocalTime.Value.ToString()</div>
+                                <div class="count-date">@Model.EndTimeLocalTime.Value.ToString(CultureInfo.InvariantCulture)</div>
                             </div>
                         }
                     </div>

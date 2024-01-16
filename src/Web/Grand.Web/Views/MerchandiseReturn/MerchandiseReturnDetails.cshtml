@@ -1,4 +1,5 @@
-﻿@model MerchandiseReturnDetailsModel
+﻿@using System.Globalization
+@model MerchandiseReturnDetailsModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -16,7 +17,7 @@
         <div class="return-product-container">
             <div class="details alert alert-info date">
                 <label>@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
-                <span>@Model.CreatedOnUtc.ToString()</span>
+                <span>@Model.CreatedOnUtc.ToString(CultureInfo.InvariantCulture)</span>
             </div>
             <div class="products">
                 <h5 class="generalTitle">@Loc["Order.Product(s)"]</h5>
@@ -222,7 +223,7 @@
                                 {
                                     <tr class="row mx-0">
                                         <td class="created-on col-4">
-                                            @item.CreatedOn.ToString()
+                                            @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                         </td>
                                         <td class="note col-8">
                                             @Html.Raw(item.Note)
