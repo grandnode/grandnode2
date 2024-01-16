@@ -126,8 +126,12 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Product = item,
                     Store = request.Store
                 }, cancellationToken);
-
-                var price = displayPrices ? await PreparePrice(item, request) : (Price: string.Empty, PriceWithDiscount: string.Empty);
+				var displayPricesItem = displayPrices;
+				 if(item.CallForPrice)
+				 {
+				    displayPricesItem = false;
+				 }
+                var price = displayPricesItem ? await PreparePrice(item, request) : (Price: string.Empty, PriceWithDiscount: string.Empty);
 
                 model.Add(new SearchAutoCompleteModel {
                     SearchType = "Product",
