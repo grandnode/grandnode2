@@ -5,10 +5,6 @@ namespace Grand.Web.Models.Catalog
 {
     public class ProductAskQuestionSimpleModel : BaseEntityModel
     {
-        public ProductAskQuestionSimpleModel()
-        {
-            Captcha = new CaptchaModel();
-        }
         [GrandResourceDisplayName("Products.AskQuestion.Email")]
         public string AskQuestionEmail { get; set; }
 
@@ -22,7 +18,6 @@ namespace Grand.Web.Models.Catalog
         public string AskQuestionMessage { get; set; }
 
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; }
-
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

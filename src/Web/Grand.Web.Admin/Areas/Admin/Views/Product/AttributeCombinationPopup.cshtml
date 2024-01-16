@@ -3,14 +3,7 @@
 @inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService _groupService
 @{
     Layout = "";
-    if (string.IsNullOrEmpty(Model.Id))
-    {
-        ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"];
-    }
-    else
-    {
-        ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
-    }
+    ViewBag.Title = string.IsNullOrEmpty(Model.Id) ? Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"] : Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
 }
 <form id="AttributeCombinationPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
       asp-route-productId="@Context.Request.Query["productId"]"

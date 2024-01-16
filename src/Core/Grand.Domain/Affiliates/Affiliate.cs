@@ -5,7 +5,7 @@ namespace Grand.Domain.Affiliates
     /// <summary>
     /// Represents an affiliate
     /// </summary>
-    public partial class Affiliate : BaseEntity
+    public class Affiliate : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name

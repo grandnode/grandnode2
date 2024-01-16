@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product review helpfulness
     /// </summary>
-    public partial class ProductReviewHelpfulness : SubBaseEntity
+    public class ProductReviewHelpfulness : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the product review identifier

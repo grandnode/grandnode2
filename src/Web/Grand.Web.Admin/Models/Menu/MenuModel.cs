@@ -5,11 +5,6 @@ namespace Grand.Web.Admin.Models.Menu;
 
 public class MenuModel : BaseEntityModel
 {
-    public MenuModel()
-    {
-        PermissionNames = new List<string>();
-    }
-    
     /// <summary>
     /// Gets or sets the system name.
     /// </summary>
@@ -61,8 +56,8 @@ public class MenuModel : BaseEntityModel
     /// <summary>
     /// Gets or sets permissions
     /// </summary>
-    public IList<string> PermissionNames { get; set; }
-    
+    public IList<string> PermissionNames { get; set; } = new List<string>();
+
     /// <summary>
     /// Gets or sets all permissions
     /// </summary>

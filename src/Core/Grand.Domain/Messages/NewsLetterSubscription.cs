@@ -5,7 +5,7 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents NewsLetterSubscription entity
     /// </summary>
-    public partial class NewsLetterSubscription : BaseEntity, IHistory
+    public class NewsLetterSubscription : BaseEntity, IHistory
     {
         private ICollection<string> _categories;
 

@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Manage product inventory per warehouse
     /// </summary>
-    public partial class ProductWarehouseInventory : SubBaseEntity
+    public class ProductWarehouseInventory : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the warehouse identifier

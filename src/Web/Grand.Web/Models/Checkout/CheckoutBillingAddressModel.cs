@@ -5,13 +5,8 @@ namespace Grand.Web.Models.Checkout
 {
     public class CheckoutBillingAddressModel : BaseModel
     {
-        public CheckoutBillingAddressModel()
-        {
-            ExistingAddresses = new List<AddressModel>();
-            BillingNewAddress = new AddressModel();
-        }
-        public IList<AddressModel> ExistingAddresses { get; set; }
-        public AddressModel BillingNewAddress { get; set; }
+        public IList<AddressModel> ExistingAddresses { get; set; } = new List<AddressModel>();
+        public AddressModel BillingNewAddress { get; set; } = new();
         public bool NewAddressPreselected { get; set; }
         public string BillingAddressId { get; set; } 
     }

@@ -5,21 +5,15 @@ namespace Grand.Web.Models.Orders
 {
     public class ShipmentDetailsModel : BaseEntityModel
     {
-        public ShipmentDetailsModel()
-        {
-            ShipmentStatusEvents = new List<ShipmentStatusEventModel>();
-            Items = new List<ShipmentItemModel>();
-            ShipmentNotes = new List<ShipmentNote>();
-        }
         public int ShipmentNumber { get; set; }
         public string TrackingNumber { get; set; }
         public string TrackingNumberUrl { get; set; }
         public DateTime? ShippedDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
-        public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; }
+        public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; } = new List<ShipmentStatusEventModel>();
         public bool ShowSku { get; set; }
-        public IList<ShipmentItemModel> Items { get; set; }
-        public IList<ShipmentNote> ShipmentNotes { get; set; }
+        public IList<ShipmentItemModel> Items { get; set; } = new List<ShipmentItemModel>();
+        public IList<ShipmentNote> ShipmentNotes { get; set; } = new List<ShipmentNote>();
         public OrderModel Order { get; set; }
 
 		#region Nested Classes

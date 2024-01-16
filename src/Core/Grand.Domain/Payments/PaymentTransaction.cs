@@ -2,12 +2,6 @@
 {
     public class PaymentTransaction : BaseEntity
     {
-        public PaymentTransaction()
-        {
-            CustomValues = new Dictionary<string, object>();
-            Errors = new List<string>();
-        }
-
         /// <summary>
         /// Gets or sets payment method system name
         /// </summary>
@@ -93,12 +87,12 @@
         /// <summary>
         /// Gets or sets custom values
         /// </summary>
-        public Dictionary<string, object> CustomValues { get; set; }
+        public Dictionary<string, object> CustomValues { get; set; } = new();
 
         /// <summary>
         /// gets or sets errors
         /// </summary>
-        public IList<string> Errors { get; set; }
+        public IList<string> Errors { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets

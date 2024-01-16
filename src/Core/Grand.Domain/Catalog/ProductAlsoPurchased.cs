@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product also purchased
     /// </summary>
-    public partial class ProductAlsoPurchased : BaseEntity
+    public class ProductAlsoPurchased : BaseEntity
     {
         public string ProductId { get; set; }
         public string ProductId2 { get; set; }

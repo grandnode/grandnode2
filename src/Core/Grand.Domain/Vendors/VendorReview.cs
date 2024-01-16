@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a vendor review
     /// </summary>
-    public partial class VendorReview : BaseEntity
+    public class VendorReview : BaseEntity
     {
         private ICollection<VendorReviewHelpfulness> _vendorReviewHelpfulnessEntries;
 

@@ -1825,8 +1825,8 @@ namespace Grand.Business.Messages.Services
                 throw new ArgumentNullException(nameof(product));
 
             var builder = new LiquidObjectBuilder(_mediator);
-            MessageTemplate messageTemplate = null;
-            EmailAccount emailAccount = null;
+            MessageTemplate messageTemplate;
+            EmailAccount emailAccount;
 
             if (bid != null)
             {

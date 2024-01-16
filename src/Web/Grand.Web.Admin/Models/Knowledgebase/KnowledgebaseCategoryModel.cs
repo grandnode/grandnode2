@@ -9,12 +9,6 @@ namespace Grand.Web.Admin.Models.Knowledgebase
 {
     public class KnowledgebaseCategoryModel : BaseEntityModel, ILocalizedModel<KnowledgebaseCategoryLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public KnowledgebaseCategoryModel()
-        {
-            Categories = new List<SelectListItem>();
-            Locales = new List<KnowledgebaseCategoryLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name")]
         public string Name { get; set; }
 
@@ -30,9 +24,9 @@ namespace Grand.Web.Admin.Models.Knowledgebase
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Published")]
         public bool Published { get; set; }
 
-        public List<SelectListItem> Categories { get; set; }
+        public List<SelectListItem> Categories { get; set; } = new();
 
-        public IList<KnowledgebaseCategoryLocalizedModel> Locales { get; set; }
+        public IList<KnowledgebaseCategoryLocalizedModel> Locales { get; set; } = new List<KnowledgebaseCategoryLocalizedModel>();
 
         [UIHint("CustomerGroups")]
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.LimitedToGroups")]

@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="T">T</typeparam>
     [Serializable]
-    public partial class PagedList<T> : List<T>, IPagedList<T>
+    public class PagedList<T> : List<T>, IPagedList<T>
     {
 
         private void Initialize(IEnumerable<T> source, int pageIndex, int pageSize, int? totalCount = null)

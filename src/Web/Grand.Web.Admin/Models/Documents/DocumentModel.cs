@@ -8,12 +8,6 @@ namespace Grand.Web.Admin.Models.Documents
 {
     public class DocumentModel : BaseEntityModel, IGroupLinkModel, IStoreLinkModel
     {
-        public DocumentModel()
-        {
-            AvailableDocumentTypes = new List<SelectListItem>();
-            AvailableSelesEmployees = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.Number")]
         public string Number { get; set; }
 
@@ -22,7 +16,7 @@ namespace Grand.Web.Admin.Models.Documents
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.SeId")]
         public string SeId { get; set; }
-        public IList<SelectListItem> AvailableSelesEmployees { get; set; }
+        public IList<SelectListItem> AvailableSelesEmployees { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.Description")]
         public string Description { get; set; }
@@ -62,7 +56,7 @@ namespace Grand.Web.Admin.Models.Documents
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.DocumentType")]
         public string DocumentTypeId { get; set; }
-        public IList<SelectListItem> AvailableDocumentTypes { get; set; }
+        public IList<SelectListItem> AvailableDocumentTypes { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.CustomerEmail")]
         public string CustomerEmail { get; set; }

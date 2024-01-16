@@ -3,7 +3,7 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents a measure dimension
     /// </summary>
-    public partial class MeasureDimension : BaseEntity
+    public class MeasureDimension : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name

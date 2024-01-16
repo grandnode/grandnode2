@@ -428,15 +428,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             if (resolvedLabelText == null && expression != null)
             {
                 var index = expression.LastIndexOf('.');
-                if (index == -1)
-                {
-                    // Expression does not contain a dot separator.
-                    resolvedLabelText = expression;
-                }
-                else
-                {
-                    resolvedLabelText = expression[(index + 1)..];
-                }
+                // Expression does not contain a dot separator.
+                resolvedLabelText = index == -1 ? expression : expression[(index + 1)..];
             }
 
             var tagBuilder = new TagBuilder("label");
@@ -623,10 +616,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             }
 
             // If we got a null selectList, try to use ViewData to get the list of items.
-            if (selectList == null)
-            {
-                selectList = GetSelectListItems(viewContext, expression);
-            }
+            selectList ??= GetSelectListItems(viewContext, expression);
 
             modelExplorer = modelExplorer ??
                 ExpressionMetadataProvider.FromStringExpression(expression, viewContext.ViewData, _metadataProvider);
@@ -937,14 +927,9 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             var tagBuilder = new TagBuilder("div");
             tagBuilder.MergeAttributes(GetHtmlAttributeDictionaryOrNull(htmlAttributes));
 
-            if (viewData.ModelState.IsValid)
-            {
-                tagBuilder.AddCssClass(HtmlHelper.ValidationSummaryValidCssClassName);
-            }
-            else
-            {
-                tagBuilder.AddCssClass(HtmlHelper.ValidationSummaryCssClassName);
-            }
+            tagBuilder.AddCssClass(viewData.ModelState.IsValid
+                ? HtmlHelper.ValidationSummaryValidCssClassName
+                : HtmlHelper.ValidationSummaryCssClassName);
 
             if (messageTag != null)
             {
@@ -1279,11 +1264,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
                 case InputType.Text:
                 default:
-                    var attributeValue = (string)GetModelStateValue(viewContext, fullName, typeof(string));
-                    if (attributeValue == null)
-                    {
-                        attributeValue = useViewData ? EvalString(viewContext, expression, format) : valueParameter;
-                    }
+                    var attributeValue = (string)GetModelStateValue(viewContext, fullName, typeof(string)) ?? (useViewData ? EvalString(viewContext, expression, format) : valueParameter);
 
                     var addValue = true;
                     object typeAttributeValue;
@@ -1470,11 +1451,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             IDictionary<string, object> htmlAttributeDictionary = null;
             if (htmlAttributes != null)
             {
-                htmlAttributeDictionary = htmlAttributes as IDictionary<string, object>;
-                if (htmlAttributeDictionary == null)
-                {
-                    htmlAttributeDictionary = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-                }
+                htmlAttributeDictionary = htmlAttributes as IDictionary<string, object> ?? HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
             }
 
             return htmlAttributeDictionary;

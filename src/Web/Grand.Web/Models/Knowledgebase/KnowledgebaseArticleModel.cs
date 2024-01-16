@@ -4,14 +4,6 @@ namespace Grand.Web.Models.Knowledgebase
 {
     public class KnowledgebaseArticleModel : BaseEntityModel
     {
-        public KnowledgebaseArticleModel()
-        {
-            RelatedArticles = new List<KnowledgebaseArticleModel>();
-            CategoryBreadcrumb = new List<KnowledgebaseCategoryModel>();
-            Comments = new List<KnowledgebaseArticleCommentModel>();
-            AddNewComment = new AddKnowledgebaseArticleCommentModel();
-            Captcha = new CaptchaModel();
-        }
         public string ArticleId { get; set; }
         public string Name { get; set; }
 
@@ -29,14 +21,14 @@ namespace Grand.Web.Models.Knowledgebase
 
         public bool AllowComments { get; set; }
         
-        public ICaptchaValidModel Captcha { get; set; }
-        
-        public IList<KnowledgebaseArticleModel> RelatedArticles { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 
-        public List<KnowledgebaseCategoryModel> CategoryBreadcrumb { get; set; }
+        public IList<KnowledgebaseArticleModel> RelatedArticles { get; set; } = new List<KnowledgebaseArticleModel>();
 
-        public AddKnowledgebaseArticleCommentModel AddNewComment { get; set; }
+        public List<KnowledgebaseCategoryModel> CategoryBreadcrumb { get; set; } = new();
 
-        public IList<KnowledgebaseArticleCommentModel> Comments { get; set; }
+        public AddKnowledgebaseArticleCommentModel AddNewComment { get; set; } = new();
+
+        public IList<KnowledgebaseArticleCommentModel> Comments { get; set; } = new List<KnowledgebaseArticleCommentModel>();
     }
 }

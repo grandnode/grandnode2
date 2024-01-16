@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Common
 {
     public class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
     {
-        public PictureModel()
-        {
-            Locales = new List<PictureLocalizedModel>();
-        }
         public string ObjectId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Picture")]
@@ -28,7 +24,7 @@ namespace Grand.Web.Admin.Models.Common
         [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.ExtraField")]
         public string ExtraField { get; set; }
 
-        public IList<PictureLocalizedModel> Locales { get; set; }
+        public IList<PictureLocalizedModel> Locales { get; set; } = new List<PictureLocalizedModel>();
 
         public class PictureLocalizedModel : ILocalizedModelLocal
         {

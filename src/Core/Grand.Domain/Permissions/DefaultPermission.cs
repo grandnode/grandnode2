@@ -5,11 +5,6 @@
     /// </summary>
     public class DefaultPermission
     {
-        public DefaultPermission() 
-        {
-            Permissions = new List<Permission>();
-        }
-
         /// <summary>
         /// Gets or sets the customer group system name
         /// </summary>
@@ -18,6 +13,6 @@
         /// <summary>
         /// Gets or sets the permissions
         /// </summary>
-        public IEnumerable<Permission> Permissions { get; set; }
+        public IEnumerable<Permission> Permissions { get; set; } = new List<Permission>();
     }
 }

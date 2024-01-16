@@ -12,11 +12,6 @@ namespace Grand.Business.Core.Utilities.Checkout
     {
         #region Ctor
 
-        public GetShippingOptionRequest()
-        {
-            Items = new List<PackageItem>();
-        }
-
         #endregion
 
         #region Properties
@@ -29,7 +24,7 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// <summary>
         /// Gets or sets a shopping cart items
         /// </summary>
-        public IList<PackageItem> Items { get; set; }
+        public IList<PackageItem> Items { get; set; } = new List<PackageItem>();
 
         /// <summary>
         /// Gets or sets a shipping address (where we ship to)

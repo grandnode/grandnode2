@@ -49,15 +49,12 @@ namespace Grand.Web.Admin.Controllers
             var newslettercategories = await _newsletterCategoryService.GetAllNewsletterCategory();
             var gridModel = new DataSourceResult
             {
-                Data = newslettercategories.Select(x =>
+                Data = newslettercategories.Select(x => new
                 {
-                    return new
-                    {
-                        x.Id,
-                        x.Name,
-                        x.Selected,
-                        x.DisplayOrder
-                    };
+                    x.Id,
+                    x.Name,
+                    x.Selected,
+                    x.DisplayOrder
                 }).OrderBy(x => x.DisplayOrder),
                 Total = newslettercategories.Count
             };

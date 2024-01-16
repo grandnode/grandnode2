@@ -5,13 +5,8 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a specification attribute option
     /// </summary>
-    public partial class SpecificationAttributeOption : SubBaseEntity, ITranslationEntity
+    public class SpecificationAttributeOption : SubBaseEntity, ITranslationEntity
     {
-        public SpecificationAttributeOption()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -35,6 +30,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

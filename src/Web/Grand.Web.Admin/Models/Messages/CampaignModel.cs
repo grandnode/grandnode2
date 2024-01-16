@@ -7,18 +7,6 @@ namespace Grand.Web.Admin.Models.Messages
 {
     public class CampaignModel : BaseEntityModel
     {
-        public CampaignModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-            AvailableLanguages = new List<SelectListItem>();
-            AvailableCustomerTags = new List<SelectListItem>();
-            CustomerTags = new List<string>();
-            NewsletterCategories = new List<string>();
-            AvailableCustomerGroups = new List<SelectListItem>();
-            CustomerGroups = new List<string>();
-            AvailableEmailAccounts = new List<EmailAccountModel>();
-        }
-
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Name")]
 
         public string Name { get; set; }
@@ -33,11 +21,11 @@ namespace Grand.Web.Admin.Models.Messages
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Store")]
         public string StoreId { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Language")]
         public string LanguageId { get; set; }
-        public IList<SelectListItem> AvailableLanguages { get; set; }
+        public IList<SelectListItem> AvailableLanguages { get; set; } = new List<SelectListItem>();
 
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerCreatedDateFrom")]
@@ -72,24 +60,25 @@ namespace Grand.Web.Admin.Models.Messages
         public DateTime CreatedOn { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerTags")]
-        public IList<SelectListItem> AvailableCustomerTags { get; set; }
+        public IList<SelectListItem> AvailableCustomerTags { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerTags")]
         [UIHint("MultiSelect")]
-        public IList<string> CustomerTags { get; set; }
+        public IList<string> CustomerTags { get; set; } = new List<string>();
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.NewsletterCategory")]
         [UIHint("MultiSelect")]
-        public IList<string> NewsletterCategories { get; set; }
+        public IList<string> NewsletterCategories { get; set; } = new List<string>();
+
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.NewsletterCategory")]
         public IList<SelectListItem> AvailableNewsletterCategories { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerGroups")]
-        public IList<SelectListItem> AvailableCustomerGroups { get; set; }
+        public IList<SelectListItem> AvailableCustomerGroups { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerGroups")]
         [UIHint("MultiSelect")]
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.AllowedTokens")]
@@ -97,7 +86,7 @@ namespace Grand.Web.Admin.Models.Messages
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.EmailAccount")]
         public string EmailAccountId { get; set; }
-        public IList<EmailAccountModel> AvailableEmailAccounts { get; set; }
+        public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
 
         [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.TestEmail")]
 

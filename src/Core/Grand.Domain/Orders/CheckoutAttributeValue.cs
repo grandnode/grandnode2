@@ -5,13 +5,8 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a checkout attribute value
     /// </summary>
-    public partial class CheckoutAttributeValue : SubBaseEntity, ITranslationEntity
+    public class CheckoutAttributeValue : SubBaseEntity, ITranslationEntity
     {
-        public CheckoutAttributeValue()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the checkout attribute mapping identifier
         /// </summary>
@@ -50,7 +45,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 
 }

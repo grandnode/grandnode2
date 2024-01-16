@@ -6,7 +6,7 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents a customer
     /// </summary>
-    public partial class Customer : BaseEntity
+    public class Customer : BaseEntity
     {
         private ICollection<ShoppingCartItem> _shoppingCartItems;
         private ICollection<Address> _addresses;

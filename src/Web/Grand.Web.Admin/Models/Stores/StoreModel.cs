@@ -7,16 +7,6 @@ namespace Grand.Web.Admin.Models.Stores
 {
     public class StoreModel : BaseEntityModel, ILocalizedModel<StoreLocalizedModel>
     {
-        public StoreModel()
-        {
-            Locales = new List<StoreLocalizedModel>();
-            Domains = new List<DomainHostModel>();            
-            AvailableLanguages = new List<SelectListItem>();
-            AvailableWarehouses = new List<SelectListItem>();
-            AvailableCountries = new List<SelectListItem>();
-            AvailableCurrencies = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.Name")]
         public string Name { get; set; }
 
@@ -59,27 +49,28 @@ namespace Grand.Web.Admin.Models.Stores
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.CompanyHours")]
         public string CompanyHours { get; set; }
 
-        public IList<StoreLocalizedModel> Locales { get; set; }
+        public IList<StoreLocalizedModel> Locales { get; set; } = new List<StoreLocalizedModel>();
+
         //default language
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultLanguage")]
         public string DefaultLanguageId { get; set; }
-        public IList<SelectListItem> AvailableLanguages { get; set; }
+        public IList<SelectListItem> AvailableLanguages { get; set; } = new List<SelectListItem>();
 
         //default warehouse
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultWarehouse")]
         public string DefaultWarehouseId { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 
         //default country
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultCountry")]
         public string DefaultCountryId { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultCurrency")]
         public string DefaultCurrencyId { get; set; }
-        public IList<SelectListItem> AvailableCurrencies { get; set; }
+        public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
-        public IList<DomainHostModel> Domains { get; set; }
+        public IList<DomainHostModel> Domains { get; set; } = new List<DomainHostModel>();
 
         public BankAccountModel BankAccount { get; set; }
 

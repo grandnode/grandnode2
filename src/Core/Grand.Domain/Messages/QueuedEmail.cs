@@ -5,12 +5,8 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents an email item
     /// </summary>
-    public partial class QueuedEmail : BaseEntity
+    public class QueuedEmail : BaseEntity
     {
-        public QueuedEmail()
-        {
-            AttachedDownloads = new List<string>();
-        }
         /// <summary>
         /// Gets or sets the priority
         /// </summary>
@@ -79,7 +75,7 @@ namespace Grand.Domain.Messages
         /// <summary>
         /// Gets or sets the download identifiers of attached file
         /// </summary>
-        public IList<string> AttachedDownloads { get; set; }
+        public IList<string> AttachedDownloads { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the date and time in UTC before which this email should not be sent

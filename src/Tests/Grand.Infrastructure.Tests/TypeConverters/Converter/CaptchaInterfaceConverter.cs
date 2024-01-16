@@ -71,11 +71,6 @@ public class CaptchaInterfaceConverter
    
     public class SampleClass
     {
-        public SampleClass()
-        {
-            CaptchaValidModel = new CaptchaModel();
-        }
-        
-        public ICaptchaValidModel CaptchaValidModel { get; set; }
+        public ICaptchaValidModel CaptchaValidModel { get; set; } = new CaptchaModel();
     }
 }

@@ -71,15 +71,9 @@ namespace Grand.Web.Admin.Services
         protected virtual bool NotAllowedExtensions(string extensions)
         {
             var allowedFileTypes = new List<string>();
-            if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
-                allowedFileTypes = [".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp"];
-            else
-                allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
+            allowedFileTypes = string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes) ? [".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp"] : _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
 
-            if (allowedFileTypes.Contains(extensions))
-                return false;
-
-            return true;
+            return !allowedFileTypes.Contains(extensions);
         }
 
         public virtual async Task SetupConnectorAsync()
@@ -94,9 +88,7 @@ namespace Grand.Web.Admin.Services
                 MaxUploadSizeInMb = 4,
                 ObjectAttributes = new List<FilteredObjectAttribute> {
                     new FilteredObjectAttribute {
-                        FileFilter = file => {
-                            return NotAllowedExtensions(file.Extension);
-                        },
+                        FileFilter = file => NotAllowedExtensions(file.Extension),
                         ObjectFilter = obj =>
                         {
                             var extensions = Path.GetExtension(obj.FullName);

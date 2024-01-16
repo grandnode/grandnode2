@@ -4,18 +4,10 @@ namespace Grand.Web.Models.Catalog
 {
     public class MenuModel : BaseModel
     {
-        public MenuModel()
-        {
-            Categories = new List<CategorySimpleModel>();
-            Pages = new List<MenuPageModel>();
-            Brands = new List<MenuBrandModel>();
-            Collections = new List<MenuCollectionModel> ();
-        }
-
-        public IList<CategorySimpleModel> Categories { get; set; }
-        public IList<MenuPageModel> Pages { get; set; }
-        public IList<MenuBrandModel> Brands { get; set; }
-        public IList<MenuCollectionModel> Collections { get; set; }
+        public IList<CategorySimpleModel> Categories { get; set; } = new List<CategorySimpleModel>();
+        public IList<MenuPageModel> Pages { get; set; } = new List<MenuPageModel>();
+        public IList<MenuBrandModel> Brands { get; set; } = new List<MenuBrandModel>();
+        public IList<MenuCollectionModel> Collections { get; set; } = new List<MenuCollectionModel> ();
 
         public bool BlogEnabled { get; set; }
         public bool NewProductsEnabled { get; set; }

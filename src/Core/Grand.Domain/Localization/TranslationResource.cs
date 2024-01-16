@@ -3,7 +3,7 @@ namespace Grand.Domain.Localization
     /// <summary>
     /// Represents a locale string resource
     /// </summary>
-    public partial class TranslationResource : BaseEntity
+    public class TranslationResource : BaseEntity
     {
         /// <summary>
         /// Gets or sets the language identifier

@@ -5,21 +5,13 @@ namespace Grand.Web.Models.Checkout
 {
     public class CheckoutShippingAddressModel : BaseModel
     {
-        public CheckoutShippingAddressModel()
-        {
-            ExistingAddresses = new List<AddressModel>();
-            ShippingNewAddress = new AddressModel();
-            Warnings = new List<string>();
-            PickupPoints = new List<CheckoutPickupPointModel>();
-        }
-
-        public IList<AddressModel> ExistingAddresses { get; set; }
-        public IList<string> Warnings { get; set; }
-        public AddressModel ShippingNewAddress { get; set; }
+        public IList<AddressModel> ExistingAddresses { get; set; } = new List<AddressModel>();
+        public IList<string> Warnings { get; set; } = new List<string>();
+        public AddressModel ShippingNewAddress { get; set; } = new();
         public string ShippingAddressId { get; set; }
         public string PickupPointId { get; set; }
         public bool NewAddressPreselected { get; set; }
-        public IList<CheckoutPickupPointModel> PickupPoints { get; set; }
+        public IList<CheckoutPickupPointModel> PickupPoints { get; set; } = new List<CheckoutPickupPointModel>();
         public bool BillToTheSameAddress { get; set; }
         public bool AllowPickUpInStore { get; set; }
 

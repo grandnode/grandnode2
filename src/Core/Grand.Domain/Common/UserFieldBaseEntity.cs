@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Common
 {
-    public partial class UserFieldBaseEntity : BaseEntity
+    public class UserFieldBaseEntity : BaseEntity
     {
     }
 }

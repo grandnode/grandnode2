@@ -3,7 +3,7 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a shipment
     /// </summary>
-    public partial class Shipment : BaseEntity
+    public class Shipment : BaseEntity
     {
         private ICollection<ShipmentItem> _shipmentItems;
 

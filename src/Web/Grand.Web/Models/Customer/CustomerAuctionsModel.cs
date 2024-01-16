@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerAuctionsModel : BaseModel
     {
-        public CustomerAuctionsModel()
-        {
-            ProductBidList = new List<ProductBidTuple>();
-        }
-
-        public List<ProductBidTuple> ProductBidList { get; set; }
+        public List<ProductBidTuple> ProductBidList { get; set; } = new();
         public string CustomerId { get; set; }
     }
 

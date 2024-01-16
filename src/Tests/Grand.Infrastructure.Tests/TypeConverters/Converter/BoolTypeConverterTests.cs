@@ -6,11 +6,7 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
     [TestClass()]
     public class BoolTypeConverterTests
     {
-        BoolTypeConverter boolTypeConverter;
-        public BoolTypeConverterTests()
-        {
-            boolTypeConverter = new BoolTypeConverter();
-        }
+        BoolTypeConverter boolTypeConverter = new();
 
         [TestMethod()]
         public void ConvertFromTest_Null_False()

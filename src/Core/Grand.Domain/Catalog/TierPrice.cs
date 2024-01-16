@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a tier price
     /// </summary>
-    public partial class TierPrice : SubBaseEntity
+    public class TierPrice : SubBaseEntity
     {
 
         /// <summary>

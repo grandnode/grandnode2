@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a campaign
     /// </summary>
-    public partial class Campaign : BaseEntity
+    public class Campaign : BaseEntity
     {
         private ICollection<string> _customerTags;
         private ICollection<string> _customerGroups;

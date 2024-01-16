@@ -3,7 +3,7 @@
     /// <summary>
     /// Search term (only for statistics)
     /// </summary>
-    public partial class SearchTerm : BaseEntity
+    public class SearchTerm : BaseEntity
     {
         /// <summary>
         /// Gets or sets the keyword

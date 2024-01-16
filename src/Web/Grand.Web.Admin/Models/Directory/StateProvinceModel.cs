@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Directory
 {
     public class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
     {
-        public StateProvinceModel()
-        {
-            Locales = new List<StateProvinceLocalizedModel>();
-        }
         public string CountryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
@@ -26,7 +22,7 @@ namespace Grand.Web.Admin.Models.Directory
         [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public IList<StateProvinceLocalizedModel> Locales { get; set; }
+        public IList<StateProvinceLocalizedModel> Locales { get; set; } = new List<StateProvinceLocalizedModel>();
     }
 
     public class StateProvinceLocalizedModel : ILocalizedModelLocal

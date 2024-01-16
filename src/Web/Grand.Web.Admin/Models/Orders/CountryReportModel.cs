@@ -7,12 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class CountryReportModel : BaseModel
     {
-        public CountryReportModel()
-        {
-            AvailableOrderStatuses = new List<SelectListItem>();
-            AvailablePaymentStatuses = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Reports.Country.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? StartDate { get; set; }
@@ -27,7 +21,7 @@ namespace Grand.Web.Admin.Models.Orders
         [GrandResourceDisplayName("Admin.Reports.Country.PaymentStatus")]
         public int PaymentStatusId { get; set; }
 
-        public IList<SelectListItem> AvailableOrderStatuses { get; set; }
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
+        public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
     }
 }

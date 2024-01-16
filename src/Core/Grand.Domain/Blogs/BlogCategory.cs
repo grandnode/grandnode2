@@ -3,15 +3,8 @@ using Grand.Domain.Stores;
 
 namespace Grand.Domain.Blogs
 {
-    public partial class BlogCategory : BaseEntity, IStoreLinkEntity, ITranslationEntity
+    public class BlogCategory : BaseEntity, IStoreLinkEntity, ITranslationEntity
     {
-        public BlogCategory()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-            BlogPosts = new List<BlogCategoryPost>();
-        }
-
         /// <summary>
         /// Gets or sets the blog category name
         /// </summary>
@@ -30,15 +23,14 @@ namespace Grand.Domain.Blogs
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
-        public IList<BlogCategoryPost> BlogPosts { get; set; }
-
+        public IList<BlogCategoryPost> BlogPosts { get; set; } = new List<BlogCategoryPost>();
     }
 }

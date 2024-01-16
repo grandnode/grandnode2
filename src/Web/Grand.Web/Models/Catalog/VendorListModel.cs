@@ -2,11 +2,6 @@
 
 public class VendorListModel
 {
-    public VendorListModel()
-    {
-        PagingModel = new VendorPagingModel();
-        VendorsModel = new List<VendorModel>();
-    }
-    public VendorPagingModel PagingModel { get; set; }
-    public IList<VendorModel> VendorsModel { get; set; }
+    public VendorPagingModel PagingModel { get; set; } = new();
+    public IList<VendorModel> VendorsModel { get; set; } = new List<VendorModel>();
 }

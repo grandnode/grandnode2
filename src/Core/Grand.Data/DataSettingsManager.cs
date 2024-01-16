@@ -74,7 +74,7 @@ namespace Grand.Data
             var filePath = CommonPath.SettingsPath;
             if (!File.Exists(filePath))
             {
-                using FileStream fs = File.Create(filePath);
+                await using FileStream fs = File.Create(filePath);
             }
             var data = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(filePath, data);            

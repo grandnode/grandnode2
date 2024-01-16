@@ -5,7 +5,7 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Search term record (for statistics)
     /// </summary>
-    public partial class ContactUs : BaseEntity
+    public class ContactUs : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a bundle product
     /// </summary>
-    public partial class BundleProduct : SubBaseEntity
+    public class BundleProduct : SubBaseEntity
     {        
         /// <summary>
         /// Gets or sets the product identifier

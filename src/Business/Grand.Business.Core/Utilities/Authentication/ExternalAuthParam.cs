@@ -7,11 +7,6 @@ namespace Grand.Business.Core.Utilities.Authentication
     /// </summary>
     public class ExternalAuthParam
     {
-        public ExternalAuthParam()
-        {
-            Claims = new List<Claim>();
-        }
-
         /// <summary>
         /// Gets or sets the external authentication provider's system name
         /// </summary>
@@ -40,7 +35,7 @@ namespace Grand.Business.Core.Utilities.Authentication
         /// <summary>
         /// Gets or sets the additional user info as a list of a custom claims
         /// </summary>
-        public IList<Claim> Claims { get; set; }
+        public IList<Claim> Claims { get; set; } = new List<Claim>();
     }
 
 }

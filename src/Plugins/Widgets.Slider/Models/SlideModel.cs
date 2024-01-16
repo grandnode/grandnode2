@@ -8,10 +8,6 @@ namespace Widgets.Slider.Models
 {
     public class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>, IStoreLinkModel
     {
-        public SlideModel()
-        {
-            Locales = new List<SlideLocalizedModel>();
-        }
         [GrandResourceDisplayName("Widgets.Slider.Name")]
         public string Name { get; set; }
 
@@ -37,7 +33,7 @@ namespace Widgets.Slider.Models
         [UIHint("Picture")]
         public string PictureId { get; set; }
 
-        public IList<SlideLocalizedModel> Locales { get; set; }
+        public IList<SlideLocalizedModel> Locales { get; set; } = new List<SlideLocalizedModel>();
 
         //Store acl
         [GrandResourceDisplayName("Widgets.Slider.LimitedToStores")]

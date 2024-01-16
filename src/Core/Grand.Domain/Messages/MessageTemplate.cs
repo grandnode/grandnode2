@@ -6,13 +6,8 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents a message template
     /// </summary>
-    public partial class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
+    public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     {
-        public MessageTemplate()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -62,13 +57,12 @@ namespace Grand.Domain.Messages
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
-       
+
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

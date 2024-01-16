@@ -6,11 +6,6 @@ namespace Grand.Web.Vendor.Models.MerchandiseReturn
 {
     public class MerchandiseReturnModel : BaseEntityModel
     {
-        public MerchandiseReturnModel()
-        {
-            Items = new List<MerchandiseReturnItemModel>();
-        }
-
         [GrandResourceDisplayName("Vendor.Orders.MerchandiseReturns.Fields.ID")]
         public override string Id { get; set; }
 
@@ -56,7 +51,7 @@ namespace Grand.Web.Vendor.Models.MerchandiseReturn
         [GrandResourceDisplayName("Vendor.Orders.MerchandiseReturns.Fields.PickupAddress")]
         public AddressModel PickupAddress { get; set; }
 
-        public List<MerchandiseReturnItemModel> Items { get; set; }
+        public List<MerchandiseReturnItemModel> Items { get; set; } = new();
 
         [GrandResourceDisplayName("Vendor.Orders.MerchandiseReturns.NotifyCustomer")]
         public bool NotifyCustomer { get; set; }

@@ -5,13 +5,8 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a merchandise return
     /// </summary>
-    public partial class MerchandiseReturn : BaseEntity
+    public class MerchandiseReturn : BaseEntity
     {
-        public MerchandiseReturn()
-        {
-            MerchandiseReturnItems = new List<MerchandiseReturnItem>();
-        }
-
         public int ReturnNumber { get; set; }
 
         /// <summary>
@@ -42,7 +37,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the merchandise return items
         /// </summary>
-        public IList<MerchandiseReturnItem> MerchandiseReturnItems { get; set; }
+        public IList<MerchandiseReturnItem> MerchandiseReturnItems { get; set; } = new List<MerchandiseReturnItem>();
 
         /// <summary>
         /// Gets or sets the customer identifier

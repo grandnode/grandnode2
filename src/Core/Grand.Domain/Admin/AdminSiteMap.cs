@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an admin menu
     /// </summary>
-    public partial class AdminSiteMap : BaseEntity
+    public class AdminSiteMap : BaseEntity
     {
         public AdminSiteMap()
         {

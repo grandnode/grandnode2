@@ -6,19 +6,6 @@ namespace Grand.Web.Models.Orders
 {
     public class OrderDetailsModel : BaseEntityModel
     {
-        public OrderDetailsModel()
-        {
-            TaxRates = new List<TaxRate>();
-            GiftVouchers = new List<GiftVoucher>();
-            Items = new List<OrderItemModel>();
-            OrderNotes = new List<OrderNote>();
-            Shipments = new List<ShipmentBriefModel>();
-
-            BillingAddress = new AddressModel();
-            ShippingAddress = new AddressModel();
-            PickupAddress = new AddressModel();
-            CustomValues = new Dictionary<string, object>();
-        }
         public bool PdfInvoiceDisabled { get; set; }
 
         public bool UserCanCancelUnpaidOrder { get; set; }
@@ -33,14 +20,14 @@ namespace Grand.Web.Models.Orders
 
         public bool IsShippable { get; set; }
         public bool PickUpInStore { get; set; }
-        public AddressModel PickupAddress { get; set; }
+        public AddressModel PickupAddress { get; set; } = new();
         public string ShippingStatus { get; set; }
-        public AddressModel ShippingAddress { get; set; }
+        public AddressModel ShippingAddress { get; set; } = new();
         public string ShippingMethod { get; set; }
         public string ShippingAdditionDescription { get; set; }
-        public IList<ShipmentBriefModel> Shipments { get; set; }
+        public IList<ShipmentBriefModel> Shipments { get; set; } = new List<ShipmentBriefModel>();
 
-        public AddressModel BillingAddress { get; set; }
+        public AddressModel BillingAddress { get; set; } = new();
 
         public string VatNumber { get; set; }
         public int OrderNumber { get; set; }
@@ -48,7 +35,7 @@ namespace Grand.Web.Models.Orders
         public string PaymentMethod { get; set; }
         public string PaymentMethodStatus { get; set; }
         public bool CanRePostProcessPayment { get; set; }
-        public Dictionary<string, object> CustomValues { get; set; }
+        public Dictionary<string, object> CustomValues { get; set; } = new();
         public bool OrderIncludingTax { get; set; }
         public string OrderSubtotal { get; set; }
         public string OrderSubTotalDiscount { get; set; }
@@ -58,7 +45,7 @@ namespace Grand.Web.Models.Orders
 
         public bool PricesIncludeTax { get; set; }
         public string Tax { get; set; }
-        public IList<TaxRate> TaxRates { get; set; }
+        public IList<TaxRate> TaxRates { get; set; } = new List<TaxRate>();
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
 
@@ -67,12 +54,12 @@ namespace Grand.Web.Models.Orders
         public string RedeemedLoyaltyPointsAmount { get; set; }
         public string OrderTotal { get; set; }
 
-        public IList<GiftVoucher> GiftVouchers { get; set; }
+        public IList<GiftVoucher> GiftVouchers { get; set; } = new List<GiftVoucher>();
 
         public bool ShowSku { get; set; }
-        public IList<OrderItemModel> Items { get; set; }
+        public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
-        public IList<OrderNote> OrderNotes { get; set; }
+        public IList<OrderNote> OrderNotes { get; set; } = new List<OrderNote>();
 
         public bool ShowAddOrderNote { get; set; }
 
@@ -80,16 +67,12 @@ namespace Grand.Web.Models.Orders
 
         public class OrderItemModel : BaseEntityModel
         {
-            public OrderItemModel()
-            {
-                Picture = new PictureModel();
-            }
             public Guid OrderItemGuid { get; set; }
             public string Sku { get; set; }
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
-            public PictureModel Picture { get; set; }
+            public PictureModel Picture { get; set; } = new();
             public string UnitPrice { get; set; }
             public bool UnitPriceIncludingTax { get; set; }
             public double UnitPriceValue { get; set; }

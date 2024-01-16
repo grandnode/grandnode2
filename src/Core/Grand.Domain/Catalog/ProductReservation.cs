@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a product reservation
     /// </summary>
-    public partial class ProductReservation : BaseEntity
+    public class ProductReservation : BaseEntity
     {
         /// <summary>
         /// Gets or sets the product identifier

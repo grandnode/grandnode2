@@ -7,11 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class GiftVoucherModel : BaseEntityModel
     {
-        public GiftVoucherModel()
-        {
-            AvailableCurrencies = new List<SelectListItem>();
-            AvailableStores = new List<SelectListItem>();
-        }
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.GiftVoucherType")]
         public int GiftVoucherTypeId { get; set; }
 
@@ -24,12 +19,12 @@ namespace Grand.Web.Admin.Models.Orders
 
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.CurrencyCode")]
         public string CurrencyCode { get; set; }
-        public IList<SelectListItem> AvailableCurrencies { get; set; }
+        public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.StoreId")]
         public string StoreId { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
 
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Amount")]

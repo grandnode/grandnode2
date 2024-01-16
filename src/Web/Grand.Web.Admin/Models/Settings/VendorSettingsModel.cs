@@ -5,12 +5,6 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class VendorSettingsModel : BaseModel
     {
-
-        public VendorSettingsModel()
-        {
-            AddressSettings = new AddressSettingsModel();
-        }
-
         public string ActiveStore { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Vendor.VendorsBlockItemsToDisplay")]
@@ -64,7 +58,7 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Vendor.DefaultVendorPageSizeOptions")]
         public string DefaultVendorPageSizeOptions { get; set; }
 
-        public AddressSettingsModel AddressSettings { get; set; }
+        public AddressSettingsModel AddressSettings { get; set; } = new();
 
         #region Nested classes
 

@@ -5,13 +5,8 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product attribute value
     /// </summary>
-    public partial class ProductAttributeValue : SubBaseEntity, ITranslationEntity
+    public class ProductAttributeValue : SubBaseEntity, ITranslationEntity
     {
-        public ProductAttributeValue()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the attribute value type identifier
         /// </summary>
@@ -75,7 +70,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-        
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

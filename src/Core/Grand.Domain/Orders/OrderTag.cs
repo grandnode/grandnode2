@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Orders
 {
-    public partial class OrderTag : BaseEntity
+    public class OrderTag : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name

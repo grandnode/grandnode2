@@ -5,11 +5,6 @@ namespace Grand.Web.Vendor.Models.Shipment
 {
     public class ShipmentModel : BaseEntityModel
     {
-        public ShipmentModel()
-        {
-            ShipmentStatusEvents = new List<ShipmentStatusEventModel>();
-            Items = new List<ShipmentItemModel>();
-        }
         [GrandResourceDisplayName("Vendor.Orders.Shipments.ID")]
         public override string Id { get; set; }
         public int ShipmentNumber { get; set; }
@@ -37,9 +32,9 @@ namespace Grand.Web.Vendor.Models.Shipment
         [GrandResourceDisplayName("Vendor.Orders.Shipments.AdminComment")]
         public string AdminComment { get; set; }
 
-        public List<ShipmentItemModel> Items { get; set; }
+        public List<ShipmentItemModel> Items { get; set; } = new();
 
-        public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; }
+        public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; } = new List<ShipmentStatusEventModel>();
 
         //shipment notes
         [GrandResourceDisplayName("Vendor.Orders.Shipments.ShipmentNotes.Fields.DisplayToCustomer")]
@@ -54,11 +49,6 @@ namespace Grand.Web.Vendor.Models.Shipment
 
         public class ShipmentItemModel : BaseEntityModel
         {
-            public ShipmentItemModel()
-            {
-                AvailableWarehouses = new List<WarehouseInfo>();
-            }
-
             public string OrderItemId { get; set; }
             public string ProductId { get; set; }
             [GrandResourceDisplayName("Vendor.Orders.Shipments.Products.ProductName")]
@@ -83,7 +73,7 @@ namespace Grand.Web.Vendor.Models.Shipment
             public string ShippedFromWarehouse { get; set; }
             public bool AllowToChooseWarehouse { get; set; }
             //used before a shipment is created
-            public List<WarehouseInfo> AvailableWarehouses { get; set; }
+            public List<WarehouseInfo> AvailableWarehouses { get; set; } = new();
             public string WarehouseId { get; set; }
 
             #region Nested Classes

@@ -8,16 +8,10 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a brand
     /// </summary>
-    public partial class Brand : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
+    public class Brand : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
     {
         private ICollection<string> _appliedDiscounts;
 
-        public Brand()
-        {
-            CustomerGroups = new List<string>();
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -102,13 +96,13 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether the entity is subject to ACL
  	    /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the ExternalId
@@ -128,7 +122,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets the collection of applied discounts

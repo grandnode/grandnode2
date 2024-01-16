@@ -7,13 +7,6 @@ namespace Grand.Web.Admin.Models.Shipping
 {
     public class PickupPointModel : BaseEntityModel
     {
-        public PickupPointModel()
-        {
-            this.Address = new AddressModel();
-            this.AvailableWarehouses = new List<SelectListItem>();
-            this.AvailableStores = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Name")]
 
         public string Name { get; set; }
@@ -27,18 +20,19 @@ namespace Grand.Web.Admin.Models.Shipping
         public string AdminComment { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Address")]
-        public AddressModel Address { get; set; }
+        public AddressModel Address { get; set; } = new();
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Warehouses")]
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 
         public string WarehouseId { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Stores")]
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+
         public string StoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.PickupFee")]

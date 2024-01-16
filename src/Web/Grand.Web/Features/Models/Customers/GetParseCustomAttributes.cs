@@ -6,13 +6,8 @@ namespace Grand.Web.Features.Models.Customers
 {
     public class GetParseCustomAttributes : IRequest<IList<CustomAttribute>>
     {
-        public GetParseCustomAttributes()
-        {
-            CustomerCustomAttribute = new List<CustomAttribute>();
-        }
-        
         public IList<CustomAttributeModel> SelectedAttributes { get; set; }
 
-        public List<CustomAttribute> CustomerCustomAttribute { get; set; }
+        public List<CustomAttribute> CustomerCustomAttribute { get; set; } = new();
     }
 }

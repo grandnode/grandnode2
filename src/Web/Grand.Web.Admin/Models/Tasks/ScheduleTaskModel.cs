@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Tasks
 {
     public class ScheduleTaskModel : BaseEntityModel
     {
-        public ScheduleTaskModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-        }
         [GrandResourceDisplayName("Admin.System.ScheduleTasks.ScheduleTaskName")]
         public string ScheduleTaskName { get; set; }
 
@@ -32,6 +28,6 @@ namespace Grand.Web.Admin.Models.Tasks
         public int TimeInterval { get; set; }
         [GrandResourceDisplayName("Admin.System.ScheduleTasks.StoreId")]
         public string StoreId { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
     }
 }

@@ -4,11 +4,6 @@ namespace Grand.Domain.Common
 {
     public class CommonSettings : ISettings
     {
-        public CommonSettings()
-        {
-            IgnoreLogWordlist = new List<string>();
-            SitemapCustomUrls = new List<string>();
-        }
         public bool StoreInDatabaseContactUsForm { get; set; }
         public bool SubjectFieldOnContactUsForm { get; set; }
         public bool UseSystemEmailForContactUsForm { get; set; }
@@ -22,14 +17,14 @@ namespace Grand.Domain.Common
         /// <summary>
         /// A list of custom URLs to be added to sitemap.xml (include page names only)
         /// </summary>
-        public List<string> SitemapCustomUrls { get; set; }
+        public List<string> SitemapCustomUrls { get; set; } = new();
 
         /// <summary>
         /// Gets or sets a ignore words (phrases) to be ignored when logging errors/messages
         /// </summary>
-        public List<string> IgnoreLogWordlist { get; set; }
+        public List<string> IgnoreLogWordlist { get; set; } = new();
 
-                /// <summary>
+        /// <summary>
         /// Gets or sets a value indicating whether "accept terms of service" links should be open in popup window. If disabled, then they'll be open on a new page.
         /// </summary>
         public bool PopupForTermsOfServiceLinks { get; set; }

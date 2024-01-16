@@ -3,7 +3,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents an order note
     /// </summary>
-    public partial class OrderNote : BaseEntity
+    public class OrderNote : BaseEntity
     {
         /// <summary>
         /// Gets or sets the order identifier

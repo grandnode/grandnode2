@@ -7,10 +7,6 @@ namespace Grand.Web.Admin.Models.Messages
 {
     public class ContactFormListModel : BaseModel
     {
-        public ContactFormListModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-        }
         [GrandResourceDisplayName("Admin.System.ContactForm.List.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? SearchStartDate { get; set; }
@@ -25,7 +21,6 @@ namespace Grand.Web.Admin.Models.Messages
 
         [GrandResourceDisplayName("Admin.System.ContactForm.List.Store")]
         public string StoreId { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
-
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
     }
 }

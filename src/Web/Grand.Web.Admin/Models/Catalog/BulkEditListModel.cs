@@ -7,12 +7,6 @@ namespace Grand.Web.Admin.Models.Catalog
 {
     public class BulkEditListModel : BaseModel
     {
-        public BulkEditListModel()
-        {
-            AvailableProductTypes = new List<SelectListItem>();
-            AvailableStores = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchProductName")]
         public string SearchProductName { get; set; }
 
@@ -34,7 +28,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
         public string SearchStoreId { get; set; }
 
-        public IList<SelectListItem> AvailableProductTypes { get; set; }       
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
     }
 }

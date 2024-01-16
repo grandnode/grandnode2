@@ -3,7 +3,7 @@ namespace Grand.Domain.News
     /// <summary>
     /// Represents a news comment
     /// </summary>
-    public partial class NewsComment : SubBaseEntity
+    public class NewsComment : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the comment title

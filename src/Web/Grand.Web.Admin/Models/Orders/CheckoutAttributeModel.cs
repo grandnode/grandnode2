@@ -10,12 +10,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public CheckoutAttributeModel()
-        {
-            Locales = new List<CheckoutAttributeLocalizedModel>();
-            AvailableTaxCategories = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.Name")]
 
         public string Name { get; set; }
@@ -35,7 +29,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.TaxCategory")]
         public string TaxCategoryId { get; set; }
-        public IList<SelectListItem> AvailableTaxCategories { get; set; }
+        public IList<SelectListItem> AvailableTaxCategories { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.AttributeControlType")]
         public int AttributeControlTypeId { get; set; }
@@ -65,7 +59,7 @@ namespace Grand.Web.Admin.Models.Orders
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.DefaultValue")]
         public string DefaultValue { get; set; }
 
-        public IList<CheckoutAttributeLocalizedModel> Locales { get; set; }
+        public IList<CheckoutAttributeLocalizedModel> Locales { get; set; } = new List<CheckoutAttributeLocalizedModel>();
 
         //condition
         public bool ConditionAllowed { get; set; }

@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a cross-sell product
     /// </summary>
-    public partial class CrossSellProduct : BaseEntity
+    public class CrossSellProduct : BaseEntity
     {
         /// <summary>
         /// Gets or sets the first product identifier

@@ -7,7 +7,7 @@ namespace Grand.Domain.Vendors
     /// <summary>
     /// Represents a vendor
     /// </summary>
-    public partial class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
+    public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     {
         private ICollection<VendorNote> _vendorNotes;
         private ICollection<string> _appliedDiscounts;

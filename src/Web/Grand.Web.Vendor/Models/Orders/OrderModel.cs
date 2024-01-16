@@ -10,11 +10,6 @@ namespace Grand.Web.Vendor.Models.Orders
 {
     public class OrderModel : BaseEntityModel
     {
-        public OrderModel()
-        {
-            Items = new List<OrderItemModel>();
-        }
-
         //identifiers
         [GrandResourceDisplayName("Vendor.Orders.Fields.ID")]
         public override string Id { get; set; }
@@ -80,7 +75,7 @@ namespace Grand.Web.Vendor.Models.Orders
 
         //items
         public bool HasDownloadableProducts { get; set; }
-        public IList<OrderItemModel> Items { get; set; }
+        public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
         //creation date
         [GrandResourceDisplayName("Vendor.Orders.Fields.CreatedOn")]
@@ -95,11 +90,6 @@ namespace Grand.Web.Vendor.Models.Orders
 
         public class OrderItemModel : BaseEntityModel
         {
-            public OrderItemModel()
-            {
-                MerchandiseReturnIds = new List<string>();
-                PurchasedGiftVoucherIds = new List<string>();
-            }
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string VendorName { get; set; }
@@ -131,8 +121,8 @@ namespace Grand.Web.Vendor.Models.Orders
             public string AttributeInfo { get; set; }
             public string RecurringInfo { get; set; }
             
-            public IList<string> MerchandiseReturnIds { get; set; }
-            public IList<string> PurchasedGiftVoucherIds { get; set; }
+            public IList<string> MerchandiseReturnIds { get; set; } = new List<string>();
+            public IList<string> PurchasedGiftVoucherIds { get; set; } = new List<string>();
 
             public bool IsDownload { get; set; }
             public int DownloadCount { get; set; }

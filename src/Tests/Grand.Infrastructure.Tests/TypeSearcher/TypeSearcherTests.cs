@@ -6,12 +6,7 @@ namespace Grand.Infrastructure.Tests.TypeSearcher
     [TestClass()]
     public class TypeSearcherTests
     {
-        private TypeSearch.TypeSearcher _typeSearcher;
-
-        public TypeSearcherTests()
-        {
-            _typeSearcher = new TypeSearch.TypeSearcher();
-        }
+        private TypeSearch.TypeSearcher _typeSearcher = new();
 
         [TestMethod()]
         public void GetAssembliesTest()

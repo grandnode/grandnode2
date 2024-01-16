@@ -5,10 +5,6 @@ namespace Grand.Web.Admin.Models.Customers
 {
     public class CustomerGroupPermissionModel : BaseEntityModel
     {
-        public CustomerGroupPermissionModel()
-        {
-            Actions = new List<string>();
-        }
         [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Name")]
         public string Name { get; set; }
 
@@ -18,6 +14,6 @@ namespace Grand.Web.Admin.Models.Customers
         public bool Access { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Actions")]
-        public IList<string> Actions { get; set; }
+        public IList<string> Actions { get; set; } = new List<string>();
     }
 }

@@ -1,6 +1,6 @@
 namespace Grand.Domain.Customers
 {
-    public static partial class SystemCustomerGroupNames
+    public static class SystemCustomerGroupNames
     {
         public const string Administrators = "Administrators";
 

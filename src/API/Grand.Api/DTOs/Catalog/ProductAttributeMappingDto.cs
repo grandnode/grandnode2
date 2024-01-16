@@ -5,10 +5,6 @@ namespace Grand.Api.DTOs.Catalog
 {
     public class ProductAttributeMappingDto : BaseApiEntityModel
     {
-        public ProductAttributeMappingDto()
-        {
-            ProductAttributeValues = new List<ProductAttributeValueDto>();
-        }
         public string ProductAttributeId { get; set; }
         public string TextPrompt { get; set; }
         public bool IsRequired { get; set; }
@@ -21,9 +17,7 @@ namespace Grand.Api.DTOs.Catalog
         public string ConditionAttributeXml { get; set; }
         public AttributeControlType AttributeControlTypeId { get; set; }
 
-        public IList<ProductAttributeValueDto> ProductAttributeValues { get; set; }
-        
-
+        public IList<ProductAttributeValueDto> ProductAttributeValues { get; set; } = new List<ProductAttributeValueDto>();
     }
     public class ProductAttributeValueDto: BaseApiEntityModel
     {

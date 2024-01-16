@@ -5,23 +5,17 @@ namespace Grand.Web.Common.Models
 {
     public partial class DatePickerDropDownsModel : BaseEntityModel
     {
-        public DatePickerDropDownsModel()
-        {
-            SelectListDay = new List<SelectListItem>();
-            SelectListMonth = new List<SelectListItem>();
-            SelectListYear = new List<SelectListItem>();
-        }
         public string Attribute { get; set; }
 
         public string Day { get; set; }
 
-        public IList<SelectListItem> SelectListDay { get; set; }
+        public IList<SelectListItem> SelectListDay { get; set; } = new List<SelectListItem>();
 
         public string Month { get; set; }
-        public IList<SelectListItem> SelectListMonth { get; set; }
+        public IList<SelectListItem> SelectListMonth { get; set; } = new List<SelectListItem>();
 
         public string Year { get; set; }
-        public IList<SelectListItem> SelectListYear { get; set; }
+        public IList<SelectListItem> SelectListYear { get; set; } = new List<SelectListItem>();
 
         public int Begin_Year { get; set; }
 

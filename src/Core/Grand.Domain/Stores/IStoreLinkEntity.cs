@@ -3,7 +3,7 @@ namespace Grand.Domain.Stores
     /// <summary>
     /// Represents an entity which user store linking
     /// </summary>
-    public partial interface IStoreLinkEntity
+    public interface IStoreLinkEntity
     {
         /// <summary>
         /// Gets or sets a value indicating whether the entity is limited to some stores

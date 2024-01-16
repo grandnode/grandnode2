@@ -6,25 +6,13 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class SalesSettingsModel : BaseModel
     {
-        public SalesSettingsModel()
-        {
-            OrderSettings = new OrderSettingsModel();
-            ShoppingCartSettings = new ShoppingCartSettingsModel();
-            LoyaltyPointsSettings = new LoyaltyPointsSettingsModel();
-        }
-
         public string ActiveStore { get; set; }
-        public OrderSettingsModel OrderSettings { get; set; }
-        public ShoppingCartSettingsModel ShoppingCartSettings { get; set; }
-        public LoyaltyPointsSettingsModel LoyaltyPointsSettings { get; set; }
+        public OrderSettingsModel OrderSettings { get; set; } = new();
+        public ShoppingCartSettingsModel ShoppingCartSettings { get; set; } = new();
+        public LoyaltyPointsSettingsModel LoyaltyPointsSettings { get; set; } = new();
 
         public class OrderSettingsModel : BaseModel
         {
-            public OrderSettingsModel()
-            {
-                GiftVouchers_Activated_OrderStatuses = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Settings.Order.IsReOrderAllowed")]
             public bool IsReOrderAllowed { get; set; }
 
@@ -69,7 +57,7 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.Order.GiftVouchers_Activated")]
             public int GiftVouchers_Activated_OrderStatusId { get; set; }
-            public IList<SelectListItem> GiftVouchers_Activated_OrderStatuses { get; set; }
+            public IList<SelectListItem> GiftVouchers_Activated_OrderStatuses { get; set; } = new List<SelectListItem>();
 
             [GrandResourceDisplayName("Admin.Settings.Order.DeactivateGiftVouchersAfterCancelOrder")]
             public bool DeactivateGiftVouchersAfterCancelOrder { get; set; }
@@ -188,11 +176,6 @@ namespace Grand.Web.Admin.Models.Settings
 
         public class LoyaltyPointsSettingsModel : BaseModel
         {
-            public LoyaltyPointsSettingsModel()
-            {
-                PointsForPurchases_Awarded_OrderStatuses = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.Enabled")]
             public bool Enabled { get; set; }
 
@@ -211,7 +194,7 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.PointsForPurchases_Awarded")]
             public int PointsForPurchases_Awarded { get; set; }
-            public IList<SelectListItem> PointsForPurchases_Awarded_OrderStatuses { get; set; }
+            public IList<SelectListItem> PointsForPurchases_Awarded_OrderStatuses { get; set; } = new List<SelectListItem>();
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.ReduceLoyaltyPointsAfterCancelOrder")]
             public bool ReduceLoyaltyPointsAfterCancelOrder { get; set; }

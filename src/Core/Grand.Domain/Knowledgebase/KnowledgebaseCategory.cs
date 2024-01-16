@@ -7,13 +7,6 @@ namespace Grand.Domain.Knowledgebase
 {
     public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
     {
-        public KnowledgebaseCategory()
-        {
-            CustomerGroups = new List<string>();
-            Locales = new List<TranslationEntity>();
-            Stores = new List<string>();
-        }
-
         /// <summary>
         /// Gets or sets name of the category
         /// </summary>
@@ -42,13 +35,13 @@ namespace Grand.Domain.Knowledgebase
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is subject to ACL
         /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the name
@@ -74,6 +67,6 @@ namespace Grand.Domain.Knowledgebase
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
     }
 }

@@ -42,50 +42,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Settings)]
-    public class SettingController : BaseAdminController
+    public class SettingController(
+        ISettingService settingService,
+        ICurrencyService currencyService,
+        IPictureService pictureService,
+        ITranslationService translationService,
+        IDateTimeService dateTimeService,
+        IWorkContext workContext,
+        IMediator mediator,
+        IMerchandiseReturnService merchandiseReturnService,
+        ILanguageService languageService,
+        IOrderStatusService orderStatusService,
+        ICacheBase cacheBase)
+        : BaseAdminController
     {
         #region Fields
-
-        private readonly ISettingService _settingService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IPictureService _pictureService;
-        private readonly ITranslationService _translationService;
-        private readonly IDateTimeService _dateTimeService;
-        private readonly IWorkContext _workContext;
-        private readonly IMediator _mediator;
-        private readonly IMerchandiseReturnService _merchandiseReturnService;
-        private readonly ILanguageService _languageService;
-        private readonly IOrderStatusService _orderStatusService;
-        private readonly ICacheBase _cacheBase;
 
         #endregion
 
         #region Constructors
-
-        public SettingController(ISettingService settingService,
-            ICurrencyService currencyService,
-            IPictureService pictureService,
-            ITranslationService translationService,
-            IDateTimeService dateTimeService,
-            IWorkContext workContext,
-            IMediator mediator,
-            IMerchandiseReturnService merchandiseReturnService,
-            ILanguageService languageService,
-            IOrderStatusService orderStatusService,
-            ICacheBase cacheBase)
-        {
-            _settingService = settingService;
-            _currencyService = currencyService;
-            _pictureService = pictureService;
-            _translationService = translationService;
-            _dateTimeService = dateTimeService;
-            _workContext = workContext;
-            _mediator = mediator;
-            _merchandiseReturnService = merchandiseReturnService;
-            _languageService = languageService;
-            _orderStatusService = orderStatusService;
-            _cacheBase = cacheBase;
-        }
 
         #endregion
 
@@ -93,16 +68,16 @@ namespace Grand.Web.Admin.Controllers
 
         protected async Task ClearCache()
         {
-            await _cacheBase.Clear();
+            await cacheBase.Clear();
         }
 
         public async Task<IActionResult> Content()
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
-            var newsSettings = _settingService.LoadSetting<NewsSettings>(storeScope);
-            var knowledgebaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
+            var blogSettings = settingService.LoadSetting<BlogSettings>(storeScope);
+            var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
+            var knowledgebaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
             var model = new ContentSettingsModel {
                 BlogSettings = blogSettings.ToModel(),
                 NewsSettings = newsSettings.ToModel(),
@@ -118,19 +93,19 @@ namespace Grand.Web.Admin.Controllers
         {
             var storeScope = await GetActiveStore();
             //blog
-            var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
+            var blogSettings = settingService.LoadSetting<BlogSettings>(storeScope);
             blogSettings = model.BlogSettings.ToEntity(blogSettings);
-            await _settingService.SaveSetting(blogSettings, storeScope);
+            await settingService.SaveSetting(blogSettings, storeScope);
 
             //news
-            var newsSettings = _settingService.LoadSetting<NewsSettings>(storeScope);
+            var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
             newsSettings = model.NewsSettings.ToEntity(newsSettings);
-            await _settingService.SaveSetting(newsSettings, storeScope);
+            await settingService.SaveSetting(newsSettings, storeScope);
 
             //knowledgebase
-            var knowledgeBaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
+            var knowledgeBaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
             knowledgeBaseSettings = model.KnowledgebaseSettings.ToEntity(knowledgeBaseSettings);
-            await _settingService.SaveSetting(knowledgeBaseSettings, storeScope);
+            await settingService.SaveSetting(knowledgeBaseSettings, storeScope);
 
             //selected tab
             await SaveSelectedTabIndex();
@@ -138,7 +113,7 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Content");
         }
 
@@ -146,7 +121,7 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
+            var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
             var model = vendorSettings.ToModel();
 
             model.ActiveStore = storeScope;
@@ -158,15 +133,15 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
+            var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
             vendorSettings = model.ToEntity(vendorSettings);
 
-            await _settingService.SaveSetting(vendorSettings, storeScope);
+            await settingService.SaveSetting(vendorSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Vendor");
         }
 
@@ -174,7 +149,7 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
+            var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
             var model = catalogSettings.ToModel();
             model.ActiveStore = storeScope;
             return View(model);
@@ -184,15 +159,15 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
+            var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
             catalogSettings = model.ToEntity(catalogSettings);
 
-            await _settingService.SaveSetting(catalogSettings, storeScope);
+            await settingService.SaveSetting(catalogSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
 
             //selected tab
             await SaveSelectedTabIndex();
@@ -206,13 +181,13 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> SortOptionsList(DataSourceRequest command)
         {
             var storeScope = await GetActiveStore();
-            var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
+            var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
             var model = new List<SortOptionModel>();
             foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
             {
                 model.Add(new SortOptionModel {
                     Id = option,
-                    Name = ((ProductSortingEnum)option).GetTranslationEnum(_translationService, _workContext),
+                    Name = ((ProductSortingEnum)option).GetTranslationEnum(translationService, workContext),
                     IsActive = !catalogSettings.ProductSortingEnumDisabled.Contains(option),
                     DisplayOrder = catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(option, out var value) ? value : option
                 });
@@ -228,7 +203,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> SortOptionUpdate(SortOptionModel model)
         {
             var storeScope = await GetActiveStore();
-            var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
+            var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
 
             catalogSettings.ProductSortingEnumDisplayOrder[model.Id] = model.DisplayOrder;
             switch (model.IsActive)
@@ -241,7 +216,7 @@ namespace Grand.Web.Admin.Controllers
                     break;
             }
 
-            await _settingService.SaveSetting(catalogSettings, storeScope);
+            await settingService.SaveSetting(catalogSettings, storeScope);
 
             await ClearCache();
 
@@ -254,9 +229,9 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var loyaltyPointsSettings = _settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
-            var orderSettings = _settingService.LoadSetting<OrderSettings>(storeScope);
-            var shoppingCartSettings = _settingService.LoadSetting<ShoppingCartSettings>(storeScope);
+            var loyaltyPointsSettings = settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
+            var orderSettings = settingService.LoadSetting<OrderSettings>(storeScope);
+            var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
 
             var model = new SalesSettingsModel {
                 LoyaltyPointsSettings = loyaltyPointsSettings.ToModel(),
@@ -265,13 +240,13 @@ namespace Grand.Web.Admin.Controllers
                 ActiveStore = storeScope
             };
 
-            var currencySettings = _settingService.LoadSetting<CurrencySettings>();
-            var currency = await _currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
+            var currencySettings = settingService.LoadSetting<CurrencySettings>();
+            var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
 
             //loyal
             model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
             //order statuses
-            var status = await _orderStatusService.GetAll();
+            var status = await orderStatusService.GetAll();
             model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
 
             //orders
@@ -291,18 +266,18 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var loyaltyPointsSettings = _settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
+                var loyaltyPointsSettings = settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
                 loyaltyPointsSettings = model.LoyaltyPointsSettings.ToEntity(loyaltyPointsSettings);
-                await _settingService.SaveSetting(loyaltyPointsSettings, storeScope);
+                await settingService.SaveSetting(loyaltyPointsSettings, storeScope);
 
-                var shoppingCartSettings = _settingService.LoadSetting<ShoppingCartSettings>(storeScope);
+                var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
                 shoppingCartSettings = model.ShoppingCartSettings.ToEntity(shoppingCartSettings);
-                await _settingService.SaveSetting(shoppingCartSettings, storeScope);
+                await settingService.SaveSetting(shoppingCartSettings, storeScope);
 
-                var orderSettings = _settingService.LoadSetting<OrderSettings>(storeScope);
+                var orderSettings = settingService.LoadSetting<OrderSettings>(storeScope);
                 orderSettings = model.OrderSettings.ToEntity(orderSettings);
 
-                await _settingService.SaveSetting(orderSettings, storeScope);
+                await settingService.SaveSetting(orderSettings, storeScope);
 
                 //now clear cache
                 await ClearCache();
@@ -321,7 +296,7 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Sales");
         }
 
@@ -338,7 +313,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MerchandiseReturnReasonList(DataSourceRequest command)
         {
-            var reasons = await _merchandiseReturnService.GetAllMerchandiseReturnReasons();
+            var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons();
             var gridModel = new DataSourceResult {
                 Data = reasons.Select(x => x.ToModel()),
                 Total = reasons.Count
@@ -350,7 +325,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var model = new MerchandiseReturnReasonModel();
             //locales
-            await AddLocales(_languageService, model.Locales);
+            await AddLocales(languageService, model.Locales);
             return View(model);
         }
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
@@ -359,9 +334,9 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var rrr = model.ToEntity();
-                await _merchandiseReturnService.InsertMerchandiseReturnReason(rrr);
+                await merchandiseReturnService.InsertMerchandiseReturnReason(rrr);
 
-                Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Added"));
+                Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Added"));
                 return continueEditing ? RedirectToAction("MerchandiseReturnReasonEdit", new { id = rrr.Id }) : RedirectToAction("MerchandiseReturnReasonList");
             }
 
@@ -371,14 +346,14 @@ namespace Grand.Web.Admin.Controllers
         //edit
         public async Task<IActionResult> MerchandiseReturnReasonEdit(string id)
         {
-            var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+            var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
             if (rrr == null)
                 //No reason found with the specified id
                 return RedirectToAction("MerchandiseReturnReasonList");
 
             var model = rrr.ToModel();
             //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            await AddLocales(languageService, model.Locales, (locale, languageId) =>
             {
                 locale.Name = rrr.GetTranslation(x => x.Name, languageId, false);
             });
@@ -387,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
         public async Task<IActionResult> MerchandiseReturnReasonEdit(MerchandiseReturnReasonModel model, bool continueEditing)
         {
-            var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(model.Id);
+            var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(model.Id);
             if (rrr == null)
                 //No reason found with the specified id
                 return RedirectToAction("MerchandiseReturnReasonList");
@@ -395,9 +370,9 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 rrr = model.ToEntity(rrr);
-                await _merchandiseReturnService.UpdateMerchandiseReturnReason(rrr);
+                await merchandiseReturnService.UpdateMerchandiseReturnReason(rrr);
 
-                Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Updated"));
+                Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Updated"));
                 if (continueEditing)
                 {
                     //selected tab
@@ -415,10 +390,10 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MerchandiseReturnReasonDelete(string id)
         {
-            var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(id);
-            await _merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
+            var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+            await merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
 
-            Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Deleted"));
+            Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Deleted"));
             return RedirectToAction("MerchandiseReturnReasonList");
         }
 
@@ -436,7 +411,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MerchandiseReturnActionList(DataSourceRequest command)
         {
-            var actions = await _merchandiseReturnService.GetAllMerchandiseReturnActions();
+            var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions();
             var gridModel = new DataSourceResult {
                 Data = actions.Select(x => x.ToModel()),
                 Total = actions.Count
@@ -448,7 +423,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var model = new MerchandiseReturnActionModel();
             //locales
-            await AddLocales(_languageService, model.Locales);
+            await AddLocales(languageService, model.Locales);
             return View(model);
         }
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
@@ -457,12 +432,12 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var rra = model.ToEntity();
-                await _merchandiseReturnService.InsertMerchandiseReturnAction(rra);
+                await merchandiseReturnService.InsertMerchandiseReturnAction(rra);
 
                 //now clear cache
                 await ClearCache();
 
-                Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Added"));
+                Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Added"));
                 return continueEditing ? RedirectToAction("MerchandiseReturnActionEdit", new { id = rra.Id }) : RedirectToAction("MerchandiseReturnActionList");
             }
 
@@ -472,14 +447,14 @@ namespace Grand.Web.Admin.Controllers
         //edit
         public async Task<IActionResult> MerchandiseReturnActionEdit(string id)
         {
-            var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(id);
+            var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
             if (rra == null)
                 //No action found with the specified id
                 return RedirectToAction("MerchandiseReturnActionList");
 
             var model = rra.ToModel();
             //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            await AddLocales(languageService, model.Locales, (locale, languageId) =>
             {
                 locale.Name = rra.GetTranslation(x => x.Name, languageId, false);
             });
@@ -488,7 +463,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
         public async Task<IActionResult> MerchandiseReturnActionEdit(MerchandiseReturnActionModel model, bool continueEditing)
         {
-            var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(model.Id);
+            var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(model.Id);
             if (rra == null)
                 //No action found with the specified id
                 return RedirectToAction("MerchandiseReturnActionList");
@@ -496,9 +471,9 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 rra = model.ToEntity(rra);
-                await _merchandiseReturnService.UpdateMerchandiseReturnAction(rra);
+                await merchandiseReturnService.UpdateMerchandiseReturnAction(rra);
 
-                Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Updated"));
+                Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Updated"));
                 if (continueEditing)
                 {
                     //selected tab
@@ -516,10 +491,10 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MerchandiseReturnActionDelete(string id)
         {
-            var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(id);
-            await _merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
+            var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
+            await merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
 
-            Success(_translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Deleted"));
+            Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Deleted"));
             return RedirectToAction("MerchandiseReturnActionList");
         }
         #endregion
@@ -527,7 +502,7 @@ namespace Grand.Web.Admin.Controllers
         {
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
-            var mediaSettings = _settingService.LoadSetting<MediaSettings>(storeScope);
+            var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
             var model = mediaSettings.ToModel();
             model.ActiveStore = storeScope;
 
@@ -540,25 +515,25 @@ namespace Grand.Web.Admin.Controllers
             //load settings for a chosen store scope
             var storeScope = await GetActiveStore();
 
-            var mediaSettings = _settingService.LoadSetting<MediaSettings>(storeScope);
+            var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
             mediaSettings = model.ToEntity(mediaSettings);
 
-            await _settingService.SaveSetting(mediaSettings, storeScope);
+            await settingService.SaveSetting(mediaSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
             //clear old Thumbs
-            await _pictureService.ClearThumbs();
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            await pictureService.ClearThumbs();
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Media");
         }
 
         public async Task<IActionResult> Customer()
         {
             var storeScope = await GetActiveStore();
-            var customerSettings = _settingService.LoadSetting<CustomerSettings>(storeScope);
-            var addressSettings = _settingService.LoadSetting<AddressSettings>(storeScope);
+            var customerSettings = settingService.LoadSetting<CustomerSettings>(storeScope);
+            var addressSettings = settingService.LoadSetting<AddressSettings>(storeScope);
 
             //merge settings
             var model = new CustomerSettingsModel {
@@ -572,19 +547,19 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Customer(CustomerSettingsModel model)
         {
             var storeScope = await GetActiveStore();
-            var customerSettings = _settingService.LoadSetting<CustomerSettings>(storeScope);
-            var addressSettings = _settingService.LoadSetting<AddressSettings>(storeScope);
+            var customerSettings = settingService.LoadSetting<CustomerSettings>(storeScope);
+            var addressSettings = settingService.LoadSetting<AddressSettings>(storeScope);
 
             customerSettings = model.CustomerSettings.ToEntity(customerSettings);
-            await _settingService.SaveSetting(customerSettings, storeScope);
+            await settingService.SaveSetting(customerSettings, storeScope);
 
             addressSettings = model.AddressSettings.ToEntity(addressSettings);
-            await _settingService.SaveSetting(addressSettings, storeScope);
+            await settingService.SaveSetting(addressSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
 
             //selected tab
             await SaveSelectedTabIndex();
@@ -598,10 +573,10 @@ namespace Grand.Web.Admin.Controllers
             var storeScope = await GetActiveStore();
             model.ActiveStore = storeScope;
             //datettime settings
-            var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
+            var dateTimeSettings = settingService.LoadSetting<DateTimeSettings>(storeScope);
             model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
             var iswindows = Grand.Infrastructure.OperatingSystem.IsWindows();
-            foreach (TimeZoneInfo timeZone in _dateTimeService.GetSystemTimeZones())
+            foreach (TimeZoneInfo timeZone in dateTimeService.GetSystemTimeZones())
             {
                 var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
                 model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
@@ -611,7 +586,7 @@ namespace Grand.Web.Admin.Controllers
                 });
             }
             //store information
-            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
+            var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
             model.StoreInformationSettings = storeInformationSettings.ToModel();
 
             model.StoreInformationSettings.AvailableStoreThemes =
@@ -626,17 +601,17 @@ namespace Grand.Web.Admin.Controllers
                     }).ToList();
             
             //common
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
             model.CommonSettings = commonSettings.ToModel();
 
             //seo settings
-            var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
+            var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
             model.SeoSettings = seoSettings.ToModel();
 
             //security settings
-            var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
+            var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
             //captcha settings
-            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
             model.SecuritySettings = captchaSettings.ToModel();
 
             if (securitySettings.AdminAreaAllowedIpAddresses != null)
@@ -650,11 +625,11 @@ namespace Grand.Web.Admin.Controllers
             model.SecuritySettings.AvailableReCaptchaVersions = GoogleReCaptchaVersion.V2.ToSelectList(HttpContext, false).ToList();
 
             //PDF settings
-            var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
+            var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
             model.PdfSettings = pdfSettings.ToModel();
 
             //display menu settings
-            var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
+            var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
             model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
 
             return View(model);
@@ -667,42 +642,41 @@ namespace Grand.Web.Admin.Controllers
             var storeScope = await GetActiveStore();
 
             //store information settings
-            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
+            var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
             storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
-            await _settingService.SaveSetting(storeInformationSettings, storeScope);
+            await settingService.SaveSetting(storeInformationSettings, storeScope);
 
             //datetime settings
-            var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
+            var dateTimeSettings = settingService.LoadSetting<DateTimeSettings>(storeScope);
             dateTimeSettings.DefaultStoreTimeZoneId = model.DateTimeSettings.DefaultStoreTimeZoneId;
-            await _settingService.SaveSetting(dateTimeSettings, storeScope);
+            await settingService.SaveSetting(dateTimeSettings, storeScope);
 
             //common settings
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
             commonSettings = model.CommonSettings.ToEntity(commonSettings);
-            await _settingService.SaveSetting(commonSettings, storeScope);
+            await settingService.SaveSetting(commonSettings, storeScope);
 
             //seo settings
-            var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
+            var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
             seoSettings = model.SeoSettings.ToEntity(seoSettings);
-            await _settingService.SaveSetting(seoSettings, storeScope);
+            await settingService.SaveSetting(seoSettings, storeScope);
 
             //security settings
-            var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
+            var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
 
-            if (securitySettings.AdminAreaAllowedIpAddresses == null)
-                securitySettings.AdminAreaAllowedIpAddresses = new List<string>();
+            securitySettings.AdminAreaAllowedIpAddresses ??= new List<string>();
             securitySettings.AdminAreaAllowedIpAddresses.Clear();
             if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
                 foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     if (!string.IsNullOrWhiteSpace(s))
                         securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
 
-            await _settingService.SaveSetting(securitySettings);
+            await settingService.SaveSetting(securitySettings);
 
             //captcha settings
-            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
             captchaSettings = model.SecuritySettings.ToEntity(captchaSettings);
-            await _settingService.SaveSetting(captchaSettings);
+            await settingService.SaveSetting(captchaSettings);
             if (captchaSettings.Enabled &&
                 (string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) || string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPrivateKey)))
             {
@@ -711,19 +685,19 @@ namespace Grand.Web.Admin.Controllers
             }
 
             //PDF settings
-            var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
+            var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
             pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
-            await _settingService.SaveSetting(pdfSettings, storeScope);
+            await settingService.SaveSetting(pdfSettings, storeScope);
             
             //menu item settings
-            var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
+            var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
             displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);
-            await _settingService.SaveSetting(displayMenuItemSettings, storeScope);
+            await settingService.SaveSetting(displayMenuItemSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
 
             //selected tab
             await SaveSelectedTabIndex();
@@ -734,7 +708,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> PushNotifications()
         {
             var storeScope = await GetActiveStore();
-            var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
+            var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
             var model = settings.ToModel();
 
             return View(model);
@@ -744,10 +718,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model)
         {
             var storeScope = await GetActiveStore();
-            var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
+            var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
             settings = model.ToEntity(settings);
 
-            await _settingService.SaveSetting(settings);
+            await settingService.SaveSetting(settings);
 
             //now clear cache
             await ClearCache();
@@ -755,7 +729,7 @@ namespace Grand.Web.Admin.Controllers
             //save to file
             SavePushNotificationsToFile(model);
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return await PushNotifications();
         }
 
@@ -810,7 +784,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult AdminSearch()
         {
-            var settings = _settingService.LoadSetting<AdminSearchSettings>();
+            var settings = settingService.LoadSetting<AdminSearchSettings>();
             var model = settings.ToModel();
             return View(model);
         }
@@ -818,14 +792,14 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
         {
-            var settings = _settingService.LoadSetting<AdminSearchSettings>();
+            var settings = settingService.LoadSetting<AdminSearchSettings>();
             settings = model.ToEntity(settings);
-            await _settingService.SaveSetting(settings);
+            await settingService.SaveSetting(settings);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return AdminSearch();
         }
 
@@ -833,35 +807,35 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> SystemSetting()
         {
-            var settings = _settingService.LoadSetting<SystemSettings>();
+            var settings = settingService.LoadSetting<SystemSettings>();
 
             var model = new SystemSettingsModel {
                 //order ident
-                OrderIdent = await _mediator.Send(new MaxOrderNumberCommand()),
+                OrderIdent = await mediator.Send(new MaxOrderNumberCommand()),
                 //system settings
                 DaysToCancelUnpaidOrder = settings.DaysToCancelUnpaidOrder,
                 DeleteGuestTaskOlderThanMinutes = settings.DeleteGuestTaskOlderThanMinutes
             };
 
             //storage settings
-            var storagesettings = _settingService.LoadSetting<StorageSettings>();
+            var storagesettings = settingService.LoadSetting<StorageSettings>();
             model.PicturesStoredIntoDatabase = storagesettings.PictureStoreInDb;
 
             //area admin settings
-            var adminsettings = _settingService.LoadSetting<AdminAreaSettings>();
+            var adminsettings = settingService.LoadSetting<AdminAreaSettings>();
             model.DefaultGridPageSize = adminsettings.DefaultGridPageSize;
             model.GridPageSizes = adminsettings.GridPageSizes;
             model.UseIsoDateTimeConverterInJson = adminsettings.UseIsoDateTimeConverterInJson;
             model.HideStoreColumn = adminsettings.HideStoreColumn;
 
             //language settings 
-            var langsettings = _settingService.LoadSetting<LanguageSettings>();
+            var langsettings = settingService.LoadSetting<LanguageSettings>();
             model.IgnoreRtlPropertyForAdminArea = langsettings.IgnoreRtlPropertyForAdminArea;
             model.AutomaticallyDetectLanguage = langsettings.AutomaticallyDetectLanguage;
             model.DefaultAdminLanguageId = langsettings.DefaultAdminLanguageId;
 
             //others
-            var docsettings = _settingService.LoadSetting<DocumentSettings>();
+            var docsettings = settingService.LoadSetting<DocumentSettings>();
             model.DocumentPageSizeSettings = docsettings.PageSize;
 
             return View(model);
@@ -871,41 +845,41 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> SystemSetting(SystemSettingsModel model)
         {
             //system 
-            var settings = _settingService.LoadSetting<SystemSettings>();
+            var settings = settingService.LoadSetting<SystemSettings>();
             settings.DaysToCancelUnpaidOrder = model.DaysToCancelUnpaidOrder;
             settings.DeleteGuestTaskOlderThanMinutes = model.DeleteGuestTaskOlderThanMinutes;
-            await _settingService.SaveSetting(settings);
+            await settingService.SaveSetting(settings);
 
             //order ident
             if (model.OrderIdent is > 0)
             {
-                await _mediator.Send(new MaxOrderNumberCommand { OrderNumber = model.OrderIdent });
+                await mediator.Send(new MaxOrderNumberCommand { OrderNumber = model.OrderIdent });
             }
 
             //admin area
-            var adminAreaSettings = _settingService.LoadSetting<AdminAreaSettings>();
+            var adminAreaSettings = settingService.LoadSetting<AdminAreaSettings>();
             adminAreaSettings.DefaultGridPageSize = model.DefaultGridPageSize;
             adminAreaSettings.GridPageSizes = model.GridPageSizes;
             adminAreaSettings.UseIsoDateTimeConverterInJson = model.UseIsoDateTimeConverterInJson;
             adminAreaSettings.HideStoreColumn = model.HideStoreColumn;
-            await _settingService.SaveSetting(adminAreaSettings);
+            await settingService.SaveSetting(adminAreaSettings);
 
             //language settings 
-            var langsettings = _settingService.LoadSetting<LanguageSettings>();
+            var langsettings = settingService.LoadSetting<LanguageSettings>();
             langsettings.IgnoreRtlPropertyForAdminArea = model.IgnoreRtlPropertyForAdminArea;
             langsettings.AutomaticallyDetectLanguage = model.AutomaticallyDetectLanguage;
             langsettings.DefaultAdminLanguageId = model.DefaultAdminLanguageId;
-            await _settingService.SaveSetting(langsettings);
+            await settingService.SaveSetting(langsettings);
 
             //doc settings 
-            var docsettings = _settingService.LoadSetting<DocumentSettings>();
+            var docsettings = settingService.LoadSetting<DocumentSettings>();
             docsettings.PageSize = model.DocumentPageSizeSettings;
-            await _settingService.SaveSetting(docsettings);
+            await settingService.SaveSetting(docsettings);
 
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
 
             return await SystemSetting();
         }
@@ -913,12 +887,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePictureStorage()
         {
-            var storageSettings = _settingService.LoadSetting<StorageSettings>();
+            var storageSettings = settingService.LoadSetting<StorageSettings>();
             var storeIdDb = !storageSettings.PictureStoreInDb;
             storageSettings.PictureStoreInDb = storeIdDb;
 
             //save the new setting value
-            await _settingService.SaveSetting(storageSettings);
+            await settingService.SaveSetting(storageSettings);
 
             //save picture
             await SavePictureStorage(storeIdDb);
@@ -926,7 +900,7 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("SystemSetting");
         }
 
@@ -936,26 +910,26 @@ namespace Grand.Web.Admin.Controllers
             const int pageSize = 100;
             while (true)
             {
-                var pictures = _pictureService.GetPictures(pageIndex, pageSize);
+                var pictures = pictureService.GetPictures(pageIndex, pageSize);
                 pageIndex++;
                 if (!pictures.Any())
                     break;
 
                 foreach (var picture in pictures)
                 {
-                    var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
+                    var pictureBinary = await pictureService.LoadPictureBinary(picture, !storeIdDb);
                     if (storeIdDb)
-                        await _pictureService.DeletePictureOnFileSystem(picture);
+                        await pictureService.DeletePictureOnFileSystem(picture);
                     else
                     {
                         //now on file system
                         if (pictureBinary != null)
-                            await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
+                            await pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
                     }
                     picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
                     picture.IsNew = true;
 
-                    await _pictureService.UpdatePicture(picture);
+                    await pictureService.UpdatePicture(picture);
                 }
             }
         }

@@ -5,7 +5,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a out of stock subscription
     /// </summary>
-    public partial class OutOfStockSubscription : BaseEntity
+    public class OutOfStockSubscription : BaseEntity
     {
         /// <summary>
         /// Gets or sets the store identifier

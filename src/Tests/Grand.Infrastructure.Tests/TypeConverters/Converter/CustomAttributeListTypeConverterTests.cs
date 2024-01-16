@@ -7,12 +7,7 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
     [TestClass()]
     public class CustomAttributeListTypeConverterTests
     {
-        CustomAttributeListTypeConverter _converter;
-
-        public CustomAttributeListTypeConverterTests()
-        {
-            _converter = new CustomAttributeListTypeConverter();
-        }
+        CustomAttributeListTypeConverter _converter = new();
 
         [TestMethod()]
         public void CanConvertFromTest_True()

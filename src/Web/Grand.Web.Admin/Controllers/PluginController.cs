@@ -20,36 +20,20 @@ using System.Reflection;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Plugins)]
-    public class PluginController : BaseAdminController
+    public class PluginController(
+        ITranslationService translationService,
+        ILogger<PluginController> logger,
+        IHostApplicationLifetime applicationLifetime,
+        IWorkContext workContext,
+        IServiceProvider serviceProvider,
+        ExtensionsConfig extConfig)
+        : BaseAdminController
     {
         #region Fields
-
-        private readonly ITranslationService _translationService;
-        private readonly ILogger<PluginController> _logger;
-        private readonly IHostApplicationLifetime _applicationLifetime;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IWorkContext _workContext;
-        private readonly ExtensionsConfig _extConfig;
 
         #endregion
 
         #region Constructors
-
-        public PluginController(
-            ITranslationService translationService,
-            ILogger<PluginController> logger,
-            IHostApplicationLifetime applicationLifetime,
-            IWorkContext workContext,
-            IServiceProvider serviceProvider,
-            ExtensionsConfig extConfig)
-        {
-            _translationService = translationService;
-            _logger = logger;
-            _workContext = workContext;
-            _applicationLifetime = applicationLifetime;
-            _serviceProvider = serviceProvider;
-            _extConfig = extConfig;
-        }
 
         #endregion
 
@@ -60,12 +44,12 @@ namespace Grand.Web.Admin.Controllers
         {
             var pluginModel = PluginInfo.ToModel();
             //logo
-            pluginModel.LogoUrl = PluginInfo.GetLogoUrl(_workContext);
+            pluginModel.LogoUrl = PluginInfo.GetLogoUrl(workContext);
 
             //configuration URLs
             if (PluginInfo.Installed)
             {
-                var pluginInstance = PluginInfo.Instance(_serviceProvider);
+                var pluginInstance = PluginInfo.Instance(serviceProvider);
                 pluginModel.ConfigurationUrl = pluginInstance.ConfigurationUrl();
             }
 
@@ -180,16 +164,16 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("List");
 
                 //install plugin
-                var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
                 await plugin.Install();
 
-                Success(_translationService.GetResource("Admin.Plugins.Installed"));
+                Success(translationService.GetResource("Admin.Plugins.Installed"));
 
-                _logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
-                    _workContext.CurrentCustomer.Email);
+                logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
+                    workContext.CurrentCustomer.Email);
 
                 //stop application
-                _applicationLifetime.StopApplication();
+                applicationLifetime.StopApplication();
             }
             catch (Exception exc)
             {
@@ -214,16 +198,16 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("List");
 
                 //uninstall plugin
-                var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
                 await plugin.Uninstall();
 
-                Success(_translationService.GetResource("Admin.Plugins.Uninstalled"));
+                Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
 
-                _logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
-                    _workContext.CurrentCustomer.Email);
+                logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
+                    workContext.CurrentCustomer.Email);
 
                 //stop application
-                _applicationLifetime.StopApplication();
+                applicationLifetime.StopApplication();
             }
             catch (Exception exc)
             {
@@ -236,7 +220,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public IActionResult Remove(string systemName)
         {
-            if (_extConfig.DisableUploadExtensions)
+            if (extConfig.DisableUploadExtensions)
             {
                 Error("Upload plugins is disable");
                 return RedirectToAction("List");
@@ -261,13 +245,13 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 //uninstall plugin
-                Success(_translationService.GetResource("Admin.Plugins.Removed"));
+                Success(translationService.GetResource("Admin.Plugins.Removed"));
 
-                _logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
-                    _workContext.CurrentCustomer.Email);
+                logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
+                    workContext.CurrentCustomer.Email);
 
                 //stop application
-                _applicationLifetime.StopApplication();
+                applicationLifetime.StopApplication();
             }
             catch (Exception exc)
             {
@@ -279,11 +263,11 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult ReloadList()
         {
-            _logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
-                _workContext.CurrentCustomer.Email);
+            logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
+                workContext.CurrentCustomer.Email);
 
             //stop application
-            _applicationLifetime.StopApplication();
+            applicationLifetime.StopApplication();
             return RedirectToAction("List");
         }
 
@@ -291,7 +275,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public IActionResult UploadPlugin(IFormFile zippedFile)
         {
-            if (_extConfig.DisableUploadExtensions)
+            if (extConfig.DisableUploadExtensions)
             {
                 Error("Upload plugins is disable");
                 return RedirectToAction("List");
@@ -299,7 +283,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (zippedFile == null || zippedFile.Length == 0)
             {
-                Error(_translationService.GetResource("Admin.Common.UploadFile"));
+                Error(translationService.GetResource("Admin.Common.UploadFile"));
                 return RedirectToAction("List");
             }
 
@@ -320,7 +304,7 @@ namespace Grand.Web.Admin.Controllers
 
                 Upload(zipFilePath);
 
-                var message = _translationService.GetResource("Admin.Plugins.Uploaded");
+                var message = translationService.GetResource("Admin.Plugins.Uploaded");
                 Success(message);
             }
             finally
@@ -330,11 +314,11 @@ namespace Grand.Web.Admin.Controllers
                     System.IO.File.Delete(zipFilePath);
             }
 
-            _logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
-                _workContext.CurrentCustomer.Email);
+            logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
+                workContext.CurrentCustomer.Email);
 
             //stop application
-            _applicationLifetime.StopApplication();
+            applicationLifetime.StopApplication();
 
             return RedirectToAction("List");
         }
@@ -379,7 +363,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, ex.Message);
+                        logger.LogError(ex, ex.Message);
                     }
                 }
 
@@ -393,14 +377,11 @@ namespace Grand.Web.Admin.Controllers
                 var entries = archive.Entries.ToArray();
                 foreach (var y in entries)
                 {
-                    if (y.Name.Length > 0)
-                        _path = y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/');
-                    else
-                        _path = y.FullName.Replace(_fpath, pluginname);
+                    _path = y.Name.Length > 0 ? y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/') : y.FullName.Replace(_fpath, pluginname);
 
-                    var _entry = archive.CreateEntry($"{_path}/{y.Name}");
+                    var entry = archive.CreateEntry($"{_path}/{y.Name}");
                     using (var a = y.Open())
-                    using (var b = _entry.Open())
+                    using (var b = entry.Open())
                         a.CopyTo(b);
 
                     archive.GetEntry(y.FullName).Delete();

@@ -5,12 +5,8 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents a customer attribute value
     /// </summary>
-    public partial class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
+    public class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
     {
-        public CustomerAttributeValue()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the customer attribute identifier
         /// </summary>
@@ -34,8 +30,7 @@ namespace Grand.Domain.Customers
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 
 }

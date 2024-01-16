@@ -182,7 +182,7 @@ namespace Grand.Domain.Catalog
                 {
                     if (!string.IsNullOrEmpty(valueStr))
                     {
-                        if (attribute.ProductAttributeValues.Where(x => x.Id == valueStr).Count() > 0)
+                        if (attribute.ProductAttributeValues.Any(x => x.Id == valueStr))
                         {
                             var value = attribute.ProductAttributeValues.FirstOrDefault(x => x.Id == valueStr);
                             if (value != null)

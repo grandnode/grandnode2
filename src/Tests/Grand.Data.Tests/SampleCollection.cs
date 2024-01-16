@@ -4,17 +4,12 @@ namespace Grand.Data.Tests
 {
     public class SampleCollection : BaseEntity
     {
-        public SampleCollection()
-        {
-            Phones = new List<string>();
-            Category = new List<SampleCategory>();
-        }
         public string Name { get; set; }
 
         public int Count { get; set; }
-        public IList<string> Phones { get; set; }
+        public IList<string> Phones { get; set; } = new List<string>();
 
-        public IList<SampleCategory> Category { get; set; }
+        public IList<SampleCategory> Category { get; set; } = new List<SampleCategory>();
 
         public class SampleCategory
         {

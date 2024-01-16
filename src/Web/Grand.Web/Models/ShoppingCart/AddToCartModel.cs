@@ -6,17 +6,12 @@ namespace Grand.Web.Models.ShoppingCart
 {
     public class AddToCartModel : BaseModel
     {
-        public AddToCartModel()
-        {
-            Picture = new PictureModel();
-        }
-
         public string ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductSeName { get; set; }
         public string AttributeDescription { get; set; }
         public string ReservationInfo { get; set; }
-        public PictureModel Picture { get; set; }
+        public PictureModel Picture { get; set; } = new();
         public int Quantity { get; set; }
         public int ItemQuantity { get; set; }
         public string Price { get; set; }

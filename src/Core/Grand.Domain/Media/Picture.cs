@@ -6,13 +6,8 @@ namespace Grand.Domain.Media
     /// <summary>
     /// Represents a picture
     /// </summary>
-    public partial class Picture : BaseEntity, ITranslationEntity
+    public class Picture : BaseEntity, ITranslationEntity
     {
-        public Picture()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the picture binary
         /// </summary>
@@ -66,7 +61,6 @@ namespace Grand.Domain.Media
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

@@ -181,7 +181,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             foreach (var shippingRateMethod in shippingRateMethods)
             {
                 //request shipping options (separately for each package-request)
-                IList<ShippingOption> shippingRateMethodOptions = null;
+                IList<ShippingOption> shippingRateMethodOptions;
                 var getShippingOptionResponse = await shippingRateMethod.GetShippingOptions(shippingOptionRequest);
 
                 if (getShippingOptionResponse.Success)

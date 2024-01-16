@@ -9,12 +9,6 @@ namespace Grand.Web.Admin.Models.Courses
 {
     public class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public CourseModel()
-        {
-            Locales = new List<CourseLocalizedModel>();
-            AvailableLevels = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Courses.Course.Fields.Name")]
         public string Name { get; set; }
 
@@ -36,7 +30,7 @@ namespace Grand.Web.Admin.Models.Courses
 
         [GrandResourceDisplayName("Admin.Courses.Course.Fields.LevelId")]
         public string LevelId { get; set; }
-        public IList<SelectListItem> AvailableLevels { get; set; }
+        public IList<SelectListItem> AvailableLevels { get; set; } = new List<SelectListItem>();
 
         //ACL
         [UIHint("CustomerGroups")]
@@ -63,7 +57,7 @@ namespace Grand.Web.Admin.Models.Courses
 
         public string SeName { get; set; }
 
-        public IList<CourseLocalizedModel> Locales { get; set; }
+        public IList<CourseLocalizedModel> Locales { get; set; } = new List<CourseLocalizedModel>();
 
         [GrandResourceDisplayName("Admin.Courses.Course.Fields.ProductId")]
         public string ProductId { get; set; }
@@ -73,13 +67,6 @@ namespace Grand.Web.Admin.Models.Courses
 
         public class AssociateProductToCourseModel : BaseModel
         {
-            public AssociateProductToCourseModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
 
             public string SearchProductName { get; set; }
@@ -99,9 +86,9 @@ namespace Grand.Web.Admin.Models.Courses
             [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
             public int SearchProductTypeId { get; set; }
 
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
+            public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+            public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
+            public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
             public string AssociatedToProductId { get; set; }
         }
         #endregion

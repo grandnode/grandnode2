@@ -4,12 +4,8 @@ namespace Grand.Web.Models.Blogs
 {
     public class BlogPostYearModel : BaseModel
     {
-        public BlogPostYearModel()
-        {
-            Months = new List<BlogPostMonthModel>();
-        }
         public int Year { get; set; }
-        public IList<BlogPostMonthModel> Months { get; set; }
+        public IList<BlogPostMonthModel> Months { get; set; } = new List<BlogPostMonthModel>();
     }
     public class BlogPostMonthModel : BaseModel
     {

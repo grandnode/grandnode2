@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product picture mapping
     /// </summary>
-    public partial class ProductPicture : SubBaseEntity
+    public class ProductPicture : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the picture identifier

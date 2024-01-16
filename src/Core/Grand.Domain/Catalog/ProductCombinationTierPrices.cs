@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Manage product combination tier prices
     /// </summary>
-    public partial class ProductCombinationTierPrices : SubBaseEntity
+    public class ProductCombinationTierPrices : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the store identifier

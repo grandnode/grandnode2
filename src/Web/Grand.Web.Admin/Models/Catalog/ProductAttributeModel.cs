@@ -8,11 +8,6 @@ namespace Grand.Web.Admin.Models.Catalog
 {
     public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
     {
-        public ProductAttributeModel()
-        {
-            Locales = new List<ProductAttributeLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Name")]
         public string Name { get; set; }
 
@@ -27,7 +22,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [UIHint("Stores")]
         public string[] Stores { get; set; }
 
-        public IList<ProductAttributeLocalizedModel> Locales { get; set; }
+        public IList<ProductAttributeLocalizedModel> Locales { get; set; } = new List<ProductAttributeLocalizedModel>();
 
         #region Nested classes
 
@@ -57,11 +52,6 @@ namespace Grand.Web.Admin.Models.Catalog
 
     public class PredefinedProductAttributeValueModel : BaseEntityModel, ILocalizedModel<PredefinedProductAttributeValueLocalizedModel>
     {
-        public PredefinedProductAttributeValueModel()
-        {
-            Locales = new List<PredefinedProductAttributeValueLocalizedModel>();
-        }
-
         public string ProductAttributeId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name")]
@@ -89,7 +79,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public IList<PredefinedProductAttributeValueLocalizedModel> Locales { get; set; }
+        public IList<PredefinedProductAttributeValueLocalizedModel> Locales { get; set; } = new List<PredefinedProductAttributeValueLocalizedModel>();
     }
     public class PredefinedProductAttributeValueLocalizedModel : ILocalizedModelLocal
     {

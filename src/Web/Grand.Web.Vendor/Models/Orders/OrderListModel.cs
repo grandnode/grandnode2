@@ -7,17 +7,6 @@ namespace Grand.Web.Vendor.Models.Orders
 {
     public class OrderListModel : BaseModel
     {
-        public OrderListModel()
-        {
-            AvailableOrderStatuses = new List<SelectListItem>();
-            AvailablePaymentStatuses = new List<SelectListItem>();
-            AvailableShippingStatuses = new List<SelectListItem>();
-            AvailableWarehouses = new List<SelectListItem>();
-            AvailablePaymentMethods = new List<SelectListItem>();
-            AvailableCountries = new List<SelectListItem>();
-            AvailableOrderTags = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Vendor.Orders.List.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? StartDate { get; set; }
@@ -67,12 +56,12 @@ namespace Grand.Web.Vendor.Models.Orders
         [GrandResourceDisplayName("Vendor.Orders.List.OrderTagId")]
         public string OrderTag { get; set; }
 
-        public IList<SelectListItem> AvailableOrderStatuses { get; set; }
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
-        public IList<SelectListItem> AvailableShippingStatuses { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
-        public IList<SelectListItem> AvailablePaymentMethods { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
-        public IList<SelectListItem> AvailableOrderTags { get; set; } 
+        public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableShippingStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentMethods { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableOrderTags { get; set; } = new List<SelectListItem>();
     }
 }

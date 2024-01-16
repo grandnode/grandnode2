@@ -10,11 +10,6 @@ namespace Grand.Web.Admin.Models.Messages
 {
     public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public ContactAttributeModel()
-        {
-            Locales = new List<ContactAttributeLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.Name")]
 
         public string Name { get; set; }
@@ -54,7 +49,7 @@ namespace Grand.Web.Admin.Models.Messages
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.DefaultValue")]
         public string DefaultValue { get; set; }
 
-        public IList<ContactAttributeLocalizedModel> Locales { get; set; }
+        public IList<ContactAttributeLocalizedModel> Locales { get; set; } = new List<ContactAttributeLocalizedModel>();
 
         //condition
         public bool ConditionAllowed { get; set; }

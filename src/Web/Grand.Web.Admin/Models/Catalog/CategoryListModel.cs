@@ -6,16 +6,11 @@ namespace Grand.Web.Admin.Models.Catalog
 {
     public class CategoryListModel : BaseModel
     {
-        public CategoryListModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Categories.List.SearchCategoryName")]
         public string SearchCategoryName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.List.SearchStore")]
         public string SearchStoreId { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
     }
 }

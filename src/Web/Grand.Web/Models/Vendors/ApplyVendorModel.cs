@@ -6,14 +6,7 @@ namespace Grand.Web.Models.Vendors
 {
     public class ApplyVendorModel : BaseModel
     {
-
-        public ApplyVendorModel()
-        {
-            Address = new VendorAddressModel();
-            Captcha = new CaptchaModel();
-        }
-
-        public VendorAddressModel Address { get; set; }
+        public VendorAddressModel Address { get; set; } = new();
 
         [GrandResourceDisplayName("Vendors.ApplyAccount.Name")]
         public string Name { get; set; }
@@ -23,7 +16,7 @@ namespace Grand.Web.Models.Vendors
         [GrandResourceDisplayName("Vendors.ApplyAccount.Description")]
         public string Description { get; set; }
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
         public bool TermsOfServiceEnabled { get; set; }
         public bool TermsOfServicePopup { get; set; }
         public bool DisableFormInput { get; set; }

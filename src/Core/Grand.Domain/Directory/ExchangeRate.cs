@@ -3,7 +3,7 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents an exchange rate
     /// </summary>
-    public partial class ExchangeRate
+    public class ExchangeRate
     {
         /// <summary>
         /// Creates a new instance of the ExchangeRate class

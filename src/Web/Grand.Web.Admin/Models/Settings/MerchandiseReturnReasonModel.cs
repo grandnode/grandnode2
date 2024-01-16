@@ -6,11 +6,6 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class MerchandiseReturnReasonModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnReasonLocalizedModel>
     {
-        public MerchandiseReturnReasonModel()
-        {
-            Locales = new List<MerchandiseReturnReasonLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnReasons.Name")]
 
         public string Name { get; set; }
@@ -18,7 +13,7 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnReasons.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public IList<MerchandiseReturnReasonLocalizedModel> Locales { get; set; }
+        public IList<MerchandiseReturnReasonLocalizedModel> Locales { get; set; } = new List<MerchandiseReturnReasonLocalizedModel>();
     }
 
     public class MerchandiseReturnReasonLocalizedModel : ILocalizedModelLocal

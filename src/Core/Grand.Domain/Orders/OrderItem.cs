@@ -5,7 +5,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents an order item
     /// </summary>
-    public partial class OrderItem : SubBaseEntity
+    public class OrderItem : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the order item identifier

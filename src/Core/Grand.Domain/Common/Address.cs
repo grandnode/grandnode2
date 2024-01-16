@@ -1,12 +1,7 @@
 ﻿namespace Grand.Domain.Common
 {
-    public partial class Address : SubBaseEntity
+    public class Address : SubBaseEntity
     {
-        public Address()
-        {
-            Attributes = new List<CustomAttribute>();
-        }
-
         /// <summary>
         /// Gets or sets the name of address
         /// </summary>
@@ -85,7 +80,7 @@
         /// <summary>
         /// Gets or sets the custom attributes (see "AddressAttribute" entity for more info)
         /// </summary>
-        public IList<CustomAttribute> Attributes { get; set; }
+        public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 
         /// <summary>
         /// Gets or sets the address type

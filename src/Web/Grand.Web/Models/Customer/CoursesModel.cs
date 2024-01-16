@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Customer
 {
     public class CoursesModel : BaseModel
     {
-        public CoursesModel()
-        {
-            CourseList = new List<Course>();
-        }
-
-        public List<Course> CourseList { get; set; }
+        public List<Course> CourseList { get; set; } = new();
         public string CustomerId { get; set; }
 
         public class Course : BaseEntityModel

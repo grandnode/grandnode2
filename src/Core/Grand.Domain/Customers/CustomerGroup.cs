@@ -3,7 +3,7 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents a customer group
     /// </summary>
-    public partial class CustomerGroup : BaseEntity
+    public class CustomerGroup : BaseEntity
     {
 
         /// <summary>

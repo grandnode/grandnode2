@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a campaign history
     /// </summary>
-    public partial class CampaignHistory : BaseEntity
+    public class CampaignHistory : BaseEntity
     {
         
         public string CampaignId { get; set; }

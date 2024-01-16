@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerDownloadableProductsModel : BaseModel
     {
-        public CustomerDownloadableProductsModel()
-        {
-            Items = new List<DownloadableProductsModel>();
-        }
-
-        public IList<DownloadableProductsModel> Items { get; set; }
+        public IList<DownloadableProductsModel> Items { get; set; } = new List<DownloadableProductsModel>();
 
         #region Nested classes
         public class DownloadableProductsModel : BaseModel

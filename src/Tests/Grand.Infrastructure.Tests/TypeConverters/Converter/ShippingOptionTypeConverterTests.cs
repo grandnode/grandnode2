@@ -7,12 +7,7 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
     [TestClass()]
     public class ShippingOptionTypeConverterTests
     {
-        ShippingOptionTypeConverter _converter;
-
-        public ShippingOptionTypeConverterTests()
-        {
-            _converter = new ShippingOptionTypeConverter();
-        }
+        ShippingOptionTypeConverter _converter = new();
 
         [TestMethod()]
         public void CanConvertFromTest()

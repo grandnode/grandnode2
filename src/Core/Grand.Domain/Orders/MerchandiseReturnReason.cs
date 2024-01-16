@@ -5,12 +5,8 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a merchandise return reason
     /// </summary>
-    public partial class MerchandiseReturnReason : BaseEntity, ITranslationEntity
+    public class MerchandiseReturnReason : BaseEntity, ITranslationEntity
     {
-        public MerchandiseReturnReason()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -24,6 +20,6 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

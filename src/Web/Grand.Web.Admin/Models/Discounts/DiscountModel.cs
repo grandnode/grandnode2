@@ -8,14 +8,6 @@ namespace Grand.Web.Admin.Models.Discounts
 {
     public class DiscountModel : BaseEntityModel, IStoreLinkModel
     {
-        public DiscountModel()
-        {
-            AvailableDiscountRequirementRules = new List<SelectListItem>();
-            DiscountRequirementMetaInfos = new List<DiscountRequirementMetaInfo>();
-            AvailableDiscountAmountProviders = new List<SelectListItem>();
-            AvailableCurrencies = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.Name")]
         public string Name { get; set; }
 
@@ -39,7 +31,7 @@ namespace Grand.Web.Admin.Models.Discounts
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.CurrencyCode")]
         public string CurrencyCode { get; set; }
-        public IList<SelectListItem> AvailableCurrencies { get; set; }
+        public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.CalculateByPlugin")]
         public bool CalculateByPlugin { get; set; }
@@ -85,9 +77,9 @@ namespace Grand.Web.Admin.Models.Discounts
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Requirements.DiscountRequirementType")]
         public string AddDiscountRequirement { get; set; }
-        public IList<SelectListItem> AvailableDiscountRequirementRules { get; set; }
-        public IList<DiscountRequirementMetaInfo> DiscountRequirementMetaInfos { get; set; }
-        public IList<SelectListItem> AvailableDiscountAmountProviders { get; set; }
+        public IList<SelectListItem> AvailableDiscountRequirementRules { get; set; } = new List<SelectListItem>();
+        public IList<DiscountRequirementMetaInfo> DiscountRequirementMetaInfos { get; set; } = new List<DiscountRequirementMetaInfo>();
+        public IList<SelectListItem> AvailableDiscountAmountProviders { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.IsEnabled")]
         public bool IsEnabled { get; set; }
@@ -161,13 +153,6 @@ namespace Grand.Web.Admin.Models.Discounts
         }
         public class AddProductToDiscountModel : BaseModel
         {
-            public AddProductToDiscountModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
 
             public string SearchProductName { get; set; }
@@ -187,9 +172,9 @@ namespace Grand.Web.Admin.Models.Discounts
             [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
             public int SearchProductTypeId { get; set; }
 
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
+            public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+            public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
+            public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
             public string DiscountId { get; set; }
 

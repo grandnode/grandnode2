@@ -7,12 +7,6 @@ namespace Grand.Web.Vendor.Models.Vendor
 {
     public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel>
     {
-        public VendorModel()
-        {
-            Locales = new List<VendorLocalizedModel>();
-            Address = new AddressModel();
-        }
-
         [GrandResourceDisplayName("Vendor.Fields.Name")]
 
         public string Name { get; set; }
@@ -50,10 +44,9 @@ namespace Grand.Web.Vendor.Models.Vendor
         [GrandResourceDisplayName("Vendor.Fields.PageSizeOptions")]
         public string PageSizeOptions { get; set; }
 
-        public IList<VendorLocalizedModel> Locales { get; set; }
+        public IList<VendorLocalizedModel> Locales { get; set; } = new List<VendorLocalizedModel>();
 
-        public AddressModel Address { get; set; }
-        
+        public AddressModel Address { get; set; } = new();
     }
 
     public class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal

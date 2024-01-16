@@ -4,7 +4,7 @@ namespace Grand.Domain.Configuration
     /// <summary>
     /// Represents a setting
     /// </summary>
-    public partial class Setting : BaseEntity
+    public class Setting : BaseEntity
     {
         public Setting()
         {

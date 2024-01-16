@@ -5,12 +5,7 @@ namespace Grand.Web.Models.Blogs
 {
     public class HomePageBlogItemsModel: BaseModel
     {
-        public HomePageBlogItemsModel()
-        {
-            Items = new List<BlogItemModel>();
-        }
-
-        public IList<BlogItemModel> Items { get; set; }
+        public IList<BlogItemModel> Items { get; set; } = new List<BlogItemModel>();
 
         public class BlogItemModel : BaseModel
         {

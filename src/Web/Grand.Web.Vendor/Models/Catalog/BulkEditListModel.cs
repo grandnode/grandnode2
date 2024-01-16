@@ -7,11 +7,6 @@ namespace Grand.Web.Vendor.Models.Catalog
 {
     public class BulkEditListModel : BaseModel
     {
-        public BulkEditListModel()
-        {
-            AvailableProductTypes = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Vendor.Catalog.BulkEdit.List.SearchProductName")]
         public string SearchProductName { get; set; }
 
@@ -30,6 +25,6 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
         
-        public IList<SelectListItem> AvailableProductTypes { get; set; }       
+        public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
     }
 }

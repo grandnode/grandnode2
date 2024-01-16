@@ -4,11 +4,6 @@ namespace Grand.Web.Models.Common
 {
     public class FooterModel : BaseModel
     {
-        public FooterModel()
-        {
-            Pages = new List<FooterPageModel>();
-        }
-
         public string StoreName { get; set; }
         public string CompanyName { get; set; }
         public string CompanyEmail { get; set; }
@@ -37,7 +32,7 @@ namespace Grand.Web.Models.Common
 
         public string WorkingLanguageId { get; set; }
 
-        public IList<FooterPageModel> Pages { get; set; }
+        public IList<FooterPageModel> Pages { get; set; } = new List<FooterPageModel>();
 
         #region Nested classes
 

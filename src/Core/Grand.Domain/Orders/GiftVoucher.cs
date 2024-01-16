@@ -5,7 +5,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a gift voucher
     /// </summary>
-    public partial class GiftVoucher : BaseEntity
+    public class GiftVoucher : BaseEntity
     {
         private ICollection<GiftVoucherUsageHistory> _giftVoucherUsageHistory;
         

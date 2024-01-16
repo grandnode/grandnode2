@@ -5,7 +5,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product attribute combination
     /// </summary>
-    public partial class ProductAttributeCombination : SubBaseEntity, ICloneable
+    public class ProductAttributeCombination : SubBaseEntity, ICloneable
     {
         private ICollection<ProductCombinationWarehouseInventory> _warehouseInventory;
         private ICollection<ProductCombinationTierPrices> _tierPrices;

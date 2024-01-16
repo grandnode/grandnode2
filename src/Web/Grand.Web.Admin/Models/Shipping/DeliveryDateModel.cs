@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Shipping
 {
     public class DeliveryDateModel : BaseEntityModel, ILocalizedModel<DeliveryDateLocalizedModel>
     {
-        public DeliveryDateModel()
-        {
-            Locales = new List<DeliveryDateLocalizedModel>();
-        }
         [GrandResourceDisplayName("Admin.Configuration.Shipping.DeliveryDates.Fields.Name")]
 
         public string Name { get; set; }
@@ -21,7 +17,7 @@ namespace Grand.Web.Admin.Models.Shipping
 
         public string ColorSquaresRgb { get; set; }
 
-        public IList<DeliveryDateLocalizedModel> Locales { get; set; }
+        public IList<DeliveryDateLocalizedModel> Locales { get; set; } = new List<DeliveryDateLocalizedModel>();
     }
 
     public class DeliveryDateLocalizedModel : ILocalizedModelLocal

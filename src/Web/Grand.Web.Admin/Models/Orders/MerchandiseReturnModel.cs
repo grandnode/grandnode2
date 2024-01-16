@@ -7,11 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class MerchandiseReturnModel : BaseEntityModel
     {
-        public MerchandiseReturnModel()
-        {
-            Items = new List<MerchandiseReturnItemModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.Fields.ID")]
         public override string Id { get; set; }
 
@@ -57,7 +52,7 @@ namespace Grand.Web.Admin.Models.Orders
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.Fields.PickupAddress")]
         public AddressModel PickupAddress { get; set; }
 
-        public List<MerchandiseReturnItemModel> Items { get; set; }
+        public List<MerchandiseReturnItemModel> Items { get; set; } = new();
 
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.NotifyCustomer")]
         public bool NotifyCustomer { get; set; }

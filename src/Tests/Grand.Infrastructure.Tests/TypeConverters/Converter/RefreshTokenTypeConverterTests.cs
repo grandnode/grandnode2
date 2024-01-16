@@ -7,11 +7,7 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
     [TestClass()]
     public class RefreshTokenTypeConverterTests
     {
-        RefreshTokenTypeConverter refreshTokenTypeConverter;
-        public RefreshTokenTypeConverterTests()
-        {
-            refreshTokenTypeConverter = new RefreshTokenTypeConverter();
-        }
+        RefreshTokenTypeConverter refreshTokenTypeConverter = new();
 
         [TestMethod()]
         public void CanConvertFromTest_string()

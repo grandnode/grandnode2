@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a category layout
     /// </summary>
-    public partial class CategoryLayout : BaseEntity
+    public class CategoryLayout : BaseEntity
     {
         /// <summary>
         /// Gets or sets the layout name

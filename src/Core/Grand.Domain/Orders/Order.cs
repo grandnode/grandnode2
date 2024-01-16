@@ -9,7 +9,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents an order
     /// </summary>
-    public partial class Order : BaseEntity
+    public class Order : BaseEntity
     {
         private ICollection<OrderItem> _orderItems;
         private ICollection<OrderTax> _orderTaxes;

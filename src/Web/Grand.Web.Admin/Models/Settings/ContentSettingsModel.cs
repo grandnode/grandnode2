@@ -5,18 +5,10 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class ContentSettingsModel : BaseModel
     {
-
-        public ContentSettingsModel()
-        {
-            BlogSettings = new BlogSettingsModel();
-            NewsSettings = new NewsSettingsModel();
-            KnowledgebaseSettings = new KnowledgebaseSettingsModel();
-
-        }
         public string ActiveStore { get; set; }
-        public BlogSettingsModel BlogSettings { get; set; }
-        public NewsSettingsModel NewsSettings { get; set; }
-        public KnowledgebaseSettingsModel KnowledgebaseSettings { get; set; }
+        public BlogSettingsModel BlogSettings { get; set; } = new();
+        public NewsSettingsModel NewsSettings { get; set; } = new();
+        public KnowledgebaseSettingsModel KnowledgebaseSettings { get; set; } = new();
 
         public class BlogSettingsModel : BaseModel
         {

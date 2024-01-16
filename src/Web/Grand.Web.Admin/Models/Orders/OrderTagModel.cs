@@ -6,17 +6,12 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class OrderTagModel : BaseEntityModel, ILocalizedModel<OrderTagLocalizedModel>
     {
-        public OrderTagModel()
-        {
-            Locales = new List<OrderTagLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.Name")]
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.OrderCount")]
         public int OrderCount { get; set; }
-        public IList<OrderTagLocalizedModel> Locales { get; set; }
+        public IList<OrderTagLocalizedModel> Locales { get; set; } = new List<OrderTagLocalizedModel>();
     }
 
     public class OrderTagLocalizedModel : ILocalizedModelLocal

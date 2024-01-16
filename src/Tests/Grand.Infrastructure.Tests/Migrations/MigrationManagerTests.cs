@@ -6,12 +6,7 @@ namespace Grand.Infrastructure.Tests.Migrations
     [TestClass()]
     public class MigrationManagerTests
     {
-        MigrationManager migrationManager;
-
-        public MigrationManagerTests()
-        {
-            migrationManager = new MigrationManager();
-        }
+        MigrationManager migrationManager = new();
 
         [TestMethod()]
         public void GetAllMigrationsTest()

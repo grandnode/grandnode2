@@ -4,12 +4,6 @@ namespace Grand.Domain.Catalog
 {
     public class CatalogSettings : ISettings
     {
-        public CatalogSettings()
-        {
-            ProductSortingEnumDisabled = new List<int>();
-            ProductSortingEnumDisplayOrder = new Dictionary<int, int>();
-        }
-
         /// <summary>
         /// Gets or sets a value indicating details pages of unpublished product details pages could be open (for SEO optimization)
         /// </summary>
@@ -403,12 +397,12 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets a list of disabled values of ProductSortingEnum
         /// </summary>
-        public List<int> ProductSortingEnumDisabled { get; set; }
+        public List<int> ProductSortingEnumDisabled { get; set; } = new();
 
         /// <summary>
         /// Gets or sets a display order of ProductSortingEnum values 
         /// </summary>
-        public Dictionary<int, int> ProductSortingEnumDisplayOrder { get; set; }
+        public Dictionary<int, int> ProductSortingEnumDisplayOrder { get; set; } = new();
 
         /// <summary>
         /// Gets or sets a sorting by availability

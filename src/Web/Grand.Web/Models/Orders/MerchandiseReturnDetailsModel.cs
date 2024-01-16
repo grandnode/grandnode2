@@ -6,14 +6,7 @@ namespace Grand.Web.Models.Orders
 {
     public class MerchandiseReturnDetailsModel : BaseModel
     {
-        public MerchandiseReturnDetailsModel()
-        {
-            MerchandiseReturnItems = new List<MerchandiseReturnItemModel>();
-            PickupAddress = new AddressModel();
-            MerchandiseReturnNotes = new List<MerchandiseReturnNote>();
-        }
-
-        public IList<MerchandiseReturnItemModel> MerchandiseReturnItems { get; set; }
+        public IList<MerchandiseReturnItemModel> MerchandiseReturnItems { get; set; } = new List<MerchandiseReturnItemModel>();
 
         public string Comments { get; set; }
 
@@ -29,11 +22,11 @@ namespace Grand.Web.Models.Orders
 
         public bool ShowPickupAddress { get; set; }
 
-        public AddressModel PickupAddress { get; set; }
+        public AddressModel PickupAddress { get; set; } = new();
 
         public DateTime PickupDate { get; set; }
 
-        public IList<MerchandiseReturnNote> MerchandiseReturnNotes { get; set; }
+        public IList<MerchandiseReturnNote> MerchandiseReturnNotes { get; set; } = new List<MerchandiseReturnNote>();
 
         public bool ShowAddMerchandiseReturnNote { get; set; }
 

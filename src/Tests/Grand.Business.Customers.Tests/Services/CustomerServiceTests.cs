@@ -143,7 +143,7 @@ namespace Grand.Business.Customers.Tests.Services
             await _customerService.InsertGuestCustomer(new Domain.Stores.Store { Id = "1" });
             //Assert
             Assert.IsTrue(_repository.Table.Any());
-            Assert.IsTrue(_repository.Table.Where(x => x.StoreId == "1").Any());
+            Assert.IsTrue(_repository.Table.Any(x => x.StoreId == "1"));
         }
 
         [TestMethod()]

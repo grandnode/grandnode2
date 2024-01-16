@@ -6,15 +6,6 @@ namespace Shipping.ByWeight.Models
 {
     public class ShippingByWeightModel : BaseEntityModel
     {
-        public ShippingByWeightModel()
-        {
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStates = new List<SelectListItem>();
-            AvailableShippingMethods = new List<SelectListItem>();
-            AvailableStores = new List<SelectListItem>();
-            AvailableWarehouses = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Store")]
         public string StoreId { get; set; }
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Store")]
@@ -68,10 +59,10 @@ namespace Shipping.ByWeight.Models
         public string BaseWeightIn { get; set; }
 
 
-        public IList<SelectListItem> AvailableCountries { get; set; }
-        public IList<SelectListItem> AvailableStates { get; set; }
-        public IList<SelectListItem> AvailableShippingMethods { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableShippingMethods { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
     }
 }

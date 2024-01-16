@@ -6,15 +6,11 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a shipping method (used for offline Shipping rate  methods)
     /// </summary>
-    public partial class ShippingMethod : BaseEntity, ITranslationEntity
+    public class ShippingMethod : BaseEntity, ITranslationEntity
     {
         private ICollection<Country> _restrictedCountries;
         private ICollection<string> _restrictedGroups;
 
-        public ShippingMethod()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -33,7 +29,7 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets the restricted countries

@@ -3,7 +3,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a gift voucher usage history entry
     /// </summary>
-    public partial class GiftVoucherUsageHistory : SubBaseEntity
+    public class GiftVoucherUsageHistory : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the gift voucher identifier

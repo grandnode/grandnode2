@@ -1,6 +1,6 @@
 namespace Grand.Domain.Customers
 {
-    public static partial class SystemCustomerFieldNames
+    public static class SystemCustomerFieldNames
     {
         //Form fields
         public static string FirstName { get { return "FirstName"; } }

@@ -7,29 +7,21 @@ namespace Grand.Web.Admin.Models.Customers
 {
     public class CustomerListModel : BaseModel
     {
-        public CustomerListModel()
-        {
-            AvailableCustomerTags = new List<SelectListItem>();
-            SearchCustomerTagIds = new List<string>();
-            SearchCustomerGroupIds = new List<string>();
-            AvailableCustomerGroups = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Customers.Customers.List.CustomerGroups")]
         
-        public IList<SelectListItem> AvailableCustomerGroups { get; set; }
+        public IList<SelectListItem> AvailableCustomerGroups { get; set; } = new List<SelectListItem>();
 
 
         [GrandResourceDisplayName("Admin.Customers.Customers.List.CustomerGroups")]
         [UIHint("MultiSelect")]
-        public IList<string> SearchCustomerGroupIds { get; set; }
+        public IList<string> SearchCustomerGroupIds { get; set; } = new List<string>();
 
         [GrandResourceDisplayName("Admin.Customers.Customers.List.CustomerTags")]
-        public IList<SelectListItem> AvailableCustomerTags { get; set; }
+        public IList<SelectListItem> AvailableCustomerTags { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Customers.Customers.List.CustomerTags")]
         [UIHint("MultiSelect")]
-        public IList<string> SearchCustomerTagIds { get; set; }
+        public IList<string> SearchCustomerTagIds { get; set; } = new List<string>();
 
 
         [GrandResourceDisplayName("Admin.Customers.Customers.List.SearchEmail")]

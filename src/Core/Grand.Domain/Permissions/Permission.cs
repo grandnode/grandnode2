@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a permission
     /// </summary>
-    public partial class Permission : BaseEntity
+    public class Permission : BaseEntity
     {
         private ICollection<string> _customerGroups;
         private ICollection<string> _actions;

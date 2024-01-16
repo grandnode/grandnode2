@@ -4,11 +4,7 @@ namespace Widgets.Slider.Models
 {
     public class PublicInfoModel : BaseModel
     {
-        public PublicInfoModel()
-        {
-            Slide = new List<Slider>();
-        }
-        public IList<Slider> Slide { get; set; }
+        public IList<Slider> Slide { get; set; } = new List<Slider>();
 
         public class Slider
         {

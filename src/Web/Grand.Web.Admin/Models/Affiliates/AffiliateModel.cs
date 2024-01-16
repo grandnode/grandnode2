@@ -6,11 +6,6 @@ namespace Grand.Web.Admin.Models.Affiliates
 {
     public class AffiliateModel : BaseEntityModel
     {
-        public AffiliateModel()
-        {
-            Address = new AddressModel();
-        }
-
         [GrandResourceDisplayName("Admin.Affiliates.Fields.ID")]
         public override string Id { get; set; }
 
@@ -32,7 +27,7 @@ namespace Grand.Web.Admin.Models.Affiliates
         [GrandResourceDisplayName("Admin.Affiliates.Fields.Active")]
         public bool Active { get; set; }
 
-        public AddressModel Address { get; set; }
+        public AddressModel Address { get; set; } = new();
 
         #region Nested classes
         

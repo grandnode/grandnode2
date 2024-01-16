@@ -7,17 +7,12 @@ namespace Grand.Domain.Tests.Orders
     [TestClass()]
     public class GiftVoucherExtensionsTests
     {
-        private GiftVoucher giftVoucher;
-
-        public GiftVoucherExtensionsTests()
-        {
-            giftVoucher = new GiftVoucher {
-                Amount = 10,
-                Code = "123456",
-                CurrencyCode = "USD",
-                IsGiftVoucherActivated = true
-            };
-        }
+        private GiftVoucher giftVoucher = new() {
+            Amount = 10,
+            Code = "123456",
+            CurrencyCode = "USD",
+            IsGiftVoucherActivated = true
+        };
 
         [TestMethod()]
         public void AddGiftVoucherAttributeTest()

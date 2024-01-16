@@ -3,7 +3,7 @@ namespace Grand.Domain.Localization
     /// <summary>
     /// Represents a translation property
     /// </summary>
-    public partial class TranslationEntity : SubBaseEntity
+    public class TranslationEntity : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the language identifier

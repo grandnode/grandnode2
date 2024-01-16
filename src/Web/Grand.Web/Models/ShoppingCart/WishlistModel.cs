@@ -6,12 +6,6 @@ namespace Grand.Web.Models.ShoppingCart
 {
     public class WishlistModel : BaseModel
     {
-        public WishlistModel()
-        {
-            Items = new List<ShoppingCartItemModel>();
-            Warnings = new List<string>();
-        }
-
         public Guid CustomerGuid { get; set; }
         public string CustomerFullname { get; set; }
 
@@ -26,23 +20,17 @@ namespace Grand.Web.Models.ShoppingCart
         public bool DisplayAddToCart { get; set; }
 
 
-        public IList<ShoppingCartItemModel> Items { get; set; }
+        public IList<ShoppingCartItemModel> Items { get; set; } = new List<ShoppingCartItemModel>();
 
-        public IList<string> Warnings { get; set; }
-        
-		#region Nested Classes
+        public IList<string> Warnings { get; set; } = new List<string>();
+
+        #region Nested Classes
 
         public class ShoppingCartItemModel : BaseEntityModel
         {
-            public ShoppingCartItemModel()
-            {
-                Picture = new PictureModel();
-                AllowedQuantities = new List<SelectListItem>();
-                Warnings = new List<string>();
-            }
             public string Sku { get; set; }
 
-            public PictureModel Picture {get;set;}
+            public PictureModel Picture {get;set;} = new();
 
             public string ProductId { get; set; }
 
@@ -59,8 +47,8 @@ namespace Grand.Web.Models.ShoppingCart
             public string Discount { get; set; }
 
             public int Quantity { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; }
-            
+            public List<SelectListItem> AllowedQuantities { get; set; } = new();
+
             public string AttributeInfo { get; set; }
 
             public string RecurringInfo { get; set; }
@@ -68,8 +56,7 @@ namespace Grand.Web.Models.ShoppingCart
             public string RentalInfo { get; set; }
             public bool AllowItemEditing { get; set; }
 
-            public IList<string> Warnings { get; set; }
-
+            public IList<string> Warnings { get; set; } = new List<string>();
         }
 
 		#endregion

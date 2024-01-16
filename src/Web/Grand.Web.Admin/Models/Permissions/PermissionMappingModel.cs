@@ -5,16 +5,10 @@ namespace Grand.Web.Admin.Models.Permissions
 {
     public class PermissionMappingModel : BaseModel
     {
-        public PermissionMappingModel()
-        {
-            AvailablePermissions = new List<PermissionRecordModel>();
-            AvailableCustomerGroups = new List<CustomerGroupModel>();
-            Allowed = new Dictionary<string, IDictionary<string, bool>>();
-        }
-        public IList<PermissionRecordModel> AvailablePermissions { get; set; }
-        public IList<CustomerGroupModel> AvailableCustomerGroups { get; set; }
+        public IList<PermissionRecordModel> AvailablePermissions { get; set; } = new List<PermissionRecordModel>();
+        public IList<CustomerGroupModel> AvailableCustomerGroups { get; set; } = new List<CustomerGroupModel>();
 
         //[permission system name] / [customer group id] / [allowed]
-        public IDictionary<string, IDictionary<string, bool>> Allowed { get; set; }
+        public IDictionary<string, IDictionary<string, bool>> Allowed { get; set; } = new Dictionary<string, IDictionary<string, bool>>();
     }
 }

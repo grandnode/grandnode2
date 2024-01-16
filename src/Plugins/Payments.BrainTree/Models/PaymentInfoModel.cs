@@ -6,12 +6,6 @@ namespace Payments.BrainTree.Models
 {
     public class PaymentInfoModel : BaseModel
     {
-        public PaymentInfoModel()
-        {
-            ExpireMonths = new List<SelectListItem>();
-            ExpireYears = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Payment.SelectCreditCard")]
         public string CreditCardType { get; set; }
 
@@ -28,9 +22,9 @@ namespace Payments.BrainTree.Models
         [GrandResourceDisplayName("Payment.ExpirationDate")]
         public string ExpireYear { get; set; }
 
-        public IList<SelectListItem> ExpireMonths { get; set; }
+        public IList<SelectListItem> ExpireMonths { get; set; } = new List<SelectListItem>();
 
-        public IList<SelectListItem> ExpireYears { get; set; }
+        public IList<SelectListItem> ExpireYears { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Payment.CardCode")]
         public string CardCode { get; set; }

@@ -23,45 +23,23 @@ using Grand.Business.Core.Interfaces.ExportImport;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Orders)]
-    public class OrderController : BaseAdminController
+    public class OrderController(
+        IOrderViewModelService orderViewModelService,
+        IOrderService orderService,
+        IOrderStatusService orderStatusService,
+        ITranslationService translationService,
+        IWorkContext workContext,
+        IPdfService pdfService,
+        IGroupService groupService,
+        IExportManager<Order> exportManager,
+        IMediator mediator)
+        : BaseAdminController
     {
         #region Fields
-
-        private readonly IOrderViewModelService _orderViewModelService;
-        private readonly IOrderService _orderService;
-        private readonly IOrderStatusService _orderStatusService;
-        private readonly ITranslationService _translationService;
-        private readonly IWorkContext _workContext;
-        private readonly IPdfService _pdfService;
-        private readonly IGroupService _groupService;
-        private readonly IExportManager<Order> _exportManager;
-        private readonly IMediator _mediator;
 
         #endregion
 
         #region Ctor
-
-        public OrderController(
-            IOrderViewModelService orderViewModelService,
-            IOrderService orderService,
-            IOrderStatusService orderStatusService,
-            ITranslationService translationService,
-            IWorkContext workContext,
-            IPdfService pdfService,
-            IGroupService groupService,
-            IExportManager<Order> exportManager,
-            IMediator mediator)
-        {
-            _orderViewModelService = orderViewModelService;
-            _orderService = orderService;
-            _orderStatusService = orderStatusService;
-            _translationService = translationService;
-            _workContext = workContext;
-            _groupService = groupService;
-            _pdfService = pdfService;
-            _exportManager = exportManager;
-            _mediator = mediator;
-        }
 
         #endregion
 
@@ -69,8 +47,8 @@ namespace Grand.Web.Admin.Controllers
 
         protected virtual async Task<bool> CheckSalesManager(Order order)
         {
-            return await _groupService.IsSalesManager(_workContext.CurrentCustomer)
-                   && _workContext.CurrentCustomer.SeId != order.SeId;
+            return await groupService.IsSalesManager(workContext.CurrentCustomer)
+                   && workContext.CurrentCustomer.SeId != order.SeId;
         }
 
         #endregion
@@ -82,7 +60,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> List(int? orderStatusId = null,
             int? paymentStatusId = null, int? shippingStatusId = null, DateTime? startDate = null, string code = null)
         {
-            var model = await _orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId, startDate, _workContext.CurrentCustomer.StaffStoreId, code);
+            var model = await orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId, startDate, workContext.CurrentCustomer.StaffStoreId, code);
             return View(model);
         }
 
@@ -93,8 +71,8 @@ namespace Grand.Web.Admin.Controllers
                 return Content("");
 
             var storeId = string.Empty;
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                storeId = _workContext.CurrentCustomer.StaffStoreId;
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
+                storeId = workContext.CurrentCustomer.StaffStoreId;
 
             //products
             const int productNumber = 15;
@@ -119,12 +97,12 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OrderList(DataSourceRequest command, OrderListModel model)
         {
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+                model.StoreId = workContext.CurrentCustomer.StaffStoreId;
             }
 
-            var (orderModels, totalCount) = await _orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
+            var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
 
             var gridModel = new DataSourceResult
             {
@@ -142,9 +120,9 @@ namespace Grand.Web.Admin.Controllers
             int.TryParse(model.GoDirectlyToNumber, out var orderNumber);
             if (orderNumber > 0)
             {
-                order = await _orderService.GetOrderByNumber(orderNumber);
+                order = await orderService.GetOrderByNumber(orderNumber);
             }
-            var orders = await _orderService.GetOrdersByCode(model.GoDirectlyToNumber);
+            var orders = await orderService.GetOrdersByCode(model.GoDirectlyToNumber);
             switch (orders.Count)
             {
                 case > 1:
@@ -157,7 +135,7 @@ namespace Grand.Web.Admin.Controllers
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
@@ -173,16 +151,16 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportExcelAll(OrderListModel model)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+                model.StoreId = workContext.CurrentCustomer.StaffStoreId;
             }
 
             //load orders
-            var orders = await _orderViewModelService.PrepareOrders(model);
+            var orders = await orderViewModelService.PrepareOrders(model);
             try
             {
-                var bytes = await _exportManager.Export(orders);
+                var bytes = await exportManager.Export(orders);
                 return File(bytes, "text/xls", "orders.xlsx");
             }
             catch (Exception exc)
@@ -203,13 +181,13 @@ namespace Grand.Web.Admin.Controllers
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
                     .ToArray();
-                orders.AddRange(await _orderService.GetOrdersByIds(ids));
+                orders.AddRange(await orderService.GetOrdersByIds(ids));
             }
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
+                orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
             }
-            var bytes = await _exportManager.Export(orders);
+            var bytes = await exportManager.Export(orders);
             return File(bytes, "text/xls", "orders.xlsx");
         }
 
@@ -223,18 +201,18 @@ namespace Grand.Web.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> CancelOrder(string id)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
             try
             {
-                await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
+                await mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
 
                 Success("Successfully canceled order");
                 return RedirectToAction("Edit", "Order", new { id });
@@ -251,22 +229,22 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveOrderTags(OrderModel orderModel)
         {
-            var order = await _orderService.GetOrderById(orderModel.Id);
+            var order = await orderService.GetOrderById(orderModel.Id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
 
             try
             {
-                await _orderViewModelService.SaveOrderTags(order, orderModel.OrderTags);
+                await orderViewModelService.SaveOrderTags(order, orderModel.OrderTags);
 
                 var model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+                await orderViewModelService.PrepareOrderDetailsModel(model, order);
                 return RedirectToAction("Edit", "Order", new { id = order.Id });
             }
             catch (Exception exception)
@@ -281,27 +259,27 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeOrderStatus(string id, OrderModel model)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
 
             try
             {
-                var status = await _orderStatusService.GetByStatusId(model.OrderStatusId);
+                var status = await orderStatusService.GetByStatusId(model.OrderStatusId);
                 if (status == null)
                     throw new ArgumentNullException(nameof(status));
 
                 order.OrderStatusId = model.OrderStatusId;
-                await _orderService.UpdateOrder(order);
+                await orderService.UpdateOrder(order);
 
                 //add a note
-                await _orderService.InsertOrderNote(new OrderNote
+                await orderService.InsertOrderNote(new OrderNote
                 {
                     Note = $"Order status has been edited. New status: {status?.Name}",
                     DisplayToCustomer = false,
@@ -309,7 +287,7 @@ namespace Grand.Web.Admin.Controllers
 
                 });
                 model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+                await orderViewModelService.PrepareOrderDetailsModel(model, order);
                 return RedirectToAction("Edit", "Order", new { id });
             }
             catch (Exception exc)
@@ -327,18 +305,18 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         public async Task<IActionResult> Edit(string id)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || order.Deleted || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
 
             var model = new OrderModel();
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             return View(model);
         }
@@ -347,14 +325,14 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(OrderDeleteModel model)
         {
-            var order = await _orderService.GetOrderById(model.Id);
+            var order = await orderService.GetOrderById(model.Id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new DeleteOrderCommand { Order = order });
+                await mediator.Send(new DeleteOrderCommand { Order = order });
 
                 return RedirectToAction("List");
             }
@@ -368,13 +346,13 @@ namespace Grand.Web.Admin.Controllers
             ICollection<string> selectedIds,
             [FromServices] IShipmentService shipmentService)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
                 return RedirectToAction("List", "Order");
 
             if (selectedIds != null)
             {
                 var orders = new List<Order>();
-                orders.AddRange(await _orderService.GetOrdersByIds(selectedIds.ToArray()));
+                orders.AddRange(await orderService.GetOrdersByIds(selectedIds.ToArray()));
                 for (var i = 0; i < orders.Count; i++)
                 {
                     var order = orders[i];
@@ -384,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
 
                     if (!shipments.Any())
                     {
-                        await _mediator.Send(new DeleteOrderCommand { Order = order });
+                        await mediator.Send(new DeleteOrderCommand { Order = order });
                     }
                 }
             }
@@ -394,8 +372,8 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> PdfInvoice(string orderId)
         {
-            var order = await _orderService.GetOrderById(orderId);
-            if ((await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId) || await CheckSalesManager(order))
+            var order = await orderService.GetOrderById(orderId);
+            if ((await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId) || await CheckSalesManager(order))
             {
                 return RedirectToAction("List");
             }
@@ -407,7 +385,7 @@ namespace Grand.Web.Admin.Controllers
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
+                await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", $"order_{order.Id}.pdf");
@@ -418,16 +396,16 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> PdfInvoiceAll(OrderListModel model)
         {
             //load orders
-            var orders = await _orderViewModelService.PrepareOrders(model);
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            var orders = await orderViewModelService.PrepareOrders(model);
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
+                orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
             }
 
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id, model.VendorId);
+                await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id, model.VendorId);
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", "orders.pdf");
@@ -444,25 +422,25 @@ namespace Grand.Web.Admin.Controllers
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x)
                     .ToArray();
-                orders.AddRange(await _orderService.GetOrdersByIds(ids));
+                orders.AddRange(await orderService.GetOrdersByIds(ids));
             }
            
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
+                orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
             }
 
             //ensure that we at least one order selected
             if (orders.Count == 0)
             {
-                Error(_translationService.GetResource("Admin.Orders.PdfInvoice.NoOrders"));
+                Error(translationService.GetResource("Admin.Orders.PdfInvoice.NoOrders"));
                 return RedirectToAction("List");
             }
 
             byte[] bytes;
             using (var stream = new MemoryStream())
             {
-                await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
+                await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id);
                 bytes = stream.ToArray();
             }
             return File(bytes, "application/pdf", "orders.pdf");
@@ -472,12 +450,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> EditOrderTotals(string id, OrderModel model)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -494,44 +472,44 @@ namespace Grand.Web.Admin.Controllers
             order.OrderDiscount = model.OrderTotalDiscountValue;
             order.OrderTotal = model.OrderTotalValue;
             order.CurrencyRate = model.CurrencyRate;
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
+            await orderService.InsertOrderNote(new OrderNote
             {
                 Note = "Order totals have been edited",
                 DisplayToCustomer = false,
                 OrderId = order.Id
             });
 
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
             return RedirectToAction("Edit", "Order", new { id });
         }
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> EditShippingMethod(string id, OrderModel model)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
 
             order.ShippingMethod = model.ShippingMethod;
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
+            await orderService.InsertOrderNote(new OrderNote
             {
                 Note = "Shipping method has been edited",
                 DisplayToCustomer = false,
                 OrderId = order.Id
             });
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -542,21 +520,21 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> EditUserFields(string id, OrderModel model)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
 
             order.UserFields = model.UserFields;
 
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
 
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -568,12 +546,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveOrderItem(string id, OrderItemsModel model)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -622,7 +600,7 @@ namespace Grand.Web.Admin.Controllers
                 orderItem.DiscountAmountExclTax = 0;
             }
 
-            await _mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
+            await mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -634,12 +612,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteOrderItem(string id, string orderItemId)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -648,7 +626,7 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            var result = await _mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
+            var result = await mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
             if (result.error)
                 Error(result.message);
 
@@ -663,12 +641,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CancelOrderItem(string id, string orderItemId)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -678,7 +656,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No order item found with the specified id");
 
 
-            var result = await _mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
+            var result = await mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
             if (result.error)
                 Error(result.message);
             else
@@ -694,12 +672,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ResetDownloadCount(string id, string orderItemId)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -709,9 +687,9 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No order item found with the specified id");
 
             orderItem.DownloadCount = 0;
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
             var model = new OrderModel();
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -723,12 +701,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ActivateDownloadItem(string id, string orderItemId)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -738,9 +716,9 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No order item found with the specified id");
             
             orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
             var model = new OrderModel();
-            await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -751,12 +729,12 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> UploadLicenseFilePopup(string id, string orderItemId, [FromServices] IProductService productService)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await orderService.GetOrderById(id);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id });
             }
@@ -783,12 +761,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadLicenseFilePopup(OrderModel.UploadLicenseModel model)
         {
-            var order = await _orderService.GetOrderById(model.OrderId);
+            var order = await orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id = order.Id });
             }
@@ -798,11 +776,8 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentException("No order item found with the specified id");
 
             //attach license
-            if (!string.IsNullOrEmpty(model.LicenseDownloadId))
-                orderItem.LicenseDownloadId = model.LicenseDownloadId;
-            else
-                orderItem.LicenseDownloadId = null;
-            await _orderService.UpdateOrder(order);
+            orderItem.LicenseDownloadId = !string.IsNullOrEmpty(model.LicenseDownloadId) ? model.LicenseDownloadId : null;
+            await orderService.UpdateOrder(order);
 
             //success
             ViewBag.RefreshPage = true;
@@ -814,12 +789,12 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteLicenseFilePopup(OrderModel.UploadLicenseModel model)
         {
-            var order = await _orderService.GetOrderById(model.OrderId);
+            var order = await orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("Edit", "Order", new { id = model.OrderId });
             }
@@ -830,7 +805,7 @@ namespace Grand.Web.Admin.Controllers
 
             //attach license
             orderItem.LicenseDownloadId = null;
-            await _orderService.UpdateOrder(order);
+            await orderService.UpdateOrder(order);
 
             //success
             ViewBag.RefreshPage = true;
@@ -841,12 +816,12 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> AddProductToOrder(string orderId)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
 
-            var model = await _orderViewModelService.PrepareAddOrderProductModel(order);
+            var model = await orderViewModelService.PrepareAddOrderProductModel(order);
             return View(model);
         }
 
@@ -859,9 +834,9 @@ namespace Grand.Web.Admin.Controllers
                 categoryIds.Add(model.SearchCategoryId);
 
             var storeId = string.Empty;
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+            if (await groupService.IsStaff(workContext.CurrentCustomer))
             {
-                storeId = _workContext.CurrentCustomer.StaffStoreId;
+                storeId = workContext.CurrentCustomer.StaffStoreId;
             }
 
             var gridModel = new DataSourceResult();
@@ -893,16 +868,16 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
 
-            var model = await _orderViewModelService.PrepareAddProductToOrderModel(order, productId);
+            var model = await orderViewModelService.PrepareAddProductToOrderModel(order, productId);
             return View(model);
         }
 
@@ -910,22 +885,22 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
         {
-            var order = await _orderService.GetOrderById(model.OrderId);
+            var order = await orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 return RedirectToAction("List");
 
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
 
-            var warnings = await _orderViewModelService.AddProductToOrderDetails(model);
+            var warnings = await orderViewModelService.AddProductToOrderDetails(model);
             if (!warnings.Any())
                 //redirect to order details page
                 return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
             //errors
-            var result = await _orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+            var result = await orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
             result.Warnings.AddRange(warnings);
             return View(result);
         }
@@ -939,12 +914,12 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         public async Task<IActionResult> AddressEdit(string addressId, string orderId, bool billingAddress)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
@@ -969,7 +944,7 @@ namespace Grand.Web.Admin.Controllers
             if (address == null)
                 throw new ArgumentException("No address found with the specified id", "addressId");
 
-            var model = await _orderViewModelService.PrepareOrderAddressModel(order, address);
+            var model = await orderViewModelService.PrepareOrderAddressModel(order, address);
             model.BillingAddress = billingAddress;
             return View(model);
         }
@@ -980,12 +955,12 @@ namespace Grand.Web.Admin.Controllers
             [FromServices] IAddressAttributeService addressAttributeService,
             [FromServices] IAddressAttributeParser addressAttributeParser)
         {
-            var order = await _orderService.GetOrderById(model.OrderId);
+            var order = await orderService.GetOrderById(model.OrderId);
             if (order == null || await CheckSalesManager(order))
                 //No order found with the specified id
                 return RedirectToAction("List");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return RedirectToAction("List");
             }
@@ -1010,12 +985,12 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-                await _orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
+                await orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
                 return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
             }
 
             //If we got this far, something failed, redisplay form
-            model = await _orderViewModelService.PrepareOrderAddressModel(order, address);
+            model = await orderViewModelService.PrepareOrderAddressModel(order, address);
             model.BillingAddress = model.BillingAddress;
             return View(model);
         }
@@ -1028,16 +1003,16 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> OrderNotesSelect(string orderId, DataSourceRequest command)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 throw new ArgumentException("No order found with the specified id");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return Content("");
             }
             //order notes
-            var orderNoteModels = await _orderViewModelService.PrepareOrderNotes(order);
+            var orderNoteModels = await orderViewModelService.PrepareOrderNotes(order);
             var gridModel = new DataSourceResult
             {
                 Data = orderNoteModels,
@@ -1049,15 +1024,15 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 return Json(new { Result = false });
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return Json(new { Result = false });
             }
-            await _orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+            await orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
 
             return Json(new { Result = true });
         }
@@ -1066,16 +1041,16 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> OrderNoteDelete(string id, string orderId)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await orderService.GetOrderById(orderId);
             if (order == null || await CheckSalesManager(order))
                 throw new ArgumentException("No order found with the specified id");
             
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+            if (await groupService.IsStaff(workContext.CurrentCustomer) && order.StoreId != workContext.CurrentCustomer.StaffStoreId)
             {
                 return Json(new { Result = false });
             }
 
-            await _orderViewModelService.DeleteOrderNote(order, id);
+            await orderViewModelService.DeleteOrderNote(order, id);
 
             return new JsonResult("");
         }
