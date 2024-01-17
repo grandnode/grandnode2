@@ -24,15 +24,16 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new Core.Commands.Checkout.Orders.AddCustomerReservationCommand();
-            command.Customer = new Domain.Customers.Customer();
-            command.RentalStartDate = DateTime.UtcNow.AddDays(1).Date;
-            command.RentalEndDate = DateTime.UtcNow.AddDays(2).Date;
-            command.Product = new Domain.Catalog.Product {
-                IncBothDate = true,
-                IntervalUnitId = IntervalUnit.Day
+            var command = new Core.Commands.Checkout.Orders.AddCustomerReservationCommand {
+                Customer = new Domain.Customers.Customer(),
+                RentalStartDate = DateTime.UtcNow.AddDays(1).Date,
+                RentalEndDate = DateTime.UtcNow.AddDays(2).Date,
+                Product = new Domain.Catalog.Product {
+                    IncBothDate = true,
+                    IntervalUnitId = IntervalUnit.Day
+                },
+                ShoppingCartItem = new Domain.Orders.ShoppingCartItem { }
             };
-            command.ShoppingCartItem = new Domain.Orders.ShoppingCartItem { };
 
             _productReservationServiceMock.Setup(c => c.GetProductReservationsByProductId(It.IsAny<string>(), true, null, 0, int.MaxValue)).Returns(() => Task.FromResult((IPagedList<ProductReservation>)
                 new PagedList<ProductReservation> {

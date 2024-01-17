@@ -45,8 +45,8 @@ namespace Grand.Domain.Customers
         /// </summary>
         public virtual ICollection<CustomerAttributeValue> CustomerAttributeValues
         {
-            get { return _customerAttributeValues ??= new List<CustomerAttributeValue>(); }
-            protected set { _customerAttributeValues = value; }
+            get => _customerAttributeValues ??= new List<CustomerAttributeValue>();
+            protected set => _customerAttributeValues = value;
         }
     }
 

@@ -49,7 +49,10 @@ namespace Grand.Web.Admin.Controllers
             await _cacheBase.Clear();
         }
 
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         #region Weights
 

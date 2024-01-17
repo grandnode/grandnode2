@@ -124,10 +124,10 @@ namespace Grand.Web.Common.TagHelpers.Admin
             if (disabled)
             {
                 if(htmlAttributes == null)
-                    htmlAttributes = new { @disabled = "disabled" };
+                    htmlAttributes = new { disabled = "disabled" };
                 else
                 {
-                    htmlAttributes = new { @class = "form-control k-input", @disabled = "disabled" };
+                    htmlAttributes = new { @class = "form-control k-input", disabled = "disabled" };
                 }
             }
             var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine;

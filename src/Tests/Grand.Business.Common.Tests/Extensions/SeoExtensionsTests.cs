@@ -32,8 +32,9 @@ namespace Grand.Business.Common.Tests.Extensions
         [TestMethod()]
         public void GetSeName_ReturnExpectedValue()
         {
-            var product = new Product();
-            product.SeName = "se-name";
+            var product = new Product {
+                SeName = "se-name"
+            };
             //if lang id null , return global se name
             Assert.AreEqual("se-name", product.GetSeName<Product>(null));
             product.Locales.Add(new Domain.Localization.TranslationEntity { LocaleKey = "SeName", LocaleValue = "se-name-1", LanguageId = "1" });

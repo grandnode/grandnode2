@@ -27,7 +27,7 @@ namespace Grand.Infrastructure.Tests.Plugins
         {
             await PluginExtensions.SaveInstalledPluginsFile(new List<string> { "plugin1", "plugin2" }, CommonPath.InstalledPluginsFilePath);
             var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
-            Assert.AreEqual(2, plugins.Count());
+            Assert.AreEqual(2, plugins.Count);
         }
     }
 }

@@ -40,9 +40,9 @@ namespace Grand.Web.Features.Handlers.Customers
                 HideDocuments = _customerSettings.HideDocumentsTab,
                 HideReviews = _customerSettings.HideReviewsTab,
                 HideCourses = _customerSettings.HideCoursesTab,
-                HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId)
+                HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId),
+                SelectedTab = (AccountNavigationEnum)request.SelectedTabId
             };
-            model.SelectedTab = (AccountNavigationEnum)request.SelectedTabId;
 
             return await Task.FromResult(model);
         }

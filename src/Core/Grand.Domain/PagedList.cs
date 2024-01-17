@@ -79,11 +79,8 @@
         public int TotalCount { get; protected set; }
         public int TotalPages { get; protected set; }
 
-        public bool HasPreviousPage {
-            get { return PageIndex > 0; }
-        }
-        public bool HasNextPage {
-            get { return PageIndex + 1 < TotalPages; }
-        }
+        public bool HasPreviousPage => PageIndex > 0;
+
+        public bool HasNextPage => PageIndex + 1 < TotalPages;
     }
 }

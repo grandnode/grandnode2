@@ -33,9 +33,15 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
         }
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> NodeList()
         {

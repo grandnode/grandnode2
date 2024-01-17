@@ -20,11 +20,7 @@ namespace Grand.Data.LiteDb
         /// </summary>
         protected ILiteCollection<T> _collection;
 
-        public ILiteCollection<T> Collection {
-            get {
-                return _collection;
-            }
-        }
+        public ILiteCollection<T> Collection => _collection;
 
         /// <summary>
         /// Sets a collection
@@ -39,11 +35,7 @@ namespace Grand.Data.LiteDb
         /// Mongo Database
         /// </summary>
         protected LiteDatabase _database;
-        public LiteDatabase Database {
-            get {
-                return _database;
-            }
-        }
+        public LiteDatabase Database => _database;
 
         #endregion
 
@@ -582,9 +574,7 @@ namespace Grand.Data.LiteDb
         /// <summary>
         /// Gets a table
         /// </summary>
-        public virtual IQueryable<T> Table {
-            get { return _collection.Query().ToEnumerable().AsQueryable(); }
-        }
+        public virtual IQueryable<T> Table => _collection.Query().ToEnumerable().AsQueryable();
 
         /// <summary>
         /// Gets a table collection
@@ -627,7 +617,7 @@ namespace Grand.Data.LiteDb
                     const string format = "Expression '{0}' not supported.";
                     var message = string.Format(format, Field);
 
-                    throw new ArgumentException(message, "Field");
+                    throw new ArgumentException(message, nameof(Field));
                 }
             }
 

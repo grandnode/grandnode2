@@ -37,7 +37,10 @@ namespace Grand.Web.Admin.Controllers
             _cacheBase = cacheBase;
         }
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.List)]

@@ -32,7 +32,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Delivery dates
 
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Statuses()

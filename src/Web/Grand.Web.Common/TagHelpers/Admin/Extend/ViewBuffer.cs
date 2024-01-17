@@ -256,7 +256,10 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             }
         }
 
-        private string DebuggerToString() => _name;
+        private string DebuggerToString()
+        {
+            return _name;
+        }
 
         public void CopyTo(IHtmlContentBuilder destination)
         {

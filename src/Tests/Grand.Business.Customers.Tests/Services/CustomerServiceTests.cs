@@ -367,8 +367,9 @@ namespace Grand.Business.Customers.Tests.Services
             var customer = new Customer();
             await _repository.InsertAsync(customer);
             //Act
-            var address = new Address();
-            address.Name = "BillingAddress";
+            var address = new Address {
+                Name = "BillingAddress"
+            };
             await _customerService.UpdateBillingAddress(address, customer.Id);
             //Assert
             Assert.AreEqual("BillingAddress", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).BillingAddress.Name);
@@ -381,8 +382,9 @@ namespace Grand.Business.Customers.Tests.Services
             var customer = new Customer();
             await _repository.InsertAsync(customer);
             //Act
-            var address = new Address();
-            address.Name = "ShippingAddress";
+            var address = new Address {
+                Name = "ShippingAddress"
+            };
             await _customerService.UpdateShippingAddress(address, customer.Id);
             //Assert
             Assert.AreEqual("ShippingAddress", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShippingAddress.Name);

@@ -52,8 +52,8 @@
         /// </summary>
         public virtual ICollection<VendorReviewHelpfulness> VendorReviewHelpfulnessEntries
         {
-            get { return _vendorReviewHelpfulnessEntries ??= new List<VendorReviewHelpfulness>(); }
-            protected set { _vendorReviewHelpfulnessEntries = value; }
+            get => _vendorReviewHelpfulnessEntries ??= new List<VendorReviewHelpfulness>();
+            protected set => _vendorReviewHelpfulnessEntries = value;
         }
     }
 }

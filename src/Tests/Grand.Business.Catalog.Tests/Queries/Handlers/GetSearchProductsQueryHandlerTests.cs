@@ -27,8 +27,9 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers
         {
             //Arrange
             await _repository.InsertAsync(new Product { Published = true, VisibleIndividually = true });
-            var searchProductsQuery = new Core.Queries.Catalog.GetSearchProductsQuery();
-            searchProductsQuery.Customer = new Domain.Customers.Customer();
+            var searchProductsQuery = new Core.Queries.Catalog.GetSearchProductsQuery {
+                Customer = new Domain.Customers.Customer()
+            };
             //Act
             var result = await handler.Handle(searchProductsQuery, CancellationToken.None);
             //Arrange

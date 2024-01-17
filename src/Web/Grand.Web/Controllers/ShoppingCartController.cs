@@ -504,7 +504,7 @@ namespace Grand.Web.Controllers
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             List<CustomAttribute> checkoutAttributes;
             //parse and save checkout attributes
-            if (model?.Attributes != null && model.Attributes.Count > 0)
+            if (model?.Attributes is { Count: > 0 })
             {
                 checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand {
                     Customer = _workContext.CurrentCustomer,

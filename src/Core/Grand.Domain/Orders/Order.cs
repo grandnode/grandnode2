@@ -317,24 +317,24 @@ namespace Grand.Domain.Orders
         /// Gets or sets order items
         /// </summary>
         public virtual ICollection<OrderItem> OrderItems {
-            get { return _orderItems ??= new List<OrderItem>(); }
-            protected set { _orderItems = value; }
+            get => _orderItems ??= new List<OrderItem>();
+            protected set => _orderItems = value;
         }
 
         /// <summary>
         /// Gets or sets order taxes
         /// </summary>
         public virtual ICollection<OrderTax> OrderTaxes {
-            get { return _orderTaxes ??= new List<OrderTax>(); }
-            protected set { _orderTaxes = value; }
+            get => _orderTaxes ??= new List<OrderTax>();
+            protected set => _orderTaxes = value;
         }
 
         /// <summary>
         /// Gets or sets the order's tags
         /// </summary>
         public virtual ICollection<string> OrderTags {
-            get { return _orderTags ??= new List<string>(); }
-            protected set { _orderTags = value; }
+            get => _orderTags ??= new List<string>();
+            protected set => _orderTags = value;
         }
 
         #endregion

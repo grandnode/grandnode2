@@ -34,7 +34,10 @@ public class MenuController : BaseAdminController
 
     #region Methods
 
-    public IActionResult Index() => RedirectToAction("List");
+    public IActionResult Index()
+    {
+        return RedirectToAction("List");
+    }
 
     [HttpGet]
     public IActionResult List()

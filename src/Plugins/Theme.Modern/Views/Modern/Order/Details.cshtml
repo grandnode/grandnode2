@@ -21,8 +21,10 @@
             {
                 <a @@click="$bvModal.show('ModalAddOrderNote')" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
 
-                var notemodel = new AddOrderNoteModel();
-                notemodel.OrderId = Model.Id;
+                var notemodel = new AddOrderNoteModel
+                {
+                    OrderId = Model.Id
+                };
 
                 <partial name="Partials/AddOrderNote" model="@notemodel" />
             }

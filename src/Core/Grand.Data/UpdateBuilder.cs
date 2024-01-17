@@ -26,13 +26,9 @@ namespace Grand.Data
             return this;
         }
 
-        public IEnumerable<UpdateDefinition<T>> Fields {
-            get { return _list; }
-        }
+        public IEnumerable<UpdateDefinition<T>> Fields => _list;
 
-        public IEnumerable<ExpressionFieldDefinition<T, object>> ExpressionFields {
-            get { return _expressionFieldDefinitions; }
-        }
+        public IEnumerable<ExpressionFieldDefinition<T, object>> ExpressionFields => _expressionFieldDefinitions;
     }
 
 }

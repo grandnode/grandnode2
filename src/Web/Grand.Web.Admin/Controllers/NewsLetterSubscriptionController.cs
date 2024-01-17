@@ -66,7 +66,10 @@ namespace Grand.Web.Admin.Controllers
         }
 
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List()
         {

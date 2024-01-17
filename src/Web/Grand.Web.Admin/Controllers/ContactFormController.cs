@@ -25,7 +25,10 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
         }
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List()
         {

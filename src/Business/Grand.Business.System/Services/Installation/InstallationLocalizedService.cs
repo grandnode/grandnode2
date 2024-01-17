@@ -89,7 +89,7 @@ namespace Grand.Business.System.Services.Installation
                 foreach (Match match in matches)
                     languageCode = match.Groups[1].Value;
 
-                var languageNode = xmlDocument.SelectSingleNode(@"//Language");
+                var languageNode = xmlDocument.SelectSingleNode("//Language");
 
                 if (languageNode?.Attributes == null)
                     continue;
@@ -114,7 +114,7 @@ namespace Grand.Business.System.Services.Installation
                 };
 
                 //load resources
-                var resources = xmlDocument.SelectNodes(@"//Language/LocaleResource");
+                var resources = xmlDocument.SelectNodes("//Language/LocaleResource");
                 if (resources == null)
                     continue;
                 foreach (XmlNode resNode in resources)
@@ -162,7 +162,7 @@ namespace Grand.Business.System.Services.Installation
             var xmlDocument = new XmlDocument { XmlResolver = null };
             xmlDocument.Load(File.OpenRead(filePath));
 
-            var collation = xmlDocument.SelectNodes(@"//Collations/Collation");
+            var collation = xmlDocument.SelectNodes("//Collations/Collation");
 
             foreach (XmlNode resNode in collation!)
             {

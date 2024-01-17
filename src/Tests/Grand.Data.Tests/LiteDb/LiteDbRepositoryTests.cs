@@ -155,7 +155,7 @@ namespace Grand.Data.Tests.LiteDb
             var p = _myRepository.GetById("1");
 
             //Assert
-            Assert.IsTrue(p.Phones.Count() == 2);
+            Assert.IsTrue(p.Phones.Count == 2);
             Assert.IsTrue(p.UpdatedOnUtc.HasValue);
             Assert.IsTrue(p.UpdatedBy == "user");
         }
@@ -183,7 +183,7 @@ namespace Grand.Data.Tests.LiteDb
             var p3 = _myRepository.GetById("3");
             
             //Assert
-            Assert.IsTrue(p1.Phones.Count() == 2 && p2.Phones.Count() == 2 && p3.Phones.Count() == 0);
+            Assert.IsTrue(p1.Phones.Count == 2 && p2.Phones.Count == 2 && p3.Phones.Count == 0);
             Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
             Assert.IsTrue(p1.UpdatedBy == "user");
 
@@ -211,7 +211,7 @@ namespace Grand.Data.Tests.LiteDb
             var p1 = _myRepository.GetById("1");
 
             //Assert
-            Assert.IsTrue(p1.UserFields.Count() == 2);
+            Assert.IsTrue(p1.UserFields.Count == 2);
             Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
             Assert.IsTrue(p1.UpdatedBy == "user");
 
@@ -240,7 +240,7 @@ namespace Grand.Data.Tests.LiteDb
             var p1 = _myRepository.GetById("1");
 
             //Assert
-            Assert.IsTrue(p1.UserFields.Count() == 1);
+            Assert.IsTrue(p1.UserFields.Count == 1);
             Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
             Assert.IsTrue(p1.UpdatedBy == "user");
 
@@ -275,7 +275,7 @@ namespace Grand.Data.Tests.LiteDb
             var p2 = _myRepository.GetById("2");
 
             //Assert
-            Assert.IsTrue(p1.UserFields.Count() == 1 && p2.UserFields.Count() == 2);
+            Assert.IsTrue(p1.UserFields.Count == 1 && p2.UserFields.Count == 2);
             Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
             Assert.IsTrue(p1.UpdatedBy == "user");
         }

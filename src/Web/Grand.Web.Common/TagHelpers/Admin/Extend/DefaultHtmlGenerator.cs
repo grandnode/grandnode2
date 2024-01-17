@@ -673,7 +673,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
             if (columns < 0)
             {
-                throw new ArgumentOutOfRangeException($" nameof(columns) TextAreaParameterOutOfRange");
+                throw new ArgumentOutOfRangeException(" nameof(columns) TextAreaParameterOutOfRange");
             }
 
             var fullName = NameAndIdProvider.GetFullHtmlFieldName(viewContext, expression);
@@ -686,7 +686,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             viewContext.ViewData.ModelState.TryGetValue(fullName, out var entry);
 
             var value = string.Empty;
-            if (entry != null && entry.AttemptedValue != null)
+            if (entry is { AttemptedValue: not null })
             {
                 value = entry.AttemptedValue;
             }
@@ -721,7 +721,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             AddValidationAttributes(viewContext, tagBuilder, modelExplorer, expression);
 
             // If there are any errors for a named field, we add this CSS attribute.
-            if (entry != null && entry.Errors.Count > 0)
+            if (entry is { Errors.Count: > 0 })
             {
                 tagBuilder.AddCssClass(HtmlHelper.ValidationInputCssClassName);
             }

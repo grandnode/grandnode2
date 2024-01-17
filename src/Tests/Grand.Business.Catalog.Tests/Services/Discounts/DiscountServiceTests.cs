@@ -95,7 +95,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
 
             //Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(2, result.Count);
         }
 
         [TestMethod()]
@@ -605,7 +605,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var usageHistory = await _dicountService.GetAllDiscountUsageHistory();
 
             //Assert
-            Assert.AreEqual(2, usageHistory.Count());
+            Assert.AreEqual(2, usageHistory.Count);
 
         }
 

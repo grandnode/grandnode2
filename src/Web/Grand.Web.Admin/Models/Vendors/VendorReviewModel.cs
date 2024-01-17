@@ -10,11 +10,8 @@ namespace Grand.Web.Admin.Models.Vendors
         [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
         public string VendorName { get; set; }
 
-        public string Ids {
-            get {
-                return Id + ":" + VendorId;
-            }
-        }
+        public string Ids => Id + ":" + VendorId;
+
         [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]
         public string CustomerId { get; set; }
         [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]

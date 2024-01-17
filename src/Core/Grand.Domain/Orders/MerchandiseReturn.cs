@@ -69,14 +69,8 @@ namespace Grand.Domain.Orders
         /// </summary>
         public MerchandiseReturnStatus MerchandiseReturnStatus
         {
-            get
-            {
-                return (MerchandiseReturnStatus)MerchandiseReturnStatusId;
-            }
-            set
-            {
-                MerchandiseReturnStatusId = (int)value;
-            }
+            get => (MerchandiseReturnStatus)MerchandiseReturnStatusId;
+            set => MerchandiseReturnStatusId = (int)value;
         }
 
         /// <summary>

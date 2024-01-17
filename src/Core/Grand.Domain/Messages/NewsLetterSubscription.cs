@@ -39,8 +39,8 @@ namespace Grand.Domain.Messages
         /// </summary>
         public virtual ICollection<string> Categories
         {
-            get { return _categories ??= new List<string>(); }
-            protected set { _categories = value; }
+            get => _categories ??= new List<string>();
+            protected set => _categories = value;
         }
     }
 }

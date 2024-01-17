@@ -27,7 +27,10 @@ namespace Grand.Web.Admin.Controllers
             return (_encryptionService.EncryptText(password, pk), pk);
         }
 
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> List(string email, DataSourceRequest command)

@@ -28,21 +28,11 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string BlogPostTitle {
-            get { return _blogPost.Title; }
-        }
+        public string BlogPostTitle => _blogPost.Title;
 
-        public string BlogPostURL {
-            get {
-                return $"{url}/{_blogPost.SeName}";
-            }
-        }
+        public string BlogPostURL => $"{url}/{_blogPost.SeName}";
 
-        public string BlogPostCommentText {
-            get {
-                return _blogComment?.CommentText;
-            }
-        }
+        public string BlogPostCommentText => _blogComment?.CommentText;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

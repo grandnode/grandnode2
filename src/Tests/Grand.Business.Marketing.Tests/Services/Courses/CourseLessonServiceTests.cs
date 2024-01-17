@@ -55,7 +55,7 @@ namespace Grand.Business.Marketing.Tests.Services.Courses
 
             //Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(1, result.Count);
         }
 
         [TestMethod()]

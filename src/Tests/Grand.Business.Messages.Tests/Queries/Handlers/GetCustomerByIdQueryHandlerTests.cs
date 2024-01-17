@@ -25,8 +25,9 @@ namespace Grand.Business.Messages.Tests.Queries.Handlers
         public async Task HandleTest()
         {
             //Assert
-            var customerQuery = new Core.Queries.Messages.GetCustomerByIdQuery();
-            customerQuery.Id = "1";
+            var customerQuery = new Core.Queries.Messages.GetCustomerByIdQuery {
+                Id = "1"
+            };
             //Act
             var result = await handler.Handle(customerQuery, CancellationToken.None);
 

@@ -32,8 +32,9 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new Core.Commands.Checkout.Orders.AddRequiredProductsCommand();
-            command.Customer = new Domain.Customers.Customer();
+            var command = new Core.Commands.Checkout.Orders.AddRequiredProductsCommand {
+                Customer = new Domain.Customers.Customer()
+            };
             command.Customer.ShoppingCartItems.Add(new ShoppingCartItem { ProductId = "1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
             command.Product = new Domain.Catalog.Product { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true };
             command.ShoppingCartType = ShoppingCartType.ShoppingCart;

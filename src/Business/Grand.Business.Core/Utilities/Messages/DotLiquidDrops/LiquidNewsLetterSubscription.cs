@@ -23,10 +23,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string Email
-        {
-            get { return _subscription.Email; }
-        }
+        public string Email => _subscription.Email;
 
         public string ActivationUrl
         {

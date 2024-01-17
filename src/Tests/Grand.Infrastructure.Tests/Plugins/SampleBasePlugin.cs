@@ -12,12 +12,8 @@ namespace Grand.Infrastructure.Tests.Plugins
         };
 
         public override PluginInfo PluginInfo {
-            get {
-                return _pluginInfo;
-            }
-            set {
-                _pluginInfo = value;
-            }
+            get => _pluginInfo;
+            set => _pluginInfo = value;
         }
         public override string ConfigurationUrl()
         {

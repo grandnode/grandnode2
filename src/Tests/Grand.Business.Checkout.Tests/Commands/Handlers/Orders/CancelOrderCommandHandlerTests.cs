@@ -49,25 +49,28 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         [TestMethod]
         public void Handle_OrderNull_ThrowException()
         {
-            var command = new CancelOrderCommand();
-            command.Order = null;
+            var command = new CancelOrderCommand {
+                Order = null
+            };
             Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _handler.Handle(command, default));
         }
 
         [TestMethod]
         public void Handle_AlreadyCancelled_ThrowException()
         {
-            var command = new CancelOrderCommand();
-            command.Order = new Order { OrderStatusId = (int)OrderStatusSystem.Cancelled };
+            var command = new CancelOrderCommand {
+                Order = new Order { OrderStatusId = (int)OrderStatusSystem.Cancelled }
+            };
             Assert.ThrowsExceptionAsync<Exception>(async () => await _handler.Handle(command, default));
         }
 
         [TestMethod]
         public async Task Handle_InvokeExpectedMethods()
         {
-            var command = new CancelOrderCommand();
-            command.Order = new Order {
-                Id = "id"
+            var command = new CancelOrderCommand {
+                Order = new Order {
+                    Id = "id"
+                }
             };
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder("id")).ReturnsAsync(new List<Shipment>());
             await _handler.Handle(command, default);

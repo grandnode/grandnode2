@@ -1,6 +1,6 @@
 ﻿@{
-var categoryLink = @Url.RouteUrl("Category");
-var productLink = @Url.RouteUrl("Product");
+var categoryLink = Url.RouteUrl("Category");
+var productLink = Url.RouteUrl("Product");
 }
 <b-modal id="ModalQuickView" ref="ModalQuickView" :dark-theme="darkMode" @@shown="initReservationQV(), QuickViewShown()" size="xl" centered hide-footer hide-header>
    <template v-if="PopupQuickViewVueModal !== null">

@@ -35,9 +35,10 @@ namespace Grand.Business.Authentication.Tests.Services
             _customerSettings = new CustomerSettings();
             _groupServiceMock = new Mock<IGroupService>();
             _userFieldServiceMock = new Mock<IUserFieldService>();
-            _config = new SecurityConfig();
-            _config.CookieClaimsIssuer = "grandnode";
-            _config.CookiePrefix = ".Grand.";
+            _config = new SecurityConfig {
+                CookieClaimsIssuer = "grandnode",
+                CookiePrefix = ".Grand."
+            };
             _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object, _groupServiceMock.Object, _userFieldServiceMock.Object, _httpAccessorMock.Object, _config);
             //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
             _authServiceMock = new Mock<IAuthenticationService>();

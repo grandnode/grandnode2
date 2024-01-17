@@ -103,7 +103,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Methods
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public IActionResult List()
         {
@@ -335,7 +338,7 @@ namespace Grand.Web.Admin.Controllers
                 if (rootDirectories.Count != 1)
                 {
                     throw new Exception(
-                        $"The archive should contain only one root plugin. For example, Payments.PayPalDirect.");
+                        "The archive should contain only one root plugin. For example, Payments.PayPalDirect.");
                 }
 
                 //get directory name (remove the ending /)
@@ -392,7 +395,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new Exception("No info file is found.");
 
             if (string.IsNullOrEmpty(uploadedItemDirectoryName))
-                throw new Exception($"Cannot get the plugin directory name");
+                throw new Exception("Cannot get the plugin directory name");
 
             var pathToUpload = Path.Combine(pluginsDirectory, uploadedItemDirectoryName);
 

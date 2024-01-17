@@ -37,11 +37,12 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
         [TestMethod()]
         public void ConvertToTest_NotNull()
         {
-            var refreshToken = new RefreshToken();
-            refreshToken.RefreshId = Guid.NewGuid().ToString();
-            refreshToken.Token = Guid.NewGuid().ToString();
-            refreshToken.IsActive = true;
-            refreshToken.ValidTo = DateTime.UtcNow.AddDays(1);
+            var refreshToken = new RefreshToken {
+                RefreshId = Guid.NewGuid().ToString(),
+                Token = Guid.NewGuid().ToString(),
+                IsActive = true,
+                ValidTo = DateTime.UtcNow.AddDays(1)
+            };
             var str = refreshTokenTypeConverter.ConvertTo(refreshToken, typeof(string));
             Assert.IsNotNull(str);
             Assert.IsInstanceOfType(str, typeof(string));
@@ -49,11 +50,12 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
         [TestMethod()]
         public void ConvertToTest_decimal_Exception()
         {
-            var refreshToken = new RefreshToken();
-            refreshToken.RefreshId = Guid.NewGuid().ToString();
-            refreshToken.Token = Guid.NewGuid().ToString();
-            refreshToken.IsActive = true;
-            refreshToken.ValidTo = DateTime.UtcNow.AddDays(1);
+            var refreshToken = new RefreshToken {
+                RefreshId = Guid.NewGuid().ToString(),
+                Token = Guid.NewGuid().ToString(),
+                IsActive = true,
+                ValidTo = DateTime.UtcNow.AddDays(1)
+            };
 
             Assert.ThrowsException<NotSupportedException>(() => _ = refreshTokenTypeConverter.ConvertTo(refreshToken, typeof(decimal)));
         }

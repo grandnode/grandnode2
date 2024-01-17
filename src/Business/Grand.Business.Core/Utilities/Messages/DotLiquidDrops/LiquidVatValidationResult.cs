@@ -15,15 +15,9 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name => name;
 
-        public string Address
-        {
-            get { return address; }
-        }
+        public string Address => address;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

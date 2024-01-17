@@ -165,8 +165,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<string> AppliedDiscounts
         {
-            get { return _appliedDiscounts ??= new List<string>(); }
-            protected set { _appliedDiscounts = value; }
+            get => _appliedDiscounts ??= new List<string>();
+            protected set => _appliedDiscounts = value;
         }
     }
 }

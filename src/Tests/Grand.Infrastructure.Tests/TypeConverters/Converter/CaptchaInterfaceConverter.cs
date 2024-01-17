@@ -11,12 +11,13 @@ public class CaptchaInterfaceConverter
     public void ConvertFrom_CaptchaObject_To_Json()
     {
         //Arrange
-        var sample = new SampleClass();
-        sample.CaptchaValidModel = new CaptchaModel {
-            ReCaptchaResponse = "xxx",
-            ReCaptchaResponseField = "yyy",
-            ReCaptchaChallengeField = "zzz",
-            ReCaptchaResponseValue = "uuu"
+        var sample = new SampleClass {
+            CaptchaValidModel = new CaptchaModel {
+                ReCaptchaResponse = "xxx",
+                ReCaptchaResponseField = "yyy",
+                ReCaptchaChallengeField = "zzz",
+                ReCaptchaResponseValue = "uuu"
+            }
         };
         //Act
         var jsonString = JsonSerializer.Serialize(sample);

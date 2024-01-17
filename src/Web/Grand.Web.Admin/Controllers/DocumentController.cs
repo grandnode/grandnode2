@@ -34,9 +34,15 @@ namespace Grand.Web.Admin.Controllers
             _customerService = customerService;
         }
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
-        public IActionResult List() => View(new DocumentListModel());
+        public IActionResult List()
+        {
+            return View(new DocumentListModel());
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public async Task<IActionResult> ListDocuments(DataSourceRequest command, DocumentListModel model)
@@ -134,7 +140,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Document type
 
-        public IActionResult Types() => View();
+        public IActionResult Types()
+        {
+            return View();
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public async Task<IActionResult> ListType()

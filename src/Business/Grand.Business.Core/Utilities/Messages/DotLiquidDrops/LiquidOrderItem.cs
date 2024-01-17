@@ -48,23 +48,19 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string DownloadUrl {
             get {
-                var downloadUrl = string.Format("{0}/download/getdownload/{1}", url, _orderItem.OrderItemGuid);
+                var downloadUrl = $"{url}/download/getdownload/{_orderItem.OrderItemGuid}";
                 return downloadUrl;
             }
         }
 
         public string LicenseUrl {
             get {
-                var licenseUrl = string.Format("{0}/download/getlicense/{1}", url, _orderItem.OrderItemGuid);
+                var licenseUrl = $"{url}/download/getlicense/{_orderItem.OrderItemGuid}";
                 return licenseUrl;
             }
         }
 
-        public Guid OrderItemGuid {
-            get {
-                return _orderItem.OrderItemGuid;
-            }
-        }
+        public Guid OrderItemGuid => _orderItem.OrderItemGuid;
 
         public string ProductName {
             get {
@@ -108,188 +104,71 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             }
         }
 
-        public string ProductId {
-            get {
-                return _orderItem.ProductId;
-            }
-        }
+        public string ProductId => _orderItem.ProductId;
 
-        public string VendorId {
-            get {
-                return _orderItem.VendorId;
-            }
-        }
+        public string VendorId => _orderItem.VendorId;
 
-        public string VendorName {
-            get {
-                return _vendor?.Name;
-            }
-        }
+        public string VendorName => _vendor?.Name;
 
-        public string WarehouseId {
-            get {
-                return _orderItem.WarehouseId;
-            }
-        }
+        public string WarehouseId => _orderItem.WarehouseId;
 
-        public int Quantity {
-            get {
-                return _orderItem.Quantity;
-            }
-        }
+        public int Quantity => _orderItem.Quantity;
 
-        public int OpenQty {
-            get {
-                return _orderItem.OpenQty;
-            }
-        }
+        public int OpenQty => _orderItem.OpenQty;
 
-        public int CancelQty {
-            get {
-                return _orderItem.CancelQty;
-            }
-        }
-        public int ShipQty {
-            get {
-                return _orderItem.ShipQty;
-            }
-        }
+        public int CancelQty => _orderItem.CancelQty;
 
-        public bool IsShipEnabled {
-            get {
-                return _orderItem.IsShipEnabled;
-            }
-        }
+        public int ShipQty => _orderItem.ShipQty;
 
-        public double UnitPriceWithoutDiscInclTax {
-            get {
-                return _orderItem.UnitPriceWithoutDiscInclTax;
-            }
-        }
+        public bool IsShipEnabled => _orderItem.IsShipEnabled;
 
-        public double UnitPriceWithoutDiscExclTax {
-            get {
-                return _orderItem.UnitPriceWithoutDiscExclTax;
-            }
-        }
+        public double UnitPriceWithoutDiscInclTax => _orderItem.UnitPriceWithoutDiscInclTax;
 
-        public double UnitPriceInclTax {
-            get {
-                return _orderItem.UnitPriceInclTax;
-            }
-        }
+        public double UnitPriceWithoutDiscExclTax => _orderItem.UnitPriceWithoutDiscExclTax;
 
-        public double UnitPriceExclTax {
-            get {
-                return _orderItem.UnitPriceExclTax;
-            }
-        }
+        public double UnitPriceInclTax => _orderItem.UnitPriceInclTax;
 
-        public double PriceInclTax {
-            get {
-                return _orderItem.PriceInclTax;
-            }
-        }
+        public double UnitPriceExclTax => _orderItem.UnitPriceExclTax;
 
-        public double PriceExclTax {
-            get {
-                return _orderItem.PriceExclTax;
-            }
-        }
+        public double PriceInclTax => _orderItem.PriceInclTax;
 
-        public double DiscountAmountInclTax {
-            get {
-                return _orderItem.DiscountAmountInclTax;
-            }
-        }
+        public double PriceExclTax => _orderItem.PriceExclTax;
 
-        public double DiscountAmountExclTax {
-            get {
-                return _orderItem.DiscountAmountExclTax;
-            }
-        }
+        public double DiscountAmountInclTax => _orderItem.DiscountAmountInclTax;
 
-        public double OriginalProductCost {
-            get {
-                return _orderItem.OriginalProductCost;
-            }
-        }
+        public double DiscountAmountExclTax => _orderItem.DiscountAmountExclTax;
 
-        public string AttributeDescription {
-            get {
-                return _orderItem.AttributeDescription;
-            }
-        }
+        public double OriginalProductCost => _orderItem.OriginalProductCost;
 
-        public int DownloadCount {
-            get {
-                return _orderItem.DownloadCount;
-            }
-        }
+        public string AttributeDescription => _orderItem.AttributeDescription;
 
-        public bool IsDownloadActivated {
-            get {
-                return _orderItem.IsDownloadActivated;
-            }
-        }
+        public int DownloadCount => _orderItem.DownloadCount;
 
-        public string LicenseDownloadId {
-            get {
-                return _orderItem.LicenseDownloadId;
-            }
-        }
+        public bool IsDownloadActivated => _orderItem.IsDownloadActivated;
 
-        public double? ItemWeight {
-            get {
-                return _orderItem.ItemWeight;
-            }
-        }
+        public string LicenseDownloadId => _orderItem.LicenseDownloadId;
 
-        public double ProductWeight {
-            get { return _product.Weight; }
-        }
+        public double? ItemWeight => _orderItem.ItemWeight;
 
-        public double ProductLength {
-            get { return _product.Length; }
-        }
+        public double ProductWeight => _product.Weight;
 
-        public double ProductWidth {
-            get { return _product.Width; }
-        }
+        public double ProductLength => _product.Length;
 
-        public double ProductHeight {
-            get { return _product.Height; }
-        }
+        public double ProductWidth => _product.Width;
 
-        public double ProductCatalogPrice {
-            get { return _product.CatalogPrice; }
-        }
+        public double ProductHeight => _product.Height;
 
-        public double ProductOldPrice {
-            get { return _product.OldPrice; }
-        }
+        public double ProductCatalogPrice => _product.CatalogPrice;
 
-        public string ProductFlag {
-            get { return _product.Flag; }
-        }
+        public double ProductOldPrice => _product.OldPrice;
 
-        public DateTime? RentalStartDateUtc {
-            get {
-                return _orderItem.RentalStartDateUtc;
-            }
-        }
+        public string ProductFlag => _product.Flag;
 
-        public DateTime? RentalEndDateUtc {
-            get {
-                return _orderItem.RentalEndDateUtc;
-            }
-        }
+        public DateTime? RentalStartDateUtc => _orderItem.RentalStartDateUtc;
 
-        public DateTime CreatedOnUtc {
-            get {
-                return _orderItem.CreatedOnUtc;
-            }
-        }
+        public DateTime? RentalEndDateUtc => _orderItem.RentalEndDateUtc;
+
+        public DateTime CreatedOnUtc => _orderItem.CreatedOnUtc;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

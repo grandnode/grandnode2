@@ -54,7 +54,7 @@ namespace Grand.Business.Customers.Tests.Extensions
         [TestMethod()]
         public void GetFullName_ValidParameter_ReturnLastName()
         {
-            var fullName = string.Format("{0} {1}", "first name", "lastName");
+            var fullName = $"{"first name"} {"lastName"}";
             Affiliate affiliate = new Affiliate {
                 Address = new Domain.Common.Address { LastName = "lastName", FirstName = "first name" }
             };

@@ -29,36 +29,13 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string AttributeDescription
-        {
-            get
-            {
-                return _attributeDescription;
-            }
-        }
+        public string AttributeDescription => _attributeDescription;
 
-        public string PictureUrl
-        {
-            get
-            {
-                return _pictureUrl;
-            }
-        }
+        public string PictureUrl => _pictureUrl;
 
-        public int Quantity
-        {
-            get
-            {
-                return _shoppingCartItem.Quantity;
-            }
-        }
-        public ShoppingCartType ShoppingCartType
-        {
-            get
-            {
-                return _shoppingCartItem.ShoppingCartTypeId;
-            }
-        }
+        public int Quantity => _shoppingCartItem.Quantity;
+
+        public ShoppingCartType ShoppingCartType => _shoppingCartItem.ShoppingCartTypeId;
 
         public string ProductName
         {

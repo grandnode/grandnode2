@@ -94,7 +94,7 @@
                                                                     @foreach (var item in groupList)
                                                                     {
                                                                         <li>
-                                                                            <a class="btnUpdatePermission" href="@Url.Action("Update", new { area = Constants.AreaAdmin, @item.SystemName })">@item.Name</a>
+                                                                            <a class="btnUpdatePermission" href="@Url.Action("Update", new { area = Constants.AreaAdmin, item.SystemName })">@item.Name</a>
                                                                         </li>
                                                                     }
                                                                 </ul>

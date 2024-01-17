@@ -97,7 +97,7 @@ namespace Grand.Business.System.Services.Reports
                 query2 = orderBy switch {
                     1 => query2.OrderByDescending(x => x.OrderTotal),
                     2 => query2.OrderByDescending(x => x.OrderCount),
-                    _ => throw new ArgumentException("Wrong orderBy parameter", "orderBy")
+                    _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
                 };
 
                 var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
@@ -130,7 +130,7 @@ namespace Grand.Business.System.Services.Reports
             vendorQueryGroup = orderBy switch {
                 1 => vendorQueryGroup.OrderByDescending(x => x.OrderTotal),
                 2 => vendorQueryGroup.OrderByDescending(x => x.OrderCount),
-                _ => throw new ArgumentException("Wrong orderBy parameter", "orderBy")
+                _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
             };
 
             var vendorReport = new PagedList<dynamic>(vendorQueryGroup, pageIndex, pageSize);

@@ -57,7 +57,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Level
 
-        public IActionResult Level() => View();
+        public IActionResult Level()
+        {
+            return View();
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
@@ -123,7 +126,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Course
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]

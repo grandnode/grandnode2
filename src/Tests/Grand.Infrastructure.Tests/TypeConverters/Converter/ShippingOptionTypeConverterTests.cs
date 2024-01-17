@@ -26,10 +26,11 @@ namespace Grand.Infrastructure.Tests.TypeConverters.Converter
         [TestMethod()]
         public void ConvertToTest_NotNull()
         {
-            ShippingOption shippingOption = new ShippingOption();
-            shippingOption.ShippingRateProviderSystemName = "Ground";
-            shippingOption.Name = "sample";
-            shippingOption.Rate = 10;
+            ShippingOption shippingOption = new ShippingOption {
+                ShippingRateProviderSystemName = "Ground",
+                Name = "sample",
+                Rate = 10
+            };
             var result = _converter.ConvertTo(shippingOption, typeof(string));
             Assert.IsNotNull(result);
         }

@@ -15,32 +15,17 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string SenderName
-        {
-            get { return _giftVoucher.SenderName; }
-        }
+        public string SenderName => _giftVoucher.SenderName;
 
-        public string SenderEmail
-        {
-            get { return _giftVoucher.SenderEmail; }
-        }
+        public string SenderEmail => _giftVoucher.SenderEmail;
 
-        public string RecipientName
-        {
-            get { return _giftVoucher.RecipientName; }
-        }
+        public string RecipientName => _giftVoucher.RecipientName;
 
-        public string RecipientEmail
-        {
-            get { return _giftVoucher.RecipientEmail; }
-        }
+        public string RecipientEmail => _giftVoucher.RecipientEmail;
 
         public string Amount { get; set; }
 
-        public string CouponCode
-        {
-            get { return _giftVoucher.Code; }
-        }
+        public string CouponCode => _giftVoucher.Code;
 
         public string Message
         {

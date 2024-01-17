@@ -71,8 +71,8 @@ namespace Grand.Domain.Directory
         /// </summary>
         public virtual ICollection<StateProvince> StateProvinces
         {
-            get { return _stateProvinces ??= new List<StateProvince>(); }
-            protected set { _stateProvinces = value; }
+            get => _stateProvinces ??= new List<StateProvince>();
+            protected set => _stateProvinces = value;
         }
 
     }

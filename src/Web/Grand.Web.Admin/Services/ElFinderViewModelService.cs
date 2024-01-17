@@ -54,7 +54,7 @@ namespace Grand.Web.Admin.Services
             }
             _fullPathToUpload = uploaded.PhysicalPath;
 
-            _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? $"/": $"/{CommonPath.Param}/")
+            _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? "/": $"/{CommonPath.Param}/")
                                 + uploaded.Path.Replace("\\", "/") + "/";
 
             var thumbs = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);

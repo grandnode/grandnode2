@@ -54,7 +54,7 @@ namespace Grand.Web.Controllers
             if (string.IsNullOrEmpty(url))
                 return url;
 
-            var _ = new PathString(url).StartsWithSegments(pathBase, out PathString resultpath);
+            _ = new PathString(url).StartsWithSegments(pathBase, out PathString resultpath);
             url = WebUtility.UrlDecode(resultpath);
 
             url = url.TrimStart('/');
@@ -66,7 +66,7 @@ namespace Grand.Web.Controllers
 
         private async Task<bool> IsLocalized(string url, PathString pathBase)
         {
-            var _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
+            _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
             url = WebUtility.UrlDecode(result);
 
             var firstSegment = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??

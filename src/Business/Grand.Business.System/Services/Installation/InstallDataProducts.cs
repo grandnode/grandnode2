@@ -3643,7 +3643,8 @@ namespace Grand.Business.System.Services.Installation
                     IsApproved = true,
                     StoreId = defaultStore.Id,
                     Title = "Some sample review",
-                    ReviewText = string.Format("This sample review is for the {0}. I've been waiting for this product to be available. It is priced just right.", product.Name),
+                    ReviewText =
+                        $"This sample review is for the {product.Name}. I've been waiting for this product to be available. It is priced just right.",
                     Rating = rating,
                     HelpfulYesTotal = 0,
                     HelpfulNoTotal = 0

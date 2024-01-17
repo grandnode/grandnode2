@@ -9,8 +9,6 @@
         {
             this.name = name;
         }
-        public virtual string Name {
-            get { return name; }
-        }
+        public virtual string Name => name;
     }
 }

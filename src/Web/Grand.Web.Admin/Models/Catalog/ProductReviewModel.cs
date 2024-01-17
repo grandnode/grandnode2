@@ -10,11 +10,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
         public string ProductName { get; set; }
 
-        public string Ids {
-            get {
-                return Id + ":" + ProductId;
-            }
-        }
+        public string Ids => Id + ":" + ProductId;
 
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Store")]
         public string StoreName { get; set; }

@@ -303,7 +303,7 @@ namespace Grand.Business.System.Services.Reports
                     }).ToList();
 
 
-            var item2 = query.Count() > 0 ? query.FirstOrDefault() : new OrderAverageReportLine {
+            var item2 = query.Count > 0 ? query.FirstOrDefault() : new OrderAverageReportLine {
                 CountOrders = 0,
                 SumShippingExclTax = 0,
                 SumTax = 0,
@@ -320,8 +320,9 @@ namespace Grand.Business.System.Services.Reports
         /// <returns>Result</returns>
         public virtual async Task<OrderAverageReportLineSummary> OrderAverageReport(string storeId, int os)
         {
-            var item = new OrderAverageReportLineSummary();
-            item.OrderStatus = os;
+            var item = new OrderAverageReportLineSummary {
+                OrderStatus = os
+            };
 
             DateTime nowDt = _dateTimeService.ConvertToUserTime(DateTime.Now);
             TimeZoneInfo timeZone = _dateTimeService.CurrentTimeZone;

@@ -86,8 +86,9 @@ namespace Grand.Data.Mongo
 
             if (!string.IsNullOrEmpty(collation))
             {
-                var options = new CreateCollectionOptions();
-                options.Collation = new Collation(collation);
+                var options = new CreateCollectionOptions {
+                    Collation = new Collation(collation)
+                };
                 await _database.CreateCollectionAsync(name, options);
             }
             else

@@ -17,8 +17,8 @@ namespace Grand.Api.DTOs.Common
         public int DisplayOrder { get; set; }
 
         public virtual ICollection<StateProvinceDto> StateProvinces {
-            get { return _stateProvinces ??= new List<StateProvinceDto>(); }
-            protected set { _stateProvinces = value; }
+            get => _stateProvinces ??= new List<StateProvinceDto>();
+            protected set => _stateProvinces = value;
         }
 
         public class StateProvinceDto

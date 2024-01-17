@@ -65,88 +65,33 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         }
 
 
-        public string ProductId {
-            get {
-                return _product.Id;
-            }
-        }
+        public string ProductId => _product.Id;
 
-        public int Quantity {
-            get {
-                return _item.Quantity;
-            }
-        }
+        public int Quantity => _item.Quantity;
 
-        public string ReasonForReturn {
-            get {
-                return _item.ReasonForReturn;
-            }
-        }
+        public string ReasonForReturn => _item.ReasonForReturn;
 
-        public string RequestedAction {
-            get {
-                return _item.RequestedAction;
-            }
-        }
-        public double UnitPriceWithoutDiscInclTax {
-            get {
-                return _orderItem.UnitPriceWithoutDiscInclTax;
-            }
-        }
+        public string RequestedAction => _item.RequestedAction;
 
-        public double UnitPriceWithoutDiscExclTax {
-            get {
-                return _orderItem.UnitPriceWithoutDiscExclTax;
-            }
-        }
+        public double UnitPriceWithoutDiscInclTax => _orderItem.UnitPriceWithoutDiscInclTax;
 
-        public double UnitPriceInclTax {
-            get {
-                return _orderItem.UnitPriceInclTax;
-            }
-        }
+        public double UnitPriceWithoutDiscExclTax => _orderItem.UnitPriceWithoutDiscExclTax;
 
-        public double UnitPriceExclTax {
-            get {
-                return _orderItem.UnitPriceExclTax;
-            }
-        }
+        public double UnitPriceInclTax => _orderItem.UnitPriceInclTax;
 
-        public double PriceInclTax {
-            get {
-                return _orderItem.PriceInclTax;
-            }
-        }
+        public double UnitPriceExclTax => _orderItem.UnitPriceExclTax;
 
-        public double PriceExclTax {
-            get {
-                return _orderItem.PriceExclTax;
-            }
-        }
+        public double PriceInclTax => _orderItem.PriceInclTax;
 
-        public double DiscountAmountInclTax {
-            get {
-                return _orderItem.DiscountAmountInclTax;
-            }
-        }
+        public double PriceExclTax => _orderItem.PriceExclTax;
 
-        public double DiscountAmountExclTax {
-            get {
-                return _orderItem.DiscountAmountExclTax;
-            }
-        }
+        public double DiscountAmountInclTax => _orderItem.DiscountAmountInclTax;
 
-        public double OriginalProductCost {
-            get {
-                return _orderItem.OriginalProductCost;
-            }
-        }
+        public double DiscountAmountExclTax => _orderItem.DiscountAmountExclTax;
 
-        public string AttributeDescription {
-            get {
-                return _orderItem.AttributeDescription;
-            }
-        }
+        public double OriginalProductCost => _orderItem.OriginalProductCost;
+
+        public string AttributeDescription => _orderItem.AttributeDescription;
 
 
         public IDictionary<string, string> AdditionalTokens { get; set; }

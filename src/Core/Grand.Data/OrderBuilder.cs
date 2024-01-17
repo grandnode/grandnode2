@@ -39,8 +39,6 @@ namespace Grand.Data
             return this;
         }
 
-        public IEnumerable<(Expression<Func<T, object>> selector, bool value, string fieldName)> Fields {
-            get { return _list; }
-        }
+        public IEnumerable<(Expression<Func<T, object>> selector, bool value, string fieldName)> Fields => _list;
     }
 }

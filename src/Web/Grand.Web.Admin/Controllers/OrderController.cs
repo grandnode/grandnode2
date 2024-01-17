@@ -55,7 +55,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Order list
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List(int? orderStatusId = null,
             int? paymentStatusId = null, int? shippingStatusId = null, DateTime? startDate = null, string code = null)
@@ -942,7 +945,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             if (address == null)
-                throw new ArgumentException("No address found with the specified id", "addressId");
+                throw new ArgumentException("No address found with the specified id", nameof(addressId));
 
             var model = await orderViewModelService.PrepareOrderAddressModel(order, address);
             model.BillingAddress = billingAddress;

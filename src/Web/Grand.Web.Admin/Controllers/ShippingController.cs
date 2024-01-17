@@ -135,7 +135,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Shipping rate  methods
 
-        public IActionResult Providers() => View();
+        public IActionResult Providers()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Providers(DataSourceRequest command)
@@ -194,7 +197,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Shipping methods
 
-        public IActionResult Methods() => View();
+        public IActionResult Methods()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Methods(DataSourceRequest command)
@@ -348,7 +354,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Delivery dates
 
-        public IActionResult DeliveryDates() => View();
+        public IActionResult DeliveryDates()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
@@ -458,7 +467,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Warehouses
 
-        public IActionResult Warehouses() => View();
+        public IActionResult Warehouses()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Warehouses(DataSourceRequest command)
@@ -551,7 +563,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region PickupPoints
 
-        public IActionResult PickupPoints() => View();
+        public IActionResult PickupPoints()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> PickupPoints(DataSourceRequest command)

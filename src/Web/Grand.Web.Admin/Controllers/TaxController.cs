@@ -61,7 +61,10 @@ namespace Grand.Web.Admin.Controllers
             await _cacheBase.Clear();
         }
 
-        public IActionResult Providers() => View();
+        public IActionResult Providers()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Providers(DataSourceRequest command)
@@ -188,7 +191,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Tax Categories
 
-        public IActionResult Categories() => View();
+        public IActionResult Categories()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Categories(DataSourceRequest command)

@@ -99,7 +99,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
 
             //Assert
             Assert.IsTrue(result.Any());
-            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(2, result.Count);
         }
 
         [TestMethod()]

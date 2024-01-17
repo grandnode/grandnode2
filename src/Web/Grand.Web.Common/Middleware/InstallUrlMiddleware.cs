@@ -33,7 +33,7 @@ namespace Grand.Web.Common.Middleware
             //whether database is installed
             if (!DataSettingsManager.DatabaseIsInstalled())
             {
-                const string installUrl = $"/install";
+                const string installUrl = "/install";
                 if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
                 {
                     //redirect

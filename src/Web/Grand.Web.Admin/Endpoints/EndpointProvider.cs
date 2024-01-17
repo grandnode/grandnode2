@@ -16,10 +16,10 @@ namespace Grand.Web.Admin.Endpoints
                 pattern: $"{Constants.AreaAdmin}/{{controller=Home}}/{{action=Index}}/{{id?}}");
 
             //admin index
-            endpointRouteBuilder.MapControllerRoute("AdminIndex", $"admin/", new { controller = "Home", action = "Index", area = Constants.AreaAdmin });
+            endpointRouteBuilder.MapControllerRoute("AdminIndex", "admin/", new { controller = "Home", action = "Index", area = Constants.AreaAdmin });
 
             //admin login
-            endpointRouteBuilder.MapControllerRoute("AdminLogin", $"admin/login/", new { controller = "Login", action = "Index", area = Constants.AreaAdmin });
+            endpointRouteBuilder.MapControllerRoute("AdminLogin", "admin/login/", new { controller = "Login", action = "Index", area = Constants.AreaAdmin });
 
         }
         public int Priority => 10;

@@ -24,16 +24,18 @@ namespace Grand.Business.Common.Tests.Services.Security
         {
             Product product = null;
             Assert.IsFalse(_aclService.Authorize(product, "id"));
-            product = new Product();
-            product.LimitedToStores = true;
+            product = new Product {
+                LimitedToStores = true
+            };
             Assert.IsFalse(_aclService.Authorize(product, "id"));
         }
 
         [TestMethod]
         public void Authorize_ReturnTrue()
         {
-            Product product = new Product();
-            product.LimitedToStores = false;
+            Product product = new Product {
+                LimitedToStores = false
+            };
             Assert.IsTrue(_aclService.Authorize(product, "id"));
             Assert.IsTrue(_aclService.Authorize(product, ""));
             _accessControlConfig.IgnoreStoreLimitations = true;

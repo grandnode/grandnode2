@@ -43,7 +43,7 @@ namespace Grand.Business.Customers.Tests.Services
             //Act
             var result = await _customerHistoryPasswordService.GetPasswords("1", 1);
             //Asser
-            Assert.IsTrue(result.Count() == 1);
+            Assert.IsTrue(result.Count == 1);
         }
     }
 }

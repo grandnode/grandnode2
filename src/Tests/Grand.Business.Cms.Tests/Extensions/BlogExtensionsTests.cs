@@ -26,7 +26,7 @@ namespace Grand.Business.Cms.Tests.Extensions
             var from = DateTime.Now;
             var to = DateTime.Now.AddDays(3);
             var result = _blogPosts.GetPostsByDate(from, to);
-            Assert.AreEqual(4, result.Count());
+            Assert.AreEqual(4, result.Count);
             Assert.IsTrue(result.Any(b => b.Id.Equals("1")));
             Assert.IsTrue(result.Any(b => b.Id.Equals("2")));
             Assert.IsTrue(result.Any(b => b.Id.Equals("3")));
@@ -39,7 +39,7 @@ namespace Grand.Business.Cms.Tests.Extensions
             var from = DateTime.Now.AddDays(-3);
             var to = DateTime.Now.AddDays(-1);
             var result = _blogPosts.GetPostsByDate(from, to);
-            Assert.AreEqual(0, result.Count());
+            Assert.AreEqual(0, result.Count);
         }
     }
 }

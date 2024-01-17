@@ -92,22 +92,16 @@ namespace Grand.Domain.Messages
         /// </summary>
         public AttributeControlType AttributeControlType
         {
-            get
-            {
-                return (AttributeControlType)AttributeControlTypeId;
-            }
-            set
-            {
-                AttributeControlTypeId = (int)value;
-            }
+            get => (AttributeControlType)AttributeControlTypeId;
+            set => AttributeControlTypeId = (int)value;
         }
         /// <summary>
         /// Gets the checkout attribute values
         /// </summary>
         public virtual ICollection<ContactAttributeValue> ContactAttributeValues
         {
-            get { return _contactAttributeValues ??= new List<ContactAttributeValue>(); }
-            protected set { _contactAttributeValues = value; }
+            get => _contactAttributeValues ??= new List<ContactAttributeValue>();
+            protected set => _contactAttributeValues = value;
         }
     }
 

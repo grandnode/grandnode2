@@ -44,7 +44,7 @@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/admin.common.js"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot+"/administration/kendo/scripts/{0}/kendo.ui.core.min.js", kendoVersion)"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot+"/administration/kendo/scripts/{0}/kendo.grid.js", kendoVersion)"></script>
-    <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot+"/administration/kendo/scripts/{0}/cultures/kendo.culture.{1}.js", kendoVersion, @CultureInfo.CurrentCulture.Name)"></script>
+    <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot+"/administration/kendo/scripts/{0}/cultures/kendo.culture.{1}.js", kendoVersion, CultureInfo.CurrentCulture.Name)"></script>
 
 
     <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/bootstrap/js/popper.min.js"></script>

@@ -58,7 +58,10 @@ namespace Grand.Web.Admin.Controllers
         #region Discounts
 
         //list
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public IActionResult List()
         {
@@ -284,7 +287,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName, string discountId, string discountRequirementId)
         {
             if (string.IsNullOrEmpty(rulesystemName))
-                throw new ArgumentNullException("rulesystemName");
+                throw new ArgumentNullException(nameof(rulesystemName));
 
             var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(rulesystemName);
 

@@ -20,11 +20,7 @@ namespace Grand.Data.Mongo
         /// </summary>
         protected IMongoCollection<T> _collection;
 
-        public IMongoCollection<T> Collection {
-            get {
-                return _collection;
-            }
-        }
+        public IMongoCollection<T> Collection => _collection;
 
         /// <summary>
         /// Sets a collection
@@ -40,11 +36,7 @@ namespace Grand.Data.Mongo
         /// </summary>
         protected IMongoDatabase _database;
 
-        public IMongoDatabase Database {
-            get {
-                return _database;
-            }
-        }
+        public IMongoDatabase Database => _database;
 
         #endregion
 
@@ -465,9 +457,7 @@ namespace Grand.Data.Mongo
         /// <summary>
         /// Gets a table
         /// </summary>
-        public virtual IQueryable<T> Table {
-            get { return _collection.AsQueryable(); }
-        }
+        public virtual IQueryable<T> Table => _collection.AsQueryable();
 
         /// <summary>
         /// Gets a table collection

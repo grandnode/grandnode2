@@ -80,9 +80,10 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
             var eventPublisher = new Mock<IMediator>();
             _eventPublisher = eventPublisher.Object;
 
-            _currencySettings = new CurrencySettings();
-            _currencySettings.PrimaryExchangeRateCurrencyId = "1";
-            _currencySettings.PrimaryStoreCurrencyId = "1";
+            _currencySettings = new CurrencySettings {
+                PrimaryExchangeRateCurrencyId = "1",
+                PrimaryStoreCurrencyId = "1"
+            };
             //_currencyService = new Mock<ICurrencyService>().Object;
             _currency = new Currency { Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = System.MidpointRounding.ToEven, RoundingTypeId = RoundingType.Rounding001 };
 

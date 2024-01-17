@@ -32,9 +32,11 @@ namespace Grand.Business.Customers.Tests.Handler
         [TestMethod()]
         public async Task Handle_ValidArguments_InsertCustomerGroupInCustomer()
         {
-            var command = new ActiveVendorCommand { CustomerIds = new List<string> { "id" } };
-            command.Active = true;
-            command.Vendor = new Domain.Vendors.Vendor();
+            var command = new ActiveVendorCommand {
+                CustomerIds = new List<string> { "id" },
+                Active = true,
+                Vendor = new Domain.Vendors.Vendor()
+            };
             _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = true }));
             _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
             _groupServiceMock.Setup(c => c.GetCustomerGroupBySystemName(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerGroup()));
@@ -47,9 +49,11 @@ namespace Grand.Business.Customers.Tests.Handler
         [TestMethod()]
         public async Task Handle_ValidArguments_DeleteCustomerGroupInCustomer()
         {
-            var command = new ActiveVendorCommand { CustomerIds = new List<string> { "id" } };
-            command.Active = false;
-            command.Vendor = new Domain.Vendors.Vendor();
+            var command = new ActiveVendorCommand {
+                CustomerIds = new List<string> { "id" },
+                Active = false,
+                Vendor = new Domain.Vendors.Vendor()
+            };
             _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer { Active = true }));
             _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
             _groupServiceMock.Setup(c => c.IsVendor(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));

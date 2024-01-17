@@ -265,7 +265,7 @@ namespace Grand.Business.Storage.Services
 
             if (!File.Exists(physicalPath))
             {
-                throw new Exception($"File not exists.");
+                throw new Exception("File not exists.");
             }
             return File.ReadAllTextAsync(physicalPath);
         }

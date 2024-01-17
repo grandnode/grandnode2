@@ -112,8 +112,8 @@ namespace Grand.Domain.Discounts
         /// </summary>
         public virtual ICollection<DiscountRule> DiscountRules
         {
-            get { return _discountRules ??= new List<DiscountRule>(); }
-            protected set { _discountRules = value; }
+            get => _discountRules ??= new List<DiscountRule>();
+            protected set => _discountRules = value;
         }
 
     }

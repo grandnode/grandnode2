@@ -210,8 +210,8 @@ namespace Grand.Web.Common.Page
 
         public virtual string EditPageUrl
         {
-            get { return _editPageUrl; }   
-            set { _editPageUrl = value; }  
+            get => _editPageUrl;
+            set => _editPageUrl = value;
         }
 
         #endregion

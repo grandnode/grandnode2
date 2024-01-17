@@ -61,7 +61,10 @@ namespace Grand.Web.Admin.Controllers
             };
         }
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public IActionResult List()

@@ -242,7 +242,7 @@
             <div class="list-button-container">
                 @if (Model.ShowQty)
                 {
-                    var qtyId = "addtocart_" + @Model.Id + "_EnteredQuantity";
+                    var qtyId = "addtocart_" + Model.Id + "_EnteredQuantity";
                     <input class="form-control input-group-addon catalog-quantity" type="number" id="@qtyId" name="@qtyId" value="1">
                 }
                 @if (!Model.ProductPrice.DisableBuyButton)
