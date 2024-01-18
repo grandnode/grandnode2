@@ -2,8 +2,8 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
 	<PackageReference Include="ExcelMapper" Version="5.2.483" />
-	<PackageReference Include="Scryber.Core.Mvc" Version="6.0.1-beta" />
-        <PackageReference Include="Scryber.Core.OpenType" Version="6.0.0.5-beta" />
+	<PackageReference Include="Scryber.Core" Version="6.0.4-beta" />
+    <PackageReference Include="Scryber.Core.OpenType" Version="6.1.0-beta" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
