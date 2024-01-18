@@ -367,7 +367,6 @@ namespace Grand.Domain.Catalog
         /// Generate all combinations
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="ignoreNonCombinableAttributes">A value indicating whether we should ignore non-combinable attributes</param>
         /// <returns>Attribute combinations</returns>
         public static IList<IEnumerable<CustomAttribute>> GenerateAllCombinations(this Product product)
         {

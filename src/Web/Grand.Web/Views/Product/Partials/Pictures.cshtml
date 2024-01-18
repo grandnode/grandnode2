@@ -5,7 +5,7 @@
         @if (Model.PictureModels.Any())
         {
             var schemaPicture = Model.PictureModels.FirstOrDefault();
-            <img src="@schemaPicture.FullSizeImageUrl" class="d-none" itemprop="image">   
+            <img src="@schemaPicture?.FullSizeImageUrl" class="d-none" itemprop="image">   
         }
         @if (Model.PictureModels.Count == 1) { @if (Model.DefaultPictureZoomEnabled) {
             <gallery-images></gallery-images>

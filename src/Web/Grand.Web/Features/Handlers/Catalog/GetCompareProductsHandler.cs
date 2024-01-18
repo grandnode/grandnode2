@@ -69,7 +69,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         protected virtual List<string> GetComparedProductIds()
         {
             //try to get cookie
-            if (!_httpContextAccessor.HttpContext.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out var productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
+            if (!_httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out var productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
                 return new List<string>();
 
             //get array of string product identifiers from cookie

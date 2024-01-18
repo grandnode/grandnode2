@@ -157,7 +157,7 @@ namespace Grand.Web.Admin.Controllers
                 model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
 
             var states = defaultAddress != null && !string.IsNullOrEmpty(defaultAddress.CountryId) ? (await _countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
                     model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress.StateProvinceId });

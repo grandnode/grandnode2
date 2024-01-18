@@ -1852,7 +1852,7 @@ namespace Grand.Business.Messages.Services
             else
             {
                 var store = (await _storeService.GetAllStores()).FirstOrDefault();
-                var language = await EnsureLanguageIsActive(languageId, store.Id);
+                var language = await EnsureLanguageIsActive(languageId, store?.Id);
                 messageTemplate = await GetMessageTemplate("AuctionExpired.StoreOwnerNotification", "");
                 if (messageTemplate == null)
                     return 0;

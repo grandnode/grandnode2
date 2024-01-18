@@ -93,7 +93,7 @@ namespace Grand.Web.Controllers
             }
 
             //add language code
-            return $"/{language.UniqueSeoCode}/{url.TrimStart('/')}";
+            return $"/{language.UniqueSeoCode}/{url?.TrimStart('/')}";
         }
 
         #endregion

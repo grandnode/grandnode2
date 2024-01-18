@@ -98,6 +98,7 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Shopping cart
+
         [HttpGet]
         [ProducesResponseType(typeof(MiniShoppingCartModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> SidebarShoppingCart()
@@ -182,6 +183,7 @@ namespace Grand.Web.Controllers
                     downloadGuid = Guid.Empty
                 });
             }
+
             var form = await HttpContext.Request.ReadFormAsync();
             var httpPostedFile = form.Files.FirstOrDefault();
             if (httpPostedFile == null)
@@ -259,7 +261,7 @@ namespace Grand.Web.Controllers
                 downloadGuid = download.DownloadGuid
             });
         }
-        
+
         [HttpGet]
         //[ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
         public virtual async Task<IActionResult> Cart(bool checkoutAttributes)
@@ -279,7 +281,7 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-        
+
         [HttpGet]
         [DenySystemAccount]
         [ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
@@ -300,7 +302,7 @@ namespace Grand.Web.Controllers
 
             return Json(model);
         }
-        
+
         [HttpGet]
         [DenySystemAccount]
         [ProducesResponseType(typeof(OrderTotalsModel), StatusCodes.Status200OK)]
@@ -319,7 +321,7 @@ namespace Grand.Web.Controllers
             });
             return Json(model);
         }
-        
+
 
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
@@ -332,17 +334,20 @@ namespace Grand.Web.Controllers
                     success = false,
                     warnings = string.Join(',', ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)))
                 });
-                
             }
-            
+
             var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes()))
                 .FirstOrDefault(x => x.Id == model.ShoppingCartId);
             var warnings = new List<string>();
-            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
-                cart.RentalStartDateUtc, cart.RentalEndDateUtc,
-                model.Quantity);
-            warnings.AddRange(currSciWarnings);
+
+            if (cart != null)
+            {
+                var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                    cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                    cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                    model.Quantity);
+                warnings.AddRange(currSciWarnings);
+            }
 
             var cartModel = await _mediator.Send(new GetShoppingCart {
                 Cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes()),
@@ -361,7 +366,7 @@ namespace Grand.Web.Controllers
                 model = cartModel
             });
         }
-        
+
         [HttpGet]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ClearCart()
@@ -482,7 +487,7 @@ namespace Grand.Web.Controllers
                 sidebarshoppingcartmodel = miniShoppingCart
             });
         }
-        
+
         [IgnoreApi]
         [HttpGet]
         public virtual IActionResult ContinueShopping()
@@ -495,7 +500,7 @@ namespace Grand.Web.Controllers
 
             return RedirectToRoute("HomePage");
         }
-        
+
         [HttpPost]
         [DenySystemAccount]
         public virtual async Task<IActionResult> StartCheckout(CheckoutAttributeSelectedModel model)
@@ -582,7 +587,6 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> ApplyGiftVoucher(GiftVoucherCouponModel model)
         {
-            
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 
             var message = string.Empty;
@@ -713,6 +717,7 @@ namespace Grand.Web.Controllers
                 model
             });
         }
+
         #endregion
     }
 }
