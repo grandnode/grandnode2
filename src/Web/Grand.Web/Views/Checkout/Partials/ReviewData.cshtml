@@ -62,6 +62,7 @@
                             </span>
                         </li>
                     </template>
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "confirm_payment_bottom" })
                 </ul>
             </div>
         </div>
@@ -136,6 +137,7 @@
                             {{vmorder.OrderReviewData.PickupAddress.CountryName}}
                         </li>
                     </template>
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "confirm_pickupaddress_bottom" })
                     <li class="title">
                         <h5>@Loc["Order.Shipping"]</h5>
                     </li>
