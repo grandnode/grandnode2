@@ -1,7 +1,6 @@
 ﻿using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Controllers
 {
