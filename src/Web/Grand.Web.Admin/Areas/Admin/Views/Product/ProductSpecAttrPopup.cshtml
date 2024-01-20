@@ -2,8 +2,8 @@
 @{
     Layout = "";
 }
-<form id="ProductSpecificationPopup" asp-area="@Constants.AreaAdmin" 
-      asp-controller="Product" asp-action="ProductSpecAttrPopup" 
+<form id="ProductSpecificationPopup" asp-area="@Constants.AreaAdmin"
+      asp-controller="Product" asp-action="ProductSpecAttrPopup"
       enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-Id="@Context.Request.Query["Id"]">
@@ -61,7 +61,11 @@
                             </div>
                             <div class="form-group" id="pnlCustomValue">
                                 <admin-label asp-for="CustomValue" />
-                                <div class="col-md-9 col-sm-9">
+                                <div class="col-md-9 col-sm-9" id="pnlCustomHTMLText">
+                                    <admin-input asp-for="CustomValue" asp-template="Editor" />
+                                    <span asp-validation-for="CustomValue"></span>
+                                </div>
+                                <div class="col-md-9 col-sm-9" id="pnlCustomValueText">
                                     <admin-input asp-for="CustomValue" />
                                     <span asp-validation-for="CustomValue"></span>
                                 </div>
@@ -174,23 +178,31 @@
                 $('#pnlCustomValue').hide();
                 $('#pnlCustomName').hide();
                 $('#disableOnCustom').show();
+                $('#pnlCustomValueText').hide();
+                $('#pnlCustomHTMLText').hide();
                 $('#pnlAllowFiltering').show();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
+                $('#pnlCustomValueText').show();
+                $('#pnlCustomHTMLText').hide();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomHtmlText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
+                $('#pnlCustomValueText').hide();
+                $('#pnlCustomHTMLText').show();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.Hyperlink).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
+                $('#pnlCustomValueText').hide();
+                $('#pnlCustomHTMLText').hide();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();
             }
