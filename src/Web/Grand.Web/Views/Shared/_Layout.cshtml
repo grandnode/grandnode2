@@ -1,6 +1,4 @@
-﻿@using Grand.Infrastructure.Configuration
-@inject PerformanceConfig config
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html use-lang="true">
 <head>
     <title asp-default-title="true"></title>
@@ -16,10 +14,6 @@
     <canonical-urls>
     @*Favicon - upload favicon.ico file to the wwwroot directory*@
     <partial name="Partials/Favicons" />
-    @if (config.DisplayMiniProfilerInPublicStore)
-    {
-        <mini-profiler />
-    }
     <resources asp-type="HeadLink" />
     <resources asp-type="HeadScript" />
     @await RenderSectionAsync("head", required: false)

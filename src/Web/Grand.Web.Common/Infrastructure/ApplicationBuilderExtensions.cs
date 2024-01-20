@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Common;
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
@@ -202,25 +200,7 @@ namespace Grand.Web.Common.Infrastructure
                 });
 
         }
-
-        /// <summary>
-        /// Create and configure MiniProfiler service
-        /// </summary>
-        /// <param name="application">Builder for configuring an application's request pipeline</param>
-        public static void UseProfiler(this IApplicationBuilder application)
-        {
-            //whether database is already installed
-            if (!DataSettingsManager.DatabaseIsInstalled())
-                return;
-
-            var performanceConfig = application.ApplicationServices.GetRequiredService<PerformanceConfig>();
-            //whether MiniProfiler should be displayed
-            if (performanceConfig.DisplayMiniProfilerInPublicStore)
-            {
-                application.UseMiniProfiler();
-            }
-        }
-
+        
         /// <summary>
         /// Configure UseForwardedHeaders
         /// </summary>
