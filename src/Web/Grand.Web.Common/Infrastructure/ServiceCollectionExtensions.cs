@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
@@ -317,13 +318,27 @@ namespace Grand.Web.Common.Infrastructure
                 tags: new[] { "mongodb" });
         }
 
-        public static void AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+        public static void AddGrandApplicationInsights(this IServiceCollection services, IConfiguration configuration)
         {
             var applicationInsights = new ApplicationInsightsConfig();
             configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
             if (applicationInsights.Enabled)
             {
                 services.AddApplicationInsightsTelemetry();
+                services.AddLogging(builder =>
+                {
+                    builder.AddApplicationInsights(
+                        configureTelemetryConfiguration: (config) =>
+                        {
+                            config.ConnectionString = applicationInsights.ConnectionString;
+                        },
+                        configureApplicationInsightsLoggerOptions: (options) =>
+                        {
+                            options.IncludeScopes = false;
+                            options.TrackExceptionsAsExceptionTelemetry = false;
+                        }
+                    );
+                });
             }
         }
 

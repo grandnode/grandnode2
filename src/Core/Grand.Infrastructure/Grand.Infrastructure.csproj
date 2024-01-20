@@ -17,7 +17,6 @@
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.10" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
     <PackageReference Include="FluentValidation" Version="11.9.0" />
   </ItemGroup>
   <ItemGroup>

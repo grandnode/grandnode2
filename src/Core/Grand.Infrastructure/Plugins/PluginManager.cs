@@ -3,7 +3,7 @@ using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
@@ -29,7 +29,7 @@ namespace Grand.Infrastructure.Plugins
         private static DirectoryInfo _copyFolder;
         private static DirectoryInfo _pluginFolder;
         private static ExtensionsConfig _config;
-
+        private static ILogger _logger;
         #endregion
 
         #region Methods
@@ -54,6 +54,8 @@ namespace Grand.Infrastructure.Plugins
                 if (mvcCoreBuilder == null)
                     throw new ArgumentNullException(nameof(mvcCoreBuilder));
                 
+                _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetService<ILoggerFactory>().CreateLogger("PluginManager");
+                
                 _pluginFolder = new DirectoryInfo(CommonPath.PluginsPath);
                 _copyFolder = new DirectoryInfo(CommonPath.PluginsCopyPath);
 
@@ -63,8 +65,8 @@ namespace Grand.Infrastructure.Plugins
                     var installedPluginSystemNames =
                         !string.IsNullOrEmpty(_config.InstalledPlugins) ? _config.InstalledPlugins.Split(",").Select(x=>x.Trim()) :
                         PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
-
-                    Log.Information("Creating shadow copy folder and querying for dlls");
+                    
+                    _logger.LogInformation("Creating shadow copy folder and querying for dlls");
                     Directory.CreateDirectory(_pluginFolder.FullName);
                     Directory.CreateDirectory(_copyFolder.FullName);
                     var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
@@ -73,7 +75,7 @@ namespace Grand.Infrastructure.Plugins
                         //clear out shadow plugins
                         foreach (var f in binFiles)
                         {
-                            Log.Information("Deleting {FName}", f.Name);
+                            _logger.LogInformation("Deleting {FName}", f.Name);
                             try
                             {
                                 var fileName = Path.GetFileName(f.FullName);
@@ -84,7 +86,7 @@ namespace Grand.Infrastructure.Plugins
                             }
                             catch (Exception exc)
                             {
-                                Log.Error(exc, "PluginManager");
+                                _logger.LogError(exc, "PluginManager");
                             }
                         }
                     }
@@ -94,7 +96,7 @@ namespace Grand.Infrastructure.Plugins
                     {
                         if (plugin.SupportedVersion != GrandVersion.SupportedPluginVersion)
                         {
-                            Log.Information("Incompatible plugin {PluginSystemName}", plugin.SystemName);
+                            _logger.LogInformation("Incompatible plugin {PluginSystemName}", plugin.SystemName);
                             //set as not installed
                             referencedPlugins.Add(plugin);
                             continue;
@@ -124,7 +126,7 @@ namespace Grand.Infrastructure.Plugins
                                     }
                                     catch (Exception exc)
                                     {
-                                        Log.Error(exc, "PluginManager");
+                                        _logger.LogError(exc, "PluginManager");
                                     }
                                 }
                             }
@@ -279,12 +281,12 @@ namespace Grand.Infrastructure.Plugins
                 var areFilesIdentical = shadowCopiedPlug.CreationTimeUtc.Ticks >= plug.CreationTimeUtc.Ticks;
                 if (areFilesIdentical)
                 {
-                    Log.Information("Not copying; files appear identical: {Name}", shadowCopiedPlug.Name);
+                    _logger.LogInformation("Not copying; files appear identical: {Name}", shadowCopiedPlug.Name);
                     return shadowCopiedPlug;
                 }
 
                 //delete an existing file
-                Log.Information("New plugin found; Deleting the old file: {Name}", shadowCopiedPlug.Name);
+                _logger.LogInformation("New plugin found; Deleting the old file: {Name}", shadowCopiedPlug.Name);
                 try
                 {
                     File.Delete(shadowCopiedPlug.FullName);
@@ -292,7 +294,7 @@ namespace Grand.Infrastructure.Plugins
                 catch (Exception ex)
                 {
                     shouldCopy = false;
-                    Log.Error(ex, "PluginManager");
+                    _logger.LogError(ex, "PluginManager");
                 }
             }
 
@@ -303,7 +305,7 @@ namespace Grand.Infrastructure.Plugins
             }
             catch (IOException)
             {
-                Log.Information("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
+                _logger.LogInformation("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
                 //this occurs when the files are locked,
                 //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
                 //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
@@ -334,7 +336,7 @@ namespace Grand.Infrastructure.Plugins
             try
             {
                 //we can now register the plugin definition
-                Log.Information("Adding to ApplicationParts: '{0}'", systemName);
+                _logger.LogInformation("Adding to ApplicationParts: '{0}'", systemName);
                 mvcCoreBuilder.AddApplicationPart(assembly);
 
                 var relatedAssemblies = RelatedAssemblyAttribute.GetRelatedAssemblies(assembly, throwOnError: false);
@@ -349,7 +351,7 @@ namespace Grand.Infrastructure.Plugins
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "PluginManager");
+                _logger.LogError(ex, "PluginManager");
                 throw new InvalidOperationException($"The plugin directory for the {systemName} file exists in a folder outside of the allowed grandnode folder hierarchy - exception because of {filename} - exception: {ex.Message}");
             }
         }
@@ -364,7 +366,7 @@ namespace Grand.Infrastructure.Plugins
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "RegisterPluginInterface");
+                _logger.LogError(ex, "RegisterPluginInterface");
             }
         }
 

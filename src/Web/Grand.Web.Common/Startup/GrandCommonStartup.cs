@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 
 namespace Grand.Web.Common.Startup
 {
@@ -114,12 +113,6 @@ namespace Grand.Web.Common.Startup
             //use powered by
             if (!performanceConfig.IgnoreUsePoweredByMiddleware)
                 application.UsePoweredBy();
-
-            // Write streamlined request completion events, instead of the more verbose ones from the framework.
-            // To use the default framework request logging instead, remove this line and set the "Microsoft"
-            // level in app settings json to "Information".
-            if (appConfig.UseSerilogRequestLogging)
-                application.UseSerilogRequestLogging();
 
             //add responsive middleware (for detection)
             application.UseGrandDetection();

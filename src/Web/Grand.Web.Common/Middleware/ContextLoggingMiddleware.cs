@@ -2,7 +2,6 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Context;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -22,11 +21,6 @@ public class ContextLoggingMiddleware
     {
         var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
 
-        LogContext.PushProperty(CustomerPropertyName, workContext?.CurrentCustomer?.Email);
-        LogContext.PushProperty(StorePropertyName, workContext?.CurrentStore?.Name);
-        LogContext.PushProperty(CurrencyPropertyName, workContext?.WorkingCurrency?.Name);
-        LogContext.PushProperty(LanguagePropertyName, workContext?.WorkingLanguage?.Name);
-        
         var requestTelemetry = context.Features.Get<RequestTelemetry>();
         if (requestTelemetry != null)
         {

@@ -26,7 +26,7 @@ namespace Grand.Web.Common.Startup
             services.AddGrandMiniProfiler();
 
             //add ApplicationInsights
-            services.AddApplicationInsights(configuration);
+            services.AddGrandApplicationInsights(configuration);
 
             //add and configure MVC feature
             services.AddGrandMvc(configuration);

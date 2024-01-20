@@ -3,7 +3,6 @@ using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 
 Common.WwwRoot = "";
 
@@ -14,11 +13,6 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
     options.ValidateScopes = false;
     options.ValidateOnBuild = false;
 });
-
-//use serilog
-builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .Enrich.FromLogContext());
 
 //add configuration
 builder.Configuration.AddAppSettingsJsonFile(args);

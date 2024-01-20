@@ -104,7 +104,6 @@ namespace Grand.Web.Common.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    Serilog.Log.Logger.Error(ex, "BackgroundServiceTask");
                     await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
 
