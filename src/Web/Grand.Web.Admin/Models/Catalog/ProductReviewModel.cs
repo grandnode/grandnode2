@@ -10,11 +10,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
         public string ProductName { get; set; }
 
-        public string Ids {
-            get {
-                return Id + ":" + ProductId;
-            }
-        }
+        public string Ids => Id + ":" + ProductId;
 
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Store")]
         public string StoreName { get; set; }
@@ -24,10 +20,13 @@ namespace Grand.Web.Admin.Models.Catalog
         public string CustomerInfo { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Title")]
         public string Title { get; set; }
+
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReviewText")]
         public string ReviewText { get; set; }
+
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReplyText")]
         public string ReplyText { get; set; }
+        
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Signature")]
         public string Signature { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Rating")]

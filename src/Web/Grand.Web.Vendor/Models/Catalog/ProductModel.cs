@@ -88,7 +88,6 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaTitle")]
         public string MetaTitle { get; set; }
 
-        [NoScripts]
         [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.SeName")]
         public string SeName { get; set; }
 
@@ -975,7 +974,6 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaTitle")]
         public string MetaTitle { get; set; }
 
-        [NoScripts]
         [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.SeName")]
         public string SeName { get; set; }
     }
