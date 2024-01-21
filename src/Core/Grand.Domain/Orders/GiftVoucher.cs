@@ -5,7 +5,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a gift voucher
     /// </summary>
-    public partial class GiftVoucher : BaseEntity
+    public class GiftVoucher : BaseEntity
     {
         private ICollection<GiftVoucherUsageHistory> _giftVoucherUsageHistory;
         
@@ -79,8 +79,8 @@ namespace Grand.Domain.Orders
         /// </summary>
         public virtual ICollection<GiftVoucherUsageHistory> GiftVoucherUsageHistory
         {
-            get { return _giftVoucherUsageHistory ??= new List<GiftVoucherUsageHistory>(); }
-            protected set { _giftVoucherUsageHistory = value; }
+            get => _giftVoucherUsageHistory ??= new List<GiftVoucherUsageHistory>();
+            protected set => _giftVoucherUsageHistory = value;
         }
         
         /// <summary>

@@ -320,14 +320,11 @@ namespace Grand.Web.Admin.Controllers
             var scripts = RoslynCompiler.ReferencedScripts != null ? RoslynCompiler.ReferencedScripts.ToList() : new List<ResultCompiler>();
 
             var gridModel = new DataSourceResult {
-                Data = scripts.Select(x =>
+                Data = scripts.Select(x => new
                 {
-                    return new
-                    {
-                        FileName = x.OriginalFile,
-                        x.IsCompiled,
-                        Errors = string.Join(",", x.ErrorInfo)
-                    };
+                    FileName = x.OriginalFile,
+                    x.IsCompiled,
+                    Errors = string.Join(",", x.ErrorInfo)
                 }),
                 Total = scripts.Count
             };

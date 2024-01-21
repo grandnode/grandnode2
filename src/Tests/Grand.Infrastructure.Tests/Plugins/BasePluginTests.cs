@@ -40,7 +40,7 @@ namespace Grand.Infrastructure.Tests.Plugins
             await sampleBasePlugin.Install();
             await sampleBasePlugin.Uninstall();
             var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
-            Assert.AreEqual(0, plugins.Count());
+            Assert.AreEqual(0, plugins.Count);
         }
 
         [TestMethod()]
@@ -48,7 +48,7 @@ namespace Grand.Infrastructure.Tests.Plugins
         {
             await sampleBasePlugin.Uninstall();
             var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
-            Assert.AreEqual(0, plugins.Count());
+            Assert.AreEqual(0, plugins.Count);
         }
     }
 }

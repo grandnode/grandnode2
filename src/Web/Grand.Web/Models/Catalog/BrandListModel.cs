@@ -2,11 +2,6 @@
 
 public class BrandListModel
 {
-    public BrandListModel()
-    {
-        PagingModel = new BrandPagingModel();
-        BrandsModel = new List<BrandModel>();
-    }
-    public BrandPagingModel PagingModel { get; set; }
-    public IList<BrandModel> BrandsModel { get; set; }
+    public BrandPagingModel PagingModel { get; set; } = new();
+    public IList<BrandModel> BrandsModel { get; set; } = new List<BrandModel>();
 }

@@ -7,10 +7,6 @@ namespace Grand.Web.Models.Customer
 {
     public class LoginModel : BaseModel
     {
-        public LoginModel()
-        {
-            Captcha = new CaptchaModel();
-        }
         public bool CheckoutAsGuest { get; set; }
 
         [MaxLength(FieldSizeLimits.EmailMaxLength)]
@@ -30,6 +26,6 @@ namespace Grand.Web.Models.Customer
         [GrandResourceDisplayName("Account.Login.Fields.RememberMe")]
         public bool RememberMe { get; set; }
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

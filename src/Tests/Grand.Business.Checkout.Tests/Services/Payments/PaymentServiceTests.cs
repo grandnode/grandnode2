@@ -21,10 +21,11 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         [TestInitialize()]
         public void TestInitialize()
         {
-            _paymentSettings = new PaymentSettings();
-            _paymentSettings.ActivePaymentProviderSystemNames = [
-                "Payments.TestMethod"
-            ];
+            _paymentSettings = new PaymentSettings {
+                ActivePaymentProviderSystemNames = [
+                    "Payments.TestMethod"
+                ]
+            };
             _settingService = new Mock<ISettingService>();
             _paymentProviderMock = new Mock<IPaymentProvider>();
             _paymentService = new PaymentService(_paymentSettings, new List<IPaymentProvider> { _paymentProviderMock.Object }, _settingService.Object);
@@ -80,8 +81,9 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         [TestMethod()]
         public async Task ProcessPayment_OrderTotalZero_ReturnPaidPaymentStatus()
         {
-            var request = new PaymentTransaction();
-            request.TransactionAmount = 0;
+            var request = new PaymentTransaction {
+                TransactionAmount = 0
+            };
             var response = await _paymentService.ProcessPayment(request);
             Assert.IsTrue(response.NewPaymentTransactionStatus == TransactionStatus.Paid);
         }

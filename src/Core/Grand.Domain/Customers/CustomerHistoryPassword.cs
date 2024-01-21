@@ -3,13 +3,8 @@
     /// <summary>
     /// Represents a Customer History Password
     /// </summary>
-    public partial class CustomerHistoryPassword : BaseEntity
+    public class CustomerHistoryPassword : BaseEntity
     {
-        public CustomerHistoryPassword()
-        {
-            PasswordFormatId = PasswordFormat.Clear;
-        }
-
         /// <summary>
         /// Gets or sets the customer identifier
         /// </summary>
@@ -23,7 +18,7 @@
         /// <summary>
         /// Gets or sets the password format identifier
         /// </summary>
-        public PasswordFormat PasswordFormatId { get; set; }
+        public PasswordFormat PasswordFormatId { get; set; } = PasswordFormat.Clear;
 
         /// <summary>
         /// Gets or sets the password salt

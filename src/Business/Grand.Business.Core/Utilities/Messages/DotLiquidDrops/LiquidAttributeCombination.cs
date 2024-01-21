@@ -17,10 +17,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string SKU { get; set; }
 
-        public string StockQuantity
-        {
-            get { return _combination.StockQuantity.ToString(); }
-        }
+        public string StockQuantity => _combination.StockQuantity.ToString();
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

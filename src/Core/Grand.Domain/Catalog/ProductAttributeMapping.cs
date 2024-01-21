@@ -6,16 +6,10 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product attribute mapping
     /// </summary>
-    public partial class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
+    public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
     {
         private ICollection<ProductAttributeValue> _productAttributeValues;
 
-        public ProductAttributeMapping()
-        {
-            Locales = new List<TranslationEntity>();
-            ConditionAttribute = new List<CustomAttribute>();
-        }
-        
         /// <summary>
         /// Gets or sets the product attribute identifier
         /// </summary>
@@ -79,20 +73,20 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the custom attributes (see "ProductAttribute" entity for more info)
         /// </summary>
-        public IList<CustomAttribute> ConditionAttribute { get; set; }
+        public IList<CustomAttribute> ConditionAttribute { get; set; } = new List<CustomAttribute>();
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets the product attribute values
         /// </summary>
         public virtual ICollection<ProductAttributeValue> ProductAttributeValues
         {
-            get { return _productAttributeValues ??= new List<ProductAttributeValue>(); }
-            protected set { _productAttributeValues = value; }
+            get => _productAttributeValues ??= new List<ProductAttributeValue>();
+            protected set => _productAttributeValues = value;
         }
 
     }

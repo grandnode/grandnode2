@@ -25,14 +25,17 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         {
             //Arrange
             var warehouse = new Warehouse();
-            var product = new Product();
-            product.WarehouseId = warehouse.Id;
+            var product = new Product {
+                WarehouseId = warehouse.Id
+            };
             await _repository.InsertAsync(product);
-            var product2 = new Product();
-            product2.WarehouseId = warehouse.Id;
+            var product2 = new Product {
+                WarehouseId = warehouse.Id
+            };
             await _repository.InsertAsync(product2);
-            var product3 = new Product();
-            product3.WarehouseId = "1";
+            var product3 = new Product {
+                WarehouseId = "1"
+            };
             await _repository.InsertAsync(product3);
 
             //Act

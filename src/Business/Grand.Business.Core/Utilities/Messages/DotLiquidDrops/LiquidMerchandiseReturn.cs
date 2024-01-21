@@ -32,140 +32,61 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string Id
-        {
-            get { return _merchandiseReturn.Id; }
-        }
+        public string Id => _merchandiseReturn.Id;
 
-        public int ReturnNumber
-        {
-            get { return _merchandiseReturn.ReturnNumber; }
-        }
+        public int ReturnNumber => _merchandiseReturn.ReturnNumber;
 
-        public string ExternalId
-        {
-            get { return _merchandiseReturn.ExternalId; }
-        }
+        public string ExternalId => _merchandiseReturn.ExternalId;
 
-        public string OrderId
-        {
-            get { return _order.Id; }
-        }
-        public string OrderNumber
-        {
-            get { return _order.OrderNumber.ToString(); }
-        }
+        public string OrderId => _order.Id;
 
-        public string OrderCode
-        {
-            get { return _order.Code; }
-        }
+        public string OrderNumber => _order.OrderNumber.ToString();
 
-        public string CustomerComment
-        {
-            get { return FormatText.ConvertText(_merchandiseReturn.CustomerComments); }
-        }
+        public string OrderCode => _order.Code;
 
-        public string StaffNotes
-        {
-            get { return FormatText.ConvertText(_merchandiseReturn.StaffNotes); }
-        }
+        public string CustomerComment => FormatText.ConvertText(_merchandiseReturn.CustomerComments);
+
+        public string StaffNotes => FormatText.ConvertText(_merchandiseReturn.StaffNotes);
 
         public string Status { get; set; }
 
-        public ICollection<LiquidMerchandiseReturnItem> Items
-        {
-            get
-            {
-                return _items;
-            }
-        }
+        public ICollection<LiquidMerchandiseReturnItem> Items => _items;
 
-        public DateTime CreatedOnUtc
-        {
-            get { return _merchandiseReturn.CreatedOnUtc; }
-        }
+        public DateTime CreatedOnUtc => _merchandiseReturn.CreatedOnUtc;
 
-        public string PickupDate
-        {
-            get { return _merchandiseReturn.PickupDate.ToShortDateString(); }
-        }
-        public DateTime PickupDateUtc
-        {
-            get { return _merchandiseReturn.PickupDate; }
-        }
+        public string PickupDate => _merchandiseReturn.PickupDate.ToShortDateString();
 
-        public string PickupAddressFirstName
-        {
-            get { return _merchandiseReturn.PickupAddress.FirstName; }
-        }
+        public DateTime PickupDateUtc => _merchandiseReturn.PickupDate;
 
-        public string PickupAddressLastName
-        {
-            get { return _merchandiseReturn.PickupAddress.LastName; }
-        }
+        public string PickupAddressFirstName => _merchandiseReturn.PickupAddress.FirstName;
 
-        public string PickupAddressPhoneNumber
-        {
-            get { return _merchandiseReturn.PickupAddress.PhoneNumber; }
-        }
+        public string PickupAddressLastName => _merchandiseReturn.PickupAddress.LastName;
 
-        public string PickupAddressEmail
-        {
-            get { return _merchandiseReturn.PickupAddress.Email; }
-        }
+        public string PickupAddressPhoneNumber => _merchandiseReturn.PickupAddress.PhoneNumber;
 
-        public string PickupAddressFaxNumber
-        {
-            get { return _merchandiseReturn.PickupAddress.FaxNumber; }
-        }
+        public string PickupAddressEmail => _merchandiseReturn.PickupAddress.Email;
 
-        public string PickupAddressCompany
-        {
-            get { return _merchandiseReturn.PickupAddress.Company; }
-        }
+        public string PickupAddressFaxNumber => _merchandiseReturn.PickupAddress.FaxNumber;
 
-        public string PickupAddressVatNumber
-        {
-            get { return _merchandiseReturn.PickupAddress.VatNumber; }
-        }
+        public string PickupAddressCompany => _merchandiseReturn.PickupAddress.Company;
 
-        public string PickupAddressAddress1
-        {
-            get { return _merchandiseReturn.PickupAddress.Address1; }
-        }
+        public string PickupAddressVatNumber => _merchandiseReturn.PickupAddress.VatNumber;
 
-        public string PickupAddressAddress2
-        {
-            get { return _merchandiseReturn.PickupAddress.Address2; }
-        }
+        public string PickupAddressAddress1 => _merchandiseReturn.PickupAddress.Address1;
 
-        public string PickupAddressCity
-        {
-            get { return _merchandiseReturn.PickupAddress.City; }
-        }
+        public string PickupAddressAddress2 => _merchandiseReturn.PickupAddress.Address2;
+
+        public string PickupAddressCity => _merchandiseReturn.PickupAddress.City;
 
         public string PickupAddressStateProvince { get; set; }
 
-        public string PickupAddressZipPostalCode
-        {
-            get { return _merchandiseReturn.PickupAddress.ZipPostalCode; }
-        }
+        public string PickupAddressZipPostalCode => _merchandiseReturn.PickupAddress.ZipPostalCode;
 
         public string PickupAddressCountry { get; set; }
 
-        public string NewNoteText
-        {
-            get { return FormatText.ConvertText(_merchandiseReturnNote?.Note); }
-        }
+        public string NewNoteText => FormatText.ConvertText(_merchandiseReturnNote?.Note);
 
-        public string MerchandiseReturnNoteAttachmentUrl
-        {
-            get
-            {
-                return string.Format("{0}/download/merchandisereturnnotefile/{1}", url, _merchandiseReturnNote?.Id);
-            }
-        }
+        public string MerchandiseReturnNoteAttachmentUrl => $"{url}/download/merchandisereturnnotefile/{_merchandiseReturnNote?.Id}";
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }
 }

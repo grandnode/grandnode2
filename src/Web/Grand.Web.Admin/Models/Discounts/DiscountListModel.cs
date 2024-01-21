@@ -6,11 +6,6 @@ namespace Grand.Web.Admin.Models.Discounts
 {
     public class DiscountListModel : BaseModel
     {
-        public DiscountListModel()
-        {
-            AvailableDiscountTypes = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("admin.marketing.Discounts.List.SearchDiscountCouponCode")]
         
         public string SearchDiscountCouponCode { get; set; }
@@ -21,6 +16,6 @@ namespace Grand.Web.Admin.Models.Discounts
 
         [GrandResourceDisplayName("admin.marketing.Discounts.List.SearchDiscountType")]
         public int SearchDiscountTypeId { get; set; }
-        public IList<SelectListItem> AvailableDiscountTypes { get; set; }
+        public IList<SelectListItem> AvailableDiscountTypes { get; set; } = new List<SelectListItem>();
     }
 }

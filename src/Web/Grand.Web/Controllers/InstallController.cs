@@ -140,11 +140,13 @@ namespace Grand.Web.Controllers
                     if (string.IsNullOrEmpty(model.MongoDBServerName))
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
 
-                    var userNameandPassword = "";
-                    if (!string.IsNullOrEmpty(model.MongoDBUsername))
-                        userNameandPassword = model.MongoDBUsername + ":" + model.MongoDBPassword + "@";
-
-                    connectionString = "mongodb://" + userNameandPassword + model.MongoDBServerName + "/" + model.MongoDBDatabaseName;
+                    var builder = new MongoDB.Driver.MongoUrlBuilder {
+                        Server = new MongoDB.Driver.MongoServerAddress(model.MongoDBServerName),
+                        Username = model.MongoDBUsername,
+                        Password = model.MongoDBPassword,
+                        DatabaseName = model.MongoDBDatabaseName
+                    };
+                    connectionString = builder.ToString();
                 }
                 else
                 {

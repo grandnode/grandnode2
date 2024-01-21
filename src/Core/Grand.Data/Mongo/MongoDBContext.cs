@@ -86,8 +86,9 @@ namespace Grand.Data.Mongo
 
             if (!string.IsNullOrEmpty(collation))
             {
-                var options = new CreateCollectionOptions();
-                options.Collation = new Collation(collation);
+                var options = new CreateCollectionOptions {
+                    Collation = new Collation(collation)
+                };
                 await _database.CreateCollectionAsync(name, options);
             }
             else
@@ -113,25 +114,15 @@ namespace Grand.Data.Mongo
             {
                 if (item.selector != null)
                 {
-                    if (item.value)
-                    {
-                        keys.Add(Builders<T>.IndexKeys.Ascending(item.selector));
-                    }
-                    else
-                    {
-                        keys.Add(Builders<T>.IndexKeys.Descending(item.selector));
-                    }
+                    keys.Add(item.value
+                        ? Builders<T>.IndexKeys.Ascending(item.selector)
+                        : Builders<T>.IndexKeys.Descending(item.selector));
                 }
                 else
                 {
-                    if (item.value)
-                    {
-                        keys.Add(Builders<T>.IndexKeys.Ascending(item.fieldName));
-                    }
-                    else
-                    {
-                        keys.Add(Builders<T>.IndexKeys.Descending(item.fieldName));
-                    }
+                    keys.Add(item.value
+                        ? Builders<T>.IndexKeys.Ascending(item.fieldName)
+                        : Builders<T>.IndexKeys.Descending(item.fieldName));
                 }
             }
 

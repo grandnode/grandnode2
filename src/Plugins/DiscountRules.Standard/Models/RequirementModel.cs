@@ -7,11 +7,6 @@ namespace DiscountRules.Standard.Models;
 
 public class RequirementCustomerGroupsModel
 {
-    public RequirementCustomerGroupsModel()
-    {
-        AvailableCustomerGroups = new List<SelectListItem>();
-    }
-
     [GrandResourceDisplayName("Plugins.DiscountRules.CustomerGroups.Fields.CustomerGroup")]
     public string CustomerGroupId { get; set; }
 
@@ -19,7 +14,7 @@ public class RequirementCustomerGroupsModel
 
     public string RequirementId { get; set; }
 
-    public IList<SelectListItem> AvailableCustomerGroups { get; set; }
+    public IList<SelectListItem> AvailableCustomerGroups { get; set; } = new List<SelectListItem>();
 }
 
 public class RequirementSpentAmountModel
@@ -45,13 +40,6 @@ public class RequirementAllProductsModel
 
     public class AddProductModel : BaseModel
     {
-        public AddProductModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-            AvailableVendors = new List<SelectListItem>();
-            AvailableProductTypes = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
         public string SearchProductName { get; set; }
         [UIHint("Category")]
@@ -68,9 +56,9 @@ public class RequirementAllProductsModel
         public int SearchProductTypeId { get; set; }
 
             
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
-        public IList<SelectListItem> AvailableProductTypes { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
         //vendor
         public bool IsLoggedInAsVendor { get; set; }
@@ -98,13 +86,6 @@ public class RequirementOneProductModel
 
     public class AddProductModel : BaseModel
     {
-        public AddProductModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-            AvailableVendors = new List<SelectListItem>();
-            AvailableProductTypes = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
         public string SearchProductName { get; set; }
         [UIHint("Category")]
@@ -120,9 +101,9 @@ public class RequirementOneProductModel
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
-        public IList<SelectListItem> AvailableProductTypes { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
         //vendor
         public bool IsLoggedInAsVendor { get; set; }

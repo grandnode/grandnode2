@@ -7,13 +7,8 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class CustomerSettingsModel : BaseModel
     {
-        public CustomerSettingsModel()
-        {
-            CustomerSettings = new CustomersSettingsModel();
-            AddressSettings = new AddressSettingsModel();
-        }
-        public CustomersSettingsModel CustomerSettings { get; set; }
-        public AddressSettingsModel AddressSettings { get; set; }
+        public CustomersSettingsModel CustomerSettings { get; set; } = new();
+        public AddressSettingsModel AddressSettings { get; set; } = new();
 
         #region Nested classes
 

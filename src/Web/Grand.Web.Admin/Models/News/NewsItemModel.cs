@@ -8,11 +8,6 @@ namespace Grand.Web.Admin.Models.News
 {
     public class NewsItemModel : BaseEntityModel, ILocalizedModel<NewsLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public NewsItemModel()
-        {
-            Locales = new List<NewsLocalizedModel>();
-        }
-
         //Store acl
         [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.LimitedToStores")]
         [UIHint("Stores")]
@@ -54,7 +49,7 @@ namespace Grand.Web.Admin.Models.News
         [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.SeName")]
         public string SeName { get; set; }
 
-        public IList<NewsLocalizedModel> Locales { get; set; }
+        public IList<NewsLocalizedModel> Locales { get; set; } = new List<NewsLocalizedModel>();
 
         [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Published")]
         public bool Published { get; set; }

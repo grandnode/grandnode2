@@ -27,7 +27,7 @@ namespace Grand.Business.System.Services.Installation
                     CurrencyCode = "EUR",
                     Rate = 0.95,
                     DisplayLocale = "",
-                    CustomFormatting = string.Format("{0}0.00", "\u20ac"),
+                    CustomFormatting = $"{"\u20ac"}0.00",
                     NumberDecimal = 2,
                     Published = true,
                     DisplayOrder = 2,

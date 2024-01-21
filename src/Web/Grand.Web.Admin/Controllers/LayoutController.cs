@@ -46,7 +46,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Category layouts
 
-        public IActionResult CategoryLayouts() => View();
+        public IActionResult CategoryLayouts()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> CategoryLayouts(DataSourceRequest command)
@@ -121,7 +124,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Brand layouts
 
-        public IActionResult BrandLayouts() => View();
+        public IActionResult BrandLayouts()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> BrandLayouts(DataSourceRequest command)
@@ -191,7 +197,10 @@ namespace Grand.Web.Admin.Controllers
         #endregion
 
         #region Collection layouts
-        public IActionResult CollectionLayouts() => View();
+        public IActionResult CollectionLayouts()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> CollectionLayouts(DataSourceRequest command)
@@ -262,7 +271,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Product layouts
 
-        public IActionResult ProductLayouts() => View();
+        public IActionResult ProductLayouts()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> ProductLayouts(DataSourceRequest command)
@@ -329,7 +341,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Page layouts
 
-        public IActionResult PageLayouts() => View();
+        public IActionResult PageLayouts()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> PageLayouts(DataSourceRequest command)

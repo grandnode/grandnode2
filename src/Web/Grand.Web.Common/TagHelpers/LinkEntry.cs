@@ -24,7 +24,7 @@ namespace Grand.Web.Common.TagHelpers
                 _builder.Attributes.TryGetValue("rel", out value);
                 return value;
             }
-            set { SetAttribute("rel", value); }
+            set => SetAttribute("rel", value);
         }
 
         public string Type
@@ -35,7 +35,7 @@ namespace Grand.Web.Common.TagHelpers
                 _builder.Attributes.TryGetValue("type", out value);
                 return value;
             }
-            set { SetAttribute("type", value); }
+            set => SetAttribute("type", value);
         }
 
         public string Title
@@ -46,7 +46,7 @@ namespace Grand.Web.Common.TagHelpers
                 _builder.Attributes.TryGetValue("title", out value);
                 return value;
             }
-            set { SetAttribute("title", value); }
+            set => SetAttribute("title", value);
         }
 
         public string Href
@@ -57,13 +57,13 @@ namespace Grand.Web.Common.TagHelpers
                 _builder.Attributes.TryGetValue("href", out value);
                 return value;
             }
-            set { SetAttribute("href", value); }
+            set => SetAttribute("href", value);
         }
 
         public int Priority
         {
-            get { return _priority; }
-            set { _priority = value; }
+            get => _priority;
+            set => _priority = value;
         }
 
 

@@ -3,7 +3,7 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a loyalty point history entry
     /// </summary>
-    public partial class LoyaltyPointsHistory : BaseEntity
+    public class LoyaltyPointsHistory : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

@@ -36,9 +36,7 @@ namespace Grand.Data.Tests.MongoDb
         /// <summary>
         /// Gets the test client.
         /// </summary>
-        public static MongoClient Client {
-            get { return __client.Value; }
-        }
+        public static MongoClient Client => __client.Value;
 
         /// <summary>
         /// Gets the collection namespace.
@@ -46,9 +44,7 @@ namespace Grand.Data.Tests.MongoDb
         /// <value>
         /// The collection namespace.
         /// </value>
-        public static CollectionNamespace CollectionNamespace {
-            get { return __collectionNamespace; }
-        }
+        public static CollectionNamespace CollectionNamespace => __collectionNamespace;
 
         /// <summary>
         /// Gets the database namespace.
@@ -56,8 +52,6 @@ namespace Grand.Data.Tests.MongoDb
         /// <value>
         /// The database namespace.
         /// </value>
-        public static DatabaseNamespace DatabaseNamespace {
-            get { return __databaseNamespace; }
-        }
+        public static DatabaseNamespace DatabaseNamespace => __databaseNamespace;
     }
 }

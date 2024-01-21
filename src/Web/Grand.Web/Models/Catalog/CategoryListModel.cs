@@ -2,11 +2,6 @@
 
 public class CategoryListModel
 {
-    public CategoryListModel()
-    {
-        PagingModel = new CategoryPagingModel();
-        CategoriesModel = new List<CategoryModel>();
-    }
-    public CategoryPagingModel PagingModel { get; set; }
-    public IList<CategoryModel> CategoriesModel { get; set; }
+    public CategoryPagingModel PagingModel { get; set; } = new();
+    public IList<CategoryModel> CategoriesModel { get; set; } = new List<CategoryModel>();
 }

@@ -61,7 +61,10 @@ namespace Grand.Web.Admin.Controllers
             await _cacheBase.Clear();
         }
 
-        public IActionResult Providers() => View();
+        public IActionResult Providers()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Providers(DataSourceRequest command)
@@ -154,7 +157,7 @@ namespace Grand.Web.Admin.Controllers
                 model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
 
             var states = defaultAddress != null && !string.IsNullOrEmpty(defaultAddress.CountryId) ? (await _countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states.Count > 0)
+            if (states?.Count > 0)
             {
                 foreach (var s in states)
                     model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress.StateProvinceId });
@@ -188,7 +191,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Tax Categories
 
-        public IActionResult Categories() => View();
+        public IActionResult Categories()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Categories(DataSourceRequest command)

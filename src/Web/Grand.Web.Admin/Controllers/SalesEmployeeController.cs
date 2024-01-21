@@ -43,7 +43,10 @@ namespace Grand.Web.Admin.Controllers
         #endregion
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.List)]

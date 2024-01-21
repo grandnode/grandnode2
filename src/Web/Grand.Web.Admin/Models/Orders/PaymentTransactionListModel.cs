@@ -7,17 +7,11 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class PaymentTransactionListModel : BaseModel
     {
-        public PaymentTransactionListModel()
-        {
-            PaymentTransactionStatus = new List<SelectListItem>();
-            SearchTransactionStatus = -1;
-        }
-
         [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.SearchCustomerEmail")]
         public string SearchCustomerEmail { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.SearchTransactionStatus")]
-        public int SearchTransactionStatus { get; set; }
+        public int SearchTransactionStatus { get; set; } = -1;
 
         [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.OrderNumber")]
         public string OrderNumber { get; set; }
@@ -32,6 +26,6 @@ namespace Grand.Web.Admin.Models.Orders
 
         public string StoreId { get; set; }
 
-        public IList<SelectListItem> PaymentTransactionStatus { get; set; }
+        public IList<SelectListItem> PaymentTransactionStatus { get; set; } = new List<SelectListItem>();
     }
 }

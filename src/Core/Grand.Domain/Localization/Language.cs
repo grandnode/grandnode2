@@ -5,13 +5,8 @@ namespace Grand.Domain.Localization
     /// <summary>
     /// Represents a language
     /// </summary>
-    public partial class Language : BaseEntity, IStoreLinkEntity
+    public class Language : BaseEntity, IStoreLinkEntity
     {
-        public Language()
-        {
-            Stores = new List<string>();
-        }
-
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -41,7 +36,7 @@ namespace Grand.Domain.Localization
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the identifier of the default currency for this language; 0 is set when we use the default currency display order

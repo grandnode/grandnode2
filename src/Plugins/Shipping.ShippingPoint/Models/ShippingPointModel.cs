@@ -6,12 +6,6 @@ namespace Shipping.ShippingPoint.Models
 {
     public class ShippingPointModel : BaseEntityModel
     {
-        public ShippingPointModel()
-        {
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStores = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.ShippingPointName")]
         public string ShippingPointName { get; set; }
 
@@ -24,7 +18,8 @@ namespace Shipping.ShippingPoint.Models
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.PickupFee")]
         public double PickupFee { get; set; }
 
-        public List<SelectListItem> AvailableStores { get; set; }
+        public List<SelectListItem> AvailableStores { get; set; } = new();
+
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.Store")]
         public string StoreId { get; set; }
 
@@ -42,7 +37,7 @@ namespace Shipping.ShippingPoint.Models
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.Country")]
         public string CountryId { get; set; }
 
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
     }
 
 

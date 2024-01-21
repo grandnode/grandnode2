@@ -16,8 +16,8 @@
                         {ECOMMERCE}
                     </script>
                 "));
-    var googleAnalytics_EcommerceScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});"));
-    var googleAnalytics_EcommerceDetailScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, "));
+    var googleAnalytics_EcommerceScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});"));
+    var googleAnalytics_EcommerceDetailScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, "));
     
 }
 <script>

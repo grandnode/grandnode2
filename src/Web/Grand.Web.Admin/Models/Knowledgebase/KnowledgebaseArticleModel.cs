@@ -9,12 +9,6 @@ namespace Grand.Web.Admin.Models.Knowledgebase
 {
     public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<KnowledgebaseArticleLocalizedModel>, IGroupLinkModel, IStoreLinkModel
     {
-        public KnowledgebaseArticleModel()
-        {
-            Categories = new List<SelectListItem>();
-            Locales = new List<KnowledgebaseArticleLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name")]
         public string Name { get; set; }
 
@@ -48,9 +42,9 @@ namespace Grand.Web.Admin.Models.Knowledgebase
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.AllowComments")]
         public bool AllowComments { get; set; }
 
-        public List<SelectListItem> Categories { get; set; }
+        public List<SelectListItem> Categories { get; set; } = new();
 
-        public IList<KnowledgebaseArticleLocalizedModel> Locales { get; set; }
+        public IList<KnowledgebaseArticleLocalizedModel> Locales { get; set; } = new List<KnowledgebaseArticleLocalizedModel>();
 
         //ACL
         [UIHint("CustomerGroups")]
@@ -63,11 +57,6 @@ namespace Grand.Web.Admin.Models.Knowledgebase
 
         public class AddRelatedArticleModel : BaseEntityModel
         {
-            public AddRelatedArticleModel()
-            {
-                AvailableArticles = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.SearchArticleName")]
             public string SearchArticleName { get; set; }
 
@@ -75,7 +64,7 @@ namespace Grand.Web.Admin.Models.Knowledgebase
 
             public string[] SelectedArticlesIds { get; set; }
 
-            public IList<SelectListItem> AvailableArticles { get; set; }
+            public IList<SelectListItem> AvailableArticles { get; set; } = new List<SelectListItem>();
         }
     }
 

@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a related product
     /// </summary>
-    public partial class RelatedProduct : SubBaseEntity
+    public class RelatedProduct : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the second product identifier

@@ -17,22 +17,16 @@ namespace Grand.Web.Models.Catalog
 
     public class ProductReviewsModel : BaseModel
     {
-        public ProductReviewsModel()
-        {
-            Items = new List<ProductReviewModel>();
-            AddProductReview = new AddProductReviewModel();
-            Captcha = new CaptchaModel();
-        }
         public string ProductId { get; set; }
 
         public bool CaptchaValid { get; set; }
-        public ICaptchaValidModel Captcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
         public string ProductName { get; set; }
 
         public string ProductSeName { get; set; }
 
-        public IList<ProductReviewModel> Items { get; set; }
-        public AddProductReviewModel AddProductReview { get; set; }
+        public IList<ProductReviewModel> Items { get; set; } = new List<ProductReviewModel>();
+        public AddProductReviewModel AddProductReview { get; set; } = new();
         public ProductReviewOverviewModel ProductReviewOverviewModel { get; set; }
     }
 

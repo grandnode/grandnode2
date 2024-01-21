@@ -12,15 +12,6 @@ namespace Grand.Web.Models.Customer
 {
     public class RegisterModel : BaseModel
     {
-        public RegisterModel()
-        {
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStates = new List<SelectListItem>();
-            CustomerAttributes = new List<CustomerAttributeModel>();
-            SelectedAttributes = new List<CustomAttributeModel>();
-            NewsletterCategories = new List<NewsletterSimpleCategory>();
-            Captcha = new CaptchaModel();
-        }
         [MaxLength(FieldSizeLimits.EmailMaxLength)]
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Fields.Email")]
@@ -119,13 +110,13 @@ namespace Grand.Web.Models.Customer
         
         [GrandResourceDisplayName("Account.Fields.Country")]
         public string CountryId { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
         public bool StateProvinceEnabled { get; set; }
         public bool StateProvinceRequired { get; set; }
         [GrandResourceDisplayName("Account.Fields.StateProvince")]
         public string StateProvinceId { get; set; }
-        public IList<SelectListItem> AvailableStates { get; set; }
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
         public bool PhoneEnabled { get; set; }
         public bool PhoneRequired { get; set; }
@@ -154,12 +145,12 @@ namespace Grand.Web.Models.Customer
         public bool DisplayVatNumber { get; set; }
         
         public bool DisplayCaptcha { get; set; }
-        public ICaptchaValidModel Captcha { get; set; }
-        
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
+
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
-        
-        public IList<CustomerAttributeModel> CustomerAttributes { get; set; }
-        public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; }
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
+
+        public IList<CustomerAttributeModel> CustomerAttributes { get; set; } = new List<CustomerAttributeModel>();
+        public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; } = new List<NewsletterSimpleCategory>();
     }
 }

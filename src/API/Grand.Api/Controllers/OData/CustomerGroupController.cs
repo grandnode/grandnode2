@@ -100,7 +100,7 @@ namespace Grand.Api.Controllers.OData
 
             var cr = customerGroup.FirstOrDefault();
             model.ApplyTo(cr);
-            if (!cr.IsSystem)
+            if (cr is { IsSystem: false })
             {
                 await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
                 return Ok();

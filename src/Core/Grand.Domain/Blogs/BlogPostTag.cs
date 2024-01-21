@@ -3,7 +3,7 @@ namespace Grand.Domain.Blogs
     /// <summary>
     /// Represents a blog post tag
     /// </summary>
-    public partial class BlogPostTag
+    public class BlogPostTag
     {
         /// <summary>
         /// Gets or sets the name

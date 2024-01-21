@@ -7,13 +7,6 @@ namespace Grand.Web.Admin.Models.Customers
 {
     public class BestCustomersReportModel : BaseModel
     {
-        public BestCustomersReportModel()
-        {
-            AvailableOrderStatuses = new List<SelectListItem>();
-            AvailablePaymentStatuses = new List<SelectListItem>();
-            AvailableShippingStatuses = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? StartDate { get; set; }
@@ -31,8 +24,8 @@ namespace Grand.Web.Admin.Models.Customers
 
         public string StoreId { get; set; }
 
-        public IList<SelectListItem> AvailableOrderStatuses { get; set; }
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
-        public IList<SelectListItem> AvailableShippingStatuses { get; set; }
+        public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableShippingStatuses { get; set; } = new List<SelectListItem>();
     }
 }

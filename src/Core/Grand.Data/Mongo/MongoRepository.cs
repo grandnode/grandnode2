@@ -20,11 +20,7 @@ namespace Grand.Data.Mongo
         /// </summary>
         protected IMongoCollection<T> _collection;
 
-        public IMongoCollection<T> Collection {
-            get {
-                return _collection;
-            }
-        }
+        public IMongoCollection<T> Collection => _collection;
 
         /// <summary>
         /// Sets a collection
@@ -40,11 +36,7 @@ namespace Grand.Data.Mongo
         /// </summary>
         protected IMongoDatabase _database;
 
-        public IMongoDatabase Database {
-            get {
-                return _database;
-            }
-        }
+        public IMongoDatabase Database => _database;
 
         #endregion
 
@@ -276,7 +268,6 @@ namespace Grand.Data.Mongo
         /// <param name="id">Ident of entitie</param>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
-        /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
         public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
             Expression<Func<U, bool>> elemFieldMatch, U value)
@@ -307,12 +298,10 @@ namespace Grand.Data.Mongo
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>
-        /// <typeparam name="Z">Subdocuments</typeparam>
-        /// <param name="id">Ident of entitie</param>
+        /// <typeparam name="U"></typeparam>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
         public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
         {
@@ -468,9 +457,7 @@ namespace Grand.Data.Mongo
         /// <summary>
         /// Gets a table
         /// </summary>
-        public virtual IQueryable<T> Table {
-            get { return _collection.AsQueryable(); }
-        }
+        public virtual IQueryable<T> Table => _collection.AsQueryable();
 
         /// <summary>
         /// Gets a table collection

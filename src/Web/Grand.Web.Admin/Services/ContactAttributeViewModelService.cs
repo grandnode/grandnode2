@@ -12,25 +12,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
 {
-    public class ContactAttributeViewModelService : IContactAttributeViewModelService
+    public class ContactAttributeViewModelService(
+        IContactAttributeService contactAttributeService,
+        IContactAttributeParser contactAttributeParser,
+        ITranslationService translationService,
+        IWorkContext workContext)
+        : IContactAttributeViewModelService
     {
-
-        private readonly IContactAttributeService _contactAttributeService;
-        private readonly IContactAttributeParser _contactAttributeParser;
-        private readonly ITranslationService _translationService;
-        private readonly IWorkContext _workContext;
-
-        public ContactAttributeViewModelService(IContactAttributeService contactAttributeService,
-            IContactAttributeParser contactAttributeParser,
-            ITranslationService translationService,
-            IWorkContext workContext)
-        {
-            _contactAttributeService = contactAttributeService;
-            _contactAttributeParser = contactAttributeParser;
-            _translationService = translationService;
-            _workContext = workContext;
-        }
-
         #region Utilities
 
         protected virtual async Task SaveConditionAttributes(ContactAttribute contactAttribute, ContactAttributeModel model)
@@ -38,7 +26,7 @@ namespace Grand.Web.Admin.Services
             var customattributes = new List<CustomAttribute>();
             if (model.ConditionModel.EnableCondition)
             {
-                var attribute = await _contactAttributeService.GetContactAttributeById(model.ConditionModel.SelectedAttributeId);
+                var attribute = await contactAttributeService.GetContactAttributeById(model.ConditionModel.SelectedAttributeId);
                 if (attribute != null)
                 {
                     switch (attribute.AttributeControlType)
@@ -51,10 +39,7 @@ namespace Grand.Web.Admin.Services
                                 var selectedAttribute = model.ConditionModel.ConditionAttributes
                                     .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
                                 var selectedValue = selectedAttribute?.SelectedValueId;
-                                if (!string.IsNullOrEmpty(selectedValue))
-                                    customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, selectedValue).ToList();
-                                else
-                                    customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, string.Empty).ToList();
+                                customattributes = !string.IsNullOrEmpty(selectedValue) ? contactAttributeParser.AddContactAttribute(customattributes, attribute, selectedValue).ToList() : contactAttributeParser.AddContactAttribute(customattributes, attribute, string.Empty).ToList();
                             }
                             break;
                         case AttributeControlType.Checkboxes:
@@ -64,9 +49,9 @@ namespace Grand.Web.Admin.Services
                                 var selectedValues = selectedAttribute?.Values.Where(x => x.Selected).Select(x => x.Value);
                                 if (selectedValues.Any())
                                     foreach (var value in selectedValues)
-                                        customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, value).ToList();
+                                        customattributes = contactAttributeParser.AddContactAttribute(customattributes, attribute, value).ToList();
                                 else
-                                    customattributes = _contactAttributeParser.AddContactAttribute(customattributes, attribute, string.Empty).ToList();
+                                    customattributes = contactAttributeParser.AddContactAttribute(customattributes, attribute, string.Empty).ToList();
                             }
                             break;
                         case AttributeControlType.ReadonlyCheckboxes:
@@ -86,11 +71,11 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
         {
-            var contactAttributes = await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true);
+            var contactAttributes = await contactAttributeService.GetAllContactAttributes(workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true);
             return contactAttributes.Select(x =>
             {
                 var attributeModel = x.ToModel();
-                attributeModel.AttributeControlTypeName = x.AttributeControlType.GetTranslationEnum(_translationService, _workContext);
+                attributeModel.AttributeControlTypeName = x.AttributeControlType.GetTranslationEnum(translationService, workContext);
                 return attributeModel;
             });
         }
@@ -106,13 +91,13 @@ namespace Grand.Web.Admin.Services
             if (contactAttribute == null)
                 return;
 
-            var selectedAttribute = (await _contactAttributeParser.ParseContactAttributes(contactAttribute.ConditionAttribute)).FirstOrDefault();
-            var selectedValues = await _contactAttributeParser.ParseContactAttributeValues(contactAttribute.ConditionAttribute);
+            var selectedAttribute = (await contactAttributeParser.ParseContactAttributes(contactAttribute.ConditionAttribute)).FirstOrDefault();
+            var selectedValues = await contactAttributeParser.ParseContactAttributeValues(contactAttribute.ConditionAttribute);
 
             model.ConditionModel = new ConditionModel {
                 EnableCondition = contactAttribute.ConditionAttribute.Any(),
                 SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
-                ConditionAttributes = (await _contactAttributeService.GetAllContactAttributes(_workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true))
+                ConditionAttributes = (await contactAttributeService.GetAllContactAttributes(workContext.CurrentCustomer.StaffStoreId, ignoreAcl: true))
                     //ignore this attribute and non-combinable attributes
                     .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                     .Select(x =>
@@ -133,14 +118,14 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<ContactAttribute> InsertContactAttributeModel(ContactAttributeModel model)
         {
             var contactAttribute = model.ToEntity();
-            await _contactAttributeService.InsertContactAttribute(contactAttribute);
+            await contactAttributeService.InsertContactAttribute(contactAttribute);
             return contactAttribute;
         }
         public virtual async Task<ContactAttribute> UpdateContactAttributeModel(ContactAttribute contactAttribute, ContactAttributeModel model)
         {
             contactAttribute = model.ToEntity(contactAttribute);
             await SaveConditionAttributes(contactAttribute, model);
-            await _contactAttributeService.UpdateContactAttribute(contactAttribute);
+            await contactAttributeService.UpdateContactAttribute(contactAttribute);
             return contactAttribute;
         }
 
@@ -165,14 +150,14 @@ namespace Grand.Web.Admin.Services
         {
             var cav = model.ToEntity();
             contactAttribute.ContactAttributeValues.Add(cav);
-            await _contactAttributeService.UpdateContactAttribute(contactAttribute);
+            await contactAttributeService.UpdateContactAttribute(contactAttribute);
             return cav;
         }
 
         public virtual async Task<ContactAttributeValue> UpdateContactAttributeValueModel(ContactAttribute contactAttribute, ContactAttributeValue contactAttributeValue, ContactAttributeValueModel model)
         {
             contactAttributeValue = model.ToEntity(contactAttributeValue);
-            await _contactAttributeService.UpdateContactAttribute(contactAttribute);
+            await contactAttributeService.UpdateContactAttribute(contactAttribute);
             return contactAttributeValue;
         }
     }

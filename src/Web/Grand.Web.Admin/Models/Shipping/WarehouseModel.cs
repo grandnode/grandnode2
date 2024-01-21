@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Shipping
 {
     public class WarehouseModel : BaseEntityModel
     {
-        public WarehouseModel()
-        {
-            Address = new AddressModel();
-        }
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Code")]
         public string Code { get; set; }
 
@@ -26,7 +22,7 @@ namespace Grand.Web.Admin.Models.Shipping
         public double? Longitude { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Address")]
-        public AddressModel Address { get; set; }
+        public AddressModel Address { get; set; } = new();
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }

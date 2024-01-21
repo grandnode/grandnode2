@@ -184,8 +184,13 @@
                                                 <partial name="Partials/TierPrices" model="variant.TierPrices" />
                                             }
                                             @{
-                                                var dataDictAddToCart = new ViewDataDictionary(ViewData);
-                                                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
+                                                var dataDictAddToCart = new ViewDataDictionary(ViewData)
+                                                {
+                                                    TemplateInfo =
+                                                    {
+                                                        HtmlFieldPrefix = $"addtocart_{variant.Id}"
+                                                    }
+                                                };
                                             }
                                             <!--price & add to cart-->
                                             <partial name="Partials/Prices" model="variant.ProductPrice"/>

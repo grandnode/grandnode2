@@ -24,12 +24,7 @@ namespace Shipping.FixedRateShipping
             _languageService = languageService;
         }
         #endregion
-
-        #region Utilities
-
-
-        #endregion
-
+        
         #region Methods
        
         /// <summary>

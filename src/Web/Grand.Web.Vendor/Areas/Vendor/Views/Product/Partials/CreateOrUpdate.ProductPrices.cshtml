@@ -5,7 +5,7 @@
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
 }
-@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0 && currencies.Count > 0)
+@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count is > 0)
 { 
     <div class="panel panel-default">
         <div class="panel-body">

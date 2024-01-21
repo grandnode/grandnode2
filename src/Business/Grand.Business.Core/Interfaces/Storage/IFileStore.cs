@@ -126,7 +126,7 @@ namespace Grand.Business.Core.Interfaces.Storage
         /// Write text to file
         /// </summary>
         /// <param name="path"></param>
-        /// <param text=text></param>
+        /// <param name="text"></param>
         /// <returns></returns>
         Task WriteAllText(string path, string text);
     }

@@ -5,12 +5,7 @@ namespace Grand.Web.Models.Orders
 {
     public class CustomerLoyaltyPointsModel : BaseModel
     {
-        public CustomerLoyaltyPointsModel()
-        {
-            LoyaltyPoints = new List<LoyaltyPointsHistoryModel>();
-        }
-
-        public IList<LoyaltyPointsHistoryModel> LoyaltyPoints { get; set; }
+        public IList<LoyaltyPointsHistoryModel> LoyaltyPoints { get; set; } = new List<LoyaltyPointsHistoryModel>();
         public int LoyaltyPointsBalance { get; set; }
         public string LoyaltyPointsAmount { get; set; }
         public int MinimumLoyaltyPointsBalance { get; set; }

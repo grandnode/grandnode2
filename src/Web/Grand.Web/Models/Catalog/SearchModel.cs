@@ -6,15 +6,6 @@ namespace Grand.Web.Models.Catalog
 {
     public class SearchModel : BaseModel
     {
-        public SearchModel()
-        {
-            PagingFilteringContext = new CatalogPagingFilteringModel();
-            Products = new List<ProductOverviewModel>();
-            AvailableCategories = new List<SelectListItem>();
-            AvailableCollections = new List<SelectListItem>();
-            AvailableVendors = new List<SelectListItem>();
-        }
-
         public string Warning { get; set; }
 
         public bool NoResults { get; set; }
@@ -68,12 +59,12 @@ namespace Grand.Web.Models.Catalog
         public bool asv { get; set; }
         public bool Box { get; set; }
 
-        public IList<SelectListItem> AvailableCategories { get; set; }
-        public IList<SelectListItem> AvailableCollections { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
+        public IList<SelectListItem> AvailableCategories { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCollections { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
 
-        public CatalogPagingFilteringModel PagingFilteringContext { get; set; }
-        public IList<ProductOverviewModel> Products { get; set; }
+        public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
+        public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
 
         #region Nested classes
 

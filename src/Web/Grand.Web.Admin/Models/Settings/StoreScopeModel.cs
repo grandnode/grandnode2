@@ -5,12 +5,7 @@ namespace Grand.Web.Admin.Models.Settings
 {
     public class StoreScopeModel : BaseModel
     {
-        public StoreScopeModel()
-        {
-            Stores = new List<StoreModel>();
-        }
-
         public string StoreId { get; set; }
-        public IList<StoreModel> Stores { get; set; }
+        public IList<StoreModel> Stores { get; set; } = new List<StoreModel>();
     }
 }

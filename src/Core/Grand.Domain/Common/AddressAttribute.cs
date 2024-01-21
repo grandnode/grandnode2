@@ -6,14 +6,10 @@ namespace Grand.Domain.Common
     /// <summary>
     /// Represents an address attribute
     /// </summary>
-    public partial class AddressAttribute : BaseEntity, ITranslationEntity
+    public class AddressAttribute : BaseEntity, ITranslationEntity
     {
         private ICollection<AddressAttributeValue> _addressAttributeValues;
 
-        public AddressAttribute()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -38,29 +34,23 @@ namespace Grand.Domain.Common
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets the attribute control type
         /// </summary>
         public AttributeControlType AttributeControlType
         {
-            get
-            {
-                return (AttributeControlType)AttributeControlTypeId;
-            }
-            set
-            {
-                AttributeControlTypeId = (int)value;
-            }
+            get => (AttributeControlType)AttributeControlTypeId;
+            set => AttributeControlTypeId = (int)value;
         }
         /// <summary>
         /// Gets the address attribute values
         /// </summary>
         public virtual ICollection<AddressAttributeValue> AddressAttributeValues
         {
-            get { return _addressAttributeValues ??= new List<AddressAttributeValue>(); }
-            protected set { _addressAttributeValues = value; }
+            get => _addressAttributeValues ??= new List<AddressAttributeValue>();
+            protected set => _addressAttributeValues = value;
         }
     }
 

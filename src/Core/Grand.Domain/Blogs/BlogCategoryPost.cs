@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Blogs
 {
-    public partial class BlogCategoryPost : SubBaseEntity
+    public class BlogCategoryPost : SubBaseEntity
     {
         public string BlogPostId { get; set; }
     }

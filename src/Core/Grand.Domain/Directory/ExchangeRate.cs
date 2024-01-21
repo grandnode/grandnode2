@@ -3,7 +3,7 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents an exchange rate
     /// </summary>
-    public partial class ExchangeRate
+    public class ExchangeRate
     {
         /// <summary>
         /// Creates a new instance of the ExchangeRate class
@@ -36,7 +36,7 @@ namespace Grand.Domain.Directory
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} {1}", CurrencyCode, Rate);
+            return $"{CurrencyCode} {Rate}";
         }
     }
 

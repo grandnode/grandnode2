@@ -5,17 +5,11 @@ namespace Grand.Web.Models.Checkout
 {
     public class CheckoutShippingMethodModel : BaseModel
     {
-        public CheckoutShippingMethodModel()
-        {
-            ShippingMethods = new List<ShippingMethodModel>();
-            Warnings = new List<string>();
-        }
-
-        public IList<ShippingMethodModel> ShippingMethods { get; set; }
+        public IList<ShippingMethodModel> ShippingMethods { get; set; } = new List<ShippingMethodModel>();
 
         public string ShippingOption { get; set; }
         public IDictionary<string, string> Data{ get; set; }
-        public IList<string> Warnings { get; set; }
+        public IList<string> Warnings { get; set; } = new List<string>();
 
         #region Nested classes
 

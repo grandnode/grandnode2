@@ -35,8 +35,9 @@ namespace Grand.Business.Marketing.Tests.Services.Newsletters
         public void InsertNewsLetterSubscription_InvalidEmail_ThrowException()
         {
             var email = "NotValidEmail";
-            var newsLetterSubscription = new NewsLetterSubscription();
-            newsLetterSubscription.Email = email;
+            var newsLetterSubscription = new NewsLetterSubscription {
+                Email = email
+            };
             Assert.ThrowsExceptionAsync<GrandException>(async () => await _newsLetterSubscriptionService.InsertNewsLetterSubscription(newsLetterSubscription));
         }
 

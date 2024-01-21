@@ -6,15 +6,6 @@ namespace Tax.CountryStateZip.Models
 {
     public class TaxRateListModel : BaseModel
     {
-        public TaxRateListModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStates = new List<SelectListItem>();
-            AvailableTaxCategories = new List<SelectListItem>();
-            TaxRates = new List<TaxRateModel>();
-        }
-
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Store")]
         public string AddStoreId { get; set; }
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Country")]
@@ -28,12 +19,11 @@ namespace Tax.CountryStateZip.Models
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Percentage")]
         public double AddPercentage { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
-        public IList<SelectListItem> AvailableStates { get; set; }
-        public IList<SelectListItem> AvailableTaxCategories { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableTaxCategories { get; set; } = new List<SelectListItem>();
 
-        public IList<TaxRateModel> TaxRates { get; set; }
-
+        public IList<TaxRateModel> TaxRates { get; set; } = new List<TaxRateModel>();
     }
 }

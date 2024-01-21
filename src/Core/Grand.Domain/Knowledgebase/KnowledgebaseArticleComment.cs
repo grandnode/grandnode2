@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Knowledgebase
 {
-    public partial class KnowledgebaseArticleComment : BaseEntity
+    public class KnowledgebaseArticleComment : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

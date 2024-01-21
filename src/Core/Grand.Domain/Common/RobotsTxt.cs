@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Common
 {
-    public partial class RobotsTxt : BaseEntity
+    public class RobotsTxt : BaseEntity
     {
 
         /// <summary>

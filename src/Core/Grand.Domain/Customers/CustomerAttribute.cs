@@ -6,14 +6,10 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents a customer attribute
     /// </summary>
-    public partial class CustomerAttribute : BaseEntity, ITranslationEntity
+    public class CustomerAttribute : BaseEntity, ITranslationEntity
     {
         private ICollection<CustomerAttributeValue> _customerAttributeValues;
 
-        public CustomerAttribute()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -42,15 +38,15 @@ namespace Grand.Domain.Customers
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets the customer attribute values
         /// </summary>
         public virtual ICollection<CustomerAttributeValue> CustomerAttributeValues
         {
-            get { return _customerAttributeValues ??= new List<CustomerAttributeValue>(); }
-            protected set { _customerAttributeValues = value; }
+            get => _customerAttributeValues ??= new List<CustomerAttributeValue>();
+            protected set => _customerAttributeValues = value;
         }
     }
 

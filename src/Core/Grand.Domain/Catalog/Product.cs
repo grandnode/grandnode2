@@ -9,7 +9,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product
     /// </summary>
-    public partial class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
+    public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
     {
         private ICollection<ProductCategory> _productCategories;
         private ICollection<ProductCollection> _productCollections;
@@ -27,12 +27,6 @@ namespace Grand.Domain.Catalog
         private ICollection<BundleProduct> _bundleProduct;
         private ICollection<ProductPrice> _productPrices;
         private ICollection<string> _productTags;
-        public Product()
-        {
-            CustomerGroups = new List<string>();
-            Locales = new List<TranslationEntity>();
-            Stores = new List<string>();
-        }
 
         /// <summary>
         /// Gets or sets the product type identifier
@@ -139,12 +133,14 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether the entity is subject to ACL
         /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
+
         /// <summary>
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
+
         /// <summary>
         /// Gets or sets the ExternalId
         /// </summary>
@@ -565,15 +561,15 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-        
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
+
         /// <summary>
         /// Gets or sets the collection of ProductCategory
         /// </summary>
         public virtual ICollection<ProductCategory> ProductCategories
         {
-            get { return _productCategories ??= new List<ProductCategory>(); }
-            protected set { _productCategories = value; }
+            get => _productCategories ??= new List<ProductCategory>();
+            protected set => _productCategories = value;
         }
 
         /// <summary>
@@ -581,8 +577,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductCollection> ProductCollections
         {
-            get { return _productCollections ??= new List<ProductCollection>(); }
-            protected set { _productCollections = value; }
+            get => _productCollections ??= new List<ProductCollection>();
+            protected set => _productCollections = value;
         }
 
         /// <summary>
@@ -590,8 +586,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductPicture> ProductPictures
         {
-            get { return _productPictures ??= new List<ProductPicture>(); }
-            protected set { _productPictures = value; }
+            get => _productPictures ??= new List<ProductPicture>();
+            protected set => _productPictures = value;
         }
 
         /// <summary>
@@ -599,8 +595,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductSpecificationAttribute> ProductSpecificationAttributes
         {
-            get { return _productSpecificationAttributes ??= new List<ProductSpecificationAttribute>(); }
-            protected set { _productSpecificationAttributes = value; }
+            get => _productSpecificationAttributes ??= new List<ProductSpecificationAttribute>();
+            protected set => _productSpecificationAttributes = value;
         }
 
         /// <summary>
@@ -608,8 +604,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<string> ProductTags
         {
-            get { return _productTags ??= new List<string>(); }
-            protected set { _productTags = value; }
+            get => _productTags ??= new List<string>();
+            protected set => _productTags = value;
         }
 
         /// <summary>
@@ -617,8 +613,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductAttributeMapping> ProductAttributeMappings
         {
-            get { return _productAttributeMappings ??= new List<ProductAttributeMapping>(); }
-            protected set { _productAttributeMappings = value; }
+            get => _productAttributeMappings ??= new List<ProductAttributeMapping>();
+            protected set => _productAttributeMappings = value;
         }
 
         /// <summary>
@@ -626,23 +622,23 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductAttributeCombination> ProductAttributeCombinations
         {
-            get { return _productAttributeCombinations ??= new List<ProductAttributeCombination>(); }
-            protected set { _productAttributeCombinations = value; }
+            get => _productAttributeCombinations ??= new List<ProductAttributeCombination>();
+            protected set => _productAttributeCombinations = value;
         }
         /// <summary>
         /// Gets or sets the product prices
         /// </summary>
         public virtual ICollection<ProductPrice> ProductPrices {
-            get { return _productPrices ??= new List<ProductPrice>(); }
-            protected set { _productPrices = value; }
+            get => _productPrices ??= new List<ProductPrice>();
+            protected set => _productPrices = value;
         }
         /// <summary>
         /// Gets or sets the tier prices
         /// </summary>
         public virtual ICollection<TierPrice> TierPrices
         {
-            get { return _tierPrices ??= new List<TierPrice>(); }
-            protected set { _tierPrices = value; }
+            get => _tierPrices ??= new List<TierPrice>();
+            protected set => _tierPrices = value;
         }
 
         /// <summary>
@@ -650,8 +646,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<string> AppliedDiscounts
         {
-            get { return _appliedDiscounts ??= new List<string>(); }
-            protected set { _appliedDiscounts = value; }
+            get => _appliedDiscounts ??= new List<string>();
+            protected set => _appliedDiscounts = value;
         }
         
         /// <summary>
@@ -659,35 +655,35 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductWarehouseInventory> ProductWarehouseInventory
         {
-            get { return _productWarehouseInventory ??= new List<ProductWarehouseInventory>(); }
-            protected set { _productWarehouseInventory = value; }
+            get => _productWarehouseInventory ??= new List<ProductWarehouseInventory>();
+            protected set => _productWarehouseInventory = value;
         }
 
         public virtual ICollection<string> CrossSellProduct
         {
-            get { return _crossSellProduct ??= new List<string>(); }
-            protected set { _crossSellProduct = value; }
+            get => _crossSellProduct ??= new List<string>();
+            protected set => _crossSellProduct = value;
         }
 
         public virtual ICollection<string> RecommendedProduct 
         {
-            get { return _recommendedProduct ??= new List<string>(); }
-            protected set { _recommendedProduct = value; }
+            get => _recommendedProduct ??= new List<string>();
+            protected set => _recommendedProduct = value;
         }
 
         public virtual ICollection<RelatedProduct> RelatedProducts
         {
-            get { return _relatedProduct ??= new List<RelatedProduct>(); }
-            protected set { _relatedProduct = value; }
+            get => _relatedProduct ??= new List<RelatedProduct>();
+            protected set => _relatedProduct = value;
         }
         public virtual ICollection<SimilarProduct> SimilarProducts {
-            get { return _similarProduct ??= new List<SimilarProduct>(); }
-            protected set { _similarProduct = value; }
+            get => _similarProduct ??= new List<SimilarProduct>();
+            protected set => _similarProduct = value;
         }
         public virtual ICollection<BundleProduct> BundleProducts
         {
-            get { return _bundleProduct ??= new List<BundleProduct>(); }
-            protected set { _bundleProduct = value; }
+            get => _bundleProduct ??= new List<BundleProduct>();
+            protected set => _bundleProduct = value;
         }
 
     }

@@ -181,7 +181,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Customers
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List()
         {
@@ -524,7 +527,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
-                throw new ArgumentException("No customer found with the specified id", "customerId");
+                throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             var addresses = (await _customerViewModelService.PrepareAddressModel(customer)).ToList();
             var gridModel = new DataSourceResult
@@ -542,7 +545,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
-                throw new ArgumentException("No customer found with the specified id", "customerId");
+                throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             var address = customer.Addresses.FirstOrDefault(a => a.Id == id);
             if (address == null)
@@ -737,7 +740,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var productReview = await _productReviewService.GetProductReviewById(id);
             if (productReview == null)
-                throw new ArgumentException("No review found with the specified id", "id");
+                throw new ArgumentException("No review found with the specified id", nameof(id));
 
             await _productReviewViewModelService.DeleteProductReview(productReview);
             return new JsonResult("");
@@ -766,7 +769,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
-                throw new ArgumentException("No customer found with the specified id", "customerId");
+                throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             var warnings = await _customerViewModelService.UpdateCart(customer, id, unitPriceValue);
             if (warnings.Any())
@@ -780,7 +783,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))
-                throw new ArgumentException("No customer found with the specified id", "customerId");
+                throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             await _customerViewModelService.DeleteCart(customer, id);
 

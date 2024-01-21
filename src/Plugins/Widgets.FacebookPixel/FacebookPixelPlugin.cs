@@ -52,8 +52,8 @@ namespace Widgets.FacebookPixel
                                            src='https://www.facebook.com/tr?id={PIXELID}&ev=PageView&noscript=1'/>
                                     </noscript>
                                 <!-- End Facebook Pixel Code -->",
-                AddToCartScript = @"<script> fbq('track', 'AddToCart', {contents: [{ id: '{PRODUCTID}', quantity: {QTY} }], content_name: '{PRODUCTNAME}', content_type: 'product', value: {AMOUNT}, currency: '{CURRENCY}'}); </script>",
-                DetailsOrderScript = @"<script> fbq('track', 'Purchase', {currency: '{CURRENCY}', value: {AMOUNT}}); </script>",
+                AddToCartScript = "<script> fbq('track', 'AddToCart', {contents: [{ id: '{PRODUCTID}', quantity: {QTY} }], content_name: '{PRODUCTNAME}', content_type: 'product', value: {AMOUNT}, currency: '{CURRENCY}'}); </script>",
+                DetailsOrderScript = "<script> fbq('track', 'Purchase', {currency: '{CURRENCY}', value: {AMOUNT}}); </script>",
                 ConsentName = "Facebook pixel",
                 ConsentDescription = "Allows us to identifies visitors from Facebook"
             };

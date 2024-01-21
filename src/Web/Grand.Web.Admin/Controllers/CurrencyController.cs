@@ -68,7 +68,10 @@ namespace Grand.Web.Admin.Controllers
             await _cacheBase.Clear();
         }
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         public async Task<IActionResult> List(bool liveRates = false)

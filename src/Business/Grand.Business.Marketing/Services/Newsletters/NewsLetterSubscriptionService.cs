@@ -295,7 +295,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
                     continue;
                 var tmp = line.Split(',');
 
-                var email = "";
+                string email;
                 var isActive = true;
                 var categories = new List<string>();
                 var isCategories = false;

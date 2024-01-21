@@ -25,14 +25,17 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         {
             //Arrange
             var taxCategory = new TaxCategory();
-            var product = new Product();
-            product.TaxCategoryId = taxCategory.Id;
+            var product = new Product {
+                TaxCategoryId = taxCategory.Id
+            };
             await _repository.InsertAsync(product);
-            var product2 = new Product();
-            product2.TaxCategoryId = taxCategory.Id;
+            var product2 = new Product {
+                TaxCategoryId = taxCategory.Id
+            };
             await _repository.InsertAsync(product2);
-            var product3 = new Product();
-            product3.TaxCategoryId = "1";
+            var product3 = new Product {
+                TaxCategoryId = "1"
+            };
             await _repository.InsertAsync(product3);
 
             //Act

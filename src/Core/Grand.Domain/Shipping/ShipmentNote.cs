@@ -3,7 +3,7 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents an shipment note
     /// </summary>
-    public partial class ShipmentNote : BaseEntity
+    public class ShipmentNote : BaseEntity
     {
         /// <summary>
         /// Gets or sets the shipment identifier

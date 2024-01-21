@@ -23,102 +23,57 @@
         /// Maps a settings path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string DataProtectionKeysPath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, AppData, Param, "DataProtectionKeys");
-            }
-        }
+        public static string DataProtectionKeysPath => Path.Combine(BaseDirectory, AppData, Param, "DataProtectionKeys");
 
         /// <summary>
         /// Maps a settings path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string SettingsPath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, AppData, Param, "Settings.cfg");
-            }
-        }
+        public static string SettingsPath => Path.Combine(BaseDirectory, AppData, Param, "Settings.cfg");
 
         /// <summary>
         /// Maps a theme path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string PluginsPath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, "Plugins");
-            }
-        }
+        public static string PluginsPath => Path.Combine(BaseDirectory, "Plugins");
 
         /// <summary>
         /// Maps a image path.
         /// </summary>
         /// <returns>The path.</returns>
-        public static string ImagePath {
-            get {
-                return Path.Combine("assets", "images");
-            }
-        }
+        public static string ImagePath => Path.Combine("assets", "images");
 
         /// <summary>
         /// Maps a image thumb path.
         /// </summary>
         /// <returns>The path.</returns>
-        public static string ImageThumbPath {
-            get {
-                return Path.Combine("assets", "images", "thumbs");
-            }
-        }
+        public static string ImageThumbPath => Path.Combine("assets", "images", "thumbs");
 
         /// <summary>
         /// Maps a image upload path.
         /// </summary>
         /// <returns>The path.</returns>
-        public static string ImageUploadedPath {
-            get {
-                return Path.Combine("assets", "images", "uploaded");
-            }
-        }
+        public static string ImageUploadedPath => Path.Combine("assets", "images", "uploaded");
 
 
         /// <summary>
         /// Maps a installled plugins path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string InstalledPluginsFilePath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, AppData, Param, "InstalledPlugins.cfg");
-            }
-        }
+        public static string InstalledPluginsFilePath => Path.Combine(BaseDirectory, AppData, Param, "InstalledPlugins.cfg");
+
         /// <summary>
         /// Maps a installled plugins path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string PluginsCopyPath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, PluginsPath, "bin");
-            }
-        }
+        public static string PluginsCopyPath => Path.Combine(BaseDirectory, PluginsPath, "bin");
+
         /// <summary>
         /// Maps a temp upload path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
-        public static string TmpUploadPath
-        {
-            get
-            {
-                return Path.Combine(BaseDirectory, AppData, Param, "TempUploads");
-            }
-        }
+        public static string TmpUploadPath => Path.Combine(BaseDirectory, AppData, Param, "TempUploads");
+
         /// <summary>
         /// Gets or sets application base path
         /// </summary>
@@ -138,13 +93,7 @@
         /// <summary>
         /// Gets or sets web application content files
         /// </summary>
-        public static string WebRootPath 
-        { 
-            get 
-            {
-                return Path.Combine(WebHostEnvironment, Param);
-            } 
-        }
+        public static string WebRootPath => Path.Combine(WebHostEnvironment, Param);
 
         /// <summary>
         /// Maps a virtual path to a physical disk path. (not for tenants)

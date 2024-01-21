@@ -19,11 +19,6 @@ namespace Grand.Web.Vendor.Models.Catalog
 
     public class PredefinedProductAttributeValueModel : BaseEntityModel, ILocalizedModel<PredefinedProductAttributeValueLocalizedModel>
     {
-        public PredefinedProductAttributeValueModel()
-        {
-            Locales = new List<PredefinedProductAttributeValueLocalizedModel>();
-        }
-
         public string ProductAttributeId { get; set; }
 
         [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name")]
@@ -51,7 +46,7 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public IList<PredefinedProductAttributeValueLocalizedModel> Locales { get; set; }
+        public IList<PredefinedProductAttributeValueLocalizedModel> Locales { get; set; } = new List<PredefinedProductAttributeValueLocalizedModel>();
     }
     public class PredefinedProductAttributeValueLocalizedModel : ILocalizedModelLocal
     {

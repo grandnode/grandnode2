@@ -7,13 +7,6 @@ namespace Grand.Web.Vendor.Models.Catalog
 {
     public class ProductListModel : BaseModel
     {
-        public ProductListModel()
-        {
-            AvailableWarehouses = new List<SelectListItem>();
-            AvailableProductTypes = new List<SelectListItem>();
-            AvailablePublishedOptions = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Vendor.Catalog.Products.List.SearchProductName")]
         public string SearchProductName { get; set; }
         [GrandResourceDisplayName("Vendor.Catalog.Products.List.SearchCategory")]
@@ -39,8 +32,8 @@ namespace Grand.Web.Vendor.Models.Catalog
         [GrandResourceDisplayName("Vendor.Catalog.Products.List.GoDirectlyToSku")]
         
         public string GoDirectlyToSku { get; set; }
-       public IList<SelectListItem> AvailableWarehouses { get; set; }
-        public IList<SelectListItem> AvailableProductTypes { get; set; }
-        public IList<SelectListItem> AvailablePublishedOptions { get; set; }
+       public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
+       public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
+       public IList<SelectListItem> AvailablePublishedOptions { get; set; } = new List<SelectListItem>();
     }
 }

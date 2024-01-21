@@ -88,9 +88,10 @@ namespace Grand.Business.Common.Tests.Services.Directory
             _aclService = new Mock<IAclService>();
             _serviceProvider = new Mock<IServiceProvider>().Object;
 
-            _currencySettings = new CurrencySettings();
-            _currencySettings.PrimaryStoreCurrencyId = currencyUSD.Id;
-            _currencySettings.PrimaryExchangeRateCurrencyId = currencyEUR.Id;
+            _currencySettings = new CurrencySettings {
+                PrimaryStoreCurrencyId = currencyUSD.Id,
+                PrimaryExchangeRateCurrencyId = currencyEUR.Id
+            };
 
 
             _currencyService = new CurrencyService(

@@ -5,10 +5,6 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerAddressEditModel : BaseModel
     {
-        public CustomerAddressEditModel()
-        {
-            Address = new AddressModel();
-        }
-        public AddressModel Address { get; set; }
+        public AddressModel Address { get; set; } = new();
     }
 }

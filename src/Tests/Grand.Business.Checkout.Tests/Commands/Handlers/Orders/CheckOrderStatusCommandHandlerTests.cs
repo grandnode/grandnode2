@@ -29,11 +29,13 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         [TestMethod]
         public async Task Handle_InvokeExpectedMethods()
         {
-            var request = new CheckOrderStatusCommand();
-            request.Order = new Order();
-            request.Order.PaymentStatusId = PaymentStatus.Paid;
-            request.Order.PaidDateUtc = null;
-            request.Order.OrderStatusId = (int)OrderStatusSystem.Pending;
+            var request = new CheckOrderStatusCommand {
+                Order = new Order {
+                    PaymentStatusId = PaymentStatus.Paid,
+                    PaidDateUtc = null,
+                    OrderStatusId = (int)OrderStatusSystem.Pending
+                }
+            };
 
 
             await _handler.Handle(request, default);

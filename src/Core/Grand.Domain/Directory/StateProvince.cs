@@ -5,13 +5,8 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents a state/province
     /// </summary>
-    public partial class StateProvince : SubBaseEntity, ITranslationEntity
+    public class StateProvince : SubBaseEntity, ITranslationEntity
     {
-        public StateProvince()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-        
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -35,7 +30,7 @@ namespace Grand.Domain.Directory
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 
 }

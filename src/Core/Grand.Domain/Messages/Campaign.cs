@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a campaign
     /// </summary>
-    public partial class Campaign : BaseEntity
+    public class Campaign : BaseEntity
     {
         private ICollection<string> _customerTags;
         private ICollection<string> _customerGroups;
@@ -54,24 +54,24 @@
         /// </summary>
         public virtual ICollection<string> CustomerTags
         {
-            get { return _customerTags ??= new List<string>(); }
-            protected set { _customerTags = value; }
+            get => _customerTags ??= new List<string>();
+            protected set => _customerTags = value;
         }
         /// <summary>
         /// Gets or sets the customer groups
         /// </summary>
         public virtual ICollection<string> CustomerGroups
         {
-            get { return _customerGroups ??= new List<string>(); }
-            protected set { _customerGroups = value; }
+            get => _customerGroups ??= new List<string>();
+            protected set => _customerGroups = value;
         }
         /// <summary>
         /// Gets or sets the newsletter categories
         /// </summary>
         public virtual ICollection<string> NewsletterCategories
         {
-            get { return _newsletterCategories ??= new List<string>(); }
-            protected set { _newsletterCategories = value; }
+            get => _newsletterCategories ??= new List<string>();
+            protected set => _newsletterCategories = value;
         }
 
     }

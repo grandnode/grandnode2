@@ -6,10 +6,6 @@ namespace Grand.Web.Vendor.Models.Common
 {
     public class LoginModel : BaseModel
     {
-        public LoginModel()
-        {
-            Captcha = new CaptchaModel();
-        }
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Login.Fields.Email")]
         public string Email { get; set; }
@@ -27,6 +23,6 @@ namespace Grand.Web.Vendor.Models.Common
 
         public bool DisplayCaptcha { get; set; }
         
-        public ICaptchaValidModel Captcha { get; set; }
+        public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     }
 }

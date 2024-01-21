@@ -5,13 +5,6 @@ namespace Grand.Web.Admin.Models.Common
 {
     public class SystemInfoModel : BaseModel
     {
-        public SystemInfoModel()
-        {
-            ServerVariables = new List<ServerVariableModel>();
-            LoadedAssemblies = new List<LoadedAssembly>();
-            SystemWarnings = new List<SystemWarningModel>();
-        }
-
         [GrandResourceDisplayName("Admin.System.SystemInfo.ASPNETInfo")]
         public string AspNetInfo { get; set; }
 
@@ -58,12 +51,12 @@ namespace Grand.Web.Admin.Models.Common
         public bool IsHttps { get; set; }
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.ServerVariables")]
-        public IList<ServerVariableModel> ServerVariables { get; set; }
+        public IList<ServerVariableModel> ServerVariables { get; set; } = new List<ServerVariableModel>();
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.LoadedAssemblies")]
-        public IList<LoadedAssembly> LoadedAssemblies { get; set; }
+        public IList<LoadedAssembly> LoadedAssemblies { get; set; } = new List<LoadedAssembly>();
 
-        public IList<SystemWarningModel> SystemWarnings { get; set; }
+        public IList<SystemWarningModel> SystemWarnings { get; set; } = new List<SystemWarningModel>();
 
         public class ServerVariableModel : BaseModel
         {

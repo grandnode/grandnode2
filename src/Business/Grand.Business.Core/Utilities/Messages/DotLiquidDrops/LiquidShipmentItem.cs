@@ -40,11 +40,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             }
         }
 
-        public string ProductSku {
-            get {
-                return _orderItem.Sku;
-            }
-        }
+        public string ProductSku => _orderItem.Sku;
 
         public string AttributeDescription {
             get {
@@ -57,35 +53,15 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             }
         }
 
-        public string ShipmentId {
-            get {
-                return _shipment.Id;
-            }
-        }
+        public string ShipmentId => _shipment.Id;
 
-        public string OrderItemId {
-            get {
-                return _shipmentItem.OrderItemId;
-            }
-        }
+        public string OrderItemId => _shipmentItem.OrderItemId;
 
-        public string ProductId {
-            get {
-                return _shipmentItem.ProductId;
-            }
-        }
+        public string ProductId => _shipmentItem.ProductId;
 
-        public int Quantity {
-            get {
-                return _shipmentItem.Quantity;
-            }
-        }
+        public int Quantity => _shipmentItem.Quantity;
 
-        public string WarehouseId {
-            get {
-                return _shipmentItem.WarehouseId;
-            }
-        }
+        public string WarehouseId => _shipmentItem.WarehouseId;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

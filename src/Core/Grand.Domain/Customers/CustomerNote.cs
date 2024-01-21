@@ -3,7 +3,7 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents an customer note
     /// </summary>
-    public partial class CustomerNote : BaseEntity
+    public class CustomerNote : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

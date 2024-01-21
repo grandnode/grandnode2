@@ -7,11 +7,6 @@ namespace Grand.Web.Vendor.Models.Shipment
 {
     public class ShipmentListModel : BaseModel
     {
-        public ShipmentListModel()
-        {
-            AvailableWarehouses = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Vendor.Orders.Shipments.List.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? StartDate { get; set; }
@@ -35,7 +30,6 @@ namespace Grand.Web.Vendor.Models.Shipment
 
         [GrandResourceDisplayName("Vendor.Orders.Shipments.List.Warehouse")]
         public string WarehouseId { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
-
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
     }
 }

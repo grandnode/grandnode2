@@ -7,16 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class BestsellersReportModel : BaseModel
     {
-        public BestsellersReportModel()
-        {
-            AvailableStores = new List<SelectListItem>();
-            AvailableOrderStatuses = new List<SelectListItem>();
-            AvailablePaymentStatuses = new List<SelectListItem>();
-            AvailableCountries = new List<SelectListItem>();
-            AvailableVendors = new List<SelectListItem>();
-
-        }
-
         [GrandResourceDisplayName("Admin.Reports.Bestsellers.Store")]
         public string StoreId { get; set; }
 
@@ -38,11 +28,11 @@ namespace Grand.Web.Admin.Models.Orders
 
         [GrandResourceDisplayName("Admin.Reports.Bestsellers.Vendor")]
         public string VendorId { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
-        public IList<SelectListItem> AvailableOrderStatuses { get; set; }
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
+        public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
     }
 }

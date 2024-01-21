@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a similar product
     /// </summary>
-    public partial class SimilarProduct : SubBaseEntity
+    public class SimilarProduct : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the first product identifier

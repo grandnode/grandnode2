@@ -5,7 +5,7 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a shipment item
     /// </summary>
-    public partial class ShipmentItem : SubBaseEntity
+    public class ShipmentItem : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the order item identifier

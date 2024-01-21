@@ -1,5 +1,5 @@
 ﻿@{
-    var warehouseLink = @Url.Action("productdetails_warehousechange", "product");
+    var warehouseLink = Url.Action("productdetails_warehousechange", "product");
 }
 <template v-if="PopupQuickViewVueModal.AllowToSelectWarehouse">
     <template v-if="PopupQuickViewVueModal.ProductWarehouses.length > 0">

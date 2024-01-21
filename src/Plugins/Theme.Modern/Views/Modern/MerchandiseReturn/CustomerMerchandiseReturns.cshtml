@@ -1,6 +1,7 @@
 ﻿@model CustomerMerchandiseReturnsModel
 @using Grand.Web.Models.Customer
 @using Grand.Web.Models.Orders
+@using System.Globalization
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -40,7 +41,7 @@
                             <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                             <small class="date text-muted">
                                 <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
-                                <span>@item.CreatedOn.ToString()</span>
+                                <span>@item.CreatedOn.ToString(CultureInfo.InvariantCulture)</span>
                             </small>
                         </div>
                         <div class="alert alert-info mb-0">

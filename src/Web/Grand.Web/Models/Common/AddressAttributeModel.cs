@@ -5,11 +5,6 @@ namespace Grand.Web.Models.Common
 {
     public class AddressAttributeModel : BaseEntityModel
     {
-        public AddressAttributeModel()
-        {
-            Values = new List<AddressAttributeValueModel>();
-        }
-
         public string Name { get; set; }
 
         public bool IsRequired { get; set; }
@@ -21,7 +16,7 @@ namespace Grand.Web.Models.Common
 
         public AttributeControlType AttributeControlType { get; set; }
 
-        public IList<AddressAttributeValueModel> Values { get; set; }
+        public IList<AddressAttributeValueModel> Values { get; set; } = new List<AddressAttributeValueModel>();
     }
 
     public class AddressAttributeValueModel : BaseEntityModel

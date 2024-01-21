@@ -7,11 +7,6 @@ namespace Grand.Domain.Seo
     /// </summary>
     public class SeoSettings : ISettings
     {
-        public SeoSettings()
-        {
-            ReservedEntityUrlSlugs = new List<string>();
-        }
-
         /// <summary>
         /// Page title separator
         /// </summary>
@@ -77,7 +72,7 @@ namespace Grand.Domain.Seo
         /// <summary>
         /// Slugs (sename) reserved for some other needs
         /// </summary>
-        public List<string> ReservedEntityUrlSlugs { get; set; }
+        public List<string> ReservedEntityUrlSlugs { get; set; } = new();
 
         /// <summary>
         /// Custom tags in the head section

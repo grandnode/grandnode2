@@ -13,55 +13,25 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string Name
-        {
-            get { return _vendor.Name; }
-        }
+        public string Name => _vendor.Name;
 
-        public string Email
-        {
-            get { return _vendor.Email; }
-        }
+        public string Email => _vendor.Email;
 
-        public string Description
-        {
-            get { return _vendor.Description; }
-        }
+        public string Description => _vendor.Description;
 
-        public string Address1
-        {
-            get { return _vendor.Address?.Address1; }
-        }
+        public string Address1 => _vendor.Address?.Address1;
 
-        public string Address2
-        {
-            get { return _vendor.Address?.Address2; }
-        }
+        public string Address2 => _vendor.Address?.Address2;
 
-        public string City
-        {
-            get { return _vendor.Address?.City; }
-        }
+        public string City => _vendor.Address?.City;
 
-        public string Company
-        {
-            get { return _vendor.Address?.Company; }
-        }
+        public string Company => _vendor.Address?.Company;
 
-        public string FaxNumber
-        {
-            get { return _vendor.Address?.FaxNumber; }
-        }
+        public string FaxNumber => _vendor.Address?.FaxNumber;
 
-        public string PhoneNumber
-        {
-            get { return _vendor.Address?.PhoneNumber; }
-        }
+        public string PhoneNumber => _vendor.Address?.PhoneNumber;
 
-        public string ZipPostalCode
-        {
-            get { return _vendor.Address?.ZipPostalCode; }
-        }
+        public string ZipPostalCode => _vendor.Address?.ZipPostalCode;
 
         public string StateProvince { get; set; }
 

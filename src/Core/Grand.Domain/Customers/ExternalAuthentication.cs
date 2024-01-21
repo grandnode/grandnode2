@@ -3,7 +3,7 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents an external authentication
     /// </summary>
-    public partial class ExternalAuthentication : BaseEntity
+    public class ExternalAuthentication : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

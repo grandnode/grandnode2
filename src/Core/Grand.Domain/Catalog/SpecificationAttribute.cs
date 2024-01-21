@@ -6,15 +6,9 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a specification attribute
     /// </summary>
-    public partial class SpecificationAttribute : BaseEntity, IStoreLinkEntity, ITranslationEntity
+    public class SpecificationAttribute : BaseEntity, IStoreLinkEntity, ITranslationEntity
     {
         private ICollection<SpecificationAttributeOption> _specificationAttributeOptions;
-
-        public SpecificationAttribute()
-        {
-            Locales = new List<TranslationEntity>();
-            Stores = new List<string>();
-        }
 
         /// <summary>
         /// Gets or sets the name
@@ -35,20 +29,20 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets the specification attribute options
         /// </summary>
         public virtual ICollection<SpecificationAttributeOption> SpecificationAttributeOptions
         {
-            get { return _specificationAttributeOptions ??= new List<SpecificationAttributeOption>(); }
-            protected set { _specificationAttributeOptions = value; }
+            get => _specificationAttributeOptions ??= new List<SpecificationAttributeOption>();
+            protected set => _specificationAttributeOptions = value;
         }
     }
 }

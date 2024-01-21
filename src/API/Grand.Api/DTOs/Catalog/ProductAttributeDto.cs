@@ -4,13 +4,9 @@ namespace Grand.Api.DTOs.Catalog
 {
     public class ProductAttributeDto : BaseApiEntityModel
     {
-        public ProductAttributeDto()
-        {
-            PredefinedProductAttributeValues = new List<PredefinedProductAttributeValueDto>();
-        }
         public string Name { get; set; }
         public string Description { get; set; }
-        public IList<PredefinedProductAttributeValueDto> PredefinedProductAttributeValues { get; set; }
+        public IList<PredefinedProductAttributeValueDto> PredefinedProductAttributeValues { get; set; } = new List<PredefinedProductAttributeValueDto>();
     }
 
     public class PredefinedProductAttributeValueDto : BaseApiEntityModel

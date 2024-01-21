@@ -22,8 +22,9 @@ namespace Grand.Business.Customers.Tests.Queries.Handlers
         public async Task HandleTest()
         {
             //Assert
-            var groupBySystemNameQuery = new Core.Queries.Customers.GetGroupBySystemNameQuery();
-            groupBySystemNameQuery.SystemName = "sample";
+            var groupBySystemNameQuery = new Core.Queries.Customers.GetGroupBySystemNameQuery {
+                SystemName = "sample"
+            };
 
             //Act
             _ = await handler.Handle(groupBySystemNameQuery, CancellationToken.None);

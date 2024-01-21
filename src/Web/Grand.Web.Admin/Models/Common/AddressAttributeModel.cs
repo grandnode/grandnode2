@@ -6,11 +6,6 @@ namespace Grand.Web.Admin.Models.Common
 {
     public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAttributeLocalizedModel>
     {
-        public AddressAttributeModel()
-        {
-            Locales = new List<AddressAttributeLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.Name")]
 
         public string Name { get; set; }
@@ -28,8 +23,7 @@ namespace Grand.Web.Admin.Models.Common
         public int DisplayOrder { get; set; }
 
 
-        public IList<AddressAttributeLocalizedModel> Locales { get; set; }
-
+        public IList<AddressAttributeLocalizedModel> Locales { get; set; } = new List<AddressAttributeLocalizedModel>();
     }
 
     public class AddressAttributeLocalizedModel : ILocalizedModelLocal

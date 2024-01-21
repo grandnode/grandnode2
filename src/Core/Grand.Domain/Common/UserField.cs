@@ -3,7 +3,7 @@ namespace Grand.Domain.Common
     /// <summary>
     /// Represents a user field
     /// </summary>
-    public partial class UserField
+    public class UserField
     {
         /// <summary>
         /// Gets or sets the key

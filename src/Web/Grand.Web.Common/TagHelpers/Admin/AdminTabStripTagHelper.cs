@@ -52,7 +52,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             sb.AppendLine($"$('#{Name}').show();");
             sb.AppendLine($"var tab_{rnd} = $('#{Name}').kendoTabStrip({{ ");
             sb.AppendLine($"    tabPosition: '{(SetTabPos ? "left" : "top")}',");
-            sb.AppendLine($"    animation: {{ open: {{ effects: 'fadeIn'}} }},");
+            sb.AppendLine("    animation: { open: { effects: 'fadeIn'} },");
             sb.AppendLine("     select: tabstrip_on_tab_select,");
             if (BindGrid)
                 sb.AppendLine("     show: tabstrip_on_tab_show");

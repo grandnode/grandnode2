@@ -63,6 +63,9 @@ namespace Grand.Web.Features.Handlers.Orders
             foreach (var item in request.MerchandiseReturn.MerchandiseReturnItems)
             {
                 var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+                if (orderItem == null)
+                    continue;
+                
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
 
                 var unitPrice = _priceFormatter.FormatPrice(request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ?

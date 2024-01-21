@@ -9,17 +9,10 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents a contact attribute
     /// </summary>
-    public partial class ContactAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity, IGroupLinkEntity
+    public class ContactAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity, IGroupLinkEntity
     {
         private ICollection<ContactAttributeValue> _contactAttributeValues;
 
-        public ContactAttribute()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-            CustomerGroups = new List<string>();
-            ConditionAttribute = new List<CustomAttribute>(); 
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -50,13 +43,13 @@ namespace Grand.Domain.Messages
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         //validation fields
 
@@ -85,14 +78,13 @@ namespace Grand.Domain.Messages
         /// </summary>
         public string DefaultValue { get; set; }
 
-        public IList<CustomAttribute> ConditionAttribute { get; set; }
+        public IList<CustomAttribute> ConditionAttribute { get; set; } = new List<CustomAttribute>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is subject to ACL
         /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
-
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
 
         /// <summary>
@@ -100,22 +92,16 @@ namespace Grand.Domain.Messages
         /// </summary>
         public AttributeControlType AttributeControlType
         {
-            get
-            {
-                return (AttributeControlType)AttributeControlTypeId;
-            }
-            set
-            {
-                AttributeControlTypeId = (int)value;
-            }
+            get => (AttributeControlType)AttributeControlTypeId;
+            set => AttributeControlTypeId = (int)value;
         }
         /// <summary>
         /// Gets the checkout attribute values
         /// </summary>
         public virtual ICollection<ContactAttributeValue> ContactAttributeValues
         {
-            get { return _contactAttributeValues ??= new List<ContactAttributeValue>(); }
-            protected set { _contactAttributeValues = value; }
+            get => _contactAttributeValues ??= new List<ContactAttributeValue>();
+            protected set => _contactAttributeValues = value;
         }
     }
 

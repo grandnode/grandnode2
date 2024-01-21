@@ -8,13 +8,6 @@ namespace Grand.Web.Admin.Models.Messages
 {
     public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
     {
-        public MessageTemplateModel()
-        {
-            Locales = new List<MessageTemplateLocalizedModel>();
-            AvailableEmailAccounts = new List<EmailAccountModel>();
-        }
-
-
         [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AllowedTokens")]
         public string[] AllowedTokens { get; set; }
 
@@ -52,7 +45,7 @@ namespace Grand.Web.Admin.Models.Messages
 
         [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
         public string EmailAccountId { get; set; }
-        public IList<EmailAccountModel> AvailableEmailAccounts { get; set; }
+        public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
 
         //Store acl
         [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
@@ -64,7 +57,7 @@ namespace Grand.Web.Admin.Models.Messages
         [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
         public string ListOfStores { get; set; }
 
-        public IList<MessageTemplateLocalizedModel> Locales { get; set; }
+        public IList<MessageTemplateLocalizedModel> Locales { get; set; } = new List<MessageTemplateLocalizedModel>();
     }
 
     public class MessageTemplateLocalizedModel : ILocalizedModelLocal

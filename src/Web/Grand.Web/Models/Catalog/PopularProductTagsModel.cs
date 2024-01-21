@@ -4,11 +4,6 @@ namespace Grand.Web.Models.Catalog
 {
     public class PopularProductTagsModel : BaseModel
     {
-        public PopularProductTagsModel()
-        {
-            Tags = new List<ProductTagModel>();
-        }
-
         #region Utilities
 
         protected virtual int GetFontSize(double weight, double mean, double stdDev)
@@ -76,7 +71,7 @@ namespace Grand.Web.Models.Catalog
 
         public int TotalTags { get; set; }
 
-        public IList<ProductTagModel> Tags { get; set; }
+        public IList<ProductTagModel> Tags { get; set; } = new List<ProductTagModel>();
 
         #endregion
     }

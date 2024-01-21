@@ -3,7 +3,7 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents a measure weight
     /// </summary>
-    public partial class MeasureWeight : BaseEntity
+    public class MeasureWeight : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name

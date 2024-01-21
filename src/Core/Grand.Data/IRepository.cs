@@ -114,7 +114,6 @@ namespace Grand.Data
         /// Update subdocument
         /// </summary>
         /// <typeparam name="U">Document</typeparam>
-        /// <typeparam name="Z">Subdocuments</typeparam>
         /// <param name="id">Ident of entitie</param>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
@@ -126,8 +125,7 @@ namespace Grand.Data
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>
-        /// <typeparam name="Z">Subdocuments</typeparam>
-        /// <param name="id">Ident of entitie</param>
+        /// <typeparam name="U"></typeparam>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="value">Subdocument - to update (all values)</param>

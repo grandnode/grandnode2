@@ -5,14 +5,9 @@ namespace Grand.Domain.Discounts
     /// <summary>
     /// Represents a discount
     /// </summary>
-    public partial class Discount : BaseEntity, IStoreLinkEntity
+    public class Discount : BaseEntity, IStoreLinkEntity
     {
         private ICollection<DiscountRule> _discountRules;
-
-        public Discount()
-        {
-            Stores = new List<string>();
-        }
 
         /// <summary>
         /// Gets or sets the name
@@ -110,15 +105,15 @@ namespace Grand.Domain.Discounts
         /// </summary>
         public bool LimitedToStores { get; set; }
 
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the discount requirement
         /// </summary>
         public virtual ICollection<DiscountRule> DiscountRules
         {
-            get { return _discountRules ??= new List<DiscountRule>(); }
-            protected set { _discountRules = value; }
+            get => _discountRules ??= new List<DiscountRule>();
+            protected set => _discountRules = value;
         }
 
     }

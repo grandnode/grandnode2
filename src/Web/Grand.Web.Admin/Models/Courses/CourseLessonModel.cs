@@ -7,11 +7,6 @@ namespace Grand.Web.Admin.Models.Courses
 {
     public class CourseLessonModel : BaseEntityModel
     {
-        public CourseLessonModel()
-        {
-            AvailableSubjects = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Courses.Course.Lesson.Fields.Name")]
         public string Name { get; set; }
 
@@ -28,7 +23,7 @@ namespace Grand.Web.Admin.Models.Courses
 
         [GrandResourceDisplayName("Admin.Courses.Course.Lesson.Fields.SubjectId")]
         public string SubjectId { get; set; }
-        public IList<SelectListItem> AvailableSubjects { get; set; }
+        public IList<SelectListItem> AvailableSubjects { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Courses.Course.Lesson.Fields.VideoFile")]
         [UIHint("Download")]

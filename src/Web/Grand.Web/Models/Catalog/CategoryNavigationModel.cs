@@ -4,13 +4,8 @@ namespace Grand.Web.Models.Catalog
 {
     public class CategoryNavigationModel : BaseModel
     {
-        public CategoryNavigationModel()
-        {
-            Categories = new List<CategorySimpleModel>();
-        }
-
         public string CurrentCategoryId { get; set; }
-        public List<CategorySimpleModel> Categories { get; set; }
+        public List<CategorySimpleModel> Categories { get; set; } = new();
 
         public class CategoryLineModel : BaseModel
         {

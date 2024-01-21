@@ -1,4 +1,5 @@
-﻿@model ShipmentDetailsModel
+﻿@using System.Globalization
+@model ShipmentDetailsModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_SingleColumn";
@@ -274,7 +275,7 @@
                         {
                             <tr class="row mx-0">
                                 <td class="created-on col-4">
-                                    @item.CreatedOn.ToString()
+                                    @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                 </td>
                                 <td class="note col-8">
                                     @Html.Raw(item.Note)

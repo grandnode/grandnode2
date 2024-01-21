@@ -11,16 +11,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class OrderModel : BaseEntityModel
     {
-        public OrderModel()
-        {
-            CustomValues = new Dictionary<string, object>();
-            TaxRates = new List<TaxRate>();
-            GiftVouchers = new List<GiftVoucher>();
-            Items = new List<OrderItemModel>();
-            UsedDiscounts = new List<UsedDiscountModel>();
-            OrderStatuses = new List<SelectListItem>();
-        }
-
         //identifiers
         [GrandResourceDisplayName("Admin.Orders.Fields.ID")]
         public override string Id { get; set; }
@@ -51,7 +41,7 @@ namespace Grand.Web.Admin.Models.Orders
         public string UrlReferrer { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Fields.CustomValues")]
-        public Dictionary<string, object> CustomValues { get; set; }
+        public Dictionary<string, object> CustomValues { get; set; } = new();
 
         [GrandResourceDisplayName("Admin.Orders.Fields.Affiliate")]
         public string AffiliateId { get; set; }
@@ -65,7 +55,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         //Used discounts
         [GrandResourceDisplayName("Admin.Orders.Fields.UsedDiscounts")]
-        public IList<UsedDiscountModel> UsedDiscounts { get; set; }
+        public IList<UsedDiscountModel> UsedDiscounts { get; set; } = new List<UsedDiscountModel>();
 
         //totals
         public TaxDisplayType TaxDisplayType { get; set; }
@@ -87,7 +77,7 @@ namespace Grand.Web.Admin.Models.Orders
         public string PaymentMethodAdditionalFeeExclTax { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Tax")]
         public string Tax { get; set; }
-        public IList<TaxRate> TaxRates { get; set; }
+        public IList<TaxRate> TaxRates { get; set; } = new List<TaxRate>();
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.OrderTotalDiscount")]
@@ -141,7 +131,8 @@ namespace Grand.Web.Admin.Models.Orders
         public string OrderStatus { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.OrderStatus")]
         public int OrderStatusId { get; set; }
-        public IList<SelectListItem> OrderStatuses { get; set; }
+        public IList<SelectListItem> OrderStatuses { get; set; } = new List<SelectListItem>();
+
         //payment info
         [GrandResourceDisplayName("Admin.Orders.Fields.PaymentStatus")]
         public string PaymentStatus { get; set; }
@@ -174,11 +165,11 @@ namespace Grand.Web.Admin.Models.Orders
         public string VatNumber { get; set; }
 
         //gift vouchers
-        public IList<GiftVoucher> GiftVouchers { get; set; }
+        public IList<GiftVoucher> GiftVouchers { get; set; } = new List<GiftVoucher>();
 
         //items
         public bool HasDownloadableProducts { get; set; }
-        public IList<OrderItemModel> Items { get; set; }
+        public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
         //creation date
         [GrandResourceDisplayName("Admin.Orders.Fields.CreatedOn")]
@@ -217,11 +208,6 @@ namespace Grand.Web.Admin.Models.Orders
 
         public class OrderItemModel : BaseEntityModel
         {
-            public OrderItemModel()
-            {
-                MerchandiseReturnIds = new List<string>();
-                PurchasedGiftVoucherIds = new List<string>();
-            }
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string VendorName { get; set; }
@@ -253,8 +239,8 @@ namespace Grand.Web.Admin.Models.Orders
             public string AttributeInfo { get; set; }
             public string RecurringInfo { get; set; }
             public string RentalInfo { get; set; }
-            public IList<string> MerchandiseReturnIds { get; set; }
-            public IList<string> PurchasedGiftVoucherIds { get; set; }
+            public IList<string> MerchandiseReturnIds { get; set; } = new List<string>();
+            public IList<string> PurchasedGiftVoucherIds { get; set; } = new List<string>();
 
             public bool IsDownload { get; set; }
             public int DownloadCount { get; set; }
@@ -309,11 +295,6 @@ namespace Grand.Web.Admin.Models.Orders
 
         public class AddOrderProductModel : BaseModel
         {
-            public AddOrderProductModel()
-            {
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
             [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
             public string SearchProductName { get; set; }
 
@@ -330,7 +311,7 @@ namespace Grand.Web.Admin.Models.Orders
             public int SearchProductTypeId { get; set; }
 
             public IList<SelectListItem> AvailableCollections { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
+            public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
             public string OrderId { get; set; }
             public int OrderNumber { get; set; }
@@ -349,13 +330,6 @@ namespace Grand.Web.Admin.Models.Orders
 
             public class ProductDetailsModel : BaseModel
             {
-                public ProductDetailsModel()
-                {
-                    ProductAttributes = new List<ProductAttributeModel>();
-                    GiftVoucher = new GiftVoucherModel();
-                    Warnings = new List<string>();
-                }
-
                 public string ProductId { get; set; }
 
                 public string OrderId { get; set; }
@@ -377,21 +351,16 @@ namespace Grand.Web.Admin.Models.Orders
                 public double TaxRate { get; set; }
 
                 //product attributes
-                public IList<ProductAttributeModel> ProductAttributes { get; set; }
+                public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
+
                 //gift voucher info
-                public GiftVoucherModel GiftVoucher { get; set; }
+                public GiftVoucherModel GiftVoucher { get; set; } = new();
 
-                public List<string> Warnings { get; set; }
-
+                public List<string> Warnings { get; set; } = new();
             }
 
             public class ProductAttributeModel : BaseEntityModel
             {
-                public ProductAttributeModel()
-                {
-                    Values = new List<ProductAttributeValueModel>();
-                }
-
                 public string ProductAttributeId { get; set; }
 
                 public string Name { get; set; }
@@ -402,7 +371,7 @@ namespace Grand.Web.Admin.Models.Orders
 
                 public AttributeControlType AttributeControlType { get; set; }
 
-                public IList<ProductAttributeValueModel> Values { get; set; }
+                public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
             }
 
             public class ProductAttributeValueModel : BaseEntityModel

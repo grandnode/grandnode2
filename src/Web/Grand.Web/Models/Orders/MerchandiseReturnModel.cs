@@ -6,23 +6,14 @@ namespace Grand.Web.Models.Orders
 {
     public class MerchandiseReturnModel : BaseModel
     {
-        public MerchandiseReturnModel()
-        {
-            Items = new List<OrderItemModel>();
-            AvailableReturnReasons = new List<MerchandiseReturnReasonModel>();
-            AvailableReturnActions = new List<MerchandiseReturnActionModel>();
-            ExistingAddresses = new List<AddressModel>();
-            MerchandiseReturnNewAddress = new AddressModel();
-        }
-
         public string OrderId { get; set; }
         public int OrderNumber { get; set; }
         public string OrderCode { get; set; }
-        public IList<OrderItemModel> Items { get; set; }
-        
-        public IList<MerchandiseReturnReasonModel> AvailableReturnReasons { get; set; }
+        public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
-        public IList<MerchandiseReturnActionModel> AvailableReturnActions { get; set; }
+        public IList<MerchandiseReturnReasonModel> AvailableReturnReasons { get; set; } = new List<MerchandiseReturnReasonModel>();
+
+        public IList<MerchandiseReturnActionModel> AvailableReturnActions { get; set; } = new List<MerchandiseReturnActionModel>();
 
         [GrandResourceDisplayName("MerchandiseReturns.Comments")]
         public string Comments { get; set; }
@@ -33,11 +24,11 @@ namespace Grand.Web.Models.Orders
 
         public string Error { get; set; }
 
-        public IList<AddressModel> ExistingAddresses { get; set; }
+        public IList<AddressModel> ExistingAddresses { get; set; } = new List<AddressModel>();
 
         public bool NewAddressPreselected { get; set; }
 
-        public AddressModel MerchandiseReturnNewAddress { get; set; }
+        public AddressModel MerchandiseReturnNewAddress { get; set; } = new();
         public string PickupAddressId { get; set; }
         public bool ShowPickupAddress { get; set; }
 

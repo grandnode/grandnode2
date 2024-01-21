@@ -14,8 +14,9 @@ namespace Grand.Business.Common.Tests.Extensions
         public void GetTranslation_ReturnExpectedValue()
         {
             //prepare  ITranslationEntity
-            var product = new Product();
-            product.Name = "stname";
+            var product = new Product {
+                Name = "stname"
+            };
             product.Locales.Add(new Domain.Localization.TranslationEntity { LanguageId = "PL", LocaleKey = "Name", LocaleValue = "PLName" });
             product.Locales.Add(new Domain.Localization.TranslationEntity { LanguageId = "UK", LocaleKey = "Name", LocaleValue = "UKName" });
 
@@ -44,8 +45,9 @@ namespace Grand.Business.Common.Tests.Extensions
         {
             var translationServiceMock = new Mock<ITranslationService>();
             translationServiceMock.Setup(c => c.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns("PLenum");
-            Product product = new Product();
-            product.ManageInventoryMethodId = ManageInventoryMethod.ManageStock;
+            Product product = new Product {
+                ManageInventoryMethodId = ManageInventoryMethod.ManageStock
+            };
             var result = product.ManageInventoryMethodId.GetTranslationEnum(translationServiceMock.Object, "PL");
             Assert.AreEqual(result, "PLenum");
         }
@@ -64,8 +66,9 @@ namespace Grand.Business.Common.Tests.Extensions
             var expectedValue = "PLpermision";
             var translationServiceMock = new Mock<ITranslationService>();
             translationServiceMock.Setup(c => c.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(expectedValue);
-            Permission record = new Permission();
-            record.SystemName = "sysname";
+            Permission record = new Permission {
+                SystemName = "sysname"
+            };
             var result = record.GetTranslationPermissionName(translationServiceMock.Object, "PL");
             Assert.AreEqual(result, expectedValue);
         }

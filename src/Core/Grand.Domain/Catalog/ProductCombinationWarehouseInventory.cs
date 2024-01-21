@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Manage product inventory per warehouse
     /// </summary>
-    public partial class ProductCombinationWarehouseInventory : SubBaseEntity
+    public class ProductCombinationWarehouseInventory : SubBaseEntity
     {
 
         /// <summary>

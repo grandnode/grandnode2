@@ -6,15 +6,10 @@ namespace Grand.Domain.Directory
     /// <summary>
     /// Represents a country
     /// </summary>
-    public partial class Country : BaseEntity, ITranslationEntity, IStoreLinkEntity
+    public class Country : BaseEntity, ITranslationEntity, IStoreLinkEntity
     {
         private ICollection<StateProvince> _stateProvinces;
 
-        public Country()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -64,20 +59,20 @@ namespace Grand.Domain.Directory
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets the state/provinces
         /// </summary>
         public virtual ICollection<StateProvince> StateProvinces
         {
-            get { return _stateProvinces ??= new List<StateProvince>(); }
-            protected set { _stateProvinces = value; }
+            get => _stateProvinces ??= new List<StateProvince>();
+            protected set => _stateProvinces = value;
         }
 
     }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a permission
     /// </summary>
-    public partial class Permission : BaseEntity
+    public class Permission : BaseEntity
     {
         private ICollection<string> _customerGroups;
         private ICollection<string> _actions;
@@ -33,16 +33,16 @@
         /// </summary>
         public virtual ICollection<string> CustomerGroups
         {
-            get { return _customerGroups ??= new List<string>(); }
-            protected set { _customerGroups = value; }
+            get => _customerGroups ??= new List<string>();
+            protected set => _customerGroups = value;
         }
 
         /// <summary>
         /// Gets or sets actions
         /// </summary>
         public virtual ICollection<string> Actions {
-            get { return _actions ??= new List<string>(); }
-            set { _actions = value; }
+            get => _actions ??= new List<string>();
+            set => _actions = value;
         }
     }
 }

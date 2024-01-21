@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a brand layout
     /// </summary>
-    public partial class BrandLayout : BaseEntity
+    public class BrandLayout : BaseEntity
     {
         /// <summary>
         /// Gets or sets the layout name

@@ -7,12 +7,6 @@ namespace Grand.Web.Vendor.Models.Report
 {
     public class BestsellersReportModel : BaseModel
     {
-        public BestsellersReportModel()
-        {
-            AvailablePaymentStatuses = new List<SelectListItem>();
-            AvailableCountries = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Vendor.Reports.Bestsellers.Store")]
         public string StoreId { get; set; }
 
@@ -29,7 +23,7 @@ namespace Grand.Web.Vendor.Models.Report
         [GrandResourceDisplayName("Vendor.Reports.Bestsellers.BillingCountry")]
         public string BillingCountryId { get; set; }
 
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
     }
 }

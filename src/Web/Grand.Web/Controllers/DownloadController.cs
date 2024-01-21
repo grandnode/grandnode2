@@ -142,8 +142,8 @@ namespace Grand.Web.Controllers
                 }
                 else
                 {
-                    await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, download.DownloadBinary);
-                    ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
+                    await System.IO.File.WriteAllBytesAsync("App_Data/Download/" + fileName, download.DownloadBinary);
+                    ziparchive.CreateEntryFromFile("App_Data/Download/" + fileName, fileName);
                 }
                 foreach (var bundle in product.BundleProducts)
                 {
@@ -160,8 +160,8 @@ namespace Grand.Web.Controllers
                     }
                     else
                     {
-                        await System.IO.File.WriteAllBytesAsync(@"App_Data/Download/" + fileName, d1.DownloadBinary);
-                        ziparchive.CreateEntryFromFile(@"App_Data/Download/" + fileName, fileName);
+                        await System.IO.File.WriteAllBytesAsync("App_Data/Download/" + fileName, d1.DownloadBinary);
+                        ziparchive.CreateEntryFromFile("App_Data/Download/" + fileName, fileName);
                     }
                 }
             }

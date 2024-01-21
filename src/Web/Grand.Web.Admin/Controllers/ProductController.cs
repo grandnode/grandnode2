@@ -95,7 +95,10 @@ namespace Grand.Web.Admin.Controllers
         #region Product list / create / edit / delete
 
         //list products
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public async Task<IActionResult> List()
         {

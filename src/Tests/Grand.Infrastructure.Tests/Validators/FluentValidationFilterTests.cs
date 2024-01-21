@@ -25,8 +25,11 @@ namespace Grand.Infrastructure.Tests.Validators
 
             var actionFilter = new ValidationFilter(serviceProvider);
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
+            var httpContext = new DefaultHttpContext {
+                Request = {
+                    Method = "POST"
+                }
+            };
 
             var actionContext = new ActionContext(httpContext,
                 new RouteData(),
@@ -68,8 +71,11 @@ namespace Grand.Infrastructure.Tests.Validators
 
             var actionFilter = new ValidationFilter(serviceProvider);
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
+            var httpContext = new DefaultHttpContext {
+                Request = {
+                    Method = "POST"
+                }
+            };
 
             var actionContext = new ActionContext(httpContext,
                 new RouteData(),

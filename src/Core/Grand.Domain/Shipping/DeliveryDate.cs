@@ -5,12 +5,8 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a delivery date 
     /// </summary>
-    public partial class DeliveryDate : BaseEntity, ITranslationEntity
+    public class DeliveryDate : BaseEntity, ITranslationEntity
     {
-        public DeliveryDate()
-        {
-            Locales = new List<TranslationEntity>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -29,6 +25,6 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

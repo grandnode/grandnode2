@@ -5,13 +5,8 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
 {
     public class DiscountProviderTest : IDiscountProvider
     {
-        private IList<string> limitedToStores;
-        private IList<string> limitedToGroups;
-        public DiscountProviderTest()
-        {
-            limitedToStores = new List<string>();
-            limitedToGroups = new List<string>();
-        }
+        private IList<string> limitedToStores = new List<string>();
+        private IList<string> limitedToGroups = new List<string>();
 
         public string ConfigurationUrl => throw new NotImplementedException();
 

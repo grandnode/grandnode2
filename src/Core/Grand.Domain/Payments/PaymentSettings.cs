@@ -4,15 +4,10 @@ namespace Grand.Domain.Payments
 {
     public class PaymentSettings : ISettings
     {
-        public PaymentSettings()
-        {
-            ActivePaymentProviderSystemNames = new List<string>();
-        }
-
         /// <summary>
         /// Gets or sets a system names of active payment methods
         /// </summary>
-        public List<string> ActivePaymentProviderSystemNames { get; set; }
+        public List<string> ActivePaymentProviderSystemNames { get; set; } = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether customers are allowed to repost (complete) payments for redirection payment methods

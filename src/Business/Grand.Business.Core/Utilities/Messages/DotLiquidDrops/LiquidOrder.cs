@@ -44,156 +44,71 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string OrderNumber
-        {
-            get { return _order.OrderNumber.ToString(); }
-        }
+        public string OrderNumber => _order.OrderNumber.ToString();
 
-        public string OrderCode
-        {
-            get { return _order.Code; }
-        }
+        public string OrderCode => _order.Code;
 
-        public string CustomerFullName
-        {
-            get { return string.Format("{0} {1}", _order.BillingAddress.FirstName, _order.BillingAddress.LastName); }
-        }
+        public string CustomerFullName => $"{_order.BillingAddress.FirstName} {_order.BillingAddress.LastName}";
 
-        public string CustomerEmail
-        {
-            get { return _order.BillingAddress.Email; }
-        }
+        public string CustomerEmail => _order.BillingAddress.Email;
 
-        public string BillingAddressName {
-            get { return _order.BillingAddress.Name; }
-        }
+        public string BillingAddressName => _order.BillingAddress.Name;
 
-        public string BillingFirstName
-        {
-            get { return _order.BillingAddress.FirstName; }
-        }
+        public string BillingFirstName => _order.BillingAddress.FirstName;
 
-        public string BillingLastName
-        {
-            get { return _order.BillingAddress.LastName; }
-        }
+        public string BillingLastName => _order.BillingAddress.LastName;
 
-        public string BillingPhoneNumber
-        {
-            get { return _order.BillingAddress.PhoneNumber; }
-        }
+        public string BillingPhoneNumber => _order.BillingAddress.PhoneNumber;
 
-        public string BillingEmail
-        {
-            get { return _order.BillingAddress.Email; }
-        }
+        public string BillingEmail => _order.BillingAddress.Email;
 
-        public string BillingFaxNumber
-        {
-            get { return _order.BillingAddress.FaxNumber; }
-        }
+        public string BillingFaxNumber => _order.BillingAddress.FaxNumber;
 
-        public string BillingCompany
-        {
-            get { return _order.BillingAddress.Company; }
-        }
+        public string BillingCompany => _order.BillingAddress.Company;
 
-        public string BillingVatNumber
-        {
-            get { return _order.BillingAddress.VatNumber; }
-        }
+        public string BillingVatNumber => _order.BillingAddress.VatNumber;
 
-        public string BillingAddress1
-        {
-            get { return _order.BillingAddress.Address1; }
-        }
+        public string BillingAddress1 => _order.BillingAddress.Address1;
 
-        public string BillingAddress2
-        {
-            get { return _order.BillingAddress.Address2; }
-        }
+        public string BillingAddress2 => _order.BillingAddress.Address2;
 
-        public string BillingCity
-        {
-            get { return _order.BillingAddress.City; }
-        }
+        public string BillingCity => _order.BillingAddress.City;
 
         public string BillingStateProvince { get; set; }
 
-        public string BillingZipPostalCode
-        {
-            get { return _order.BillingAddress.ZipPostalCode; }
-        }
+        public string BillingZipPostalCode => _order.BillingAddress.ZipPostalCode;
 
         public string BillingCountry { get; set; }
 
         public string BillingCustomAttributes { get; set; }
 
-        public string ShippingMethod
-        {
-            get { return _order.ShippingMethod; }
-        }
+        public string ShippingMethod => _order.ShippingMethod;
 
-        public string ShippingAdditionDescription
-        {
-            get { return _order.ShippingOptionAttributeDescription; }
-        }
+        public string ShippingAdditionDescription => _order.ShippingOptionAttributeDescription;
 
-        public string ShippingAddressName {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Name : ""; }
-        }
+        public string ShippingAddressName => _order.ShippingAddress != null ? _order.ShippingAddress.Name : "";
 
-        public string ShippingFirstName
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.FirstName : ""; }
-        }
+        public string ShippingFirstName => _order.ShippingAddress != null ? _order.ShippingAddress.FirstName : "";
 
-        public string ShippingLastName
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.LastName : ""; }
-        }
+        public string ShippingLastName => _order.ShippingAddress != null ? _order.ShippingAddress.LastName : "";
 
-        public string ShippingPhoneNumber
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.PhoneNumber : ""; }
-        }
+        public string ShippingPhoneNumber => _order.ShippingAddress != null ? _order.ShippingAddress.PhoneNumber : "";
 
-        public string ShippingEmail
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Email : ""; }
-        }
+        public string ShippingEmail => _order.ShippingAddress != null ? _order.ShippingAddress.Email : "";
 
-        public string ShippingFaxNumber
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.FaxNumber : ""; }
-        }
+        public string ShippingFaxNumber => _order.ShippingAddress != null ? _order.ShippingAddress.FaxNumber : "";
 
-        public string ShippingCompany
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Company : ""; }
-        }
+        public string ShippingCompany => _order.ShippingAddress != null ? _order.ShippingAddress.Company : "";
 
-        public string ShippingAddress1
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Address1 : ""; }
-        }
+        public string ShippingAddress1 => _order.ShippingAddress != null ? _order.ShippingAddress.Address1 : "";
 
-        public string ShippingAddress2
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Address2 : ""; }
-        }
+        public string ShippingAddress2 => _order.ShippingAddress != null ? _order.ShippingAddress.Address2 : "";
 
-        public string ShippingCity
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.City : ""; }
-        }
+        public string ShippingCity => _order.ShippingAddress != null ? _order.ShippingAddress.City : "";
 
         public string ShippingStateProvince { get; set; }
 
-        public string ShippingZipPostalCode
-        {
-            get { return _order.ShippingAddress != null ? _order.ShippingAddress.ZipPostalCode : ""; }
-        }
+        public string ShippingZipPostalCode => _order.ShippingAddress != null ? _order.ShippingAddress.ZipPostalCode : "";
 
         public string ShippingCountry { get; set; }
 
@@ -202,74 +117,27 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         public string PaymentMethod { get; set; }
 
 
-        public string VatNumber
-        {
-            get { return _order.VatNumber; }
-        }
+        public string VatNumber => _order.VatNumber;
 
-        public string CreatedOn
-        {
-            get
-            {
-                return _order.CreatedOnUtc.ToLocalTime().ToString("D");
-            }
-        }
+        public string CreatedOn => _order.CreatedOnUtc.ToLocalTime().ToString("D");
 
-        public DateTime CreatedOnUtc
-        {
-            get
-            {
-                return _order.CreatedOnUtc;
-            }
-        }
+        public DateTime CreatedOnUtc => _order.CreatedOnUtc;
 
-        public string OrderURLForCustomer
-        {
-            get { return string.Format("{0}/orderdetails/{1}", url, _order.Id); }
-        }
+        public string OrderURLForCustomer => $"{url}/orderdetails/{_order.Id}";
 
-        public double PaidAmount {
-            get {
-                return _order.PaidAmount;
-            }
-        }
+        public double PaidAmount => _order.PaidAmount;
 
-        public double RefundedAmount {
-            get {
-                return _order.RefundedAmount;
-            }
-        }
+        public double RefundedAmount => _order.RefundedAmount;
 
-        public string NewNoteText
-        {
-            get { return FormatText.ConvertText(_orderNote.Note); }
-        }
+        public string NewNoteText => FormatText.ConvertText(_orderNote.Note);
 
-        public string OrderNoteAttachmentUrl
-        {
-            get
-            {
-                return string.Format("{0}/download/ordernotefile/{1}", url, _orderNote.Id);
-            }
-        }
+        public string OrderNoteAttachmentUrl => $"{url}/download/ordernotefile/{_orderNote.Id}";
 
-        public string VendorName
-        {
-            get { return _vendor?.Name; }
-        }
+        public string VendorName => _vendor?.Name;
 
-        public string VendorEmail
-        {
-            get { return _vendor?.Email; }
-        }
+        public string VendorEmail => _vendor?.Email;
 
-        public ICollection<LiquidOrderItem> OrderItems
-        {
-            get
-            {
-                return _orderItems;
-            }
-        }
+        public ICollection<LiquidOrderItem> OrderItems => _orderItems;
 
         public bool DisplaySubTotalDiscount { get; set; }
 
@@ -283,20 +151,9 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string Total { get; set; }
 
-        public bool DisplayShipping
-        {
-            get
-            {
-                return _order.ShippingStatusId != ShippingStatus.ShippingNotRequired;
-            }
-        }
-        public bool DisplayPaymentMethodFee
-        {
-            get
-            {
-                return _order.PaymentMethodAdditionalFeeExclTax > 0;
-            }
-        }
+        public bool DisplayShipping => _order.ShippingStatusId != ShippingStatus.ShippingNotRequired;
+
+        public bool DisplayPaymentMethodFee => _order.PaymentMethodAdditionalFeeExclTax > 0;
 
         public string PaymentMethodAdditionalFee { get; set; }
 
@@ -310,50 +167,22 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string Discount { get; set; }
 
-        public string CheckoutAttributeDescription
-        {
-            get
-            {
-                return _order.CheckoutAttributeDescription;
-            }
-        }
+        public string CheckoutAttributeDescription => _order.CheckoutAttributeDescription;
 
         public Dictionary<string, string> GiftVouchers { get; set; }
 
-        public bool RedeemedLoyaltyPointsEntryExists
-        {
-            get
-            {
-                return _order.RedeemedLoyaltyPoints > 0;
-            }
-        }
+        public bool RedeemedLoyaltyPointsEntryExists => _order.RedeemedLoyaltyPoints > 0;
 
         public string RPAmount { get; set; }
         public string RPPoints { get; set; }
 
-        public bool IsRecurring {
-            get {
-                return _order.IsRecurring;
-            }
-        }
+        public bool IsRecurring => _order.IsRecurring;
 
-        public int RecurringCycleLength {
-            get {
-                return _order.RecurringCycleLength;
-            }
-        }
+        public int RecurringCycleLength => _order.RecurringCycleLength;
 
-        public int RecurringCyclePeriodId {
-            get {
-                return (int)_order.RecurringCyclePeriodId;
-            }
-        }
+        public int RecurringCyclePeriodId => (int)_order.RecurringCyclePeriodId;
 
-        public int RecurringTotalCycles {
-            get {
-                return _order.RecurringTotalCycles;
-            }
-        }
+        public int RecurringTotalCycles => _order.RecurringTotalCycles;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

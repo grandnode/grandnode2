@@ -37,25 +37,15 @@ namespace Grand.Data.Tests.MongoDb
         private static TraceSource __traceSource;
 
         // static properties
-        public static ICluster Cluster {
-            get { return __cluster.Value; }
-        }
+        public static ICluster Cluster => __cluster.Value;
 
-        public static ConnectionString ConnectionString {
-            get { return __connectionString; }
-        }
+        public static ConnectionString ConnectionString => __connectionString;
 
-        public static DatabaseNamespace DatabaseNamespace {
-            get { return __databaseNamespace; }
-        }
+        public static DatabaseNamespace DatabaseNamespace => __databaseNamespace;
 
-        public static MessageEncoderSettings MessageEncoderSettings {
-            get { return __messageEncoderSettings; }
-        }
+        public static MessageEncoderSettings MessageEncoderSettings => __messageEncoderSettings;
 
-        public static TraceSource TraceSource {
-            get { return __traceSource; }
-        }
+        public static TraceSource TraceSource => __traceSource;
 
         // static methods
         public static ClusterBuilder ConfigureCluster()
@@ -131,7 +121,7 @@ namespace Grand.Data.Tests.MongoDb
                     description => description.Type.IsWritable());
                 if (__traceSource != null)
                 {
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: DescriptionChanged event handler called.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: anyWritableServer = {anyWritableServer}.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription}.");
                 }
@@ -147,9 +137,8 @@ namespace Grand.Data.Tests.MongoDb
             SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasWritableServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
             if (Interlocked.CompareExchange(ref hasWritableServer, 0, 0) == 0)
             {
-                var message = string.Format(
-                    "Test cluster has no writable server. Client view of the cluster is {0}.",
-                    cluster.Description);
+                var message =
+                    $"Test cluster has no writable server. Client view of the cluster is {cluster.Description}.";
                 throw new Exception(message);
             }
 

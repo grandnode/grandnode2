@@ -3,7 +3,7 @@ namespace Grand.Domain.Blogs
     /// <summary>
     /// Represents a blog comment
     /// </summary>
-    public partial class BlogComment : BaseEntity
+    public class BlogComment : BaseEntity
     {
         /// <summary>
         /// Gets or sets the customer identifier

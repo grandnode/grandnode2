@@ -52,7 +52,7 @@
                     <span id="lblShippedDate">
                         @if (Model.ShippedDate.HasValue)
                         {
-                            <text>@Model.ShippedDate.Value.ToString()</text>
+                            @Model.ShippedDate.Value.ToString(CultureInfo.InvariantCulture)
                         }
                         else
                         {
@@ -78,7 +78,7 @@
                     <span id="lblDeliveryDate">
                         @if (Model.DeliveryDate.HasValue)
                         {
-                            <text>@Model.DeliveryDate.Value.ToString()</text>
+                            @Model.DeliveryDate.Value.ToString(CultureInfo.InvariantCulture)
                         }
                         else
                         {

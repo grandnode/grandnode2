@@ -51,7 +51,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Countries
 
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
         public IActionResult List()
         {

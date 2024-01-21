@@ -6,10 +6,6 @@ namespace Grand.Web.Models.ShoppingCart;
 
 public class CheckoutAttributeSelectedModel
 {
-    public CheckoutAttributeSelectedModel()
-    {
-        Attributes = new List<CustomAttributeModel>();
-    }
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> Attributes { get; set; }
+    public IList<CustomAttributeModel> Attributes { get; set; } = new List<CustomAttributeModel>();
 }

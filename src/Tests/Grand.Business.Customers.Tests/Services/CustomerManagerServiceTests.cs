@@ -33,8 +33,9 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _userFieldServiceMock = new Mock<IUserFieldService>();
             _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
-            _customerSettings = new CustomerSettings();
-            _customerSettings.AllowUsersToChangeUsernames = true;
+            _customerSettings = new CustomerSettings {
+                AllowUsersToChangeUsernames = true
+            };
 
             _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
                 _encryptionServiceMock.Object, _mediatorMock.Object, _userFieldServiceMock.Object,

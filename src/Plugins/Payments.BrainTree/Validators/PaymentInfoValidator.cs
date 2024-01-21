@@ -17,7 +17,7 @@ namespace Payments.BrainTree.Validators
 
             RuleFor(x => x.CardholderName).NotEmpty().WithMessage(translationService.GetResource("Payment.CardholderName.Required"));
             RuleFor(x => x.CardNumber).CreditCard().WithMessage(translationService.GetResource("Payment.CardNumber.Wrong"));
-            RuleFor(x => x.CardCode).Matches(@"^[0-9]{3,4}$").WithMessage(translationService.GetResource("Payment.CardCode.Wrong"));
+            RuleFor(x => x.CardCode).Matches("^[0-9]{3,4}$").WithMessage(translationService.GetResource("Payment.CardCode.Wrong"));
             RuleFor(x => x.ExpireMonth).NotEmpty().WithMessage(translationService.GetResource("Payment.ExpireMonth.Required"));
             RuleFor(x => x.ExpireYear).NotEmpty().WithMessage(translationService.GetResource("Payment.ExpireYear.Required"));
         }

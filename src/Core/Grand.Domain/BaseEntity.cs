@@ -7,12 +7,7 @@ namespace Grand.Domain
     /// </summary>
     public abstract class BaseEntity : ParentEntity, IAuditableEntity 
     {
-        protected BaseEntity()
-        {
-            UserFields = new List<UserField>();
-        }
-
-        public IList<UserField> UserFields { get; set; }
+        public IList<UserField> UserFields { get; set; } = new List<UserField>();
 
         public DateTime CreatedOnUtc { get; set; }
         public string CreatedBy { get; set; }

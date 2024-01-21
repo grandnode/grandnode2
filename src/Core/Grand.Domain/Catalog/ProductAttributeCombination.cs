@@ -5,7 +5,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product attribute combination
     /// </summary>
-    public partial class ProductAttributeCombination : SubBaseEntity, ICloneable
+    public class ProductAttributeCombination : SubBaseEntity, ICloneable
     {
         private ICollection<ProductCombinationWarehouseInventory> _warehouseInventory;
         private ICollection<ProductCombinationTierPrices> _tierPrices;
@@ -69,8 +69,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductCombinationWarehouseInventory> WarehouseInventory
         {
-            get { return _warehouseInventory ??= new List<ProductCombinationWarehouseInventory>(); }
-            protected set { _warehouseInventory = value; }
+            get => _warehouseInventory ??= new List<ProductCombinationWarehouseInventory>();
+            protected set => _warehouseInventory = value;
         }
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductCombinationTierPrices> TierPrices
         {
-            get { return _tierPrices ??= new List<ProductCombinationTierPrices>(); }
-            protected set { _tierPrices = value; }
+            get => _tierPrices ??= new List<ProductCombinationTierPrices>();
+            protected set => _tierPrices = value;
         }
 
         public object Clone()

@@ -31,9 +31,11 @@ namespace Grand.Business.Catalog.Tests.Queries.Handlers
         [TestMethod()]
         public async Task HandleTest()
         {
-            var getRecommendedProductsQuery = new Core.Queries.Catalog.GetRecommendedProductsQuery();
-            getRecommendedProductsQuery.CustomerGroupIds = ["1"];
-            getRecommendedProductsQuery.StoreId = "1";
+            var getRecommendedProductsQuery = new Core.Queries.Catalog.GetRecommendedProductsQuery
+                {
+                    CustomerGroupIds = ["1"],
+                    StoreId = "1"
+                };
             await handler.Handle(getRecommendedProductsQuery, CancellationToken.None);
             _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()), Times.Once);
         }

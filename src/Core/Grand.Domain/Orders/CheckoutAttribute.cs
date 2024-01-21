@@ -9,17 +9,10 @@ namespace Grand.Domain.Orders
     /// <summary>
     /// Represents a checkout attribute
     /// </summary>
-    public partial class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity, IGroupLinkEntity
+    public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity, IGroupLinkEntity
     {
         private ICollection<CheckoutAttributeValue> _checkoutAttributeValues;
 
-        public CheckoutAttribute()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-            CustomerGroups = new List<string>();
-            ConditionAttribute = new List<CustomAttribute>();
-        }
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -64,13 +57,13 @@ namespace Grand.Domain.Orders
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         //validation fields
 
@@ -102,21 +95,21 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets a condition (depending on other attribute) when this attribute should be enabled (visible).
         /// </summary>
-        public IList<CustomAttribute> ConditionAttribute { get; set; }
-        
+        public IList<CustomAttribute> ConditionAttribute { get; set; } = new List<CustomAttribute>();
+
         /// <summary>
         /// Gets or sets a value indicating whether the entity is subject to ACL
         /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets the checkout attribute values
         /// </summary>
         public virtual ICollection<CheckoutAttributeValue> CheckoutAttributeValues
         {
-            get { return _checkoutAttributeValues ??= new List<CheckoutAttributeValue>(); }
-            protected set { _checkoutAttributeValues = value; }
+            get => _checkoutAttributeValues ??= new List<CheckoutAttributeValue>();
+            protected set => _checkoutAttributeValues = value;
         }
     }
 

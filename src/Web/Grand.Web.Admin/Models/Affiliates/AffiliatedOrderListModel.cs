@@ -7,13 +7,6 @@ namespace Grand.Web.Admin.Models.Affiliates
 {
     public class AffiliatedOrderListModel : BaseModel
     {
-        public AffiliatedOrderListModel()
-        {
-            AvailableOrderStatuses = new List<SelectListItem>();
-            AvailablePaymentStatuses = new List<SelectListItem>();
-            AvailableShippingStatuses = new List<SelectListItem>();
-        }
-
         public string AffliateId { get; set; }
 
         [GrandResourceDisplayName("Admin.Affiliates.Orders.StartDate")]
@@ -31,8 +24,8 @@ namespace Grand.Web.Admin.Models.Affiliates
         [GrandResourceDisplayName("Admin.Affiliates.Orders.ShippingStatus")]
         public int ShippingStatusId { get; set; }
 
-        public IList<SelectListItem> AvailableOrderStatuses { get; set; }
-        public IList<SelectListItem> AvailablePaymentStatuses { get; set; }
-        public IList<SelectListItem> AvailableShippingStatuses { get; set; }
+        public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableShippingStatuses { get; set; } = new List<SelectListItem>();
     }
 }

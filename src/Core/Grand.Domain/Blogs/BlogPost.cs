@@ -7,14 +7,8 @@ namespace Grand.Domain.Blogs
     /// <summary>
     /// Represents a blog post
     /// </summary>
-    public partial class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationEntity
+    public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationEntity
     {
-        public BlogPost()
-        {
-            Stores = new List<string>();
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the blog post title
         /// </summary>
@@ -82,12 +76,12 @@ namespace Grand.Domain.Blogs
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public virtual bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
         /// <summary>
         /// Gets or sets the sename

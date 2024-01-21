@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a discount requirement
     /// </summary>
-    public partial class DiscountRule : SubBaseEntity
+    public class DiscountRule : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the discount requirement rule system name

@@ -46,7 +46,10 @@ namespace Grand.Web.Admin.Controllers
 
         #region Methods
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.List)]

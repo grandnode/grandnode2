@@ -8,16 +8,6 @@ namespace Grand.Web.Models.Catalog
 {
     public class ProductOverviewModel : BaseEntityModel
     {
-        public ProductOverviewModel()
-        {
-            ProductPrice = new ProductPriceModel();
-            DefaultPictureModel = new PictureModel();
-            SecondPictureModel = new PictureModel();
-            SpecificationAttributeModels = new List<ProductSpecificationModel>();
-            ProductAttributeModels = new List<ProductAttributeModel>();
-            ReviewOverviewModel = new ProductReviewOverviewModel();
-        }
-
         public string Name { get; set; }
         public string ShortDescription { get; set; }
         public string FullDescription { get; set; }
@@ -39,30 +29,25 @@ namespace Grand.Web.Models.Catalog
         public TaxDisplayType TaxDisplayType { get; set; }
 
         //price
-        public ProductPriceModel ProductPrice { get; set; }
+        public ProductPriceModel ProductPrice { get; set; } = new();
 
         //picture
-        public PictureModel DefaultPictureModel { get; set; }
-        public PictureModel SecondPictureModel { get; set; }
+        public PictureModel DefaultPictureModel { get; set; } = new();
+        public PictureModel SecondPictureModel { get; set; } = new();
 
         //specification attributes
-        public IList<ProductSpecificationModel> SpecificationAttributeModels { get; set; }
+        public IList<ProductSpecificationModel> SpecificationAttributeModels { get; set; } = new List<ProductSpecificationModel>();
 
         //product attributes 
-        public IList<ProductAttributeModel> ProductAttributeModels { get; set; }
+        public IList<ProductAttributeModel> ProductAttributeModels { get; set; } = new List<ProductAttributeModel>();
 
         //price
-        public ProductReviewOverviewModel ReviewOverviewModel { get; set; }
+        public ProductReviewOverviewModel ReviewOverviewModel { get; set; } = new();
 
         #region Nested Classes
 
         public class ProductPriceModel : BaseModel
         {
-            public ProductPriceModel()
-            {
-                AppliedDiscounts = new List<ApplyDiscount>();
-            }
-
             public string OldPrice { get; set; }
             public double OldPriceValue { get; set; }
             public string CatalogPrice { get; set; }
@@ -81,40 +66,29 @@ namespace Grand.Web.Models.Catalog
             public DateTime? PreOrderDateTimeUtc { get; set; }
             public bool ForceRedirectionAfterAddingToCart { get; set; }
 
-            public List<ApplyDiscount> AppliedDiscounts { get; set; }
+            public List<ApplyDiscount> AppliedDiscounts { get; set; } = new();
             public TierPrice PreferredTierPrice { get; set; }
         }
 
         public class ProductAttributeModel : BaseModel
         {
-            public ProductAttributeModel()
-            {
-                Values = new List<ProductAttributeValueModel>();
-            }
-
             public string Name { get; set; }
             public string SeName { get; set; }
             public string TextPrompt { get; set; }
             public bool IsRequired { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
-            public IList<ProductAttributeValueModel> Values { get; set; }
+            public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
         }
 
         public class ProductAttributeValueModel : BaseModel
         {
-            public ProductAttributeValueModel()
-            {
-                ImageSquaresPictureModel = new PictureModel();
-                PictureModel = new PictureModel();
-            }
-
             public string Name { get; set; }
 
             public string ColorSquaresRgb { get; set; }
 
             //picture model is used with "image square" attribute type
-            public PictureModel ImageSquaresPictureModel { get; set; }
-            public PictureModel PictureModel { get; set; }
+            public PictureModel ImageSquaresPictureModel { get; set; } = new();
+            public PictureModel PictureModel { get; set; } = new();
         }
 
         #endregion

@@ -38,7 +38,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             var result = await _productReviewService.GetAllProductReviews("1", null);
 
             //Assert
-            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(2, result.Count);
         }
 
         [TestMethod()]

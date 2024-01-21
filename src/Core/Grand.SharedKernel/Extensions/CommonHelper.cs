@@ -88,7 +88,7 @@ namespace Grand.SharedKernel.Extensions
 
             if (str.Length > maxLength)
             {
-                var pLen = postfix == null ? 0 : postfix.Length;
+                var pLen = postfix?.Length ?? 0;
 
                 var result = str[..(maxLength - pLen)];
                 if(string.IsNullOrEmpty(result))

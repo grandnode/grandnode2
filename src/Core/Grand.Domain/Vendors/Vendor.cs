@@ -7,7 +7,7 @@ namespace Grand.Domain.Vendors
     /// <summary>
     /// Represents a vendor
     /// </summary>
-    public partial class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
+    public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     {
         private ICollection<VendorNote> _vendorNotes;
         private ICollection<string> _appliedDiscounts;
@@ -146,16 +146,16 @@ namespace Grand.Domain.Vendors
         /// </summary>
         public virtual ICollection<VendorNote> VendorNotes
         {
-            get { return _vendorNotes ??= new List<VendorNote>(); }
-            protected set { _vendorNotes = value; }
+            get => _vendorNotes ??= new List<VendorNote>();
+            protected set => _vendorNotes = value;
         }
         /// <summary>
         /// Gets or sets the collection of applied discounts
         /// </summary>
         public virtual ICollection<string> AppliedDiscounts
         {
-            get { return _appliedDiscounts ??= new List<string>(); }
-            protected set { _appliedDiscounts = value; }
+            get => _appliedDiscounts ??= new List<string>();
+            protected set => _appliedDiscounts = value;
         }
 
     }

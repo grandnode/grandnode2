@@ -4,13 +4,8 @@ namespace Grand.Web.Models.Orders
 {
     public class CustomerOrderListModel : BaseModel
     {
-        public CustomerOrderListModel()
-        {
-            Orders = new List<OrderDetailsModel>();
-            PagingContext = new OrderPagingModel();
-        }
-        public OrderPagingModel PagingContext { get; set; }
-        public IList<OrderDetailsModel> Orders { get; set; }
+        public OrderPagingModel PagingContext { get; set; } = new();
+        public IList<OrderDetailsModel> Orders { get; set; } = new List<OrderDetailsModel>();
 
         #region Nested classes
 

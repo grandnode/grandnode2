@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product specification attribute
     /// </summary>
-    public partial class ProductSpecificationAttribute : SubBaseEntity
+    public class ProductSpecificationAttribute : SubBaseEntity
     {       
 
         /// <summary>

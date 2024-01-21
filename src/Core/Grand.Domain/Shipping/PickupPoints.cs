@@ -5,7 +5,7 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a shipment
     /// </summary>
-    public partial class PickupPoint : BaseEntity
+    public class PickupPoint : BaseEntity
     {
         /// <summary>
         /// Gets or sets the point name

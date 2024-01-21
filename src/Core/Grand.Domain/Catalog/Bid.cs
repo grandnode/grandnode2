@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a auction bid
     /// </summary>
-    public partial class Bid : BaseEntity
+    public class Bid : BaseEntity
     {
         /// <summary>
         /// Gets or sets the product identifier

@@ -8,12 +8,6 @@ namespace Grand.Web.Admin.Models.Localization
 {
     public class LanguageModel : BaseEntityModel, IStoreLinkModel
     {
-        public LanguageModel()
-        {
-            FlagFileNames = new List<string>();
-            AvailableCurrencies = new List<SelectListItem>();
-            Search = new LanguageResourceFilterModel();
-        }
         [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.Name")]
 
         public string Name { get; set; }
@@ -30,7 +24,7 @@ namespace Grand.Web.Admin.Models.Localization
         [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.FlagImageFileName")]
 
         public string FlagImageFileName { get; set; }
-        public IList<string> FlagFileNames { get; set; }
+        public IList<string> FlagFileNames { get; set; } = new List<string>();
 
         [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.Rtl")]
         public bool Rtl { get; set; }
@@ -39,7 +33,7 @@ namespace Grand.Web.Admin.Models.Localization
         [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.DefaultCurrency")]
 
         public string DefaultCurrencyId { get; set; }
-        public IList<SelectListItem> AvailableCurrencies { get; set; }
+        public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
         [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.Published")]
         public bool Published { get; set; }
@@ -53,6 +47,6 @@ namespace Grand.Web.Admin.Models.Localization
         [UIHint("Stores")]
         public string[] Stores { get; set; }
 
-        public LanguageResourceFilterModel Search { get; set; }
+        public LanguageResourceFilterModel Search { get; set; } = new();
     }
 }

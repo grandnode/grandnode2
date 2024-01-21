@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Orders
 {
     public class CustomerMerchandiseReturnsModel : BaseModel
     {
-        public CustomerMerchandiseReturnsModel()
-        {
-            Items = new List<MerchandiseReturnModel>();
-        }
-
-        public IList<MerchandiseReturnModel> Items { get; set; }
+        public IList<MerchandiseReturnModel> Items { get; set; } = new List<MerchandiseReturnModel>();
 
         #region Nested classes
         public class MerchandiseReturnModel : BaseEntityModel

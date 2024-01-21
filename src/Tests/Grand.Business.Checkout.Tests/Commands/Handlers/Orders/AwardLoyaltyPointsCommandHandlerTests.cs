@@ -42,8 +42,9 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new AwardLoyaltyPointsCommand();
-            command.Order = new Domain.Orders.Order { StoreId = "", OrderNumber = 1 };
+            var command = new AwardLoyaltyPointsCommand {
+                Order = new Domain.Orders.Order { StoreId = "", OrderNumber = 1 }
+            };
             var expectedCustomer = new Customer { Username = "John", Active = true };
             _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(() => Task.FromResult(expectedCustomer));
             _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>())).Returns(() => Task.FromResult(new Domain.Directory.Currency()));

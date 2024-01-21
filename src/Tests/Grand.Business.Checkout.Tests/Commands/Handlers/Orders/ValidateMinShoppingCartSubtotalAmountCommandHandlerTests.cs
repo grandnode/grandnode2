@@ -26,9 +26,11 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         [TestMethod()]
         public async Task HandleTest()
         {
-            var command = new Core.Commands.Checkout.Orders.ValidateMinShoppingCartSubtotalAmountCommand();
-            command.Customer = new Domain.Customers.Customer();
-            command.Cart = new List<ShoppingCartItem> { new ShoppingCartItem() };
+            var command = new Core.Commands.Checkout.Orders.ValidateMinShoppingCartSubtotalAmountCommand
+                {
+                    Customer = new Domain.Customers.Customer(),
+                    Cart = new List<ShoppingCartItem> { new ShoppingCartItem() }
+                };
 
             _orderTotalCalculationServiceMock.Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), false)).Returns(() => Task.FromResult<(double discountAmount, List<ApplyDiscount> appliedDiscounts, double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>((20,null, 100,100,null)));
             //Act

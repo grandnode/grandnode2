@@ -5,19 +5,6 @@ namespace Grand.Api.DTOs.Catalog
 {
     public class ProductDto : BaseApiEntityModel
     {
-        public ProductDto()
-        {
-            ProductCategories = new List<ProductCategoryDto>();
-            ProductCollections = new List<ProductCollectionDto>();
-            ProductPictures = new List<ProductPictureDto>();
-            ProductSpecificationAttributes = new List<ProductSpecificationAttributeDto>();
-            TierPrices = new List<ProductTierPriceDto>();
-            ProductWarehouseInventory = new List<ProductWarehouseInventoryDto>();
-            ProductAttributeMappings = new List<ProductAttributeMappingDto>();
-            ProductAttributeCombinations = new List<ProductAttributeCombinationDto>();
-            ProductTags = new List<string>();
-            AppliedDiscounts = new List<string>();
-        }
         public ProductType ProductTypeId { get; set; }
         public string ParentGroupedProductId { get; set; }
         public bool VisibleIndividually { get; set; }
@@ -128,15 +115,15 @@ namespace Grand.Api.DTOs.Catalog
         public Int64 Viewed { get; set; }
         public int OnSale { get; set; }
         public string Flag { get; set; }
-        public IList<ProductCategoryDto> ProductCategories { get; set; }
-        public IList<ProductCollectionDto> ProductCollections { get; set; }
-        public IList<ProductPictureDto> ProductPictures { get; set; }
-        public IList<ProductSpecificationAttributeDto> ProductSpecificationAttributes { get; set; }
-        public IList<ProductTierPriceDto> TierPrices { get; set; }
-        public IList<ProductWarehouseInventoryDto> ProductWarehouseInventory { get; set; }
-        public IList<ProductAttributeMappingDto> ProductAttributeMappings { get; set; }
-        public IList<ProductAttributeCombinationDto> ProductAttributeCombinations { get; set; }
-        public IList<string> ProductTags { get; set; }
-        public IList<string> AppliedDiscounts { get; set; }
+        public IList<ProductCategoryDto> ProductCategories { get; set; } = new List<ProductCategoryDto>();
+        public IList<ProductCollectionDto> ProductCollections { get; set; } = new List<ProductCollectionDto>();
+        public IList<ProductPictureDto> ProductPictures { get; set; } = new List<ProductPictureDto>();
+        public IList<ProductSpecificationAttributeDto> ProductSpecificationAttributes { get; set; } = new List<ProductSpecificationAttributeDto>();
+        public IList<ProductTierPriceDto> TierPrices { get; set; } = new List<ProductTierPriceDto>();
+        public IList<ProductWarehouseInventoryDto> ProductWarehouseInventory { get; set; } = new List<ProductWarehouseInventoryDto>();
+        public IList<ProductAttributeMappingDto> ProductAttributeMappings { get; set; } = new List<ProductAttributeMappingDto>();
+        public IList<ProductAttributeCombinationDto> ProductAttributeCombinations { get; set; } = new List<ProductAttributeCombinationDto>();
+        public IList<string> ProductTags { get; set; } = new List<string>();
+        public IList<string> AppliedDiscounts { get; set; } = new List<string>();
     }
 }

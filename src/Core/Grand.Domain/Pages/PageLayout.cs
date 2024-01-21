@@ -3,7 +3,7 @@ namespace Grand.Domain.Pages
     /// <summary>
     /// Represents a page layout
     /// </summary>
-    public partial class PageLayout : BaseEntity
+    public class PageLayout : BaseEntity
     {
         /// <summary>
         /// Gets or sets the layout name

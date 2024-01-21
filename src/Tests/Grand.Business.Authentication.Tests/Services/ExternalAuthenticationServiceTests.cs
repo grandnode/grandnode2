@@ -39,10 +39,12 @@ namespace Grand.Business.Authentication.Tests.Services
             _workContextMock = new Mock<IWorkContext>();
             _externalAuthenticationProviders = new List<IExternalAuthenticationProvider> { new ExternalAuthenticationProviderTest() };
 
-            var externalAuthenticationSetting = new ExternalAuthenticationSettings();
-            externalAuthenticationSetting.ActiveAuthenticationMethodSystemNames = [
-                "ExternalAuthenticationProviderTest"
-            ];
+            var externalAuthenticationSetting = new ExternalAuthenticationSettings
+                {
+                    ActiveAuthenticationMethodSystemNames = [
+                        "ExternalAuthenticationProviderTest"
+                    ]
+                };
 
             _externalAuthenticationService = new ExternalAuthenticationService(_authenticationServiceMock.Object, _customerManagerServiceMock.Object, _customerServiceMock.Object,
                 _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository, _workContextMock.Object, _externalAuthenticationProviders,

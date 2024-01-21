@@ -7,11 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class MerchandiseReturnListModel : BaseModel
     {
-        public MerchandiseReturnListModel()
-        {
-            MerchandiseReturnStatus = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.List.SearchCustomerEmail")]
         public string SearchCustomerEmail { get; set; }
 
@@ -31,6 +26,6 @@ namespace Grand.Web.Admin.Models.Orders
 
         public string StoreId { get; set; }
 
-        public IList<SelectListItem> MerchandiseReturnStatus { get; set; }
+        public IList<SelectListItem> MerchandiseReturnStatus { get; set; } = new List<SelectListItem>();
     }
 }

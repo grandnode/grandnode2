@@ -14,42 +14,24 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.PushNotifications)]
-    public class PushNotificationsController : BaseAdminController
+    public class PushNotificationsController(
+        PushNotificationsSettings pushNotificationsSettings,
+        ITranslationService translationService,
+        ISettingService settingService,
+        IPushNotificationsService pushNotificationsService,
+        ICustomerService customerService,
+        IPictureService pictureService,
+        IDateTimeService dateTimeService)
+        : BaseAdminController
     {
-        private readonly PushNotificationsSettings _pushNotificationsSettings;
-        private readonly ITranslationService _translationService;
-        private readonly ISettingService _settingService;
-        private readonly IPushNotificationsService _pushNotificationsService;
-        private readonly ICustomerService _customerService;
-        private readonly IPictureService _pictureService;
-        private readonly IDateTimeService _dateTimeService;
-
-        public PushNotificationsController(
-            PushNotificationsSettings pushNotificationsSettings,
-            ITranslationService translationService,
-            ISettingService settingService,
-            IPushNotificationsService pushNotificationsService,
-            ICustomerService customerService,
-            IPictureService pictureService,
-            IDateTimeService dateTimeService)
-        {
-            _pushNotificationsSettings = pushNotificationsSettings;
-            _translationService = translationService;
-            _settingService = settingService;
-            _pushNotificationsService = pushNotificationsService;
-            _customerService = customerService;
-            _pictureService = pictureService;
-            _dateTimeService = dateTimeService;
-        }
-
         public IActionResult Send()
         {
             var model = new PushModel
             {
-                MessageText = _translationService.GetResource("Admin.PushNotifications.MessageTextPlaceholder"),
-                Title = _translationService.GetResource("Admin.PushNotifications.MessageTitlePlaceholder"),
-                PictureId = _pushNotificationsSettings.PictureId,
-                ClickUrl = _pushNotificationsSettings.ClickUrl
+                MessageText = translationService.GetResource("Admin.PushNotifications.MessageTextPlaceholder"),
+                Title = translationService.GetResource("Admin.PushNotifications.MessageTitlePlaceholder"),
+                PictureId = pushNotificationsSettings.PictureId,
+                ClickUrl = pushNotificationsSettings.ClickUrl
             };
 
             return View(model);
@@ -59,25 +41,25 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Send(PushModel model)
         {
-            if (!string.IsNullOrEmpty(_pushNotificationsSettings.PrivateApiKey) && !string.IsNullOrEmpty(model.MessageText))
+            if (!string.IsNullOrEmpty(pushNotificationsSettings.PrivateApiKey) && !string.IsNullOrEmpty(model.MessageText))
             {
-                _pushNotificationsSettings.PictureId = model.PictureId;
-                _pushNotificationsSettings.ClickUrl = model.ClickUrl;
-                await _settingService.SaveSetting(_pushNotificationsSettings);
-                var pictureUrl = await _pictureService.GetPictureUrl(model.PictureId);
-                var result = await _pushNotificationsService.SendPushNotification(model.Title, model.MessageText, pictureUrl, model.ClickUrl);
+                pushNotificationsSettings.PictureId = model.PictureId;
+                pushNotificationsSettings.ClickUrl = model.ClickUrl;
+                await settingService.SaveSetting(pushNotificationsSettings);
+                var pictureUrl = await pictureService.GetPictureUrl(model.PictureId);
+                var result = await pushNotificationsService.SendPushNotification(model.Title, model.MessageText, pictureUrl, model.ClickUrl);
                 if (result.Item1)
                 {
-                    Success(_translationService.GetResource(result.Item2));
+                    Success(translationService.GetResource(result.Item2));
                 }
                 else
                 {
-                    Error(_translationService.GetResource(result.Item2));
+                    Error(translationService.GetResource(result.Item2));
                 }
             }
             else
             {
-                Error(_translationService.GetResource("PushNotifications.Error.PushApiMessage"));
+                Error(translationService.GetResource("PushNotifications.Error.PushApiMessage"));
             }
 
             return RedirectToAction("Send");
@@ -88,8 +70,8 @@ namespace Grand.Web.Admin.Controllers
         {
             var model = new MessagesModel
             {
-                Allowed = await _pushNotificationsService.GetAllowedReceivers(),
-                Denied = await _pushNotificationsService.GetDeniedReceivers()
+                Allowed = await pushNotificationsService.GetAllowedReceivers(),
+                Denied = await pushNotificationsService.GetDeniedReceivers()
             };
 
             return View(model);
@@ -100,8 +82,8 @@ namespace Grand.Web.Admin.Controllers
         {
             var model = new ReceiversModel
             {
-                Allowed = await _pushNotificationsService.GetAllowedReceivers(),
-                Denied = await _pushNotificationsService.GetDeniedReceivers()
+                Allowed = await pushNotificationsService.GetAllowedReceivers(),
+                Denied = await pushNotificationsService.GetDeniedReceivers()
             };
 
             return View(model);
@@ -111,7 +93,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> PushMessagesList(DataSourceRequest command)
         {
-            var messages = await _pushNotificationsService.GetPushMessages(command.Page - 1, command.PageSize);
+            var messages = await pushNotificationsService.GetPushMessages(command.Page - 1, command.PageSize);
             var gridModel = new DataSourceResult
             {
                 Data = messages.Select(x => new PushMessageGridModel
@@ -119,7 +101,7 @@ namespace Grand.Web.Admin.Controllers
                     Id = x.Id,
                     Text = x.Text,
                     Title = x.Title,
-                    SentOn = _dateTimeService.ConvertToUserTime(x.SentOn, DateTimeKind.Utc),
+                    SentOn = dateTimeService.ConvertToUserTime(x.SentOn, DateTimeKind.Utc),
                     NumberOfReceivers = x.NumberOfReceivers
                 }),
                 Total = messages.TotalCount
@@ -132,32 +114,25 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> PushReceiversList(DataSourceRequest command)
         {
-            var receivers = await _pushNotificationsService.GetPushReceivers(command.Page - 1, command.PageSize);
+            var receivers = await pushNotificationsService.GetPushReceivers(command.Page - 1, command.PageSize);
             var gridModel = new DataSourceResult();
             var list = new List<PushRegistrationGridModel>();
             foreach (var receiver in receivers)
             {
                 var gridReceiver = new PushRegistrationGridModel();
 
-                var customer = await _customerService.GetCustomerById(receiver.CustomerId);
+                var customer = await customerService.GetCustomerById(receiver.CustomerId);
                 if (customer == null)
                 {
-                    await _pushNotificationsService.DeletePushReceiver(receiver);
+                    await pushNotificationsService.DeletePushReceiver(receiver);
                     continue;
                 }
 
-                if (!string.IsNullOrEmpty(customer.Email))
-                {
-                    gridReceiver.CustomerEmail = customer.Email;
-                }
-                else
-                {
-                    gridReceiver.CustomerEmail = _translationService.GetResource("Admin.Customers.Guest");
-                }
+                gridReceiver.CustomerEmail = !string.IsNullOrEmpty(customer.Email) ? customer.Email : translationService.GetResource("Admin.Customers.Guest");
 
                 gridReceiver.CustomerId = receiver.CustomerId;
                 gridReceiver.Id = receiver.Id;
-                gridReceiver.RegisteredOn = _dateTimeService.ConvertToUserTime(receiver.RegisteredOn, DateTimeKind.Utc);
+                gridReceiver.RegisteredOn = dateTimeService.ConvertToUserTime(receiver.RegisteredOn, DateTimeKind.Utc);
                 gridReceiver.Token = receiver.Token;
                 gridReceiver.Allowed = receiver.Allowed;
 
@@ -174,8 +149,8 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteReceiver(string id)
         {
-            var receiver = await _pushNotificationsService.GetPushReceiver(id);
-            await _pushNotificationsService.DeletePushReceiver(receiver);
+            var receiver = await pushNotificationsService.GetPushReceiver(id);
+            await pushNotificationsService.DeletePushReceiver(receiver);
             return new JsonResult("");
         }
     }

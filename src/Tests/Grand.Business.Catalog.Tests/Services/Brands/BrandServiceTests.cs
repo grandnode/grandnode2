@@ -137,7 +137,7 @@ namespace Grand.Business.Catalog.Tests.Services.Brands
 
             //Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(1, result.Count);
         }
     }
 }

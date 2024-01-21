@@ -6,10 +6,6 @@ namespace Grand.Web.Admin.Models.Shipping
 {
     public class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMethodLocalizedModel>
     {
-        public ShippingMethodModel()
-        {
-            Locales = new List<ShippingMethodLocalizedModel>();
-        }
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.Name")]
 
         public string Name { get; set; }
@@ -21,7 +17,7 @@ namespace Grand.Web.Admin.Models.Shipping
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public IList<ShippingMethodLocalizedModel> Locales { get; set; }
+        public IList<ShippingMethodLocalizedModel> Locales { get; set; } = new List<ShippingMethodLocalizedModel>();
     }
 
     public class ShippingMethodLocalizedModel : ILocalizedModelLocal

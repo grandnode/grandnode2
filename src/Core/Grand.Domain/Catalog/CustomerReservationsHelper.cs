@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a customer reservation helper to the product
     /// </summary>
-    public partial class CustomerReservationsHelper : BaseEntity
+    public class CustomerReservationsHelper : BaseEntity
     {
         /// <summary>
         /// Gets or sets customer identifier

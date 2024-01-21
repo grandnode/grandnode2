@@ -541,7 +541,6 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, bool includingTax)
         {
             double? shippingTotal = null;
-            double? shippingTotalTaxed = null;
             var appliedDiscounts = new List<ApplyDiscount>();
             double taxRate = 0;
 
@@ -616,7 +615,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 shippingTotal = RoundingHelper.RoundPrice(shippingTotal.Value, currency);
 
             var shippingPrice = await _taxService.GetShippingPrice(shippingTotal.Value, includingTax, customer);
-            shippingTotalTaxed = shippingPrice.shippingPrice;
+            double? shippingTotalTaxed = shippingPrice.shippingPrice;
             taxRate = shippingPrice.taxRate;
 
             //round

@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a vendor note
     /// </summary>
-    public partial class VendorNote : SubBaseEntity
+    public class VendorNote : SubBaseEntity
     {
 
         /// <summary>

@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product review
     /// </summary>
-    public partial class ProductReview : BaseEntity
+    public class ProductReview : BaseEntity
     {
         private ICollection<ProductReviewHelpfulness> _productReviewHelpfulnessEntries;
 
@@ -71,8 +71,8 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public virtual ICollection<ProductReviewHelpfulness> ProductReviewHelpfulnessEntries
         {
-            get { return _productReviewHelpfulnessEntries ??= new List<ProductReviewHelpfulness>(); }
-            protected set { _productReviewHelpfulnessEntries = value; }
+            get => _productReviewHelpfulnessEntries ??= new List<ProductReviewHelpfulness>();
+            protected set => _productReviewHelpfulnessEntries = value;
         }
     }
 }

@@ -12,14 +12,8 @@ namespace Grand.Domain
         [DBFieldName("_id")]
         public string Id
         {
-            get { return _id; }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                    _id = UniqueIdentifier.New;
-                else
-                    _id = value;
-            }
+            get => _id;
+            set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;
         }
 
         private string _id;

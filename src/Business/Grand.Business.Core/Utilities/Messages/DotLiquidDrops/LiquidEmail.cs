@@ -11,9 +11,6 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             _emailId = emailId;
         }
 
-        public string Id
-        {
-            get { return _emailId; }
-        }
+        public string Id => _emailId;
     }
 }

@@ -12,15 +12,6 @@ namespace Grand.Business.Core.Utilities.Checkout
 {
     public class PlaceOrderContainer
     {
-        public PlaceOrderContainer()
-        {
-            Cart = new List<ShoppingCartItem>();
-            Taxes = new List<OrderTax>();
-            AppliedDiscounts = new List<ApplyDiscount>();
-            AppliedGiftVouchers = new List<AppliedGiftVoucher>();
-            CheckoutAttributes = new List<CustomAttribute>();
-        }
-
         public Customer Customer { get; set; }
         public Language Language { get; set; }
         public Currency Currency { get; set; }
@@ -37,11 +28,11 @@ namespace Grand.Business.Core.Utilities.Checkout
         public bool PickUpInStore { get; set; }
         public PickupPoint PickupPoint { get; set; }
         public string CheckoutAttributeDescription { get; set; }
-        public IList<CustomAttribute> CheckoutAttributes { get; set; }
-        public IList<ShoppingCartItem> Cart { get; set; }
-        public IList<OrderTax> Taxes { get; set; }
-        public List<ApplyDiscount> AppliedDiscounts { get; set; }
-        public List<AppliedGiftVoucher> AppliedGiftVouchers { get; set; }
+        public IList<CustomAttribute> CheckoutAttributes { get; set; } = new List<CustomAttribute>();
+        public IList<ShoppingCartItem> Cart { get; set; } = new List<ShoppingCartItem>();
+        public IList<OrderTax> Taxes { get; set; } = new List<OrderTax>();
+        public List<ApplyDiscount> AppliedDiscounts { get; set; } = new();
+        public List<AppliedGiftVoucher> AppliedGiftVouchers { get; set; } = new();
         public bool IsRecurring { get; set; }
         public int RecurringCycleLength { get; set; }
         public RecurringCyclePeriod RecurringCyclePeriodId { get; set; }

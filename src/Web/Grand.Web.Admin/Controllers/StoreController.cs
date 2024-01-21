@@ -32,7 +32,10 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
         }
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.List)]

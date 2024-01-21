@@ -5,13 +5,8 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// An object that acumulates all DotLiquid Drops
     /// </summary>
-    public partial class LiquidObject
+    public class LiquidObject
     {
-        public LiquidObject()
-        {
-            AdditionalTokens = new Dictionary<string, string>();
-        }
-
         public Drop AttributeCombination { get; set; }
 
         public Drop Auctions { get; set; }
@@ -60,6 +55,6 @@ namespace Grand.Domain.Messages
 
         public Drop Email { get; set; }
 
-        public IDictionary<string, string> AdditionalTokens { get; set; }
+        public IDictionary<string, string> AdditionalTokens { get; set; } = new Dictionary<string, string>();
     }
 }

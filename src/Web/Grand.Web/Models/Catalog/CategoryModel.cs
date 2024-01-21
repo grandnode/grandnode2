@@ -5,15 +5,6 @@ namespace Grand.Web.Models.Catalog
 {
     public class CategoryModel : BaseEntityModel
     {
-        public CategoryModel()
-        {
-            PictureModel = new PictureModel();
-            FeaturedProducts = new List<ProductOverviewModel>();
-            Products = new List<ProductOverviewModel>();
-            PagingFilteringContext = new CatalogPagingFilteringModel();
-            SubCategories = new List<SubCategoryModel>();
-            CategoryBreadcrumb = new List<CategoryModel>();
-        }
         public string ParentCategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -25,26 +16,23 @@ namespace Grand.Web.Models.Catalog
         public string Flag { get; set; }
         public string FlagStyle { get; set; }
         public string Icon { get; set; }
-        public PictureModel PictureModel { get; set; }
-        public CatalogPagingFilteringModel PagingFilteringContext { get; set; }
+        public PictureModel PictureModel { get; set; } = new();
+        public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
         public bool DisplayCategoryBreadcrumb { get; set; }
-        public IList<CategoryModel> CategoryBreadcrumb { get; set; }        
-        public IList<SubCategoryModel> SubCategories { get; set; }
-        public IList<ProductOverviewModel> FeaturedProducts { get; set; }
-        public IList<ProductOverviewModel> Products { get; set; }        
-		#region Nested Classes
+        public IList<CategoryModel> CategoryBreadcrumb { get; set; } = new List<CategoryModel>();
+        public IList<SubCategoryModel> SubCategories { get; set; } = new List<SubCategoryModel>();
+        public IList<ProductOverviewModel> FeaturedProducts { get; set; } = new List<ProductOverviewModel>();
+        public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
+
+        #region Nested Classes
         public class SubCategoryModel : BaseEntityModel
         {
-            public SubCategoryModel()
-            {
-                PictureModel = new PictureModel();
-            }
             public string Name { get; set; }
             public string SeName { get; set; }
             public string Description { get; set; }
             public string Flag { get; set; }
             public string FlagStyle { get; set; }
-            public PictureModel PictureModel { get; set; }
+            public PictureModel PictureModel { get; set; } = new();
         }
 
 		#endregion

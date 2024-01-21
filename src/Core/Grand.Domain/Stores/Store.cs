@@ -5,15 +5,8 @@ namespace Grand.Domain.Stores
     /// <summary>
     /// Represents a store
     /// </summary>
-    public partial class Store : BaseEntity, ITranslationEntity
+    public class Store : BaseEntity, ITranslationEntity
     {
-        public Store()
-        {
-            Locales = new List<TranslationEntity>();
-            Domains = new List<DomainHost>();
-            BankAccount = new BankAccount();
-        }
-
         /// <summary>
         /// Gets or sets the store name
         /// </summary>
@@ -42,7 +35,7 @@ namespace Grand.Domain.Stores
         /// <summary>
         /// Gets or sets the list of domains
         /// </summary>
-        public IList<DomainHost> Domains { get; set; }
+        public IList<DomainHost> Domains { get; set; } = new List<DomainHost>();
 
         /// <summary>
         /// Gets or sets the identifier of the default language for this store; "" is set when we use the default language display order
@@ -109,12 +102,11 @@ namespace Grand.Domain.Stores
         /// </summary>
         public string DefaultAdminTheme { get; set; }
 
-        public BankAccount BankAccount { get; set; }
+        public BankAccount BankAccount { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 }

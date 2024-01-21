@@ -42,9 +42,6 @@ namespace Grand.Web.Common.Routing
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext context, RouteValueDictionary values)
         {
-            if (values == null)
-                return null;
-
             var slug = values["SeName"];
             if (slug == null)
                 return values;

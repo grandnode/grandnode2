@@ -24,8 +24,9 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
         public async Task HandleTest()
         {
             //Arrange
-            var command = new Core.Commands.Checkout.Orders.ReturnBackRedeemedLoyaltyPointsCommand();
-            command.Order = new Domain.Orders.Order { RedeemedLoyaltyPoints = 10 };
+            var command = new Core.Commands.Checkout.Orders.ReturnBackRedeemedLoyaltyPointsCommand {
+                Order = new Domain.Orders.Order { RedeemedLoyaltyPoints = 10 }
+            };
             _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Name");
             //Act
             await _handler.Handle(command, CancellationToken.None);

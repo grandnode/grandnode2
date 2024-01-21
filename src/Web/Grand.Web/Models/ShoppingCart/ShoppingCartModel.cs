@@ -7,46 +7,32 @@ namespace Grand.Web.Models.ShoppingCart
 {
     public class ShoppingCartModel : BaseModel
     {
-        public ShoppingCartModel()
-        {
-            Items = new List<ShoppingCartItemModel>();
-            Warnings = new List<string>();
-            DiscountBox = new DiscountBoxModel();
-            GiftVoucherBox = new GiftVoucherBoxModel();
-            CheckoutAttributes = new List<CheckoutAttributeModel>();
-        }
         public bool ShowSku { get; set; }
         public bool ShowProductImages { get; set; }
         public bool IsEditable { get; set; }
         public bool IsAllowOnHold { get; set; }
         public bool TermsOfServicePopup { get; set; }
-        public IList<ShoppingCartItemModel> Items { get; set; }
+        public IList<ShoppingCartItemModel> Items { get; set; } = new List<ShoppingCartItemModel>();
 
         public string CheckoutAttributeInfo { get; set; }
-        public IList<CheckoutAttributeModel> CheckoutAttributes { get; set; }
+        public IList<CheckoutAttributeModel> CheckoutAttributes { get; set; } = new List<CheckoutAttributeModel>();
 
-        public IList<string> Warnings { get; set; }
+        public IList<string> Warnings { get; set; } = new List<string>();
         public string MinOrderSubtotalWarning { get; set; }
         public bool ShowCheckoutAsGuestButton { get; set; }
         public bool IsGuest { get; set; }
         public bool TermsOfServiceOnShoppingCartPage { get; set; }
         public bool TermsOfServiceOnOrderConfirmPage { get; set; }
-        public DiscountBoxModel DiscountBox { get; set; }
-        public GiftVoucherBoxModel GiftVoucherBox { get; set; }
+        public DiscountBoxModel DiscountBox { get; set; } = new();
+        public GiftVoucherBoxModel GiftVoucherBox { get; set; } = new();
+
         #region Nested Classes
 
         public class ShoppingCartItemModel : BaseEntityModel
         {
-            public ShoppingCartItemModel()
-            {
-                Picture = new PictureModel();
-                AllowedQuantities = new List<SelectListItem>();
-                Discounts = new HashSet<string>();
-                Warnings = new List<string>();
-            }
             public string Sku { get; set; }
             public bool IsCart { get; set; }
-            public PictureModel Picture { get; set; }
+            public PictureModel Picture { get; set; } = new();
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
@@ -65,9 +51,9 @@ namespace Grand.Web.Models.ShoppingCart
             public double SubTotalValue { get; set; }
             public string Discount { get; set; }
             public int DiscountedQty { get; set; }
-            public HashSet<string> Discounts { get; set; }
+            public HashSet<string> Discounts { get; set; } = new();
             public int Quantity { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; }
+            public List<SelectListItem> AllowedQuantities { get; set; } = new();
             public string AttributeInfo { get; set; }
             public string RecurringInfo { get; set; }
             public bool AllowItemEditing { get; set; }
@@ -75,17 +61,11 @@ namespace Grand.Web.Models.ShoppingCart
             public string ReservationInfo { get; set; }
             public string AuctionInfo { get; set; }
             public string Parameter { get; set; }
-            public IList<string> Warnings { get; set; }
+            public IList<string> Warnings { get; set; } = new List<string>();
         }
 
         public class CheckoutAttributeModel : BaseEntityModel
         {
-            public CheckoutAttributeModel()
-            {
-                AllowedFileExtensions = new List<string>();
-                Values = new List<CheckoutAttributeValueModel>();
-            }
-
             public string Name { get; set; }
 
             public string DefaultValue { get; set; }
@@ -97,11 +77,11 @@ namespace Grand.Web.Models.ShoppingCart
             /// <summary>
             /// Allowed file extensions for customer uploaded files
             /// </summary>
-            public IList<string> AllowedFileExtensions { get; set; }
+            public IList<string> AllowedFileExtensions { get; set; } = new List<string>();
 
             public AttributeControlType AttributeControlType { get; set; }
 
-            public IList<CheckoutAttributeValueModel> Values { get; set; }
+            public IList<CheckoutAttributeValueModel> Values { get; set; } = new List<CheckoutAttributeValueModel>();
         }
 
         public class CheckoutAttributeValueModel : BaseEntityModel
@@ -117,11 +97,7 @@ namespace Grand.Web.Models.ShoppingCart
 
         public class DiscountBoxModel : BaseModel
         {
-            public DiscountBoxModel()
-            {
-                AppliedDiscountsWithCodes = new List<DiscountInfoModel>();
-            }
-            public List<DiscountInfoModel> AppliedDiscountsWithCodes { get; set; }
+            public List<DiscountInfoModel> AppliedDiscountsWithCodes { get; set; } = new();
             public bool Display { get; set; }
             public string Message { get; set; }
             public bool IsApplied { get; set; }

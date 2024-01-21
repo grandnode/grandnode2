@@ -47,8 +47,8 @@ namespace Widgets.GoogleAnalytics
                         {ECOMMERCE}
                     </script>
                 ",
-                EcommerceScript = @"gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});",
-                EcommerceDetailScript = @"{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, ",
+                EcommerceScript = "gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});",
+                EcommerceDetailScript = "{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, ",
                 ConsentName = "Google Analytics",
                 ConsentDescription = "Allows us to analyse the statistics of visits to our website."
             };

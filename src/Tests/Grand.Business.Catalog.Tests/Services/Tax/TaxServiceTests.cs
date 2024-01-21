@@ -40,8 +40,9 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
             serviceProvider.Setup(x => x.GetService(typeof(FixedRateTestTaxProvider))).Returns(new FixedRateTestTaxProvider());
             _serviceProvider = serviceProvider.Object;
 
-            _taxProviderSettings = new TaxProviderSettings();
-            _taxProviderSettings.ActiveTaxProviderSystemName = "test-provider";
+            _taxProviderSettings = new TaxProviderSettings {
+                ActiveTaxProviderSystemName = "test-provider"
+            };
 
             _taxSettings = new TaxSettings();
             _workContext = null;
@@ -64,8 +65,9 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         public async Task Can_check_taxExempt_product()
         {
 
-            var product = new Product();
-            product.IsTaxExempt = true;
+            var product = new Product {
+                IsTaxExempt = true
+            };
             Assert.IsTrue(await _taxService.IsTaxExempt(product, null));
             product.IsTaxExempt = false;
             Assert.IsFalse(await _taxService.IsTaxExempt(product, null));
@@ -140,10 +142,12 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         [TestMethod()]
         public async Task GetProductPriceQuickly_NonTaxExemptAndPriceIncludingTax_ShouldReturnTheSameValues()
         {
-            var product = new Product();
-            product.IsTaxExempt = false;
-            var customer = new Customer();
-            customer.IsTaxExempt = false;
+            var product = new Product {
+                IsTaxExempt = false
+            };
+            var customer = new Customer {
+                IsTaxExempt = false
+            };
 
             var taxCategoryId = "";  //as in code
             var scUnitPriceWithoutDiscount = 1000.00;
@@ -172,12 +176,14 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         [TestMethod()]
         public async Task GetProductPriceQuickly_NonTaxExemptAndPriceExcludingTax_ShouldReturnTheSameValues()
         {
-            var product = new Product();
-            product.TaxCategoryId = "";
-            product.IsTele = false;
-            product.IsTaxExempt = false;
-            var customer = new Customer();
-            customer.IsTaxExempt = false;
+            var product = new Product {
+                TaxCategoryId = "",
+                IsTele = false,
+                IsTaxExempt = false
+            };
+            var customer = new Customer {
+                IsTaxExempt = false
+            };
             var taxCategoryId = "";  //as in code
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
             var scUnitPriceWithoutDiscount = 1000.00;
@@ -205,12 +211,14 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         [TestMethod()]
         public async Task GetProductPriceQuickly_TaxExemptAndPriceIncludingTax_ShouldReturnTheSameValues()
         {
-            var product = new Product();
-            product.TaxCategoryId = "57516fc81b0dc92b20fdd2ef";
-            product.IsTele = false;
-            product.IsTaxExempt = true;
-            var customer = new Customer();
-            customer.IsTaxExempt = true;
+            var product = new Product {
+                TaxCategoryId = "57516fc81b0dc92b20fdd2ef",
+                IsTele = false,
+                IsTaxExempt = true
+            };
+            var customer = new Customer {
+                IsTaxExempt = true
+            };
             var taxCategoryId = "";
 
             var scUnitPriceWithoutDiscount = 1000.00;
@@ -238,12 +246,14 @@ namespace Grand.Business.Catalog.Tests.Services.Tax
         [TestMethod()]
         public async Task GetProductPriceQuickly_TaxExemptAndPriceExcludingTax_ShouldReturnTheSameValues()
         {
-            var product = new Product();
-            product.TaxCategoryId = "57516fc81b0dc92b20fdd2ef";
-            product.IsTele = false;
-            product.IsTaxExempt = true;
-            var customer = new Customer();
-            customer.IsTaxExempt = true;
+            var product = new Product {
+                TaxCategoryId = "57516fc81b0dc92b20fdd2ef",
+                IsTele = false,
+                IsTaxExempt = true
+            };
+            var customer = new Customer {
+                IsTaxExempt = true
+            };
             var taxCategoryId = "";
 
             var scUnitPriceWithoutDiscount = 1000.00;

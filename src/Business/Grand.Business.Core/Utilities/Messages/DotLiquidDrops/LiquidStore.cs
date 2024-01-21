@@ -20,62 +20,35 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string Name {
-            get { return _store.Name; }
-        }
+        public string Name => _store.Name;
 
-        public string Shortcut {
-            get { return _store.Shortcut; }
-        }
+        public string Shortcut => _store.Shortcut;
 
-        public string URL {
-            get { return _store.SslEnabled ? _store.SecureUrl : _store.Url; }
-        }
+        public string URL => _store.SslEnabled ? _store.SecureUrl : _store.Url;
 
-        public string Email {
-            get { return _emailAccount.Email; }
-        }
+        public string Email => _emailAccount.Email;
 
-        public string CompanyName {
-            get { return _store.CompanyName; }
-        }
+        public string CompanyName => _store.CompanyName;
 
-        public string CompanyAddress {
-            get { return _store.CompanyAddress; }
-        }
+        public string CompanyAddress => _store.CompanyAddress;
 
-        public string CompanyPhoneNumber {
-            get { return _store.CompanyPhoneNumber; }
-        }
+        public string CompanyPhoneNumber => _store.CompanyPhoneNumber;
 
-        public string CompanyEmail {
-            get { return _store.CompanyEmail; }
-        }
+        public string CompanyEmail => _store.CompanyEmail;
 
-        public string CompanyHours {
-            get { return _store.CompanyHours; }
-        }
+        public string CompanyHours => _store.CompanyHours;
 
-        public string CompanyRegNo {
-            get { return _store.CompanyRegNo; }
-        }
+        public string CompanyRegNo => _store.CompanyRegNo;
 
-        public string CompanyVat {
-            get { return _store.CompanyVat; }
-        }
+        public string CompanyVat => _store.CompanyVat;
 
-        public string BankCode {
-            get { return _store.BankAccount?.BankCode; }
-        }
-        public string BankName {
-            get { return _store.BankAccount?.BankName; }
-        }
-        public string SwiftCode {
-            get { return _store.BankAccount?.SwiftCode; }
-        }
-        public string AccountNumber {
-            get { return _store.BankAccount?.AccountNumber; }
-        }
+        public string BankCode => _store.BankAccount?.BankCode;
+
+        public string BankName => _store.BankAccount?.BankName;
+
+        public string SwiftCode => _store.BankAccount?.SwiftCode;
+
+        public string AccountNumber => _store.BankAccount?.AccountNumber;
 
         public string TwitterLink { get; set; }
 

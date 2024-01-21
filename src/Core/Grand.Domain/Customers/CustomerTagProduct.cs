@@ -4,7 +4,7 @@ namespace Grand.Domain.Customers
     /// <summary>
     /// Represents a customer tag product
     /// </summary>
-    public partial class CustomerTagProduct : BaseEntity
+    public class CustomerTagProduct : BaseEntity
     {
 
         /// <summary>

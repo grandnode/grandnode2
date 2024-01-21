@@ -5,13 +5,7 @@ namespace Grand.Api.DTOs.Customers
 {
     public class CustomerDto : BaseApiEntityModel
     {
-        public CustomerDto()
-        {
-            CustomerGuid = Guid.NewGuid();
-            Groups = new List<string>();
-            Addresses = new List<AddressDto>();
-        }
-        public Guid CustomerGuid { get; set; }
+        public Guid CustomerGuid { get; set; } = Guid.NewGuid();
         public string Username { get; set; }
         [Key]
         public string Email { get; set; }
@@ -38,7 +32,7 @@ namespace Grand.Api.DTOs.Customers
         public string Fax { get; set; }
         public string VatNumber { get; set; }
         public string VatNumberStatusId { get; set; }
-        public IList<string> Groups { get; set; }
-        public IList<AddressDto> Addresses { get; set; }
+        public IList<string> Groups { get; set; } = new List<string>();
+        public IList<AddressDto> Addresses { get; set; } = new List<AddressDto>();
     }
 }

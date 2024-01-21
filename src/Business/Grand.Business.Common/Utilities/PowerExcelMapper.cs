@@ -233,7 +233,10 @@ namespace Grand.Business.Common.Utilities
             return o;
         }
 
-        static object GetDefault(Type t) => t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
+        static object GetDefault(Type t)
+        {
+            return t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
+        }
 
         readonly Dictionary<Type, Func<object>> ObjectFactories = new();
 

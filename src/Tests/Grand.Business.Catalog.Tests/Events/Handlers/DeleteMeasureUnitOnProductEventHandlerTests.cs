@@ -25,14 +25,17 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers
         {
             //Arrange
             var measureUnit = new MeasureUnit();
-            var product = new Product();
-            product.UnitId = measureUnit.Id;
+            var product = new Product {
+                UnitId = measureUnit.Id
+            };
             await _repository.InsertAsync(product);
-            var product2 = new Product();
-            product2.UnitId = measureUnit.Id;
+            var product2 = new Product {
+                UnitId = measureUnit.Id
+            };
             await _repository.InsertAsync(product2);
-            var product3 = new Product();
-            product3.UnitId = "1";
+            var product3 = new Product {
+                UnitId = "1"
+            };
             await _repository.InsertAsync(product3);
 
             //Act

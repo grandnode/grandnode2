@@ -16,10 +16,10 @@ namespace Grand.Web.Vendor.Endpoints
                 pattern: $"{Constants.AreaVendor}/{{controller=Home}}/{{action=Index}}/{{id?}}");
 
             //vendor index
-            endpointRouteBuilder.MapControllerRoute("VendorIndex", $"vendor/", new { controller = "Home", action = "Index", area = Constants.AreaVendor });
+            endpointRouteBuilder.MapControllerRoute("VendorIndex", "vendor/", new { controller = "Home", action = "Index", area = Constants.AreaVendor });
 
             //vendor login
-            endpointRouteBuilder.MapControllerRoute("VendorLogin", $"vendor/login/", new { controller = "Login", action = "Index", area = Constants.AreaVendor });
+            endpointRouteBuilder.MapControllerRoute("VendorLogin", "vendor/login/", new { controller = "Login", action = "Index", area = Constants.AreaVendor });
 
         }
         public int Priority => 10;

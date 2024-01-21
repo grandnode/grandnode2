@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents permission for action denied
     /// </summary>
-    public partial class PermissionAction : BaseEntity
+    public class PermissionAction : BaseEntity
     {
 
         /// <summary>

@@ -16,8 +16,9 @@ namespace Grand.Business.Common.Tests.Services.Directory
 
             _timeZone = TimeZoneInfo.GetSystemTimeZones().FirstOrDefault(x => x.BaseUtcOffset.Hours == 1);
 
-            _dateTimeSettings = new DateTimeSettings();
-            _dateTimeSettings.DefaultStoreTimeZoneId = _timeZone.Id;
+            _dateTimeSettings = new DateTimeSettings {
+                DefaultStoreTimeZoneId = _timeZone.Id
+            };
             _dateTimeService = new DateTimeService(_dateTimeSettings);
         }
 

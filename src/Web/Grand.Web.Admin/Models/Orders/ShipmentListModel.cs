@@ -7,13 +7,6 @@ namespace Grand.Web.Admin.Models.Orders
 {
     public class ShipmentListModel : BaseModel
     {
-        public ShipmentListModel()
-        {
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStates = new List<SelectListItem>();
-            AvailableWarehouses = new List<SelectListItem>();
-        }
-
         [GrandResourceDisplayName("Admin.Orders.Shipments.List.StartDate")]
         [UIHint("DateNullable")]
         public DateTime? StartDate { get; set; }
@@ -26,11 +19,13 @@ namespace Grand.Web.Admin.Models.Orders
         
         public string TrackingNumber { get; set; }
         
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+
         [GrandResourceDisplayName("Admin.Orders.Shipments.List.Country")]
         public string CountryId { get; set; }
 
-        public IList<SelectListItem> AvailableStates { get; set; }
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+
         [GrandResourceDisplayName("Admin.Orders.Shipments.List.StateProvince")]
         public int StateProvinceId { get; set; }
 
@@ -44,7 +39,7 @@ namespace Grand.Web.Admin.Models.Orders
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.List.Warehouse")]
         public string WarehouseId { get; set; }
-        public IList<SelectListItem> AvailableWarehouses { get; set; }
+        public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 
         public string StoreId { get; set; }
         public string VendorId { get; set; }

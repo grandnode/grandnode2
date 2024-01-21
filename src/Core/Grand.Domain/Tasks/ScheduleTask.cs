@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Tasks
 {
-    public partial class ScheduleTask : BaseEntity
+    public class ScheduleTask : BaseEntity
     {
         public string ScheduleTaskName { get; set; }
         public string Type { get; set; }

@@ -3,7 +3,7 @@ namespace Grand.Domain.Media
     /// <summary>
     /// Represents a download
     /// </summary>
-    public partial class Download : BaseEntity
+    public class Download : BaseEntity
     {
         /// <summary>
         /// Gets or sets a customer identifier

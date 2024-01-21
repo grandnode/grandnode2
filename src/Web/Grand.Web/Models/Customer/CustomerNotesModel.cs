@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerNotesModel : BaseModel
     {
-        public CustomerNotesModel()
-        {
-            CustomerNoteList = new List<CustomerNote>();
-        }
-
-        public List<CustomerNote> CustomerNoteList { get; set; }
+        public List<CustomerNote> CustomerNoteList { get; set; } = new();
         public string CustomerId { get; set; }
     }
 

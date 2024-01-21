@@ -6,11 +6,6 @@ namespace Grand.Web.Admin.Models.Catalog
 {
     public class SpecificationAttributeOptionModel : BaseEntityModel, ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
     {
-        public SpecificationAttributeOptionModel()
-        {
-            Locales = new List<SpecificationAttributeOptionLocalizedModel>();
-        }
-
         public string SpecificationAttributeId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name")]
@@ -30,8 +25,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.NumberOfAssociatedProducts")]
         public int NumberOfAssociatedProducts { get; set; }
 
-        public IList<SpecificationAttributeOptionLocalizedModel> Locales { get; set; }
-
+        public IList<SpecificationAttributeOptionLocalizedModel> Locales { get; set; } = new List<SpecificationAttributeOptionLocalizedModel>();
     }
 
     public class SpecificationAttributeOptionLocalizedModel : ILocalizedModelLocal

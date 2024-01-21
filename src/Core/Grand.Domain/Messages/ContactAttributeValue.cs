@@ -5,13 +5,8 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents a contact attribute value
     /// </summary>
-    public partial class ContactAttributeValue : SubBaseEntity, ITranslationEntity
+    public class ContactAttributeValue : SubBaseEntity, ITranslationEntity
     {
-        public ContactAttributeValue()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the checkout attribute mapping identifier
         /// </summary>
@@ -40,7 +35,7 @@ namespace Grand.Domain.Messages
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 
 }

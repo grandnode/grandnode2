@@ -3,7 +3,7 @@ namespace Grand.Domain.Tax
     /// <summary>
     /// Represents a tax category
     /// </summary>
-    public partial class TaxCategory : BaseEntity
+    public class TaxCategory : BaseEntity
     {
         /// <summary>
         /// Gets or sets the name

@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Checkout
 {
     public class CheckoutPaymentMethodModel : BaseModel
     {
-        public CheckoutPaymentMethodModel()
-        {
-            PaymentMethods = new List<PaymentMethodModel>();
-        }
-
-        public IList<PaymentMethodModel> PaymentMethods { get; set; }
+        public IList<PaymentMethodModel> PaymentMethods { get; set; } = new List<PaymentMethodModel>();
 
         public bool DisplayLoyaltyPoints { get; set; }
         public int LoyaltyPointsBalance { get; set; }

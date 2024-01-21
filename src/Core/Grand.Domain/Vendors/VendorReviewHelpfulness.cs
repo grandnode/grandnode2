@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a vendor review helpfulness
     /// </summary>
-    public partial class VendorReviewHelpfulness : SubBaseEntity
+    public class VendorReviewHelpfulness : SubBaseEntity
     {
         /// <summary>
         /// Gets or sets the vendor review identifier

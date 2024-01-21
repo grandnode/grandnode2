@@ -8,11 +8,6 @@ namespace Grand.Web.Admin.Models.Catalog
 {
     public class SpecificationAttributeModel : BaseEntityModel, ILocalizedModel<SpecificationAttributeLocalizedModel>, IStoreLinkModel
     {
-        public SpecificationAttributeModel()
-        {
-            Locales = new List<SpecificationAttributeLocalizedModel>();
-        }
-
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name")]
         public string Name { get; set; }
 
@@ -27,7 +22,7 @@ namespace Grand.Web.Admin.Models.Catalog
         [UIHint("Stores")]
         public string[] Stores { get; set; }
 
-        public IList<SpecificationAttributeLocalizedModel> Locales { get; set; }
+        public IList<SpecificationAttributeLocalizedModel> Locales { get; set; } = new List<SpecificationAttributeLocalizedModel>();
 
         public class UsedByProductModel : BaseEntityModel
         {

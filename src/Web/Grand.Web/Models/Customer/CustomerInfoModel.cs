@@ -13,16 +13,6 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerInfoModel : BaseModel
     {
-        public CustomerInfoModel()
-        {
-            AvailableCountries = new List<SelectListItem>();
-            AvailableStates = new List<SelectListItem>();
-            AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
-            CustomerAttributes = new List<CustomerAttributeModel>();
-            SelectedAttributes = new List<CustomAttributeModel>();
-            NewsletterCategories = new List<NewsletterSimpleCategory>();
-        }
-
         [MaxLength(FieldSizeLimits.EmailMaxLength)]
         [DataType(DataType.EmailAddress)]
         [GrandResourceDisplayName("Account.Fields.Email")]
@@ -112,13 +102,13 @@ namespace Grand.Web.Models.Customer
         
         [GrandResourceDisplayName("Account.Fields.Country")]
         public string CountryId { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
         public bool StateProvinceEnabled { get; set; }
         public bool StateProvinceRequired { get; set; }
         [GrandResourceDisplayName("Account.Fields.StateProvince")]
         public string StateProvinceId { get; set; }
-        public IList<SelectListItem> AvailableStates { get; set; }
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
         public bool PhoneEnabled { get; set; }
         public bool PhoneRequired { get; set; }
@@ -152,15 +142,16 @@ namespace Grand.Web.Models.Customer
 
         //external authentication
         [GrandResourceDisplayName("Account.AssociatedExternalAuth")]
-        public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
+        public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new List<AssociatedExternalAuthModel>();
+
         public int NumberOfExternalAuthenticationProviders { get; set; }
         
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
-        
-        public IList<CustomerAttributeModel> CustomerAttributes { get; set; }
+        public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 
-        public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; }
+        public IList<CustomerAttributeModel> CustomerAttributes { get; set; } = new List<CustomerAttributeModel>();
+
+        public IList<NewsletterSimpleCategory> NewsletterCategories { get; set; } = new List<NewsletterSimpleCategory>();
 
 
         #region Nested classes
@@ -174,14 +165,10 @@ namespace Grand.Web.Models.Customer
 
         public class TwoFactorAuthenticationModel : BaseModel
         {
-            public TwoFactorAuthenticationModel()
-            {
-                CustomValues = new Dictionary<string, string>();
-            }
             public TwoFactorAuthenticationType TwoFactorAuthenticationType { get; set; }
             public string SecretKey { get; set; }
             public string Code { get; set; }
-            public IDictionary<string, string> CustomValues { get; set; }
+            public IDictionary<string, string> CustomValues { get; set; } = new Dictionary<string, string>();
         }
 
         public class TwoFactorAuthorizationModel : BaseModel

@@ -5,7 +5,7 @@ namespace Grand.Domain.Messages
     /// <summary>
     /// Represents NewsLetterSubscription entity
     /// </summary>
-    public partial class NewsLetterSubscription : BaseEntity, IHistory
+    public class NewsLetterSubscription : BaseEntity, IHistory
     {
         private ICollection<string> _categories;
 
@@ -39,8 +39,8 @@ namespace Grand.Domain.Messages
         /// </summary>
         public virtual ICollection<string> Categories
         {
-            get { return _categories ??= new List<string>(); }
-            protected set { _categories = value; }
+            get => _categories ??= new List<string>();
+            protected set => _categories = value;
         }
     }
 }

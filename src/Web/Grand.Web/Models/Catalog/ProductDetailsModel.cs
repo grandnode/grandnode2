@@ -10,31 +10,10 @@ namespace Grand.Web.Models.Catalog
 {
     public class ProductDetailsModel : BaseEntityModel
     {
-        public ProductDetailsModel()
-        {
-            DefaultPictureModel = new PictureModel();
-            PictureModels = new List<PictureModel>();
-            GiftVoucher = new GiftVoucherModel();
-            ProductPrice = new ProductPriceModel();
-            AddToCart = new AddToCartModel();
-            ProductAttributes = new List<ProductAttributeModel>();
-            AssociatedProducts = new List<ProductDetailsModel>();
-            BrandModel = new BrandBriefInfoModel();
-            VendorModel = new VendorBriefInfoModel();
-            Breadcrumb = new ProductBreadcrumbModel();
-            ProductTags = new List<ProductTagModel>();
-            ProductSpecifications = new List<ProductSpecificationModel>();
-            ProductCollections = new List<CollectionModel>();
-            ProductReviewOverview = new ProductReviewOverviewModel();
-            TierPrices = new List<TierPriceModel>();
-            Parameters = new List<SelectListItem>();
-            ProductBundleModels = new List<ProductBundleModel>();
-            ProductWarehouses = new List<ProductWarehouseModel>();
-        }
         //picture(s)
         public bool DefaultPictureZoomEnabled { get; set; }
-        public PictureModel DefaultPictureModel { get; set; }
-        public IList<PictureModel> PictureModels { get; set; }
+        public PictureModel DefaultPictureModel { get; set; } = new();
+        public IList<PictureModel> PictureModels { get; set; } = new List<PictureModel>();
         public ProductType ProductType { get; set; }
         public string Name { get; set; }
         public string ShortDescription { get; set; }
@@ -50,16 +29,16 @@ namespace Grand.Web.Models.Catalog
         public string Mpn { get; set; }
         public bool ShowGtin { get; set; }
         public string Gtin { get; set; }
-        public BrandBriefInfoModel BrandModel { get; set; }
+        public BrandBriefInfoModel BrandModel { get; set; } = new();
         public bool ShowVendor { get; set; }
-        public VendorBriefInfoModel VendorModel { get; set; }
+        public VendorBriefInfoModel VendorModel { get; set; } = new();
         public bool HasSampleDownload { get; set; }
-        public GiftVoucherModel GiftVoucher { get; set; }
+        public GiftVoucherModel GiftVoucher { get; set; } = new();
         public bool IsShipEnabled { get; set; }
         public bool NotReturnable { get; set; }
         public bool IsFreeShipping { get; set; }
         public bool AllowToSelectWarehouse { get; set; }
-        public IList<ProductWarehouseModel> ProductWarehouses { get; set; }
+        public IList<ProductWarehouseModel> ProductWarehouses { get; set; } = new List<ProductWarehouseModel>();
         public double AdditionalShippingCharge { get; set; }
         public string AdditionalShippingChargeStr { get; set; }
         public bool FreeShippingNotificationEnabled { get; set; }
@@ -68,7 +47,7 @@ namespace Grand.Web.Models.Catalog
         public int Interval { get; set; }
         public IntervalUnit IntervalUnit { get; set; }
         public bool IncBothDate { get; set; }
-        public List<SelectListItem> Parameters { get; set; }
+        public List<SelectListItem> Parameters { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime? RentalStartDateUtc { get; set; }
         public DateTime? RentalEndDateUtc { get; set; }
@@ -80,19 +59,22 @@ namespace Grand.Web.Models.Catalog
         public ProductAskQuestionSimpleModel ProductAskQuestion { get; set; }
         public bool CompareProductsEnabled { get; set; }
         public string PageShareCode { get; set; }
-        public ProductPriceModel ProductPrice { get; set; }
-        public AddToCartModel AddToCart { get; set; }
-        public ProductBreadcrumbModel Breadcrumb { get; set; }
-        public IList<ProductTagModel> ProductTags { get; set; }
-        public IList<ProductAttributeModel> ProductAttributes { get; set; }
-        public IList<ProductSpecificationModel> ProductSpecifications { get; set; }
-        public IList<CollectionModel> ProductCollections { get; set; }
-        public ProductReviewOverviewModel ProductReviewOverview { get; set; }
-        public IList<TierPriceModel> TierPrices { get; set; }
+        public ProductPriceModel ProductPrice { get; set; } = new();
+        public AddToCartModel AddToCart { get; set; } = new();
+        public ProductBreadcrumbModel Breadcrumb { get; set; } = new();
+        public IList<ProductTagModel> ProductTags { get; set; } = new List<ProductTagModel>();
+        public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
+        public IList<ProductSpecificationModel> ProductSpecifications { get; set; } = new List<ProductSpecificationModel>();
+        public IList<CollectionModel> ProductCollections { get; set; } = new List<CollectionModel>();
+        public ProductReviewOverviewModel ProductReviewOverview { get; set; } = new();
+
+        public IList<TierPriceModel> TierPrices { get; set; } = new List<TierPriceModel>();
+
         //a list of associated products. For example, "Grouped" products could have several child "simple" products
-        public IList<ProductDetailsModel> AssociatedProducts { get; set; }
+        public IList<ProductDetailsModel> AssociatedProducts { get; set; } = new List<ProductDetailsModel>();
+
         //bundle product 
-        public IList<ProductBundleModel> ProductBundleModels { get; set; }
+        public IList<ProductBundleModel> ProductBundleModels { get; set; } = new List<ProductBundleModel>();
         public bool DisplayDiscontinuedMessage { get; set; }
         public string CurrentStoreName { get; set; }
         public double StartPrice { get; set; }
@@ -105,30 +87,23 @@ namespace Grand.Web.Models.Catalog
         #region Nested Classes
         public class ProductBreadcrumbModel : BaseModel
         {
-            public ProductBreadcrumbModel()
-            {
-                CategoryBreadcrumb = new List<CategorySimpleModel>();
-            }
             public int Id { get; set; }
             public bool Enabled { get; set; }
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
-            public IList<CategorySimpleModel> CategoryBreadcrumb { get; set; }
+            public IList<CategorySimpleModel> CategoryBreadcrumb { get; set; } = new List<CategorySimpleModel>();
         }
 
         public class AddToCartModel : BaseModel
         {
-            public AddToCartModel()
-            {
-                this.AllowedQuantities = new List<SelectListItem>();
-            }
             public string ProductId { get; set; }
             //qty
             [GrandResourceDisplayName("Products.Qty")]
             public int EnteredQuantity { get; set; }
             public string MinimumQuantityNotification { get; set; }
-            public List<SelectListItem> AllowedQuantities { get; set; }
+            public List<SelectListItem> AllowedQuantities { get; set; } = new();
+
             //price entered by customers
             [GrandResourceDisplayName("Products.EnterProductPrice")]
             public bool EnteredPrice { get; set; }
@@ -152,11 +127,6 @@ namespace Grand.Web.Models.Catalog
 
         public class ProductPriceModel : BaseModel
         {
-            public ProductPriceModel()
-            {
-                AppliedDiscounts = new List<ApplyDiscount>();
-            }
-
             /// <summary>
             /// The currency (in 3-letter ISO 4217 format) of the offer price 
             /// </summary>
@@ -183,7 +153,7 @@ namespace Grand.Web.Models.Catalog
 
             public string BasePricePAngV { get; set; }
 
-            public List<ApplyDiscount> AppliedDiscounts { get; set; }
+            public List<ApplyDiscount> AppliedDiscounts { get; set; } = new();
             public TierPrice PreferredTierPrice { get; set; }
         }
 
@@ -214,12 +184,6 @@ namespace Grand.Web.Models.Catalog
 
         public class ProductAttributeModel : BaseEntityModel
         {
-            public ProductAttributeModel()
-            {
-                AllowedFileExtensions = new List<string>();
-                Values = new List<ProductAttributeValueModel>();
-            }
-
             public string ProductId { get; set; }
             public string ProductAttributeId { get; set; }
             public string Name { get; set; }
@@ -251,37 +215,28 @@ namespace Grand.Web.Models.Catalog
             /// <summary>
             /// Allowed file extensions for customer uploaded files
             /// </summary>
-            public IList<string> AllowedFileExtensions { get; set; }
+            public IList<string> AllowedFileExtensions { get; set; } = new List<string>();
+
             public AttributeControlType AttributeControlType { get; set; }
-            public IList<ProductAttributeValueModel> Values { get; set; }
+            public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
         }
 
         public class ProductAttributeValueModel : BaseEntityModel
         {
-            public ProductAttributeValueModel()
-            {
-                ImageSquaresPictureModel = new PictureModel();
-                PictureModel = new PictureModel();
-            }
             public string Name { get; set; }
             public string ColorSquaresRgb { get; set; }
             //picture model is used with "image square" attribute type
-            public PictureModel ImageSquaresPictureModel { get; set; }
+            public PictureModel ImageSquaresPictureModel { get; set; } = new();
             public string PriceAdjustment { get; set; }
             public double PriceAdjustmentValue { get; set; }
             public string StockAvailability { get; set; }
             public bool IsPreSelected { get; set; }
             //picture model is used when we want to override a default product picture when some attribute is selected
-            public PictureModel PictureModel { get; set; }
+            public PictureModel PictureModel { get; set; } = new();
         }
 
         public class ProductBundleModel : BaseModel
         {
-            public ProductBundleModel()
-            {
-                ProductAttributes = new List<ProductAttributeModel>();
-            }
-
             public string ProductId { get; set; }
             public string Name { get; set; }
             public string SeName { get; set; }
@@ -293,7 +248,7 @@ namespace Grand.Web.Models.Catalog
             public string Price { get; set; }
             public double PriceValue { get; set; }
             public PictureModel DefaultPictureModel { get; set; }
-            public IList<ProductAttributeModel> ProductAttributes { get; set; }
+            public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
         }
 
         public class ProductWarehouseModel : BaseModel

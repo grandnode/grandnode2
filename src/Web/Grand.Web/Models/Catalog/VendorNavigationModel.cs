@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Catalog
 {
     public class VendorNavigationModel : BaseModel
     {
-        public VendorNavigationModel()
-        {
-            Vendors = new List<VendorBriefInfoModel>();
-        }
-
-        public IList<VendorBriefInfoModel> Vendors { get; set; }
+        public IList<VendorBriefInfoModel> Vendors { get; set; } = new List<VendorBriefInfoModel>();
 
         public int TotalVendors { get; set; }
     }

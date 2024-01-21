@@ -1,4 +1,5 @@
-﻿@model OrderDetailsModel
+﻿@using System.Globalization
+@model OrderDetailsModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -20,8 +21,10 @@
             {
                 <a @@click="$bvModal.show('ModalAddOrderNote')" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
 
-                var notemodel = new AddOrderNoteModel();
-                notemodel.OrderId = Model.Id;
+                var notemodel = new AddOrderNoteModel
+                {
+                    OrderId = Model.Id
+                };
 
                 <partial name="Partials/AddOrderNote" model="@notemodel" />
             }
@@ -703,7 +706,7 @@ else
                             {
                                 <tr class="row mx-0">
                                     <td class="created-on col-4">
-                                        @item.CreatedOn.ToString()
+                                        @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                     </td>
                                     <td class="note col-8">
                                         @Html.Raw(item.Note)

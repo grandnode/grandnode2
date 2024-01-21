@@ -31,44 +31,21 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public ICollection<LiquidShipmentItem> ShipmentItems
-        {
-            get { return _shipmentItems; }
-        }
+        public ICollection<LiquidShipmentItem> ShipmentItems => _shipmentItems;
 
-        public string ShipmentNumber
-        {
-            get { return _shipment.ShipmentNumber.ToString(); }
-        }
+        public string ShipmentNumber => _shipment.ShipmentNumber.ToString();
 
-        public string TrackingNumber
-        {
-            get { return _shipment.TrackingNumber; }
-        }
+        public string TrackingNumber => _shipment.TrackingNumber;
 
-        public DateTime? ShippedDateUtc {
-            get { return _shipment.ShippedDateUtc; }
-        }
+        public DateTime? ShippedDateUtc => _shipment.ShippedDateUtc;
 
-        public DateTime? DeliveryDateUtc {
-            get { return _shipment.DeliveryDateUtc; }
-        }
-        public DateTime CreatedOnUtc {
-            get { return _shipment.CreatedOnUtc; }
-        }
+        public DateTime? DeliveryDateUtc => _shipment.DeliveryDateUtc;
 
-        public string AdminComment
-        {
-            get { return _shipment.AdminComment; }
-        }
+        public DateTime CreatedOnUtc => _shipment.CreatedOnUtc;
 
-        public string URLForCustomer
-        {
-            get
-            {
-                return string.Format("{0}/orderdetails/shipment/{1}", url, _shipment.Id);
-            }
-        }
+        public string AdminComment => _shipment.AdminComment;
+
+        public string URLForCustomer => $"{url}/orderdetails/shipment/{_shipment.Id}";
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

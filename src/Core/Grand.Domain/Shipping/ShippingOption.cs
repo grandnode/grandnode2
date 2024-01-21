@@ -3,7 +3,7 @@ namespace Grand.Domain.Shipping
     /// <summary>
     /// Represents a shipping option
     /// </summary>
-    public partial class ShippingOption
+    public class ShippingOption
     {
         /// <summary>
         /// Gets or sets the system name of shipping rate provider

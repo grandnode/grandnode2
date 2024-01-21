@@ -121,12 +121,15 @@ namespace Grand.Web.Controllers
             if (ModelState.IsValid)
             {
                 var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).FirstOrDefault(x => x.Id == model.ShoppingCartId);
-
-                var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                    cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
-                    cart.RentalStartDateUtc, cart.RentalEndDateUtc,
-                    model.Quantity);
-                warnings.AddRange(currSciWarnings);
+                if (cart != null)
+                {
+                    var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(
+                        _workContext.CurrentCustomer,
+                        cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                        cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                        model.Quantity);
+                    warnings.AddRange(currSciWarnings);
+                }
             }
             else
             {

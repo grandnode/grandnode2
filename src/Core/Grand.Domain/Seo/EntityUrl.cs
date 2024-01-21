@@ -3,7 +3,7 @@ namespace Grand.Domain.Seo
     /// <summary>
     /// Represents an URL
     /// </summary>
-    public partial class EntityUrl : BaseEntity
+    public class EntityUrl : BaseEntity
     {
         /// <summary>
         /// Gets or sets the entity identifier

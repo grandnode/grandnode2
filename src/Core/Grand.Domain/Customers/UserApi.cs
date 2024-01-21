@@ -1,6 +1,6 @@
 ﻿namespace Grand.Domain.Customers
 {
-    public partial class UserApi : BaseEntity
+    public class UserApi : BaseEntity
     {
         public string Email { get; set; }
         public string Password { get; set; }

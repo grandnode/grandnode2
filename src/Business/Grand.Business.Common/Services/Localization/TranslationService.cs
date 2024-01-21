@@ -252,7 +252,7 @@ namespace Grand.Business.Common.Services.Localization
 
             var xmlDoc = LanguageXmlDocument(xml);
 
-            var nodes = xmlDoc.SelectNodes(@"//Language/Resource");
+            var nodes = xmlDoc.SelectNodes("//Language/Resource");
             if (nodes != null)
                 foreach (XmlNode node in nodes)
                 {
@@ -313,7 +313,7 @@ namespace Grand.Business.Common.Services.Localization
 
             var translateResources = new List<TranslationResource>();
 
-            var nodes = xmlDoc.SelectNodes(@"//Language/Resource");
+            var nodes = xmlDoc.SelectNodes("//Language/Resource");
             if (nodes != null)
                 foreach (XmlNode node in nodes)
                 {

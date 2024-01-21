@@ -4,11 +4,6 @@ namespace Grand.Web.Models.Blogs
 {
     public class BlogPostTagListModel : BaseModel
     {
-        public BlogPostTagListModel()
-        {
-            Tags = new List<BlogPostTagModel>();
-        }
-
         public int GetFontSize(BlogPostTagModel blogPostTag)
         {
             var itemWeights = new List<double>();
@@ -65,6 +60,6 @@ namespace Grand.Web.Models.Blogs
         }
 
 
-        public IList<BlogPostTagModel> Tags { get; set; }
+        public IList<BlogPostTagModel> Tags { get; set; } = new List<BlogPostTagModel>();
     }
 }

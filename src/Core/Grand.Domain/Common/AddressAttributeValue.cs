@@ -5,13 +5,8 @@ namespace Grand.Domain.Common
     /// <summary>
     /// Represents an address attribute value
     /// </summary>
-    public partial class AddressAttributeValue : BaseEntity, ITranslationEntity
+    public class AddressAttributeValue : BaseEntity, ITranslationEntity
     {
-        public AddressAttributeValue()
-        {
-            Locales = new List<TranslationEntity>();
-        }
-
         /// <summary>
         /// Gets or sets the address attribute identifier
         /// </summary>
@@ -36,7 +31,7 @@ namespace Grand.Domain.Common
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
+        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
     }
 
 }

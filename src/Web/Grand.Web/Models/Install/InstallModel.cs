@@ -7,12 +7,6 @@ namespace Grand.Web.Models.Install
 {
     public class InstallModel : BaseModel
     {
-        public InstallModel()
-        {
-            AvailableLanguages = new List<SelectListItem>();
-            AvailableCollation = new List<SelectListItem>();
-            AvailableProviders = new List<SelectListItem>();
-        }
         public string SelectedLanguage { get; set; }
 
         [DataType(DataType.EmailAddress)]
@@ -33,9 +27,9 @@ namespace Grand.Web.Models.Install
         public bool InstallSampleData { get; set; }
         public bool Installed { get; set; }
         public string Collation { get; set; }
-        public List<SelectListItem> AvailableLanguages { get; set; }
-        public List<SelectListItem> AvailableCollation { get; set; }
-        public List<SelectListItem> AvailableProviders { get; set; }
+        public List<SelectListItem> AvailableLanguages { get; set; } = new();
+        public List<SelectListItem> AvailableCollation { get; set; } = new();
+        public List<SelectListItem> AvailableProviders { get; set; } = new();
         public string CompanyName { get; set; }
         public string CompanyAddress { get; set; }
         public string CompanyPhoneNumber { get; set; }

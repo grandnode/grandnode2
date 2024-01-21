@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a vendor review
     /// </summary>
-    public partial class VendorReview : BaseEntity
+    public class VendorReview : BaseEntity
     {
         private ICollection<VendorReviewHelpfulness> _vendorReviewHelpfulnessEntries;
 
@@ -52,8 +52,8 @@
         /// </summary>
         public virtual ICollection<VendorReviewHelpfulness> VendorReviewHelpfulnessEntries
         {
-            get { return _vendorReviewHelpfulnessEntries ??= new List<VendorReviewHelpfulness>(); }
-            protected set { _vendorReviewHelpfulnessEntries = value; }
+            get => _vendorReviewHelpfulnessEntries ??= new List<VendorReviewHelpfulness>();
+            protected set => _vendorReviewHelpfulnessEntries = value;
         }
     }
 }

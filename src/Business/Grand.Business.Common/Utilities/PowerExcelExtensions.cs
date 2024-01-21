@@ -39,9 +39,9 @@ namespace Grand.Business.Common.Utilities
             object v;
             if (columnInfo.SetProp != null)
                 v = columnInfo.SetProp(o, val, cell);
-            else if (columnInfo.IsNullable && (val == null || val is string s && s.Length == 0) && columnInfo.PropertyType == typeof(string)) //CHANGES FOR GRANDNODE
+            else if (columnInfo.IsNullable && (val == null || val is string { Length: 0 }) && columnInfo.PropertyType == typeof(string)) //CHANGES FOR GRANDNODE
                 v = ""; 
-            else if (columnInfo.IsNullable && (val == null || val is string z && z.Length == 0))
+            else if (columnInfo.IsNullable && (val == null || val is string { Length: 0 }))
                 v = null;
             else if (val is string g && columnInfo.PropertyType == typeof(Guid))
                 v = Guid.Parse(g);
@@ -64,6 +64,7 @@ namespace Grand.Business.Common.Utilities
         /// <summary>
         /// Sets the property of the specified object to the specified value.
         /// </summary>
+        /// <param name="columnInfo"></param>
         /// <param name="o">The object whose property to set.</param>
         /// <param name="val">The value.</param>
         /// <param name="cell">The cell where the value originates from.</param>

@@ -5,14 +5,8 @@ namespace Grand.Web.Models.Catalog
 {
     public class CustomerOutOfStockSubscriptionsModel
     {
-        public CustomerOutOfStockSubscriptionsModel()
-        {
-            Subscriptions = new List<OutOfStockSubscriptionModel>();
-            PagerModel = new PagerModel();
-        }
-
-        public IList<OutOfStockSubscriptionModel> Subscriptions { get; set; }
-        public PagerModel PagerModel { get; set; }
+        public IList<OutOfStockSubscriptionModel> Subscriptions { get; set; } = new List<OutOfStockSubscriptionModel>();
+        public PagerModel PagerModel { get; set; } = new();
 
         #region Nested classes
 

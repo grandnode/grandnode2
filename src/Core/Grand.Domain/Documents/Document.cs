@@ -7,14 +7,8 @@ namespace Grand.Domain.Documents
     /// <summary>
     /// Represents a document
     /// </summary>
-    public partial class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
+    public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
-        public Document()
-        {
-            CustomerGroups = new List<string>();
-            Stores = new List<string>();
-        }
-
         /// <summary>
         /// Gets or sets the document number
         /// </summary>
@@ -74,13 +68,13 @@ namespace Grand.Domain.Documents
         /// Gets or sets a value indicating whether the entity is subject to ACL
         /// </summary>
         public bool LimitedToGroups { get; set; }
-        public IList<string> CustomerGroups { get; set; }
+        public IList<string> CustomerGroups { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
-        public IList<string> Stores { get; set; }
+        public IList<string> Stores { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the customer identifier

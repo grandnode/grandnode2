@@ -19,25 +19,13 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string SenderEmail
-        {
-            get { return senderEmail; }
-        }
+        public string SenderEmail => senderEmail;
 
-        public string SenderName
-        {
-            get { return senderName; }
-        }
+        public string SenderName => senderName;
 
-        public string Body
-        {
-            get { return body; }
-        }
+        public string Body => body;
 
-        public string AttributeDescription
-        {
-            get { return attributeDescription; }
-        }
+        public string AttributeDescription => attributeDescription;
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

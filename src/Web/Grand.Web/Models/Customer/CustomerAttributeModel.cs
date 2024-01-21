@@ -5,11 +5,6 @@ namespace Grand.Web.Models.Customer
 {
     public class CustomerAttributeModel : BaseEntityModel
     {
-        public CustomerAttributeModel()
-        {
-            Values = new List<CustomerAttributeValueModel>();
-        }
-
         public string Name { get; set; }
 
         public bool IsRequired { get; set; }
@@ -22,8 +17,7 @@ namespace Grand.Web.Models.Customer
 
         public AttributeControlType AttributeControlType { get; set; }
 
-        public IList<CustomerAttributeValueModel> Values { get; set; }
-
+        public IList<CustomerAttributeValueModel> Values { get; set; } = new List<CustomerAttributeValueModel>();
     }
 
     public class CustomerAttributeValueModel : BaseEntityModel

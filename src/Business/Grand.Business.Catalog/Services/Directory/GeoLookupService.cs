@@ -67,7 +67,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual string CountryIsoCode(string ipAddress)
         {
             var response = GetInformation(ipAddress);
-            return response is { Country: { } } ? response.Country.IsoCode : "";
+            return response is { } ? response.Country.IsoCode : "";
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual string CountryName(string ipAddress)
         {
             var response = GetInformation(ipAddress);
-            return response is { Country: { } } ? response.Country.Name : "";
+            return response is { } ? response.Country.Name : "";
         }
 
         #endregion

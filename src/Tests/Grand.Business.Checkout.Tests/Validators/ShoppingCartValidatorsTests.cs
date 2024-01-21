@@ -274,9 +274,10 @@ namespace Grand.Business.Checkout.Tests.Validators
             _productServiceMock.Setup(x => x.GetProductById("2", false))
                  .Returns(() => Task.FromResult(new Product { Id = "2", Name = "test" }));
 
-            var product = new Product { Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10, ManageInventoryMethodId = ManageInventoryMethod.ManageStock };
-            product.RequireOtherProducts = true;
-            product.RequiredProductIds = "2";
+            var product = new Product { Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10, ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+                RequireOtherProducts = true,
+                RequiredProductIds = "2"
+            };
             var customer = new Domain.Customers.Customer();
             customer.ShoppingCartItems.Add(new ShoppingCartItem { ProductId = "2", Quantity = 1, ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "1" });
             //Act
@@ -306,9 +307,10 @@ namespace Grand.Business.Checkout.Tests.Validators
             _productServiceMock.Setup(x => x.GetProductById("2", false))
                  .Returns(() => Task.FromResult(new Product { Id = "2", Name = "test" }));
 
-            var product = new Product { Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10, ManageInventoryMethodId = ManageInventoryMethod.ManageStock };
-            product.RequireOtherProducts = true;
-            product.RequiredProductIds = "2";
+            var product = new Product { Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10, ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+                RequireOtherProducts = true,
+                RequiredProductIds = "2"
+            };
             var customer = new Domain.Customers.Customer();
             //Act
             var result = await shoppingCartRequiredProductValidator.ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(

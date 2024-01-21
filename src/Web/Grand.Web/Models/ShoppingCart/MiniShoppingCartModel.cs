@@ -5,12 +5,7 @@ namespace Grand.Web.Models.ShoppingCart
 {
     public class MiniShoppingCartModel : BaseModel
     {
-        public MiniShoppingCartModel()
-        {
-            Items = new List<ShoppingCartItemModel>();
-        }
-
-        public IList<ShoppingCartItemModel> Items { get; set; }
+        public IList<ShoppingCartItemModel> Items { get; set; } = new List<ShoppingCartItemModel>();
         public int TotalProducts { get; set; }
         public string SubTotal { get; set; }
         public bool SubTotalIncludingTax { get; set; }
@@ -25,11 +20,6 @@ namespace Grand.Web.Models.ShoppingCart
 
         public class ShoppingCartItemModel : BaseEntityModel
         {
-            public ShoppingCartItemModel()
-            {
-                Picture = new PictureModel();
-            }
-
             public string ProductId { get; set; }
 
             public string ProductName { get; set; }
@@ -43,7 +33,7 @@ namespace Grand.Web.Models.ShoppingCart
 
             public string AttributeInfo { get; set; }
 
-            public PictureModel Picture { get; set; }
+            public PictureModel Picture { get; set; } = new();
         }
 
         #endregion

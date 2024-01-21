@@ -55,9 +55,15 @@ namespace Grand.Web.Admin.Controllers
         #region Attribute list / create / edit / delete
 
         //list
-        public IActionResult Index() => RedirectToAction("List");
+        public IActionResult Index()
+        {
+            return RedirectToAction("List");
+        }
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
@@ -202,14 +208,11 @@ namespace Grand.Web.Admin.Controllers
                 pageSize: command.PageSize);
             var gridModel = new DataSourceResult
             {
-                Data = orders.Select(x =>
+                Data = orders.Select(x => new ProductAttributeModel.UsedByProductModel
                 {
-                    return new ProductAttributeModel.UsedByProductModel
-                    {
-                        Id = x.Id,
-                        ProductName = x.Name,
-                        Published = x.Published
-                    };
+                    Id = x.Id,
+                    ProductName = x.Name,
+                    Published = x.Published
                 }),
                 Total = orders.TotalCount
             };

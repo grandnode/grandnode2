@@ -12,14 +12,6 @@ namespace Grand.Web.Admin.Models.Catalog
     {
         public string Id { get; set; }
 
-        public ProductAttributeCombinationModel()
-        {
-            ProductAttributes = new List<ProductAttributeModel>();
-            Warnings = new List<string>();
-            WarehouseInventoryModels = new List<WarehouseInventoryModel>();
-            ProductPictureModels = new List<ProductModel.ProductPictureModel>();
-        }
-        
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity")]
         public int StockQuantity { get; set; }
 
@@ -53,37 +45,32 @@ namespace Grand.Web.Admin.Models.Catalog
         public string PictureId { get; set; }
         public string PictureThumbnailUrl { get; set; }
 
-        public IList<ProductModel.ProductPictureModel> ProductPictureModels { get; set; }
+        public IList<ProductModel.ProductPictureModel> ProductPictureModels { get; set; } = new List<ProductModel.ProductPictureModel>();
 
-        public IList<ProductAttributeModel> ProductAttributes { get; set; }
+        public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
 
         [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
         public IList<CustomAttributeModel> SelectedAttributes { get; set; }
         
-        public IList<string> Warnings { get; set; }
+        public IList<string> Warnings { get; set; } = new List<string>();
 
         public string ProductId { get; set; }
         public string Attributes { get; set; }
 
         public bool UseMultipleWarehouses { get; set; }
 
-        public IList<WarehouseInventoryModel> WarehouseInventoryModels { get; set; }
+        public IList<WarehouseInventoryModel> WarehouseInventoryModels { get; set; } = new List<WarehouseInventoryModel>();
 
         #region Nested classes
 
         public class ProductAttributeModel : BaseEntityModel
         {
-            public ProductAttributeModel()
-            {
-                Values = new List<ProductAttributeValueModel>();
-            }
-
             public string ProductAttributeId { get; set; }
             public string Name { get; set; }
             public string TextPrompt { get; set; }
             public bool IsRequired { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
-            public IList<ProductAttributeValueModel> Values { get; set; }
+            public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
         }
 
         public class ProductAttributeValueModel : BaseEntityModel

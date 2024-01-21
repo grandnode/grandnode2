@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a merchandise return note
     /// </summary>
-    public partial class MerchandiseReturnNote : BaseEntity
+    public class MerchandiseReturnNote : BaseEntity
     {
         /// <summary>
         /// Gets or sets the merchandise return identifier

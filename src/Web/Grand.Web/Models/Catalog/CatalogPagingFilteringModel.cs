@@ -13,15 +13,6 @@ namespace Grand.Web.Models.Catalog
     {
         #region Constructors
 
-        public CatalogPagingFilteringModel()
-        {
-            AvailableSortOptions = new List<SelectListItem>();
-            AvailableViewModes = new List<SelectListItem>();
-            PageSizeOptions = new List<SelectListItem>();
-            SpecificationFilter = new SpecificationFilterModel();
-            RatingOptions = new List<SelectListItem>();
-        }
-
         #endregion
 
         #region Properties
@@ -29,16 +20,16 @@ namespace Grand.Web.Models.Catalog
         /// <summary>
         /// Specification filter model
         /// </summary>
-        public SpecificationFilterModel SpecificationFilter { get; set; }
+        public SpecificationFilterModel SpecificationFilter { get; set; } = new();
 
         public bool AllowProductSorting { get; set; }
-        public IList<SelectListItem> AvailableSortOptions { get; set; }
+        public IList<SelectListItem> AvailableSortOptions { get; set; } = new List<SelectListItem>();
 
         public bool AllowProductViewModeChanging { get; set; }
-        public IList<SelectListItem> AvailableViewModes { get; set; }
+        public IList<SelectListItem> AvailableViewModes { get; set; } = new List<SelectListItem>();
 
         public bool AllowCustomersToSelectPageSize { get; set; }
-        public IList<SelectListItem> PageSizeOptions { get; set; }
+        public IList<SelectListItem> PageSizeOptions { get; set; } = new List<SelectListItem>();
 
         /// <summary>
         /// Order by
@@ -53,8 +44,8 @@ namespace Grand.Web.Models.Catalog
         /// <summary>
         /// Rating list options
         /// </summary>
-        public IList<SelectListItem> RatingOptions { get; set; }
-        
+        public IList<SelectListItem> RatingOptions { get; set; } = new List<SelectListItem>();
+
         /// <summary>
         /// View mode
         /// </summary>
@@ -68,12 +59,6 @@ namespace Grand.Web.Models.Catalog
         public class SpecificationFilterModel : BaseModel
         {
             #region Ctor
-
-            public SpecificationFilterModel()
-            {
-                AlreadyFilteredItems = new List<SpecificationFilterItem>();
-                NotFilteredItems = new List<SpecificationFilterItem>();
-            }
 
             #endregion
 
@@ -214,8 +199,8 @@ namespace Grand.Web.Models.Catalog
 
             #region Properties
             public bool Enabled { get; set; }
-            public IList<SpecificationFilterItem> AlreadyFilteredItems { get; set; }
-            public IList<SpecificationFilterItem> NotFilteredItems { get; set; }
+            public IList<SpecificationFilterItem> AlreadyFilteredItems { get; set; } = new List<SpecificationFilterItem>();
+            public IList<SpecificationFilterItem> NotFilteredItems { get; set; } = new List<SpecificationFilterItem>();
             public string RemoveFilterUrl { get; set; }
 
             #endregion

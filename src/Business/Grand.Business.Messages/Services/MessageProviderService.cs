@@ -1825,8 +1825,8 @@ namespace Grand.Business.Messages.Services
                 throw new ArgumentNullException(nameof(product));
 
             var builder = new LiquidObjectBuilder(_mediator);
-            MessageTemplate messageTemplate = null;
-            EmailAccount emailAccount = null;
+            MessageTemplate messageTemplate;
+            EmailAccount emailAccount;
 
             if (bid != null)
             {
@@ -1852,7 +1852,7 @@ namespace Grand.Business.Messages.Services
             else
             {
                 var store = (await _storeService.GetAllStores()).FirstOrDefault();
-                var language = await EnsureLanguageIsActive(languageId, store.Id);
+                var language = await EnsureLanguageIsActive(languageId, store?.Id);
                 messageTemplate = await GetMessageTemplate("AuctionExpired.StoreOwnerNotification", "");
                 if (messageTemplate == null)
                     return 0;

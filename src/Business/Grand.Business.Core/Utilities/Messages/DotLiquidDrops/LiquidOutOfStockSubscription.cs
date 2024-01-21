@@ -27,17 +27,11 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string ProductName {
-            get { return _product.Name; }
-        }
+        public string ProductName => _product.Name;
 
-        public string AttributeInfo {
-            get { return _outOfStockSubscription.AttributeInfo; }
-        }
+        public string AttributeInfo => _outOfStockSubscription.AttributeInfo;
 
-        public string ProductUrl {
-            get { return string.Format("{0}/{1}", url, _product.SeName); }
-        }
+        public string ProductUrl => $"{url}/{_product.SeName}";
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }

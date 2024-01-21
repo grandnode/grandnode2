@@ -4,12 +4,6 @@ namespace Grand.Web.Models.Course
 {
     public class CourseModel : BaseEntityModel
     {
-        public CourseModel()
-        {
-            Subjects = new List<Subject>();
-            Lessons = new List<Lesson>();
-        }
-
         public string Name { get; set; }
         public string Level { get; set; }
         public string ShortDescription { get; set; }
@@ -19,8 +13,8 @@ namespace Grand.Web.Models.Course
         public string MetaTitle { get; set; }
         public string SeName { get; set; }
         public string PictureUrl { get; set; }
-        public IList<Subject> Subjects { get; set; }
-        public IList<Lesson> Lessons { get; set; }
+        public IList<Subject> Subjects { get; set; } = new List<Subject>();
+        public IList<Lesson> Lessons { get; set; } = new List<Lesson>();
         public bool Approved { get; set; }
 
         public class Subject : BaseEntityModel

@@ -2,11 +2,6 @@
 
 public class CollectionListModel
 {
-    public CollectionListModel()
-    {
-        PagingModel = new CollectionPagingModel();
-        CollectionModel = new List<CollectionModel>();
-    }
-    public CollectionPagingModel PagingModel { get; set; }
-    public IList<CollectionModel> CollectionModel { get; set; }
+    public CollectionPagingModel PagingModel { get; set; } = new();
+    public IList<CollectionModel> CollectionModel { get; set; } = new List<CollectionModel>();
 }

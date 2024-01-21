@@ -69,7 +69,7 @@ namespace Grand.Web.Common.Security.Captcha
 
             script.AppendLine("grecaptcha.ready(function() {");
 
-            script.AppendLine($" grecaptcha.execute(clientId, {{");
+            script.AppendLine(" grecaptcha.execute(clientId, {");
             script.AppendLine("   action: 'homepage'");
             script.AppendLine("  })");
             script.AppendLine("  .then(function(token) {");

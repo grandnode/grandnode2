@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an email account
     /// </summary>
-    public partial class EmailAccount : BaseEntity
+    public class EmailAccount : BaseEntity
     {
         /// <summary>
         /// Gets or sets an email address

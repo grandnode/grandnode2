@@ -72,13 +72,9 @@ namespace Grand.Business.Catalog.Services.Prices
 
         protected class ProductPrice
         {
-            public ProductPrice()
-            {
-                AppliedDiscounts = new List<ApplyDiscount>();
-            }
             public double Price { get; set; }
             public double AppliedDiscountAmount { get; set; }
-            public IList<ApplyDiscount> AppliedDiscounts { get; set; }
+            public IList<ApplyDiscount> AppliedDiscounts { get; set; } = new List<ApplyDiscount>();
             public TierPrice PreferredTierPrice { get; set; }
 
         }

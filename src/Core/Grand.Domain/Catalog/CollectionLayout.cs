@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a collection layout
     /// </summary>
-    public partial class CollectionLayout : BaseEntity
+    public class CollectionLayout : BaseEntity
     {
         /// <summary>
         /// Gets or sets the layout name

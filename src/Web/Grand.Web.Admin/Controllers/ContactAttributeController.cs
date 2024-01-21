@@ -49,7 +49,10 @@ namespace Grand.Web.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        public IActionResult List() => View();
+        public IActionResult List()
+        {
+            return View();
+        }
 
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.List)]

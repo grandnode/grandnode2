@@ -5,20 +5,13 @@ namespace Grand.Web.Common.TagHelpers
 {
     public class ResourceManager : IResourceManager
     {
-        private readonly List<(IHtmlContent content, int order)> _headScripts;
-        private readonly List<(IHtmlContent content, int order)> _headerScripts;
-        private readonly List<(IHtmlContent content, int order)> _footScripts;
+        private readonly List<(IHtmlContent content, int order)> _headScripts = new();
+        private readonly List<(IHtmlContent content, int order)> _headerScripts = new();
+        private readonly List<(IHtmlContent content, int order)> _footScripts = new();
         private List<IHtmlContent> _templatesHeader;
         private List<IHtmlContent> _templatesFooter;
-        private readonly List<LinkEntry> _links;
+        private readonly List<LinkEntry> _links = new();
 
-        public ResourceManager()
-        {
-            _links = new List<LinkEntry>();
-            _headScripts = new List<(IHtmlContent content, int order)>();
-            _headerScripts = new List<(IHtmlContent content, int order)>();
-            _footScripts = new List<(IHtmlContent content, int order)>();
-        }
         public IEnumerable<IHtmlContent> GetRegisteredHeadScripts()
         {
             return _headScripts.OrderBy(x => x.order).Select(x => x.content);

@@ -6,11 +6,6 @@ namespace Payments.CashOnDelivery.Models
 {
     public class ConfigurationModel : BaseModel, ILocalizedModel<ConfigurationModel.ConfigurationLocalizedModel>
     {
-        public ConfigurationModel()
-        {
-            Locales = new List<ConfigurationLocalizedModel>();
-        }
-
         public string ActiveStore { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.DescriptionText")]
@@ -31,7 +26,7 @@ namespace Payments.CashOnDelivery.Models
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.SkipPaymentInfo")]
         public bool SkipPaymentInfo { get; set; }
         
-        public IList<ConfigurationLocalizedModel> Locales { get; set; }
+        public IList<ConfigurationLocalizedModel> Locales { get; set; } = new List<ConfigurationLocalizedModel>();
 
         #region Nested class
 

@@ -91,11 +91,11 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             }
 
             // Create VDD of type object so any model type is allowed.
-            var viewData = new ViewDataDictionary<object>(_viewData);
-
-            // Create a new ModelExplorer in order to preserve the model metadata of the original _viewData even
-            // though _model may have been reset to null. Otherwise we might lose track of the model type /property.
-            viewData.ModelExplorer = _modelExplorer.GetExplorerForModel(_model);
+            var viewData = new ViewDataDictionary<object>(_viewData) {
+                // Create a new ModelExplorer in order to preserve the model metadata of the original _viewData even
+                // though _model may have been reset to null. Otherwise we might lose track of the model type /property.
+                ModelExplorer = _modelExplorer.GetExplorerForModel(_model)
+            };
 
             var formatString = _readOnly ?
                 viewData.ModelMetadata.DisplayFormatString :

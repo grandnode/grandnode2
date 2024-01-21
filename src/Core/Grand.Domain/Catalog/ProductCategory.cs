@@ -3,7 +3,7 @@ namespace Grand.Domain.Catalog
     /// <summary>
     /// Represents a product category mapping
     /// </summary>
-    public partial class ProductCategory : SubBaseEntity
+    public class ProductCategory : SubBaseEntity
     {
 
         /// <summary>

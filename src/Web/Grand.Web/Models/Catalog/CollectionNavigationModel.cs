@@ -4,12 +4,7 @@ namespace Grand.Web.Models.Catalog
 {
     public class CollectionNavigationModel : BaseModel
     {
-        public CollectionNavigationModel()
-        {
-            Collections = new List<CollectionBriefInfoModel>();
-        }
-
-        public IList<CollectionBriefInfoModel> Collections { get; set; }
+        public IList<CollectionBriefInfoModel> Collections { get; set; } = new List<CollectionBriefInfoModel>();
 
         public int TotalCollections { get; set; }
     }
