@@ -127,7 +127,6 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Store = request.Store
                 }, cancellationToken);
 				
-				var displayPricesItem = displayPrices;
 				
 				var displayPricesItem = !item.CallForPrice && displayPrices;
 				
