@@ -2,9 +2,7 @@
 using FluentValidation;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Authentication;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Configuration;
 using Grand.Data;
 using Grand.Infrastructure;
@@ -259,32 +257,6 @@ namespace Grand.Web.Common.Infrastructure
             mvcBuilder.AddControllersAsServices();
             
             return mvcBuilder;
-        }
-
-        /// <summary>
-        /// Add mini profiler service for the application
-        /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        public static void AddGrandMiniProfiler(this IServiceCollection services)
-        {
-            //whether database is already installed
-            if (!DataSettingsManager.DatabaseIsInstalled())
-                return;
-
-            //add MiniProfiler services
-            services.AddMiniProfiler(options =>
-            {
-                options.IgnoredPaths.Add("/api");
-                options.IgnoredPaths.Add("/odata");
-                options.IgnoredPaths.Add("/health/live");
-                options.IgnoredPaths.Add("/.well-known/pki-validation");
-                //determine who can access the MiniProfiler results
-                options.ResultsAuthorize = request =>
-                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>()
-                        .DisplayMiniProfilerInPublicStore ||
-                    request.HttpContext.RequestServices.GetRequiredService<IPermissionService>()
-                        .Authorize(StandardPermission.ManageAccessAdminPanel).Result;
-            });
         }
 
         public static void AddSettings(this IServiceCollection services)
