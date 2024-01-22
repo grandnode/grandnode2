@@ -20,10 +20,13 @@ namespace Grand.Web.Admin.Models.Catalog
         public string CustomerInfo { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Title")]
         public string Title { get; set; }
+
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReviewText")]
         public string ReviewText { get; set; }
+
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReplyText")]
         public string ReplyText { get; set; }
+        
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Signature")]
         public string Signature { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Rating")]

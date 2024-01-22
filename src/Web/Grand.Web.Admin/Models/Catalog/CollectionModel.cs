@@ -5,6 +5,7 @@ using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Grand.Web.Common.Validators;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
@@ -24,9 +25,11 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
         public string Name { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
         public string Description { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
         public string BottomDescription { get; set; }
 
@@ -34,12 +37,15 @@ namespace Grand.Web.Admin.Models.Catalog
         public string CollectionLayoutId { get; set; }
         public IList<SelectListItem> AvailableCollectionLayouts { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
         public string MetaKeywords { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
         public string MetaDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
         public string MetaTitle { get; set; }
 
@@ -156,18 +162,23 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
         public string Name { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
         public string Description { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
         public string BottomDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
         public string MetaKeywords { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
         public string MetaDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
         public string MetaTitle { get; set; }
 

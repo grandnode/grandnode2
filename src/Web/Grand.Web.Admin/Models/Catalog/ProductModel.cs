@@ -6,6 +6,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Discounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Grand.Web.Common.Validators;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
@@ -39,15 +40,18 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Name")]
         public string Name { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ShortDescription")]
         public string ShortDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.FullDescription")]
         public string FullDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Flag")]
         public string Flag { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.AdminComment")]
         public string AdminComment { get; set; }
 
@@ -65,20 +69,19 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BestSeller")]
         public bool BestSeller { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaKeywords")]
-
         public string MetaKeywords { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaDescription")]
-
         public string MetaDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaTitle")]
-
         public string MetaTitle { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.SeName")]
-
         public string SeName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.AllowCustomerReviews")]
@@ -86,17 +89,14 @@ namespace Grand.Web.Admin.Models.Catalog
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ProductTags")]
         public string ProductTags { get; set; }
-
+        
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Sku")]
-
         public string Sku { get; set; }
-
+        
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Mpn")]
-
         public string Mpn { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.GTIN")]
-
         public virtual string Gtin { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.IsGiftVoucher")]
@@ -148,8 +148,8 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.HasUserAgreement")]
         public bool HasUserAgreement { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.UserAgreementText")]
-
         public string UserAgreementText { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.IsRecurring")]
@@ -987,31 +987,29 @@ namespace Grand.Web.Admin.Models.Catalog
         public string LanguageId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Name")]
-
         public string Name { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ShortDescription")]
-
         public string ShortDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.FullDescription")]
-
         public string FullDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaKeywords")]
-
         public string MetaKeywords { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaDescription")]
-
         public string MetaDescription { get; set; }
 
+        [NoScripts]
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaTitle")]
-
         public string MetaTitle { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.SeName")]
-
         public string SeName { get; set; }
     }
 }
