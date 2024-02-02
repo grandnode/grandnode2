@@ -16,6 +16,7 @@ RUN dotnet build /app/Plugins/ExchangeRate.McExchange -c Release -p:SourceRevisi
 RUN dotnet build /app/Plugins/Payments.BrainTree -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Payments.CashOnDelivery -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Payments.PayPalStandard -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
+RUN dotnet build /app/Plugins/Payments.StripeCheckout -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Shipping.ByWeight -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Shipping.FixedRateShipping -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 RUN dotnet build /app/Plugins/Shipping.ShippingPoint -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
