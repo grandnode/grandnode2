@@ -18,7 +18,7 @@ public class PaymentStripeCheckoutController : BasePaymentController
     private readonly ILogger<PaymentStripeCheckoutController> _logger;
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
-        
+
     private readonly PaymentSettings _paymentSettings;
 
     public PaymentStripeCheckoutController(
@@ -26,44 +26,44 @@ public class PaymentStripeCheckoutController : BasePaymentController
         IOrderService orderService,
         ILogger<PaymentStripeCheckoutController> logger,
         IPaymentTransactionService paymentTransactionService,
-        PaymentSettings paymentSettings, 
+        PaymentSettings paymentSettings,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
-            _workContext = workContext;
-            _orderService = orderService;
-            _logger = logger;
-            _paymentTransactionService = paymentTransactionService;
-            _paymentSettings = paymentSettings;
-            _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
-            _stripeCheckoutService = stripeCheckoutService;
-        }
+        _workContext = workContext;
+        _orderService = orderService;
+        _logger = logger;
+        _paymentTransactionService = paymentTransactionService;
+        _paymentSettings = paymentSettings;
+        _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
+        _stripeCheckoutService = stripeCheckoutService;
+    }
 
     [HttpPost]
     public async Task<IActionResult> WebHook()
     {
-            var json = await new StreamReader(Request.Body).ReadToEndAsync();
-            try
-            {
-                await _stripeCheckoutService.WebHookProcessPayment(Request.Headers["Stripe-Signature"], json);
-                return Ok();
-            }
-            catch
-            {
-                return BadRequest();
-            }
+        var json = await new StreamReader(Request.Body).ReadToEndAsync();
+        try
+        {
+            await _stripeCheckoutService.WebHookProcessPayment(Request.Headers["Stripe-Signature"], json);
+            return Ok();
         }
+        catch
+        {
+            return BadRequest();
+        }
+    }
 
     public async Task<IActionResult> CancelOrder(string orderId)
     {
-            var order = await _orderService.GetOrderById(orderId);
-            if (order != null && order.CustomerId == _workContext.CurrentCustomer.Id)
-                return RedirectToRoute("OrderDetails", new { orderId = order.Id });
+        var order = await _orderService.GetOrderById(orderId);
+        if (order != null && order.CustomerId == _workContext.CurrentCustomer.Id)
+            return RedirectToRoute("OrderDetails", new { orderId = order.Id });
 
-            return RedirectToRoute("HomePage");
-        }
+        return RedirectToRoute("HomePage");
+    }
 
     public IActionResult PaymentInfo()
     {
-            return View(new PaymentInfo(_stripeCheckoutPaymentSettings.Description));
-        }
+        return View(new PaymentInfo(_stripeCheckoutPaymentSettings.Description));
+    }
 }
