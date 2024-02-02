@@ -50,6 +50,7 @@ public class StripeCheckoutService : IStripeCheckoutService
                 await CreatePaymentTransaction(paymentIntent);
                 return true;
             }
+            _logger.LogWarning(json);
         }
         catch (StripeException e)
         {
