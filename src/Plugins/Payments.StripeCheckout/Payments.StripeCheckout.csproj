@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <Import Project="..\..\Build\Grand.Common.props" />
+    <PropertyGroup>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\refs" />
+    </Target>
+
+    <ItemGroup>
+        <PackageReference Include="Stripe.net" Version="43.11.0" />
+    </ItemGroup>
+
+    <Target Name="CopyFile" AfterTargets="AfterBuild">
+        <ItemGroup>
+            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\43.11.0\lib\net6.0\*.*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\" />
+    </Target>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
+            <Private>false</Private>
+            <ExcludeAssets>all</ExcludeAssets>
+        </ProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="logo.jpg">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+    
+</Project>
