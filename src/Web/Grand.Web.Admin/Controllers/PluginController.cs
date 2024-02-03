@@ -338,7 +338,7 @@ namespace Grand.Web.Admin.Controllers
                 if (rootDirectories.Count != 1)
                 {
                     throw new Exception(
-                        "The archive should contain only one root plugin. For example, Payments.PayPalDirect.");
+                        "The archive should contain only one root plugin. For example, Payments.StripeCheckout.");
                 }
 
                 //get directory name (remove the ending /)

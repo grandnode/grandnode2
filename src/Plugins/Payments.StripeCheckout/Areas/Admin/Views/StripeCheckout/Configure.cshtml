@@ -1,0 +1,85 @@
+﻿@inject IUrlHelperFactory UrlHelperFactory
+@inject IActionContextAccessor ActionContextAccessor
+@inject IWorkContext WorkContext
+@{
+    Layout = "_ConfigurePlugin";
+    var urlHelper = UrlHelperFactory.GetUrlHelper(ActionContextAccessor.ActionContext!);
+    var webhookUrl = WorkContext.CurrentHost.Url.TrimEnd('/') + urlHelper.RouteUrl(StripeCheckoutDefaults.WebHook);
+}
+@model ConfigurationModel
+@using Microsoft.AspNetCore.Mvc.Routing
+@using Microsoft.AspNetCore.Mvc.Infrastructure
+@using Payments.StripeCheckout
+@using Payments.StripeCheckout.Models
+@using Grand.Infrastructure
+@await Component.InvokeAsync("StoreScope")
+
+<form asp-area="Admin" asp-controller="StripeCheckout" asp-action="Configure" method="post">
+    <p>
+        For plugin configuration please check:<br/>
+        <br/>
+        1. Generate API keys from the Stripe Dashboard: <a href="https://stripe.com/docs/api/authentication" target="_blank">Click here.</a><br/>
+        2. Register webhook endpoints with Stripe <a href="https://stripe.com/docs/development/dashboard/register-webhook" target="_blank">Click here.</a><br/>
+        3. Your Webhook URL: @webhookUrl <br/>
+        4. Fill in your credentials below.<br/>
+        5. Save the configuration.<br/>
+        <br/>
+        <em>Note: Ensure that you have configured your primary store currency that is supported by selected payment service provider.</em><br/>
+    </p>
+    <div class="form-horizontal">
+        <div class="form-body">
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="ApiKey" class="control-label"/>
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ApiKey"/>
+                    <span asp-validation-for="ApiKey"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="WebhookEndpointSecret" class="control-label"/>
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="WebhookEndpointSecret"/>
+                    <span asp-validation-for="WebhookEndpointSecret"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="Line" class="control-label"/>
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Line"/>
+                    <span asp-validation-for="Line"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="Description" class="control-label"/>
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="Description"/>
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 text-right">
+                    <admin-label asp-for="DisplayOrder" class="control-label"/>
+                </div>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="DisplayOrder"/>
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <div class="row">
+                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                    <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

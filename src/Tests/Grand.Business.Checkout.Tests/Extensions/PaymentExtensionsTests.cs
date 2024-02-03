@@ -21,8 +21,8 @@ namespace Grand.Business.Checkout.Tests.Extensions
         public void IsPaymentMethodActive_ReturnExpectedResult()
         {
             var settings = new PaymentSettings();
-            _providerMock.Setup(c => c.SystemName).Returns("paypal");
-            settings.ActivePaymentProviderSystemNames.Add("paypal");
+            _providerMock.Setup(c => c.SystemName).Returns("stripe");
+            settings.ActivePaymentProviderSystemNames.Add("stripe");
             Assert.IsTrue(_providerMock.Object.IsPaymentMethodActive(settings));
             _providerMock.Setup(c => c.SystemName).Returns("klarna");
             Assert.IsFalse(_providerMock.Object.IsPaymentMethodActive(settings));
