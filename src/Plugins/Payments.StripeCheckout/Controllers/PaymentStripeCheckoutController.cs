@@ -47,9 +47,10 @@ public class PaymentStripeCheckoutController : BasePaymentController
             await _stripeCheckoutService.WebHookProcessPayment(Request.Headers["Stripe-Signature"], json);
             return Ok();
         }
-        catch
+        catch(Exception e)
         {
-            return BadRequest();
+            _logger.LogWarning(e.Message);
+            return BadRequest(e.Message);
         }
     }
 

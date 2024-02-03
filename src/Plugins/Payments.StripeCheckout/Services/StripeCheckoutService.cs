@@ -57,7 +57,6 @@ public class StripeCheckoutService : IStripeCheckoutService
             _logger.LogError(e, "StripeException");
             return false;
         }
-
         return false;
     }
 
