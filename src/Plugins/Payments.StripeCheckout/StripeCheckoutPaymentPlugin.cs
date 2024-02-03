@@ -49,14 +49,14 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
     {
         //settings
         await _settingService.SaveSetting(new StripeCheckoutPaymentSettings {
-            Description = "Stripe payment",
+            Description = "Enjoy seamless transactions with the flexibility to pay using your preferred payment method through Stripe Checkout. We ensure a secure and hassle-free payment experience, accommodating a wide range of payment options to suit your convenience.",
             DisplayOrder = 0,
             Line = "Order number {0}"
         });
 
         //locales
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Payments.StripeCheckout.FriendlyName", "Stripe payment");
+            "Payments.StripeCheckout.FriendlyName", "Pay with Stripe");
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
             "Plugins.Payments.StripeCheckout.Fields.ApiKey", "Stripe ApiKey (secret type)");
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,

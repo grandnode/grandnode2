@@ -18,9 +18,9 @@
     <p>
         For plugin configuration please check:<br/>
         <br/>
-        1. Generate API keys from the Stripe Dashboard: <a href="https://stripe.com/docs/api/authentication" target="_blank">Click here to create now.</a><br/>
-        2. Register webhook endpoints with Stripe <a href="https://stripe.com/docs/development/dashboard/register-webhook" target="_blank">Click here to create now.</a><br/>
-        3. Webhook URL: @webhookUrl <br/>
+        1. Generate API keys from the Stripe Dashboard: <a href="https://stripe.com/docs/api/authentication" target="_blank">Click here.</a><br/>
+        2. Register webhook endpoints with Stripe <a href="https://stripe.com/docs/development/dashboard/register-webhook" target="_blank">Click here.</a><br/>
+        3. Your Webhook URL: @webhookUrl <br/>
         4. Fill in your credentials below.<br/>
         5. Save the configuration.<br/>
         <br/>
@@ -60,7 +60,7 @@
                     <admin-label asp-for="Description" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Description"/>
+                    <admin-textarea asp-for="Description"/>
                     <span asp-validation-for="Description"></span>
                 </div>
             </div>
