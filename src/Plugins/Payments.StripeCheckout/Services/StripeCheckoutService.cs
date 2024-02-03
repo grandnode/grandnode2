@@ -69,13 +69,27 @@ public class StripeCheckoutService : IStripeCheckoutService
             if (paymentTransaction == null ||
                 !paymentIntent.Currency.Equals(paymentTransaction.CurrencyCode,
                     StringComparison.InvariantCultureIgnoreCase))
+            {
+                _logger.LogError("paymentTransaction is null or currency is not equal");
                 return;
+            }
 
-            paymentTransaction.AuthorizationTransactionId = paymentIntent.Id;
-            paymentTransaction.Description = paymentIntent.Description;
-            paymentTransaction.AdditionalInfo = paymentIntent.PaymentMethod.Type;
-            paymentTransaction.PaidAmount += (paymentIntent.Amount / 100);
-            await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
+            try
+            {
+                paymentTransaction.AuthorizationTransactionId = paymentIntent.Id;
+                paymentTransaction.Description = paymentIntent.Description;
+                paymentTransaction.AdditionalInfo = paymentIntent.PaymentMethod.Type;
+                paymentTransaction.PaidAmount += (paymentIntent.Amount / 100);
+                await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in CreatePaymentTransaction");
+            }
+        }
+        else
+        {
+            _logger.LogError("order_guid can't get from metadata or orderGuid is not valid");
         }
     }
 
