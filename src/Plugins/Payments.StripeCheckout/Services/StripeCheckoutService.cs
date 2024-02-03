@@ -41,6 +41,7 @@ public class StripeCheckoutService : IStripeCheckoutService
     {
         try
         {
+            _logger.LogWarning(json);
             var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
                 _stripeCheckoutPaymentSettings.WebhookEndpointSecret);
             // Handle the event
@@ -50,7 +51,6 @@ public class StripeCheckoutService : IStripeCheckoutService
                 await CreatePaymentTransaction(paymentIntent);
                 return true;
             }
-            _logger.LogWarning(json);
         }
         catch (StripeException e)
         {
