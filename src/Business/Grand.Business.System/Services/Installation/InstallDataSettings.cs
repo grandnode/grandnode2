@@ -427,7 +427,7 @@ namespace Grand.Business.System.Services.Installation
             await _settingService.SaveSetting(new PaymentSettings {
                 ActivePaymentProviderSystemNames = [
                     "Payments.CashOnDelivery",
-                    "Payments.PayPalStandard",
+                    "Payments.StripeCheckout",
                     "Payments.BrainTree"
                 ],
                 AllowRePostingPayments = true,

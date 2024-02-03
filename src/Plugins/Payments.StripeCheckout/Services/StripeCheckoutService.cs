@@ -41,7 +41,6 @@ public class StripeCheckoutService : IStripeCheckoutService
     {
         try
         {
-            _logger.LogWarning(json);
             var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
                 _stripeCheckoutPaymentSettings.WebhookEndpointSecret);
             // Handle the event

@@ -49,7 +49,6 @@ public class PaymentStripeCheckoutController : BasePaymentController
         }
         catch(Exception e)
         {
-            _logger.LogWarning(e.Message);
             return BadRequest(e.Message);
         }
     }
