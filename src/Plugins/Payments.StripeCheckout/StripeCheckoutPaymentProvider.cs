@@ -237,7 +237,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// </summary>
     public async Task<string> Description()
     {
-        return await Task.FromResult(_translationService.GetResource("Payments.StripeCheckout.FriendlyName"));
+        return await Task.FromResult(_translationService.GetResource("Plugins.Payments.StripeCheckout.FriendlyName"));
     }
 
     public Task<string> GetControllerRouteName()

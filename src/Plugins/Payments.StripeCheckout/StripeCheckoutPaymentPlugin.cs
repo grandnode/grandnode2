@@ -56,7 +56,7 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
 
         //locales
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Payments.StripeCheckout.FriendlyName", "Pay with Stripe");
+            "Plugins.Payments.StripeCheckout.FriendlyName", "Pay with Stripe");
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
             "Plugins.Payments.StripeCheckout.Fields.ApiKey", "Stripe ApiKey (secret type)");
         await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
@@ -81,7 +81,7 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
 
         //locales
         await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Payments.StripeCheckout.FriendlyName");
+            "Plugins.Payments.StripeCheckout.FriendlyName");
         await this.DeletePluginTranslationResource(_translationService, _languageService,
             "Plugins.Payments.StripeCheckout.Fields.ApiKey");
         await this.DeletePluginTranslationResource(_translationService, _languageService,
