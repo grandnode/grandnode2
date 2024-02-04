@@ -35,10 +35,10 @@ namespace Grand.Infrastructure
         private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
         {
             var dbConfig = services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
-            if (!string.IsNullOrEmpty(dbConfig.DbConnectionString))
+            if (!string.IsNullOrEmpty(dbConfig.ConnectionString))
             {
                 DataSettingsManager.LoadDataSettings(new DataSettings {
-                    ConnectionString = dbConfig.DbConnectionString,
+                    ConnectionString = dbConfig.ConnectionString,
                     DbProvider = (DbProvider)dbConfig.DbProvider
                 });
             }

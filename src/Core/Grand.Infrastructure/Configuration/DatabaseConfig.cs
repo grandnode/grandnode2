@@ -20,7 +20,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether use connection string for database (only for installed databases)
         /// </summary>
-        public string DbConnectionString { get; set; }
+        public string ConnectionString { get; set; }
         public int DbProvider { get; set; }
 
     }
