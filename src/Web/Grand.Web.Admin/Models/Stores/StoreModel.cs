@@ -22,9 +22,6 @@ namespace Grand.Web.Admin.Models.Stores
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.SecureUrl")]
         public virtual string SecureUrl { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultAdminTheme")]
-        public string DefaultAdminTheme { get; set; }
-
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 

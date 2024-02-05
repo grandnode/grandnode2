@@ -97,10 +97,6 @@ namespace Grand.Domain.Stores
         /// </summary>
         public string CompanyHours { get; set; }
 
-        /// <summary>
-        /// Gets or sets the identifier of the default admin theme for this store
-        /// </summary>
-        public string DefaultAdminTheme { get; set; }
 
         public BankAccount BankAccount { get; set; } = new();
 

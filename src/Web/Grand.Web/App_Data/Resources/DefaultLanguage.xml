@@ -4833,9 +4833,6 @@
 	<Resource Name="Admin.Configuration.Stores.Fields.CompanyVat" Area="Admin">
 		<Value>Company VAT</Value>
 	</Resource>
-	<Resource Name="Admin.Configuration.Stores.Fields.DefaultAdminTheme" Area="Admin">
-		<Value>Default admin theme</Value>
-	</Resource>
 	<Resource Name="Admin.Configuration.Stores.Fields.DefaultCountry" Area="Admin">
 		<Value>Default country</Value>
 	</Resource>
