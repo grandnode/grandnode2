@@ -201,22 +201,8 @@ namespace Grand.Infrastructure
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
-            //add AppConfig configuration parameters
-            services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
-            services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
-            services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
-            services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
-            services.StartupConfig<CacheConfig>(configuration.GetSection("Cache"));
-            services.StartupConfig<AccessControlConfig>(configuration.GetSection("AccessControl"));
-            services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
-            services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
-            services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
-            services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
-            services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
-            services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
-            services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
-            services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
-            services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));
+            
+            RegisterConfigurations(services, configuration);
 
             InitDatabase(services, configuration);
 
@@ -243,6 +229,30 @@ namespace Grand.Infrastructure
             });
             
             return mvcCoreBuilder;
+        }
+
+        private static void RegisterConfigurations(IServiceCollection services, IConfiguration configuration)
+        {
+            var appConfiguration = configuration["Azure:AppConfiguration"];
+            if (!string.IsNullOrEmpty(appConfiguration))
+            {
+                ((ConfigurationManager)configuration).AddAzureAppConfiguration(appConfiguration);
+            }
+            services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+            services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
+            services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
+            services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
+            services.StartupConfig<CacheConfig>(configuration.GetSection("Cache"));
+            services.StartupConfig<AccessControlConfig>(configuration.GetSection("AccessControl"));
+            services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
+            services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
+            services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
+            services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
+            services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
+            services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
+            services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
+            services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
+            services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));
         }
 
         #endregion
