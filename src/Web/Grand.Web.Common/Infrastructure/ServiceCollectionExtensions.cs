@@ -297,6 +297,7 @@ namespace Grand.Web.Common.Infrastructure
             if (!string.IsNullOrEmpty(applicationInsights.ConnectionString))
             {
                 services.AddApplicationInsightsTelemetry();
+                services.AddServiceProfiler();
                 services.AddLogging(builder =>
                 {
                     builder.AddApplicationInsights(

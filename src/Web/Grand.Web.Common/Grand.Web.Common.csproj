@@ -5,6 +5,7 @@
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.2.2" />
 		<PackageReference Include="Azure.Identity" Version="1.10.4" />
 		<PackageReference Include="Flurl.Http" Version="4.0.2" />
+		<PackageReference Include="Microsoft.ApplicationInsights.Profiler.AspNetCore" Version="2.6.0" />
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.0.0" />
 		<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.21.0" />
