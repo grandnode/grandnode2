@@ -47,40 +47,42 @@
         </template>
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_after_featured_products", additionalData = Model.Id })
         <div id="catalog-products">
-            @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_filters", additionalData = Model.Id })
-            <partial name="Partials/Selectors" />
-            <template v-if="catalog.Model.Products.length > 0">
-                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                    <b-col cols="12" class="product-grid px-0">
-                        <b-form-row>
-                            <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 mb-2">
-                                    <product-box-vue :Model="Model"></product-box-vue>
+                @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_filters", additionalData = Model.Id })
+                <template v-if="catalog.Model !== undefined">
+                    <partial name="Partials/Selectors" />
+                    <template v-if="catalog.Model.Products.length > 0">
+                        <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                            <b-col cols="12" class="product-grid standard px-0">
+                                <b-form-row>
+                                    <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                        <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
+                                            <product-box-vue :Model="Model"></product-box-vue>
+                                        </b-col>
+                                    </template>
+                                </b-form-row>
+                            </b-col>
+                        </template>
+                        <template v-else>
+                            <div class="product-list">
+                                <b-col cols="12">
+                                    <b-row>
+                                        <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                            <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                        </template>
+                                    </b-row>
                                 </b-col>
-                            </template>
-                        </b-form-row>
-                    </b-col>
+                            </div>
+                        </template>
+                        @*<partial name="Partials/Pagination" />*@
+                        <partial name="Partials/ScrollPagination" />
+                    </template>
+                    <template v-else>
+                        <b-alert variant="info" show class="my-3">
+                            @Loc["search.noresultstext"]
+                        </b-alert>
+                    </template>
                 </template>
-                <template v-else>
-                    <div class="product-list">
-                        <b-col cols="12">
-                            <b-row>
-                                <template v-for="Model in catalog.Model.Products">
-                                    <partial name="Partials/ProductBoxListVue" />
-                                </template>
-                            </b-row>
-                        </b-col>
-                    </div>
-                </template>
-                @*<partial name="Partials/Pagination" />*@
-                <partial name="Partials/ScrollPagination" />
-            </template>
-            <template v-else>
-                <b-alert variant="info" show class="my-3">
-                    @Loc["search.noresultstext"]
-                </b-alert>
-            </template>
-        </div>
+            </div>
 
         @*Rendering bottom description section*@
         <template v-if="catalog.Model.BottomDescription !== null">

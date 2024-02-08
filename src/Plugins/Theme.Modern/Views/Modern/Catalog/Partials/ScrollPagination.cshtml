@@ -36,7 +36,7 @@
                 }
             },
             pageScroll() {
-                let catalogProdH = document.getElementById("catalog-products").scrollHeight * .5;
+                let catalogProdH = document.getElementById("catalog-products").scrollHeight * .3;
                 let TotalPages = catalog.Model.PagingFilteringContext.TotalPages;
                 let PageNumber = catalog.Model.PagingFilteringContext.PageNumber;
                 if (window.pageYOffset >= catalogProdH && PageNumber < TotalPages && !this.stop) {
