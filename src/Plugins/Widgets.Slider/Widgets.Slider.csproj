@@ -14,11 +14,6 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Widgets.Slider\refs" />
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Widgets.Slider\ref" />
-	</Target>
-
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
 			<Private>false</Private>

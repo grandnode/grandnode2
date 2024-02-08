@@ -9,11 +9,6 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.CashOnDelivery\refs" />
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.CashOnDelivery\ref" />
-	</Target>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<OutputPath>..\..\Web\Grand.Web\Plugins\Payments.CashOnDelivery\</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>

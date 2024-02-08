@@ -11,11 +11,6 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\ExchangeRate.McExchange\refs" />
-		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\ExchangeRate.McExchange\ref" />
-	</Target>
-
 	<ItemGroup>
 		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
 			<Private>false</Private>

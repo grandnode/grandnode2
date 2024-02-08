@@ -13,11 +13,6 @@
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Google\refs" />
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Google\ref" />
-  </Target>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.1" />
   </ItemGroup>

@@ -14,10 +14,6 @@
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Theme.Modern\refs" />
-    </Target>
-
     <ItemGroup>
         <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
             <Private>false</Private>

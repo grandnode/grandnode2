@@ -14,10 +14,6 @@
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\refs" />
-    </Target>
-
     <ItemGroup>
         <PackageReference Include="Stripe.net" Version="43.13.0" />
     </ItemGroup>
