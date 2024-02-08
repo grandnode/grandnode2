@@ -138,9 +138,16 @@ namespace Grand.Business.Customers.Tests.Services
             var cg = new CustomerGroup();
             _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
                 .Returns(Task.FromResult(cg));
+            
+            var customer = new Customer {
+                CustomerGuid = Guid.NewGuid(),
+                Active = true,
+                StoreId = "1",
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
 
             //Act
-            await _customerService.InsertGuestCustomer(new Domain.Stores.Store { Id = "1" });
+            await _customerService.InsertGuestCustomer(customer);
             //Assert
             Assert.IsTrue(_repository.Table.Any());
             Assert.IsTrue(_repository.Table.Any(x => x.StoreId == "1"));

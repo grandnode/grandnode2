@@ -55,8 +55,16 @@ namespace Grand.Api.Controllers
         {
             if (!_apiConfig.Enabled)
                 return BadRequest("API is disabled");
-
-            var customer = await _customerService.InsertGuestCustomer(_storeHelper.StoreHost);
+            
+            var customer = new Customer {
+                CustomerGuid = Guid.NewGuid(),
+                Active = true,
+                StoreId = _storeHelper.StoreHost.Id,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+            
+            customer = await _customerService.InsertGuestCustomer(customer);
+            
             var claims = new Dictionary<string, string> {
                 { "Guid", customer.CustomerGuid.ToString()}
             };

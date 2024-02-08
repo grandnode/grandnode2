@@ -244,14 +244,10 @@ namespace Grand.Business.Customers.Services
         /// Insert a guest customer
         /// </summary>
         /// <returns>Customer</returns>
-        public virtual async Task<Customer> InsertGuestCustomer(Store store)
+        public virtual async Task<Customer> InsertGuestCustomer(Customer customer)
         {
-            var customer = new Customer {
-                CustomerGuid = Guid.NewGuid(),
-                Active = true,
-                StoreId = store.Id,
-                LastActivityDateUtc = DateTime.UtcNow
-            };
+            ArgumentNullException.ThrowIfNull(customer);
+            
             //add to 'Guests' group
             var guestGroup = await _mediator.Send(new GetGroupBySystemNameQuery { SystemName = SystemCustomerGroupNames.Guests });
             if (guestGroup == null)

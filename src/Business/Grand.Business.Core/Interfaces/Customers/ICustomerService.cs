@@ -116,7 +116,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Insert a guest customer
         /// </summary>
         /// <returns>Customer</returns>
-        Task<Customer> InsertGuestCustomer(Store store);
+        Task<Customer> InsertGuestCustomer(Customer customer = null);
 
         /// <summary>
         /// Insert a customer

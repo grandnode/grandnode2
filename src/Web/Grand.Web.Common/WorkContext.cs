@@ -210,9 +210,6 @@ namespace Grand.Web.Common
             //if customer is authenticated
             if (customer != null)
             {
-                //remove cookie
-                await _authenticationService.SetCustomerGuid(Guid.Empty);
-
                 //set if use impersonated session
                 var impersonatedCustomer = await SetImpersonatedCustomer(customer);
                 if (impersonatedCustomer != null)
@@ -265,15 +262,39 @@ namespace Grand.Web.Common
                 return _cachedCustomer = customer;
             
             //create guest if not exists
-            customer = await _customerService.InsertGuestCustomer(CurrentStore);
-            if (_httpContextAccessor?.HttpContext?.Request.GetTypedHeaders().Referer?.ToString() is { } referer)
-            {
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UrlReferrer, referer);
-            }
-            //set customer cookie
-            await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
+            customer = await CustomerGuest();
+            
             //cache the found customer
             return _cachedCustomer = customer;
+        }
+
+        private async Task<Customer> CustomerGuest()
+        {
+            var userFields = new List<UserField>();
+            
+            if (_httpContextAccessor?.HttpContext?.Request.GetTypedHeaders().Referer?.ToString() is { } referer)
+                userFields.Add(new UserField() { Key = SystemCustomerFieldNames.UrlReferrer, Value = referer, StoreId = ""});
+
+            if (!string.IsNullOrEmpty(CurrentStore.DefaultCurrencyId))
+                userFields.Add(new UserField() { Key = SystemCustomerFieldNames.CurrencyId, Value = CurrentStore.DefaultCurrencyId, StoreId = CurrentStore.Id});
+            
+            if (!string.IsNullOrEmpty(CurrentStore.DefaultLanguageId))
+                userFields.Add(new UserField() { Key = SystemCustomerFieldNames.LanguageId, Value = CurrentStore.DefaultLanguageId, StoreId = CurrentStore.Id});
+            
+            var customer = new Customer {
+                CustomerGuid = Guid.NewGuid(),
+                Active = true,
+                StoreId = CurrentStore.Id,
+                LastActivityDateUtc = DateTime.UtcNow,
+                LastIpAddress = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                UserFields = userFields
+            };
+            
+            customer = await _customerService.InsertGuestCustomer(customer);
+
+            //set customer cookie
+            await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
+            return customer;
         }
 
         /// <summary>
