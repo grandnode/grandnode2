@@ -66,6 +66,17 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
+        public async Task GetOneAsyncAsync_LiteRepository_Success()
+        {
+            var product = new SampleCollection { Id = "1" };
+            await _myRepository.InsertAsync(product);
+
+            var p = await _myRepository.GetOneAsync(x=>x.Id == "1");
+
+            Assert.IsNotNull(p);
+        }
+        
+        [TestMethod()]
         public async Task ClearAsync_LiteRepository_Success()
         {
             var product = new SampleCollection { Id = "1" };

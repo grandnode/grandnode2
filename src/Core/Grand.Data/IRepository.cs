@@ -30,6 +30,13 @@ namespace Grand.Data
         Task<T> GetByIdAsync(string id);
 
         /// <summary>
+        /// Get entity by identifier
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns>Entity</returns>
+        Task<T> GetOneAsync(Expression<Func<T, bool>> predicate);
+        
+        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>

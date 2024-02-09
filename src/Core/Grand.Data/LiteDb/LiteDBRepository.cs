@@ -92,6 +92,16 @@ namespace Grand.Data.LiteDb
         {
             return await Task.FromResult(GetById(id));
         }
+        
+        /// <summary>
+        /// Get async entity by expression 
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns>Entity</returns>
+        public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
+        {
+            return Task.FromResult(_collection.Find(predicate).FirstOrDefault());
+        }
 
         /// <summary>
         /// Insert entity
