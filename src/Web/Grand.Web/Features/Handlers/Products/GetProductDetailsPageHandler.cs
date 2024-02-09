@@ -577,8 +577,7 @@ namespace Grand.Web.Features.Handlers.Products
                             Id = tag.Id,
                             Name = tag.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
                             SeName = tag.SeName,
-                            ProductCount =
-                                await _productTagService.GetProductCount(tag.Id, _workContext.CurrentStore.Id)
+                            ProductCount = tag.Count
                         });
                     }
                 }

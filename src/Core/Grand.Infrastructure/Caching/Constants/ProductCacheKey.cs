@@ -89,7 +89,7 @@
         /// <remarks>
         /// {0} : store ID
         /// </remarks>
-        public static string PRODUCTTAG_COUNT_KEY => "Grand.producttag.count-{0}";
+        public static string PRODUCTTAG_COUNT_KEY => "Grand.producttag.count";
 
         /// <summary>
         /// Key for all tags

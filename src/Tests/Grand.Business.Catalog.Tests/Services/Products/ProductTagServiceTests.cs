@@ -197,7 +197,7 @@ namespace Grand.Business.Catalog.Tests.Services.Products
             };
             await _productTagService.InsertProductTag(productTag);
             //Act
-            var result = await _productTagService.GetProductCount(productTag.Id, "");
+            var result = await _productTagService.GetProductCount(productTag.Id);
 
             //Assert
             Assert.AreEqual(10, result);

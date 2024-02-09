@@ -71,8 +71,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Get number of products
         /// </summary>
         /// <param name="productTagId">Product tag identifier</param>
-        /// <param name="storeId">Store identifier</param>
         /// <returns>Number of products</returns>
-        Task<int> GetProductCount(string productTagId, string storeId);
+        Task<int> GetProductCount(string productTagId);
     }
 }

@@ -50,12 +50,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Get product count for each of existing product tag
         /// </summary>
-        /// <param name="storeId">Store identifier</param>
         /// <returns>Dictionary of "product tag ID : product count"</returns>
-        private async Task<Dictionary<string, int>> GetProductCount(string storeId)
+        private async Task<Dictionary<string, int>> GetProductCount()
         {
-            var key = string.Format(CacheKey.PRODUCTTAG_COUNT_KEY, storeId);
-            return await _cacheBase.GetAsync(key, async () =>
+            return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_COUNT_KEY, async () =>
              {
                  var query = from pt in _productTagRepository.Table
                              select pt;
@@ -232,12 +230,11 @@ namespace Grand.Business.Catalog.Services.Products
         /// Get number of products
         /// </summary>
         /// <param name="productTagId">Product tag identifier</param>
-        /// <param name="storeId">Store identifier</param>
         /// <returns>Number of products</returns>
-        public virtual async Task<int> GetProductCount(string productTagId, string storeId)
+        public virtual async Task<int> GetProductCount(string productTagId)
         {
-            var dictionary = await GetProductCount(storeId);
-            return dictionary.ContainsKey(productTagId) ? dictionary[productTagId] : 0;
+            var dictionary = await GetProductCount();
+            return dictionary.TryGetValue(productTagId, out var value) ? value : 0;
         }
 
         #endregion

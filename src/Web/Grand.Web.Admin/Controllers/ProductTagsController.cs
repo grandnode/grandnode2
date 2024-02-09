@@ -55,7 +55,7 @@ namespace Grand.Web.Admin.Controllers
                 var ptag = new ProductTagModel {
                     Id = item.Id,
                     Name = item.Name,
-                    ProductCount = await _productTagService.GetProductCount(item.Id, "")
+                    ProductCount = await _productTagService.GetProductCount(item.Id)
                 };
                 productTags.Add(ptag);
             }
@@ -101,7 +101,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 Id = productTag.Id,
                 Name = productTag.Name,
-                ProductCount = await _productTagService.GetProductCount(productTag.Id, "")
+                ProductCount = await _productTagService.GetProductCount(productTag.Id)
             };
             //locales
             await AddLocales(_languageService, model.Locales, (locale, languageId) =>
