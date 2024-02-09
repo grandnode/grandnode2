@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Catalog
@@ -16,23 +15,17 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly ICategoryService _categoryService;
         private readonly ISlugService _slugService;
         private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
-        private readonly IWorkContext _workContext;
         private readonly SeoSettings _seoSettings;
 
         public AddCategoryCommandHandler(
             ICategoryService categoryService,
             ISlugService slugService,
             ILanguageService languageService,
-            ITranslationService translationService,
-            IWorkContext workContext,
             SeoSettings seoSettings)
         {
             _categoryService = categoryService;
             _slugService = slugService;
             _languageService = languageService;
-            _translationService = translationService;
-            _workContext = workContext;
             _seoSettings = seoSettings;
         }
 
