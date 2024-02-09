@@ -17,12 +17,6 @@ namespace Grand.Business.Common.Services.Localization
     /// </summary>
     public class TranslationService : ITranslationService
     {
-        #region Constants
-
-        private Dictionary<string, string> _allTranslateResource;
-
-        #endregion
-
         #region Fields
 
         private readonly IRepository<TranslationResource> _translationRepository;
@@ -99,8 +93,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="translateResource">Translate resource</param>
         public virtual async Task InsertTranslateResource(TranslationResource translateResource)
         {
-            if (translateResource == null)
-                throw new ArgumentNullException(nameof(translateResource));
+            ArgumentNullException.ThrowIfNull(translateResource);
 
             translateResource.Name = translateResource.Name.ToLowerInvariant();
             await _translationRepository.InsertAsync(translateResource);
@@ -118,8 +111,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="translateResource">Translate resource</param>
         public virtual async Task UpdateTranslateResource(TranslationResource translateResource)
         {
-            if (translateResource == null)
-                throw new ArgumentNullException(nameof(translateResource));
+            ArgumentNullException.ThrowIfNull(translateResource);
 
             translateResource.Name = translateResource.Name.ToLowerInvariant();
             await _translationRepository.UpdateAsync(translateResource);
@@ -138,8 +130,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="translateResource">Translate resource</param>
         public virtual async Task DeleteTranslateResource(TranslationResource translateResource)
         {
-            if (translateResource == null)
-                throw new ArgumentNullException(nameof(translateResource));
+            ArgumentNullException.ThrowIfNull(translateResource);
 
             await _translationRepository.DeleteAsync(translateResource);
 
@@ -170,29 +161,25 @@ namespace Grand.Business.Common.Services.Localization
         /// <returns>A string representing the requested resource string.</returns>
         public virtual string GetResource(string name, string languageId, string defaultValue = "", bool returnEmptyIfNotFound = false)
         {
-            string result;
             name ??= string.Empty;
-
             name = name.Trim().ToLowerInvariant();
-            if (_allTranslateResource != null)
+            var key = string.Format(CacheKey.TRANSLATERESOURCES_ALL_KEY, languageId);
+            var allTranslateResource = _cacheBase.Get(key, () =>
             {
-                _allTranslateResource.TryGetValue(name, out result);
-            }
-            else
-            {
-                var key = string.Format(CacheKey.TRANSLATERESOURCES_ALL_KEY, languageId);
-                _allTranslateResource = _cacheBase.Get(key, () =>
-                {
-                    return
-                        GetAllResources(languageId)
-                            .GroupBy(r => r.Name)
-                            .ToDictionary(
-                                keySelector: g => g.Key,
-                                elementSelector: g => g.First().Value);
-                });
-                _allTranslateResource.TryGetValue(name, out result);
-            }
+                return
+                    GetAllResources(languageId)
+                        .GroupBy(r => r.Name)
+                        .ToDictionary(
+                            keySelector: g => g.Key,
+                            elementSelector: g => g.First().Value);
+            });
 
+            // Try to get the resource value by name
+            if (allTranslateResource.TryGetValue(name, out var result) && !string.IsNullOrEmpty(result))
+            {
+                return result;
+            }
+            
             if (!string.IsNullOrEmpty(result)) return result;
             if (!string.IsNullOrEmpty(defaultValue)) result = defaultValue;
             else if (!returnEmptyIfNotFound) result = name;
