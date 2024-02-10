@@ -81,7 +81,7 @@ namespace Grand.Business.Cms.Services
         /// <returns>knowledge base category</returns>
         public virtual async Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
         {
-            return await Task.FromResult(_knowledgebaseCategoryRepository.Table.FirstOrDefault(x => x.Id == id));
+            return await _knowledgebaseCategoryRepository.GetOneAsync(x => x.Id == id);
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Data.Tests.LiteDb

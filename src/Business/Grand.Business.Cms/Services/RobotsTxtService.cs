@@ -51,11 +51,7 @@ namespace Grand.Business.Cms.Services
 
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var query = from p in _robotsRepository.Table
-                            where p.StoreId == storeId
-                            select p;
-
-                var robotsTxt = await Task.FromResult(query.FirstOrDefault());
+                var robotsTxt = await _robotsRepository.GetOneAsync(x=>x.StoreId == storeId); 
                 return robotsTxt;
             });
         }
@@ -66,8 +62,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="robotsTxt">robotsTxt</param>
         public virtual async Task InsertRobotsTxt(RobotsTxt robotsTxt)
         {
-            if (robotsTxt == null)
-                throw new ArgumentNullException(nameof(robotsTxt));
+            ArgumentNullException.ThrowIfNull(robotsTxt);
 
             await _robotsRepository.InsertAsync(robotsTxt);
 
@@ -83,8 +78,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="robotsTxt">robotsTxt</param>
         public virtual async Task UpdateRobotsTxt(RobotsTxt robotsTxt)
         {
-            if (robotsTxt == null)
-                throw new ArgumentNullException(nameof(robotsTxt));
+            ArgumentNullException.ThrowIfNull(robotsTxt);
 
             await _robotsRepository.UpdateAsync(robotsTxt);
 
@@ -100,8 +94,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="robotsTxt">robotsTxt</param>
         public virtual async Task DeleteRobotsTxt(RobotsTxt robotsTxt)
         {
-            if (robotsTxt == null)
-                throw new ArgumentNullException(nameof(robotsTxt));
+            ArgumentNullException.ThrowIfNull(robotsTxt);
 
             await _robotsRepository.DeleteAsync(robotsTxt);
 

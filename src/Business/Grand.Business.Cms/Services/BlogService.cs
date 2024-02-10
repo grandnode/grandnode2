@@ -77,7 +77,7 @@ namespace Grand.Business.Cms.Services
 
             if (!string.IsNullOrEmpty(categoryId))
             {
-                var category = _blogCategoryRepository.Table.FirstOrDefault(x => x.Id == categoryId);
+                var category = await _blogCategoryRepository.GetOneAsync(x => x.Id == categoryId);
                 if (category != null)
                 {
                     var postsIds = category.BlogPosts.Select(x => x.BlogPostId);
@@ -329,7 +329,7 @@ namespace Grand.Business.Cms.Services
             if (string.IsNullOrEmpty(blogCategorySeName))
                 throw new ArgumentNullException(nameof(blogCategorySeName));
 
-            return await Task.FromResult(_blogCategoryRepository.Table.FirstOrDefault(x => x.SeName == blogCategorySeName.ToLowerInvariant()));
+            return await _blogCategoryRepository.GetOneAsync(x => x.SeName == blogCategorySeName.ToLowerInvariant());
         }
 
         /// <summary>

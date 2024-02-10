@@ -64,8 +64,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productReservation">Product reservation</param>
         public virtual async Task InsertProductReservation(ProductReservation productReservation)
         {
-            if (productReservation == null)
-                throw new ArgumentNullException(nameof(productReservation));
+            ArgumentNullException.ThrowIfNull(productReservation);
 
             await _productReservationRepository.InsertAsync(productReservation);
 
@@ -79,8 +78,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productReservation">Product reservation</param>
         public virtual async Task UpdateProductReservation(ProductReservation productReservation)
         {
-            if (productReservation == null)
-                throw new ArgumentNullException(nameof(productReservation));
+            ArgumentNullException.ThrowIfNull(productReservation);
 
             await _productReservationRepository.UpdateAsync(productReservation);
 
@@ -94,8 +92,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productReservation">Product reservation</param>
         public virtual async Task DeleteProductReservation(ProductReservation productReservation)
         {
-            if (productReservation == null)
-                throw new ArgumentNullException(nameof(productReservation));
+            ArgumentNullException.ThrowIfNull(productReservation);
 
             await _productReservationRepository.DeleteAsync(productReservation);
 
@@ -119,8 +116,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="crh"></param>
         public virtual async Task InsertCustomerReservationsHelper(CustomerReservationsHelper crh)
         {
-            if (crh == null)
-                throw new ArgumentNullException(nameof(crh));
+            ArgumentNullException.ThrowIfNull(crh);
 
             await _customerReservationsHelperRepository.InsertAsync(crh);
 
@@ -134,8 +130,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="crh"></param>
         public virtual async Task DeleteCustomerReservationsHelper(CustomerReservationsHelper crh)
         {
-            if (crh == null)
-                throw new ArgumentNullException(nameof(crh));
+            ArgumentNullException.ThrowIfNull(crh);
 
             await _customerReservationsHelperRepository.DeleteAsync(crh);
 

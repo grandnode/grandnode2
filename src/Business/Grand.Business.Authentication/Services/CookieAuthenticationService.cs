@@ -74,8 +74,7 @@ namespace Grand.Business.Authentication.Services
         /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
         public virtual async Task SignIn(Customer customer, bool isPersistent)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             //create claims for customer's username and email
             var claims = new List<Claim>();

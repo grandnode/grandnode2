@@ -104,8 +104,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure dimension</param>
         public virtual async Task InsertMeasureDimension(MeasureDimension measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureDimensionRepository.InsertAsync(measure);
 
@@ -121,8 +120,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure dimension</param>
         public virtual async Task UpdateMeasureDimension(MeasureDimension measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureDimensionRepository.UpdateAsync(measure);
 
@@ -138,8 +136,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measureDimension">Measure dimension</param>
         public virtual async Task DeleteMeasureDimension(MeasureDimension measureDimension)
         {
-            if (measureDimension == null)
-                throw new ArgumentNullException(nameof(measureDimension));
+            ArgumentNullException.ThrowIfNull(measureDimension);
 
             await _measureDimensionRepository.DeleteAsync(measureDimension);
 
@@ -160,11 +157,8 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual async Task<double> ConvertDimension(double value,
             MeasureDimension sourceMeasureDimension, MeasureDimension targetMeasureDimension, bool round = true)
         {
-            if (sourceMeasureDimension == null)
-                throw new ArgumentNullException(nameof(sourceMeasureDimension));
-
-            if (targetMeasureDimension == null)
-                throw new ArgumentNullException(nameof(targetMeasureDimension));
+            ArgumentNullException.ThrowIfNull(sourceMeasureDimension);
+            ArgumentNullException.ThrowIfNull(targetMeasureDimension);
 
             var result = value;
             if (result != 0 && sourceMeasureDimension.Id != targetMeasureDimension.Id)
@@ -186,8 +180,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual async Task<double> ConvertToPrimaryMeasureDimension(double value,
             MeasureDimension sourceMeasureDimension)
         {
-            if (sourceMeasureDimension == null)
-                throw new ArgumentNullException(nameof(sourceMeasureDimension));
+            ArgumentNullException.ThrowIfNull(sourceMeasureDimension);
 
             var result = value;
             var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
@@ -208,8 +201,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual async Task<double> ConvertFromPrimaryMeasureDimension(double value,
             MeasureDimension targetMeasureDimension)
         {
-            if (targetMeasureDimension == null)
-                throw new ArgumentNullException(nameof(targetMeasureDimension));
+            ArgumentNullException.ThrowIfNull(targetMeasureDimension);
 
             var result = value;
             var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
@@ -272,8 +264,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure weight</param>
         public virtual async Task InsertMeasureWeight(MeasureWeight measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureWeightRepository.InsertAsync(measure);
 
@@ -289,8 +280,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure weight</param>
         public virtual async Task UpdateMeasureWeight(MeasureWeight measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureWeightRepository.UpdateAsync(measure);
 
@@ -306,8 +296,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measureWeight">Measure weight</param>
         public virtual async Task DeleteMeasureWeight(MeasureWeight measureWeight)
         {
-            if (measureWeight == null)
-                throw new ArgumentNullException(nameof(measureWeight));
+            ArgumentNullException.ThrowIfNull(measureWeight);
 
             await _measureWeightRepository.DeleteAsync(measureWeight);
 
@@ -328,11 +317,8 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual async Task<double> ConvertWeight(double value,
             MeasureWeight sourceMeasureWeight, MeasureWeight targetMeasureWeight, bool round = true)
         {
-            if (sourceMeasureWeight == null)
-                throw new ArgumentNullException(nameof(sourceMeasureWeight));
-
-            if (targetMeasureWeight == null)
-                throw new ArgumentNullException(nameof(targetMeasureWeight));
+            ArgumentNullException.ThrowIfNull(sourceMeasureWeight);
+            ArgumentNullException.ThrowIfNull(targetMeasureWeight);
 
             var result = value;
             if (result != 0 && sourceMeasureWeight.Id != targetMeasureWeight.Id)
@@ -353,8 +339,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <returns>Converted value</returns>
         public virtual async Task<double> ConvertToPrimaryMeasureWeight(double value, MeasureWeight sourceMeasureWeight)
         {
-            if (sourceMeasureWeight == null)
-                throw new ArgumentNullException(nameof(sourceMeasureWeight));
+            ArgumentNullException.ThrowIfNull(sourceMeasureWeight);
 
             var result = value;
             var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
@@ -375,8 +360,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual async Task<double> ConvertFromPrimaryMeasureWeight(double value,
             MeasureWeight targetMeasureWeight)
         {
-            if (targetMeasureWeight == null)
-                throw new ArgumentNullException(nameof(targetMeasureWeight));
+            ArgumentNullException.ThrowIfNull(targetMeasureWeight);
 
             var result = value;
             var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
@@ -427,8 +411,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure unit</param>
         public virtual async Task InsertMeasureUnit(MeasureUnit measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureUnitRepository.InsertAsync(measure);
 
@@ -444,8 +427,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measure">Measure unit</param>
         public virtual async Task UpdateMeasureUnit(MeasureUnit measure)
         {
-            if (measure == null)
-                throw new ArgumentNullException(nameof(measure));
+            ArgumentNullException.ThrowIfNull(measure);
 
             await _measureUnitRepository.UpdateAsync(measure);
 
@@ -461,8 +443,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="measureUnit">Measure unit</param>
         public virtual async Task DeleteMeasureUnit(MeasureUnit measureUnit)
         {
-            if (measureUnit == null)
-                throw new ArgumentNullException(nameof(measureUnit));
+            ArgumentNullException.ThrowIfNull(measureUnit);
 
             //delete
             await _measureUnitRepository.DeleteAsync(measureUnit);

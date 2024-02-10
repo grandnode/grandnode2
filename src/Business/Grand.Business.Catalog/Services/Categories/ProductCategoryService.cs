@@ -103,8 +103,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="productId">Product ident</param>
         public virtual async Task InsertProductCategory(ProductCategory productCategory, string productId)
         {
-            if (productCategory == null)
-                throw new ArgumentNullException(nameof(productCategory));
+            ArgumentNullException.ThrowIfNull(productCategory);
 
             await _productRepository.AddToSet(productId, x => x.ProductCategories, productCategory);
 
@@ -123,8 +122,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="productId">Product ident</param>
         public virtual async Task UpdateProductCategory(ProductCategory productCategory, string productId)
         {
-            if (productCategory == null)
-                throw new ArgumentNullException(nameof(productCategory));
+            ArgumentNullException.ThrowIfNull(productCategory);
 
             await _productRepository.UpdateToSet(productId, x => x.ProductCategories, z => z.Id, productCategory.Id, productCategory);
 
@@ -142,8 +140,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="productId">Product ident</param>
         public virtual async Task DeleteProductCategory(ProductCategory productCategory, string productId)
         {
-            if (productCategory == null)
-                throw new ArgumentNullException(nameof(productCategory));
+            ArgumentNullException.ThrowIfNull(productCategory);
 
             await _productRepository.PullFilter(productId, x => x.ProductCategories, z => z.Id, productCategory.Id);
 

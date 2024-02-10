@@ -94,11 +94,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product tag</returns>
         public virtual Task<ProductTag> GetProductTagByName(string name)
         {
-            var query = from pt in _productTagRepository.Table
-                        where pt.Name == name
-                        select pt;
-
-            return Task.FromResult(query.FirstOrDefault());
+            return _productTagRepository.GetOneAsync(x=>x.Name == name);
         }
 
         /// <summary>
@@ -108,10 +104,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product tag</returns>
         public virtual Task<ProductTag> GetProductTagBySeName(string sename)
         {
-            var query = from pt in _productTagRepository.Table
-                        where pt.SeName == sename
-                        select pt;
-            return Task.FromResult(query.FirstOrDefault());
+            return _productTagRepository.GetOneAsync(x=>x.SeName == sename);
         }
 
         /// <summary>
@@ -120,8 +113,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productTag">Product tag</param>
         public virtual async Task InsertProductTag(ProductTag productTag)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
+            ArgumentNullException.ThrowIfNull(productTag);
 
             await _productTagRepository.InsertAsync(productTag);
 
@@ -138,8 +130,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productTag">Product tag</param>
         public virtual async Task UpdateProductTag(ProductTag productTag)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
+            ArgumentNullException.ThrowIfNull(productTag);
 
             var previous = await GetProductTagById(productTag.Id);
 
@@ -160,8 +151,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productTag">Product tag</param>
         public virtual async Task DeleteProductTag(ProductTag productTag)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
+            ArgumentNullException.ThrowIfNull(productTag);
 
             //update product
             await _productRepository.Pull(string.Empty, x => x.ProductTags, productTag.Name);
@@ -184,8 +174,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task AttachProductTag(ProductTag productTag, string productId)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
+            ArgumentNullException.ThrowIfNull(productTag);
 
             //assign to product
             await _productRepository.AddToSet(productId, x => x.ProductTags, productTag.Name);
@@ -208,9 +197,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task DetachProductTag(ProductTag productTag, string productId)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
-
+            ArgumentNullException.ThrowIfNull(productTag);
 
             await _productRepository.Pull(productId, x => x.ProductTags, productTag.Name);
 

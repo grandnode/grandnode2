@@ -96,8 +96,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="specificationAttribute">The specification attribute</param>
         public virtual async Task InsertSpecificationAttribute(SpecificationAttribute specificationAttribute)
         {
-            if (specificationAttribute == null)
-                throw new ArgumentNullException(nameof(specificationAttribute));
+            ArgumentNullException.ThrowIfNull(specificationAttribute);
 
             await _specificationAttributeRepository.InsertAsync(specificationAttribute);
 
@@ -114,8 +113,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="specificationAttribute">The specification attribute</param>
         public virtual async Task UpdateSpecificationAttribute(SpecificationAttribute specificationAttribute)
         {
-            if (specificationAttribute == null)
-                throw new ArgumentNullException(nameof(specificationAttribute));
+            ArgumentNullException.ThrowIfNull(specificationAttribute);
 
             await _specificationAttributeRepository.UpdateAsync(specificationAttribute);
 
@@ -131,8 +129,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="specificationAttribute">The specification attribute</param>
         public virtual async Task DeleteSpecificationAttribute(SpecificationAttribute specificationAttribute)
         {
-            if (specificationAttribute == null)
-                throw new ArgumentNullException(nameof(specificationAttribute));
+            ArgumentNullException.ThrowIfNull(specificationAttribute);
 
             //delete from all product collections
             await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId, specificationAttribute.Id);
@@ -177,8 +174,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="specificationAttributeOption">The specification attribute option</param>
         public virtual async Task DeleteSpecificationAttributeOption(SpecificationAttributeOption specificationAttributeOption)
         {
-            if (specificationAttributeOption == null)
-                throw new ArgumentNullException(nameof(specificationAttributeOption));
+            ArgumentNullException.ThrowIfNull(specificationAttributeOption);
 
             //delete from all product collections
             await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id);
@@ -212,8 +208,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task InsertProductSpecificationAttribute(ProductSpecificationAttribute productSpecificationAttribute, string productId)
         {
-            if (productSpecificationAttribute == null)
-                throw new ArgumentNullException(nameof(productSpecificationAttribute));
+            ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
             await _productRepository.AddToSet(productId, x => x.ProductSpecificationAttributes, productSpecificationAttribute);
 
@@ -231,8 +226,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task UpdateProductSpecificationAttribute(ProductSpecificationAttribute productSpecificationAttribute, string productId)
         {
-            if (productSpecificationAttribute == null)
-                throw new ArgumentNullException(nameof(productSpecificationAttribute));
+            ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
             await _productRepository.UpdateToSet(productId, x => x.ProductSpecificationAttributes, z => z.Id, productSpecificationAttribute.Id, productSpecificationAttribute);
 
@@ -249,8 +243,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task DeleteProductSpecificationAttribute(ProductSpecificationAttribute productSpecificationAttribute, string productId)
         {
-            if (productSpecificationAttribute == null)
-                throw new ArgumentNullException(nameof(productSpecificationAttribute));
+            ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
             await _productRepository.PullFilter(productId, x => x.ProductSpecificationAttributes, x => x.Id, productSpecificationAttribute.Id);
 

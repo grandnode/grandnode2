@@ -1,6 +1,4 @@
-﻿using Grand.Data;
-
-namespace Grand.Data.Tests;
+﻿namespace Grand.Data.Tests;
 
 public class AuditInfoProvider : IAuditInfoProvider
 {

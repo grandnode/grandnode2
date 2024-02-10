@@ -75,8 +75,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="taxCategory">Tax category</param>
         public virtual async Task InsertTaxCategory(TaxCategory taxCategory)
         {
-            if (taxCategory == null)
-                throw new ArgumentNullException(nameof(taxCategory));
+            ArgumentNullException.ThrowIfNull(taxCategory);
 
             await _taxCategoryRepository.InsertAsync(taxCategory);
 
@@ -92,8 +91,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="taxCategory">Tax category</param>
         public virtual async Task UpdateTaxCategory(TaxCategory taxCategory)
         {
-            if (taxCategory == null)
-                throw new ArgumentNullException(nameof(taxCategory));
+            ArgumentNullException.ThrowIfNull(taxCategory);
 
             await _taxCategoryRepository.UpdateAsync(taxCategory);
 
@@ -108,8 +106,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="taxCategory">Tax category</param>
         public virtual async Task DeleteTaxCategory(TaxCategory taxCategory)
         {
-            if (taxCategory == null)
-                throw new ArgumentNullException(nameof(taxCategory));
+            ArgumentNullException.ThrowIfNull(taxCategory);
 
             await _taxCategoryRepository.DeleteAsync(taxCategory);
 

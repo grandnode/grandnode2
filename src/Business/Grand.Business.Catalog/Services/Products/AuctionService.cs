@@ -63,8 +63,7 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task InsertBid(Bid bid)
         {
-            if (bid == null)
-                throw new ArgumentNullException(nameof(bid));
+            ArgumentNullException.ThrowIfNull(bid);
 
             await _bidRepository.InsertAsync(bid);
             await _mediator.EntityInserted(bid);
@@ -72,16 +71,14 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task UpdateBid(Bid bid)
         {
-            if (bid == null)
-                throw new ArgumentNullException(nameof(bid));
+            ArgumentNullException.ThrowIfNull(bid);
 
             await _bidRepository.UpdateAsync(bid);
             await _mediator.EntityUpdated(bid);
         }
         public virtual async Task DeleteBid(Bid bid)
         {
-            if (bid == null)
-                throw new ArgumentNullException(nameof(bid));
+            ArgumentNullException.ThrowIfNull(bid);
 
             await _bidRepository.DeleteAsync(bid);
             await _mediator.EntityDeleted(bid);
@@ -167,7 +164,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="orderId">OrderId</param>
         public virtual async Task CancelBidByOrder(string orderId)
         {
-            var bid = _bidRepository.Table.FirstOrDefault(x => x.OrderId == orderId);
+            var bid = await _bidRepository.GetOneAsync(x => x.OrderId == orderId);
             if (bid != null)
             {
                 await _bidRepository.DeleteAsync(bid);
