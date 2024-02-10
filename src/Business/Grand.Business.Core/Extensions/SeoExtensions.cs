@@ -27,8 +27,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Product tag SE (search engine) name</returns>
         public static string GetSeName(this ProductTag productTag, string languageId)
         {
-            if (productTag == null)
-                throw new ArgumentNullException(nameof(productTag));
+            ArgumentNullException.ThrowIfNull(productTag);
             var seName = GenerateSlug(productTag.GetTranslation(x => x.Name, languageId), false, false, false);
             return seName;
         }
@@ -48,8 +47,7 @@ namespace Grand.Business.Core.Extensions
         public static string GetSeName<T>(this T entity, string languageId, bool returnDefaultValue = true)
             where T : BaseEntity, ISlugEntity, ITranslationEntity
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             var seName = string.Empty;
             if (!string.IsNullOrEmpty(languageId))
@@ -84,8 +82,7 @@ namespace Grand.Business.Core.Extensions
             SeoSettings seoSettings, ISlugService slugService, ILanguageService languageService)
              where T : BaseEntity, ISlugEntity
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             //use name if se-name is not specified
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(name))

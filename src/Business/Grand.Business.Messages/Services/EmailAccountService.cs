@@ -38,8 +38,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="emailAccount">Email account</param>
         public virtual async Task InsertEmailAccount(EmailAccount emailAccount)
         {
-            if (emailAccount == null)
-                throw new ArgumentNullException(nameof(emailAccount));
+            ArgumentNullException.ThrowIfNull(emailAccount);
 
             emailAccount.Email = CommonHelper.EnsureNotNull(emailAccount.Email);
             emailAccount.DisplayName = CommonHelper.EnsureNotNull(emailAccount.DisplayName);
@@ -74,8 +73,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="emailAccount">Email account</param>
         public virtual async Task UpdateEmailAccount(EmailAccount emailAccount)
         {
-            if (emailAccount == null)
-                throw new ArgumentNullException(nameof(emailAccount));
+            ArgumentNullException.ThrowIfNull(emailAccount);
 
             emailAccount.Email = CommonHelper.EnsureNotNull(emailAccount.Email);
             emailAccount.DisplayName = CommonHelper.EnsureNotNull(emailAccount.DisplayName);
@@ -110,8 +108,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="emailAccount">Email account</param>
         public virtual async Task DeleteEmailAccount(EmailAccount emailAccount)
         {
-            if (emailAccount == null)
-                throw new ArgumentNullException(nameof(emailAccount));
+            ArgumentNullException.ThrowIfNull(emailAccount);
             var emailAccounts = await GetAllEmailAccounts();
             if (emailAccounts.Count == 1)
                 throw new GrandException("You cannot delete this email account. At least one account is required.");

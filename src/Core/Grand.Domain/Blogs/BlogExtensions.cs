@@ -4,8 +4,7 @@
     {
         public static string[] ParseTags(this BlogPost blogPost)
         {
-            if (blogPost == null)
-                throw new ArgumentNullException(nameof(blogPost));
+            ArgumentNullException.ThrowIfNull(blogPost);
 
             var parsedTags = new List<string>();
             if (!String.IsNullOrEmpty(blogPost.Tags))

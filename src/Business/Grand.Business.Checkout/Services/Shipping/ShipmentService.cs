@@ -130,8 +130,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shipment">Shipment</param>
         public virtual async Task InsertShipment(Shipment shipment)
         {
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
+            ArgumentNullException.ThrowIfNull(shipment);
             var shipmentExists = _shipmentRepository.Table.FirstOrDefault();
             shipment.ShipmentNumber = shipmentExists != null ? _shipmentRepository.Table.Max(x => x.ShipmentNumber) + 1 : 1;
             await _shipmentRepository.InsertAsync(shipment);
@@ -146,8 +145,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shipment">Shipment</param>
         public virtual async Task UpdateShipment(Shipment shipment)
         {
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
+            ArgumentNullException.ThrowIfNull(shipment);
 
             await _shipmentRepository.UpdateAsync(shipment);
 
@@ -161,8 +159,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shipment">Shipment</param>
         public virtual async Task DeleteShipment(Shipment shipment)
         {
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
+            ArgumentNullException.ThrowIfNull(shipment);
 
             await _shipmentRepository.DeleteAsync(shipment);
 
@@ -178,8 +175,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shipmentNote">The order note</param>
         public virtual async Task DeleteShipmentNote(ShipmentNote shipmentNote)
         {
-            if (shipmentNote == null)
-                throw new ArgumentNullException(nameof(shipmentNote));
+            ArgumentNullException.ThrowIfNull(shipmentNote);
 
             await _shipmentNoteRepository.DeleteAsync(shipmentNote);
 
@@ -193,8 +189,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shipmentNote">The shipment note</param>
         public virtual async Task InsertShipmentNote(ShipmentNote shipmentNote)
         {
-            if (shipmentNote == null)
-                throw new ArgumentNullException(nameof(shipmentNote));
+            ArgumentNullException.ThrowIfNull(shipmentNote);
 
             await _shipmentNoteRepository.InsertAsync(shipmentNote);
 

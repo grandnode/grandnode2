@@ -145,8 +145,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturn">Merchandise return </param>
         public virtual async Task InsertMerchandiseReturn(MerchandiseReturn merchandiseReturn)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             lock (Locker)
             {
@@ -166,8 +165,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturn"></param>
         public virtual async Task UpdateMerchandiseReturn(MerchandiseReturn merchandiseReturn)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             await _merchandiseReturnRepository.UpdateAsync(merchandiseReturn);
 
@@ -180,8 +178,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturn">Merchandise return</param>
         public virtual async Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             await _merchandiseReturnRepository.DeleteAsync(merchandiseReturn);
 
@@ -195,8 +192,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnAction">Merchandise return action</param>
         public virtual async Task InsertMerchandiseReturnAction(MerchandiseReturnAction merchandiseReturnAction)
         {
-            if (merchandiseReturnAction == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnAction));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnAction);
 
             await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnAction);
 
@@ -212,8 +208,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnAction">Merchandise return action</param>
         public virtual async Task UpdateMerchandiseReturnAction(MerchandiseReturnAction merchandiseReturnAction)
         {
-            if (merchandiseReturnAction == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnAction));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnAction);
 
             await _merchandiseReturnActionRepository.UpdateAsync(merchandiseReturnAction);
 
@@ -230,8 +225,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnAction">Merchandise return action</param>
         public virtual async Task DeleteMerchandiseReturnAction(MerchandiseReturnAction merchandiseReturnAction)
         {
-            if (merchandiseReturnAction == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnAction));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnAction);
 
             await _merchandiseReturnActionRepository.DeleteAsync(merchandiseReturnAction);
 
@@ -244,8 +238,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnReason">Merchandise return reason</param>
         public virtual async Task DeleteMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason)
         {
-            if (merchandiseReturnReason == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnReason));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnReason);
 
             await _merchandiseReturnReasonRepository.DeleteAsync(merchandiseReturnReason);
 
@@ -288,8 +281,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnReason">Merchandise return reasons</param>
         public virtual async Task InsertMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason)
         {
-            if (merchandiseReturnReason == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnReason));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnReason);
 
             await _merchandiseReturnReasonRepository.InsertAsync(merchandiseReturnReason);
 
@@ -306,8 +298,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnReason">Merchandise return reasons</param>
         public virtual async Task UpdateMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason)
         {
-            if (merchandiseReturnReason == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnReason));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnReason);
 
             await _merchandiseReturnReasonRepository.UpdateAsync(merchandiseReturnReason);
 
@@ -327,8 +318,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnNote">The merchandise return note</param>
         public virtual async Task DeleteMerchandiseReturnNote(MerchandiseReturnNote merchandiseReturnNote)
         {
-            if (merchandiseReturnNote == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnNote));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnNote);
 
             await _merchandiseReturnNoteRepository.DeleteAsync(merchandiseReturnNote);
 
@@ -342,8 +332,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="merchandiseReturnNote">The merchandise return note</param>
         public virtual async Task InsertMerchandiseReturnNote(MerchandiseReturnNote merchandiseReturnNote)
         {
-            if (merchandiseReturnNote == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnNote));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnNote);
 
             await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
 

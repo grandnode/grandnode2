@@ -38,8 +38,7 @@ namespace Grand.Business.System.Services.Admin
 
         public virtual async Task InsertSiteMap(AdminSiteMap entity)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             await _adminSiteMapRepository.InsertAsync(entity);
 
@@ -53,8 +52,7 @@ namespace Grand.Business.System.Services.Admin
 
         public virtual async Task UpdateSiteMap(AdminSiteMap entity)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             await _adminSiteMapRepository.UpdateAsync(entity);
 
@@ -67,8 +65,7 @@ namespace Grand.Business.System.Services.Admin
 
         public virtual async Task DeleteSiteMap(AdminSiteMap entity)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             await _adminSiteMapRepository.DeleteAsync(entity);
 

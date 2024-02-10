@@ -51,8 +51,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <param name="urlEntity">URL Entity</param>
         public virtual async Task InsertEntityUrl(EntityUrl urlEntity)
         {
-            if (urlEntity == null)
-                throw new ArgumentNullException(nameof(urlEntity));
+            ArgumentNullException.ThrowIfNull(urlEntity);
 
             await _urlEntityRepository.InsertAsync(urlEntity);
 
@@ -66,8 +65,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <param name="urlEntity">URL Entity</param>
         public virtual async Task UpdateEntityUrl(EntityUrl urlEntity)
         {
-            if (urlEntity == null)
-                throw new ArgumentNullException(nameof(urlEntity));
+            ArgumentNullException.ThrowIfNull(urlEntity);
 
             await _urlEntityRepository.UpdateAsync(urlEntity);
 
@@ -81,8 +79,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <param name="urlEntity">URL Entity</param>
         public virtual async Task DeleteEntityUrl(EntityUrl urlEntity)
         {
-            if (urlEntity == null)
-                throw new ArgumentNullException(nameof(urlEntity));
+            ArgumentNullException.ThrowIfNull(urlEntity);
 
             await _urlEntityRepository.DeleteAsync(urlEntity);
 
@@ -189,8 +186,7 @@ namespace Grand.Business.Common.Services.Seo
         public virtual async Task SaveSlug<T>(T entity, string slug, string languageId)
             where T : BaseEntity, ISlugEntity
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             var entityId = entity.Id;
             var entityName = typeof(T).Name;

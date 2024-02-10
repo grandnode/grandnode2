@@ -109,8 +109,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <param name="checkoutAttribute">Checkout attribute</param>
         public virtual async Task InsertCheckoutAttribute(CheckoutAttribute checkoutAttribute)
         {
-            if (checkoutAttribute == null)
-                throw new ArgumentNullException(nameof(checkoutAttribute));
+            ArgumentNullException.ThrowIfNull(checkoutAttribute);
 
             await _checkoutAttributeRepository.InsertAsync(checkoutAttribute);
 
@@ -127,8 +126,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <param name="checkoutAttribute">Checkout attribute</param>
         public virtual async Task UpdateCheckoutAttribute(CheckoutAttribute checkoutAttribute)
         {
-            if (checkoutAttribute == null)
-                throw new ArgumentNullException(nameof(checkoutAttribute));
+            ArgumentNullException.ThrowIfNull(checkoutAttribute);
 
             await _checkoutAttributeRepository.UpdateAsync(checkoutAttribute);
 
@@ -144,8 +142,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <param name="checkoutAttribute">Checkout attribute</param>
         public virtual async Task DeleteCheckoutAttribute(CheckoutAttribute checkoutAttribute)
         {
-            if (checkoutAttribute == null)
-                throw new ArgumentNullException(nameof(checkoutAttribute));
+            ArgumentNullException.ThrowIfNull(checkoutAttribute);
 
             await _checkoutAttributeRepository.DeleteAsync(checkoutAttribute);
 

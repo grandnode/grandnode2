@@ -13,8 +13,7 @@ namespace Grand.Domain.Customers
         /// <returns>Result</returns>
         public static bool IsSystemAccount(this Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             return customer.IsSystemAccount && !string.IsNullOrEmpty(customer.SystemName);
         }
@@ -27,8 +26,7 @@ namespace Grand.Domain.Customers
         /// <returns>Result</returns>
         public static bool IsSearchEngineAccount(this Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (!customer.IsSystemAccount || string.IsNullOrEmpty(customer.SystemName))
                 return false;
@@ -65,20 +63,19 @@ namespace Grand.Domain.Customers
         /// <returns>Customer full name</returns>
         public static string GetFullName(this Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
             var firstName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
             var lastName = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
 
             var fullName = "";
-            if (!String.IsNullOrWhiteSpace(firstName) && !String.IsNullOrWhiteSpace(lastName))
+            if (!string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
                 fullName = $"{firstName} {lastName}";
             else
             {
-                if (!String.IsNullOrWhiteSpace(firstName))
+                if (!string.IsNullOrWhiteSpace(firstName))
                     fullName = firstName;
 
-                if (!String.IsNullOrWhiteSpace(lastName))
+                if (!string.IsNullOrWhiteSpace(lastName))
                     fullName = lastName;
             }
             return fullName;
@@ -128,8 +125,7 @@ namespace Grand.Domain.Customers
         /// <returns>Coupon codes</returns>
         public static string[] ParseAppliedCouponCodes(this Customer customer, string key)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
 
@@ -150,8 +146,7 @@ namespace Grand.Domain.Customers
         /// <returns>New coupon codes document</returns>
         public static string ApplyCouponCode(this Customer customer, string key, string couponCode)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
             return string.IsNullOrEmpty(existingCouponCodes) ? couponCode : string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Append(couponCode).Distinct());
@@ -166,8 +161,7 @@ namespace Grand.Domain.Customers
         /// <returns>New coupon codes document</returns>
         public static string ApplyCouponCode(this Customer customer, string key, string[] couponCodes)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
             if (string.IsNullOrEmpty(existingCouponCodes))
@@ -189,16 +183,10 @@ namespace Grand.Domain.Customers
         /// <returns>New coupon codes document</returns>
         public static string RemoveCouponCode(this Customer customer, string key, string couponCode)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var existingCouponCodes = customer.GetUserFieldFromEntity<string>(key);
-            if (string.IsNullOrEmpty(existingCouponCodes))
-            {
-                return "";
-            }
-
-            return string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Except(new List<string> { couponCode }).Distinct());
+            return string.IsNullOrEmpty(existingCouponCodes) ? "" : string.Join(CouponSeparator, existingCouponCodes.Split(CouponSeparator).Except(new List<string> { couponCode }).Distinct());
         }
 
         /// <summary>
@@ -209,17 +197,10 @@ namespace Grand.Domain.Customers
         /// <returns>Result</returns>
         public static bool IsPasswordRecoveryTokenValid(this Customer customer, string token)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var cPrt = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken);
-            if (String.IsNullOrEmpty(cPrt))
-                return false;
-
-            if (!cPrt.Equals(token, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(cPrt) && cPrt.Equals(token, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -230,11 +211,9 @@ namespace Grand.Domain.Customers
         /// <returns>Result</returns>
         public static bool IsPasswordRecoveryLinkExpired(this Customer customer, CustomerSettings customerSettings)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
-            if (customerSettings == null)
-                throw new ArgumentNullException(nameof(customerSettings));
+            ArgumentNullException.ThrowIfNull(customerSettings);
 
             if (customerSettings.PasswordRecoveryLinkDaysValid == 0)
                 return false;
@@ -244,10 +223,7 @@ namespace Grand.Domain.Customers
                 return false;
 
             var daysPassed = (DateTime.UtcNow - geneatedDate.Value).TotalDays;
-            if (daysPassed > customerSettings.PasswordRecoveryLinkDaysValid)
-                return true;
-
-            return false;
+            return daysPassed > customerSettings.PasswordRecoveryLinkDaysValid;
         }
 
         /// <summary>
@@ -257,8 +233,7 @@ namespace Grand.Domain.Customers
         /// <returns>Customer group identifiers</returns>
         public static string[] GetCustomerGroupIds(this Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             return customer.Groups.ToArray();
         }

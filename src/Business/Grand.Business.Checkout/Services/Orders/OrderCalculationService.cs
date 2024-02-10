@@ -633,8 +633,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Tax total</returns>
         public virtual async Task<(double taxtotal, SortedDictionary<double, double> taxRates)> GetTaxTotal(IList<ShoppingCartItem> cart, bool usePaymentMethodAdditionalFee = true)
         {
-            if (cart == null)
-                throw new ArgumentNullException(nameof(cart));
+            ArgumentNullException.ThrowIfNull(cart);
 
             var taxRates = new SortedDictionary<double, double>();
 

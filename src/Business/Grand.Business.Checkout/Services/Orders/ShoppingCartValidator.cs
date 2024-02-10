@@ -31,11 +31,8 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task<IList<string>> GetStandardWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(customer);
+            ArgumentNullException.ThrowIfNull(product);
 
             var warnings = new List<string>();
 
@@ -48,8 +45,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task<IList<string>> GetShoppingCartItemAttributeWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem, bool ignoreNonCombinableAttributes = false)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var warnings = new List<string>();
 
@@ -64,8 +60,7 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<string>> GetShoppingCartItemGiftVoucherWarnings(Customer customer,
             Product product, ShoppingCartItem shoppingCartItem)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var warnings = new List<string>();
 
@@ -165,8 +160,7 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<string>> GetShoppingCartItemWarnings(Customer customer, ShoppingCartItem shoppingCartItem,
          Product product, ShoppingCartValidatorOptions options)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var warnings = new List<string>();
 
@@ -203,11 +197,8 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<string>> GetRequiredProductWarnings(Customer customer,
             ShoppingCartItem shoppingCartItem, Product product, string storeId)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(customer);
+            ArgumentNullException.ThrowIfNull(product);
 
             var warnings = new List<string>();
 

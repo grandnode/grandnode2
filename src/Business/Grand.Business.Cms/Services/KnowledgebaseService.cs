@@ -545,8 +545,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="articleComment">Article comment</param>
         public virtual async Task InsertArticleComment(KnowledgebaseArticleComment articleComment)
         {
-            if (articleComment == null)
-                throw new ArgumentNullException(nameof(articleComment));
+            ArgumentNullException.ThrowIfNull(articleComment);
 
             await _articleCommentRepository.InsertAsync(articleComment);
 
@@ -613,8 +612,7 @@ namespace Grand.Business.Cms.Services
 
         public virtual async Task DeleteArticleComment(KnowledgebaseArticleComment articleComment)
         {
-            if (articleComment == null)
-                throw new ArgumentNullException(nameof(articleComment));
+            ArgumentNullException.ThrowIfNull(articleComment);
 
             await _articleCommentRepository.DeleteAsync(articleComment);
         }

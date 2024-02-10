@@ -10,8 +10,7 @@
         /// <returns>true - contains, false - no</returns>
         public static bool ContainsHostValue(this Store store, string host)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
+            ArgumentNullException.ThrowIfNull(store);
 
             if (string.IsNullOrEmpty(host))
                 return false;
@@ -28,13 +27,8 @@
         /// <returns>DomainHost</returns>
         public static DomainHost HostValue(this Store store, string host)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
-
-            if (string.IsNullOrEmpty(host))
-                return null;
-
-            return store.Domains.FirstOrDefault(x => x.HostName.Equals(host, StringComparison.OrdinalIgnoreCase));
+            ArgumentNullException.ThrowIfNull(store);
+            return string.IsNullOrEmpty(host) ? null : store.Domains.FirstOrDefault(x => x.HostName.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

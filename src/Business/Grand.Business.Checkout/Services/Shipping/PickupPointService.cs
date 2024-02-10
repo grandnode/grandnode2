@@ -79,8 +79,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="pickupPoint">Pickup Point</param>
         public virtual async Task InsertPickupPoint(PickupPoint pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _pickupPointsRepository.InsertAsync(pickupPoint);
 
@@ -97,8 +96,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="pickupPoint">Pickup Point</param>
         public virtual async Task UpdatePickupPoint(PickupPoint pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _pickupPointsRepository.UpdateAsync(pickupPoint);
 
@@ -115,8 +113,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="pickupPoint">pickup point</param>
         public virtual async Task DeletePickupPoint(PickupPoint pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _pickupPointsRepository.DeleteAsync(pickupPoint);
 

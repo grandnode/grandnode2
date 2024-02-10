@@ -61,8 +61,7 @@ namespace Grand.Business.Common.Services.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         public virtual async Task InsertSetting(Setting setting, bool clearCache = true)
         {
-            if (setting == null)
-                throw new ArgumentNullException(nameof(setting));
+            ArgumentNullException.ThrowIfNull(setting);
 
             await _settingRepository.InsertAsync(setting);
 
@@ -79,8 +78,7 @@ namespace Grand.Business.Common.Services.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         public virtual async Task UpdateSetting(Setting setting, bool clearCache = true)
         {
-            if (setting == null)
-                throw new ArgumentNullException(nameof(setting));
+            ArgumentNullException.ThrowIfNull(setting);
 
             await _settingRepository.UpdateAsync(setting);
 
@@ -96,8 +94,7 @@ namespace Grand.Business.Common.Services.Configuration
         /// <param name="setting">Setting</param>
         public virtual async Task DeleteSetting(Setting setting)
         {
-            if (setting == null)
-                throw new ArgumentNullException(nameof(setting));
+            ArgumentNullException.ThrowIfNull(setting);
 
             await _settingRepository.DeleteAsync(setting);
 
@@ -152,8 +149,7 @@ namespace Grand.Business.Common.Services.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         public virtual async Task SetSetting<T>(string key, T value, string storeId = "", bool clearCache = true)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            ArgumentNullException.ThrowIfNull(key);
 
             key = key.Trim().ToLowerInvariant();
 

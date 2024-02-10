@@ -106,8 +106,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="news">News item</param>
         public virtual async Task InsertNews(NewsItem news)
         {
-            if (news == null)
-                throw new ArgumentNullException(nameof(news));
+            ArgumentNullException.ThrowIfNull(news);
 
             await _newsItemRepository.InsertAsync(news);
 
@@ -121,8 +120,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="news">News item</param>
         public virtual async Task UpdateNews(NewsItem news)
         {
-            if (news == null)
-                throw new ArgumentNullException(nameof(news));
+            ArgumentNullException.ThrowIfNull(news);
 
             await _newsItemRepository.UpdateAsync(news);
 
@@ -135,8 +133,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="newsItem">News item</param>
         public virtual async Task DeleteNews(NewsItem newsItem)
         {
-            if (newsItem == null)
-                throw new ArgumentNullException(nameof(newsItem));
+            ArgumentNullException.ThrowIfNull(newsItem);
 
             await _newsItemRepository.DeleteAsync(newsItem);
 

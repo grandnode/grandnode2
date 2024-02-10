@@ -81,8 +81,7 @@ namespace Grand.Business.Common.Services.Security
         /// <param name="permission">Permission</param>
         public virtual async Task DeletePermission(Permission permission)
         {
-            if (permission == null)
-                throw new ArgumentNullException(nameof(permission));
+            ArgumentNullException.ThrowIfNull(permission);
 
             await _permissionRepository.DeleteAsync(permission);
 
@@ -134,8 +133,7 @@ namespace Grand.Business.Common.Services.Security
         /// <param name="permission">Permission</param>
         public virtual async Task InsertPermission(Permission permission)
         {
-            if (permission == null)
-                throw new ArgumentNullException(nameof(permission));
+            ArgumentNullException.ThrowIfNull(permission);
 
             await _permissionRepository.InsertAsync(permission);
 
@@ -148,8 +146,7 @@ namespace Grand.Business.Common.Services.Security
         /// <param name="permission">Permission</param>
         public virtual async Task UpdatePermission(Permission permission)
         {
-            if (permission == null)
-                throw new ArgumentNullException(nameof(permission));
+            ArgumentNullException.ThrowIfNull(permission);
 
             await _permissionRepository.UpdateAsync(permission);
 
@@ -232,8 +229,7 @@ namespace Grand.Business.Common.Services.Security
         /// <param name="permissionAction">Permission action</param>
         public virtual async Task InsertPermissionAction(PermissionAction permissionAction)
         {
-            if (permissionAction == null)
-                throw new ArgumentNullException(nameof(permissionAction));
+            ArgumentNullException.ThrowIfNull(permissionAction);
 
             //insert
             await _permissionActionRepository.InsertAsync(permissionAction);
@@ -247,8 +243,7 @@ namespace Grand.Business.Common.Services.Security
         /// <param name="permissionAction">Permission action</param>
         public virtual async Task DeletePermissionAction(PermissionAction permissionAction)
         {
-            if (permissionAction == null)
-                throw new ArgumentNullException(nameof(permissionAction));
+            ArgumentNullException.ThrowIfNull(permissionAction);
 
             //delete
             await _permissionActionRepository.DeleteAsync(permissionAction);

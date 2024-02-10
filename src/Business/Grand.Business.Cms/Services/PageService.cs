@@ -133,8 +133,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="page">Page</param>
         public virtual async Task InsertPage(Page page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             await _pageRepository.InsertAsync(page);
 
@@ -150,8 +149,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="page">Page</param>
         public virtual async Task UpdatePage(Page page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             await _pageRepository.UpdateAsync(page);
 
@@ -167,8 +165,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="page">Page</param>
         public virtual async Task DeletePage(Page page)
         {
-            if (page == null)
-                throw new ArgumentNullException(nameof(page));
+            ArgumentNullException.ThrowIfNull(page);
 
             await _pageRepository.DeleteAsync(page);
 

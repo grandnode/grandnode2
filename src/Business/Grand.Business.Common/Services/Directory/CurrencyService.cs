@@ -137,8 +137,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="currency">Currency</param>
         public virtual async Task InsertCurrency(Currency currency)
         {
-            if (currency == null)
-                throw new ArgumentNullException(nameof(currency));
+            ArgumentNullException.ThrowIfNull(currency);
 
             await _currencyRepository.InsertAsync(currency);
 
@@ -154,8 +153,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="currency">Currency</param>
         public virtual async Task UpdateCurrency(Currency currency)
         {
-            if (currency == null)
-                throw new ArgumentNullException(nameof(currency));
+            ArgumentNullException.ThrowIfNull(currency);
 
             await _currencyRepository.UpdateAsync(currency);
 
@@ -171,8 +169,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="currency">Currency</param>
         public virtual async Task DeleteCurrency(Currency currency)
         {
-            if (currency == null)
-                throw new ArgumentNullException(nameof(currency));
+            ArgumentNullException.ThrowIfNull(currency);
 
             await _currencyRepository.DeleteAsync(currency);
 
@@ -205,11 +202,8 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Converted value</returns>
         public virtual async Task<double> ConvertCurrency(double amount, Currency sourceCurrencyCode, Currency targetCurrencyCode)
         {
-            if (sourceCurrencyCode == null)
-                throw new ArgumentNullException(nameof(sourceCurrencyCode));
-
-            if (targetCurrencyCode == null)
-                throw new ArgumentNullException(nameof(targetCurrencyCode));
+            ArgumentNullException.ThrowIfNull(sourceCurrencyCode);
+            ArgumentNullException.ThrowIfNull(targetCurrencyCode);
 
             var result = amount;
 
@@ -231,8 +225,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Converted value</returns>
         public virtual async Task<double> ConvertToPrimaryExchangeRateCurrency(double amount, Currency sourceCurrencyCode)
         {
-            if (sourceCurrencyCode == null)
-                throw new ArgumentNullException(nameof(sourceCurrencyCode));
+            ArgumentNullException.ThrowIfNull(sourceCurrencyCode);
 
             var primaryExchangeRateCurrency = await GetPrimaryExchangeRateCurrency();
             if (primaryExchangeRateCurrency == null)
@@ -254,8 +247,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Converted value</returns>
         public virtual async Task<double> ConvertFromPrimaryExchangeRateCurrency(double amount, Currency targetCurrencyCode)
         {
-            if (targetCurrencyCode == null)
-                throw new ArgumentNullException(nameof(targetCurrencyCode));
+            ArgumentNullException.ThrowIfNull(targetCurrencyCode);
 
             var primaryExchangeRateCurrency = await GetPrimaryExchangeRateCurrency();
             if (primaryExchangeRateCurrency == null)
@@ -280,8 +272,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Converted value</returns>
         public virtual async Task<double> ConvertToPrimaryStoreCurrency(double amount, Currency sourceCurrencyCode)
         {
-            if (sourceCurrencyCode == null)
-                throw new ArgumentNullException(nameof(sourceCurrencyCode));
+            ArgumentNullException.ThrowIfNull(sourceCurrencyCode);
 
             var primaryStoreCurrency = await GetPrimaryStoreCurrency();
             var result = await ConvertCurrency(amount, sourceCurrencyCode, primaryStoreCurrency);

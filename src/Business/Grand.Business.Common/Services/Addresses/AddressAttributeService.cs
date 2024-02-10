@@ -79,8 +79,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttribute">Address attribute</param>
         public virtual async Task InsertAddressAttribute(AddressAttribute addressAttribute)
         {
-            if (addressAttribute == null)
-                throw new ArgumentNullException(nameof(addressAttribute));
+            ArgumentNullException.ThrowIfNull(addressAttribute);
 
             await _addressAttributeRepository.InsertAsync(addressAttribute);
 
@@ -97,8 +96,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttribute">Address attribute</param>
         public virtual async Task UpdateAddressAttribute(AddressAttribute addressAttribute)
         {
-            if (addressAttribute == null)
-                throw new ArgumentNullException(nameof(addressAttribute));
+            ArgumentNullException.ThrowIfNull(addressAttribute);
 
             await _addressAttributeRepository.UpdateAsync(addressAttribute);
 
@@ -114,8 +112,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttribute">Address attribute</param>
         public virtual async Task DeleteAddressAttribute(AddressAttribute addressAttribute)
         {
-            if (addressAttribute == null)
-                throw new ArgumentNullException(nameof(addressAttribute));
+            ArgumentNullException.ThrowIfNull(addressAttribute);
 
             await _addressAttributeRepository.DeleteAsync(addressAttribute);
 
@@ -132,8 +129,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttributeValue">Address attribute value</param>
         public virtual async Task InsertAddressAttributeValue(AddressAttributeValue addressAttributeValue)
         {
-            if (addressAttributeValue == null)
-                throw new ArgumentNullException(nameof(addressAttributeValue));
+            ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
             await _addressAttributeRepository.AddToSet(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, addressAttributeValue);
 
@@ -150,8 +146,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttributeValue">Address attribute value</param>
         public virtual async Task UpdateAddressAttributeValue(AddressAttributeValue addressAttributeValue)
         {
-            if (addressAttributeValue == null)
-                throw new ArgumentNullException(nameof(addressAttributeValue));
+            ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
             await _addressAttributeRepository.UpdateToSet(addressAttributeValue.AddressAttributeId, 
                 x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id, addressAttributeValue);
@@ -169,8 +164,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <param name="addressAttributeValue">Address attribute value</param>
         public virtual async Task DeleteAddressAttributeValue(AddressAttributeValue addressAttributeValue)
         {
-            if (addressAttributeValue == null)
-                throw new ArgumentNullException(nameof(addressAttributeValue));
+            ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
             await _addressAttributeRepository.PullFilter(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id);
 

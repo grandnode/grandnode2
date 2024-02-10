@@ -179,8 +179,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture binary</returns>
         public virtual async Task<byte[]> LoadPictureBinary(Picture picture, bool fromDb)
         {
-            if (picture == null)
-                throw new ArgumentNullException(nameof(picture));
+            ArgumentNullException.ThrowIfNull(picture);
 
             var result = fromDb
                 ? (await _pictureRepository.GetByIdAsync(picture.Id)).PictureBinary
@@ -446,8 +445,7 @@ namespace Grand.Business.Storage.Services
         /// <param name="picture">Picture</param>
         public virtual async Task DeletePicture(Picture picture)
         {
-            if (picture == null)
-                throw new ArgumentNullException(nameof(picture));
+            ArgumentNullException.ThrowIfNull(picture);
 
             //delete thumbs
             await DeletePictureThumbs(picture);
@@ -469,8 +467,7 @@ namespace Grand.Business.Storage.Services
         /// <param name="picture">Picture</param>
         public virtual async Task DeletePictureOnFileSystem(Picture picture)
         {
-            if (picture == null)
-                throw new ArgumentNullException(nameof(picture));
+            ArgumentNullException.ThrowIfNull(picture);
 
             var lastPart = GetFileExtensionFromMimeType(picture.MimeType);
             var fileName = $"{picture.Id}_0.{lastPart}";
@@ -646,8 +643,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture</returns>
         public virtual async Task<Picture> UpdatePicture(Picture picture)
         {
-            if (picture == null)
-                throw new ArgumentNullException(nameof(picture));
+            ArgumentNullException.ThrowIfNull(picture);
 
             await _pictureRepository.UpdateAsync(picture);
 
@@ -669,8 +665,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture</returns>
         public virtual async Task UpdatePictureField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
         {
-            if (picture == null)
-                throw new ArgumentNullException(nameof(picture));
+            ArgumentNullException.ThrowIfNull(picture);
 
             await _pictureRepository.UpdateField(picture.Id, expression, value);
 
@@ -830,8 +825,7 @@ namespace Grand.Business.Storage.Services
 
         private byte[] ApplyResize(SKBitmap image, SKEncodedImageFormat format, int targetSize)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image));
+            ArgumentNullException.ThrowIfNull(image);
 
             if (targetSize <= 0)
             {

@@ -31,8 +31,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="queuedEmail">Queued email</param>        
         public virtual async Task InsertQueuedEmail(QueuedEmail queuedEmail)
         {
-            if (queuedEmail == null)
-                throw new ArgumentNullException(nameof(queuedEmail));
+            ArgumentNullException.ThrowIfNull(queuedEmail);
 
             await _queuedEmailRepository.InsertAsync(queuedEmail);
 
@@ -46,8 +45,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="queuedEmail">Queued email</param>
         public virtual async Task UpdateQueuedEmail(QueuedEmail queuedEmail)
         {
-            if (queuedEmail == null)
-                throw new ArgumentNullException(nameof(queuedEmail));
+            ArgumentNullException.ThrowIfNull(queuedEmail);
 
             await _queuedEmailRepository.UpdateAsync(queuedEmail);
 
@@ -61,8 +59,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="queuedEmail">Queued email</param>
         public virtual async Task DeleteQueuedEmail(QueuedEmail queuedEmail)
         {
-            if (queuedEmail == null)
-                throw new ArgumentNullException(nameof(queuedEmail));
+            ArgumentNullException.ThrowIfNull(queuedEmail);
 
             await _queuedEmailRepository.DeleteAsync(queuedEmail);
 
@@ -76,8 +73,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="email">email</param>
         public virtual async Task DeleteCustomerEmail(string email)
         {
-            if (email == null)
-                throw new ArgumentNullException(nameof(email));
+            ArgumentNullException.ThrowIfNull(email);
 
             var deleteCustomerEmail = _queuedEmailRepository.Table.Where(x => x.To == email);
 

@@ -264,8 +264,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customer">Customer</param>
         public virtual async Task InsertCustomer(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (!string.IsNullOrEmpty(customer.Email))
                 customer.Email = customer.Email.ToLowerInvariant();
@@ -442,8 +441,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateContributions(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             await UpdateCustomerField(customer.Id, x => x.HasContributions, true);
 

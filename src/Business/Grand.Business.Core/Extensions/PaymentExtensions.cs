@@ -19,11 +19,8 @@ namespace Grand.Business.Core.Extensions
         public static bool IsPaymentMethodActive(this IPaymentProvider paymentMethod,
             PaymentSettings paymentSettings)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
-
-            if (paymentSettings == null)
-                throw new ArgumentNullException(nameof(paymentSettings));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
+            ArgumentNullException.ThrowIfNull(paymentSettings);
 
             return paymentSettings.ActivePaymentProviderSystemNames != null && paymentSettings.ActivePaymentProviderSystemNames.Any(activeMethodSystemName => paymentMethod.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase));
         }
@@ -41,8 +38,7 @@ namespace Grand.Business.Core.Extensions
             IOrderCalculationService orderTotalCalculationService, IList<ShoppingCartItem> cart,
             double fee, bool usePercentage)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
             if (fee <= 0)
                 return fee;
 

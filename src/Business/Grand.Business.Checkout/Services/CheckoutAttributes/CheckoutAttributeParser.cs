@@ -130,8 +130,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <returns>Result</returns>
         public virtual async Task<bool?> IsConditionMet(CheckoutAttribute attribute, IList<CustomAttribute> customAttributes)
         {
-            if (attribute == null)
-                throw new ArgumentNullException(nameof(attribute));
+            ArgumentNullException.ThrowIfNull(attribute);
 
             customAttributes ??= new List<CustomAttribute>();
 

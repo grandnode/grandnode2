@@ -193,8 +193,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <returns>Result in XML format</returns>
         public virtual async Task<string> ExportResourcesToXml(Language language)
         {
-            if (language == null)
-                throw new ArgumentNullException(nameof(language));
+            ArgumentNullException.ThrowIfNull(language);
             var sb = new StringBuilder();
 
             var xwSettings = new XmlWriterSettings {
@@ -231,8 +230,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="xml">XML</param>
         public virtual async Task ImportResourcesFromXml(Language language, string xml)
         {
-            if (language == null)
-                throw new ArgumentNullException(nameof(language));
+            ArgumentNullException.ThrowIfNull(language);
 
             if (string.IsNullOrEmpty(xml))
                 return;
@@ -290,8 +288,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="xml">XML</param>
         public virtual async Task ImportResourcesFromXmlInstall(Language language, string xml)
         {
-            if (language == null)
-                throw new ArgumentNullException(nameof(language));
+            ArgumentNullException.ThrowIfNull(language);
 
             if (string.IsNullOrEmpty(xml))
                 return;

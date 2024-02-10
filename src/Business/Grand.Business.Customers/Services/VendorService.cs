@@ -79,8 +79,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendor">Vendor</param>
         public virtual async Task InsertVendor(Vendor vendor)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             await _vendorRepository.InsertAsync(vendor);
 
@@ -94,8 +93,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendor">Vendor</param>
         public virtual async Task UpdateVendor(Vendor vendor)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             await _vendorRepository.UpdateAsync(vendor);
 
@@ -109,8 +107,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendor">Vendor</param>
         public virtual async Task DeleteVendor(Vendor vendor)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             vendor.Deleted = true;
             await UpdateVendor(vendor);
@@ -138,8 +135,7 @@ namespace Grand.Business.Customers.Services
         /// <returns></returns>
         public virtual async Task InsertVendorNote(VendorNote vendorNote, string vendorId)
         {
-            if (vendorNote == null)
-                throw new ArgumentNullException(nameof(vendorNote));
+            ArgumentNullException.ThrowIfNull(vendorNote);
 
             await _vendorRepository.AddToSet(vendorId, x => x.VendorNotes, vendorNote);
 
@@ -154,8 +150,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendorId">Vendor ident</param>
         public virtual async Task DeleteVendorNote(VendorNote vendorNote, string vendorId)
         {
-            if (vendorNote == null)
-                throw new ArgumentNullException(nameof(vendorNote));
+            ArgumentNullException.ThrowIfNull(vendorNote);
 
             await _vendorRepository.PullFilter(vendorId, x => x.VendorNotes, x => x.Id, vendorNote.Id);
 
@@ -220,8 +215,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendor">Vendor</param>
         public virtual async Task UpdateVendorReviewTotals(Vendor vendor)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             var approvedRatingSum = 0;
             var notApprovedRatingSum = 0;
@@ -261,8 +255,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateVendorReview(VendorReview vendorReview)
         {
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             var update = UpdateBuilder<VendorReview>.Create()
                 .Set(x => x.Title, vendorReview.Title)
@@ -283,8 +276,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendorReview">Vendor review</param>
         public virtual async Task InsertVendorReview(VendorReview vendorReview)
         {
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             await _vendorReviewRepository.InsertAsync(vendorReview);
 
@@ -298,8 +290,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="vendorReview">Vendor review</param>
         public virtual async Task DeleteVendorReview(VendorReview vendorReview)
         {
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             await _vendorReviewRepository.DeleteAsync(vendorReview);
 

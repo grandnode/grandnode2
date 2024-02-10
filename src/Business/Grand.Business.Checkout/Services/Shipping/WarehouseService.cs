@@ -69,8 +69,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="warehouse">Warehouse</param>
         public virtual async Task InsertWarehouse(Warehouse warehouse)
         {
-            if (warehouse == null)
-                throw new ArgumentNullException(nameof(warehouse));
+            ArgumentNullException.ThrowIfNull(warehouse);
 
             await _warehouseRepository.InsertAsync(warehouse);
 
@@ -87,8 +86,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="warehouse">Warehouse</param>
         public virtual async Task UpdateWarehouse(Warehouse warehouse)
         {
-            if (warehouse == null)
-                throw new ArgumentNullException(nameof(warehouse));
+            ArgumentNullException.ThrowIfNull(warehouse);
 
             await _warehouseRepository.UpdateAsync(warehouse);
 
@@ -105,8 +103,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="warehouse">The warehouse</param>
         public virtual async Task DeleteWarehouse(Warehouse warehouse)
         {
-            if (warehouse == null)
-                throw new ArgumentNullException(nameof(warehouse));
+            ArgumentNullException.ThrowIfNull(warehouse);
 
             await _warehouseRepository.DeleteAsync(warehouse);
 
