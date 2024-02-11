@@ -31,8 +31,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="newsletterCategory">NewsletterCategory</param>        
         public virtual async Task InsertNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newsletterCategory == null)
-                throw new ArgumentNullException(nameof(newsletterCategory));
+            ArgumentNullException.ThrowIfNull(newsletterCategory);
 
             await _newsletterCategoryRepository.InsertAsync(newsletterCategory);
 
@@ -46,8 +45,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="newsletterCategory">NewsletterCategory</param>
         public virtual async Task UpdateNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newsletterCategory == null)
-                throw new ArgumentNullException(nameof(newsletterCategory));
+            ArgumentNullException.ThrowIfNull(newsletterCategory);
 
             await _newsletterCategoryRepository.UpdateAsync(newsletterCategory);
 
@@ -62,8 +60,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="newsletterCategory">NewsletterCategory</param>
         public virtual async Task DeleteNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newsletterCategory == null)
-                throw new ArgumentNullException(nameof(newsletterCategory));
+            ArgumentNullException.ThrowIfNull(newsletterCategory);
 
             await _newsletterCategoryRepository.DeleteAsync(newsletterCategory);
 

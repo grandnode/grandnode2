@@ -72,10 +72,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
         public virtual async Task InsertNewsLetterSubscription(NewsLetterSubscription newsLetterSubscription, bool publishSubscriptionEvents = true)
         {
-            if (newsLetterSubscription == null)
-            {
-                throw new ArgumentNullException(nameof(newsLetterSubscription));
-            }
+            ArgumentNullException.ThrowIfNull(newsLetterSubscription);
 
             //Handle e-mail
             newsLetterSubscription.Email = CommonHelper.EnsureSubscriberEmailOrThrow(newsLetterSubscription.Email);
@@ -103,10 +100,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
         public virtual async Task UpdateNewsLetterSubscription(NewsLetterSubscription newsLetterSubscription, bool publishSubscriptionEvents = true)
         {
-            if (newsLetterSubscription == null)
-            {
-                throw new ArgumentNullException(nameof(newsLetterSubscription));
-            }
+            ArgumentNullException.ThrowIfNull(newsLetterSubscription);
 
             //Handle e-mail
             newsLetterSubscription.Email = CommonHelper.EnsureSubscriberEmailOrThrow(newsLetterSubscription.Email);
@@ -144,8 +138,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
         public virtual async Task DeleteNewsLetterSubscription(NewsLetterSubscription newsLetterSubscription, bool publishSubscriptionEvents = true)
         {
-            if (newsLetterSubscription == null) 
-                throw new ArgumentNullException(nameof(newsLetterSubscription));
+            ArgumentNullException.ThrowIfNull(newsLetterSubscription);
 
             await _subscriptionRepository.DeleteAsync(newsLetterSubscription);
 
@@ -257,8 +250,7 @@ namespace Grand.Business.Marketing.Services.Newsletters
         /// <returns>Result in TXT (string) format</returns>
         public virtual string ExportNewsletterSubscribersToTxt(IList<NewsLetterSubscription> subscriptions)
         {
-            if (subscriptions == null)
-                throw new ArgumentNullException(nameof(subscriptions));
+            ArgumentNullException.ThrowIfNull(subscriptions);
 
             const char separator = ',';
             var sb = new StringBuilder();

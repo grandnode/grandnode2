@@ -55,8 +55,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="contactAttribute">Contact attribute</param>
         public virtual async Task DeleteContactAttribute(ContactAttribute contactAttribute)
         {
-            if (contactAttribute == null)
-                throw new ArgumentNullException(nameof(contactAttribute));
+            ArgumentNullException.ThrowIfNull(contactAttribute);
 
             await _contactAttributeRepository.DeleteAsync(contactAttribute);
 
@@ -121,8 +120,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="contactAttribute">Contact attribute</param>
         public virtual async Task InsertContactAttribute(ContactAttribute contactAttribute)
         {
-            if (contactAttribute == null)
-                throw new ArgumentNullException(nameof(contactAttribute));
+            ArgumentNullException.ThrowIfNull(contactAttribute);
 
             await _contactAttributeRepository.InsertAsync(contactAttribute);
 
@@ -139,8 +137,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="contactAttribute">Contact attribute</param>
         public virtual async Task UpdateContactAttribute(ContactAttribute contactAttribute)
         {
-            if (contactAttribute == null)
-                throw new ArgumentNullException(nameof(contactAttribute));
+            ArgumentNullException.ThrowIfNull(contactAttribute);
 
             await _contactAttributeRepository.UpdateAsync(contactAttribute);
 

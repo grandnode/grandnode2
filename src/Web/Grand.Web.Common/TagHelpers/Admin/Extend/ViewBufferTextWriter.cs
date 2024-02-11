@@ -18,15 +18,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// <param name="encoding">The <see cref="System.Text.Encoding"/>.</param>
         public ViewBufferTextWriter(ViewBuffer buffer, Encoding encoding)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
-            if (encoding == null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
+            ArgumentNullException.ThrowIfNull(encoding);
 
             Buffer = buffer;
             Encoding = encoding;
@@ -43,25 +36,10 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// </param>
         public ViewBufferTextWriter(ViewBuffer buffer, Encoding encoding, HtmlEncoder htmlEncoder, TextWriter inner)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
-            if (encoding == null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
-
-            if (htmlEncoder == null)
-            {
-                throw new ArgumentNullException(nameof(htmlEncoder));
-            }
-
-            if (inner == null)
-            {
-                throw new ArgumentNullException(nameof(inner));
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
+            ArgumentNullException.ThrowIfNull(encoding);
+            ArgumentNullException.ThrowIfNull(htmlEncoder);
+            ArgumentNullException.ThrowIfNull(inner);
 
             Buffer = buffer;
             Encoding = encoding;
@@ -96,10 +74,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// <inheritdoc />
         public override void Write(char[] buffer, int index, int count)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
 
             if (index < 0 || index >= buffer.Length)
             {
@@ -243,15 +218,9 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// <inheritdoc />
         public override Task WriteAsync(char[] buffer, int index, int count)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
-            if (index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
+            ArgumentOutOfRangeException.ThrowIfNegative(index);
+            
             if (count < 0 || buffer.Length - index < count)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));

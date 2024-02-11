@@ -148,8 +148,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task SaveCustomerTags(Customer customer, string[] customerTags)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             //product tags
             var existingCustomerTags = customer.CustomerTags.ToList();
@@ -212,8 +211,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task<IList<CustomerModel.AssociatedExternalAuthModel>> GetAssociatedExternalAuthRecords(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
             var openAuthenticationService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IExternalAuthenticationService>();
             var result = new List<CustomerModel.AssociatedExternalAuthModel>();
             foreach (var record in await openAuthenticationService.GetExternalIdentifiers(customer))
@@ -252,8 +250,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareSalesEmployeeModel(CustomerModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableSalesEmployees.Add(new SelectListItem {
                 Text = _translationService.GetResource("Admin.Customers.Customers.Fields.SalesEmployee.None"),
@@ -272,8 +269,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareStoresModel(CustomerModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableStores.Add(new SelectListItem {
                 Text = _translationService.GetResource("Admin.Customers.Customers.Fields.StaffStore.None"),
@@ -988,8 +984,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareAddressModel(CustomerAddressModel model, Address address, Customer customer, bool excludeProperties)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             model.CustomerId = customer.Id;
             if (address != null)

@@ -264,11 +264,8 @@ namespace Grand.Web.Vendor.Services
         }
         public virtual async Task PrepareOrderDetailsModel(OrderModel model, Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
-
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(order);
+            ArgumentNullException.ThrowIfNull(model);
 
             model.Id = order.Id;
             model.OrderNumber = order.OrderNumber;

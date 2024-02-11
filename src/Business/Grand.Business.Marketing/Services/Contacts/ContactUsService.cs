@@ -29,8 +29,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <param name="contactus">ContactUs item</param>
         public virtual async Task DeleteContactUs(ContactUs contactus)
         {
-            if (contactus == null)
-                throw new ArgumentNullException(nameof(contactus));
+            ArgumentNullException.ThrowIfNull(contactus);
 
             await _contactusRepository.DeleteAsync(contactus);
 
@@ -103,8 +102,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// <returns>A contactus item</returns>
         public virtual async Task InsertContactUs(ContactUs contactus)
         {
-            if (contactus == null)
-                throw new ArgumentNullException(nameof(contactus));
+            ArgumentNullException.ThrowIfNull(contactus);
 
             await _contactusRepository.InsertAsync(contactus);
 

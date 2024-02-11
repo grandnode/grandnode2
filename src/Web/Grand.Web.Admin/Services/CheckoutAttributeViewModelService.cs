@@ -32,8 +32,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareTaxCategories(CheckoutAttributeModel model, CheckoutAttribute checkoutAttribute, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //tax categories
             var taxCategories = await taxCategoryService.GetAllTaxCategories();
@@ -44,8 +43,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareConditionAttributes(CheckoutAttributeModel model, CheckoutAttribute checkoutAttribute)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //currenty any checkout attribute can have condition.
             model.ConditionAllowed = true;

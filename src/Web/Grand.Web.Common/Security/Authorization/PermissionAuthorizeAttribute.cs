@@ -21,8 +21,7 @@ namespace Grand.Web.Common.Security.Authorization
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             //ignore filter (the action available even when navigation is not allowed)
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             if (string.IsNullOrEmpty(Permission))
                 return;

@@ -169,10 +169,9 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
             Product product)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(product);
+            
             if (product.UseMultipleWarehouses)
             {
                 model.UseMultipleWarehouses = product.UseMultipleWarehouses;
@@ -359,8 +358,7 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task PrepareProductModel(ProductModel model, Product product,
             bool setPredefinedValues)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.PrimaryStoreCurrencyCode =
                 (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
@@ -523,8 +521,7 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task SaveProductWarehouseInventory(Product product,
             IList<ProductModel.ProductWarehouseInventoryModel> model)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock)
                 return;
@@ -577,11 +574,10 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
             ProductReview productReview, bool excludeProperties, bool formatReviewText)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(productReview);
+            
             var product = await _productService.GetProductById(productReview.ProductId);
             var customer = await _customerService.GetCustomerById(productReview.CustomerId);
             var store = await _storeService.GetStoreById(productReview.StoreId);

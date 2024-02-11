@@ -28,15 +28,8 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
         /// </remarks>
         public static string CreateSanitizedId(ViewContext viewContext, string fullName, string invalidCharReplacement)
         {
-            if (viewContext == null)
-            {
-                throw new ArgumentNullException(nameof(viewContext));
-            }
-
-            if (invalidCharReplacement == null)
-            {
-                throw new ArgumentNullException(nameof(invalidCharReplacement));
-            }
+            ArgumentNullException.ThrowIfNull(viewContext);
+            ArgumentNullException.ThrowIfNull(invalidCharReplacement);
 
             if (string.IsNullOrEmpty(fullName))
             {
@@ -98,20 +91,9 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             string fullName,
             string invalidCharReplacement)
         {
-            if (viewContext == null)
-            {
-                throw new ArgumentNullException(nameof(viewContext));
-            }
-
-            if (tagBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(tagBuilder));
-            }
-
-            if (invalidCharReplacement == null)
-            {
-                throw new ArgumentNullException(nameof(invalidCharReplacement));
-            }
+            ArgumentNullException.ThrowIfNull(viewContext);
+            ArgumentNullException.ThrowIfNull(tagBuilder);
+            ArgumentNullException.ThrowIfNull(invalidCharReplacement);
 
             if (string.IsNullOrEmpty(fullName))
             {

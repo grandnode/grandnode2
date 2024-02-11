@@ -203,8 +203,7 @@ namespace Grand.Web.Commands.Handler.Customers
         /// <returns>Result</returns>
         private async Task<bool> IsAddressValid(Address address)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrWhiteSpace(address.FirstName))
                 return false;

@@ -32,8 +32,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <param name="campaign">Campaign</param>        
         public virtual async Task InsertCampaign(Campaign campaign)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
+            ArgumentNullException.ThrowIfNull(campaign);
 
             await campaignRepository.InsertAsync(campaign);
 
@@ -47,8 +46,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <param name="campaignHistory">Campaign</param>        
         public virtual async Task InsertCampaignHistory(CampaignHistory campaignHistory)
         {
-            if (campaignHistory == null)
-                throw new ArgumentNullException(nameof(campaignHistory));
+            ArgumentNullException.ThrowIfNull(campaignHistory);
 
             await campaignHistoryRepository.InsertAsync(campaignHistory);
 
@@ -60,8 +58,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <param name="campaign">Campaign</param>
         public virtual async Task UpdateCampaign(Campaign campaign)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
+            ArgumentNullException.ThrowIfNull(campaign);
 
             await campaignRepository.UpdateAsync(campaign);
 
@@ -75,8 +72,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <param name="campaign">Campaign</param>
         public virtual async Task DeleteCampaign(Campaign campaign)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
+            ArgumentNullException.ThrowIfNull(campaign);
 
             await campaignRepository.DeleteAsync(campaign);
 
@@ -110,8 +106,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
 
         public virtual async Task<IPagedList<CampaignHistory>> GetCampaignHistory(Campaign campaign, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
+            ArgumentNullException.ThrowIfNull(campaign);
 
             var query = from c in campaignHistoryRepository.Table
                         where c.CampaignId == campaign.Id
@@ -121,8 +116,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
         }
         public virtual async Task<IPagedList<NewsLetterSubscription>> CustomerSubscriptions(Campaign campaign, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
+            ArgumentNullException.ThrowIfNull(campaign);
 
             PagedList<NewsLetterSubscription> model;
             if (campaign.CustomerCreatedDateFrom.HasValue || campaign.CustomerCreatedDateTo.HasValue ||
@@ -261,11 +255,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
         public virtual async Task<int> SendCampaign(Campaign campaign, EmailAccount emailAccount,
             IEnumerable<NewsLetterSubscription> subscriptions)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
-
-            if (emailAccount == null)
-                throw new ArgumentNullException(nameof(emailAccount));
+            ArgumentNullException.ThrowIfNull(campaign);
+            ArgumentNullException.ThrowIfNull(emailAccount);
 
             var totalEmailsSent = 0;
             var language = await languageService.GetLanguageById(campaign.LanguageId) ?? (await languageService.GetAllLanguages()).FirstOrDefault();
@@ -327,11 +318,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <param name="email">Email</param>
         public virtual async Task SendCampaign(Campaign campaign, EmailAccount emailAccount, string email)
         {
-            if (campaign == null)
-                throw new ArgumentNullException(nameof(campaign));
-
-            if (emailAccount == null)
-                throw new ArgumentNullException(nameof(emailAccount));
+            ArgumentNullException.ThrowIfNull(campaign);
+            ArgumentNullException.ThrowIfNull(emailAccount);
 
             var language = await languageService.GetLanguageById(campaign.LanguageId) ?? (await languageService.GetAllLanguages()).FirstOrDefault();
 

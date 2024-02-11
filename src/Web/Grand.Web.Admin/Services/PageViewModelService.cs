@@ -57,8 +57,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareLayoutsModel(PageModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var layouts = await _pageLayoutService.GetAllPageLayouts();
             foreach (var layout in layouts)

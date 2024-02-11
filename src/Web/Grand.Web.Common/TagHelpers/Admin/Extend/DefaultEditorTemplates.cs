@@ -394,20 +394,14 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
 
         public static async Task<IHtmlContent> FileInputTemplate(IHtmlHelper htmlHelper)
         {
-            if (htmlHelper == null)
-            {
-                throw new ArgumentNullException(nameof(htmlHelper));
-            }
+            ArgumentNullException.ThrowIfNull(htmlHelper);
 
             return await Task.FromResult(GenerateTextBox(htmlHelper, inputType: "file"));
         }
 
         public static async Task<IHtmlContent> FileCollectionInputTemplate(IHtmlHelper htmlHelper)
         {
-            if (htmlHelper == null)
-            {
-                throw new ArgumentNullException(nameof(htmlHelper));
-            }
+            ArgumentNullException.ThrowIfNull(htmlHelper);
 
             var htmlAttributes =
                 CreateHtmlAttributes(htmlHelper, className: "text-box single-line", inputType: "file");

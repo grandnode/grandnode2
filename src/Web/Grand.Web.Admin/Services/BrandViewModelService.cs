@@ -62,8 +62,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual void PrepareSortOptionsModel(BrandModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableSortOptions = ProductSortingEnum.Position.ToSelectList().ToList();
             model.AvailableSortOptions.Insert(0, new SelectListItem { Text = "None", Value = "-1" });
@@ -71,8 +70,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareLayoutsModel(BrandModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var layouts = await _brandLayoutService.GetAllBrandLayouts();
             foreach (var layout in layouts)
@@ -87,8 +85,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareDiscountModel(BrandModel model, Brand brand, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToBrands, storeId: _workContext.CurrentCustomer.Id, showHidden: true))

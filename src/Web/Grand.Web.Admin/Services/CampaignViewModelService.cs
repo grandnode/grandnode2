@@ -49,8 +49,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareStoresModel(CampaignModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var stores = await _storeService.GetAllStores();
             foreach (var store in stores)
@@ -65,8 +64,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareLanguagesModel(CampaignModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var languages = await _languageService.GetAllLanguages();
             foreach (var lang in languages)
@@ -81,24 +79,21 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareCustomerTagsModel(CampaignModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
             model.AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.CustomerTags.Contains(ct.Id) }).ToList();
             model.CustomerTags ??= new List<string>();
         }
 
         protected virtual async Task PrepareCustomerGroupsModel(CampaignModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
             model.AvailableCustomerGroups = (await _groupService.GetAllCustomerGroups()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.CustomerGroups.Contains(ct.Id) }).ToList();
             model.CustomerGroups ??= new List<string>();
         }
 
         protected virtual async Task PrepareNewsletterCategoriesModel(CampaignModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
             model.AvailableNewsletterCategories = (await _newsletterCategoryService.GetAllNewsletterCategory()).Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id, Selected = model.NewsletterCategories.Contains(ct.Id) }).ToList();
             model.NewsletterCategories ??= new List<string>();
         }

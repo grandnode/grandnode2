@@ -96,11 +96,8 @@ namespace Grand.Web.Features.Handlers.Blogs
 
         private async Task PrepareBlogPostModel(BlogPostModel model, BlogPost blogPost)
         {
-            if (blogPost == null)
-                throw new ArgumentNullException(nameof(blogPost));
-
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(blogPost);
+            ArgumentNullException.ThrowIfNull(model);
 
             model.Id = blogPost.Id;
             model.MetaTitle = blogPost.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id);

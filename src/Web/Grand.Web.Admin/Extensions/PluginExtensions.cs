@@ -7,11 +7,8 @@ namespace Grand.Web.Admin.Extensions
     {
         public static string GetLogoUrl(this PluginInfo pluginDescriptor, IWorkContext workContext)
         {
-            if (pluginDescriptor == null)
-                throw new ArgumentNullException(nameof(pluginDescriptor));
-
-            if (workContext == null)
-                throw new ArgumentNullException(nameof(workContext));
+            ArgumentNullException.ThrowIfNull(pluginDescriptor);
+            ArgumentNullException.ThrowIfNull(workContext);
 
             if (pluginDescriptor.OriginalAssemblyFile?.Directory == null)
             {

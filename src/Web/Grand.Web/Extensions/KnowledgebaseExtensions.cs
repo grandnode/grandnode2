@@ -23,8 +23,7 @@ namespace Grand.Web.Extensions
             IWorkContext workContext,
             bool showHidden = false)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
 
             var result = new List<KnowledgebaseCategory>();
 
@@ -76,8 +75,7 @@ namespace Grand.Web.Extensions
         }
         public static IList<KnowledgebaseCategory> GetCategoryBreadCrumb(this KnowledgebaseCategory category, IList<KnowledgebaseCategory> allCategories)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
 
             var result = new List<KnowledgebaseCategory>();
 

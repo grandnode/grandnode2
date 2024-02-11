@@ -83,11 +83,8 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
             MerchandiseReturn merchandiseReturn, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
             double unitPriceInclTaxInCustomerCurrency = 0;

@@ -33,8 +33,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareLanguagesModel(StoreModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableLanguages.Add(new SelectListItem {
                 Text = "---",
@@ -52,8 +51,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareWarehouseModel(StoreModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //warehouse
             model.AvailableWarehouses.Add(new SelectListItem {
@@ -71,8 +69,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task PrepareCountryModel(StoreModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //countries
             model.AvailableCountries.Add(new SelectListItem {
@@ -91,8 +88,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task PrepareCurrencyModel(StoreModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //countries
             model.AvailableCurrencies.Add(new SelectListItem {
@@ -193,10 +189,8 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertDomainHostModel(Store store, DomainHostModel model)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(store);
+            ArgumentNullException.ThrowIfNull(model);
 
             if (!model.Url.EndsWith("/"))
                 model.Url += "/";
@@ -213,11 +207,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task UpdateDomainHostModel(Store store, DomainHostModel model)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-            
+            ArgumentNullException.ThrowIfNull(store);
+            ArgumentNullException.ThrowIfNull(model);
+
             if (!model.Url.EndsWith("/"))
                 model.Url += "/";
 

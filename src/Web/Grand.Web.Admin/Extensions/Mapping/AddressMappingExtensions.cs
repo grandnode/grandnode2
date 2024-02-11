@@ -40,12 +40,9 @@ namespace Grand.Web.Admin.Extensions.Mapping
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser)
         {
-            //this method is very similar to the same one in Grand.Web project
-            if (addressAttributeService == null)
-                throw new ArgumentNullException(nameof(addressAttributeService));
-
-            if (addressAttributeParser == null)
-                throw new ArgumentNullException(nameof(addressAttributeParser));
+           
+            ArgumentNullException.ThrowIfNull(addressAttributeService);
+            ArgumentNullException.ThrowIfNull(addressAttributeParser);
 
             var attributes = await addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)

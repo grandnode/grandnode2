@@ -34,8 +34,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual void PrepareFlagsModel(LanguageModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.FlagFileNames = Directory
                 .EnumerateFiles(CommonPath.WebHostMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
@@ -45,8 +44,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareCurrenciesModel(LanguageModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableCurrencies.Add(new SelectListItem
             {

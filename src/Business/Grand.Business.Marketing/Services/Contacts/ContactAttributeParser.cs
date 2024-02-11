@@ -106,9 +106,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         public virtual async Task<bool?> IsConditionMet(ContactAttribute attribute,
             IList<CustomAttribute> customAttributes)
         {
-            if (attribute == null)
-                throw new ArgumentNullException(nameof(attribute));
-
+            ArgumentNullException.ThrowIfNull(attribute);
             customAttributes ??= new List<CustomAttribute>();
 
             var conditionAttribute = attribute.ConditionAttribute;

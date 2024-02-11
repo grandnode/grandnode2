@@ -357,11 +357,8 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareOrderDetailsModel(OrderModel model, Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
-
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(order);
+            ArgumentNullException.ThrowIfNull(model);
 
             model.Id = order.Id;
             model.OrderNumber = order.OrderNumber;
@@ -1271,8 +1268,7 @@ namespace Grand.Web.Admin.Services
         /// <returns>Order's tag</returns>
         public virtual async Task SaveOrderTags(Order order, string orderTags)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             //order's tags
             var existingOrderTags = new List<string>();

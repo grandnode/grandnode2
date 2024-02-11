@@ -43,8 +43,7 @@ namespace Grand.Web.Admin.Extensions
         /// <returns>Category breadcrumb </returns>
         public static IList<KnowledgebaseCategory> GetCategoryBreadCrumb(this KnowledgebaseCategory category, IList<KnowledgebaseCategory> allCategories)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
 
             var result = new List<KnowledgebaseCategory>();
 
@@ -68,8 +67,7 @@ namespace Grand.Web.Admin.Extensions
         public static List<KnowledgebaseCategory> SortCategoriesForTree(this IList<KnowledgebaseCategory> source, string parentId = null,
             bool ignoreCategoriesWithoutExistingParent = false)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var result = new List<KnowledgebaseCategory>();
 

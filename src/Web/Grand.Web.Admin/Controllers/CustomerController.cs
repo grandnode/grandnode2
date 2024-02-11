@@ -99,8 +99,7 @@ namespace Grand.Web.Admin.Controllers
 
         protected virtual async Task<IList<CustomAttribute>> ParseCustomCustomerAttributes(IList<CustomAttributeModel> model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var customAttributes = new List<CustomAttribute>();
             var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();

@@ -84,8 +84,7 @@ namespace Grand.Web.Controllers
 
         private static string AddLanguageSeo(string url, Language language)
         {
-            if (language == null)
-                throw new ArgumentNullException(nameof(language));
+            ArgumentNullException.ThrowIfNull(language);
 
             if (!string.IsNullOrEmpty(url))
             {

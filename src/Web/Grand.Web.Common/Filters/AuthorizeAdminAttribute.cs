@@ -68,9 +68,7 @@ namespace Grand.Web.Common.Filters
             /// <param name="filterContext">Authorization filter context</param>
             public async Task OnAuthorizationAsync(AuthorizationFilterContext filterContext)
             {
-
-                if (filterContext == null)
-                    throw new ArgumentNullException(nameof(filterContext));
+                ArgumentNullException.ThrowIfNull(filterContext);
 
                 //check whether this filter has been overridden for the action
                 var actionFilter = filterContext.ActionDescriptor.FilterDescriptors
