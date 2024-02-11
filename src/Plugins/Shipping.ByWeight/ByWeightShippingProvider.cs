@@ -106,8 +106,7 @@ namespace Shipping.ByWeight
         /// <returns>Shopping cart item weight</returns>
         private async Task<double> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             var product = await _productService.GetProductById(shoppingCartItem.ProductId);
             if (product == null)
@@ -152,8 +151,7 @@ namespace Shipping.ByWeight
         /// <returns>Total weight</returns>
         private async Task<double> GetTotalWeight(GetShippingOptionRequest request, bool includeCheckoutAttributes = true)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             Customer customer = request.Customer;
 
@@ -185,8 +183,7 @@ namespace Shipping.ByWeight
         /// <returns>Represents a response of getting shipping rate options</returns>
         public async Task<GetShippingOptionResponse> GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
         {
-            if (getShippingOptionRequest == null)
-                throw new ArgumentNullException(nameof(getShippingOptionRequest));
+            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
 
             var response = new GetShippingOptionResponse();
 

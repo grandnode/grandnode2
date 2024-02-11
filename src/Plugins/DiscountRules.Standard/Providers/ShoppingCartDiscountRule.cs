@@ -35,8 +35,7 @@ namespace DiscountRules.Standard.Providers
         /// <returns>true - requirement is met; otherwise, false</returns>
         public async Task<DiscountRuleValidationResult> CheckRequirement(DiscountRuleValidationRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             var result = new DiscountRuleValidationResult();
 

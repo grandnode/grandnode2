@@ -31,8 +31,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
         protected virtual async Task<bool> ValidateMinOrderSubtotalAmount(IList<ShoppingCartItem> cart)
         {
-            if (cart == null)
-                throw new ArgumentNullException(nameof(cart));
+            ArgumentNullException.ThrowIfNull(cart);
 
             if (!cart.Any())
                 return false;

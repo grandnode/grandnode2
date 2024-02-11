@@ -132,8 +132,7 @@ namespace Payments.CashOnDelivery
 
         public async Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             //it's not a redirection payment method. So we always return false
             return await Task.FromResult(false);

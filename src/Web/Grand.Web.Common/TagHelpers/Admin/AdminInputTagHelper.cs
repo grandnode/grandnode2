@@ -90,10 +90,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
         {
             ArgumentNullException.ThrowIfNull(context);
 
-            if (output == null)
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
+            ArgumentNullException.ThrowIfNull(output);
 
             //clear the output
             output.SuppressOutput();
