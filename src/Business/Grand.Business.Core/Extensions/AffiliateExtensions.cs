@@ -15,8 +15,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Affiliate full name</returns>
         public static string GetFullName(this Affiliate affiliate)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             var firstName = affiliate.Address.FirstName;
             var lastName = affiliate.Address.LastName;
@@ -44,8 +43,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Generated affiliate URL</returns>
         public static string GenerateUrl(this Affiliate affiliate, string host)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             if (string.IsNullOrEmpty(host))
                 throw new ArgumentNullException(nameof(host));
@@ -68,8 +66,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Valid friendly name</returns>
         public static async Task<string> ValidateFriendlyUrlName(this Affiliate affiliate, IAffiliateService affiliateService, SeoSettings seoSettings, string friendlyUrlName, string name)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             if (string.IsNullOrEmpty(friendlyUrlName))
                 friendlyUrlName = name;

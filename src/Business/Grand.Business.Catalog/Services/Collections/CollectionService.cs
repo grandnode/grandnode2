@@ -136,8 +136,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collection">Collection</param>
         public virtual async Task InsertCollection(Collection collection)
         {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+            ArgumentNullException.ThrowIfNull(collection);
 
             await _collectionRepository.InsertAsync(collection);
 
@@ -155,8 +154,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collection">Collection</param>
         public virtual async Task UpdateCollection(Collection collection)
         {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+            ArgumentNullException.ThrowIfNull(collection);
 
             await _collectionRepository.UpdateAsync(collection);
 
@@ -173,8 +171,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collection">Collection</param>
         public virtual async Task DeleteCollection(Collection collection)
         {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+            ArgumentNullException.ThrowIfNull(collection);
 
             await _cacheBase.RemoveByPrefix(CacheKey.COLLECTIONS_PATTERN_KEY);
 

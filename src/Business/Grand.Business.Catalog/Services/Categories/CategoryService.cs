@@ -397,8 +397,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="category">Category</param>
         public virtual async Task InsertCategory(Category category)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
 
             await _categoryRepository.InsertAsync(category);
 
@@ -416,8 +415,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="category">Category</param>
         public virtual async Task UpdateCategory(Category category)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
             if (string.IsNullOrEmpty(category.ParentCategoryId))
                 category.ParentCategoryId = "";
 
@@ -448,8 +446,7 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <param name="category">Category</param>
         public virtual async Task DeleteCategory(Category category)
         {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
+            ArgumentNullException.ThrowIfNull(category);
 
             //reset a "Parent category" property of all child subcategories
             var subcategories = await GetAllCategoriesByParentCategoryId(category.Id, true);

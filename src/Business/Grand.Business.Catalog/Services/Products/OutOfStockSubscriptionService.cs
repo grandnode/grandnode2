@@ -107,8 +107,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="subscription">Subscription</param>
         public virtual async Task InsertSubscription(OutOfStockSubscription subscription)
         {
-            if (subscription == null)
-                throw new ArgumentNullException(nameof(subscription));
+            ArgumentNullException.ThrowIfNull(subscription);
 
             await _outOfStockSubscriptionRepository.InsertAsync(subscription);
 
@@ -122,8 +121,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="subscription">Subscription</param>
         public virtual async Task UpdateSubscription(OutOfStockSubscription subscription)
         {
-            if (subscription == null)
-                throw new ArgumentNullException(nameof(subscription));
+            ArgumentNullException.ThrowIfNull(subscription);
 
             await _outOfStockSubscriptionRepository.UpdateAsync(subscription);
 
@@ -136,8 +134,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="subscription">Subscription</param>
         public virtual async Task DeleteSubscription(OutOfStockSubscription subscription)
         {
-            if (subscription == null)
-                throw new ArgumentNullException(nameof(subscription));
+            ArgumentNullException.ThrowIfNull(subscription);
 
             await _outOfStockSubscriptionRepository.DeleteAsync(subscription);
 
@@ -153,8 +150,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Number of sent email</returns>
         public virtual async Task SendNotificationsToSubscribers(Product product, string warehouse)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand {
                 Product = product,
@@ -174,8 +170,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Number of sent email</returns>
         public virtual async Task SendNotificationsToSubscribers(Product product, IList<CustomAttribute> attributes, string warehouse)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var subscriptions = await _mediator.Send(new SendNotificationsToSubscribersCommand {
                 Product = product,

@@ -32,8 +32,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="customerGroupProduct">Customer group product</param>
         public virtual async Task DeleteCustomerGroupProduct(CustomerGroupProduct customerGroupProduct)
         {
-            if (customerGroupProduct == null)
-                throw new ArgumentNullException(nameof(customerGroupProduct));
+            ArgumentNullException.ThrowIfNull(customerGroupProduct);
 
             await _customerGroupProductRepository.DeleteAsync(customerGroupProduct);
 
@@ -52,8 +51,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="customerGroupProduct">Customer group product</param>
         public virtual async Task InsertCustomerGroupProduct(CustomerGroupProduct customerGroupProduct)
         {
-            if (customerGroupProduct == null)
-                throw new ArgumentNullException(nameof(customerGroupProduct));
+            ArgumentNullException.ThrowIfNull(customerGroupProduct);
 
             await _customerGroupProductRepository.InsertAsync(customerGroupProduct);
 
@@ -71,8 +69,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="customerGroupProduct">Customer group product</param>
         public virtual async Task UpdateCustomerGroupProduct(CustomerGroupProduct customerGroupProduct)
         {
-            if (customerGroupProduct == null)
-                throw new ArgumentNullException(nameof(customerGroupProduct));
+            ArgumentNullException.ThrowIfNull(customerGroupProduct);
 
             await _customerGroupProductRepository.UpdateAsync(customerGroupProduct);
 

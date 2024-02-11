@@ -61,8 +61,7 @@ namespace Grand.Web.Common.Filters
             public async Task OnAuthorizationAsync(AuthorizationFilterContext filterContext)
             {
                 //ignore filter (the action available even when navigation is not allowed)
-                if (filterContext == null)
-                    throw new ArgumentNullException(nameof(filterContext));
+                ArgumentNullException.ThrowIfNull(filterContext);
 
                 //check whether this filter has been overridden for the Action
                 var actionFilter = filterContext.ActionDescriptor.FilterDescriptors

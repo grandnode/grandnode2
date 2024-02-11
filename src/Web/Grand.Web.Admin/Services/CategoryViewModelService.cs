@@ -67,8 +67,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareLayoutsModel(CategoryModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             var layouts = await _categoryLayoutService.GetAllCategoryLayouts();
             foreach (var layout in layouts)
@@ -82,8 +81,7 @@ namespace Grand.Web.Admin.Services
 
         protected virtual async Task PrepareDiscountModel(CategoryModel model, Category category, bool excludeProperties, string storeId)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToCategories, storeId: storeId, showHidden: true))
@@ -97,8 +95,7 @@ namespace Grand.Web.Admin.Services
         }
         protected virtual void PrepareSortOptionsModel(CategoryModel model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableSortOptions = ProductSortingEnum.Position.ToSelectList().ToList();
             model.AvailableSortOptions.Insert(0, new SelectListItem { Text = "None", Value = "-1" });

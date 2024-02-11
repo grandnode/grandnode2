@@ -323,9 +323,8 @@ namespace Grand.Business.Catalog.Services.Prices
         protected virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetDiscountAmount(Product product,
             Customer customer, Currency currency, double productPriceWithoutDiscount)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-            
+            ArgumentNullException.ThrowIfNull(product);
+
             //we don't apply discounts to products with price entered by a customer
             if (product.EnteredPrice)
                 return (0, null);
@@ -393,8 +392,7 @@ namespace Grand.Business.Catalog.Services.Prices
             DateTime? rentalStartDate,
             DateTime? rentalEndDate)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             double discountAmount = 0;
             var appliedDiscounts = new List<ApplyDiscount>();
@@ -482,8 +480,7 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(ShoppingCartItem shoppingCartItem,
             Product product, bool includeDiscounts = true)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             return await GetUnitPrice(product,
                 _workContext.CurrentCustomer,
@@ -522,11 +519,8 @@ namespace Grand.Business.Catalog.Services.Prices
             DateTime? rentalEndDate,
             bool includeDiscounts)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(product);
+            ArgumentNullException.ThrowIfNull(customer);
 
             double discountAmount = 0;
             var appliedDiscounts = new List<ApplyDiscount>();
@@ -631,8 +625,7 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<(double subTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
            bool includeDiscounts = true)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             double subTotal;
             //unit price
@@ -687,8 +680,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <returns>Product cost (one item)</returns>
         public virtual async Task<double> GetProductCost(Product product, IList<CustomAttribute> attributes)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var cost = product.ProductCost;
             var attributeValues = product.ParseProductAttributeValues(attributes);
@@ -722,8 +714,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <returns>Price adjustment</returns>
         public virtual async Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
             double adjustment = 0;
             switch (value.AttributeValueTypeId)

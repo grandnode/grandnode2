@@ -85,8 +85,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttribute">Product attribute</param>
         public virtual async Task InsertProductAttribute(ProductAttribute productAttribute)
         {
-            if (productAttribute == null)
-                throw new ArgumentNullException(nameof(productAttribute));
+            ArgumentNullException.ThrowIfNull(productAttribute);
 
             await _productAttributeRepository.InsertAsync(productAttribute);
 
@@ -106,8 +105,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttribute">Product attribute</param>
         public virtual async Task UpdateProductAttribute(ProductAttribute productAttribute)
         {
-            if (productAttribute == null)
-                throw new ArgumentNullException(nameof(productAttribute));
+            ArgumentNullException.ThrowIfNull(productAttribute);
 
             await _productAttributeRepository.UpdateAsync(productAttribute);
 
@@ -127,8 +125,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttribute">Product attribute</param>
         public virtual async Task DeleteProductAttribute(ProductAttribute productAttribute)
         {
-            if (productAttribute == null)
-                throw new ArgumentNullException(nameof(productAttribute));
+            ArgumentNullException.ThrowIfNull(productAttribute);
 
             //delete from all product collections
             await _productRepository.PullFilter(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId, productAttribute.Id);
@@ -158,8 +155,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task DeleteProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId)
         {
-            if (productAttributeMapping == null)
-                throw new ArgumentNullException(nameof(productAttributeMapping));
+            ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
             await _productRepository.PullFilter(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMapping.Id);
 
@@ -177,8 +173,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task InsertProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId)
         {
-            if (productAttributeMapping == null)
-                throw new ArgumentNullException(nameof(productAttributeMapping));
+            ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
             await _productRepository.AddToSet(productId, x => x.ProductAttributeMappings, productAttributeMapping);
 
@@ -197,8 +192,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="values">Update values</param>
         public virtual async Task UpdateProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId, bool values = false)
         {
-            if (productAttributeMapping == null)
-                throw new ArgumentNullException(nameof(productAttributeMapping));
+            ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
             await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMapping.Id, productAttributeMapping);
 
@@ -221,8 +215,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttributeMappingId">Product attr mapping ident</param>
         public virtual async Task DeleteProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId)
         {
-            if (productAttributeValue == null)
-                throw new ArgumentNullException(nameof(productAttributeValue));
+            ArgumentNullException.ThrowIfNull(productAttributeValue);
 
             var p = await _productRepository.GetByIdAsync(productId);
             if (p != null)
@@ -252,8 +245,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttributeMappingId">Product attr mapping ident</param>
         public virtual async Task InsertProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId)
         {
-            if (productAttributeValue == null)
-                throw new ArgumentNullException(nameof(productAttributeValue));
+            ArgumentNullException.ThrowIfNull(productAttributeValue);
 
             var p = await _productRepository.GetByIdAsync(productId);
             if (p == null)
@@ -281,8 +273,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productAttributeMappingId">Product attr mapping ident</param>
         public virtual async Task UpdateProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId)
         {
-            if (productAttributeValue == null)
-                throw new ArgumentNullException(nameof(productAttributeValue));
+            ArgumentNullException.ThrowIfNull(productAttributeValue);
 
             var p = await _productRepository.GetByIdAsync(productId);
             var pavs = p?.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
@@ -324,8 +315,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task DeleteProductAttributeCombination(ProductAttributeCombination combination, string productId)
         {
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(combination);
 
             await _productRepository.PullFilter(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id);
             //cache
@@ -342,8 +332,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task InsertProductAttributeCombination(ProductAttributeCombination combination, string productId)
         {
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(combination);
 
             await _productRepository.AddToSet(productId, x => x.ProductAttributeCombinations, combination);
 
@@ -361,8 +350,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productId">Product ident</param>
         public virtual async Task UpdateProductAttributeCombination(ProductAttributeCombination combination, string productId)
         {
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(combination);
 
             await _productRepository.UpdateToSet(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
 

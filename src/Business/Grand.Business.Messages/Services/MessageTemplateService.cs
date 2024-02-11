@@ -49,8 +49,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="messageTemplate">Message template</param>
         public virtual async Task InsertMessageTemplate(MessageTemplate messageTemplate)
         {
-            if (messageTemplate == null)
-                throw new ArgumentNullException(nameof(messageTemplate));
+            ArgumentNullException.ThrowIfNull(messageTemplate);
 
             await _messageTemplateRepository.InsertAsync(messageTemplate);
 
@@ -66,8 +65,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="messageTemplate">Message template</param>
         public virtual async Task UpdateMessageTemplate(MessageTemplate messageTemplate)
         {
-            if (messageTemplate == null)
-                throw new ArgumentNullException(nameof(messageTemplate));
+            ArgumentNullException.ThrowIfNull(messageTemplate);
 
             await _messageTemplateRepository.UpdateAsync(messageTemplate);
 
@@ -83,8 +81,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="messageTemplate">Message template</param>
         public virtual async Task DeleteMessageTemplate(MessageTemplate messageTemplate)
         {
-            if (messageTemplate == null)
-                throw new ArgumentNullException(nameof(messageTemplate));
+            ArgumentNullException.ThrowIfNull(messageTemplate);
 
             await _messageTemplateRepository.DeleteAsync(messageTemplate);
 
@@ -172,8 +169,7 @@ namespace Grand.Business.Messages.Services
         /// <returns>Message template copy</returns>
         public virtual async Task<MessageTemplate> CopyMessageTemplate(MessageTemplate messageTemplate)
         {
-            if (messageTemplate == null)
-                throw new ArgumentNullException(nameof(messageTemplate));
+            ArgumentNullException.ThrowIfNull(messageTemplate);
 
             var mtCopy = new MessageTemplate {
                 Name = messageTemplate.Name,

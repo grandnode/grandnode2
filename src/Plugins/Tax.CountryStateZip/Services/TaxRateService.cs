@@ -52,8 +52,7 @@ namespace Tax.CountryStateZip.Services
         /// <param name="taxRate">Tax rate</param>
         public virtual async Task DeleteTaxRate(TaxRate taxRate)
         {
-            if (taxRate == null)
-                throw new ArgumentNullException(nameof(taxRate));
+            ArgumentNullException.ThrowIfNull(taxRate);
 
             await _taxRateRepository.DeleteAsync(taxRate);
 
@@ -95,8 +94,7 @@ namespace Tax.CountryStateZip.Services
         /// <param name="taxRate">Tax rate</param>
         public virtual async Task InsertTaxRate(TaxRate taxRate)
         {
-            if (taxRate == null)
-                throw new ArgumentNullException(nameof(taxRate));
+            ArgumentNullException.ThrowIfNull(taxRate);
 
             await _taxRateRepository.InsertAsync(taxRate);
 
@@ -112,8 +110,7 @@ namespace Tax.CountryStateZip.Services
         /// <param name="taxRate">Tax rate</param>
         public virtual async Task UpdateTaxRate(TaxRate taxRate)
         {
-            if (taxRate == null)
-                throw new ArgumentNullException(nameof(taxRate));
+            ArgumentNullException.ThrowIfNull(taxRate);
 
             await _taxRateRepository.UpdateAsync(taxRate);
 

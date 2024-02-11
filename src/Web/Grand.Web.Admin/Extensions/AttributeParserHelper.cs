@@ -14,8 +14,7 @@ namespace Grand.Web.Admin.Extensions
             IAddressAttributeParser addressAttributeParser,
             IAddressAttributeService addressAttributeService)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             var customAttributes = new List<CustomAttribute>();
             var attributes = await addressAttributeService.GetAllAddressAttributes();

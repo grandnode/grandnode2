@@ -53,8 +53,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
             bool prepareEntireAddressModel = true)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             if (affiliate != null)
             {

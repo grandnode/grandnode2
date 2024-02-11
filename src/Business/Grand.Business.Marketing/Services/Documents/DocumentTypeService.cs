@@ -19,8 +19,7 @@ namespace Grand.Business.Marketing.Services.Documents
 
         public virtual async Task Delete(DocumentType documentType)
         {
-            if (documentType == null)
-                throw new ArgumentNullException(nameof(documentType));
+            ArgumentNullException.ThrowIfNull(documentType);
 
             await _documentTypeRepository.DeleteAsync(documentType);
 
@@ -43,8 +42,7 @@ namespace Grand.Business.Marketing.Services.Documents
 
         public virtual async Task Insert(DocumentType documentType)
         {
-            if (documentType == null)
-                throw new ArgumentNullException(nameof(documentType));
+            ArgumentNullException.ThrowIfNull(documentType);
 
             await _documentTypeRepository.InsertAsync(documentType);
 
@@ -54,8 +52,7 @@ namespace Grand.Business.Marketing.Services.Documents
 
         public virtual async Task Update(DocumentType documentType)
         {
-            if (documentType == null)
-                throw new ArgumentNullException(nameof(documentType));
+            ArgumentNullException.ThrowIfNull(documentType);
 
             await _documentTypeRepository.UpdateAsync(documentType);
 

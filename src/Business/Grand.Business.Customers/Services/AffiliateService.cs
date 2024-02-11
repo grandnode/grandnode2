@@ -114,8 +114,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="affiliate">Affiliate</param>
         public virtual async Task InsertAffiliate(Affiliate affiliate)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             await _affiliateRepository.InsertAsync(affiliate);
 
@@ -129,8 +128,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="affiliate">Affiliate</param>
         public virtual async Task UpdateAffiliate(Affiliate affiliate)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             await _affiliateRepository.UpdateAsync(affiliate);
 
@@ -144,8 +142,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="affiliate">Affiliate</param>
         public virtual async Task DeleteAffiliate(Affiliate affiliate)
         {
-            if (affiliate == null)
-                throw new ArgumentNullException(nameof(affiliate));
+            ArgumentNullException.ThrowIfNull(affiliate);
 
             await _affiliateRepository.DeleteAsync(affiliate);
 

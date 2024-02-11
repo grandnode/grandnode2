@@ -102,7 +102,7 @@ namespace Grand.Web.Common.Infrastructure
                         break;
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }

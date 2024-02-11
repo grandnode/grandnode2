@@ -82,8 +82,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareConditionAttributes(ContactAttributeModel model, ContactAttribute contactAttribute)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             //currenty any contact attribute can have condition.
             model.ConditionAllowed = true;

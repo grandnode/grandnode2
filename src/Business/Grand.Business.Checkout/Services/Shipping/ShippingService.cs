@@ -158,8 +158,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             Address shippingAddress, string allowedShippingRateMethodSystemName = "",
             Store store = null)
         {
-            if (cart == null)
-                throw new ArgumentNullException(nameof(cart));
+            ArgumentNullException.ThrowIfNull(cart);
 
             var result = new GetShippingOptionResponse();
 

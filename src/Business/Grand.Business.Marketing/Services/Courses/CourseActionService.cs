@@ -41,8 +41,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
         public virtual async Task<CourseAction> InsertAsync(CourseAction courseAction)
         {
-            if (courseAction == null)
-                throw new ArgumentNullException(nameof(courseAction));
+            ArgumentNullException.ThrowIfNull(courseAction);
 
             await _courseActionRepository.InsertAsync(courseAction);
 
@@ -54,8 +53,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
         public virtual async Task<CourseAction> Update(CourseAction courseAction)
         {
-            if (courseAction == null)
-                throw new ArgumentNullException(nameof(courseAction));
+            ArgumentNullException.ThrowIfNull(courseAction);
 
             await _courseActionRepository.UpdateAsync(courseAction);
 

@@ -104,8 +104,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="productId">Product ident</param>
         public virtual async Task InsertProductCollection(ProductCollection productCollection, string productId)
         {
-            if (productCollection == null)
-                throw new ArgumentNullException(nameof(productCollection));
+            ArgumentNullException.ThrowIfNull(productCollection);
 
             await _productRepository.AddToSet(productId, x => x.ProductCollections, productCollection);
 
@@ -124,8 +123,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="productId">Product id</param>
         public virtual async Task UpdateProductCollection(ProductCollection productCollection, string productId)
         {
-            if (productCollection == null)
-                throw new ArgumentNullException(nameof(productCollection));
+            ArgumentNullException.ThrowIfNull(productCollection);
 
             await _productRepository.UpdateToSet(productId, x => x.ProductCollections, z => z.Id, productCollection.Id, productCollection);
 
@@ -144,8 +142,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="productId">Product id</param>
         public virtual async Task DeleteProductCollection(ProductCollection productCollection, string productId)
         {
-            if (productCollection == null)
-                throw new ArgumentNullException(nameof(productCollection));
+            ArgumentNullException.ThrowIfNull(productCollection);
 
             await _productRepository.PullFilter(productId, x => x.ProductCollections, z => z.Id, productCollection.Id);
 

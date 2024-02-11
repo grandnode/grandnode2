@@ -14,8 +14,7 @@ namespace Grand.Domain.Common
         /// <returns>Attribute</returns>
         public static TPropType GetUserFieldFromEntity<TPropType>(this BaseEntity entity, string key, string storeId = "")
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             var props = entity.UserFields;
             if (props == null)

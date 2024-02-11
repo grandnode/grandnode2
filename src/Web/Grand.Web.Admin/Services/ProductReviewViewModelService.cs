@@ -47,11 +47,9 @@ namespace Grand.Web.Admin.Services
         public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
             ProductReview productReview, bool excludeProperties, bool formatReviewText)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(productReview);
+            
             var product = await _productService.GetProductById(productReview.ProductId);
             var customer = await _customerService.GetCustomerById(productReview.CustomerId);
             var store = await _storeService.GetStoreById(productReview.StoreId);

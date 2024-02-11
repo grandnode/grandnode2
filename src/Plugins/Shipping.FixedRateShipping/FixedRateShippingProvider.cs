@@ -58,8 +58,7 @@ namespace Shipping.FixedRateShipping
         /// <returns>Represents a response of getting shipping rate options</returns>
         public async Task<GetShippingOptionResponse> GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
         {
-            if (getShippingOptionRequest == null)
-                throw new ArgumentNullException(nameof(getShippingOptionRequest));
+            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
 
             var response = new GetShippingOptionResponse();
 
@@ -92,8 +91,7 @@ namespace Shipping.FixedRateShipping
         /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
         public async Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
         {
-            if (getShippingOptionRequest == null)
-                throw new ArgumentNullException(nameof(getShippingOptionRequest));
+            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
 
             var restrictByCountryId = getShippingOptionRequest.ShippingAddress != null && !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId);

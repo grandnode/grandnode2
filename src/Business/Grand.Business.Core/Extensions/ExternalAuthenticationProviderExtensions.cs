@@ -16,11 +16,8 @@ namespace Grand.Business.Core.Extensions
         /// <returns>True if method is active; otherwise false</returns>
         public static bool IsMethodActive(this IExternalAuthenticationProvider method, ExternalAuthenticationSettings settings)
         {
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            ArgumentNullException.ThrowIfNull(method);
+            ArgumentNullException.ThrowIfNull(settings);
 
             return settings.ActiveAuthenticationMethodSystemNames != null && settings.ActiveAuthenticationMethodSystemNames.Any(activeMethodSystemName => method.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase));
         }

@@ -11,8 +11,7 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual int GetTotalStockQuantity(Product product, bool useReservedQuantity = true,
             string warehouseId = "", bool total = false)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock)
             {
@@ -51,11 +50,8 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual int GetTotalStockQuantityForCombination(Product product, ProductAttributeCombination combination,
             bool useReservedQuantity = true, string warehouseId = "")
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(product);
+            ArgumentNullException.ThrowIfNull(combination);
 
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
             {
@@ -87,8 +83,7 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId,
             IList<CustomAttribute> attributes)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var stockMessage = string.Empty;
 

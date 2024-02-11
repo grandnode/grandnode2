@@ -88,15 +88,9 @@ namespace Grand.Web.Common.TagHelpers.Admin
         /// <param name="output">Output</param>
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ArgumentNullException.ThrowIfNull(context);
 
-            if (output == null)
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
+            ArgumentNullException.ThrowIfNull(output);
 
             //clear the output
             output.SuppressOutput();

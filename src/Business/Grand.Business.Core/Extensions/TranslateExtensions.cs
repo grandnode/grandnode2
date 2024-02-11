@@ -27,8 +27,7 @@ namespace Grand.Business.Core.Extensions
             bool returnDefaultValue = true)
             where T : ParentEntity, ITranslationEntity
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             if (keySelector.Body is not MemberExpression member)
                 throw new ArgumentException($"Expression '{keySelector}' refers to a method, not a property.");
@@ -77,8 +76,7 @@ namespace Grand.Business.Core.Extensions
             IWorkContext workContext)
             where T : struct
         {
-            if (workContext == null)
-                throw new ArgumentNullException(nameof(workContext));
+            ArgumentNullException.ThrowIfNull(workContext);
 
             return GetTranslationEnum(enumValue, translationService, workContext.WorkingLanguage.Id);
         }
@@ -94,8 +92,7 @@ namespace Grand.Business.Core.Extensions
             ITranslationService translationService, string languageId)
             where T : struct
         {
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
+            ArgumentNullException.ThrowIfNull(translationService);
 
             if (!typeof(T).GetTypeInfo().IsEnum) throw new ArgumentException("T must be enum type");
 
@@ -122,8 +119,7 @@ namespace Grand.Business.Core.Extensions
         public static string GetTranslationPermissionName(this Permission permissionRecord,
             ITranslationService translationService, IWorkContext workContext)
         {
-            if (workContext == null)
-                throw new ArgumentNullException(nameof(workContext));
+            ArgumentNullException.ThrowIfNull(workContext);
 
             return GetTranslationPermissionName(permissionRecord, translationService, workContext.WorkingLanguage.Id);
         }
@@ -138,11 +134,8 @@ namespace Grand.Business.Core.Extensions
         public static string GetTranslationPermissionName(this Permission permissionRecord,
             ITranslationService translationService, string languageId)
         {
-            if (permissionRecord == null)
-                throw new ArgumentNullException(nameof(permissionRecord));
-
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
+            ArgumentNullException.ThrowIfNull(permissionRecord);
+            ArgumentNullException.ThrowIfNull(translationService);
 
             //Translation value
             var name = $"Permission.{permissionRecord.SystemName}";
@@ -164,12 +157,9 @@ namespace Grand.Business.Core.Extensions
         public static async Task SaveTranslationPermissionName(this Permission permissionRecord,
             ITranslationService translationService, ILanguageService languageService)
         {
-            if (permissionRecord == null)
-                throw new ArgumentNullException(nameof(permissionRecord));
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
-            if (languageService == null)
-                throw new ArgumentNullException(nameof(languageService));
+            ArgumentNullException.ThrowIfNull(permissionRecord);
+            ArgumentNullException.ThrowIfNull(translationService);
+            ArgumentNullException.ThrowIfNull(languageService);
 
             var name = $"Permission.{permissionRecord.SystemName}";
             var value = permissionRecord.Name;
@@ -203,12 +193,9 @@ namespace Grand.Business.Core.Extensions
         public static async Task DeleteTranslationPermissionName(this Permission permissionRecord,
             ITranslationService translationService, ILanguageService languageService)
         {
-            if (permissionRecord == null)
-                throw new ArgumentNullException(nameof(permissionRecord));
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
-            if (languageService == null)
-                throw new ArgumentNullException(nameof(languageService));
+            ArgumentNullException.ThrowIfNull(permissionRecord);
+            ArgumentNullException.ThrowIfNull(translationService);
+            ArgumentNullException.ThrowIfNull(languageService);
 
             var name = $"Permission.{permissionRecord.SystemName}";
             foreach (var lang in await languageService.GetAllLanguages(true))
@@ -230,12 +217,9 @@ namespace Grand.Business.Core.Extensions
             ITranslationService translationService, ILanguageService languageService,
             string name)
         {
-            if (plugin == null)
-                throw new ArgumentNullException(nameof(plugin));
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
-            if (languageService == null)
-                throw new ArgumentNullException(nameof(languageService));
+            ArgumentNullException.ThrowIfNull(plugin);
+            ArgumentNullException.ThrowIfNull(translationService);
+            ArgumentNullException.ThrowIfNull(languageService);
             if (!string.IsNullOrEmpty(name))
                 name = name.ToLowerInvariant();
             foreach (var lang in await languageService.GetAllLanguages(true))
@@ -261,12 +245,9 @@ namespace Grand.Business.Core.Extensions
             string name, string value, TranslationResourceArea area = TranslationResourceArea.Common, string languageCulture = null)
         {
             //actually plugin instance is not required
-            if (plugin == null)
-                throw new ArgumentNullException(nameof(plugin));
-            if (translationService == null)
-                throw new ArgumentNullException(nameof(translationService));
-            if (languageService == null)
-                throw new ArgumentNullException(nameof(languageService));
+            ArgumentNullException.ThrowIfNull(plugin);
+            ArgumentNullException.ThrowIfNull(translationService);
+            ArgumentNullException.ThrowIfNull(languageService);
             if (!string.IsNullOrEmpty(name))
                 name = name.ToLowerInvariant();
             foreach (var lang in await languageService.GetAllLanguages(true))

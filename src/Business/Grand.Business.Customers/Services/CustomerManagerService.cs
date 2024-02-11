@@ -107,8 +107,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Result</returns>
         public virtual async Task RegisterCustomer(RegistrationRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             if (request.Customer == null)
                 throw new ArgumentException("Can't load current customer");
@@ -165,8 +164,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="request">Request</param>
         public virtual async Task ChangePassword(ChangePasswordRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             var customer = await _customerService.GetCustomerByEmail(request.Email);
             if (customer == null)

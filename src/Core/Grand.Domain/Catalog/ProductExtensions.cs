@@ -44,8 +44,7 @@ namespace Grand.Domain.Catalog
         public static bool ProductTagExists(this Product product,
             string productTagName)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var result = product.ProductTags.FirstOrDefault(pt => pt == productTagName) != null;
             return result;
@@ -58,8 +57,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Result</returns>
         public static int[] ParseAllowedQuantities(this Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var result = new List<int>();
             if (!String.IsNullOrWhiteSpace(product.AllowedQuantities))
@@ -91,8 +89,7 @@ namespace Grand.Domain.Catalog
         private static void GetSkuMpnGtin(this Product product, IList<CustomAttribute> attributes,
             out string sku, out string mpn, out string gtin)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             sku = null;
             mpn = null;
@@ -127,8 +124,7 @@ namespace Grand.Domain.Catalog
         public static ProductAttributeCombination FindProductAttributeCombination(this Product product,
             IList<CustomAttribute> customAttributes, bool ignoreNonCombinableAttributes = true)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var combinations = product.ProductAttributeCombinations;
             return combinations.FirstOrDefault(x =>
@@ -221,9 +217,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Attributes</returns>
         public static IList<CustomAttribute> AddProductAttribute(IList<CustomAttribute> customAttributes, ProductAttributeMapping productAttributeMapping, string value)
         {
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
-
+            customAttributes ??= new List<CustomAttribute>();
             customAttributes.Add(new CustomAttribute { Key = productAttributeMapping.Id, Value = value });
 
             return customAttributes;
@@ -325,11 +319,9 @@ namespace Grand.Domain.Catalog
         /// <returns>Result</returns>
         public static bool? IsConditionMet(this Product product, ProductAttributeMapping pam, IList<CustomAttribute> selectedAttributes)
         {
-            if (pam == null)
-                throw new ArgumentNullException(nameof(pam));
+            ArgumentNullException.ThrowIfNull(pam);
 
-            if (selectedAttributes == null)
-                selectedAttributes = new List<CustomAttribute>();
+            selectedAttributes ??= new List<CustomAttribute>();
 
             var conditionAttribute = pam.ConditionAttribute;
             if (!conditionAttribute.Any())
@@ -370,8 +362,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Attribute combinations</returns>
         public static IList<IEnumerable<CustomAttribute>> GenerateAllCombinations(this Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var allProductAttributMappings = product.ProductAttributeMappings.Where(x => !x.IsNonCombinable()).ToList();
 
@@ -398,8 +389,7 @@ namespace Grand.Domain.Catalog
         /// <returns>SKU</returns>
         public static string FormatSku(this Product product, IList<CustomAttribute> attributes = null)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             product.GetSkuMpnGtin(attributes, out var sku, out _, out _);
 
@@ -414,8 +404,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Collection part number</returns>
         public static string FormatMpn(this Product product, IList<CustomAttribute> attributes = null)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             product.GetSkuMpnGtin(attributes, out _, out var Mpn, out _);
 
@@ -430,8 +419,7 @@ namespace Grand.Domain.Catalog
         /// <returns>GTIN</returns>
         public static string FormatGtin(this Product product, IList<CustomAttribute> attributes = null)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             product.GetSkuMpnGtin(attributes, out _, out _, out var gtin);
 
@@ -445,8 +433,7 @@ namespace Grand.Domain.Catalog
         /// <returns>A list of required product IDs</returns>
         public static string[] ParseRequiredProductIds(this Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (string.IsNullOrEmpty(product.RequiredProductIds))
                 return Array.Empty<string>();
@@ -481,8 +468,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Result</returns>
         public static bool IsAvailable(this Product product, DateTime dateTime)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (product.AvailableStartDateTimeUtc.HasValue && product.AvailableStartDateTimeUtc.Value > dateTime)
             {

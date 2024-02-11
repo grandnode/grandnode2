@@ -114,8 +114,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareDiscountModel(DiscountModel model, Discount discount)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscountRequirementRules.Add(new SelectListItem {
                 Text = _translationService.GetResource(
@@ -243,11 +242,8 @@ namespace Grand.Web.Admin.Services
         public virtual string GetRequirementUrlInternal(IDiscountRule discountRequirementRule, Discount discount,
             string discountRequirementId)
         {
-            if (discountRequirementRule == null)
-                throw new ArgumentNullException(nameof(discountRequirementRule));
-
-            if (discount == null)
-                throw new ArgumentNullException(nameof(discount));
+            ArgumentNullException.ThrowIfNull(discountRequirementRule);
+            ArgumentNullException.ThrowIfNull(discount);
 
             var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 

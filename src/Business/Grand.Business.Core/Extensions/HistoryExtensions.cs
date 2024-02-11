@@ -13,8 +13,7 @@ namespace Grand.Business.Core.Extensions
         /// <param name="historyService"></param>
         public static async Task SaveHistory<T>(this BaseEntity entity, IHistoryService historyService) where T : BaseEntity, IHistory
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             await historyService.SaveObject(entity);
         }

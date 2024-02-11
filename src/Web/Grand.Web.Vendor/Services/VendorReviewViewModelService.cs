@@ -40,11 +40,8 @@ namespace Grand.Web.Vendor.Services
         public virtual async Task PrepareVendorReviewModel(VendorReviewModel model,
             VendorReview vendorReview, bool excludeProperties, bool formatReviewText)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             var customer = await _customerService.GetCustomerById(vendorReview.CustomerId);
 

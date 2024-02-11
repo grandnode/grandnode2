@@ -84,8 +84,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="customerGroup">Customer group</param>
         public virtual async Task InsertCustomerGroup(CustomerGroup customerGroup)
         {
-            if (customerGroup == null)
-                throw new ArgumentNullException(nameof(customerGroup));
+            ArgumentNullException.ThrowIfNull(customerGroup);
 
             await _customerGroupRepository.InsertAsync(customerGroup);
 
@@ -101,8 +100,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="customerGroup">Customer group</param>
         public virtual async Task UpdateCustomerGroup(CustomerGroup customerGroup)
         {
-            if (customerGroup == null)
-                throw new ArgumentNullException(nameof(customerGroup));
+            ArgumentNullException.ThrowIfNull(customerGroup);
 
             await _customerGroupRepository.UpdateAsync(customerGroup);
 
@@ -118,8 +116,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="customerGroup">Customer group</param>
         public virtual async Task DeleteCustomerGroup(CustomerGroup customerGroup)
         {
-            if (customerGroup == null)
-                throw new ArgumentNullException(nameof(customerGroup));
+            ArgumentNullException.ThrowIfNull(customerGroup);
 
             if (customerGroup.IsSystem)
                 throw new GrandException("System group could not be deleted");
@@ -146,8 +143,7 @@ namespace Grand.Business.Common.Services.Directory
             bool onlyActiveCustomerGroups = true,
             bool? isSystem = null)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (string.IsNullOrEmpty(customerGroupSystemName))
                 throw new ArgumentNullException(nameof(customerGroupSystemName));

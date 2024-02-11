@@ -106,8 +106,7 @@ namespace Grand.Web.Admin.Services
         }
         protected virtual async Task SaveProductTags(Product product, string[] productTags)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             //product tags
             var existingProductTags = product.ProductTags.ToList();
@@ -187,10 +186,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(product);
+                
             if (product.UseMultipleWarehouses)
             {
                 model.UseMultipleWarehouses = product.UseMultipleWarehouses;
@@ -368,8 +366,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task PrepareProductModel(ProductModel model, Product product,
             bool setPredefinedValues, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
             model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
@@ -543,8 +540,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock)
                 return;
@@ -597,11 +593,9 @@ namespace Grand.Web.Admin.Services
         public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
             ProductReview productReview, bool excludeProperties, bool formatReviewText)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(productReview);
+            
             var product = await productService.GetProductById(productReview.ProductId);
             var customer = await customerService.GetCustomerById(productReview.CustomerId);
             var store = await storeService.GetStoreById(productReview.StoreId);

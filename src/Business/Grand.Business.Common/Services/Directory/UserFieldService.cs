@@ -38,11 +38,8 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="storeId">Store identifier; pass "" if this attribute will be available for all stores</param>
         public virtual async Task SaveField<TPropType>(BaseEntity entity, string key, TPropType value, string storeId = "")
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            ArgumentNullException.ThrowIfNull(entity);
+            ArgumentNullException.ThrowIfNull(key);
 
             var collectionName = entity.GetType().Name;
 
@@ -98,8 +95,7 @@ namespace Grand.Business.Common.Services.Directory
 
         public virtual async Task<TPropType> GetFieldsForEntity<TPropType>(BaseEntity entity, string key, string storeId = "")
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             var collectionName = entity.GetType().Name;
             _ = _userFieldBaseEntityRepository.SetCollection(collectionName);

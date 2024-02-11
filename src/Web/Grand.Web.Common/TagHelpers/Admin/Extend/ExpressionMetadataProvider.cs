@@ -3,121 +3,12 @@
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Diagnostics;
 using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Grand.Web.Common.TagHelpers.Admin.Extend
 {
     internal static class ExpressionMetadataProvider
     {
-        public static ModelExplorer FromLambdaExpression<TModel, TResult>(
-            Expression<Func<TModel, TResult>> expression,
-            ViewDataDictionary<TModel> viewData,
-            IModelMetadataProvider metadataProvider)
-        {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
-            if (viewData == null)
-            {
-                throw new ArgumentNullException(nameof(viewData));
-            }
-
-            string propertyName = null;
-            Type containerType = null;
-            var legalExpression = false;
-
-            // Need to verify the expression is valid; it needs to at least end in something
-            // that we can convert to a meaningful string for model binding purposes
-
-            switch (expression.Body.NodeType)
-            {
-                case ExpressionType.ArrayIndex:
-                    // ArrayIndex always means a single-dimensional indexer;
-                    // multi-dimensional indexer is a method call to Get().
-                    legalExpression = true;
-                    break;
-
-                case ExpressionType.MemberAccess:
-                    // Property/field access is always legal
-                    var memberExpression = (MemberExpression)expression.Body;
-                    propertyName = memberExpression.Member is PropertyInfo ? memberExpression.Member.Name : null;
-                    if (string.Equals(propertyName, "Model", StringComparison.Ordinal) &&
-                        memberExpression.Type == typeof(TModel) &&
-                        memberExpression.Expression.NodeType == ExpressionType.Constant)
-                    {
-                        // Special case the Model property in RazorPage<TModel>. (m => Model) should behave identically
-                        // to (m => m). But do the more complicated thing for (m => m.Model) since that is a slightly
-                        // different beast.)
-                        return FromModel(viewData, metadataProvider);
-                    }
-
-                    // memberExpression.Expression can be null when this is a static field or property.
-                    //
-                    // This can be the case if the expression is like (m => Person.Name) where Name is a static field
-                    // or property on the Person type.
-                    containerType = memberExpression.Expression?.Type;
-
-                    legalExpression = true;
-                    break;
-
-                case ExpressionType.Parameter:
-                    // Parameter expression means "model => model", so we delegate to FromModel
-                    return FromModel(viewData, metadataProvider);
-            }
-
-            if (!legalExpression)
-            {
-                throw new InvalidOperationException("TemplateLimitations");
-            }
-
-            object modelAccessor(object container)
-            {
-                var model = (TModel)container;
-                var func = expression.Compile();
-                try
-                {
-                    return func(model);
-                }
-                catch (NullReferenceException)
-                {
-                    return null;
-                }
-            }
-
-            ModelMetadata metadata = null;
-            if (containerType != null && propertyName != null)
-            {
-                // Ex:
-                //    m => m.Color (simple property access)
-                //    m => m.Color.Red (nested property access)
-                //    m => m.Widgets[0].Size (expression ending with property-access)
-                metadata = metadataProvider.GetMetadataForType(containerType).Properties[propertyName];
-            }
-
-            if (metadata == null)
-            {
-                // Ex:
-                //    m => 5 (arbitrary expression)
-                //    m => foo (arbitrary expression)
-                //    m => m.Widgets[0] (expression ending with non-property-access)
-                //
-                // This can also happen for any case where we cannot retrieve a model metadata.
-                // This will happen for:
-                // - fields
-                // - statics
-                // - non-visibility (internal/private)
-                metadata = metadataProvider.GetMetadataForType(typeof(TResult));
-                Debug.Assert(metadata != null);
-            }
-
-            return viewData.ModelExplorer.GetExplorerForExpression(metadata, modelAccessor);
-        }
-
         /// <summary>
         /// Gets <see cref="ModelExplorer"/> for named <paramref name="expression"/> in given
         /// <paramref name="viewData"/>.
@@ -135,10 +26,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             ViewDataDictionary viewData,
             IModelMetadataProvider metadataProvider)
         {
-            if (viewData == null)
-            {
-                throw new ArgumentNullException(nameof(viewData));
-            }
+            ArgumentNullException.ThrowIfNull(viewData);
 
             var viewDataInfo = ViewDataEvaluator.Eval(viewData, expression);
             if (viewDataInfo == null)
@@ -197,10 +85,7 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend
             ViewDataDictionary viewData,
             IModelMetadataProvider metadataProvider)
         {
-            if (viewData == null)
-            {
-                throw new ArgumentNullException(nameof(viewData));
-            }
+            ArgumentNullException.ThrowIfNull(viewData);
 
             if (viewData.ModelMetadata.ModelType == typeof(object))
             {

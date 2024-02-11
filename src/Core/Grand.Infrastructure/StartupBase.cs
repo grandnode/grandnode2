@@ -106,11 +106,8 @@ namespace Grand.Infrastructure
         private static T StartupConfig<T>(this IServiceCollection services, IConfiguration configuration)
             where T : class, new()
         {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             var config = new T();
             configuration.Bind(config);

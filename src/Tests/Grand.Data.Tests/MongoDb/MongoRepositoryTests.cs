@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Data.Tests.MongoDb
@@ -32,17 +31,17 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day == DateTime.UtcNow.Day);
         }
 
-        
+
         [TestMethod()]
         public async Task GetById_MongoRepository_Success()
         {
             //Arrange
             var product = new SampleCollection { Id = "1" };
             await _myRepository.InsertAsync(product);
-            
+
             //Act
             var p = _myRepository.GetById("1");
-            
+
             //Assert
             Assert.IsNotNull(p);
         }
@@ -55,6 +54,20 @@ namespace Grand.Data.Tests.MongoDb
             await _myRepository.InsertAsync(product);
             //Act
             var p = await _myRepository.GetByIdAsync("1");
+            //Assert
+            Assert.IsNotNull(p);
+            Assert.IsTrue(p!.CreatedBy == "user");
+            Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
+        }
+
+        [TestMethod()]
+        public async Task GetOneAsync_MongoRepository_Success()
+        {
+            //Arrange
+            var product = new SampleCollection { Id = "1" };
+            await _myRepository.InsertAsync(product);
+            //Act
+            var p = await _myRepository.GetOneAsync(x => x.Id == "1");
             //Assert
             Assert.IsNotNull(p);
             Assert.IsTrue(p!.CreatedBy == "user");
@@ -84,7 +97,7 @@ namespace Grand.Data.Tests.MongoDb
 
             //Act
             await _myRepository.AddToSet("1", x => x.UserFields,
-            new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" });
+                new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" });
 
             var p = _myRepository.GetById("1");
 
@@ -125,17 +138,17 @@ namespace Grand.Data.Tests.MongoDb
             //Assert
             Assert.IsNull(p);
         }
+
         [TestMethod()]
         public async Task DeleteManyAsync_MongoRepository_Success()
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test" },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test2" }
-
+                new SampleCollection { Id = "1", Name = "Test" },
+                new SampleCollection { Id = "2", Name = "Test" },
+                new SampleCollection { Id = "3", Name = "Test2" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.DeleteManyAsync(x => x.Name == "Test");
@@ -149,16 +162,17 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                    Phones = new [] { "Phone1", "Phone2", "Phone3" }
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    Phones = new[] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection { Id = "2", Name = "Test2",
-                Phones = new [] { "Phone1", "Phone2", "Phone3" }
+                new SampleCollection {
+                    Id = "2", Name = "Test2",
+                    Phones = new[] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.Pull("1", x => x.Phones, "Phone2");
@@ -172,21 +186,23 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(p!.UpdatedBy == "user");
             Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
         }
+
         [TestMethod()]
         public async Task Pull_Many_MongoRepository_Success()
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                    Phones = new [] { "Phone1", "Phone2", "Phone3" }
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    Phones = new[] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection { Id = "2", Name = "Test2",
-                Phones = new [] { "Phone1", "Phone2", "Phone3" }
+                new SampleCollection {
+                    Id = "2", Name = "Test2",
+                    Phones = new[] { "Phone1", "Phone2", "Phone3" }
                 },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.Pull(String.Empty, x => x.Phones, "Phone2");
@@ -208,17 +224,18 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test2" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
@@ -231,7 +248,6 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
 
         [TestMethod()]
@@ -239,17 +255,18 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test2" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
@@ -262,30 +279,32 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
+
         [TestMethod()]
         public async Task PullFilter_2_Many_MongoRepository_Success()
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                }
-            },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection {
+                    Id = "2", Name = "Test2",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             //Act
             await _myRepository.PullFilter(String.Empty, x => x.UserFields, x => x.Value, "value");
@@ -299,7 +318,6 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
 
 
@@ -308,17 +326,18 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test2" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             var p1_update = products.FirstOrDefault();
             p1_update.Name = "update";
@@ -326,29 +345,30 @@ namespace Grand.Data.Tests.MongoDb
             //Act
             _myRepository.Update(p1_update);
             var p1 = _myRepository.GetById("1");
-            
+
             //Assert
             Assert.IsTrue(p1.Name == "update");
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
+
         [TestMethod()]
         public async Task UpdateAsync_MongoRepository_Success()
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test2" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
 
             var p1_update = products.FirstOrDefault();
             p1_update.Name = "update";
@@ -367,18 +387,19 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test2" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
-            
+            products.ForEach(x => _myRepository.Insert(x));
+
             //Act
             await _myRepository.UpdateField("1", x => x.Name, "update");
             var p1 = _myRepository.GetById("1");
@@ -409,27 +430,27 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
             //Act
             await _myRepository.UpdateManyAsync(x => x.Name == "Test",
                 UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
-            var pUpdated = _myRepository.Table.Where(x=>x.Name == "UpdateTest");
+            var pUpdated = _myRepository.Table.Where(x => x.Name == "UpdateTest");
             var p1 = pUpdated.FirstOrDefault();
             //Assert
             Assert.IsTrue(pUpdated.Count() == 2);
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
 
         [TestMethod()]
@@ -437,18 +458,19 @@ namespace Grand.Data.Tests.MongoDb
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
-            
+            products.ForEach(x => _myRepository.Insert(x));
+
             //Act
             await _myRepository.UpdateOneAsync(x => x.Name == "Test",
                 UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
@@ -459,33 +481,34 @@ namespace Grand.Data.Tests.MongoDb
             Assert.IsTrue(pUpdated.Count() == 1);
             Assert.IsTrue(p1!.UpdatedBy == "user");
             Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
-
         }
+
         [TestMethod()]
         public async Task UpdateToSet_MongoRepository_Success()
         {
             //Arrange
             var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
+                new SampleCollection {
+                    Id = "1", Name = "Test",
+                    UserFields = new List<Domain.Common.UserField> {
+                        new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
+                        new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+                    }
+                },
+                new SampleCollection { Id = "2", Name = "Test" },
+                new SampleCollection { Id = "3", Name = "Test3" }
             };
-            products.ForEach(x=>_myRepository.Insert(x));
+            products.ForEach(x => _myRepository.Insert(x));
             //Act
-            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
+            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key",
+                new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
             var p = _myRepository.GetById("1");
 
             //Assert
-            Assert.IsTrue(p.UserFields.FirstOrDefault(x=>x.Key=="key")!.Value == "update");
+            Assert.IsTrue(p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value == "update");
             Assert.IsTrue(p!.UpdatedBy == "user");
             Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
-
         }
     }
 }

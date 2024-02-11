@@ -94,8 +94,7 @@ namespace Grand.Domain.Orders
         /// <returns>A value indicating whether an order has items to be added to a shipment</returns>
         public static bool HasItemsToAddToShipment(this Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             foreach (var orderItem in order.OrderItems)
             {
@@ -120,8 +119,7 @@ namespace Grand.Domain.Orders
         /// <returns>Result</returns>
         public static bool OrderTagExists(this Order order, OrderTag orderTag)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var result = order.OrderTags.FirstOrDefault(t => t == orderTag.Id) != null;
             return result;

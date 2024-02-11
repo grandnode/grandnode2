@@ -8,11 +8,8 @@ namespace Grand.Web.Admin.Extensions
         public static bool IsWidgetActive(this IWidgetProvider widget,
             WidgetSettings widgetSettings)
         {
-            if (widget == null)
-                throw new ArgumentNullException(nameof(widget));
-
-            if (widgetSettings == null)
-                throw new ArgumentNullException(nameof(widgetSettings));
+            ArgumentNullException.ThrowIfNull(widget);
+            ArgumentNullException.ThrowIfNull(widgetSettings);
 
             if (widgetSettings.ActiveWidgetSystemNames == null)
                 return false;

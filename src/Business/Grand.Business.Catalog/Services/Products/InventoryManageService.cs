@@ -274,8 +274,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId">Warehouse ident</param>
         public virtual async Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute> attributes = null, string warehouseId = "")
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (quantityToChange == 0)
                 return;
@@ -447,8 +446,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId"></param>
         protected virtual async Task ReserveInventory(Product product, int quantity, string warehouseId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (quantity >= 0)
                 throw new ArgumentException("Value must be negative.", nameof(quantity));
@@ -491,11 +489,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task ReserveInventoryCombination(Product product, ProductAttributeCombination combination, int quantity, string warehouseId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(product);
+            ArgumentNullException.ThrowIfNull(combination);
 
             if (quantity >= 0)
                 throw new ArgumentException("Value must be negative.", nameof(quantity));
@@ -549,8 +544,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task UnblockReservedInventory(Product product, int quantity, string warehouseId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (quantity < 0)
                 throw new ArgumentException("Value must be positive.", nameof(quantity));
@@ -595,8 +589,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId">Warehouse ident</param>
         protected virtual async Task UnblockReservedInventoryCombination(Product product, ProductAttributeCombination combination, int quantity, string warehouseId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (quantity < 0)
                 throw new ArgumentException("Value must be positive.", nameof(quantity));
@@ -645,14 +638,9 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="shipmentItem">Shipment item</param>
         public virtual async Task BookReservedInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
-
-            if (shipmentItem == null)
-                throw new ArgumentNullException(nameof(shipmentItem));
+            ArgumentNullException.ThrowIfNull(product);
+            ArgumentNullException.ThrowIfNull(shipment);
+            ArgumentNullException.ThrowIfNull(shipmentItem);
 
             //standard manage stock 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
@@ -697,12 +685,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Quantity reversed</returns>
         public virtual async Task ReverseBookedInventory(Shipment shipment, ShipmentItem shipmentItem)
         {
-
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
-
-            if (shipmentItem == null)
-                throw new ArgumentNullException(nameof(shipmentItem));
+            ArgumentNullException.ThrowIfNull(shipment);
+            ArgumentNullException.ThrowIfNull(shipmentItem);
 
             var inventoryJournals = _inventoryJournalRepository.Table.Where(j => j.PositionId == shipmentItem.Id);
 
@@ -726,8 +710,8 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task UpdateStockProduct(Product product, bool mediator = true)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
+            
             if (product.ReservedQuantity < 0)
                 product.ReservedQuantity = 0;
 

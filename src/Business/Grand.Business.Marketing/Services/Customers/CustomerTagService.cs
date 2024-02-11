@@ -63,8 +63,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTag">Customer tag</param>
         public virtual async Task DeleteCustomerTag(CustomerTag customerTag)
         {
-            if (customerTag == null)
-                throw new ArgumentNullException(nameof(customerTag));
+            ArgumentNullException.ThrowIfNull(customerTag);
 
             //update customer
             await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
@@ -128,8 +127,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTag">Customer tag</param>
         public virtual async Task InsertCustomerTag(CustomerTag customerTag)
         {
-            if (customerTag == null)
-                throw new ArgumentNullException(nameof(customerTag));
+            ArgumentNullException.ThrowIfNull(customerTag);
 
             await _customerTagRepository.InsertAsync(customerTag);
 
@@ -159,8 +157,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTag">Customer tag</param>
         public virtual async Task UpdateCustomerTag(CustomerTag customerTag)
         {
-            if (customerTag == null)
-                throw new ArgumentNullException(nameof(customerTag));
+            ArgumentNullException.ThrowIfNull(customerTag);
 
             await _customerTagRepository.UpdateAsync(customerTag);
 
@@ -234,8 +231,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTagProduct">Customer tag product</param>
         public virtual async Task InsertCustomerTagProduct(CustomerTagProduct customerTagProduct)
         {
-            if (customerTagProduct == null)
-                throw new ArgumentNullException(nameof(customerTagProduct));
+            ArgumentNullException.ThrowIfNull(customerTagProduct);
 
             await _customerTagProductRepository.InsertAsync(customerTagProduct);
 
@@ -253,8 +249,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTagProduct">Customer tag product</param>
         public virtual async Task UpdateCustomerTagProduct(CustomerTagProduct customerTagProduct)
         {
-            if (customerTagProduct == null)
-                throw new ArgumentNullException(nameof(customerTagProduct));
+            ArgumentNullException.ThrowIfNull(customerTagProduct);
 
             await _customerTagProductRepository.UpdateAsync(customerTagProduct);
 
@@ -272,8 +267,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTagProduct">Customer tag product</param>
         public virtual async Task DeleteCustomerTagProduct(CustomerTagProduct customerTagProduct)
         {
-            if (customerTagProduct == null)
-                throw new ArgumentNullException(nameof(customerTagProduct));
+            ArgumentNullException.ThrowIfNull(customerTagProduct);
 
             await _customerTagProductRepository.DeleteAsync(customerTagProduct);
 

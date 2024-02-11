@@ -58,8 +58,7 @@ namespace Shipping.ShippingPoint
         /// <returns>Represents a response of getting shipping rate options</returns>
         public async Task<GetShippingOptionResponse> GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
         {
-            if (getShippingOptionRequest == null)
-                throw new ArgumentNullException(nameof(getShippingOptionRequest));
+            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
 
             var response = new GetShippingOptionResponse();
 

@@ -33,11 +33,8 @@ namespace Grand.Business.Common.Services.Pdf
         public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
             string vendorId = "")
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
-
-            if (orders == null)
-                throw new ArgumentNullException(nameof(orders));
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(orders);
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate,
                 new(orders, vendorId));
@@ -48,8 +45,7 @@ namespace Grand.Business.Common.Services.Pdf
 
         public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}.pdf";
 
@@ -73,11 +69,8 @@ namespace Grand.Business.Common.Services.Pdf
 
         public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "")
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
-
-            if (shipments == null)
-                throw new ArgumentNullException(nameof(shipments));
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(shipments);
 
             var lang = await _languageService.GetLanguageById(languageId);
             if (lang == null)
@@ -91,8 +84,7 @@ namespace Grand.Business.Common.Services.Pdf
 
         public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}";
             using MemoryStream ms = new MemoryStream();

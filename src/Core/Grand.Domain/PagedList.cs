@@ -10,8 +10,7 @@
 
         private void Initialize(IEnumerable<T> source, int pageIndex, int pageSize, int? totalCount = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             if (pageSize <= 0)
                 pageSize = 1;
@@ -46,8 +45,7 @@
 
         private Task InitializeAsync(IQueryable<T> source, int pageIndex, int pageSize, int? totalCount = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
             if (pageSize <= 0)
                 pageSize = 1;
 

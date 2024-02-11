@@ -16,8 +16,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Attribute</returns>
         public static async Task<TPropType> GetUserField<TPropType>(this BaseEntity entity, IUserFieldService userFieldService, string key, string storeId = "")
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             return await userFieldService.GetFieldsForEntity<TPropType>(entity, key, storeId);
         }

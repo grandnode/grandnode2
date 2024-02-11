@@ -2,7 +2,6 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Domain.Stores;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Interfaces.Customers

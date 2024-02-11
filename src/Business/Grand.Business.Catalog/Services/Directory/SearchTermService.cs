@@ -39,8 +39,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="searchTerm">Search term</param>
         public virtual async Task DeleteSearchTerm(SearchTerm searchTerm)
         {
-            if (searchTerm == null)
-                throw new ArgumentNullException(nameof(searchTerm));
+            ArgumentNullException.ThrowIfNull(searchTerm);
 
             await _searchTermRepository.DeleteAsync(searchTerm);
 
@@ -104,8 +103,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="searchTerm">Search term</param>
         public virtual async Task InsertSearchTerm(SearchTerm searchTerm)
         {
-            if (searchTerm == null)
-                throw new ArgumentNullException(nameof(searchTerm));
+            ArgumentNullException.ThrowIfNull(searchTerm);
 
             await _searchTermRepository.InsertAsync(searchTerm);
 
@@ -119,8 +117,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <param name="searchTerm">Search term</param>
         public virtual async Task UpdateSearchTerm(SearchTerm searchTerm)
         {
-            if (searchTerm == null)
-                throw new ArgumentNullException(nameof(searchTerm));
+            ArgumentNullException.ThrowIfNull(searchTerm);
 
             await _searchTermRepository.UpdateAsync(searchTerm);
 

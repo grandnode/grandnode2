@@ -111,8 +111,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>A list of country identifiers</returns>
         public virtual IList<string> GetRestrictedCountryIds(IPaymentProvider paymentMethod)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
 
             var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
             var restrictedCountryIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
@@ -126,8 +125,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>A list of role identifiers</returns>
         public virtual IList<string> GetRestrictedShippingIds(IPaymentProvider paymentMethod)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
 
             var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
             var restrictedShippingIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
@@ -140,8 +138,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="countryIds">A list of country identifiers</param>
         public virtual async Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
 
             var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
             await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = countryIds });
@@ -154,8 +151,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="groupIds">A list of group identifiers</param>
         public virtual async Task SaveRestrictedGroupIds(IPaymentProvider paymentMethod, List<string> groupIds)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
 
             var settingKey = $"PaymentMethodRestictionsGroup.{paymentMethod.SystemName}";
             await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = groupIds });
@@ -168,8 +164,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="shippingIds">A list of country identifiers</param>
         public virtual async Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds)
         {
-            if (paymentMethod == null)
-                throw new ArgumentNullException(nameof(paymentMethod));
+            ArgumentNullException.ThrowIfNull(paymentMethod);
 
             var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
             await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = shippingIds });
@@ -182,8 +177,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>Process payment result</returns>
         public virtual async Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             if (paymentTransaction.TransactionAmount == 0)
             {
@@ -206,8 +200,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">Payment transaction</param>
         public virtual async Task PostProcessPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
                 return;
@@ -224,8 +217,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">Payment Transaction</param>
         public virtual async Task PostRedirectPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             //already paid or order.OrderTotal == 0
             if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
@@ -243,8 +235,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">Payment transaction</param>
         public virtual async Task CancelPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName);
             if (paymentMethod == null)
@@ -261,8 +252,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>Result</returns>
         public virtual async Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             if (!_paymentSettings.AllowRePostingPayments)
                 return false;
@@ -323,8 +313,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>Capture payment result</returns>
         public virtual async Task<CapturePaymentResult> Capture(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName);
             if (paymentMethod == null)
@@ -395,8 +384,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>Result</returns>
         public virtual async Task<VoidPaymentResult> Void(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName);
             if (paymentMethod == null)

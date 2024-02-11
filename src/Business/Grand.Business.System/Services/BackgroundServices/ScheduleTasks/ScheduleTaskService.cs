@@ -63,8 +63,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <param name="task">Task</param>
         public virtual async Task<ScheduleTask> InsertTask(ScheduleTask task)
         {
-            if (task == null)
-                throw new ArgumentNullException(nameof(task));
+            ArgumentNullException.ThrowIfNull(task);
 
             return await _taskRepository.InsertAsync(task);
         }
@@ -75,8 +74,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <param name="task">Task</param>
         public virtual async Task UpdateTask(ScheduleTask task)
         {
-            if (task == null)
-                throw new ArgumentNullException(nameof(task));
+            ArgumentNullException.ThrowIfNull(task);
 
             await _taskRepository.UpdateAsync(task);
         }
@@ -87,8 +85,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <param name="task">Task</param>
         public virtual async Task DeleteTask(ScheduleTask task)
         {
-            if (task == null)
-                throw new ArgumentNullException(nameof(task));
+            ArgumentNullException.ThrowIfNull(task);
 
             await _taskRepository.DeleteAsync(task);
         }

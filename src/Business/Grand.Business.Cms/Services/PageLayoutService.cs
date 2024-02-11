@@ -76,8 +76,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="pageLayout">Page layout</param>
         public virtual async Task InsertPageLayout(PageLayout pageLayout)
         {
-            if (pageLayout == null)
-                throw new ArgumentNullException(nameof(pageLayout));
+            ArgumentNullException.ThrowIfNull(pageLayout);
 
             await _pageLayoutRepository.InsertAsync(pageLayout);
 
@@ -94,8 +93,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="pageLayout">Page layout</param>
         public virtual async Task UpdatePageLayout(PageLayout pageLayout)
         {
-            if (pageLayout == null)
-                throw new ArgumentNullException(nameof(pageLayout));
+            ArgumentNullException.ThrowIfNull(pageLayout);
 
             await _pageLayoutRepository.UpdateAsync(pageLayout);
 
@@ -111,8 +109,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="pageLayout">Page layout</param>
         public virtual async Task DeletePageLayout(PageLayout pageLayout)
         {
-            if (pageLayout == null)
-                throw new ArgumentNullException(nameof(pageLayout));
+            ArgumentNullException.ThrowIfNull(pageLayout);
 
             await _pageLayoutRepository.DeleteAsync(pageLayout);
 

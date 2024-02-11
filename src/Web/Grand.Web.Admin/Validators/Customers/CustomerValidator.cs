@@ -101,8 +101,7 @@ namespace Grand.Web.Admin.Validators.Customers
 
             async Task<string> ValidateCustomerGroups(IList<CustomerGroup> customerGroups, CustomerModel customerModel)
             {
-                if (customerGroups == null)
-                    throw new ArgumentNullException(nameof(customerGroups));
+                ArgumentNullException.ThrowIfNull(customerGroups);
 
                 //ensure a customer is not added to both 'Guests' and 'Registered' customer groups
                 //ensure that a customer is in at least one required role ('Guests' and 'Registered')

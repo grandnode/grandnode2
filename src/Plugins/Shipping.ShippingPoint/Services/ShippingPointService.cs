@@ -85,8 +85,7 @@ namespace Shipping.ShippingPoint.Services
         /// <param name="pickupPoint">Pickup point</param>
         public virtual async Task InsertStoreShippingPoint(ShippingPoints pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _shippingPointRepository.InsertAsync(pickupPoint);
             await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);
@@ -98,8 +97,7 @@ namespace Shipping.ShippingPoint.Services
         /// <param name="pickupPoint">Pickup point</param>
         public virtual async Task UpdateStoreShippingPoint(ShippingPoints pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _shippingPointRepository.UpdateAsync(pickupPoint);
             await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);
@@ -111,8 +109,7 @@ namespace Shipping.ShippingPoint.Services
         /// <param name="pickupPoint">Pickup point</param>
         public virtual async Task DeleteStoreShippingPoint(ShippingPoints pickupPoint)
         {
-            if (pickupPoint == null)
-                throw new ArgumentNullException(nameof(pickupPoint));
+            ArgumentNullException.ThrowIfNull(pickupPoint);
 
             await _shippingPointRepository.DeleteAsync(pickupPoint);
             await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);

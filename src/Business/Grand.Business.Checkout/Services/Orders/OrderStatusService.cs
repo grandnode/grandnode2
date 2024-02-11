@@ -48,8 +48,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task Insert(OrderStatus orderStatus)
         {
-            if (orderStatus == null)
-                throw new ArgumentNullException(nameof(orderStatus));
+            ArgumentNullException.ThrowIfNull(orderStatus);
 
             //insert order status
             await _orderStatusRepository.InsertAsync(orderStatus);
@@ -63,8 +62,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task Update(OrderStatus orderStatus)
         {
-            if (orderStatus == null)
-                throw new ArgumentNullException(nameof(orderStatus));
+            ArgumentNullException.ThrowIfNull(orderStatus);
 
             //update order status
             await _orderStatusRepository.UpdateAsync(orderStatus);
@@ -77,8 +75,7 @@ namespace Grand.Business.Checkout.Services.Orders
         }
         public virtual async Task Delete(OrderStatus orderStatus)
         {
-            if (orderStatus == null)
-                throw new ArgumentNullException(nameof(orderStatus));
+            ArgumentNullException.ThrowIfNull(orderStatus);
 
             if (orderStatus.IsSystem)
                 throw new Exception("You can't delete system status");

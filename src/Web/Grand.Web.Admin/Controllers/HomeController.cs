@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Queries.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Customers;
-using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;

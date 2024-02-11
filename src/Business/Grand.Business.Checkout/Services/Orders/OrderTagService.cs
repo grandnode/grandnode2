@@ -87,11 +87,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Order's tag</returns>
         public virtual Task<OrderTag> GetOrderTagByName(string name)
         {
-            var query = from pt in _orderTagRepository.Table
-                        where pt.Name == name
-                        select pt;
-
-            return Task.FromResult(query.FirstOrDefault());
+            return _orderTagRepository.GetOneAsync(x=>x.Name == name);
         }
 
         /// <summary>
@@ -100,8 +96,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order's tag</param>
         public virtual async Task InsertOrderTag(OrderTag orderTag)
         {
-            if (orderTag == null)
-                throw new ArgumentNullException(nameof(orderTag));
+            ArgumentNullException.ThrowIfNull(orderTag);
 
             await _orderTagRepository.InsertAsync(orderTag);
 
@@ -118,8 +113,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order tag</param>
         public virtual async Task UpdateOrderTag(OrderTag orderTag)
         {
-            if (orderTag == null)
-                throw new ArgumentNullException(nameof(orderTag));
+            ArgumentNullException.ThrowIfNull(orderTag);
 
             await _orderTagRepository.UpdateAsync(orderTag);
 
@@ -135,8 +129,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order's tag</param>
         public virtual async Task DeleteOrderTag(OrderTag orderTag)
         {
-            if (orderTag == null)
-                throw new ArgumentNullException(nameof(orderTag));
+            ArgumentNullException.ThrowIfNull(orderTag);
 
             //update orders
             await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id);
@@ -196,7 +189,6 @@ namespace Grand.Business.Checkout.Services.Orders
         /// Get number of orders
         /// </summary>
         /// <param name="orderTagId">Order's tag identifier</param>
-        /// <param name="storeId">Store identifier</param>
         /// <returns>Number of orders</returns>
         public virtual async Task<int> GetOrderCount(string orderTagId, string storeId)
         {

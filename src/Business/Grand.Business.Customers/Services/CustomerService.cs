@@ -7,7 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
@@ -198,7 +197,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>A customer</returns>
         public virtual async Task<Customer> GetCustomerByGuid(Guid customerGuid)
         {
-            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.CustomerGuid == customerGuid));
+            return await _customerRepository.GetOneAsync(x => x.CustomerGuid == customerGuid);
         }
 
         /// <summary>
@@ -208,10 +207,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customer</returns>
         public virtual async Task<Customer> GetCustomerByEmail(string email)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return null;
-
-            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant()));
+            return string.IsNullOrWhiteSpace(email) ? null : await _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
         }
 
         /// <summary>
@@ -224,7 +220,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(systemName))
                 return null;
 
-            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.SystemName == systemName));
+            return await _customerRepository.GetOneAsync(x => x.SystemName == systemName);
         }
 
         /// <summary>
@@ -237,7 +233,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(username))
                 return null;
 
-            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.Username == username.ToLowerInvariant()));
+            return await _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant());
         }
 
         /// <summary>
@@ -268,8 +264,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customer">Customer</param>
         public virtual async Task InsertCustomer(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (!string.IsNullOrEmpty(customer.Email))
                 customer.Email = customer.Email.ToLowerInvariant();
@@ -292,8 +287,7 @@ namespace Grand.Business.Customers.Services
         public virtual async Task UpdateCustomerField<T>(Customer customer,
             Expression<Func<Customer, T>> expression, T value)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             await UpdateCustomerField(customer.Id, expression, value);
 
@@ -320,8 +314,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customer">Customer</param>
         public virtual async Task UpdateCustomer(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (customer.IsSystemAccount)
                 throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
@@ -351,8 +344,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="hard">Hard delete from database</param>
         public virtual async Task DeleteCustomer(Customer customer, bool hard = false)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (customer.IsSystemAccount)
                 throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be deleted");
@@ -390,8 +382,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customer">Customer</param>
         public virtual async Task UpdateCustomerLastLoginDate(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.LastLoginDateUtc, customer.LastLoginDateUtc)
@@ -404,8 +395,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateCustomerInAdminPanel(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             if (customer.IsSystemAccount)
                 throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
@@ -437,8 +427,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateActive(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
@@ -452,8 +441,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateContributions(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             await UpdateCustomerField(customer.Id, x => x.HasContributions, true);
 
@@ -475,8 +463,7 @@ namespace Grand.Business.Customers.Services
             bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
             bool clearLoyaltyPoints = true, bool clearShipping = true, bool clearPayment = true)
         {
-            if (customer == null)
-                throw new ArgumentNullException();
+            ArgumentNullException.ThrowIfNull(customer);
 
             //clear entered coupon codes
             if (clearCouponCodes)
@@ -557,8 +544,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task DeleteCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
         {
-            if (customerGroup == null)
-                throw new ArgumentNullException(nameof(customerGroup));
+            ArgumentNullException.ThrowIfNull(customerGroup);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -568,8 +554,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task InsertCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
         {
-            if (customerGroup == null)
-                throw new ArgumentNullException(nameof(customerGroup));
+            ArgumentNullException.ThrowIfNull(customerGroup);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -584,8 +569,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task DeleteAddress(Address address, string customerId)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -599,8 +583,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task InsertAddress(Address address, string customerId)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -616,8 +599,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateAddress(Address address, string customerId)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -631,8 +613,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateBillingAddress(Address address, string customerId)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -642,8 +623,7 @@ namespace Grand.Business.Customers.Services
         }
         public virtual async Task UpdateShippingAddress(Address address, string customerId)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
@@ -657,8 +637,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task DeleteShoppingCartItem(string customerId, ShoppingCartItem shoppingCartItem)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, shoppingCartItem.Id);
 
@@ -684,8 +663,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task InsertShoppingCartItem(string customerId, ShoppingCartItem shoppingCartItem)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             await _customerRepository.AddToSet(customerId, x => x.ShoppingCartItems, shoppingCartItem);
 
@@ -697,8 +675,7 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task UpdateShoppingCartItem(string customerId, ShoppingCartItem shoppingCartItem)
         {
-            if (shoppingCartItem == null)
-                throw new ArgumentNullException(nameof(shoppingCartItem));
+            ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
             await _customerRepository.UpdateToSet(customerId, x => x.ShoppingCartItems, z => z.Id, shoppingCartItem.Id, shoppingCartItem);
 

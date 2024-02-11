@@ -34,8 +34,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task DeleteShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord)
         {
-            if (shippingByWeightRecord == null)
-                throw new ArgumentNullException(nameof(shippingByWeightRecord));
+            ArgumentNullException.ThrowIfNull(shippingByWeightRecord);
 
             await _sbwRepository.DeleteAsync(shippingByWeightRecord);
 
@@ -101,8 +100,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task InsertShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord)
         {
-            if (shippingByWeightRecord == null)
-                throw new ArgumentNullException(nameof(shippingByWeightRecord));
+            ArgumentNullException.ThrowIfNull(shippingByWeightRecord);
 
             await _sbwRepository.InsertAsync(shippingByWeightRecord);
 
@@ -111,8 +109,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task UpdateShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord)
         {
-            if (shippingByWeightRecord == null)
-                throw new ArgumentNullException(nameof(shippingByWeightRecord));
+            ArgumentNullException.ThrowIfNull(shippingByWeightRecord);
 
             await _sbwRepository.UpdateAsync(shippingByWeightRecord);
 

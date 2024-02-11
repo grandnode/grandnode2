@@ -60,8 +60,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="salesEmployee">Sales Employee</param>
         public virtual async Task InsertSalesEmployee(SalesEmployee salesEmployee)
         {
-            if (salesEmployee == null)
-                throw new ArgumentNullException(nameof(salesEmployee));
+            ArgumentNullException.ThrowIfNull(salesEmployee);
 
             await _salesEmployeeRepository.InsertAsync(salesEmployee);
 
@@ -78,8 +77,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="salesEmployee">Sales Employee</param>
         public virtual async Task UpdateSalesEmployee(SalesEmployee salesEmployee)
         {
-            if (salesEmployee == null)
-                throw new ArgumentNullException(nameof(salesEmployee));
+            ArgumentNullException.ThrowIfNull(salesEmployee);
 
             await _salesEmployeeRepository.UpdateAsync(salesEmployee);
 
@@ -96,8 +94,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="salesEmployee">The sales employee</param>
         public virtual async Task DeleteSalesEmployee(SalesEmployee salesEmployee)
         {
-            if (salesEmployee == null)
-                throw new ArgumentNullException(nameof(salesEmployee));
+            ArgumentNullException.ThrowIfNull(salesEmployee);
 
             await _salesEmployeeRepository.DeleteAsync(salesEmployee);
 

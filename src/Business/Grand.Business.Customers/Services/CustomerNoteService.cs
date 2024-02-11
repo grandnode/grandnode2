@@ -36,8 +36,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customerNote">The customer note</param>
         public virtual async Task InsertCustomerNote(CustomerNote customerNote)
         {
-            if (customerNote == null)
-                throw new ArgumentNullException(nameof(customerNote));
+            ArgumentNullException.ThrowIfNull(customerNote);
 
             await _customerNoteRepository.InsertAsync(customerNote);
 
@@ -51,8 +50,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customerNote">The customer note</param>
         public virtual async Task DeleteCustomerNote(CustomerNote customerNote)
         {
-            if (customerNote == null)
-                throw new ArgumentNullException(nameof(customerNote));
+            ArgumentNullException.ThrowIfNull(customerNote);
 
             await _customerNoteRepository.DeleteAsync(customerNote);
 

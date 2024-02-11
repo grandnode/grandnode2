@@ -110,8 +110,7 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <param name="brand">Brand</param>
         public virtual async Task InsertBrand(Brand brand)
         {
-            if (brand == null)
-                throw new ArgumentNullException(nameof(brand));
+            ArgumentNullException.ThrowIfNull(brand);
 
             await _brandRepository.InsertAsync(brand);
 
@@ -128,8 +127,7 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <param name="brand">Brand</param>
         public virtual async Task UpdateBrand(Brand brand)
         {
-            if (brand == null)
-                throw new ArgumentNullException(nameof(brand));
+            ArgumentNullException.ThrowIfNull(brand);
 
             await _brandRepository.UpdateAsync(brand);
 
@@ -145,8 +143,7 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <param name="brand">Brand</param>
         public virtual async Task DeleteBrand(Brand brand)
         {
-            if (brand == null)
-                throw new ArgumentNullException(nameof(brand));
+            ArgumentNullException.ThrowIfNull(brand);
 
             await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
 

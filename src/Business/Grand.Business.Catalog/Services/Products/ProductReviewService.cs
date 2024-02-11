@@ -76,8 +76,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productReview">Product review</param>
         public virtual async Task InsertProductReview(ProductReview productReview)
         {
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(productReview);
 
             await _productReviewRepository.InsertAsync(productReview);
 
@@ -86,8 +85,7 @@ namespace Grand.Business.Catalog.Services.Products
         }
         public virtual async Task UpdateProductReview(ProductReview productReview)
         {
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(productReview);
 
             var update = UpdateBuilder<ProductReview>.Create()
                 .Set(x => x.Title, productReview.Title)
@@ -111,8 +109,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="productReview">Product review</param>
         public virtual async Task DeleteProductReview(ProductReview productReview)
         {
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(productReview);
 
             await _productReviewRepository.DeleteAsync(productReview);
 

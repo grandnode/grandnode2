@@ -19,10 +19,8 @@ namespace Grand.Web.Admin.Extensions
         public static async Task<Picture> GetProductPicture(this Product product, IList<CustomAttribute> attributes,
             IProductService productService, IPictureService pictureService)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-            if (pictureService == null)
-                throw new ArgumentNullException(nameof(pictureService));            
+            ArgumentNullException.ThrowIfNull(product);
+            ArgumentNullException.ThrowIfNull(pictureService);
 
             Picture picture = null;
 

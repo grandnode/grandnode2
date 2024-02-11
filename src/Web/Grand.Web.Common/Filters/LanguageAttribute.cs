@@ -117,8 +117,7 @@ namespace Grand.Web.Common.Filters
 
             private static string AddLanguageSeo(string url, Language language)
             {
-                if (language == null)
-                    throw new ArgumentNullException(nameof(language));
+                ArgumentNullException.ThrowIfNull(language);
 
                 //remove application path from raw URL
                 if (!string.IsNullOrEmpty(url))

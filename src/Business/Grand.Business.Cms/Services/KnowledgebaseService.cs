@@ -81,7 +81,7 @@ namespace Grand.Business.Cms.Services
         /// <returns>knowledge base category</returns>
         public virtual async Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
         {
-            return await Task.FromResult(_knowledgebaseCategoryRepository.Table.FirstOrDefault(x => x.Id == id));
+            return await _knowledgebaseCategoryRepository.GetOneAsync(x => x.Id == id);
         }
 
         /// <summary>
@@ -545,8 +545,7 @@ namespace Grand.Business.Cms.Services
         /// <param name="articleComment">Article comment</param>
         public virtual async Task InsertArticleComment(KnowledgebaseArticleComment articleComment)
         {
-            if (articleComment == null)
-                throw new ArgumentNullException(nameof(articleComment));
+            ArgumentNullException.ThrowIfNull(articleComment);
 
             await _articleCommentRepository.InsertAsync(articleComment);
 
@@ -613,8 +612,7 @@ namespace Grand.Business.Cms.Services
 
         public virtual async Task DeleteArticleComment(KnowledgebaseArticleComment articleComment)
         {
-            if (articleComment == null)
-                throw new ArgumentNullException(nameof(articleComment));
+            ArgumentNullException.ThrowIfNull(articleComment);
 
             await _articleCommentRepository.DeleteAsync(articleComment);
         }

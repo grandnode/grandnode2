@@ -12,11 +12,9 @@ namespace Grand.Domain.Catalog
         /// <returns>Tier prices</returns>
         public static IEnumerable<TierPrice> FilterByDate(this IEnumerable<TierPrice> source, DateTime? date = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
-            if (!date.HasValue)
-                date = DateTime.UtcNow;
+            date ??= DateTime.UtcNow;
 
             return source.Where(tierPrice =>
                 (!tierPrice.StartDateTimeUtc.HasValue || tierPrice.StartDateTimeUtc.Value < date.Value) &&
@@ -30,8 +28,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Tier prices</returns>
         public static IEnumerable<TierPrice> FilterByStore(this IEnumerable<TierPrice> source, string storeId)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.StoreId) || tierPrice.StoreId == storeId);
         }
@@ -44,8 +41,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Tier prices</returns>
         public static IEnumerable<TierPrice> FilterForCustomer(this IEnumerable<TierPrice> source, Customer customer)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             if (customer == null)
                 return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CustomerGroupId));
@@ -62,8 +58,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Tier prices</returns>
         public static IEnumerable<TierPrice> FilterByCurrency(this IEnumerable<TierPrice> source, string currencyCode)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CurrencyCode) || tierPrice.CurrencyCode == currencyCode);
         }
@@ -75,8 +70,7 @@ namespace Grand.Domain.Catalog
         /// <returns>Tier prices</returns>
         public static IEnumerable<TierPrice> RemoveDuplicatedQuantities(this IEnumerable<TierPrice> source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
             var result = source.OrderBy(x => x.Price).GroupBy(x => x.Quantity).Select(x => x.First()).OrderBy(x => x.Quantity).ToList();
             return result;
         }

@@ -252,8 +252,7 @@ namespace Grand.Business.Authentication.Services
         /// <returns>Result of an authentication</returns>
         public virtual async Task<IActionResult> Authenticate(ExternalAuthParam parameters, string returnUrl = null)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            ArgumentNullException.ThrowIfNull(parameters);
 
             if (!AuthenticationProviderIsAvailable(parameters.ProviderSystemName))
                 return Error(new[] { "External authentication method cannot be loaded" });
@@ -279,8 +278,7 @@ namespace Grand.Business.Authentication.Services
         /// <param name="parameters">External authentication parameters</param>
         public virtual async Task AssociateCustomer(Customer customer, ExternalAuthParam parameters)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var externalAuthenticationRecord = new ExternalAuthentication {
                 CustomerId = customer.Id,
@@ -301,8 +299,7 @@ namespace Grand.Business.Authentication.Services
         /// <returns>Customer</returns>
         public virtual async Task<Customer> GetCustomer(ExternalAuthParam parameters)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            ArgumentNullException.ThrowIfNull(parameters);
 
             var associationRecord = (from q in _externalAuthenticationRecordRepository.Table
                                      where q.ExternalIdentifier.ToLowerInvariant() == parameters.Identifier
@@ -317,8 +314,8 @@ namespace Grand.Business.Authentication.Services
 
         public virtual async Task<IList<ExternalAuthentication>> GetExternalIdentifiers(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
+            
             var query = from p in _externalAuthenticationRecordRepository.Table
                         where p.CustomerId == customer.Id
                         select p;
@@ -331,8 +328,7 @@ namespace Grand.Business.Authentication.Services
         /// <param name="externalAuthentication">External authentication</param>
         public virtual async Task DeleteExternalAuthentication(ExternalAuthentication externalAuthentication)
         {
-            if (externalAuthentication == null)
-                throw new ArgumentNullException(nameof(externalAuthentication));
+            ArgumentNullException.ThrowIfNull(externalAuthentication);
 
             await _externalAuthenticationRecordRepository.DeleteAsync(externalAuthentication);
         }

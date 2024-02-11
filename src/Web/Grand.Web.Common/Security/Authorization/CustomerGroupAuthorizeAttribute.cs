@@ -18,8 +18,7 @@ namespace Grand.Web.Common.Security.Authorization
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             if (string.IsNullOrEmpty(GroupName))
                 return;

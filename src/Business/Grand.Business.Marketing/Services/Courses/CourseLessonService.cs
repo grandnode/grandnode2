@@ -19,8 +19,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
         public virtual async Task Delete(CourseLesson courseLesson)
         {
-            if (courseLesson == null)
-                throw new ArgumentNullException(nameof(courseLesson));
+            ArgumentNullException.ThrowIfNull(courseLesson);
 
             await _courseLessonRepository.DeleteAsync(courseLesson);
 
@@ -47,8 +46,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
         public virtual async Task<CourseLesson> Insert(CourseLesson courseLesson)
         {
-            if (courseLesson == null)
-                throw new ArgumentNullException(nameof(courseLesson));
+            ArgumentNullException.ThrowIfNull(courseLesson);
 
             await _courseLessonRepository.InsertAsync(courseLesson);
 
@@ -60,8 +58,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
         public virtual async Task<CourseLesson> Update(CourseLesson courseLesson)
         {
-            if (courseLesson == null)
-                throw new ArgumentNullException(nameof(courseLesson));
+            ArgumentNullException.ThrowIfNull(courseLesson);
 
             await _courseLessonRepository.UpdateAsync(courseLesson);
 

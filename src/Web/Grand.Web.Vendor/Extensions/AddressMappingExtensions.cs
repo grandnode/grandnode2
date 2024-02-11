@@ -37,12 +37,8 @@ namespace Grand.Web.Vendor.Extensions
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser)
         {
-            //this method is very similar to the same one in Grand.Web project
-            if (addressAttributeService == null)
-                throw new ArgumentNullException(nameof(addressAttributeService));
-
-            if (addressAttributeParser == null)
-                throw new ArgumentNullException(nameof(addressAttributeParser));
+            ArgumentNullException.ThrowIfNull(addressAttributeService);
+            ArgumentNullException.ThrowIfNull(addressAttributeParser);
 
             var attributes = await addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
@@ -129,8 +125,7 @@ namespace Grand.Web.Vendor.Extensions
             IAddressAttributeParser addressAttributeParser,
             IAddressAttributeService addressAttributeService)
         {
-            if (address == null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address);
 
             var customAttributes = new List<CustomAttribute>();
             var attributes = await addressAttributeService.GetAllAddressAttributes();

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain;
-using Grand.Domain.Customers;
 using Grand.Domain.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

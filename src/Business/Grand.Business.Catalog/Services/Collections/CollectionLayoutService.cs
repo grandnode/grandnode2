@@ -74,8 +74,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collectionLayout">Collection layout</param>
         public virtual async Task InsertCollectionLayout(CollectionLayout collectionLayout)
         {
-            if (collectionLayout == null)
-                throw new ArgumentNullException(nameof(collectionLayout));
+            ArgumentNullException.ThrowIfNull(collectionLayout);
 
             await _collectionLayoutRepository.InsertAsync(collectionLayout);
 
@@ -92,8 +91,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collectionLayout">Collection layout</param>
         public virtual async Task UpdateCollectionLayout(CollectionLayout collectionLayout)
         {
-            if (collectionLayout == null)
-                throw new ArgumentNullException(nameof(collectionLayout));
+            ArgumentNullException.ThrowIfNull(collectionLayout);
 
             await _collectionLayoutRepository.UpdateAsync(collectionLayout);
 
@@ -110,8 +108,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <param name="collectionLayout">Collection layout</param>
         public virtual async Task DeleteCollectionLayout(CollectionLayout collectionLayout)
         {
-            if (collectionLayout == null)
-                throw new ArgumentNullException(nameof(collectionLayout));
+            ArgumentNullException.ThrowIfNull(collectionLayout);
 
             await _collectionLayoutRepository.DeleteAsync(collectionLayout);
 

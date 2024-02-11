@@ -69,8 +69,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="deliveryDate">Delivery date</param>
         public virtual async Task InsertDeliveryDate(DeliveryDate deliveryDate)
         {
-            if (deliveryDate == null)
-                throw new ArgumentNullException(nameof(deliveryDate));
+            ArgumentNullException.ThrowIfNull(deliveryDate);
 
             await _deliveryDateRepository.InsertAsync(deliveryDate);
 
@@ -87,8 +86,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="deliveryDate">Delivery date</param>
         public virtual async Task UpdateDeliveryDate(DeliveryDate deliveryDate)
         {
-            if (deliveryDate == null)
-                throw new ArgumentNullException(nameof(deliveryDate));
+            ArgumentNullException.ThrowIfNull(deliveryDate);
 
             await _deliveryDateRepository.UpdateAsync(deliveryDate);
 
@@ -105,8 +103,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="deliveryDate">The delivery date</param>
         public virtual async Task DeleteDeliveryDate(DeliveryDate deliveryDate)
         {
-            if (deliveryDate == null)
-                throw new ArgumentNullException(nameof(deliveryDate));
+            ArgumentNullException.ThrowIfNull(deliveryDate);
 
             await _deliveryDateRepository.DeleteAsync(deliveryDate);
 

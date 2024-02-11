@@ -137,8 +137,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="customerNote">Customer note</param>
         protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string languageId, string templateName, bool toEmailAccount = false, CustomerNote customerNote = null)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -291,8 +290,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="refundedAmount"></param>
         private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer, string languageId, double refundedAmount = 0)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -404,8 +402,7 @@ namespace Grand.Business.Messages.Services
         private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
             string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null, double refundedAmount = 0)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -480,11 +477,8 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         private async Task<int> SendOrderVendorMessage(string message, Order order, Vendor vendor, string languageId)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
-
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(order);
+            ArgumentNullException.ThrowIfNull(vendor);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -546,8 +540,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="order">Order</param>
         private async Task<int> SendShipmentCustomerMessage(string message, Shipment shipment, Order order)
         {
-            if (shipment == null)
-                throw new ArgumentNullException(nameof(shipment));
+            ArgumentNullException.ThrowIfNull(shipment);
 
             if (order == null)
                 throw new Exception("Order cannot be loaded");
@@ -592,11 +585,8 @@ namespace Grand.Business.Messages.Services
         /// <param name="orderNote">Order note</param>
         public virtual async Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote)
         {
-            if (orderNote == null)
-                throw new ArgumentNullException(nameof(orderNote));
-
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(orderNote);
+            ArgumentNullException.ThrowIfNull(order);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(order.CustomerLanguageId, store.Id);
@@ -663,8 +653,7 @@ namespace Grand.Business.Messages.Services
         private async Task<int> SendNewsLetterSubscriptionMessage(string message, NewsLetterSubscription subscription,
             string languageId)
         {
-            if (subscription == null)
-                throw new ArgumentNullException(nameof(subscription));
+            ArgumentNullException.ThrowIfNull(subscription);
 
             var store = await GetStore(subscription.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -708,11 +697,8 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
             Product product, string customerEmail, string friendsEmail, string personalMessage)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(customer);
+            ArgumentNullException.ThrowIfNull(product);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -754,8 +740,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
              string customerEmail, string friendsEmail, string personalMessage)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -793,11 +778,8 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
             Product product, string customerEmail, string fullName, string phone, string message, string ipaddress)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(customer);
+            ArgumentNullException.ThrowIfNull(product);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -870,8 +852,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendNewMerchandiseReturnStoreOwnerMessage(MerchandiseReturn merchandiseReturn, Order order, string languageId)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -926,8 +907,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendMerchandiseReturnStatusChangedCustomerMessage(MerchandiseReturn merchandiseReturn, Order order, string languageId)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -971,8 +951,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendNewMerchandiseReturnCustomerMessage(MerchandiseReturn merchandiseReturn, Order order, string languageId)
         {
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1016,11 +995,8 @@ namespace Grand.Business.Messages.Services
         /// <param name="order">Order</param>
         public virtual async Task<int> SendNewMerchandiseReturnNoteAddedCustomerMessage(MerchandiseReturn merchandiseReturn, MerchandiseReturnNote merchandiseReturnNote, Order order)
         {
-            if (merchandiseReturnNote == null)
-                throw new ArgumentNullException(nameof(merchandiseReturnNote));
-
-            if (merchandiseReturn == null)
-                throw new ArgumentNullException(nameof(merchandiseReturn));
+            ArgumentNullException.ThrowIfNull(merchandiseReturnNote);
+            ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
             var store = await GetStore(order.StoreId);
             var language = await EnsureLanguageIsActive(order.CustomerLanguageId, store.Id);
@@ -1069,11 +1045,8 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor, Store store, string languageId)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(customer);
+            ArgumentNullException.ThrowIfNull(vendor);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -1108,8 +1081,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendVendorInformationChangeMessage(Vendor vendor, Store store, string languageId)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -1143,8 +1115,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string languageId)
         {
-            if (giftVoucher == null)
-                throw new ArgumentNullException(nameof(giftVoucher));
+            ArgumentNullException.ThrowIfNull(giftVoucher);
 
             Store store = null;
             if (order != null) store = await _storeService.GetStoreById(order.StoreId);
@@ -1182,8 +1153,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendProductReviewMessage(Product product, ProductReview productReview,
             Store store, string languageId)
         {
-            if (productReview == null)
-                throw new ArgumentNullException(nameof(productReview));
+            ArgumentNullException.ThrowIfNull(productReview);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -1225,8 +1195,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store,
             string languageId)
         {
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -1269,8 +1238,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string languageId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var store = await GetStore("");
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1305,8 +1273,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, ProductAttributeCombination combination, string languageId)
         {
-            if (combination == null)
-                throw new ArgumentNullException(nameof(combination));
+            ArgumentNullException.ThrowIfNull(combination);
 
             var store = await GetStore("");
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1341,8 +1308,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var store = await GetStore("");
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1373,8 +1339,7 @@ namespace Grand.Business.Messages.Services
         /// </summary>
         public virtual async Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId)
         {
-            if (blogComment == null)
-                throw new ArgumentNullException(nameof(blogComment));
+            ArgumentNullException.ThrowIfNull(blogComment);
 
             var store = await GetStore(blogComment.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1414,8 +1379,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendArticleCommentMessage(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, string languageId)
         {
-            if (articleComment == null)
-                throw new ArgumentNullException(nameof(articleComment));
+            ArgumentNullException.ThrowIfNull(articleComment);
 
             var store = await GetStore("");
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1453,8 +1417,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId)
         {
-            if (newsComment == null)
-                throw new ArgumentNullException(nameof(newsComment));
+            ArgumentNullException.ThrowIfNull(newsComment);
 
             var store = await GetStore(newsComment.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1493,8 +1456,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendBackInStockMessage(Customer customer, Product product, OutOfStockSubscription subscription, string languageId)
         {
-            if (subscription == null)
-                throw new ArgumentNullException(nameof(subscription));
+            ArgumentNullException.ThrowIfNull(subscription);
 
             var store = await GetStore(subscription.StoreId);
             var language = await EnsureLanguageIsActive(languageId, store.Id);
@@ -1616,8 +1578,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail,
             string senderName, string subject, string body, string ipaddress)
         {
-            if (vendor == null)
-                throw new ArgumentNullException(nameof(vendor));
+            ArgumentNullException.ThrowIfNull(vendor);
 
             var language = await EnsureLanguageIsActive(languageId, store.Id);
 
@@ -1686,8 +1647,7 @@ namespace Grand.Business.Messages.Services
 
         public virtual async Task<int> SendAuctionWinEndedCustomerMessage(Product product, string languageId, Bid bid)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = bid.CustomerId });
             if (customer == null) return 0;
@@ -1725,8 +1685,7 @@ namespace Grand.Business.Messages.Services
 
         public virtual async Task<int> SendAuctionEndedLostCustomerMessage(Product product, string languageId, Bid bid)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var winner = await _mediator.Send(new GetCustomerByIdQuery { Id = bid.CustomerId });
             if (winner == null) return 0;
@@ -1774,8 +1733,7 @@ namespace Grand.Business.Messages.Services
 
         public virtual async Task<int> SendAuctionEndedBinCustomerMessage(Product product, string customerId, string languageId, string storeId)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var store = await GetStore(storeId);
 
@@ -1821,8 +1779,7 @@ namespace Grand.Business.Messages.Services
         }
         public virtual async Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string languageId, Bid bid)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var builder = new LiquidObjectBuilder(_mediator);
             MessageTemplate messageTemplate;
@@ -1881,8 +1838,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="bid"></param>
         public virtual async Task<int> SendOutBidCustomerMessage(Product product, string languageId, Bid bid)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = bid.CustomerId });
             if (string.IsNullOrEmpty(languageId))

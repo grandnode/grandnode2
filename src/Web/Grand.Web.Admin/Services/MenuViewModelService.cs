@@ -44,8 +44,7 @@ public class MenuViewModelService : IMenuViewModelService
 
     public virtual async Task<AdminSiteMap> InsertMenuModel(MenuModel model, string parentId)
     {
-        if (model == null)
-            throw new ArgumentNullException(nameof(model));
+        ArgumentNullException.ThrowIfNull(model);
 
         if (!string.IsNullOrEmpty(parentId))
         {
@@ -70,8 +69,7 @@ public class MenuViewModelService : IMenuViewModelService
 
     public virtual async Task<AdminSiteMap> UpdateMenuModel(MenuModel model)
     {
-        if (model == null)
-            throw new ArgumentNullException(nameof(model));
+        ArgumentNullException.ThrowIfNull(model);
 
         var sitemap = await _adminSiteMapService.GetSiteMap();
         var parentEntity = FindTopLevelNodeById(sitemap, model.Id);

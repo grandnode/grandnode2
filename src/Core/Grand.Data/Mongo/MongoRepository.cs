@@ -101,6 +101,16 @@ namespace Grand.Data.Mongo
         }
 
         /// <summary>
+        /// Get async entity by expression 
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns>Entity</returns>
+        public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
+        {
+            return _collection.Find(predicate).FirstOrDefaultAsync();
+        }
+        
+        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>

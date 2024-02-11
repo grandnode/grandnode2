@@ -24,8 +24,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="customer">Customer</param>
         public virtual async Task InsertCustomerPassword(Customer customer)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
+            ArgumentNullException.ThrowIfNull(customer);
 
             var chp = new CustomerHistoryPassword
             {

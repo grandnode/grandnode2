@@ -26,8 +26,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">payment transaction</param>
         public virtual async Task InsertPaymentTransaction(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             await _repositoryPaymentTransaction.InsertAsync(paymentTransaction);
 
@@ -41,8 +40,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">payment transaction</param>
         public virtual async Task UpdatePaymentTransaction(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             await _repositoryPaymentTransaction.UpdateAsync(paymentTransaction);
 
@@ -57,8 +55,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="paymentTransaction">payment transaction</param>
         public virtual async Task DeletePaymentTransaction(PaymentTransaction paymentTransaction)
         {
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(paymentTransaction));
+            ArgumentNullException.ThrowIfNull(paymentTransaction);
 
             await _repositoryPaymentTransaction.DeleteAsync(paymentTransaction);
 

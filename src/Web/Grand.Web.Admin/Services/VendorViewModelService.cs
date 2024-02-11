@@ -41,8 +41,7 @@ namespace Grand.Web.Admin.Services
     {
         public virtual async Task PrepareDiscountModel(VendorModel model, Vendor vendor, bool excludeProperties)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await discountService
                 .GetAllDiscounts(DiscountType.AssignedToVendors, showHidden: true))
@@ -58,11 +57,8 @@ namespace Grand.Web.Admin.Services
         public virtual async Task PrepareVendorReviewModel(VendorReviewModel model,
             VendorReview vendorReview, bool excludeProperties, bool formatReviewText)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (vendorReview == null)
-                throw new ArgumentNullException(nameof(vendorReview));
+            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(vendorReview);
 
             var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
             var customer = await customerService.GetCustomerById(vendorReview.CustomerId);

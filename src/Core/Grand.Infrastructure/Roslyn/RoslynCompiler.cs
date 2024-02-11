@@ -29,14 +29,10 @@ namespace Grand.Infrastructure.Roslyn
 
         public static void Load(ApplicationPartManager applicationPartManager, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(applicationPartManager);
+
             var config = new ExtensionsConfig();
             configuration.GetSection("Extensions").Bind(config);
-
-            if (applicationPartManager == null)
-                throw new ArgumentNullException(nameof(applicationPartManager));
-
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
 
             if (!config.UseRoslynScripts)
                 return;

@@ -46,8 +46,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shippingMethod">The shipping method</param>
         public virtual async Task DeleteShippingMethod(ShippingMethod shippingMethod)
         {
-            if (shippingMethod == null)
-                throw new ArgumentNullException(nameof(shippingMethod));
+            ArgumentNullException.ThrowIfNull(shippingMethod);
 
             await _shippingMethodRepository.DeleteAsync(shippingMethod);
 
@@ -103,8 +102,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shippingMethod">Shipping method</param>
         public virtual async Task InsertShippingMethod(ShippingMethod shippingMethod)
         {
-            if (shippingMethod == null)
-                throw new ArgumentNullException(nameof(shippingMethod));
+            ArgumentNullException.ThrowIfNull(shippingMethod);
 
             await _shippingMethodRepository.InsertAsync(shippingMethod);
 
@@ -121,8 +119,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shippingMethod">Shipping method</param>
         public virtual async Task UpdateShippingMethod(ShippingMethod shippingMethod)
         {
-            if (shippingMethod == null)
-                throw new ArgumentNullException(nameof(shippingMethod));
+            ArgumentNullException.ThrowIfNull(shippingMethod);
 
             await _shippingMethodRepository.UpdateAsync(shippingMethod);
 

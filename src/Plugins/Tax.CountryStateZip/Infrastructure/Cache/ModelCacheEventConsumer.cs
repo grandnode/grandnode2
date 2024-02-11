@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Tax.CountryStateZip.Domain;
 
 namespace Tax.CountryStateZip.Infrastructure.Cache

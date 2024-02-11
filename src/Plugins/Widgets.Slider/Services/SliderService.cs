@@ -44,8 +44,7 @@ namespace Widgets.Slider.Services
         /// <param name="slider">Slider</param>
         public virtual async Task DeleteSlider(PictureSlider slider)
         {
-            if (slider == null)
-                throw new ArgumentNullException(nameof(slider));
+            ArgumentNullException.ThrowIfNull(slider);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
@@ -100,8 +99,7 @@ namespace Widgets.Slider.Services
         /// <param name="slide">Picture Slider</param>
         public virtual async Task InsertPictureSlider(PictureSlider slide)
         {
-            if (slide == null)
-                throw new ArgumentNullException(nameof(slide));
+            ArgumentNullException.ThrowIfNull(slide);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
@@ -115,8 +113,7 @@ namespace Widgets.Slider.Services
         /// <param name="slide">Picture Slider</param>
         public virtual async Task UpdatePictureSlider(PictureSlider slide)
         {
-            if (slide == null)
-                throw new ArgumentNullException(nameof(slide));
+            ArgumentNullException.ThrowIfNull(slide);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
@@ -130,8 +127,7 @@ namespace Widgets.Slider.Services
         /// <param name="slide">Picture Slider</param>
         public virtual async Task DeletePictureSlider(PictureSlider slide)
         {
-            if (slide == null)
-                throw new ArgumentNullException(nameof(slide));
+            ArgumentNullException.ThrowIfNull(slide);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);

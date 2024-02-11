@@ -48,8 +48,7 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual async Task<Product> CopyProduct(Product product, string newName,
             bool isPublished = true, bool copyAssociatedProducts = true)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            ArgumentNullException.ThrowIfNull(product);
 
             if (string.IsNullOrEmpty(newName))
                 newName = $"{product.Name} - CopyProduct";

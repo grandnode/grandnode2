@@ -197,8 +197,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="order">Order</param>
         public virtual async Task InsertOrder(Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             var orderExists = _orderRepository.Table.OrderByDescending(x => x.OrderNumber).Select(x => x.OrderNumber).FirstOrDefault();
             order.OrderNumber = orderExists != 0 ? orderExists + 1 : 1;
@@ -215,8 +214,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="order">The order</param>
         public virtual async Task UpdateOrder(Order order)
         {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
+            ArgumentNullException.ThrowIfNull(order);
 
             await _orderRepository.UpdateAsync(order);
 
@@ -272,8 +270,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderNote">The order note</param>
         public virtual async Task DeleteOrderNote(OrderNote orderNote)
         {
-            if (orderNote == null)
-                throw new ArgumentNullException(nameof(orderNote));
+            ArgumentNullException.ThrowIfNull(orderNote);
 
             await _orderNoteRepository.DeleteAsync(orderNote);
 
@@ -287,8 +284,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderNote">The order note</param>
         public virtual async Task InsertOrderNote(OrderNote orderNote)
         {
-            if (orderNote == null)
-                throw new ArgumentNullException(nameof(orderNote));
+            ArgumentNullException.ThrowIfNull(orderNote);
 
             await _orderNoteRepository.InsertAsync(orderNote);
 
