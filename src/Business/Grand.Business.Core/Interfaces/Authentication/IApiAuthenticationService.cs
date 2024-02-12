@@ -9,6 +9,6 @@ namespace Grand.Business.Core.Interfaces.Authentication
         /// Get authenticated customer
         /// </summary>
         /// <returns>Customer</returns>
-        Task<Customer> GetAuthenticatedCustomer(HttpContext httpContext);
+        Task<Customer> GetAuthenticatedCustomer();
     }
 }

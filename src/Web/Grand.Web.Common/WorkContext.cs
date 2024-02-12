@@ -176,99 +176,82 @@ namespace Grand.Web.Common
         /// <returns></returns>
         public virtual async Task<Customer> SetCurrentCustomer()
         {
-            Customer customer;
-            //check whether request is made by a background (schedule) task
-            if (_httpContextAccessor.HttpContext == null)
-            {
-                //in this case return built-in customer record for background task
-                customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
-                //if customer comes from background task, doesn't need to create cookies
-                if (customer != null)
-                {
-                    //cache the found customer
-                    _cachedCustomer = customer;
-                    return customer;
-                }
-            }
+            Customer customer = await GetBackgroundTaskCustomer();
+            if (customer != null) return _cachedCustomer = customer;
 
-            //set customer as a background task if method settled as AllowAnonymous
-            var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
-            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
-            {
-                customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
-                //if customer comes from Anonymous method, doesn't need to create cookies
-                if (customer != null)
-                {
-                    //cache the found customer
-                    _cachedCustomer = customer;
-                    return customer;
-                }
-            }
-
-            //try to get registered user
-            customer = await _authenticationService.GetAuthenticatedCustomer();
-            //if customer is authenticated
-            if (customer != null)
-            {
-                //set if use impersonated session
-                var impersonatedCustomer = await SetImpersonatedCustomer(customer);
-                if (impersonatedCustomer != null)
-                    customer = impersonatedCustomer;
-
-                //cache the found customer
-                _cachedCustomer = customer;
-
-
-                return customer;
-            }
-
-            //try to get api user
-            customer = await _apiAuthenticationService.GetAuthenticatedCustomer(_httpContextAccessor.HttpContext);
-            //if customer comes from api, doesn't need to create cookies
-            if (customer != null)
-            {
-                //set if use impersonated session
-                var impersonatedCustomer = await SetImpersonatedCustomer(customer);
-                if (impersonatedCustomer != null)
-                    customer = impersonatedCustomer;
-
-                //cache the found customer
-                _cachedCustomer = customer;
-                return customer;
-            }
+            customer = await GetAuthenticatedCustomer();
+            if (customer != null) return _cachedCustomer = customer;
             
-            //get guest customer
-            var guid = await _authenticationService.GetCustomerGuid();
-            if (!string.IsNullOrEmpty(guid))
-            {
-                if (Guid.TryParse(guid, out Guid customerGuid))
-                {
-                    //get customer from guid (cannot not be registered)
-                    var customerByGuid = await _customerService.GetCustomerByGuid(customerGuid);
-                    if (customerByGuid != null && !await _groupService.IsRegistered(customerByGuid))
-                        customer = customerByGuid;
-                }
-            }
-            
-            if (customer == null || customer.Deleted || !customer.Active)
-            {
-                var isCrawler = _detectionService.Crawler?.IsCrawler;
-                //check whether request is made by a search engine, in this case return built-in customer record for search engines
-                if (isCrawler.Value)
-                    customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
-            }
+            customer = await GetGuestCustomer();
+            if (customer != null) return _cachedCustomer = customer;
 
-            if (customer is { Deleted: false, Active: true })
-                return _cachedCustomer = customer;
+            customer = await GetApiUserCustomer();
+            if (customer != null) return _cachedCustomer = customer;
+            
+            customer = await GetSearchEngineCustomer();
+            if (customer != null) return _cachedCustomer = customer;
+            
+            customer = await GetAllowAnonymousCustomer();
+            if (customer != null) return _cachedCustomer = customer;
             
             //create guest if not exists
-            customer = await CustomerGuest();
+            customer = await CreateCustomerGuest();
             
             //cache the found customer
             return _cachedCustomer = customer;
         }
+        private async Task<Customer> GetBackgroundTaskCustomer()
+        {
+            if (_httpContextAccessor.HttpContext != null) return null;
+            
+            return await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
+        }
+        private async Task<Customer> GetAllowAnonymousCustomer()
+        {
+            var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
+            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() == null) return null;
+            
+            return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
+        }
+        
+        private async Task<Customer> GetAuthenticatedCustomer()
+        {
+            var customer = await _authenticationService.GetAuthenticatedCustomer();
+            if (customer == null) return null;
+            
+            var impersonatedCustomer = await SetImpersonatedCustomer(customer);
+            if (impersonatedCustomer != null)
+                customer = impersonatedCustomer;
 
-        private async Task<Customer> CustomerGuest()
+            return customer;
+        }
+        
+        private async Task<Customer> GetApiUserCustomer()
+        {
+            return await _apiAuthenticationService.GetAuthenticatedCustomer();
+        }
+        
+        private async Task<Customer> GetSearchEngineCustomer()
+        {
+            var isCrawler = _detectionService.Crawler?.IsCrawler;
+            if (!isCrawler.GetValueOrDefault()) return null;
+            
+            return await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
+        }
+        
+        private async Task<Customer> GetGuestCustomer()
+        {
+            var guid = await _authenticationService.GetCustomerGuid();
+            if (string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out Guid customerGuid)) return null;
+            
+            var customerByGuid = await _customerService.GetCustomerByGuid(customerGuid);
+            if (customerByGuid is { Deleted: false, Active: true } && !await _groupService.IsRegistered(customerByGuid))
+                return customerByGuid;
+            
+            return null;
+        }
+        
+        private async Task<Customer> CreateCustomerGuest()
         {
             var userFields = new List<UserField>();
             
