@@ -29,7 +29,7 @@ namespace Grand.Business.Authentication.Tests.Services
             _customerService = new Mock<ICustomerService>();
             _userApiServiceMock = new Mock<IUserApiService>();
             _groupService = new Mock<IGroupService>();
-            _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object);
+            _authService = new ApiAuthenticationService(_customerService.Object, _groupService.Object, _httpContextAccessorMoc.Object);
             _jwtBearerAuthenticationService = new JwtBearerAuthenticationService(_customerService.Object, _userApiServiceMock.Object);
         }
 
@@ -161,7 +161,7 @@ namespace Grand.Business.Authentication.Tests.Services
             httpContext.Setup(c => c.Request).Returns(req.Object);
             _httpContextAccessorMoc.Setup(c => c.HttpContext).Returns(httpContext.Object);
             _customerService.Setup(c => c.GetCustomerBySystemName(It.IsAny<string>())).Returns(() => Task.FromResult(customer));
-            var result = await _authService.GetAuthenticatedCustomer(httpContext.Object);
+            var result = await _authService.GetAuthenticatedCustomer();
             Assert.IsNull(result);
         }
 

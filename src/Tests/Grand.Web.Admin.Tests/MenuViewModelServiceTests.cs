@@ -7,6 +7,7 @@ using Grand.Web.Admin.Models.Menu;
 using Grand.Web.Admin.Services;
 using Moq;
 using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace Grand.Web.Admin.Tests;
 
@@ -46,13 +47,13 @@ namespace Grand.Web.Admin.Tests;
             var result = await _menuViewModelService.MenuItems();
 
             // Assert
-            Assert.Equals(2, result.Count);
-            Assert.Equals("1", result[0].Id);
-            Assert.Equals("Item 1", result[0].SystemName);
-            Assert.Equals(1, result[0].DisplayOrder);
-            Assert.Equals("2", result[1].Id);
-            Assert.Equals("Item 2", result[1].SystemName);
-            Assert.Equals(2, result[1].DisplayOrder);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("1", result[0].Id);
+            Assert.AreEqual("Item 1", result[0].SystemName);
+            Assert.AreEqual(1, result[0].DisplayOrder);
+            Assert.AreEqual("2", result[1].Id);
+            Assert.AreEqual("Item 2", result[1].SystemName);
+            Assert.AreEqual(2, result[1].DisplayOrder);
         }
 
         [Test]
@@ -71,8 +72,8 @@ namespace Grand.Web.Admin.Tests;
             var result = await _menuViewModelService.GetMenuById("2");
 
             // Assert
-            Assert.Equals("2", result.Id);
-            Assert.Equals("Item 2", result.SystemName);
+            Assert.AreEqual("2", result.Id);
+            Assert.AreEqual("Item 2", result.SystemName);
         }
         [Test]
         public async Task InsertMenuModel_AddsNewMenuModel()
@@ -89,9 +90,9 @@ namespace Grand.Web.Admin.Tests;
             var result = await _menuViewModelService.InsertMenuModel(model, "1");
 
             // Assert
-            Assert.Equals("3", result.Id);
-            Assert.Equals("Item 3", result.SystemName);
-            Assert.Equals(1, parentEntity.ChildNodes.Count);
+            Assert.AreEqual("3", result.Id);
+            Assert.AreEqual("Item 3", result.SystemName);
+            Assert.AreEqual(1, parentEntity.ChildNodes.Count);
         }
         
         [Test]
@@ -112,8 +113,8 @@ namespace Grand.Web.Admin.Tests;
             var result = await _menuViewModelService.UpdateMenuModel(model);
 
             // Assert
-            Assert.Equals("2", result.Id);
-            Assert.Equals("Updated Item 2", result.SystemName);
+            Assert.AreEqual("2", result.Id);
+            Assert.AreEqual("Updated Item 2", result.SystemName);
         }
         [Test]
         public async Task UpdateMenuModel_UpdatesSubMenuModel()
@@ -134,8 +135,8 @@ namespace Grand.Web.Admin.Tests;
             var result = await _menuViewModelService.UpdateMenuModel(model);
 
             // Assert
-            Assert.Equals("3", result.Id);
-            Assert.Equals("Updated Item 3", result.SystemName);
+            Assert.AreEqual("3", result.Id);
+            Assert.AreEqual("Updated Item 3", result.SystemName);
         }
         [Test]
         public async Task DeleteMenu_CallsDeleteSiteMap()
