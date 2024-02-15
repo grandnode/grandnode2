@@ -55,7 +55,7 @@ namespace Grand.Infrastructure.Startup
                     var databaseName = mongoUrl.DatabaseName;
                     var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
                     
-                    if (!string.IsNullOrEmpty(applicationInsights.ConnectionString))
+                    if (applicationInsights.TrackDependencyMongoDb)
                         clientSettings.ClusterConfigurator = builder => { builder.Subscribe(new ApplicationInsightsSubscriber(serviceCollection)); };
 
                     serviceCollection.AddScoped(_ => new MongoClient(clientSettings).GetDatabase(databaseName));
