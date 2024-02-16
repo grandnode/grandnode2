@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Grand.Web.Common.Components
 {
@@ -14,7 +14,7 @@ namespace Grand.Web.Common.Components
         {
             if(Request?.ContentType == "application/json")
             {
-                return new JsonContentViewComponentResult(JsonConvert.SerializeObject(model));
+                return new JsonContentViewComponentResult(JsonSerializer.Serialize(model));
             }
             return base.View<TModel>(model);
         }

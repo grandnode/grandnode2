@@ -86,13 +86,16 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Partially update entity in CustomerGroup", OperationId = "PartiallyUpdateCustomerGroup")]
-        [HttpPatch]
+        [HttpPatch("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<CustomerGroupDto> model)
+        public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<CustomerGroupDto> model)
         {
+            if (string.IsNullOrEmpty(key))
+                return BadRequest("Key is null or empty");
+            
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
             var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));

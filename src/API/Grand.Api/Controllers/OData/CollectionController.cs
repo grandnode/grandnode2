@@ -81,13 +81,16 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Partially update entity in Collection", OperationId = "PartiallyUpdateCollection")]
-        [HttpPatch]
+        [HttpPatch("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<CollectionDto> model)
+        public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<CollectionDto> model)
         {
+            if (string.IsNullOrEmpty(key))
+                return BadRequest("Key is null or empty");
+            
             if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
             var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));

@@ -12,9 +12,12 @@ using Grand.Infrastructure.TypeSearch;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
@@ -47,7 +50,10 @@ namespace Grand.Api.Infrastructure
                         builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 });
                 //Add OData
-                services.AddControllers().AddOData(opt =>
+                services.AddControllers(options =>
+                {
+                    options.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+                }).AddOData(opt =>
                 {
                     opt.EnableQueryFeatures(Configurations.MaxLimit);
                     opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));
@@ -57,6 +63,21 @@ namespace Grand.Api.Infrastructure
                 services.AddScoped<ModelValidationAttribute>();
 
             }
+        }
+        private static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter()
+        {
+            var builder = new ServiceCollection()
+                .AddLogging()
+                .AddMvc()
+                .AddNewtonsoftJson()
+                .Services.BuildServiceProvider();
+
+            return builder
+                .GetRequiredService<IOptions<MvcOptions>>()
+                .Value
+                .InputFormatters
+                .OfType<NewtonsoftJsonPatchInputFormatter>()
+                .First();
         }
         public int Priority => 505;
         public bool BeforeConfigure => false;
@@ -143,5 +164,7 @@ namespace Grand.Api.Infrastructure
                 IQueryable<PictureDto>>), typeof(GetGenericQueryHandler<PictureDto, Domain.Media.Picture>));
 
         }
+        
     }
+    
 }

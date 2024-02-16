@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Data;
 using Grand.Domain.Seo;
 using MediatR;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {
@@ -74,7 +74,7 @@ namespace Grand.Business.Catalog.Events.Handlers
             }
 
             //insert to deleted products
-            var productDeleted = JsonConvert.DeserializeObject<ProductDeleted>(JsonConvert.SerializeObject(notification.Entity));
+            var productDeleted = JsonSerializer.Deserialize<ProductDeleted>(JsonSerializer.Serialize(notification.Entity));
             if (productDeleted != null)
             {
                 productDeleted.DeletedOnUtc = DateTime.UtcNow;

@@ -6,7 +6,6 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Business.Core.Interfaces.Common.Directory;
 
@@ -77,22 +76,6 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(storeId)) return stores.FirstOrDefault()?.Id;
             var store = await storeService.GetStoreById(storeId);
             return store != null ? store.Id : stores.FirstOrDefault()?.Id;
-        }
-
-        /// <summary>
-        /// Creates a <see cref="T:System.Web.Mvc.JsonResult"/> object that serializes the specified object to JavaScript Object Notation (JSON) format using the content type, content encoding, and the JSON request behavior.
-        /// </summary>
-        /// 
-        /// <returns>
-        /// The result object that serializes the specified object to JSON format.
-        /// </returns>
-        /// <param name="data">The JavaScript object graph to serialize.</param>
-        public override JsonResult Json(object data)
-        {
-            var serializerSettings = new JsonSerializerSettings {
-                DateFormatHandling = DateFormatHandling.IsoDateFormat
-            };
-            return base.Json(data, serializerSettings);
         }
     }
 }

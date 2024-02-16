@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Configuration;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Grand.Infrastructure.Caching.Redis
 {
@@ -32,7 +32,7 @@ namespace Grand.Infrastructure.Caching.Redis
                     Key = msg.Key,
                     MessageType = msg.MessageType
                 };
-                var message = JsonConvert.SerializeObject(client);
+                var message = JsonSerializer.Serialize(client);
                 await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
             }
             catch(Exception ex)
@@ -47,7 +47,7 @@ namespace Grand.Infrastructure.Caching.Redis
             {
                 try
                 {
-                    var message = JsonConvert.DeserializeObject<MessageEventClient>(redisValue);
+                    var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue);
                     if (message != null && message.ClientId != ClientId)
                         OnSubscriptionChanged(message);
                 }

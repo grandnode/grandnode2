@@ -80,20 +80,23 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Partially update entity in Product", OperationId = "PartiallyUpdateProduct")]
-        [HttpPatch]
+        [HttpPatch("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<ProductDto> model)
+        public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<ProductDto> model)
         {
+            if (string.IsNullOrEmpty(key))
+                return BadRequest("Key is null or empty");
+            
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
             if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
-            model.ApplyTo(pr!, ModelState);
+            model.ApplyTo(pr);
             await _mediator.Send(new UpdateProductCommand { Model = pr });
             return Ok();
         }

@@ -73,7 +73,8 @@ public class ApiResponseTypeProvider
         Type defaultErrorType)
     {
         var contentTypes = new MediaTypeCollection();
-        var responseTypeMetadataProviders = _mvcOptions.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>();
+        var responseTypeMetadataProviders = _mvcOptions.OutputFormatters
+            .OfType<SystemTextJsonOutputFormatter>();
 
         var responseTypes = ReadResponseMetadata(
             responseMetadataAttributes,

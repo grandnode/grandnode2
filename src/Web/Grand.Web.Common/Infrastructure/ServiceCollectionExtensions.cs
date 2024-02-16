@@ -20,7 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.WebEncoders;
-using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -207,7 +206,11 @@ namespace Grand.Web.Common.Infrastructure
         public static IMvcBuilder AddGrandMvc(this IServiceCollection services, IConfiguration configuration)
         {
             //add basic MVC feature
-            var mvcBuilder = services.AddControllersWithViews();
+            var mvcBuilder = services.AddControllersWithViews().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null; 
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            });
 
             //add view localization
             mvcBuilder.AddViewLocalization();
@@ -248,11 +251,7 @@ namespace Grand.Web.Common.Infrastructure
             var typeSearcher = new TypeSearcher();
             var assemblies = typeSearcher.GetAssemblies();
             services.AddValidatorsFromAssemblies(assemblies);
-
-            //MVC now serializes JSON with camel case names by default, use this code to avoid it
-            mvcBuilder.AddNewtonsoftJson(options =>
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver());
-
+            
             //register controllers as services, it'll allow to override them
             mvcBuilder.AddControllersAsServices();
             

@@ -74,6 +74,10 @@ namespace Grand.Web.Common.Filters
                 if (!HttpMethods.IsGet(context.HttpContext.Request.Method))
                     return;
 
+                //whether is need to store last visited page URL
+                if (!_customerSettings.StoreLastVisitedPage)
+                    return;
+                
                 //update last activity date
                 if (_workContext.CurrentCustomer.LastActivityDateUtc.AddMinutes(3.0) < DateTime.UtcNow)
                 {
@@ -82,17 +86,13 @@ namespace Grand.Web.Common.Filters
 
                 //get current IP address
                 var currentIpAddress = context.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+                
                 //update customer's IP address
                 if (!string.IsNullOrEmpty(currentIpAddress) && !currentIpAddress.Equals(_workContext.CurrentCustomer.LastIpAddress, StringComparison.OrdinalIgnoreCase))
                 {
                     _workContext.CurrentCustomer.LastIpAddress = currentIpAddress;
                     await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.LastIpAddress, currentIpAddress);
                 }
-
-                //whether is need to store last visited page URL
-                if (!_customerSettings.StoreLastVisitedPage)
-                    return;
-
                 //get current page
                 var pageUrl = context.HttpContext?.Request?.GetDisplayUrl();
                 if (string.IsNullOrEmpty(pageUrl))

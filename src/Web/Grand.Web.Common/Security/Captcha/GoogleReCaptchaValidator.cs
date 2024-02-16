@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
+﻿using Grand.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace Grand.Web.Common.Security.Captcha
 {
@@ -38,7 +39,7 @@ namespace Grand.Web.Common.Security.Captcha
             }
             catch (Exception exc)
             {
-                result = new GoogleReCaptchaResponse { IsValid = false };
+                result = new GoogleReCaptchaResponse { Success = false };
                 result.ErrorCodes.Add("Unknown error" + exc.Message);
             }
 
@@ -47,21 +48,11 @@ namespace Grand.Web.Common.Security.Captcha
 
         private GoogleReCaptchaResponse ParseResponseResult(string responseString)
         {
-            var result = new GoogleReCaptchaResponse();
-
-            var resultObject = JObject.Parse(responseString);
-            var success = resultObject.Value<bool>("success");
-            if(_captchaSettings.ReCaptchaVersion == GoogleReCaptchaVersion.V3)
-            {
-                var score = resultObject.Value<decimal>("score");
-                if (_captchaSettings.ReCaptchaScore > 0)
-                    success = success && score >= _captchaSettings.ReCaptchaScore;
-            }
-            result.IsValid = success;
-
-            if (resultObject.Value<JToken>("error-codes") != null &&
-                    resultObject.Value<JToken>("error-codes")!.Values<string>().Any())
-                result.ErrorCodes = resultObject.Value<JToken>("error-codes")?.Values<string>().ToList();
+            var result =  JsonSerializer.Deserialize<GoogleReCaptchaResponse>(responseString, ProviderExtensions.JsonSerializerOptionsProvider.Options);
+            if (_captchaSettings.ReCaptchaVersion != GoogleReCaptchaVersion.V3) return result;
+            
+            if (_captchaSettings.ReCaptchaScore > 0)
+                result.Success = result.Success && result.Score >= _captchaSettings.ReCaptchaScore;
 
             return result;
         }

@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
-using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace Grand.Business.Marketing.Tests.Services.PushNotifications
 {
@@ -34,7 +34,7 @@ namespace Grand.Business.Marketing.Tests.Services.PushNotifications
 
             var mockMessageHandler = new Mock<HttpMessageHandler>();
 
-            var output = JsonConvert.SerializeObject(new JsonResponse { success = 1, failure = 0, canonical_ids = 1 });
+            var output = JsonSerializer.Serialize(new JsonResponse { success = 1, failure = 0, canonical_ids = 1 });
 
             mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())

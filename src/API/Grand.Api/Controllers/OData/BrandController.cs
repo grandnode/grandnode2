@@ -81,13 +81,16 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Partially update entity in Brand", OperationId = "PartiallyUpdateBrand")]
-        [HttpPatch]
+        [HttpPatch("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<BrandDto> model)
+        public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<BrandDto> model)
         {
+            if (string.IsNullOrEmpty(key))
+                return BadRequest("Key is null or empty");
+            
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 
             var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
