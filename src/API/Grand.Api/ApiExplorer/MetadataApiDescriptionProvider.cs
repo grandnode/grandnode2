@@ -404,7 +404,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var results = new List<ApiRequestFormat>();
         foreach (var contentType in contentTypes)
         {
-            foreach (var formatter in _mvcOptions.InputFormatters.OfType<NewtonsoftJsonInputFormatter>())
+            foreach (var formatter in _mvcOptions.InputFormatters.OfType<SystemTextJsonInputFormatter>())
             {
                 if (formatter is IApiRequestFormatMetadataProvider requestFormatMetadataProvider)
                 {
