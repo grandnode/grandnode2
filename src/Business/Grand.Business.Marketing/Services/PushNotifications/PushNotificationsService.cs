@@ -6,8 +6,8 @@ using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace Grand.Business.Marketing.Services.PushNotifications
 {
@@ -178,8 +178,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                 }
             };
 
-            var json = JsonConvert.SerializeObject(data);
-
+            var json = JsonSerializer.Serialize(data);
             try
             {
                 using var httpRequest = new HttpRequestMessage(HttpMethod.Post, FcmUrl);
@@ -196,7 +195,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                     return (false, responseString);
                 }
 
-                var responseMessage = JsonConvert.DeserializeObject<JsonResponse>(responseString);
+                var responseMessage = JsonSerializer.Deserialize<JsonResponse>(responseString);
                 if (responseMessage == null) return (false, "PushNotifications.ResponseMessage.Empty");
                     
                 await InsertPushMessage(new PushMessage {
