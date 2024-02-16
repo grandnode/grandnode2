@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Globalization;
+using System.Text.Json;
 using Widgets.FacebookPixel.Models;
 
 namespace Widgets.FacebookPixel.Components
@@ -46,7 +46,7 @@ namespace Widgets.FacebookPixel.Components
             //add to cart
             if (widgetZone == FacebookPixelDefaults.AddToCart)
             {
-                var model = JsonConvert.DeserializeObject<FacebookAddToCartModelModel>(JsonConvert.SerializeObject(additionalData));
+                var model = JsonSerializer.Deserialize<FacebookAddToCartModelModel>(JsonSerializer.Serialize(additionalData));
                 if (model != null)
                 {
                     return View("Default", GetAddToCartScript(model));
