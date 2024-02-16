@@ -209,6 +209,7 @@ namespace Grand.Web.Common.Infrastructure
             var mvcBuilder = services.AddControllersWithViews().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null; 
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             });
 
             //add view localization

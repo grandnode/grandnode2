@@ -2,6 +2,7 @@
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
+using System.Text.Json;
 
 namespace Grand.Infrastructure.Extensions
 {
@@ -41,6 +42,14 @@ namespace Grand.Infrastructure.Extensions
                 return true;
 
             return method.LimitedToGroups.ContainsAny(customer.Groups.Select(x => x));
+        }
+        
+        public static class JsonSerializerOptionsProvider
+        {
+            public static JsonSerializerOptions Options { get; } = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
         }
     }
 }

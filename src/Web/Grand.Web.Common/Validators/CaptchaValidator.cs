@@ -75,7 +75,7 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
             !StringValues.IsNullOrEmpty(captchaResponseValue)
                 ? captchaResponseValue
                 : gCaptchaResponseValue);
-        isValid = recaptchaResponse.IsValid;
+        isValid = recaptchaResponse.Success;
         
         return isValid ? (true, string.Empty) : (false, string.Join(',', recaptchaResponse.ErrorCodes));
     }
