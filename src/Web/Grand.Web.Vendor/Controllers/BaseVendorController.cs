@@ -1,7 +1,6 @@
 ﻿using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Grand.Web.Vendor.Extensions;
 
 namespace Grand.Web.Vendor.Controllers
@@ -46,22 +45,6 @@ namespace Grand.Web.Vendor.Controllers
                     ViewData[dataKey] = index;
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates a <see cref="T:System.Web.Mvc.JsonResult"/> object that serializes the specified object to JavaScript Object Notation (JSON) format using the content type, content encoding, and the JSON request behavior.
-        /// </summary>
-        /// 
-        /// <returns>
-        /// The result object that serializes the specified object to JSON format.
-        /// </returns>
-        /// <param name="data">The JavaScript object graph to serialize.</param>
-        public override JsonResult Json(object data)
-        {
-            var serializerSettings = new JsonSerializerSettings {
-                DateFormatHandling = DateFormatHandling.IsoDateFormat
-            };
-            return base.Json(data, serializerSettings);
         }
     }
 }
