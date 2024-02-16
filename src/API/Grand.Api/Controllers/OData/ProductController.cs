@@ -6,7 +6,6 @@ using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -85,7 +84,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<ProductDto> model)
+        public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<ProductDto> model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -93,7 +92,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
-            model.ApplyTo(pr!, ModelState);
+            model.ApplyTo(pr);
             await _mediator.Send(new UpdateProductCommand { Model = pr });
             return Ok();
         }
