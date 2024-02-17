@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
+using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
@@ -25,7 +26,7 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Get entities from Brand", OperationId = "GetBrands")]
         [HttpGet]
-        [EnableQuery]
+        [MongoEnableQuery]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()

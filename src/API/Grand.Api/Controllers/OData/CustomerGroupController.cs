@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
+using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
@@ -41,7 +42,7 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Get entities from CustomerGroup", OperationId = "GetCustomerGroups")]
         [HttpGet]
-        [EnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+        [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
