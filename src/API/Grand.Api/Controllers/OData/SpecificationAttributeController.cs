@@ -27,7 +27,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entity from SpecificationAttribute by key", OperationId = "GetSpecificationAttributeById")]
-        [HttpGet("{key}")]
+        [HttpGet("({key})")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

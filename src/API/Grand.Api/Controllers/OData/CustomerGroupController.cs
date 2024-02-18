@@ -28,7 +28,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entity from CustomerGroup by key", OperationId = "GetCustomerGroupById")]
-        [HttpGet("{key}")]
+        [HttpGet("({key})")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

@@ -24,7 +24,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entity from BrandLayout by key", OperationId = "GetBrandLayoutById")]
-        [HttpGet("{key}")]
+        [HttpGet("({key})")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

@@ -24,7 +24,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entities from Picture by key", OperationId = "GetPictureById")]
-        [HttpGet("{key}")]
+        [HttpGet("({key})")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
