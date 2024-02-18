@@ -11,6 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/ShippingMethod")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class ShippingMethodController : BaseODataController
     {
         private readonly IMediator _mediator;

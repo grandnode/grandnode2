@@ -10,6 +10,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/CategoryLayout")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CategoryLayoutController : BaseODataController
     {
         private readonly IMediator _mediator;

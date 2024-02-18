@@ -11,6 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/PickupPoint")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class PickupPointController : BaseODataController
     {
         private readonly IMediator _mediator;

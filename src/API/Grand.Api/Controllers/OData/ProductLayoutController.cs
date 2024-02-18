@@ -10,6 +10,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/ProductLayout")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class ProductLayoutController : BaseODataController
     {
         private readonly IMediator _mediator;

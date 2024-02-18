@@ -10,6 +10,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/Picture")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class PictureController : BaseODataController
     {
         private readonly IMediator _mediator;

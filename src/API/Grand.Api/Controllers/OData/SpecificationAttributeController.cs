@@ -14,6 +14,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/SpecificationAttribute")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class SpecificationAttributeController : BaseODataController
     {
         private readonly IMediator _mediator;

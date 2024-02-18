@@ -11,6 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    //[Route("odata/Country")]
+    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CountryController : BaseODataController
     {
         private readonly IMediator _mediator;
