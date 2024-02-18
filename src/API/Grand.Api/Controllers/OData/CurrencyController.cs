@@ -11,8 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Currency")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Currency")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CurrencyController : BaseODataController
     {
         private readonly IMediator _mediator;

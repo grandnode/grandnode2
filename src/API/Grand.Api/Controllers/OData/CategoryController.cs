@@ -14,8 +14,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Category")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Category")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CategoryController : BaseODataController
     {
         private readonly IMediator _mediator;

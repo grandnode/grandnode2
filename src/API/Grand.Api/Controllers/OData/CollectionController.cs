@@ -14,8 +14,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Collection")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Collection")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CollectionController : BaseODataController
     {
         private readonly IMediator _mediator;

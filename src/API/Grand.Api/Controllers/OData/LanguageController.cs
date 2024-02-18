@@ -11,8 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Language")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Language")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class LanguageController : BaseODataController
     {
         private readonly IMediator _mediator;

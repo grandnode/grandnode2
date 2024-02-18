@@ -11,8 +11,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Warehouse")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Warehouse")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class WarehouseController : BaseODataController
     {
         private readonly IMediator _mediator;

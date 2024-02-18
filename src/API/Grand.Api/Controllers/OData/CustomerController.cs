@@ -13,8 +13,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/Customer")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/Customer")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CustomerController : BaseODataController
     {
         private readonly IMediator _mediator;
@@ -35,12 +35,12 @@ namespace Grand.Api.Controllers.OData
             _permissionService = permissionService;
         }
 
-        [SwaggerOperation(summary: "Get entity from Customer by key", OperationId = "GetCustomerByEmail")]
-        [HttpGet("/{email}")]
+        [SwaggerOperation(summary: "Get entity from Customer by email", OperationId = "GetCustomerByEmail")]
+        [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Get(string email)
+        public async Task<IActionResult> Get([FromRoute] string email)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
@@ -81,27 +81,26 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Delete(string key)
+        public async Task<IActionResult> Delete([FromRoute] string email)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-            var customer = await _mediator.Send(new GetCustomerQuery { Email = key });
+            var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
             if (customer == null) return NotFound();
 
-            await _mediator.Send(new DeleteCustomerCommand { Email = key });
+            await _mediator.Send(new DeleteCustomerCommand { Email = email });
 
             return Ok();
         }
 
-        //odata/Customer/email/AddAddress
+        //odata/Customer/(email)/AddAddress
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
-        [Route("/{email}/[action]")]
-        [HttpPost]
+        [HttpPost("/({email})/AddAddress")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> AddAddress(string email, [FromBody] AddressDto address)
+        public async Task<IActionResult> AddAddress([FromRoute] string email, [FromBody] AddressDto address)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
@@ -112,15 +111,15 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer/email/UpdateAddress
+        //odata/Customer/(email)/UpdateAddress
         [SwaggerOperation(summary: "Invoke action UpdateAddress", OperationId = "UpdateAddress")]
-        [Route("/{email}/[action]")]
-        [HttpPost]
+        [HttpPost("/({email})/UpdateAddress")]
+        //[HttpPost]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> UpdateAddress(string email, [FromBody] AddressDto address)
+        public async Task<IActionResult> UpdateAddress([FromRoute] string email, [FromBody] AddressDto address)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
@@ -132,15 +131,15 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer/email/DeleteAddress
+        //odata/Customer/(email)/DeleteAddress
         //body: { "addressId": "xxx" }
         [SwaggerOperation(summary: "Invoke action DeleteAddress", OperationId = "DeleteAddress")]
-        [Route("/{email}/[action]")]
-        [HttpPost]
+        [HttpPost("/({email})/DeleteAddress")]
+        //[HttpPost]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> DeleteAddress(string email, [FromBody] DeleteAddressDto model)
+        public async Task<IActionResult> DeleteAddress([FromRoute] string email, [FromBody] DeleteAddressDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
@@ -157,16 +156,16 @@ namespace Grand.Api.Controllers.OData
             return Ok(true);
         }
 
-        //odata/Customer/email/SetPassword
+        //odata/Customer/(email)/SetPassword
         //body: { "password": "123456" }
         [SwaggerOperation(summary: "Invoke action SetPassword", OperationId = "SetPassword")]
-        [Route("/{email}/[action]")]
-        [HttpPost]
+        [HttpPost("/({email})/SetPassword")]
+        //[HttpPost]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> SetPassword(string email, [FromBody] PasswordDto model)
+        public async Task<IActionResult> SetPassword([FromRoute] string email, [FromBody] PasswordDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 

@@ -10,8 +10,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
-    //[Route("odata/CollectionLayout")]
-    //[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+    [Route("odata/CollectionLayout")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class CollectionLayoutController : BaseODataController
     {
         private readonly IMediator _mediator;
