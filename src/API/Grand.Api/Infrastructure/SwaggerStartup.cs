@@ -88,33 +88,6 @@ namespace Grand.Api.Infrastructure
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
                     c.SchemaFilter<IgnoreFieldFilter>();
-                    /*c.ResolveConflictingActions(apiDescriptions =>
-                    {
-                        var descriptions = apiDescriptions as ApiDescription[] ?? apiDescriptions.ToArray();
-                        var first = descriptions.First();
-
-                        // Build relative to the 1st method
-                        var parameters = descriptions.SelectMany(d => d.ParameterDescriptions).ToList();
-                        first.ParameterDescriptions.Clear();
-
-                        // Add parameters and make them optional
-                        foreach (var parameter in parameters)
-                        {
-                            if (first.ParameterDescriptions.All(x => x.Name != parameter.Name))
-                            {
-                                first.ParameterDescriptions.Add(new ApiParameterDescription {
-                                    ModelMetadata = parameter.ModelMetadata,
-                                    Name = parameter.Name,
-                                    ParameterDescriptor = parameter.ParameterDescriptor,
-                                    Source = parameter.Source,
-                                    IsRequired = false,
-                                    DefaultValue = null
-                                });
-                            }
-                        }
-
-                        return first;
-                    });*/
                 });
 
             }
