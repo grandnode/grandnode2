@@ -93,9 +93,9 @@ namespace Grand.Api.Controllers.OData
             return Ok();
         }
 
-        //odata/Customer/(email)/AddAddress
+        //odata/Customer/email/AddAddress
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
-        [HttpPost("/({email})/AddAddress")]
+        [HttpPost("/{email}/AddAddress")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -111,9 +111,9 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer/(email)/UpdateAddress
+        //odata/Customer/email/UpdateAddress
         [SwaggerOperation(summary: "Invoke action UpdateAddress", OperationId = "UpdateAddress")]
-        [HttpPost("/({email})/UpdateAddress")]
+        [HttpPost("/{email}/UpdateAddress")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -130,10 +130,10 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer/(email)/DeleteAddress
+        //odata/Customer/email/DeleteAddress
         //body: { "addressId": "xxx" }
         [SwaggerOperation(summary: "Invoke action DeleteAddress", OperationId = "DeleteAddress")]
-        [HttpPost("/({email})/DeleteAddress")]
+        [HttpPost("/{email}/DeleteAddress")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -154,10 +154,10 @@ namespace Grand.Api.Controllers.OData
             return Ok(true);
         }
 
-        //odata/Customer/(email)/SetPassword
+        //odata/Customer/email/SetPassword
         //body: { "password": "123456" }
         [SwaggerOperation(summary: "Invoke action SetPassword", OperationId = "SetPassword")]
-        [HttpPost("/({email})/SetPassword")]
+        [HttpPost("/{email}/SetPassword")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

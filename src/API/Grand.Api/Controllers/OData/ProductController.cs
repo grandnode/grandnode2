@@ -121,10 +121,10 @@ namespace Grand.Api.Controllers.OData
             return Ok();
         }
 
-        //odata/Product/(id)/UpdateStock
+        //odata/Product/id/UpdateStock
         //body: { "WarehouseId": "", "Stock": 10 }
         [SwaggerOperation(summary: "Invoke action UpdateStock", OperationId = "UpdateStock")]
-        [HttpPost("/({key})/UpdateStock")]
+        [HttpPost("/{key}/UpdateStock")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -146,7 +146,7 @@ namespace Grand.Api.Controllers.OData
         #region Product category
 
         [SwaggerOperation(summary: "Invoke action CreateProductCategory", OperationId = "CreateProductCategory")]
-        [HttpPost("/({key})/CreateProductCategory")]
+        [HttpPost("/{key}/CreateProductCategory")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -172,7 +172,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductCategory", OperationId = "UpdateProductCategory")]
-        [HttpPost("/({key})/UpdateProductCategory")]
+        [HttpPost("/{key}/UpdateProductCategory")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -198,7 +198,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductCategory", OperationId = "DeleteProductCategory")]
-        [HttpPost("/({key})/DeleteProductCategory")]
+        [HttpPost("/{key}/DeleteProductCategory")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -233,7 +233,7 @@ namespace Grand.Api.Controllers.OData
         #region Product collection
 
         [SwaggerOperation(summary: "Invoke action CreateProductCollection", OperationId = "CreateProductCollection")]
-        [HttpPost("/({key})/CreateProductCollection")]
+        [HttpPost("/{key}/CreateProductCollection")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -259,7 +259,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductCollection", OperationId = "UpdateProductCollection")]
-        [HttpPost("/({key})/UpdateProductCollection")]
+        [HttpPost("/{key}/UpdateProductCollection")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -285,7 +285,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductCollection", OperationId = "DeleteProductCollection")]
-        [HttpPost("/({key})/DeleteProductCollection")]
+        [HttpPost("/{key}/DeleteProductCollection")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -320,7 +320,7 @@ namespace Grand.Api.Controllers.OData
         #region Product picture
 
         [SwaggerOperation(summary: "Invoke action CreateProductPicture", OperationId = "CreateProductPicture")]
-        [HttpPost("/({key})/CreateProductPicture")]
+        [HttpPost("/{key}/CreateProductPicture")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -346,7 +346,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductPicture", OperationId = "UpdateProductPicture")]
-        [HttpPost("/({key})/UpdateProductPicture")]
+        [HttpPost("/{key}/UpdateProductPicture")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -372,7 +372,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductPicture", OperationId = "DeleteProductPicture")]
-        [HttpPost("/({key})/DeleteProductPicture")]
+        [HttpPost("/{key}/DeleteProductPicture")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -407,7 +407,7 @@ namespace Grand.Api.Controllers.OData
         #region Product specification
 
         [SwaggerOperation(summary: "Invoke action CreateProductSpecification", OperationId = "CreateProductSpecification")]
-        [HttpPost("/({key})/CreateProductSpecification")]
+        [HttpPost("/{key}/CreateProductSpecification")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -433,7 +433,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductSpecification", OperationId = "UpdateProductSpecification")]
-        [HttpPost("/({key})/UpdateProductSpecification")]
+        [HttpPost("/{key}/UpdateProductSpecification")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -459,7 +459,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductSpecification", OperationId = "DeleteProductSpecification")]
-        [HttpPost("/({key})/DeleteProductSpecification")]
+        [HttpPost("/{key}/DeleteProductSpecification")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -494,7 +494,7 @@ namespace Grand.Api.Controllers.OData
         #region Product tierprice
 
         [SwaggerOperation(summary: "Invoke action CreateProductTierPrice", OperationId = "CreateProductTierPrice")]
-        [HttpPost("/({key})/CreateProductTierPrice")]
+        [HttpPost("/{key}/CreateProductTierPrice")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -520,7 +520,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductTierPrice", OperationId = "UpdateProductTierPrice")]
-        [HttpPost("/({key})/UpdateProductTierPrice")]
+        [HttpPost("/{key}/UpdateProductTierPrice")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -546,7 +546,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductTierPrice", OperationId = "DeleteProductTierPrice")]
-        [HttpPost("/({key})/DeleteProductTierPrice")]
+        [HttpPost("/{key}/DeleteProductTierPrice")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -581,7 +581,7 @@ namespace Grand.Api.Controllers.OData
         #region Product attribute mapping
 
         [SwaggerOperation(summary: "Invoke action CreateProductAttributeMapping", OperationId = "CreateProductAttributeMapping")]
-        [HttpPost("/({key})/CreateProductAttributeMapping")]
+        [HttpPost("/{key}/CreateProductAttributeMapping")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -607,7 +607,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action UpdateProductAttributeMapping", OperationId = "UpdateProductAttributeMapping")]
-        [HttpPost("/({key})/UpdateProductAttributeMapping")]
+        [HttpPost("/{key}/UpdateProductAttributeMapping")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -633,7 +633,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Invoke action DeleteProductAttributeMapping", OperationId = "DeleteProductAttributeMapping")]
-        [HttpPost("/({key})/DeleteProductAttributeMapping")]
+        [HttpPost("/{key}/DeleteProductAttributeMapping")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
