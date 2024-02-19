@@ -6,13 +6,14 @@ using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Formatter;
-using Microsoft.AspNetCore.OData.Query;
+using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    [Route("odata/Brand")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class BrandController : BaseODataController
     {
         private readonly IMediator _mediator;
@@ -25,7 +26,7 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Get entities from Brand", OperationId = "GetBrands")]
         [HttpGet]
-        [EnableQuery]
+        [MongoEnableQuery]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
@@ -40,7 +41,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(string key)
+        public async Task<IActionResult> GetById([FromRoute] string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
 

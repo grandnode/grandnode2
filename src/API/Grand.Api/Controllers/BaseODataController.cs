@@ -10,8 +10,6 @@ namespace Grand.Api.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ODataRouteComponent]
-    [Route("odata/[controller]")]
-    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     [AuthorizeApiAdmin]
     [ServiceFilter(typeof(ModelValidationAttribute))]
     public abstract class BaseODataController : ODataController

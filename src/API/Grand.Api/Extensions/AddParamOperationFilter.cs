@@ -74,6 +74,16 @@ namespace Grand.Api.Extensions
                     Type = "string"
                 }
             });
+            operation.Parameters.Add(new OpenApiParameter {
+                Name = "$select",
+                AllowReserved = true,
+                In = ParameterLocation.Query,
+                Description = "Select specific properties from the model",
+                Required = false,
+                Schema = new OpenApiSchema {
+                    Type = "string"
+                }
+            });
         }
 
         private void ApplyV2(OpenApiOperation operation, OperationFilterContext context)

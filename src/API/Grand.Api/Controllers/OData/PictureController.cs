@@ -10,6 +10,8 @@ using System.Net;
 
 namespace Grand.Api.Controllers.OData
 {
+    [Route("odata/Picture")]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
     public class PictureController : BaseODataController
     {
         private readonly IMediator _mediator;
@@ -26,7 +28,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Get(string key)
+        public async Task<IActionResult> Get([FromRoute] string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
 
