@@ -30,7 +30,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entity from Product by key", OperationId = "GetProductById")]
-        [HttpGet("({key})")]
+        [HttpGet("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

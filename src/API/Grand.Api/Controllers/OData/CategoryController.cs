@@ -29,11 +29,11 @@ namespace Grand.Api.Controllers.OData
         }
 
         [SwaggerOperation(summary: "Get entity from Category by key", OperationId = "GetCategoryById")]
-        [HttpGet("({key})")]
+        [HttpGet("{key}")]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Get(string key)
+        public async Task<IActionResult> Get([FromRoute] string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 
