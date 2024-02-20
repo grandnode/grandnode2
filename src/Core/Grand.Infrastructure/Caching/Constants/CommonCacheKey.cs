@@ -89,15 +89,6 @@
         public static string TRANSLATERESOURCES_ALL_KEY => "Grand.translate.all-{0}";
 
         /// <summary>
-        /// Key for caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : language ID
-        /// {1} : resource key
-        /// </remarks>
-        public static string TRANSLATERESOURCES_BY_RESOURCENAME_KEY => "Grand.translate.{0}-{1}";
-
-        /// <summary>
         /// Key pattern to clear cache
         /// </summary>
         public static string TRANSLATERESOURCES_PATTERN_KEY => "Grand.translate.";
