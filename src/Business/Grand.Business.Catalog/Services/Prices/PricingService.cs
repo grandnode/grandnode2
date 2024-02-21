@@ -118,7 +118,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
-            var discounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToAllProducts, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
+            var discounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
             foreach (var discount in discounts)
             {
                 var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);

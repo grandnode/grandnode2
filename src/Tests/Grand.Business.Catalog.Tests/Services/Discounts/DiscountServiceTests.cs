@@ -91,7 +91,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             await _dicountService.InsertDiscount(discount2);
 
             //Act
-            var result = await _dicountService.GetAllDiscounts(null, showHidden: true);
+            var result = await _dicountService.GetDiscountsQuery(null);
 
             //Assert
             Assert.IsNotNull(result);

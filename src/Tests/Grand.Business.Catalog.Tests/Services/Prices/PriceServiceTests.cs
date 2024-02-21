@@ -232,10 +232,10 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
             product.AppliedDiscounts.Add(discount001.Id);
 
             tempDiscountServiceMock.Setup(x => x.ValidateDiscount(discount001, customer, _currency)).ReturnsAsync(new DiscountValidationResult { IsValid = true });
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToSkus, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount> { discount001 });
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToSkus, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount> { discount001 });
 
             var discountAmount = discount001.DiscountAmount;
             tempDiscountServiceMock.Setup(x => x.GetPreferredDiscount(It.IsAny<List<ApplyDiscount>>(), customer, _currency, product, 49.99)).ReturnsAsync((new List<ApplyDiscount>(), 10));
@@ -271,9 +271,9 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
 
             customer001.ShoppingCartItems.Add(shoppingCartItem);
 
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
             var pp = (await _pricingService.GetUnitPrice(shoppingCartItem, product001)).unitprice;
             Assert.AreEqual(49.99, pp);
         }
@@ -301,9 +301,9 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
 
             customer001.ShoppingCartItems.Add(shoppingCartItem);
 
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
             var subtotal = (await _pricingService.GetSubTotal(shoppingCartItem, product001)).subTotal;
             Assert.AreEqual(110.22, subtotal);
         }

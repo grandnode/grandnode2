@@ -93,12 +93,11 @@ namespace Grand.Web.Admin.Services
             DiscountType? discountType = null;
             if (model.SearchDiscountTypeId > 0)
                 discountType = (DiscountType)model.SearchDiscountTypeId;
-            var discounts = await _discountService.GetAllDiscounts(discountType,
+            var discounts = await _discountService.GetDiscountsQuery(discountType,
                 _workContext.CurrentCustomer.StaffStoreId,
                 null,
                 model.SearchDiscountCouponCode,
-                model.SearchDiscountName,
-                true);
+                model.SearchDiscountName);
             var items = new List<DiscountModel>();
             foreach (var x in discounts.Skip((pageIndex - 1) * pageSize).Take(pageSize))
             {

@@ -77,58 +77,62 @@ namespace Grand.Business.Catalog.Services.Discounts
         }
 
         /// <summary>
-        /// Gets all discounts
+        /// Gets active discounts by context
         /// </summary>       
         /// <returns>Discounts</returns>
-        public virtual async Task<IList<Discount>> GetAllDiscounts(DiscountType? discountType,
-            string storeId = "", string currencyCode = "", string couponCode = "", string discountName = "", bool showHidden = false)
+        public virtual async Task<IList<Discount>> GetActiveDiscountsByContext(DiscountType discountType, string storeId = "", string currencyCode = "")
         {
-            var key = string.Format(CacheKey.DISCOUNTS_ALL_KEY, showHidden, storeId, currencyCode, couponCode, discountName);
-            var result = await _cacheBase.GetAsync(key, async () =>
-            {
-                var query = from m in _discountRepository.Table
-                            select m;
-                if (!showHidden)
-                {
-                    var nowUtc = DateTime.UtcNow;
-                    query = query.Where(d =>
-                        (!d.StartDateUtc.HasValue || d.StartDateUtc <= nowUtc)
-                        && (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc)
-                        && d.IsEnabled);
-                }
-                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-                {
-                    //Store acl
-                    query = from p in query
-                            where !p.LimitedToStores || p.Stores.Contains(storeId)
-                            select p;
-                }
-                if (!string.IsNullOrEmpty(couponCode))
-                {
-                    var coupon = await _discountCouponRepository.GetOneAsync(x => x.CouponCode == couponCode);
-                    if (coupon != null)
-                        query = query.Where(d => d.Id == coupon.DiscountId);
-                }
-                if (!string.IsNullOrEmpty(discountName))
-                {
-                    query = query.Where(d => d.Name != null && d.Name.ToLower().Contains(discountName.ToLower()));
-                }
-                if (!string.IsNullOrEmpty(currencyCode))
-                {
-                    query = query.Where(d => d.CurrencyCode == currencyCode);
-                }
-                query = query.OrderBy(d => d.Name);
+            var key = string.Format(CacheKey.DISCOUNTS_CONTEXT_KEY, discountType, storeId, currencyCode);
+            var allDiscounts = await _cacheBase.GetAsync(key, () => GetDiscountsQuery(discountType, storeId, currencyCode));
+            
+            var nowUtc = DateTime.UtcNow;
+            var filteredDiscounts = 
+                allDiscounts.Where(d => d.IsEnabled && 
+                                        (!d.StartDateUtc.HasValue || d.StartDateUtc <= nowUtc) && 
+                                        (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc));
+            
+            return filteredDiscounts.ToList();
+        }
+        public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
+            string couponCode = "", string discountName = "")
+        {
+            var query = _discountRepository.Table.AsQueryable();
 
-                var discounts = await Task.FromResult(query.ToList());
-                return discounts;
-            });
             if (discountType.HasValue)
             {
-                result = result.Where(d => d.DiscountTypeId == discountType.Value).ToList();
+                query = query.Where(d => d.DiscountTypeId == discountType);
             }
-            return result;
-        }
 
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            {
+                query = query.Where(d => !d.LimitedToStores || d.Stores.Contains(storeId));
+            }
+
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var couponDiscountId = _discountCouponRepository.Table
+                    .Where(x => x.CouponCode == couponCode)
+                    .Select(x => x.DiscountId)
+                    .FirstOrDefault();
+                if (couponDiscountId != default)
+                    query = query.Where(d => d.Id == couponDiscountId);
+            }
+
+            if (!string.IsNullOrEmpty(discountName))
+            {
+                query = query.Where(d => d.Name != null && d.Name.Contains(discountName, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(currencyCode))
+            {
+                query = query.Where(d => d.CurrencyCode == currencyCode);
+            }
+
+            query = query.OrderBy(d => d.Name);
+
+            return await Task.FromResult(query.ToList());
+        }
+        
         /// <summary>
         /// Inserts a discount
         /// </summary>
@@ -299,6 +303,9 @@ namespace Grand.Business.Catalog.Services.Discounts
         public virtual async Task DeleteDiscountCoupon(DiscountCoupon coupon)
         {
             await _discountCouponRepository.DeleteAsync(coupon);
+            
+            //clear cache
+            await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
         }
 
         /// <summary>
@@ -308,6 +315,9 @@ namespace Grand.Business.Catalog.Services.Discounts
         public virtual async Task InsertDiscountCoupon(DiscountCoupon coupon)
         {
             await _discountCouponRepository.InsertAsync(coupon);
+            
+            //clear cache
+            await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
         }
 
         /// <summary>
@@ -404,6 +414,27 @@ namespace Grand.Business.Catalog.Services.Discounts
             //is enabled and use the same currency
             if (!discount.IsEnabled || discount.CurrencyCode != currency.CurrencyCode)
                 return result;
+            
+            //time range check
+            DateTime now = DateTime.UtcNow;
+            if (discount.StartDateUtc.HasValue)
+            {
+                DateTime startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
+                if (startDate.CompareTo(now) > 0)
+                {
+                    result.UserErrorResource = "ShoppingCart.Discount.NotStartedYet";
+                    return result;
+                }
+            }
+            if (discount.EndDateUtc.HasValue)
+            {
+                DateTime endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
+                if (endDate.CompareTo(now) < 0)
+                {
+                    result.UserErrorResource = "ShoppingCart.Discount.Expired";
+                    return result;
+                }
+            }
 
             //do not allow use discount in the current store
             if (discount.LimitedToStores && discount.Stores.All(x => _workContext.CurrentStore.Id != x))
@@ -450,27 +481,7 @@ namespace Grand.Business.Catalog.Services.Discounts
                     return result;
                 }
             }
-            //time range check
-            DateTime now = DateTime.UtcNow;
-            if (discount.StartDateUtc.HasValue)
-            {
-                DateTime startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
-                if (startDate.CompareTo(now) > 0)
-                {
-                    result.UserErrorResource = "ShoppingCart.Discount.NotStartedYet";
-                    return result;
-                }
-            }
-            if (discount.EndDateUtc.HasValue)
-            {
-                DateTime endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
-                if (endDate.CompareTo(now) < 0)
-                {
-                    result.UserErrorResource = "ShoppingCart.Discount.Expired";
-                    return result;
-                }
-            }
-
+            
             //discount limitation - n times and n times per user
             switch (discount.DiscountLimitationId)
             {

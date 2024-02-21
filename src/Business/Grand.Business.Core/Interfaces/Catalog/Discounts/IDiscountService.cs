@@ -21,12 +21,18 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task<Discount> GetDiscountById(string discountId);
 
         /// <summary>
-        /// Gets all discounts
+        /// Gets active discounts by context
         /// </summary>
         /// <returns>Discounts</returns>
-        Task<IList<Discount>> GetAllDiscounts(DiscountType? discountType, string storeId = "", string currencyCode = "",
-            string couponCode = "", string discountName = "", bool showHidden = false);
+        Task<IList<Discount>> GetActiveDiscountsByContext(DiscountType discountType, string storeId = "", string currencyCode = "");
 
+        /// <summary>
+        /// Gets discounts query
+        /// </summary>
+        /// <returns>Discounts</returns>
+        Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
+            string couponCode = "", string discountName = "");
+        
         /// <summary>
         /// Inserts a new discount
         /// </summary>

@@ -129,7 +129,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (_catalogSettings.IgnoreDiscounts)
                 return (discountAmount, appliedDiscounts);
 
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToOrderSubTotal, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
+            var allDiscounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToOrderSubTotal, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
             var allowedDiscounts = new List<ApplyDiscount>();
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
@@ -170,7 +170,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (_catalogSettings.IgnoreDiscounts)
                 return (shippingDiscountAmount, appliedDiscounts);
 
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToShipping, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
+            var allDiscounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToShipping, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
             var allowedDiscounts = new List<ApplyDiscount>();
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
@@ -215,7 +215,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (_catalogSettings.IgnoreDiscounts)
                 return (discountAmount, appliedDiscounts);
 
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToOrderTotal, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
+            var allDiscounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToOrderTotal, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
             var allowedDiscounts = new List<ApplyDiscount>();
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
