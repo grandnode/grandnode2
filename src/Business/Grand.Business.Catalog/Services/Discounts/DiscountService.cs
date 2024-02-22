@@ -106,6 +106,8 @@ namespace Grand.Business.Catalog.Services.Discounts
                     .FirstOrDefault();
                 if (couponDiscountId != default)
                     query = query.Where(d => d.Id == couponDiscountId);
+                else
+                    query = query.Where(d => false);
             }
 
             if (!string.IsNullOrEmpty(discountName))
