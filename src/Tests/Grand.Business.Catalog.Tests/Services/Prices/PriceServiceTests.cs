@@ -47,7 +47,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
         private IPricingService _pricingService;
         private ICurrencyService _currencyService;
         private IMediator _eventPublisher;
-
+        private Mock<IDiscountValidationService> _discountValidationService;
 
         [TestInitialize()]
         public void TestInitialize()
@@ -70,7 +70,8 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
             _categoryService = new Mock<ICategoryService>().Object;
             _collectionService = new Mock<ICollectionService>().Object;
             _brandService = new Mock<IBrandService>().Object;
-
+            _discountValidationService = new Mock<IDiscountValidationService>();
+            
             tempProductService = new Mock<IProductService>();
             {
                 _productService = tempProductService.Object;
@@ -123,6 +124,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
                 _productService,
                 _eventPublisher,
                 _currencyService,
+                _discountValidationService.Object,
                 _shoppingCartSettings,
                 _catalogSettings);
         }
@@ -231,7 +233,7 @@ namespace Grand.Business.Catalog.Tests.Services.Prices
 
             product.AppliedDiscounts.Add(discount001.Id);
 
-            tempDiscountServiceMock.Setup(x => x.ValidateDiscount(discount001, customer, _currency)).ReturnsAsync(new DiscountValidationResult { IsValid = true });
+            _discountValidationService.Setup(x => x.ValidateDiscount(discount001, customer, _currency)).ReturnsAsync(new DiscountValidationResult { IsValid = true });
             tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
             tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());
             tempDiscountServiceMock.Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode)).ReturnsAsync(new List<Discount>());

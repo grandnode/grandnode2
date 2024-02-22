@@ -15,6 +15,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -527,7 +528,8 @@ namespace Grand.Web.Admin.Services
                 model.SuggestedRefundedAmount = _priceFormatter.FormatPrice(suggestedRefundedAmount, orderCurrency);
 
             //used discounts
-            var duh = await _discountService.GetAllDiscountUsageHistory(orderId: order.Id);
+            var duh = await _mediator.Send(new GetDiscountUsageHistoryQuery { OrderId = order.Id });
+
             foreach (var d in duh)
             {
                 var discount = await _discountService.GetDiscountById(d.DiscountId);

@@ -44,6 +44,7 @@ namespace Grand.Business.Checkout.Services.Orders
         private readonly IProductService _productService;
         private readonly ICurrencyService _currencyService;
         private readonly IGroupService _groupService;
+        private readonly IDiscountValidationService _discountValidationService;
         private readonly TaxSettings _taxSettings;
         private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
         private readonly ShippingSettings _shippingSettings;
@@ -69,6 +70,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="productService">Product service</param>
         /// <param name="currencyService">Currency service</param>
         /// <param name="groupService">Group</param>
+        /// <param name="discountValidationService">Discount validation service</param>
         /// <param name="taxSettings">Tax settings</param>
         /// <param name="loyaltyPointsSettings">Loyalty points settings</param>
         /// <param name="shippingSettings">Shipping settings</param>
@@ -86,6 +88,7 @@ namespace Grand.Business.Checkout.Services.Orders
             IProductService productService,
             ICurrencyService currencyService,
             IGroupService groupService,
+            IDiscountValidationService discountValidationService,
             TaxSettings taxSettings,
             LoyaltyPointsSettings loyaltyPointsSettings,
             ShippingSettings shippingSettings,
@@ -104,6 +107,7 @@ namespace Grand.Business.Checkout.Services.Orders
             _productService = productService;
             _currencyService = currencyService;
             _groupService = groupService;
+            _discountValidationService = discountValidationService;
             _taxSettings = taxSettings;
             _loyaltyPointsSettings = loyaltyPointsSettings;
             _shippingSettings = shippingSettings;
@@ -134,7 +138,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
                 {
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                     if (validDiscount.IsValid &&
                         discount.DiscountTypeId == DiscountType.AssignedToOrderSubTotal && allowedDiscounts.All(x => x.DiscountId != discount.Id))
                     {
@@ -175,7 +179,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
                 {
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                     if (validDiscount.IsValid &&
                         discount.DiscountTypeId == DiscountType.AssignedToShipping && allowedDiscounts.All(x => x.DiscountId != discount.Id))
                     {
@@ -220,7 +224,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (allDiscounts != null)
                 foreach (var discount in allDiscounts)
                 {
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                     if (validDiscount.IsValid &&
                                discount.DiscountTypeId == DiscountType.AssignedToOrderTotal && allowedDiscounts.All(x => x.DiscountId != discount.Id))
                     {

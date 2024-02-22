@@ -40,6 +40,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
         private Mock<IProductService> _productServiceMock;
         private Mock<ICurrencyService> _currencyServiceMock;
         private Mock<IGroupService> _groupServiceMock;
+        private Mock<IDiscountValidationService> _discountValidationService;
         private TaxSettings _taxSettings;
         private LoyaltyPointsSettings _loyaltyPointsSettings;
         private ShippingSettings _shippingSettings;
@@ -66,7 +67,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
             _shippingSettings = new ShippingSettings();
             _shoppingCartSettings = new ShoppingCartSettings();
             _catalogSettings = new CatalogSettings();
-
+            _discountValidationService = new Mock<IDiscountValidationService>();
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "", Name = "test store" });
             var customer = new Customer();
             customer.Groups.Add("1");
@@ -76,7 +77,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders
 
             _service = new OrderCalculationService(_workContextMock.Object, _pricingServiceMock.Object, _taxServiceMock.Object, _shippingServiceMock.Object,
                 _paymentServiceMock.Object, _checkoutAttributeParserMock.Object, _discountServiceMock.Object, _giftVoucherServiceMock.Object,
-                _loyaltyPointsServiceMock.Object, _productServiceMock.Object, _currencyServiceMock.Object, _groupServiceMock.Object,
+                _loyaltyPointsServiceMock.Object, _productServiceMock.Object, _currencyServiceMock.Object, _groupServiceMock.Object, _discountValidationService.Object,
                 _taxSettings, _loyaltyPointsSettings, _shippingSettings, _shoppingCartSettings, _catalogSettings);
         }
 

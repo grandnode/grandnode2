@@ -1,11 +1,15 @@
-﻿using Grand.Business.Catalog.Services.Discounts;
+﻿using DotLiquid.Util;
+using Grand.Business.Catalog.Queries.Handlers;
+using Grand.Business.Catalog.Services.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Data;
+using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -25,15 +29,16 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         private IRepository<DiscountCoupon> _discountCouponRepository;
         private IRepository<DiscountUsageHistory> _discountUsageHistoryRepository;
         private Mock<ITranslationService> _translationServiceMock;
-
+        private GetDiscountUsageHistoryQueryHandler handler;
         private Mock<IWorkContext> _workContextMock;
         private Mock<IMediator> _mediatorMock;
         private DiscountService _dicountService;
         private MemoryCacheBase _cacheBase;
-
+        private GetDiscountAmountProviderHandler _getDiscountAmountProviderHandler;
         private IEnumerable<IDiscountProvider> _discountProviders;
         private IEnumerable<IDiscountAmountProvider> _discountAmountProviders;
-
+        private DiscountProviderLoader _discountProviderLoader;
+        private DiscountValidationService _discountValidationService;
         [TestInitialize()]
         public void InitializeTests()
         {
@@ -51,9 +56,11 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
 
             _discountProviders = new List<IDiscountProvider> { new DiscountProviderTest() };
             _discountAmountProviders = new List<IDiscountAmountProvider> { new DiscountAmountProviderTests() };
-
-            _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository, _discountUsageHistoryRepository,  
-                _workContextMock.Object, _discountProviders, _discountAmountProviders, _mediatorMock.Object, new AccessControlConfig());
+            _discountProviderLoader = new DiscountProviderLoader(_discountProviders, _discountAmountProviders);
+            _discountValidationService = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository, _workContextMock.Object, _mediatorMock.Object);
+            _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository, _discountUsageHistoryRepository,  _mediatorMock.Object, new AccessControlConfig());
+            handler = new GetDiscountUsageHistoryQueryHandler(_discountUsageHistoryRepository);
+            _getDiscountAmountProviderHandler = new GetDiscountAmountProviderHandler(_discountProviderLoader);
         }
 
         [TestMethod()]
@@ -152,7 +159,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public void LoadDiscountProviderBySystemNameTest_NotNull()
         {
             //Act
-            var provider = _dicountService.LoadDiscountProviderByRuleSystemName("RuleSystemName");
+            var provider = _discountProviderLoader.LoadDiscountProviderByRuleSystemName("RuleSystemName");
             //Assert
             Assert.IsNotNull(provider);
         }
@@ -160,7 +167,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public void LoadDiscountProviderBySystemNameTest_Null()
         {
             //Act
-            var provider = _dicountService.LoadDiscountProviderByRuleSystemName("RuleSystemName2");
+            var provider = _discountProviderLoader.LoadDiscountProviderByRuleSystemName("RuleSystemName2");
             //Assert
             Assert.IsNull(provider);
         }
@@ -169,7 +176,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public void LoadAllDiscountProvidersTest()
         {
             //Act
-            var providers = _dicountService.LoadAllDiscountProviders();
+            var providers = _discountProviderLoader.LoadAllDiscountProviders();
             //Assert
             Assert.AreEqual(1, providers.Count);
         }
@@ -196,29 +203,6 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             //Assert
             Assert.IsNotNull(coupon);
             Assert.AreEqual(discount.Id, coupon.Id);
-        }
-
-        [TestMethod()]
-        public async Task ExistsCodeInDiscountTest()
-        {
-            //Arrange
-            var discount = new Discount {
-                Name = "test",
-                IsEnabled = true
-            };
-            await _dicountService.InsertDiscount(discount);
-
-            var discountCoupon = new DiscountCoupon {
-                CouponCode = "TEST123",
-                DiscountId = discount.Id
-            };
-            await _discountCouponRepository.InsertAsync(discountCoupon);
-
-            //Act
-            var coupon = await _dicountService.ExistsCodeInDiscount("TEST123", discount.Id, null);
-
-            //Assert
-            Assert.AreEqual(true, coupon);
         }
 
         [TestMethod()]
@@ -443,7 +427,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST123", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsTrue(result.IsValid);
         }
@@ -467,7 +451,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -490,7 +474,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -515,7 +499,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -538,7 +522,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _dicountService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -602,7 +586,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             };
             await _discountUsageHistoryRepository.InsertAsync(discountUsageHistory2);
             //Act
-            var usageHistory = await _dicountService.GetAllDiscountUsageHistory();
+            var usageHistory = await handler.Handle(new GetDiscountUsageHistoryQuery(), CancellationToken.None);
 
             //Assert
             Assert.AreEqual(2, usageHistory.Count);
@@ -825,7 +809,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             };
             await _dicountService.InsertDiscount(discount1);
             //Act
-            var amount = await _dicountService.GetDiscountAmountProvider(discount1, new Customer(), new Product(), 100);
+            var amount = await _getDiscountAmountProviderHandler.Handle(new GetDiscountAmountProvider(discount1, new Customer(), new Product(), new Currency(), 100), CancellationToken.None);
             //Assert
             Assert.AreEqual(9, amount);
         }
@@ -834,7 +818,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public void LoadDiscountAmountProviderBySystemNameTest()
         {
             //Act
-            var discountProvider = _dicountService.LoadDiscountAmountProviderBySystemName("SampleDiscountAmountProvider");
+            var discountProvider = _discountProviderLoader.LoadDiscountAmountProviderBySystemName("SampleDiscountAmountProvider");
             //Assert
             Assert.IsNotNull(discountProvider);
         }
@@ -843,7 +827,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
         public void LoadDiscountAmountProvidersTest()
         {
             //Act
-            var discountProviders = _dicountService.LoadDiscountAmountProviders();
+            var discountProviders = _discountProviderLoader.LoadDiscountAmountProviders();
             //Assert
             Assert.AreEqual(1, discountProviders.Count);
         }

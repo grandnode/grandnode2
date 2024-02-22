@@ -35,6 +35,7 @@ namespace Grand.Business.Catalog.Services.Prices
         private readonly IProductService _productService;
         private readonly IMediator _mediator;
         private readonly ICurrencyService _currencyService;
+        private readonly IDiscountValidationService _discountValidationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -50,6 +51,7 @@ namespace Grand.Business.Catalog.Services.Prices
             IProductService productService,
             IMediator mediator,
             ICurrencyService currencyService,
+            IDiscountValidationService discountValidationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -64,6 +66,7 @@ namespace Grand.Business.Catalog.Services.Prices
             _currencyService = currencyService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
+            _discountValidationService = discountValidationService;
         }
 
         #endregion
@@ -100,7 +103,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToSkus)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -121,7 +124,7 @@ namespace Grand.Business.Catalog.Services.Prices
             var discounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
             foreach (var discount in discounts)
             {
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid)
                     allowedDiscounts.Add(new ApplyDiscount {
                         CouponCode = validDiscount.CouponCode,
@@ -154,7 +157,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 {
                     var discount = await _discountService.GetDiscountById(appliedDiscount);
                     if (discount == null) continue;
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                     if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
                         allowedDiscounts.Add(new ApplyDiscount {
                             CouponCode = validDiscount.CouponCode,
@@ -186,7 +189,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToBrands)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -219,7 +222,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 {
                     var discount = await _discountService.GetDiscountById(appliedDiscount);
                     if (discount == null) continue;
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                     if (validDiscount.IsValid &&
                         discount.DiscountTypeId == DiscountType.AssignedToCollections)
                         allowedDiscounts.Add(new ApplyDiscount {
@@ -254,7 +257,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToVendors)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -641,7 +644,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 if (appliedDiscounts.Count == 1)
                     oneAndOnlyDiscount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault()?.DiscountId);
 
-                if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: { } } &&
+                if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: not null } &&
                     shoppingCartItem.Quantity > oneAndOnlyDiscount.MaximumDiscountedQuantity.Value)
                 {
                     //we cannot apply discount for all shopping cart items
