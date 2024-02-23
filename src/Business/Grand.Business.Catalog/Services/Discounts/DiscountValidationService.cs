@@ -6,7 +6,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
@@ -15,18 +15,15 @@ namespace Grand.Business.Catalog.Services.Discounts;
 public class DiscountValidationService : IDiscountValidationService
 {
     private readonly IDiscountProviderLoader _discountProviderLoader;
-    private readonly IWorkContext _workContext;
     private readonly IMediator _mediator;
     private readonly IRepository<DiscountCoupon> _discountCouponRepository;
     
     public DiscountValidationService(
         IDiscountProviderLoader discountProviderLoader, 
         IRepository<DiscountCoupon> discountCouponRepository,
-        IWorkContext workContext, 
         IMediator mediator)
     {
         _discountCouponRepository = discountCouponRepository;
-        _workContext = workContext;
         _mediator = mediator;
         _discountProviderLoader = discountProviderLoader;
     }
@@ -36,9 +33,10 @@ public class DiscountValidationService : IDiscountValidationService
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <param name="currency">Currency</param>
     /// <returns>Discount validation result</returns>
-    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
+    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Store store,
         Currency currency)
     {
         ArgumentNullException.ThrowIfNull(discount);
@@ -47,7 +45,7 @@ public class DiscountValidationService : IDiscountValidationService
         if (customer != null)
             couponCodesToValidate = customer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
 
-        return await ValidateDiscount(discount, customer, currency, couponCodesToValidate);
+        return await ValidateDiscount(discount, customer, store, currency, couponCodesToValidate);
     }
 
     /// <summary>
@@ -55,10 +53,11 @@ public class DiscountValidationService : IDiscountValidationService
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <param name="currency">Currency</param>
     /// <param name="couponCodeToValidate">Coupon code</param>
     /// <returns>Discount validation result</returns>
-    public virtual Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
+    public virtual Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Store store,
         Currency currency, string couponCodeToValidate)
     {
         var couponCodes = string.IsNullOrWhiteSpace(couponCodeToValidate)
@@ -66,7 +65,7 @@ public class DiscountValidationService : IDiscountValidationService
             : [
                 couponCodeToValidate
             ];
-        return ValidateDiscount(discount, customer, currency, couponCodes);
+        return ValidateDiscount(discount, customer, store, currency, couponCodes);
     }
 
     /// <summary>
@@ -74,10 +73,11 @@ public class DiscountValidationService : IDiscountValidationService
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <param name="currency">Currency</param>
     /// <param name="couponCodesToValidate">Coupon codes</param>
     /// <returns>Discount validation result</returns>
-    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
+    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Store store,
         Currency currency, string[] couponCodesToValidate)
     {
         ArgumentNullException.ThrowIfNull(discount);
@@ -112,7 +112,7 @@ public class DiscountValidationService : IDiscountValidationService
         }
 
         //do not allow use discount in the current store
-        if (discount.LimitedToStores && discount.Stores.All(x => _workContext.CurrentStore.Id != x))
+        if (discount.LimitedToStores && discount.Stores.All(x => store.Id != x))
         {
             result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedInStore";
             return result;
@@ -121,7 +121,7 @@ public class DiscountValidationService : IDiscountValidationService
         //check coupon code
         if (discount.RequiresCouponCode)
         {
-            if (couponCodesToValidate == null || !couponCodesToValidate.Any())
+            if (couponCodesToValidate == null || couponCodesToValidate.Length == 0)
                 return result;
             var exists = false;
             foreach (var item in couponCodesToValidate)
@@ -194,14 +194,14 @@ public class DiscountValidationService : IDiscountValidationService
             if (discountRequirementPlugin == null)
                 continue;
 
-            if (!discountRequirementPlugin.IsAuthenticateStore(_workContext.CurrentStore))
+            if (!discountRequirementPlugin.IsAuthenticateStore(store))
                 continue;
 
             var ruleRequest = new DiscountRuleValidationRequest {
                 DiscountRule = rule,
                 Discount = discount,
                 Customer = customer,
-                Store = _workContext.CurrentStore
+                Store = store
             };
             var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().FirstOrDefault(x =>
                 x.SystemName.Equals(rule.DiscountRequirementRuleSystemName, StringComparison.OrdinalIgnoreCase));
@@ -236,7 +236,6 @@ public class DiscountValidationService : IDiscountValidationService
             query = query.Where(x => x.Used == used.Value);
 
         var result = await Task.FromResult(query.ToList());
-
-        return result.Any();
+        return result.Count != 0;
     }
 }

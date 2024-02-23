@@ -231,9 +231,9 @@ namespace Grand.Web.Features.Handlers.Catalog
         {
             var finalPriceWithoutDiscount =
                 (await _taxService.GetProductPrice(product,
-                    (await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: false)).finalPrice)).productprice;
+                    (await _pricingService.GetFinalPrice(product, request.Customer, request.Store, request.Currency, includeDiscounts: false)).finalPrice)).productprice;
 
-            var appliedPrice = await _pricingService.GetFinalPrice(product, request.Customer, request.Currency, includeDiscounts: true);
+            var appliedPrice = await _pricingService.GetFinalPrice(product, request.Customer, request.Store, request.Currency, includeDiscounts: true);
             var finalPriceWithDiscount = (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
 
             var price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);

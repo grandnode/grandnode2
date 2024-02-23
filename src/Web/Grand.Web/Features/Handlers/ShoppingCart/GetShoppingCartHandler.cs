@@ -172,7 +172,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 var discount = await _discountService.GetDiscountByCouponCode(couponCode);
                 if (discount is { RequiresCouponCode: true } &&
-                    (await _discountValidationService.ValidateDiscount(discount, request.Customer, request.Currency)).IsValid)
+                    (await _discountValidationService.ValidateDiscount(discount, request.Customer, request.Store, request.Currency)).IsValid)
                 {
                     model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {
                         Id = discount.Id,

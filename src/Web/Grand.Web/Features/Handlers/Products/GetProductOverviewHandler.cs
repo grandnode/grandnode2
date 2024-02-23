@@ -246,7 +246,7 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 //calculate for the maximum quantity (in case if we have tier prices)
                                 var tmpPrice = (await _pricingService.GetFinalPrice(associatedProduct,
-                                    _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true,
+                                    _workContext.CurrentCustomer, _workContext.CurrentStore, _workContext.WorkingCurrency, 0, true,
                                     int.MaxValue)).finalPrice;
                                 if (minPossiblePrice.HasValue && !(tmpPrice < minPossiblePrice.Value)) continue;
                                 minPriceProduct = associatedProduct;
@@ -364,7 +364,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                                 //calculate for the maximum quantity (in case if we have tier prices)
                                 var infoPrice = await _pricingService.GetFinalPrice(product,
-                                    _workContext.CurrentCustomer, _workContext.WorkingCurrency, 0, true, int.MaxValue);
+                                    _workContext.CurrentCustomer, _workContext.CurrentStore, _workContext.WorkingCurrency, 0, true, int.MaxValue);
 
                                 priceModel.AppliedDiscounts = infoPrice.appliedDiscounts;
                                 priceModel.PreferredTierPrice = infoPrice.preferredTierPrice;

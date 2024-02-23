@@ -22,6 +22,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -857,8 +858,9 @@ namespace Grand.Web.Admin.Services
 
             var customer = await _customerService.GetCustomerById(order.CustomerId);
             var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
+            var store = await _storeService.GetStoreById(order.StoreId);
             var presetQty = 1;
-            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty))
+            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, store, currency, 0, true, presetQty))
                 .finalPrice;
             var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
             var presetPriceInclTax = productPrice.productprice;

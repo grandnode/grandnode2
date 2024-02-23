@@ -11,6 +11,7 @@ using Grand.Domain.Customers;
 using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -57,7 +58,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             _discountProviders = new List<IDiscountProvider> { new DiscountProviderTest() };
             _discountAmountProviders = new List<IDiscountAmountProvider> { new DiscountAmountProviderTests() };
             _discountProviderLoader = new DiscountProviderLoader(_discountProviders, _discountAmountProviders);
-            _discountValidationService = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository, _workContextMock.Object, _mediatorMock.Object);
+            _discountValidationService = new DiscountValidationService(_discountProviderLoader, _discountCouponRepository, _mediatorMock.Object);
             _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository, _discountUsageHistoryRepository,  _mediatorMock.Object, new AccessControlConfig());
             handler = new GetDiscountUsageHistoryQueryHandler(_discountUsageHistoryRepository);
             _getDiscountAmountProviderHandler = new GetDiscountAmountProviderHandler(_discountProviderLoader);
@@ -427,7 +428,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST123", StoreId = "" });
             //Act
-            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Store(), new Domain.Directory.Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsTrue(result.IsValid);
         }
@@ -451,7 +452,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Store(), new Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -474,7 +475,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Store(), new Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -499,7 +500,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Store(), new Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }
@@ -522,7 +523,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
             var customer = new Customer();
             customer.UserFields.Add(new Domain.Common.UserField { Key = SystemCustomerFieldNames.DiscountCoupons, Value = "TEST12", StoreId = "" });
             //Act
-            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Domain.Directory.Currency { CurrencyCode = "USD" });
+            var result = await _discountValidationService.ValidateDiscount(discount, customer, new Store(), new Currency { CurrencyCode = "USD" });
             //Assert
             Assert.IsFalse(result.IsValid);
         }

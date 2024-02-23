@@ -681,11 +681,11 @@ namespace Grand.Web.Features.Handlers.Products
                         var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice);
                         var oldPriceBase = oldproductprice.productprice;
                         var finalPriceWithoutDiscount = (await _taxService.GetProductPrice(product,
-                            (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer,
+                            (await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer, _workContext.CurrentStore,
                                 _workContext.WorkingCurrency, includeDiscounts: false)).finalPrice)).productprice;
 
                         var appliedPrice = await _pricingService.GetFinalPrice(product, _workContext.CurrentCustomer,
-                            _workContext.WorkingCurrency, includeDiscounts: true);
+                            _workContext.CurrentStore, _workContext.WorkingCurrency, includeDiscounts: true);
                         var finalPriceWithDiscount =
                             (await _taxService.GetProductPrice(product, appliedPrice.finalPrice)).productprice;
                         var oldPrice =
@@ -1090,7 +1090,7 @@ namespace Grand.Web.Features.Handlers.Products
             {
                 var tier = new ProductDetailsModel.TierPriceModel();
                 var priceBase = await _taxService.GetProductPrice(product, (await _pricingService.GetFinalPrice(product,
-                    _workContext.CurrentCustomer, _workContext.WorkingCurrency,
+                    _workContext.CurrentCustomer, _workContext.CurrentStore, _workContext.WorkingCurrency,
                     0, _catalogSettings.DisplayTierPricesWithDiscounts, tierPrice.Quantity)).finalPrice);
                 tier.Quantity = tierPrice.Quantity;
                 tier.Price = _priceFormatter.FormatPrice(priceBase.productprice, _workContext.WorkingCurrency);
@@ -1179,7 +1179,7 @@ namespace Grand.Web.Features.Handlers.Products
                 if (displayPrices)
                 {
                     var productprice = await _taxService.GetProductPrice(p1,
-                        (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer,
+                        (await _pricingService.GetFinalPrice(p1, _workContext.CurrentCustomer, _workContext.CurrentStore,
                             _workContext.WorkingCurrency, includeDiscounts: true)).finalPrice);
                     bundleProduct.Price = _priceFormatter.FormatPrice(productprice.productprice);
                     bundleProduct.PriceValue = productprice.productprice;

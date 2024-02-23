@@ -42,7 +42,6 @@ namespace Grand.Web.Admin.Services
         private readonly IOrderService _orderService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IDateTimeService _dateTimeService;
-        private readonly IDiscountValidationService _discountValidationService;
         private readonly IDiscountProviderLoader _discountProviderLoader;
         private readonly IMediator _mediator;
         #endregion
@@ -62,7 +61,6 @@ namespace Grand.Web.Admin.Services
             IOrderService orderService,
             IPriceFormatter priceFormatter,
             IDateTimeService dateTimeService, 
-            IDiscountValidationService discountValidationService,
             IDiscountProviderLoader discountProviderLoader,
             IMediator mediator)
         {
@@ -79,7 +77,6 @@ namespace Grand.Web.Admin.Services
             _orderService = orderService;
             _priceFormatter = priceFormatter;
             _dateTimeService = dateTimeService;
-            _discountValidationService = discountValidationService;
             _discountProviderLoader = discountProviderLoader;
             _mediator = mediator;
         }

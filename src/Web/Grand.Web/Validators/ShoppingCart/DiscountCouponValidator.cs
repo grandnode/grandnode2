@@ -46,7 +46,7 @@ namespace Grand.Web.Validators.ShoppingCart
                         if (!existsAndUsed)
                         {
                             var validationResult = await discountValidationService.ValidateDiscount(discount,
-                                workContext.CurrentCustomer, workContext.WorkingCurrency, x.DiscountCouponCode);
+                                workContext.CurrentCustomer, workContext.CurrentStore, workContext.WorkingCurrency, x.DiscountCouponCode);
                             if (!validationResult.IsValid)
                                 context.AddFailure(!string.IsNullOrEmpty(validationResult.UserErrorResource)
                                     ? translationService.GetResource(validationResult.UserErrorResource)
