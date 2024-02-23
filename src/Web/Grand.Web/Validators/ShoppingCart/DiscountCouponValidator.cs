@@ -27,7 +27,7 @@ namespace Grand.Web.Validators.ShoppingCart
                 x.DiscountCouponCode = x.DiscountCouponCode.ToUpper();
                 //we find even hidden records here. this way we can display a user-friendly message if it's expired
                 var discount = await discountService.GetDiscountByCouponCode(x.DiscountCouponCode, true);
-                if (discount is { RequiresCouponCode: true })
+                if (discount is { RequiresCouponCode: true, IsEnabled: true })
                 {
                     var coupons =
                         workContext.CurrentCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);

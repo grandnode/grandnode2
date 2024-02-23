@@ -38,7 +38,7 @@
         /// {1} : store ident
         /// {2} : currency code
         /// </remarks>
-        public static string DISCOUNTS_CONTEXT_KEY => "Grand.discount.type-{0}-{1}-{2}";
+        public static string DISCOUNTS_CONTEXT_KEY => "Grand.discount.context-{0}-{1}-{2}";
 
         /// <summary>
         /// Key pattern to clear cache
