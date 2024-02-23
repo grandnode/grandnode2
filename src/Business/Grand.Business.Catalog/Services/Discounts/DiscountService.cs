@@ -369,7 +369,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="currency">currency</param>
         /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
-        public async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount)
+        public virtual async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount)
         {
             ArgumentNullException.ThrowIfNull(discount);
 
