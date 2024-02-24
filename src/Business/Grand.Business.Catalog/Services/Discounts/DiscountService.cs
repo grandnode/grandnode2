@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -6,8 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
-using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
@@ -28,9 +27,6 @@ namespace Grand.Business.Catalog.Services.Discounts
         private readonly IRepository<DiscountCoupon> _discountCouponRepository;
         private readonly IRepository<DiscountUsageHistory> _discountUsageHistoryRepository;
         private readonly ICacheBase _cacheBase;
-        private readonly IWorkContext _workContext;
-        private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly IEnumerable<IDiscountAmountProvider> _discountAmountProviders;
         private readonly IMediator _mediator;
         private readonly AccessControlConfig _accessControlConfig;
         
@@ -45,18 +41,12 @@ namespace Grand.Business.Catalog.Services.Discounts
             IRepository<Discount> discountRepository,
             IRepository<DiscountCoupon> discountCouponRepository,
             IRepository<DiscountUsageHistory> discountUsageHistoryRepository,
-            IWorkContext workContext,
-            IEnumerable<IDiscountProvider> discountProviders,
-            IEnumerable<IDiscountAmountProvider> discountAmountProviders,
             IMediator mediator, AccessControlConfig accessControlConfig)
         {
             _cacheBase = cacheBase;
             _discountRepository = discountRepository;
             _discountCouponRepository = discountCouponRepository;
             _discountUsageHistoryRepository = discountUsageHistoryRepository;
-            _workContext = workContext;
-            _discountProviders = discountProviders;
-            _discountAmountProviders = discountAmountProviders;
             _mediator = mediator;
             _accessControlConfig = accessControlConfig;
         }
@@ -77,58 +67,64 @@ namespace Grand.Business.Catalog.Services.Discounts
         }
 
         /// <summary>
-        /// Gets all discounts
+        /// Gets active discounts by context
         /// </summary>       
         /// <returns>Discounts</returns>
-        public virtual async Task<IList<Discount>> GetAllDiscounts(DiscountType? discountType,
-            string storeId = "", string currencyCode = "", string couponCode = "", string discountName = "", bool showHidden = false)
+        public virtual async Task<IList<Discount>> GetActiveDiscountsByContext(DiscountType discountType, string storeId = "", string currencyCode = "")
         {
-            var key = string.Format(CacheKey.DISCOUNTS_ALL_KEY, showHidden, storeId, currencyCode, couponCode, discountName);
-            var result = await _cacheBase.GetAsync(key, async () =>
-            {
-                var query = from m in _discountRepository.Table
-                            select m;
-                if (!showHidden)
-                {
-                    var nowUtc = DateTime.UtcNow;
-                    query = query.Where(d =>
-                        (!d.StartDateUtc.HasValue || d.StartDateUtc <= nowUtc)
-                        && (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc)
-                        && d.IsEnabled);
-                }
-                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-                {
-                    //Store acl
-                    query = from p in query
-                            where !p.LimitedToStores || p.Stores.Contains(storeId)
-                            select p;
-                }
-                if (!string.IsNullOrEmpty(couponCode))
-                {
-                    var coupon = await _discountCouponRepository.GetOneAsync(x => x.CouponCode == couponCode);
-                    if (coupon != null)
-                        query = query.Where(d => d.Id == coupon.DiscountId);
-                }
-                if (!string.IsNullOrEmpty(discountName))
-                {
-                    query = query.Where(d => d.Name != null && d.Name.ToLower().Contains(discountName.ToLower()));
-                }
-                if (!string.IsNullOrEmpty(currencyCode))
-                {
-                    query = query.Where(d => d.CurrencyCode == currencyCode);
-                }
-                query = query.OrderBy(d => d.Name);
+            var key = string.Format(CacheKey.DISCOUNTS_CONTEXT_KEY, discountType, storeId, currencyCode);
+            var allDiscounts = await _cacheBase.GetAsync(key, () => GetDiscountsQuery(discountType, storeId, currencyCode));
+            
+            var nowUtc = DateTime.UtcNow;
+            var filteredDiscounts = 
+                allDiscounts.Where(d => d.IsEnabled && 
+                                        (!d.StartDateUtc.HasValue || d.StartDateUtc <= nowUtc) && 
+                                        (!d.EndDateUtc.HasValue || d.EndDateUtc >= nowUtc));
+            
+            return filteredDiscounts.ToList();
+        }
+        public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
+            string couponCode = "", string discountName = "")
+        {
+            var query = _discountRepository.Table.AsQueryable();
 
-                var discounts = await Task.FromResult(query.ToList());
-                return discounts;
-            });
             if (discountType.HasValue)
             {
-                result = result.Where(d => d.DiscountTypeId == discountType.Value).ToList();
+                query = query.Where(d => d.DiscountTypeId == discountType);
             }
-            return result;
-        }
 
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            {
+                query = query.Where(d => !d.LimitedToStores || d.Stores.Contains(storeId));
+            }
+
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var couponDiscountId = _discountCouponRepository.Table
+                    .Where(x => x.CouponCode == couponCode)
+                    .Select(x => x.DiscountId)
+                    .FirstOrDefault();
+                if (couponDiscountId != default)
+                    query = query.Where(d => d.Id == couponDiscountId);
+                else
+                    query = query.Where(d => false);
+            }
+
+            if (!string.IsNullOrEmpty(discountName))
+            {
+                query = query.Where(d => d.Name != null && d.Name.Contains(discountName, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(currencyCode))
+            {
+                query = query.Where(d => d.CurrencyCode == currencyCode);
+            }
+
+            query = query.OrderBy(d => d.Name);
+
+            return await Task.FromResult(query.ToList());
+        }
+        
         /// <summary>
         /// Inserts a discount
         /// </summary>
@@ -169,44 +165,12 @@ namespace Grand.Business.Catalog.Services.Discounts
         {
             ArgumentNullException.ThrowIfNull(discount);
 
-            var usageHistory = await GetAllDiscountUsageHistory(discount.Id);
-            if (usageHistory.Count > 0)
-                throw new ArgumentException("Discount was used and have a history");
-
             await _discountRepository.DeleteAsync(discount);
 
             await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
 
             //event notification
             await _mediator.EntityDeleted(discount);
-        }
-
-        /// <summary>
-        /// Load discount provider by rule system name
-        /// </summary>
-        /// <param name="ruleSystemName">Rule system name</param>
-        /// <returns>Found discount</returns>
-        public virtual IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName)
-        {
-            var discountPlugins = LoadAllDiscountProviders();
-            foreach (var discountPlugin in discountPlugins)
-            {
-                var rules = discountPlugin.GetRequirementRules();
-
-                if (!rules.Any(x => x.SystemName.Equals(ruleSystemName, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-                return discountPlugin;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Load all discount providers
-        /// </summary>
-        /// <returns>Discount providers</returns>
-        public virtual IList<IDiscountProvider> LoadAllDiscountProviders()
-        {
-            return _discountProviders.ToList();
         }
 
 
@@ -227,29 +191,6 @@ namespace Grand.Business.Catalog.Services.Discounts
 
             var discount = await GetDiscountById(coupon.DiscountId);
             return discount;
-        }
-
-        /// <summary>
-        /// Exist coupon code in discount
-        /// </summary>
-        /// <param name="couponCode"></param>
-        /// <param name="discountId"></param>
-        /// <param name="used"></param>
-        /// <returns></returns>
-        public virtual async Task<bool> ExistsCodeInDiscount(string couponCode, string discountId, bool? used)
-        {
-            if (string.IsNullOrWhiteSpace(couponCode))
-                return false;
-
-            var query = _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode
-                            && x.DiscountId == discountId);
-
-            if (used.HasValue)
-                query = query.Where(x => x.Used == used.Value);
-
-            var result = await Task.FromResult(query.ToList());
-
-            return result.Any();
         }
 
         /// <summary>
@@ -299,6 +240,9 @@ namespace Grand.Business.Catalog.Services.Discounts
         public virtual async Task DeleteDiscountCoupon(DiscountCoupon coupon)
         {
             await _discountCouponRepository.DeleteAsync(coupon);
+            
+            //clear cache
+            await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
         }
 
         /// <summary>
@@ -308,6 +252,9 @@ namespace Grand.Business.Catalog.Services.Discounts
         public virtual async Task InsertDiscountCoupon(DiscountCoupon coupon)
         {
             await _discountCouponRepository.InsertAsync(coupon);
+            
+            //clear cache
+            await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
         }
 
         /// <summary>
@@ -352,183 +299,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             }
         }
 
-        /// <summary>
-        /// Validate discount
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <returns>Discount validation result</returns>
-        public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency)
-        {
-            ArgumentNullException.ThrowIfNull(discount);
-
-            string[] couponCodesToValidate = null;
-            if (customer != null)
-                couponCodesToValidate = customer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
-
-            return await ValidateDiscount(discount, customer, currency, couponCodesToValidate);
-        }
-
-        /// <summary>
-        /// Validate discount
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <param name="couponCodeToValidate">Coupon code</param>
-        /// <returns>Discount validation result</returns>
-        public virtual Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string couponCodeToValidate)
-        {
-            var couponCodes = string.IsNullOrWhiteSpace(couponCodeToValidate) ? Array.Empty<string>() : [
-                couponCodeToValidate
-            ];
-            return ValidateDiscount(discount, customer, currency, couponCodes);
-        }
-
-        /// <summary>
-        /// Validate discount
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <param name="couponCodesToValidate">Coupon codes</param>
-        /// <returns>Discount validation result</returns>
-        public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string[] couponCodesToValidate)
-        {
-            ArgumentNullException.ThrowIfNull(discount);
-            ArgumentNullException.ThrowIfNull(customer);
-
-            var result = new DiscountValidationResult();
-
-            //is enabled and use the same currency
-            if (!discount.IsEnabled || discount.CurrencyCode != currency.CurrencyCode)
-                return result;
-
-            //do not allow use discount in the current store
-            if (discount.LimitedToStores && discount.Stores.All(x => _workContext.CurrentStore.Id != x))
-            {
-                result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedInStore";
-                return result;
-            }
-
-            //check coupon code
-            if (discount.RequiresCouponCode)
-            {
-                if (couponCodesToValidate == null || !couponCodesToValidate.Any())
-                    return result;
-                var exists = false;
-                foreach (var item in couponCodesToValidate)
-                {
-                    if (discount.Reused)
-                    {
-                        if (!await ExistsCodeInDiscount(item, discount.Id, null)) continue;
-                        result.CouponCode = item;
-                        exists = true;
-                    }
-                    else
-                    {
-                        if (!await ExistsCodeInDiscount(item, discount.Id, false)) continue;
-                        result.CouponCode = item;
-                        exists = true;
-                    }
-                }
-                if (!exists)
-                    return result;
-            }
-
-            if (discount.DiscountTypeId is DiscountType.AssignedToOrderSubTotal or DiscountType.AssignedToOrderTotal)
-            {
-                var cart = customer.ShoppingCartItems
-                    .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
-                    .ToList();
-
-                var hasGiftVouchers = cart.Any(x => x.IsGiftVoucher);
-                if (hasGiftVouchers)
-                {
-                    result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedWithGiftVouchers";
-                    return result;
-                }
-            }
-            //time range check
-            DateTime now = DateTime.UtcNow;
-            if (discount.StartDateUtc.HasValue)
-            {
-                DateTime startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
-                if (startDate.CompareTo(now) > 0)
-                {
-                    result.UserErrorResource = "ShoppingCart.Discount.NotStartedYet";
-                    return result;
-                }
-            }
-            if (discount.EndDateUtc.HasValue)
-            {
-                DateTime endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
-                if (endDate.CompareTo(now) < 0)
-                {
-                    result.UserErrorResource = "ShoppingCart.Discount.Expired";
-                    return result;
-                }
-            }
-
-            //discount limitation - n times and n times per user
-            switch (discount.DiscountLimitationId)
-            {
-                case DiscountLimitationType.NTimes:
-                    {
-                        var usedTimes = await GetAllDiscountUsageHistory(discount.Id, null, null, false, 0, 1);
-                        if (usedTimes.TotalCount >= discount.LimitationTimes)
-                            return result;
-                    }
-                    break;
-                case DiscountLimitationType.NTimesPerUser:
-                    {
-                        var usedTimes = await GetAllDiscountUsageHistory(discount.Id, customer.Id, null, false, 0, 1);
-                        if (usedTimes.TotalCount >= discount.LimitationTimes)
-                        {
-                            result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedAnymore";
-                            return result;
-                        }
-                    }
-                    break;
-                case DiscountLimitationType.Nolimits:
-                default:
-                    break;
-            }
-
-            //discount requirements
-            var discountRules = discount.DiscountRules.ToList();
-            foreach (var rule in discountRules)
-            {
-                //load a plugin
-                var discountRequirementPlugin = LoadDiscountProviderByRuleSystemName(rule.DiscountRequirementRuleSystemName);
-
-                if (discountRequirementPlugin == null)
-                    continue;
-
-                if (!discountRequirementPlugin.IsAuthenticateStore(_workContext.CurrentStore))
-                    continue;
-
-                var ruleRequest = new DiscountRuleValidationRequest
-                {
-                    DiscountRule = rule,
-                    Discount = discount,
-                    Customer = customer,
-                    Store = _workContext.CurrentStore
-                };
-                var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rule.DiscountRequirementRuleSystemName, StringComparison.OrdinalIgnoreCase));
-                if (singleRequirementRule == null) return result;
-                var ruleResult = await singleRequirementRule.CheckRequirement(ruleRequest);
-                if (ruleResult.IsValid) continue;
-                result.UserErrorResource = ruleResult.UserError;
-
-                return result;
-            }
-
-            result.IsValid = true;
-            return result;
-
-        }
+        
         /// <summary>
         /// Gets a discount usage history record
         /// </summary>
@@ -538,37 +309,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         {
             return _discountUsageHistoryRepository.GetByIdAsync(discountUsageHistoryId);
         }
-
-        /// <summary>
-        /// Gets all discount usage history records
-        /// </summary>
-        /// <param name="discountId">Discount identifier; use null to load all records</param>
-        /// <param name="customerId">Customer identifier; use null to load all records</param>
-        /// <param name="orderId">Order identifier; null to load all records</param>
-        /// <param name="canceled">Canceled</param>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <returns>Discount usage history records</returns>
-        public virtual async Task<IPagedList<DiscountUsageHistory>> GetAllDiscountUsageHistory(string discountId = "",
-            string customerId = "", string orderId = "", bool? canceled = null,
-            int pageIndex = 0, int pageSize = int.MaxValue)
-        {
-            var query = from d in _discountUsageHistoryRepository.Table
-                        select d;
-
-            if (!string.IsNullOrEmpty(discountId))
-                query = query.Where(duh => duh.DiscountId == discountId);
-            if (!string.IsNullOrEmpty(customerId))
-                query = query.Where(duh => duh.CustomerId == customerId);
-            if (!string.IsNullOrEmpty(orderId))
-                query = query.Where(duh => duh.OrderId == orderId);
-            if (canceled.HasValue)
-                query = query.Where(duh => duh.Canceled == canceled.Value);
-            query = query.OrderByDescending(c => c.CreatedOnUtc);
-
-            return await PagedList<DiscountUsageHistory>.Create(query, pageIndex, pageSize);
-        }
-
+        
         /// <summary>
         /// Insert discount usage history item
         /// </summary>
@@ -621,7 +362,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         }
 
         /// <summary>
-        /// Get discount amount from plugin
+        /// Get discount amount 
         /// </summary>
         /// <param name="discount">Discount</param>
         /// <param name="amount">Amount</param>
@@ -645,7 +386,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             }
             else
             {
-                result = await GetDiscountAmountProvider(discount, customer, product, amount);
+                result = await _mediator.Send(new GetDiscountAmountProvider(discount, customer, product, currency, amount));
             }
 
             //validate maximum discount amount
@@ -726,37 +467,6 @@ namespace Grand.Business.Catalog.Services.Discounts
             double amount)
         {
             return await GetPreferredDiscount(discounts, customer, currency, null, amount);
-        }
-
-        /// <summary>
-        /// Get amount from discount amount provider 
-        /// </summary>
-        /// <param name="discount"></param>
-        /// <param name="product"></param>
-        /// <param name="amount"></param>
-        /// <param name="customer"></param>
-        /// <returns></returns>
-        public virtual async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, double amount)
-        {
-            var discountAmountProvider = LoadDiscountAmountProviderBySystemName(discount.DiscountPluginName);
-            if (discountAmountProvider == null)
-                return 0;
-            return await discountAmountProvider.DiscountAmount(discount, customer, product, amount);
-        }
-
-
-        public virtual IDiscountAmountProvider LoadDiscountAmountProviderBySystemName(string systemName)
-        {
-            return _discountAmountProviders.FirstOrDefault(x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        /// <summary>
-        /// Get all discount amount providers
-        /// </summary>
-        /// <returns></returns>
-        public virtual IList<IDiscountAmountProvider> LoadDiscountAmountProviders()
-        {
-            return _discountAmountProviders.ToList();
         }
 
         #endregion

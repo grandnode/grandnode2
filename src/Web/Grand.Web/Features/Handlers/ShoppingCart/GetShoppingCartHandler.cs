@@ -52,6 +52,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IGroupService _groupService;
         private readonly IMediator _mediator;
         private readonly IShoppingCartValidator _shoppingCartValidator;
+        private readonly IDiscountValidationService _discountValidationService;
         private readonly LinkGenerator _linkGenerator;
         private readonly MediaSettings _mediaSettings;
         private readonly OrderSettings _orderSettings;
@@ -80,6 +81,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IGroupService groupService,
             IMediator mediator,
             IShoppingCartValidator shoppingCartValidator,
+            IDiscountValidationService discountValidationService,
             LinkGenerator linkGenerator,
             MediaSettings mediaSettings,
             OrderSettings orderSettings,
@@ -107,6 +109,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _groupService = groupService;
             _mediator = mediator;
             _shoppingCartValidator = shoppingCartValidator;
+            _discountValidationService = discountValidationService;
             _linkGenerator = linkGenerator;
             _mediaSettings = mediaSettings;
             _orderSettings = orderSettings;
@@ -169,7 +172,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             {
                 var discount = await _discountService.GetDiscountByCouponCode(couponCode);
                 if (discount is { RequiresCouponCode: true } &&
-                    (await _discountService.ValidateDiscount(discount, request.Customer, request.Currency)).IsValid)
+                    (await _discountValidationService.ValidateDiscount(discount, request.Customer, request.Store, request.Currency)).IsValid)
                 {
                     model.DiscountBox.AppliedDiscountsWithCodes.Add(new ShoppingCartModel.DiscountBoxModel.DiscountInfoModel {
                         Id = discount.Id,

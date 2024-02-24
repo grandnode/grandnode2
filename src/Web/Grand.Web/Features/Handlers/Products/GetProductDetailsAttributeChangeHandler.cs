@@ -91,6 +91,7 @@ namespace Grand.Web.Features.Handlers.Products
                 //we do not calculate price of "customer enters price" option is enabled
                 var unitprice = await _pricingService.GetUnitPrice(request.Product,
                     request.Customer,
+                    request.Store,
                     request.Currency,
                     ShoppingCartType.ShoppingCart,
                     1, customAttributes, default,

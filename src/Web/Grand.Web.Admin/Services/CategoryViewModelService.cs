@@ -84,7 +84,7 @@ namespace Grand.Web.Admin.Services
             ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await _discountService
-                .GetAllDiscounts(DiscountType.AssignedToCategories, storeId: storeId, showHidden: true))
+                .GetDiscountsQuery(DiscountType.AssignedToCategories, storeId: storeId))
                 .Select(d => d.ToModel())
                 .ToList();
 
@@ -162,7 +162,7 @@ namespace Grand.Web.Admin.Services
         public async Task<Category> InsertCategoryModel(CategoryModel model)
         {
             var category = model.ToEntity();
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
+            var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCategories);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
@@ -193,7 +193,7 @@ namespace Grand.Web.Admin.Services
             //locales
             category.Locales = await model.Locales.ToTranslationProperty(category, x => x.Name, _seoSettings, _slugService, _languageService);
             //discounts
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
+            var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCategories);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))

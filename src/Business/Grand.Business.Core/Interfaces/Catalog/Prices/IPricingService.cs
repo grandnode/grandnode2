@@ -4,6 +4,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Prices
 {
@@ -17,6 +18,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">The customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">The currency</param>
         /// <param name="additionalCharge">Additional charge</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
@@ -25,6 +27,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
+            Store store,
             Currency currency,
             double additionalCharge = 0, 
             bool includeDiscounts = true, 
@@ -35,6 +38,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">The customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">The currency</param>
         /// <param name="additionalCharge">Additional charge</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
@@ -44,6 +48,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// <returns>Final price</returns>
         Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(Product product,
             Customer customer,
+            Store store,
             Currency currency,
             double additionalCharge,
             bool includeDiscounts,
@@ -69,6 +74,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">The currency</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
         /// <param name="quantity">Quantity</param>
@@ -80,6 +86,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Prices
         /// <returns>Shopping cart unit price (one item)</returns>
         Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(Product product,
             Customer customer,
+            Store store,
             Currency currency,
             ShoppingCartType shoppingCartType,
             int quantity,

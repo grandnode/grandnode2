@@ -81,6 +81,8 @@ namespace Grand.Business.Catalog.Startup
         private void RegisterDiscountsService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDiscountService, DiscountService>();
+            serviceCollection.AddScoped<IDiscountValidationService, DiscountValidationService>();
+            serviceCollection.AddSingleton<IDiscountProviderLoader, DiscountProviderLoader>();
         }
 
         private void RegisterTaxService(IServiceCollection serviceCollection)
