@@ -16,6 +16,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using MediatR;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Domain.Stores;
 using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices
@@ -35,6 +36,7 @@ namespace Grand.Business.Catalog.Services.Prices
         private readonly IProductService _productService;
         private readonly IMediator _mediator;
         private readonly ICurrencyService _currencyService;
+        private readonly IDiscountValidationService _discountValidationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -50,6 +52,7 @@ namespace Grand.Business.Catalog.Services.Prices
             IProductService productService,
             IMediator mediator,
             ICurrencyService currencyService,
+            IDiscountValidationService discountValidationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -64,6 +67,7 @@ namespace Grand.Business.Catalog.Services.Prices
             _currencyService = currencyService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
+            _discountValidationService = discountValidationService;
         }
 
         #endregion
@@ -87,9 +91,10 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns>Discounts</returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToProduct(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToProduct(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
@@ -100,7 +105,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToSkus)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -112,16 +117,16 @@ namespace Grand.Business.Catalog.Services.Prices
             return allowedDiscounts;
         }
 
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToAllProduct(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToAllProduct(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
-            var discounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToAllProducts, storeId: _workContext.CurrentStore.Id, currencyCode: currency.CurrencyCode);
+            var discounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, storeId: store.Id, currencyCode: currency.CurrencyCode);
             foreach (var discount in discounts)
             {
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                 if (validDiscount.IsValid)
                     allowedDiscounts.Add(new ApplyDiscount {
                         CouponCode = validDiscount.CouponCode,
@@ -138,9 +143,10 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns>Discounts</returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCategories(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCategories(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
@@ -154,7 +160,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 {
                     var discount = await _discountService.GetDiscountById(appliedDiscount);
                     if (discount == null) continue;
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                     if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
                         allowedDiscounts.Add(new ApplyDiscount {
                             CouponCode = validDiscount.CouponCode,
@@ -165,14 +171,16 @@ namespace Grand.Business.Catalog.Services.Prices
             }
             return allowedDiscounts;
         }
+
         /// <summary>
         /// Get allowed discount applied to brands
         /// </summary>
         /// <param name="product"></param>
         /// <param name="customer"></param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns></returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToBrands(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToBrands(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
@@ -186,7 +194,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToBrands)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -203,9 +211,10 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns>Discounts</returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCollections(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCollections(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
@@ -219,7 +228,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 {
                     var discount = await _discountService.GetDiscountById(appliedDiscount);
                     if (discount == null) continue;
-                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                     if (validDiscount.IsValid &&
                         discount.DiscountTypeId == DiscountType.AssignedToCollections)
                         allowedDiscounts.Add(new ApplyDiscount {
@@ -237,9 +246,10 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product"></param>
         /// <param name="customer"></param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns></returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToVendors(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToVendors(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
@@ -254,7 +264,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var discount = await _discountService.GetDiscountById(appliedDiscount);
                 if (discount == null) continue;
-                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
                 if (validDiscount.IsValid &&
                     discount.DiscountTypeId == DiscountType.AssignedToVendors)
                     allowedDiscounts.Add(new ApplyDiscount {
@@ -271,41 +281,42 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <returns>Discounts</returns>
-        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscounts(Product product, Customer customer, Currency currency)
+        protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscounts(Product product, Customer customer, Store store, Currency currency)
         {
             var allowedDiscounts = new List<ApplyDiscount>();
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
             //discounts applied to products
-            foreach (var discount in await GetAllowedDiscountsAppliedToProduct(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToProduct(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to all products
-            foreach (var discount in await GetAllowedDiscountsAppliedToAllProduct(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToAllProduct(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to categories
-            foreach (var discount in await GetAllowedDiscountsAppliedToCategories(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToCategories(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to brands
-            foreach (var discount in await GetAllowedDiscountsAppliedToBrands(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToBrands(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to collections
-            foreach (var discount in await GetAllowedDiscountsAppliedToCollections(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToCollections(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to vendors
-            foreach (var discount in await GetAllowedDiscountsAppliedToVendors(product, customer, currency))
+            foreach (var discount in await GetAllowedDiscountsAppliedToVendors(product, customer, store, currency))
                 if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
@@ -317,11 +328,12 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">The customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <param name="productPriceWithoutDiscount">Already calculated product price without discount</param>
         /// <returns>Discount amount</returns>
         protected virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetDiscountAmount(Product product,
-            Customer customer, Currency currency, double productPriceWithoutDiscount)
+            Customer customer, Store store, Currency currency, double productPriceWithoutDiscount)
         {
             ArgumentNullException.ThrowIfNull(product);
 
@@ -333,7 +345,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (_catalogSettings.IgnoreDiscounts)
                 return (0, null);
 
-            var allowedDiscounts = await GetAllowedDiscounts(product, customer, currency);
+            var allowedDiscounts = await GetAllowedDiscounts(product, customer, store, currency);
 
             //no discounts
             if (!allowedDiscounts.Any())
@@ -354,6 +366,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">The customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">The currency</param>
         /// <param name="additionalCharge">Additional charge</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
@@ -362,12 +375,13 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
+            Store store,
             Currency currency,
             double additionalCharge = 0,
             bool includeDiscounts = true,
             int quantity = 1)
         {
-            return await GetFinalPrice(product, customer, currency, additionalCharge, includeDiscounts, quantity, null, null);
+            return await GetFinalPrice(product, customer, store, currency, additionalCharge, includeDiscounts, quantity, null, null);
         }
 
         /// <summary>
@@ -375,6 +389,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">The customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">Currency</param>
         /// <param name="additionalCharge">Additional charge</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
@@ -385,6 +400,7 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
+            Store store,
             Currency currency,
             double additionalCharge,
             bool includeDiscounts,
@@ -407,7 +423,7 @@ namespace Grand.Business.Catalog.Services.Prices
                     await _currencyService.ConvertFromPrimaryStoreCurrency(product.Price, currency);
 
                 //tier prices
-                var tierPrice = product.GetPreferredTierPrice(customer, _workContext.CurrentStore.Id, currency.CurrencyCode, quantity);
+                var tierPrice = product.GetPreferredTierPrice(customer, store.Id, currency.CurrencyCode, quantity);
                 if (tierPrice != null)
                 {
                     price = tierPrice.Price;
@@ -437,7 +453,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 if (includeDiscounts)
                 {
                     //discount
-                    var (tmpDiscountAmount, tmpAppliedDiscounts) = await GetDiscountAmount(product, customer, currency, price);
+                    var (tmpDiscountAmount, tmpAppliedDiscounts) = await GetDiscountAmount(product, customer, store, currency, price);
                     price -= tmpDiscountAmount;
 
                     if (tmpAppliedDiscounts != null)
@@ -484,6 +500,7 @@ namespace Grand.Business.Catalog.Services.Prices
 
             return await GetUnitPrice(product,
                 _workContext.CurrentCustomer,
+                _workContext.CurrentStore,
                 _workContext.WorkingCurrency,
                 shoppingCartItem.ShoppingCartTypeId,
                 shoppingCartItem.Quantity,
@@ -493,11 +510,13 @@ namespace Grand.Business.Catalog.Services.Prices
                 shoppingCartItem.RentalEndDateUtc,
                 includeDiscounts);
         }
+
         /// <summary>
         /// Gets the shopping cart unit price
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
         /// <param name="currency">The currency</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
         /// <param name="quantity">Quantity</param>
@@ -510,6 +529,7 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(
             Product product,
             Customer customer,
+            Store store,
             Currency currency,
             ShoppingCartType shoppingCartType,
             int quantity,
@@ -539,7 +559,7 @@ namespace Grand.Business.Catalog.Services.Prices
                         finalPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(combination.OverriddenPrice.Value, currency);
                     if (combination.TierPrices.Any())
                     {
-                        var storeId = _workContext.CurrentStore.Id;
+                        var storeId = store.Id;
                         var actualTierPrices = combination.TierPrices.Where(x => string.IsNullOrEmpty(x.StoreId) || x.StoreId == storeId)
                             .Where(x => string.IsNullOrEmpty(x.CustomerGroupId) ||
                             customer.Groups.Contains(x.CustomerGroupId)).ToList();
@@ -592,6 +612,7 @@ namespace Grand.Business.Catalog.Services.Prices
 
                     var getfinalPrice = await GetFinalPrice(product,
                         customer,
+                        store,
                         currency,
                         attributesTotalPrice,
                         includeDiscounts,
@@ -610,7 +631,7 @@ namespace Grand.Business.Catalog.Services.Prices
             //rounding
             if (_shoppingCartSettings.RoundPrices)
             {
-                finalPrice = RoundingHelper.RoundPrice(finalPrice.Value, _workContext.WorkingCurrency);
+                finalPrice = RoundingHelper.RoundPrice(finalPrice.Value, currency);
             }
             return (finalPrice.Value, discountAmount, appliedDiscounts);
         }
@@ -641,7 +662,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 if (appliedDiscounts.Count == 1)
                     oneAndOnlyDiscount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault()?.DiscountId);
 
-                if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: { } } &&
+                if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: not null } &&
                     shoppingCartItem.Quantity > oneAndOnlyDiscount.MaximumDiscountedQuantity.Value)
                 {
                     //we cannot apply discount for all shopping cart items
@@ -733,7 +754,10 @@ namespace Grand.Business.Catalog.Services.Prices
                         var associatedProduct = await _productService.GetProductById(value.AssociatedProductId);
                         if (associatedProduct != null)
                         {
-                            adjustment = (await GetFinalPrice(associatedProduct, _workContext.CurrentCustomer, _workContext.WorkingCurrency,
+                            adjustment = (await GetFinalPrice(associatedProduct, 
+                                _workContext.CurrentCustomer,
+                                _workContext.CurrentStore,
+                                _workContext.WorkingCurrency,
                                 additionalCharge: value.PriceAdjustment, includeDiscounts: true)).finalPrice * value.Quantity;
                         }
                     }

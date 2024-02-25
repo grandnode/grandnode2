@@ -15,12 +15,14 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -527,7 +529,8 @@ namespace Grand.Web.Admin.Services
                 model.SuggestedRefundedAmount = _priceFormatter.FormatPrice(suggestedRefundedAmount, orderCurrency);
 
             //used discounts
-            var duh = await _discountService.GetAllDiscountUsageHistory(orderId: order.Id);
+            var duh = await _mediator.Send(new GetDiscountUsageHistoryQuery { OrderId = order.Id });
+
             foreach (var d in duh)
             {
                 var discount = await _discountService.GetDiscountById(d.DiscountId);
@@ -855,8 +858,9 @@ namespace Grand.Web.Admin.Services
 
             var customer = await _customerService.GetCustomerById(order.CustomerId);
             var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
+            var store = await _storeService.GetStoreById(order.StoreId);
             var presetQty = 1;
-            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty))
+            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, store, currency, 0, true, presetQty))
                 .finalPrice;
             var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
             var presetPriceInclTax = productPrice.productprice;

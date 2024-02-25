@@ -34,13 +34,11 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {0} : show hidden records?
+        /// {0} : discount type ?
         /// {1} : store ident
         /// {2} : currency code
-        /// {3} : coupon code
-        /// {4} : discount name
         /// </remarks>
-        public static string DISCOUNTS_ALL_KEY => "Grand.discount.all-{0}-{1}-{2}-{3}-{4}";
+        public static string DISCOUNTS_CONTEXT_KEY => "Grand.discount.context-{0}-{1}-{2}";
 
         /// <summary>
         /// Key pattern to clear cache

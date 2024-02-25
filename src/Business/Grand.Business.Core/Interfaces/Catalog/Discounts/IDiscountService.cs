@@ -21,12 +21,18 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task<Discount> GetDiscountById(string discountId);
 
         /// <summary>
-        /// Gets all discounts
+        /// Gets active discounts by context
         /// </summary>
         /// <returns>Discounts</returns>
-        Task<IList<Discount>> GetAllDiscounts(DiscountType? discountType, string storeId = "", string currencyCode = "",
-            string couponCode = "", string discountName = "", bool showHidden = false);
+        Task<IList<Discount>> GetActiveDiscountsByContext(DiscountType discountType, string storeId = "", string currencyCode = "");
 
+        /// <summary>
+        /// Gets discounts query
+        /// </summary>
+        /// <returns>Discounts</returns>
+        Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
+            string couponCode = "", string discountName = "");
+        
         /// <summary>
         /// Inserts a new discount
         /// </summary>
@@ -46,87 +52,20 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task DeleteDiscount(Discount discount);
 
         /// <summary>
-        /// Loads existing discount provider by rule system name
-        /// </summary>
-        /// <param name="ruleSystemName">Rule system name</param>
-        /// <returns>Discount provider</returns>
-        IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName);
-
-        /// <summary>
-        /// Loads all available discount providers
-        /// </summary>
-        /// <returns>Discount requirement rules</returns>
-        IList<IDiscountProvider> LoadAllDiscountProviders();
-
-
-        /// <summary>
         /// Gets existing discount by coupon code
         /// </summary>
         /// <param name="couponCode">CouponCode</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
         /// <returns>Discount</returns>
         Task<Discount> GetDiscountByCouponCode(string couponCode, bool showHidden = false);
-
-        /// <summary>
-        /// Exists coupon code in discount
-        /// </summary>
-        /// <param name="couponCode"></param>
-        /// <param name="discountId"></param>
-        /// <param name="used"></param>
-        /// <returns></returns>
-        Task<bool> ExistsCodeInDiscount(string couponCode, string discountId, bool? used);
-
-        /// <summary>
-        /// Validates used discount
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <returns>Discount validation result</returns>
-        Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency);
-
-        /// <summary>
-        /// Validates used discount with coupon code
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <param name="couponCodeToValidate">Coupon code that should be validated</param>
-        /// <returns>Discount validation result</returns>
-        Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string couponCodeToValidate);
-
-        /// <summary>
-        /// Validate discount
-        /// </summary>
-        /// <param name="discount">Discount</param>
-        /// <param name="customer">Customer</param>
-        /// <param name="currency">Currency</param>
-        /// <param name="couponCodesToValidate">Coupon codes that should be validated</param>
-        /// <returns>Discount validation result</returns>
-        Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Currency currency, string[] couponCodesToValidate);
-
-
+        
         /// <summary>
         /// Gets a discount usage history item
         /// </summary>
         /// <param name="discountUsageHistoryId">Discount usage history item id</param>
         /// <returns>Discount usage history</returns>
         Task<DiscountUsageHistory> GetDiscountUsageHistoryById(string discountUsageHistoryId);
-
-        /// <summary>
-        /// Gets all discount usage history records
-        /// </summary>
-        /// <param name="discountId">Discount id; use null to load all existing discounts</param>
-        /// <param name="customerId">Customer id; use null to load all existing customers</param>
-        /// <param name="orderId">Order id; use null to load all existing orders</param>
-        /// <param name="canceled">Canceled</param>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <returns>Discount usage history records</returns>
-        Task<IPagedList<DiscountUsageHistory>> GetAllDiscountUsageHistory(string discountId = "",
-            string customerId = "", string orderId = "", bool? canceled = null,
-            int pageIndex = 0, int pageSize = int.MaxValue);
-
+        
         /// <summary>
         /// Inserts discount usage history item
         /// </summary>
@@ -194,16 +133,15 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task InsertDiscountCoupon(DiscountCoupon coupon);
 
         /// <summary>
-        /// Gets discount amount from provider
+        /// Get discount amount
         /// </summary>
         /// <param name="discount">Discount</param>
         /// <param name="amount">Amount</param>
         /// <param name="currency">currency</param>
         /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
-        /// <returns></returns>
         Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount);
-
+        
         /// <summary>
         /// Gets preferred discount
         /// </summary>
@@ -227,27 +165,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(IList<ApplyDiscount> discounts,
             Customer customer, Currency currency, double amount);
 
-        /// <summary>
-        /// GetDiscountAmountProvider
-        /// </summary>
-        /// <param name="discount"></param>
-        /// <param name="customer"></param>
-        /// <param name="product"></param>
-        /// <param name="amount"></param>
-        /// <returns></returns>
-        Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, double amount);
-
-        /// <summary>
-        /// Load discount amount provider by systemName
-        /// </summary>
-        /// <param name="systemName"></param>
-        /// <returns></returns>
-        IDiscountAmountProvider LoadDiscountAmountProviderBySystemName(string systemName);
-
-        /// <summary>
-        /// Load discount amount providers
-        /// </summary>
-        /// <returns></returns>
-        IList<IDiscountAmountProvider> LoadDiscountAmountProviders();
+        
     }
 }

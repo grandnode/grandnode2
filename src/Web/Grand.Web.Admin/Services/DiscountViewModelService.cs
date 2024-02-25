@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
@@ -19,6 +20,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
 using Grand.Web.Common.Extensions;
+using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services
@@ -40,7 +42,8 @@ namespace Grand.Web.Admin.Services
         private readonly IOrderService _orderService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IDateTimeService _dateTimeService;
-
+        private readonly IDiscountProviderLoader _discountProviderLoader;
+        private readonly IMediator _mediator;
         #endregion
 
         #region Constructors
@@ -57,7 +60,9 @@ namespace Grand.Web.Admin.Services
             IVendorService vendorService,
             IOrderService orderService,
             IPriceFormatter priceFormatter,
-            IDateTimeService dateTimeService)
+            IDateTimeService dateTimeService, 
+            IDiscountProviderLoader discountProviderLoader,
+            IMediator mediator)
         {
             _discountService = discountService;
             _translationService = translationService;
@@ -72,6 +77,8 @@ namespace Grand.Web.Admin.Services
             _orderService = orderService;
             _priceFormatter = priceFormatter;
             _dateTimeService = dateTimeService;
+            _discountProviderLoader = discountProviderLoader;
+            _mediator = mediator;
         }
 
         #endregion
@@ -93,19 +100,17 @@ namespace Grand.Web.Admin.Services
             DiscountType? discountType = null;
             if (model.SearchDiscountTypeId > 0)
                 discountType = (DiscountType)model.SearchDiscountTypeId;
-            var discounts = await _discountService.GetAllDiscounts(discountType,
+            var discounts = await _discountService.GetDiscountsQuery(discountType,
                 _workContext.CurrentCustomer.StaffStoreId,
                 null,
                 model.SearchDiscountCouponCode,
-                model.SearchDiscountName,
-                true);
+                model.SearchDiscountName);
             var items = new List<DiscountModel>();
             foreach (var x in discounts.Skip((pageIndex - 1) * pageSize).Take(pageSize))
             {
                 var discountModel = x.ToModel(_dateTimeService);
                 discountModel.DiscountTypeName = x.DiscountTypeId.GetTranslationEnum(_translationService, _workContext);
-                discountModel.TimesUsed =
-                    (await _discountService.GetAllDiscountUsageHistory(x.Id, pageSize: 1)).TotalCount;
+                discountModel.TimesUsed = (await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = x.Id, PageSize = 1})).TotalCount;
                 items.Add(discountModel);
             }
 
@@ -121,7 +126,7 @@ namespace Grand.Web.Admin.Services
                     "admin.marketing.discounts.Requirements.DiscountRequirementType.Select"),
                 Value = ""
             });
-            var discountPlugins = _discountService.LoadAllDiscountProviders();
+            var discountPlugins = _discountProviderLoader.LoadAllDiscountProviders();
             foreach (var discountPlugin in discountPlugins)
             foreach (var discountRule in discountPlugin.GetRequirementRules())
                 model.AvailableDiscountRequirementRules.Add(new SelectListItem
@@ -133,7 +138,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //discount amount providers
-            foreach (var item in _discountService.LoadDiscountAmountProviders())
+            foreach (var item in _discountProviderLoader.LoadDiscountAmountProviders())
             {
                 model.AvailableDiscountAmountProviders.Add(new SelectListItem { Value = item.SystemName, Text = item.FriendlyName });
             }
@@ -144,7 +149,7 @@ namespace Grand.Web.Admin.Services
                 foreach (var dr in discount.DiscountRules.OrderBy(dr => dr.Id))
                 {
                     var discountPlugin =
-                        _discountService.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
+                        _discountProviderLoader.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
                     var discountRequirement = discountPlugin.GetRequirementRules()
                         .Single(x => x.SystemName == dr.DiscountRequirementRuleSystemName);
                     {
@@ -415,8 +420,7 @@ namespace Grand.Web.Admin.Services
             Task<(IEnumerable<DiscountModel.DiscountUsageHistoryModel> usageHistoryModels, int totalCount)>
             PrepareDiscountUsageHistoryModel(Discount discount, int pageIndex, int pageSize)
         {
-            var duh = await _discountService.GetAllDiscountUsageHistory(discount.Id, null, null, null, pageIndex - 1,
-                pageSize);
+            var duh = await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = discount.Id, PageIndex = pageIndex - 1, PageSize = pageSize });
             var items = new List<DiscountModel.DiscountUsageHistoryModel>();
 
             foreach (var x in duh)

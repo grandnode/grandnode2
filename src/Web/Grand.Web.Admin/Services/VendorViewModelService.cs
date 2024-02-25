@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Services
             ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await discountService
-                .GetAllDiscounts(DiscountType.AssignedToVendors, showHidden: true))
+                .GetDiscountsQuery(DiscountType.AssignedToVendors))
                 .Select(d => d.ToModel(dateTimeService))
                 .ToList();
 
@@ -173,7 +173,7 @@ namespace Grand.Web.Admin.Services
             await vendorService.InsertVendor(vendor);
 
             //discounts
-            var allDiscounts = await discountService.GetAllDiscounts(DiscountType.AssignedToVendors, showHidden: true);
+            var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToVendors);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
@@ -201,7 +201,7 @@ namespace Grand.Web.Admin.Services
             vendor.Address = model.Address.ToEntity(vendor.Address);
 
             //discounts
-            var allDiscounts = await discountService.GetAllDiscounts(DiscountType.AssignedToVendors, showHidden: true);
+            var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToVendors);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))

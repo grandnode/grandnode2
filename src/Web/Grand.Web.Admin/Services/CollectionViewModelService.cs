@@ -102,7 +102,7 @@ namespace Grand.Web.Admin.Services
             ArgumentNullException.ThrowIfNull(model);
 
             model.AvailableDiscounts = (await _discountService
-                .GetAllDiscounts(DiscountType.AssignedToCollections, storeId: _workContext.CurrentCustomer.Id, showHidden: true))
+                .GetDiscountsQuery(DiscountType.AssignedToCollections, storeId: _workContext.CurrentCustomer.Id))
                 .Select(d => d.ToModel())
                 .ToList();
 
@@ -116,7 +116,7 @@ namespace Grand.Web.Admin.Services
         {
             var collection = model.ToEntity();
             //discounts
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCollections, showHidden: true);
+            var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCollections);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
@@ -144,7 +144,7 @@ namespace Grand.Web.Admin.Services
             collection = model.ToEntity(collection);
             collection.Locales = await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService, _languageService);
             //discounts
-            var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCollections, showHidden: true);
+            var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCollections);
             foreach (var discount in allDiscounts)
             {
                 if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
