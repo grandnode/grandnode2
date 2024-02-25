@@ -27,7 +27,11 @@ namespace Grand.Web.Models.Catalog
         public DateTime? EndTime { get; set; }
         public DateTime? EndTimeLocalTime { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
-
+        
+        public int Interval { get; set; }
+        
+        public IntervalUnit IntervalUnitId { get; set; }
+        
         //price
         public ProductPriceModel ProductPrice { get; set; } = new();
 
@@ -52,6 +56,7 @@ namespace Grand.Web.Models.Catalog
             public double OldPriceValue { get; set; }
             public string CatalogPrice { get; set; }
             public string Price { get; set; }
+            public bool CallForPrice { get; set; }
             public double PriceValue { get; set; }
             public bool PriceIncludesTax { get; set; }
             public string StartPrice { get; set; }

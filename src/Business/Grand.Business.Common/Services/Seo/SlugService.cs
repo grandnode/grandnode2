@@ -160,8 +160,7 @@ namespace Grand.Business.Common.Services.Seo
         /// <returns>Found slug</returns>
         public virtual async Task<string> GetActiveSlug(string entityId, string entityName, string languageId)
         {
-            var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName,
-                languageId);
+            var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var source = _urlEntityRepository.Table;

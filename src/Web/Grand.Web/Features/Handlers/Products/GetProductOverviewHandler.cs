@@ -26,7 +26,6 @@ namespace Grand.Web.Features.Handlers.Products
     {
         private readonly IPermissionService _permissionService;
         private readonly IWorkContext _workContext;
-        private readonly ITranslationService _translationService;
         private readonly IProductService _productService;
         private readonly IBrandService _brandService;
         private readonly IPricingService _pricingService;
@@ -43,7 +42,6 @@ namespace Grand.Web.Features.Handlers.Products
         public GetProductOverviewHandler(
             IPermissionService permissionService,
             IWorkContext workContext,
-            ITranslationService translationService,
             IProductService productService,
             IBrandService brandService,
             IPricingService priceCalculationService,
@@ -59,7 +57,6 @@ namespace Grand.Web.Features.Handlers.Products
         {
             _permissionService = permissionService;
             _workContext = workContext;
-            _translationService = translationService;
             _productService = productService;
             _brandService = brandService;
             _pricingService = priceCalculationService;
@@ -89,30 +86,12 @@ namespace Grand.Web.Features.Handlers.Products
             var pictureSize = request.ProductThumbPictureSize ?? _mediaSettings.ProductThumbPictureSize;
             var priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-            var res = new Dictionary<string, string> {
-                {
-                    "Products.CallForPrice",
-                    _translationService.GetResource("Products.CallForPrice", _workContext.WorkingLanguage.Id)
-                }, {
-                    "Products.PriceRangeFrom",
-                    _translationService.GetResource("Products.PriceRangeFrom", _workContext.WorkingLanguage.Id)
-                }, {
-                    "Media.Product.ImageLinkTitleFormat",
-                    _translationService.GetResource("Media.Product.ImageLinkTitleFormat",
-                        _workContext.WorkingLanguage.Id)
-                }, {
-                    "Media.Product.ImageAlternateTextFormat",
-                    _translationService.GetResource("Media.Product.ImageAlternateTextFormat",
-                        _workContext.WorkingLanguage.Id)
-                }
-            };
-
             var tasks = new List<Task<ProductOverviewModel>>();
 
             foreach (var product in request.Products)
             {
                 tasks.Add(GetProductOverviewModel(product, request, displayPrices, enableShoppingCart, enableWishlist,
-                    pictureSize, priceIncludesTax, res));
+                    pictureSize, priceIncludesTax));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -121,21 +100,20 @@ namespace Grand.Web.Features.Handlers.Products
 
 
         private async Task<ProductOverviewModel> GetProductOverviewModel(Product product, GetProductOverview request,
-            bool displayPrices, bool enableShoppingCart, bool enableWishlist, int pictureSize, bool priceIncludesTax,
-            Dictionary<string, string> res)
+            bool displayPrices, bool enableShoppingCart, bool enableWishlist, int pictureSize, bool priceIncludesTax)
         {
             var model = await PrepareProductOverviewModel(product);
             //price
             if (request.PreparePriceModel)
             {
-                model.ProductPrice = await PreparePriceModel(product, res, request.ForceRedirectionAfterAddingToCart,
+                model.ProductPrice = await PreparePriceModel(product,  request.ForceRedirectionAfterAddingToCart,
                     enableShoppingCart, displayPrices, enableWishlist, priceIncludesTax);
             }
 
             //picture
             if (request.PreparePictureModel)
             {
-                var pictureModels = await PreparePictureModel(product, model.Name, res, pictureSize);
+                var pictureModels = await PreparePictureModel(product, model.Name, pictureSize);
                 model.DefaultPictureModel = pictureModels.FirstOrDefault();
                 if (pictureModels.Count > 1) model.SecondPictureModel = pictureModels.ElementAtOrDefault(1);
             }
@@ -180,6 +158,8 @@ namespace Grand.Web.Features.Handlers.Products
                 LowStock = product.LowStock,
                 ShowSku = _catalogSettings.ShowSkuOnCatalogPages,
                 TaxDisplayType = _workContext.TaxDisplayType,
+                Interval = product.Interval,
+                IntervalUnitId = product.IntervalUnitId,
                 EndTime = product.AvailableEndDateTimeUtc,
                 EndTimeLocalTime = product.AvailableEndDateTimeUtc.HasValue
                     ? _dateTimeService.ConvertToUserTime(product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc)
@@ -196,14 +176,14 @@ namespace Grand.Web.Features.Handlers.Products
         }
 
         private async Task<ProductOverviewModel.ProductPriceModel> PreparePriceModel(Product product,
-            IReadOnlyDictionary<string, string> res,
             bool forceRedirectionAfterAddingToCart, bool enableShoppingCart, bool displayPrices, bool enableWishlist,
             bool priceIncludesTax)
         {
             #region Prepare product price
 
             var priceModel = new ProductOverviewModel.ProductPriceModel {
-                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart
+                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart,
+                CallForPrice = product.CallForPrice
             };
 
             switch (product.ProductTypeId)
@@ -258,7 +238,7 @@ namespace Grand.Web.Features.Handlers.Products
                                 if (minPriceProduct.CallForPrice)
                                 {
                                     priceModel.OldPrice = null;
-                                    priceModel.Price = res["Products.CallForPrice"];
+                                    priceModel.Price = "";
                                 }
                                 else
                                 {
@@ -269,8 +249,7 @@ namespace Grand.Web.Features.Handlers.Products
                                         .productprice;
 
                                     priceModel.OldPrice = null;
-                                    priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
-                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency));
+                                    priceModel.Price = _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency);
                                     priceModel.PriceValue = finalPrice;
 
                                     //PAngV base price (used in Germany)
@@ -356,7 +335,7 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 //call for price
                                 priceModel.OldPrice = null;
-                                priceModel.Price = res["Products.CallForPrice"];
+                                priceModel.Price = "";
                             }
                             else
                             {
@@ -399,8 +378,7 @@ namespace Grand.Web.Features.Handlers.Products
                                 if (displayFromMessage)
                                 {
                                     priceModel.OldPrice = null;
-                                    priceModel.Price = string.Format(res["Products.PriceRangeFrom"],
-                                        _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency));
+                                    priceModel.Price = _priceFormatter.FormatPrice(finalPrice, _workContext.WorkingCurrency);
                                     priceModel.PriceValue = finalPrice;
                                 }
                                 else
@@ -419,16 +397,6 @@ namespace Grand.Web.Features.Handlers.Products
                                         priceModel.PriceValue = finalPrice;
                                     }
                                 }
-
-                                if (product.ProductTypeId == ProductType.Reservation)
-                                {
-                                    //rental product
-                                    if(!string.IsNullOrEmpty(priceModel.OldPrice))
-                                        priceModel.OldPrice = string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()), priceModel.OldPrice, product.Interval);
-                                    
-                                    priceModel.Price = string.Format(_translationService.GetResource(product.ResourceReservationProductPeriod()), priceModel.Price, product.Interval);
-                                }
-
                                 //PAngV base price (used in Germany)
                                 if (product.BasepriceEnabled)
                                     priceModel.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
@@ -455,8 +423,7 @@ namespace Grand.Web.Features.Handlers.Products
             #endregion
         }
 
-        private async Task<IList<PictureModel>> PreparePictureModel(Product product, string name,
-            IReadOnlyDictionary<string, string> res, int pictureSize)
+        private async Task<IList<PictureModel>> PreparePictureModel(Product product, string name, int pictureSize)
         {
             #region Prepare product picture
 
@@ -480,14 +447,14 @@ namespace Grand.Web.Features.Handlers.Products
                         picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute,
                             _workContext.WorkingLanguage.Id))
                             ? picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)
-                            : string.Format(res["Media.Product.ImageLinkTitleFormat"], name),
+                            : name,
                     //"alt" attribute
                     AlternateText =
                         picture != null &&
                         !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute,
                             _workContext.WorkingLanguage.Id))
                             ? picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)
-                            : string.Format(res["Media.Product.ImageAlternateTextFormat"], name)
+                            : name
                 };
 
                 return pictureModel;

@@ -97,6 +97,10 @@
                 {
                     <div class="actual-price price">
                         @Model.ProductPrice.Price
+                        @if (Model.ProductPrice.CallForPrice)
+                        {
+                            @Loc["Products.CallForPrice"]
+                        }
                     </div>
                 }
                 else

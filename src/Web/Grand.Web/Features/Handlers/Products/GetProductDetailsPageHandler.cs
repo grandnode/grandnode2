@@ -661,7 +661,8 @@ namespace Grand.Web.Features.Handlers.Products
         {
             var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices);
             var model = new ProductDetailsModel.ProductPriceModel {
-                ProductId = product.Id
+                ProductId = product.Id,
+                CallForPrice = product.CallForPrice
             };
             if (displayPrices)
             {
@@ -672,11 +673,7 @@ namespace Grand.Web.Features.Handlers.Products
                 }
                 else
                 {
-                    if (product.CallForPrice)
-                    {
-                        model.CallForPrice = true;
-                    }
-                    else
+                    if (!product.CallForPrice)
                     {
                         var oldproductprice = await _taxService.GetProductPrice(product, product.OldPrice);
                         var oldPriceBase = oldproductprice.productprice;

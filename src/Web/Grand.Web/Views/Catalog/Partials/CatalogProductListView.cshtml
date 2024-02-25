@@ -68,6 +68,9 @@
                     <template v-if="Model.ProductType != 25">
                         <div class="actual-price price">
                             {{Model.ProductPrice.Price}}
+                            <template v-if="Model.ProductPrice.CallForPrice">
+                                @Loc["Products.CallForPrice"]
+                            </template>
                         </div>
                     </template>
                     <template v-else>
