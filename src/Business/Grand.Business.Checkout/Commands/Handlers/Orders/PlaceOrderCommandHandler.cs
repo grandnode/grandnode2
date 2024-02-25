@@ -1029,7 +1029,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         {
             using var scope = scopeFactory.CreateScope();
 
-            var workContext = scope.ServiceProvider.GetService<IWorkContext>();
+            var workContext = scope.ServiceProvider.GetService<IWorkContextSetter>();
             await workContext.SetCurrentCustomer(customer);
             await workContext.SetWorkingLanguage(customer);
             await workContext.SetWorkingCurrency(customer);

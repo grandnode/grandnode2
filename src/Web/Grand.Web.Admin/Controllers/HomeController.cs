@@ -109,12 +109,12 @@ namespace Grand.Web.Admin.Controllers
             return PartialView(model);
         }
 
-        public async Task<IActionResult> SetLanguage(string langid, [FromServices] ILanguageService languageService, string returnUrl = "")
+        public async Task<IActionResult> SetLanguage(string langid, [FromServices] IWorkContextSetter workContextSetter, [FromServices] ILanguageService languageService, string returnUrl = "")
         {
             var language = await languageService.GetLanguageById(langid);
             if (language != null)
             {
-                await _workContext.SetWorkingLanguage(language);
+                await workContextSetter.SetWorkingLanguage(language);
             }
 
             //home page

@@ -32,7 +32,7 @@ namespace Grand.Web.Common.Middleware
         /// <param name="context">HTTP context</param>
         /// <param name="workContext">workContext</param>
         /// <returns>Task</returns>
-        public async Task InvokeAsync(HttpContext context, IWorkContext workContext)
+        public async Task InvokeAsync(HttpContext context, IWorkContextSetter workContext)
         {
             if (context?.Request == null)
             {

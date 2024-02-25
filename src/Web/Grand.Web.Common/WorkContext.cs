@@ -22,7 +22,7 @@ namespace Grand.Web.Common
     /// <summary>
     /// Represents work context for web application / current customer / store / language / currency
     /// </summary>
-    public class WorkContext : IWorkContext
+    public class WorkContext : IWorkContext, IWorkContextSetter
     {
         #region Fields
 

@@ -113,7 +113,7 @@ namespace Grand.Web.Common.Infrastructure
 
         private async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
         {
-            var workContext = serviceProvider.GetRequiredService<IWorkContext>();
+            var workContext = serviceProvider.GetRequiredService<IWorkContextSetter>();
             var storeHelper = serviceProvider.GetRequiredService<IStoreHelper>();
             await workContext.SetCurrentCustomer();
             await storeHelper.SetCurrentStore(scheduleTask.StoreId);

@@ -144,6 +144,7 @@ namespace Grand.Web.Controllers
         [DenySystemAccount]
         public virtual async Task<IActionResult> SetLanguage(
             [FromServices] AppConfig config,
+            [FromServices] IWorkContextSetter workContextSetter,
             string langCode, string returnUrl = default)
         {
             var language = await _languageService.GetLanguageByCode(langCode);
@@ -167,7 +168,7 @@ namespace Grand.Web.Controllers
                 returnUrl = AddLanguageSeo(returnUrl, language);
             }
 
-            await _workContext.SetWorkingLanguage(language);
+            await workContextSetter.SetWorkingLanguage(language);
 
             //notification
             await _mediator.Publish(new ChangeLanguageEvent(_workContext.CurrentCustomer, language));
@@ -212,12 +213,13 @@ namespace Grand.Web.Controllers
         [HttpGet]
         public virtual async Task<IActionResult> SetCurrency(
             [FromServices] ICurrencyService currencyService,
+            [FromServices] IWorkContextSetter workContextSetter,
             [FromServices] IUserFieldService userFieldService,
             string currencyCode, string returnUrl = "")
         {
             var currency = await currencyService.GetCurrencyByCode(currencyCode);
             if (currency != null)
-                await _workContext.SetWorkingCurrency(currency);
+                await workContextSetter.SetWorkingCurrency(currency);
 
             //clear coupon code
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons,
@@ -288,10 +290,12 @@ namespace Grand.Web.Controllers
         //available even when navigation is not allowed
         [PublicStore(true)]
         [HttpGet]
-        public virtual async Task<IActionResult> SetTaxType(int customerTaxType, string returnUrl = default)
+        public virtual async Task<IActionResult> SetTaxType(
+            [FromServices] IWorkContextSetter workContextSetter,
+            int customerTaxType, string returnUrl = default)
         {
             var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
-            await _workContext.SetTaxDisplayType(taxDisplayType);
+            await workContextSetter.SetTaxDisplayType(taxDisplayType);
 
             //notification
             await _mediator.Publish(new ChangeTaxTypeEvent(_workContext.CurrentCustomer, taxDisplayType));
