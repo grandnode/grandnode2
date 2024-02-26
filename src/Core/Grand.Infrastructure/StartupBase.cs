@@ -194,11 +194,12 @@ namespace Grand.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="configuration">Configuration</param>
         /// <param name="typeSearcher">Type searcher</param>
-        private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration, ITypeSearcher typeSearcher)
+        private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration,
+            ITypeSearcher typeSearcher)
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
-            
+
             RegisterConfigurations(services, configuration);
 
             InitDatabase(services, configuration);
@@ -224,7 +225,7 @@ namespace Grand.Infrastructure
                     options.UseJsonBodyModelBinderProviderInsteadOf<ComplexObjectModelBinderProvider>();
                 }
             });
-            
+
             return mvcCoreBuilder;
         }
 
@@ -233,8 +234,18 @@ namespace Grand.Infrastructure
             var appConfiguration = configuration["Azure:AppConfiguration"];
             if (!string.IsNullOrEmpty(appConfiguration))
             {
-                ((ConfigurationManager)configuration).AddAzureAppConfiguration(appConfiguration);
+                ((ConfigurationManager)configuration).AddAzureAppConfiguration(options =>
+                {
+                    options.Connect(appConfiguration);
+                    var keyPrefix = configuration["Azure:AppKeyPrefix"];
+                    if (!string.IsNullOrEmpty(keyPrefix))
+                    {
+                        options.Select($"{keyPrefix}:*");
+                        options.TrimKeyPrefix($"{keyPrefix}:");
+                    }
+                });
             }
+
             services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
             services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
