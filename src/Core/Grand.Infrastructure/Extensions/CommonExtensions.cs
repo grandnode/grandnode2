@@ -13,24 +13,44 @@ namespace Grand.Infrastructure.Extensions
             if (string.IsNullOrEmpty(key))
                 return url;
 
-            var uri = new Uri(url);
-            var baseUri = uri.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.UriEscaped);
+            var baseUrl = "";
+            var queryString = "";
 
-            var query = QueryHelpers.ParseQuery(uri.Query);
+            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            {
+                var uri = new Uri(url);
+                baseUrl = uri.AbsolutePath;
+                queryString = uri.Query;
+            }
+            else
+            {
+                var questionMarkIndex = url.IndexOf('?');
+                if (questionMarkIndex != -1)
+                {
+                    baseUrl = url.Substring(0, questionMarkIndex);
+                    queryString = url.Substring(questionMarkIndex);
+                }
+                else
+                {
+                    baseUrl = url;
+                }
+            }
 
-            var items = query.SelectMany(x => x.Value, (col, val) =>
-                new KeyValuePair<string, string>(col.Key, val)).ToList();
+            var query = QueryHelpers.ParseQuery(queryString);
+
+            var items = query.SelectMany(x => x.Value, (col, val) => new KeyValuePair<string, string>(col.Key, val)).ToList();
 
             items.RemoveAll(x => x.Key == key);
 
+            if (!string.IsNullOrEmpty(value))
+            {
+                items.Add(new KeyValuePair<string, string>(key, value));
+            }
+
             var qb = new QueryBuilder(items);
 
-            if (!string.IsNullOrEmpty(value))
-                qb.Add(key, value);
-
-            var returnUrl = baseUri + qb.ToQueryString();
-            return returnUrl;
+            return baseUrl + qb.ToQueryString();
         }
-        
+
     }
 }

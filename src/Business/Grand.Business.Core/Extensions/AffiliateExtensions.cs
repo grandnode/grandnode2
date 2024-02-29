@@ -3,6 +3,7 @@ using Grand.Domain.Affiliates;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
+using System.Security.Policy;
 
 namespace Grand.Business.Core.Extensions
 {
@@ -48,11 +49,15 @@ namespace Grand.Business.Core.Extensions
             if (string.IsNullOrEmpty(host))
                 throw new ArgumentNullException(nameof(host));
 
-            var url = !string.IsNullOrEmpty(affiliate.FriendlyUrlName) ?
-                CommonExtensions.ModifyQueryString(host, "affiliate", affiliate.FriendlyUrlName)
-                : CommonExtensions.ModifyQueryString(host, "affiliateid", affiliate.Id);
+            var uriBuilder = new UriBuilder(host);
+            var query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+            if (!string.IsNullOrEmpty(affiliate.FriendlyUrlName))
+                query["affiliate"] = affiliate.FriendlyUrlName;
+            else
+                query["affiliateid"] = affiliate.Id;
 
-            return url;
+            uriBuilder.Query = query.ToString();
+            return uriBuilder.ToString(); 
         }
 
         /// <summary>

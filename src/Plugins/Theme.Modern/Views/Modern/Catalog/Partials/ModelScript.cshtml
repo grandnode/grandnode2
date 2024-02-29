@@ -11,7 +11,7 @@
         methods: {
             loadProducts(url) {
                 //set state
-                var stateurl = new URL(url);
+                var stateurl = new URL(url, window.location.origin);
 
                 stateurl.searchParams.delete('timestamp');
                 stateurl.searchParams.delete('pagenumber');
@@ -28,7 +28,7 @@
                 window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
             },
             getResponse(url) {
-                url = new URL(url);
+                url = new URL(url, window.location.origin);
                 url.searchParams.set('timestamp', new Date().getTime());
                 const options = {
                     headers: {

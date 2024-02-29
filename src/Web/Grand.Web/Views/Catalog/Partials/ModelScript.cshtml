@@ -11,7 +11,7 @@
             loadProducts(url) {
                 catalog.getResponse(url);
                 //set state
-                var stateurl = new URL(url);
+                var stateurl = new URL(url, window.location.origin);
                 stateurl.searchParams.delete('timestamp');
                 window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
             },
@@ -28,7 +28,7 @@
                 this.loadProducts(url.href);
             },
             getResponse(url) {
-                url = new URL(url);
+                url = new URL(url, window.location.origin);
                 url.searchParams.set('timestamp', new Date().getTime());
                 const options = {
                     headers: {
