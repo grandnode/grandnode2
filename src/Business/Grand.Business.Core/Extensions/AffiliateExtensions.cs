@@ -55,7 +55,8 @@ namespace Grand.Business.Core.Extensions
                 query["affiliate"] = affiliate.FriendlyUrlName;
             else
                 query["affiliateid"] = affiliate.Id;
-
+            
+            uriBuilder.Port = -1;
             uriBuilder.Query = query.ToString();
             return uriBuilder.ToString(); 
         }
