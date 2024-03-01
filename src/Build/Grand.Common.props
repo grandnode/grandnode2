@@ -36,7 +36,7 @@
 	</ItemGroup>
 	<Target Name="SetVersion" BeforeTargets="PrepareForBuild">
 		<PropertyGroup>
-			<Version>2.2.0-develop</Version>
+			<Version>2.2.0-beta</Version>
 		</PropertyGroup>
 	</Target>
 </Project>
