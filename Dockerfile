@@ -37,8 +37,8 @@ RUN dotnet publish /app/Web/Grand.Web --no-restore -c Release -o ./build/release
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
 EXPOSE 8080
-EXPOSE 8081
 
 WORKDIR /app
 COPY --from=build-env /app/build/release .
