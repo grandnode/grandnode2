@@ -8,7 +8,8 @@
 		Either workstation or server can be used for two-processor computers.
 		Server garbage collection should be the fastest option for more than two processors.      
 		More details about GC you can see here: https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals-->
-		<ServerGarbageCollection>false</ServerGarbageCollection>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
+		<GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
 		<PreserveCompilationReferences>true</PreserveCompilationReferences>
 		<DockerComposeProjectPath>..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<UserSecretsId>a2091e37-94a0-4446-8a5d-1d5c0835333a</UserSecretsId>
