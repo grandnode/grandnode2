@@ -37,14 +37,6 @@ namespace Grand.Business.System.Services.Installation
                 },
                 new ScheduleTask
                 {
-                    ScheduleTaskName = "Clear log",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.ClearLogScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
                     ScheduleTaskName = "Update currency exchange rates",
                     Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.UpdateExchangeRateScheduleTask, Grand.Business.System",
                     Enabled = true,
