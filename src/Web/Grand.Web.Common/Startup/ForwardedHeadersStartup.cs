@@ -34,7 +34,14 @@ namespace Grand.Web.Common.Startup
 
             var serviceProvider = application.ApplicationServices;
             var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
-
+            if (securityConfig.ForceUseHTTPS)
+            {
+                application.Use((context, next) =>
+                {
+                    context.Request.Scheme = "https";
+                    return next(context);
+                });
+            }
             if (securityConfig.UseForwardedHeaders)
                 application.UseGrandForwardedHeaders();
 
