@@ -21,7 +21,7 @@ StartupBase.ConfigureServices(builder.Services, builder.Configuration);
 builder.ConfigureApplicationSettings();
 
 //register task
-builder.Services.RegisterTasks();
+builder.Services.RegisterTasks(builder.Configuration);
 
 //build app
 var app = builder.Build();
