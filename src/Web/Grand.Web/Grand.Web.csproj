@@ -29,7 +29,6 @@
 	<ItemGroup>
 		<Content Include="App_Data\**" CopyToPublishDirectory="PreserveNewest" Exclude="App_Data\appsettings.json;App_Data\DataProtectionKeys\*.xml;" />
 		<Content Include="Roslyn\**" CopyToPublishDirectory="PreserveNewest" Exclude="Roslyn\**\*.dll" />
-		<Content Include="logs\**" CopyToPublishDirectory="PreserveNewest" />
 		<Content Remove="wwwroot\assets\images\thumbs\*.jpeg;wwwroot\assets\images\thumbs\*.jpg;wwwroot\assets\images\thumbs\*.png" />
 	</ItemGroup>
 	<Target Name="PublishViews" BeforeTargets="PrepareForPublish">
@@ -40,7 +39,7 @@
 	</Target>
 	<!--<PropertyGroup>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
-  </PropertyGroup>-->
+  	</PropertyGroup>-->
 	<ItemGroup>
 		<Content Remove="Plugins\**" />
 		<Compile Remove="Plugins\**" />
