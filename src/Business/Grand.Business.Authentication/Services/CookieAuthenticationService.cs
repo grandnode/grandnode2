@@ -109,8 +109,12 @@ namespace Grand.Business.Authentication.Services
 
             //sign in user
             if (_httpContextAccessor.HttpContext != null)
+            {
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(CustomerCookieName);
+                
                 await _httpContextAccessor.HttpContext.SignInAsync(
                     GrandCookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, authenticationProperties);
+            }
 
             //cache authenticated customer
             _cachedCustomer = customer;
