@@ -1,4 +1,7 @@
-﻿namespace Grand.Infrastructure.Configuration
+﻿
+using Microsoft.AspNetCore.Http;
+
+namespace Grand.Infrastructure.Configuration
 {
     public class SecurityConfig
     {
@@ -31,6 +34,16 @@
         /// </summary>
         public string CookiePrefix { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value for Cookie SameSite
+        /// </summary>
+        public SameSiteMode CookieSameSite { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value for Cookie SameSite for external authentication
+        /// </summary>
+        public SameSiteMode CookieSameSiteExternalAuth { get; set; }
+        
         /// <summary>
         /// Gets or sets a value for Cookie claim issuer 
         /// </summary>

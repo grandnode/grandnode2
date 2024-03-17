@@ -169,6 +169,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways
                     ? CookieSecurePolicy.Always
                     : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = securityConfig.CookieSameSite;
             });
 
             //add external authentication
@@ -182,6 +183,8 @@ namespace Grand.Web.Common.Infrastructure
                 options.Cookie.SecurePolicy = securityConfig.CookieSecurePolicyAlways
                     ? CookieSecurePolicy.Always
                     : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = securityConfig.CookieSameSiteExternalAuth;
+
             });
 
             //register external authentication plugins now
@@ -190,11 +193,11 @@ namespace Grand.Web.Common.Infrastructure
             var externalAuthInstances = externalAuthConfigurations
                 .Where(PluginExtensions.OnlyInstalledPlugins)
                 .Select(x => (IAuthenticationBuilder)Activator.CreateInstance(x))
-                .OrderBy(x => x!.Priority);
+                .OrderBy(x => x?.Priority);
 
             //add new Authentication
             foreach (var instance in externalAuthInstances)
-                instance.AddAuthentication(authenticationBuilder, configuration);
+                instance?.AddAuthentication(authenticationBuilder, configuration);
         }
 
         /// <summary>
