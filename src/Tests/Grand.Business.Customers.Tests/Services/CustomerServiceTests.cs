@@ -10,6 +10,7 @@ using Grand.Domain.Orders;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Infrastructure.Caching;
 
 namespace Grand.Business.Customers.Tests.Services
 {
@@ -19,6 +20,7 @@ namespace Grand.Business.Customers.Tests.Services
         private IRepository<Customer> _repository;
         private Mock<IMediator> _mediatorMock;
         private IUserFieldService _userFieldService;
+        private MemoryCacheBase _cacheBase;
         private CustomerService _customerService;
         [TestInitialize()]
         public void TestInitialize()
@@ -27,7 +29,7 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _userFieldService = new UserFieldService(new MongoDBRepositoryTest<UserFieldBaseEntity>());
 
-            _customerService = new CustomerService(_repository, _userFieldService, _mediatorMock.Object);
+            _customerService = new CustomerService(_repository, _userFieldService, _mediatorMock.Object, _cacheBase);
         }
        
 

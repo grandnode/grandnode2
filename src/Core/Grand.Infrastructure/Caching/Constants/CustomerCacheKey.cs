@@ -63,6 +63,14 @@
         /// </remarks>
         public static string CUSTOMERGROUPSPRODUCTS_ROLE_KEY => "Grand.customergroupproducts.role-{0}";
 
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : ident
+        /// </remarks>
+        public static string CUSTOMER_BY_SYSTEMNAME_BY_KEY => "Grand.customer.systemname-{0}";
+
         #region Customer activity
 
         /// <summary>

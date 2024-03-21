@@ -11,6 +11,8 @@ using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
 using System.Linq.Expressions;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 
 namespace Grand.Business.Customers.Services
 {
@@ -24,6 +26,7 @@ namespace Grand.Business.Customers.Services
         private readonly IRepository<Customer> _customerRepository;
         private readonly IUserFieldService _userFieldService;
         private readonly IMediator _mediator;
+        private readonly ICacheBase _cacheBase;
 
         #endregion
 
@@ -32,11 +35,13 @@ namespace Grand.Business.Customers.Services
         public CustomerService(
             IRepository<Customer> customerRepository,
             IUserFieldService userFieldService,
-            IMediator mediator)
+            IMediator mediator,
+            ICacheBase cacheBase)
         {
             _customerRepository = customerRepository;
             _userFieldService = userFieldService;
             _mediator = mediator;
+            _cacheBase = cacheBase;
         }
 
         #endregion
@@ -215,12 +220,14 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="systemName">System name</param>
         /// <returns>Customer</returns>
-        public virtual async Task<Customer> GetCustomerBySystemName(string systemName)
+        public virtual Task<Customer> GetCustomerBySystemName(string systemName)
         {
             if (string.IsNullOrWhiteSpace(systemName))
                 return null;
 
-            return await _customerRepository.GetOneAsync(x => x.SystemName == systemName);
+            var key = string.Format(CacheKey.CUSTOMER_BY_SYSTEMNAME_BY_KEY, systemName);
+
+            return _cacheBase.GetAsync(key, () => _customerRepository.GetOneAsync(x => x.SystemName == systemName));
         }
 
         /// <summary>
