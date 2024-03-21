@@ -97,6 +97,10 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             {
                 query = query.Where(o => o.Code == request.OrderCode.ToUpperInvariant());
             }
+            if (!string.IsNullOrEmpty(request.OrderNumber) && int.TryParse(request.OrderNumber, out int orderNumber))
+            {
+                query = query.Where(o => o.OrderNumber == orderNumber);
+            }
 
             //tag filtering 
             if (!string.IsNullOrEmpty(request.OrderTagId))
