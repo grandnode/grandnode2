@@ -8,6 +8,12 @@
 		<RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
 		<PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/main/LICENSE</PackageLicenseUrl>
 		<RepositoryType>Git</RepositoryType>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<ItemGroup>
 		<Using Include="System"/>
