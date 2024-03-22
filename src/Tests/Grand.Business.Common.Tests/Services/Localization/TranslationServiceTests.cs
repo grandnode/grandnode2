@@ -18,7 +18,6 @@ namespace Grand.Business.Common.Tests.Services.Localization
     {
         private IRepository<TranslationResource> _repository;
         private Mock<IMediator> _mediatorMock;
-        private MemoryCacheBase _cacheBase;
         private Mock<IWorkContext> _workContextMock;
 
         private TranslationService _translationService;
@@ -29,21 +28,20 @@ namespace Grand.Business.Common.Tests.Services.Localization
             _repository = new MongoDBRepositoryTest<TranslationResource>();
 
             _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
             _workContextMock = new Mock<IWorkContext>();
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store());
             _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _workContextMock.Setup(c => c.WorkingLanguage).Returns(() => new Language { Id = "1" });
 
-            _translationService = new TranslationService(_cacheBase, _workContextMock.Object, _repository, _mediatorMock.Object);
+            _translationService = new TranslationService(_workContextMock.Object, _repository, _mediatorMock.Object);
         }
 
         [TestMethod()]
         public async Task GetTranslateResourceByIdTest()
         {
             //Arrange
-            var translationResource = new TranslationResource();
-            await _repository.InsertAsync(translationResource);
+            var translationResource = new TranslationResource() { Name = "name", LanguageId = "1", Value = "value" };
+            await _translationService.InsertTranslateResource(translationResource);
 
             //Act
             var result = await _translationService.GetTranslateResourceById(translationResource.Id);
@@ -57,7 +55,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         {
             //Arrange
             var translationResource = new TranslationResource { Name = "name", LanguageId = "1" };
-            await _repository.InsertAsync(translationResource);
+            await _translationService.InsertTranslateResource(translationResource);
 
             //Act
             var result = await _translationService.GetTranslateResourceByName(translationResource.Name, translationResource.LanguageId);
@@ -70,9 +68,9 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task GetAllResourcesTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource { LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource { LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource { LanguageId = "2" });
+            await _translationService.InsertTranslateResource(new TranslationResource { LanguageId = "1", Name = "test1", Value = "val1"});
+            await _translationService.InsertTranslateResource(new TranslationResource { LanguageId = "1", Name = "test2", Value = "val2" });
+            await _translationService.InsertTranslateResource(new TranslationResource { LanguageId = "2", Name = "test3", Value = "val3" });
 
             //Act
             var result = _translationService.GetAllResources("1");
@@ -127,9 +125,9 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task GetResourceTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource { Name = "name2", Value = "value2", LanguageId = "1" });
-            await _repository.InsertAsync(new TranslationResource { Name = "name3", Value = "value3", LanguageId = "2" });
+            await _translationService.InsertTranslateResource(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
+            await _translationService.InsertTranslateResource(new TranslationResource { Name = "name2", Value = "value2", LanguageId = "1" });
+            await _translationService.InsertTranslateResource(new TranslationResource { Name = "name3", Value = "value3", LanguageId = "2" });
 
             //Act
             var result = _translationService.GetResource("name1");
@@ -143,7 +141,7 @@ namespace Grand.Business.Common.Tests.Services.Localization
         public async Task ExportResourcesToXmlTest()
         {
             //Arrange
-            await _repository.InsertAsync(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
+            await _translationService.InsertTranslateResource(new TranslationResource { Name = "name1", Value = "value1", LanguageId = "1" });
 
             //Act
             var result = await _translationService.ExportResourcesToXml(new Language { Id = "1", Name = "en"});

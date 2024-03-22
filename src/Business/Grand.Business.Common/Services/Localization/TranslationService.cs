@@ -3,10 +3,9 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
+using System.Collections.Concurrent;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -19,9 +18,10 @@ namespace Grand.Business.Common.Services.Localization
     {
         #region Fields
 
+        private static readonly ConcurrentDictionary<string, IDictionary<string, string>> _cachedResources = new();
+
         private readonly IRepository<TranslationResource> _translationRepository;
         private readonly IWorkContext _workContext;
-        private readonly ICacheBase _cacheBase;
         private readonly IMediator _mediator;
 
         #endregion
@@ -31,17 +31,14 @@ namespace Grand.Business.Common.Services.Localization
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="cacheBase">Cache manager</param>
         /// <param name="workContext">Work context</param>
         /// <param name="trRepository">Translate resource repository</param>
         /// <param name="mediator">Mediator</param>
         public TranslationService(
-            ICacheBase cacheBase,
             IWorkContext workContext,
             IRepository<TranslationResource> trRepository,
             IMediator mediator)
         {
-            _cacheBase = cacheBase;
             _workContext = workContext;
             _translationRepository = trRepository;
             _mediator = mediator;
@@ -70,9 +67,9 @@ namespace Grand.Business.Common.Services.Localization
         public virtual async Task<TranslationResource> GetTranslateResourceByName(string name, string languageId)
         {
             var query = from lsr in _translationRepository.Table
-                        orderby lsr.Name
-                        where lsr.LanguageId == languageId && lsr.Name == name
-                        select lsr;
+                orderby lsr.Name
+                where lsr.LanguageId == languageId && lsr.Name == name
+                select lsr;
             var translateResource = await Task.FromResult(query.FirstOrDefault());
             return translateResource;
         }
@@ -98,8 +95,7 @@ namespace Grand.Business.Common.Services.Localization
             translateResource.Name = translateResource.Name.ToLowerInvariant();
             await _translationRepository.InsertAsync(translateResource);
 
-            //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+            await RefreshCachedResources(translateResource.LanguageId);
 
             //event notification
             await _mediator.EntityInserted(translateResource);
@@ -117,7 +113,7 @@ namespace Grand.Business.Common.Services.Localization
             await _translationRepository.UpdateAsync(translateResource);
 
             //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+            await RefreshCachedResources(translateResource.LanguageId);
 
             //event notification
             await _mediator.EntityUpdated(translateResource);
@@ -135,7 +131,7 @@ namespace Grand.Business.Common.Services.Localization
             await _translationRepository.DeleteAsync(translateResource);
 
             //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+            await RefreshCachedResources(translateResource.LanguageId);
 
             //event notification
             await _mediator.EntityDeleted(translateResource);
@@ -163,15 +159,12 @@ namespace Grand.Business.Common.Services.Localization
         {
             name ??= string.Empty;
             name = name.Trim().ToLowerInvariant();
-            var key = string.Format(CacheKey.TRANSLATERESOURCES_ALL_KEY, languageId);
-            var allTranslateResource = _cacheBase.Get(key, () =>
+
+            var allTranslateResource = GetOrAddToStaticCache(languageId, () =>
             {
-                return
-                    GetAllResources(languageId)
-                        .GroupBy(r => r.Name)
-                        .ToDictionary(
-                            keySelector: g => g.Key,
-                            elementSelector: g => g.First().Value);
+                return GetAllResources(languageId)
+                    .GroupBy(r => r.Name)
+                    .ToDictionary(g => g.Key, g => g.First().Value);
             });
 
             // Try to get the resource value by name
@@ -179,8 +172,7 @@ namespace Grand.Business.Common.Services.Localization
             {
                 return result;
             }
-            
-            if (!string.IsNullOrEmpty(result)) return result;
+
             if (!string.IsNullOrEmpty(defaultValue)) result = defaultValue;
             else if (!returnEmptyIfNotFound) result = name;
             return result;
@@ -277,8 +269,7 @@ namespace Grand.Business.Common.Services.Localization
                     }
                 }
 
-            //clear cache
-            await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+            await RefreshCachedResources(language.Id);
         }
 
         /// <summary>
@@ -292,7 +283,7 @@ namespace Grand.Business.Common.Services.Localization
 
             if (string.IsNullOrEmpty(xml))
                 return;
-            
+
             var xmlDoc = LanguageXmlDocument(xml);
 
             var translateResources = new List<TranslationResource>();
@@ -322,8 +313,29 @@ namespace Grand.Business.Common.Services.Localization
                     });
                 }
 
-            //clear cache
-            await _cacheBase.RemoveByPrefix(CacheKey.TRANSLATERESOURCES_PATTERN_KEY);
+            await RefreshCachedResources(language.Id);
+        }
+        
+        private IDictionary<string, string> GetOrAddToStaticCache(string languageId, Func<IDictionary<string, string>> valueFactory)
+        {
+            if (_cachedResources.TryGetValue(languageId, out var languageResources)) return languageResources;
+            _cachedResources.TryAdd(languageId, valueFactory());
+            return _cachedResources[languageId];
+        }
+
+        private Task RefreshCachedResources(string languageId)
+        {
+            if (_cachedResources.ContainsKey(languageId))
+            {
+                _cachedResources.TryRemove(languageId, out _);
+            }
+            _cachedResources.TryAdd(languageId, GetAllResources(languageId)
+                .GroupBy(r => r.Name)
+                .ToDictionary(
+                    keySelector: g => g.Key,
+                    elementSelector: g => g.First().Value));
+
+            return Task.CompletedTask;
         }
         private static XmlDocument LanguageXmlDocument(string xml)
         {
