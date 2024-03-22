@@ -11,6 +11,8 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Tests.Caching;
 
 namespace Grand.Business.Customers.Tests.Services
 {
@@ -28,7 +30,8 @@ namespace Grand.Business.Customers.Tests.Services
             _repository = new MongoDBRepositoryTest<Customer>();
             _mediatorMock = new Mock<IMediator>();
             _userFieldService = new UserFieldService(new MongoDBRepositoryTest<UserFieldBaseEntity>());
-
+            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
+            
             _customerService = new CustomerService(_repository, _userFieldService, _mediatorMock.Object, _cacheBase);
         }
        
