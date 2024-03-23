@@ -3,7 +3,7 @@ using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 
-Common.WwwRoot = "";
+Grand.SharedUIResources.Constants.WwwRoot = "";
 
 var builder = WebApplication.CreateBuilder(args);
 

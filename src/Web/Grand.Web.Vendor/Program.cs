@@ -1,9 +1,6 @@
 using Grand.Web.Common.Extensions;
-using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-
-Constants.WwwRoot = "";
 
 var builder = WebApplication.CreateBuilder(args);
 

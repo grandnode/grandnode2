@@ -1,8 +1,8 @@
 ﻿@model string
 @inject Grand.Business.Core.Interfaces.Storage.IDownloadService downloadService
 @{
-    <link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
-    <script asp-location="Footer" asp-src="@(Common.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+    <link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
+    <script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
 
     var randomNumber = CommonHelper.GenerateRandomInteger();
     var clientId = "download" + randomNumber;
