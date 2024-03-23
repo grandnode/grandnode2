@@ -160,18 +160,10 @@ namespace Grand.Business.Common.Services.Localization
             name ??= string.Empty;
             name = name.Trim().ToLowerInvariant();
 
-            var allTranslateResource = GetOrAddToStaticCache(languageId, () =>
-            {
-                return GetAllResources(languageId)
-                    .GroupBy(r => r.Name)
-                    .ToDictionary(g => g.Key, g => g.First().Value);
-            });
+            var result = GetOrAddToStaticCache(languageId, name);
 
-            // Try to get the resource value by name
-            if (allTranslateResource.TryGetValue(name, out var result) && !string.IsNullOrEmpty(result))
-            {
+            if (!string.IsNullOrEmpty(result))
                 return result;
-            }
 
             if (!string.IsNullOrEmpty(defaultValue)) result = defaultValue;
             else if (!returnEmptyIfNotFound) result = name;
@@ -316,11 +308,17 @@ namespace Grand.Business.Common.Services.Localization
             await RefreshCachedResources(language.Id);
         }
         
-        private IDictionary<string, string> GetOrAddToStaticCache(string languageId, Func<IDictionary<string, string>> valueFactory)
+        private string GetOrAddToStaticCache(string languageId, string name)
         {
-            if (_cachedResources.TryGetValue(languageId, out var languageResources)) return languageResources;
-            _cachedResources.TryAdd(languageId, valueFactory());
-            return _cachedResources[languageId];
+            if (_cachedResources.TryGetValue(languageId, out var languageResources)) 
+            {
+                languageResources.TryGetValue(name, out var cachedResult);
+                return cachedResult;
+            } 
+            var value = CreateLanguageResourcesDictionary(languageId);
+            _cachedResources.TryAdd(languageId, value);
+            value.TryGetValue(name, out var result);
+            return result;
         }
 
         private Task RefreshCachedResources(string languageId)
@@ -329,14 +327,20 @@ namespace Grand.Business.Common.Services.Localization
             {
                 _cachedResources.TryRemove(languageId, out _);
             }
-            _cachedResources.TryAdd(languageId, GetAllResources(languageId)
-                .GroupBy(r => r.Name)
-                .ToDictionary(
-                    keySelector: g => g.Key,
-                    elementSelector: g => g.First().Value));
+            _cachedResources.TryAdd(languageId, CreateLanguageResourcesDictionary(languageId));
 
             return Task.CompletedTask;
         }
+
+        private Dictionary<string, string> CreateLanguageResourcesDictionary(string languageId)
+        {
+            return GetAllResources(languageId)
+                .GroupBy(r => r.Name)
+                .ToDictionary(
+                    keySelector: g => g.Key,
+                    elementSelector: g => g.First().Value);
+        }
+
         private static XmlDocument LanguageXmlDocument(string xml)
         {
             var schemas = new XmlSchemaSet();
