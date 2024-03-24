@@ -77,30 +77,16 @@ namespace Grand.Infrastructure
         /// Set current user working language by Middleware
         /// </summary>
         Task<Language> SetWorkingLanguage(Customer customer);
-
-        /// <summary>
-        /// Set current user working language
-        /// </summary>
-        Task<Language> SetWorkingLanguage(Language language);
         
         /// <summary>
         /// Set current user working currency by Middleware
         /// </summary>
         Task<Currency> SetWorkingCurrency(Customer customer);
-
-        /// <summary>
-        /// Set user working currency
-        /// </summary>
-        Task<Currency> SetWorkingCurrency(Currency currency);
         
         /// <summary>
         /// Set current tax display type by Middleware
         /// </summary>
         Task<TaxDisplayType> SetTaxDisplayType(Customer customer);
-
-        /// <summary>
-        /// Set tax display type 
-        /// </summary>
-        Task<TaxDisplayType> SetTaxDisplayType(TaxDisplayType taxDisplayType);        
+       
     }
 }

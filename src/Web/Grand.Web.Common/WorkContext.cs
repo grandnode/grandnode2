@@ -15,6 +15,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common
@@ -28,16 +29,13 @@ namespace Grand.Web.Common
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IGrandAuthenticationService _authenticationService;
-        private readonly IApiAuthenticationService _apiAuthenticationService;
         private readonly ICurrencyService _currencyService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
-        private readonly IUserFieldService _userFieldService;
+        private readonly IGroupService _groupService;        
         private readonly ILanguageService _languageService;
         private readonly IStoreHelper _storeHelper;
         private readonly IAclService _aclService;
         private readonly IVendorService _vendorService;
-        private readonly IDetectionService _detectionService;
 
         private readonly LanguageSettings _languageSettings;
         private readonly TaxSettings _taxSettings;
@@ -58,32 +56,26 @@ namespace Grand.Web.Common
         public WorkContext(
             IHttpContextAccessor httpContextAccessor,
             IGrandAuthenticationService authenticationService,
-            IApiAuthenticationService apiAuthenticationService,
             ICurrencyService currencyService,
             ICustomerService customerService,
             IGroupService groupService,
-            IUserFieldService userFieldService,
             ILanguageService languageService,
             IStoreHelper storeHelper,
             IAclService aclService,
             IVendorService vendorService,
-            IDetectionService detectionService,
             LanguageSettings languageSettings,
             TaxSettings taxSettings,
             AppConfig config)
         {
             _httpContextAccessor = httpContextAccessor;
             _authenticationService = authenticationService;
-            _apiAuthenticationService = apiAuthenticationService;
             _currencyService = currencyService;
             _customerService = customerService;
             _groupService = groupService;
-            _userFieldService = userFieldService;
             _languageService = languageService;
             _storeHelper = storeHelper;
             _aclService = aclService;
             _vendorService = vendorService;
-            _detectionService = detectionService;
             _languageSettings = languageSettings;
             _taxSettings = taxSettings;
             _config = config;
@@ -228,12 +220,14 @@ namespace Grand.Web.Common
         
         private async Task<Customer> GetApiUserCustomer()
         {
-            return await _apiAuthenticationService.GetAuthenticatedCustomer();
+            var apiAuthenticationService = _httpContextAccessor.HttpContext.RequestServices.GetService<IApiAuthenticationService>();
+            return await apiAuthenticationService.GetAuthenticatedCustomer();
         }
         
         private async Task<Customer> GetSearchEngineCustomer()
         {
-            var isCrawler = _detectionService.Crawler?.IsCrawler;
+            var detectionService = _httpContextAccessor.HttpContext.RequestServices.GetService<IDetectionService>();
+            var isCrawler = detectionService.Crawler?.IsCrawler;
             if (!isCrawler.GetValueOrDefault()) return null;
             
             return await _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
@@ -331,22 +325,7 @@ namespace Grand.Web.Common
         /// Gets or sets current user working language
         /// </summary>
         public virtual Language WorkingLanguage => _cachedLanguage;
-
-        /// <summary>
-        /// Set current user working language 
-        /// </summary>
-        public virtual async Task<Language> SetWorkingLanguage(Language language)
-        {
-            if (language != null)
-                await _userFieldService.SaveField(CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id,
-                    CurrentStore.Id);
-
-            //then reset the cache value
-            _cachedLanguage = null;
-
-            return language;
-        }
-
+        
         /// <summary>
         /// Set current user working language by Middleware
         /// </summary>
@@ -383,18 +362,8 @@ namespace Grand.Web.Common
                                         : allStoreLanguages.FirstOrDefault(lang =>
                                             //if the language for the current store not exist, then use the first
                                             lang.Id == CurrentStore.DefaultLanguageId))) ?? allStoreLanguages.FirstOrDefault();
-
-            //cache the language
-            _cachedLanguage = customerLanguage;
-
-            //save the language identifier
-            if (customerLanguage != null && customerLanguage.Id != customerLanguageId)
-            {
-                await _userFieldService.SaveField(customer,
-                    SystemCustomerFieldNames.LanguageId, customerLanguage.Id, CurrentStore.Id);
-            }
-
-            return _cachedLanguage ?? throw new Exception("No language could be loaded");
+            
+            return _cachedLanguage = customerLanguage ?? throw new Exception("No language could be loaded");
         }
 
         /// <summary>
@@ -431,32 +400,8 @@ namespace Grand.Web.Common
             var customerCurrency = (allStoreCurrencies.FirstOrDefault(currency => currency.Id == customerCurrencyId) ?? (!string.IsNullOrEmpty(CurrentStore?.DefaultCurrencyId) ? allStoreCurrencies.FirstOrDefault(currency => currency.Id == CurrentStore.DefaultCurrencyId) : allStoreCurrencies.FirstOrDefault(currency => currency.Id == WorkingLanguage.DefaultCurrencyId))) ??
                                    allStoreCurrencies.FirstOrDefault();
 
-            //cache the currency
-            _cachedCurrency = customerCurrency;
 
-            //save the currency identifier
-            if (customerCurrency?.Id != customerCurrencyId)
-            {
-                await _userFieldService.SaveField(customer,
-                    SystemCustomerFieldNames.CurrencyId, customerCurrency?.Id, CurrentStore?.Id);
-            }
-
-            return _cachedCurrency ?? throw new Exception("No currency could be loaded");
-        }
-
-        /// <summary>
-        /// Set user working currency
-        /// </summary>
-        public virtual async Task<Currency> SetWorkingCurrency(Currency currency)
-        {
-            //and save it
-            await _userFieldService.SaveField(CurrentCustomer,
-                SystemCustomerFieldNames.CurrencyId, currency.Id, CurrentStore.Id);
-
-            //then reset the cache value
-            _cachedCurrency = null;
-
-            return currency;
+            return _cachedCurrency = customerCurrency ?? throw new Exception("No currency could be loaded");
         }
 
         /// <summary>
@@ -484,22 +429,6 @@ namespace Grand.Web.Common
             _cachedTaxDisplayType = taxDisplayType;
 
             return await Task.FromResult(_cachedTaxDisplayType);
-        }
-
-
-        public virtual async Task<TaxDisplayType> SetTaxDisplayType(TaxDisplayType taxDisplayType)
-        {
-            //whether customers are allowed to select tax display type
-            if (!_taxSettings.AllowCustomersToSelectTaxDisplayType)
-                return await Task.FromResult(taxDisplayType);
-
-            //save passed value
-            await _userFieldService.SaveField(CurrentCustomer,
-                SystemCustomerFieldNames.TaxDisplayTypeId, (int)taxDisplayType, CurrentStore.Id);
-
-            //then reset the cache value
-            _cachedTaxDisplayType = taxDisplayType;
-            return taxDisplayType;
         }
 
         /// <summary>
