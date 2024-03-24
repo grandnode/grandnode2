@@ -21,5 +21,9 @@
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
     </ItemGroup>
-      
+	<ItemGroup>		
+		<None Update="App_Data\Settings.cfg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>
