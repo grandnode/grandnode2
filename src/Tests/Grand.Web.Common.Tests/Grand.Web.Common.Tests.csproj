@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\..\Build\Grand.Common.props" />
     <PropertyGroup>
@@ -21,15 +21,5 @@
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Properties\launchSettings.json" />
-      <None Update="App_Data\index.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+      
 </Project>

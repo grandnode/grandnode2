@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Moq;
-using NUnit.Framework;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Common.Tests;
 
-[TestFixture]
+[TestClass]
 public class AuthorizeMenuAttributeTests
 {
     private Mock<IPermissionService> _mockPermissionService;
@@ -27,7 +27,7 @@ public class AuthorizeMenuAttributeTests
     private SecurityConfig _securityConfig;
     private AuthorizationFilterContext _mockFilterContext;
 
-    [SetUp]
+    [TestInitialize]
     public void Setup()
     {
         CommonPath.BaseDirectory = "";
@@ -75,7 +75,7 @@ public class AuthorizeMenuAttributeTests
 
         return authorizationFilterContext;
     }
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutIgnoreFilter_DatabaseNotInstalled()
     {
         // Arrange
@@ -96,7 +96,7 @@ public class AuthorizeMenuAttributeTests
         Assert.IsNull(_mockFilterContext.Result);
     }
 
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutIgnoreFilter_AuthorizeAdminMenuDisabled()
     {
         // Arrange
@@ -118,7 +118,7 @@ public class AuthorizeMenuAttributeTests
         Assert.IsNull(_mockFilterContext.Result);
     }
 
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithValidSiteMap_AllPermissions()
     {
         // Arrange
@@ -142,7 +142,7 @@ public class AuthorizeMenuAttributeTests
         Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(ForbidResult));
     }
     
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_NoPermissionsInSiteMap()
     {
         // Arrange
@@ -168,7 +168,7 @@ public class AuthorizeMenuAttributeTests
         Assert.IsNull(_mockFilterContext.Result);
     }
     
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutAllPermissions_Authorized()
     {
         // Arrange
@@ -194,7 +194,7 @@ public class AuthorizeMenuAttributeTests
         Assert.IsNull(_mockFilterContext.Result);
     }
 
-    [Test]
+    [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutAllPermissions_NotAuthorized()
     {
         // Arrange

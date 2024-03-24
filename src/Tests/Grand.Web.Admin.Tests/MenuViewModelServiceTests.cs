@@ -5,20 +5,20 @@ using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Mapper;
 using Grand.Web.Admin.Models.Menu;
 using Grand.Web.Admin.Services;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NUnit.Framework;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace Grand.Web.Admin.Tests;
 
-    [TestFixture]
+    [TestClass]
     public class MenuViewModelServiceTests
     {
         private MenuViewModelService _menuViewModelService;
         private Mock<IAdminSiteMapService> _adminSiteMapServiceMock;
         private IMapper _mapper;
         
-        [SetUp]
+        [TestInitialize]
         public void SetUp()
         {
             _adminSiteMapServiceMock = new Mock<IAdminSiteMapService>();
@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Tests;
             AutoMapperConfig.Init(mapperConfig);
         }
 
-        [Test]
+        [TestMethod]
         public async Task MenuItems_ReturnsMenuItems()
         {
             // Arrange
@@ -56,7 +56,7 @@ namespace Grand.Web.Admin.Tests;
             Assert.AreEqual(2, result[1].DisplayOrder);
         }
 
-        [Test]
+        [TestMethod]
         public async Task GetMenuById_ReturnsMenuById()
         {
             // Arrange
@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Tests;
             Assert.AreEqual("2", result.Id);
             Assert.AreEqual("Item 2", result.SystemName);
         }
-        [Test]
+        [TestMethod]
         public async Task InsertMenuModel_AddsNewMenuModel()
         {
             // Arrange
@@ -95,7 +95,7 @@ namespace Grand.Web.Admin.Tests;
             Assert.AreEqual(1, parentEntity.ChildNodes.Count);
         }
         
-        [Test]
+        [TestMethod]
         public async Task UpdateMenuModel_UpdatesMenuModel()
         {
             // Arrange
@@ -116,7 +116,7 @@ namespace Grand.Web.Admin.Tests;
             Assert.AreEqual("2", result.Id);
             Assert.AreEqual("Updated Item 2", result.SystemName);
         }
-        [Test]
+        [TestMethod]
         public async Task UpdateMenuModel_UpdatesSubMenuModel()
         {
             // Arrange
@@ -138,7 +138,7 @@ namespace Grand.Web.Admin.Tests;
             Assert.AreEqual("3", result.Id);
             Assert.AreEqual("Updated Item 3", result.SystemName);
         }
-        [Test]
+        [TestMethod]
         public async Task DeleteMenu_CallsDeleteSiteMap()
         {
             // Arrange
@@ -157,7 +157,7 @@ namespace Grand.Web.Admin.Tests;
             // Assert
             _adminSiteMapServiceMock.Verify(x => x.DeleteSiteMap(It.IsAny<AdminSiteMap>()), Times.Once);
         }
-        [Test]
+        [TestMethod]
         public async Task DeleteMenu_CallsUpdate()
         {
             // Arrange
