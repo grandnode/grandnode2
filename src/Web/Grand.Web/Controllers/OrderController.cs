@@ -21,6 +21,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Customers;
+using MongoDB.Driver;
 
 namespace Grand.Web.Controllers
 {
@@ -80,6 +81,19 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Methods
+        
+
+        [HttpPost]
+        public virtual async Task<IActionResult> Search( int orderNumber)
+        {
+            var order = await _orderService.GetOrderByNumber(orderNumber);
+            if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+                return Challenge();
+
+            var model = await _mediator.Send(new GetOrderDetails { Order = order, Language = _workContext.WorkingLanguage });
+
+            return View("Details",model);
+        }
 
         //My account / Orders
         [HttpGet]
@@ -92,6 +106,7 @@ namespace Grand.Web.Controllers
                 Store = _workContext.CurrentStore,
                 Command = command
             });
+            
             return View(model);
         }
 
