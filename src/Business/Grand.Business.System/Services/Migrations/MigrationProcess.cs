@@ -31,7 +31,10 @@ namespace Grand.Business.System.Services.Migrations
             try
             {
                 if (result.Success)
+                {
                     SaveMigration(result);
+                    _logger.LogInformation($"The migration of {migration.Name} ({migration.Version}) has been completed successfully.");
+                }
                 else
                     _logger.LogError("Something went wrong during migration process {MigrationName}", migration.Name);
                 return result;
