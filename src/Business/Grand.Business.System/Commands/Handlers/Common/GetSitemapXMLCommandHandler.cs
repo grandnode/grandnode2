@@ -21,7 +21,7 @@ using System.Xml;
 
 namespace Grand.Business.System.Commands.Handlers.Common
 {
-    public class GetSitemapXMLCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
+    public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
     {
         private const string DateFormat = "yyyy-MM-dd";
 
@@ -41,7 +41,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
 
         private GetSitemapXmlCommand _request;
 
-        public GetSitemapXMLCommandHandler(
+        public GetSitemapXmlCommandHandler(
             ICategoryService categoryService,
             IProductService productService,
             IBrandService brandService,
