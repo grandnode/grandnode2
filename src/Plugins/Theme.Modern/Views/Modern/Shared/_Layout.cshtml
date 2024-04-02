@@ -7,7 +7,7 @@
         <meta-keywords>
             <meta name="generator" content="grandnode">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-            @RenderSection("meta", required: false)
+            @await RenderSectionAsync("meta", required: false)
             <head-custom>
                 <partial name="Head" />
                 <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
@@ -16,7 +16,7 @@
                     <partial name="Partials/Favicons" />
                     <resources asp-type="HeadLink" />
                     <resources asp-type="HeadScript" />
-                    @RenderSection("head", required: false)
+                    @await RenderSectionAsync("head", required: false)
 </head>
 <body>
     <resources asp-type="ScriptHeader" />
@@ -77,7 +77,7 @@
                 <div class="container right-container">
                     @if (IsSectionDefined("Breadcrumb"))
                     {
-                        @RenderSection("Breadcrumb")
+                        @await RenderSectionAsync("Breadcrumb")
                     }
                     @RenderBody()
                 </div>

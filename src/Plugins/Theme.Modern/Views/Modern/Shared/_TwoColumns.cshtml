@@ -31,14 +31,14 @@
 @if (IsSectionDefined("Breadcrumb"))
 {
     @section Breadcrumb {
-        @RenderSection("Breadcrumb")
+        @await RenderSectionAsync("Breadcrumb")
     }
 }
 @section meta {
-    @RenderSection("meta", required: false)
+    @await RenderSectionAsync("meta", required: false)
 }
 @section head {
-    @RenderSection("head", required: false)
+    @await RenderSectionAsync("head", required: false)
     <script asp-location="Footer" asp-order="301" src="/Plugins/Theme.Modern/Content/script/catalog.js"></script>
 }
 @if (!string.IsNullOrEmpty(currentCategoryId))
@@ -54,13 +54,13 @@
         <div class="modal-close" onclick="closeLeftSide()"><b-icon icon="x"></b-icon></div>
         @if (IsSectionDefined("left"))
         {
-            @RenderSection("left")
+            @await RenderSectionAsync("left")
         }
         else
         {
             if (IsSectionDefined("filters"))
             {
-                @RenderSection("filters")
+                @await RenderSectionAsync("filters")
             }
 
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
