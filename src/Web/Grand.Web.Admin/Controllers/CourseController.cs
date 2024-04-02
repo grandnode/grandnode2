@@ -288,7 +288,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> AssociateProductToCoursePopupList(DataSourceRequest command,
-            CourseModel.AssociateProductToCourseModel model, [FromServices] IWorkContext workContext)
+            CourseModel.AssociateProductToCourseModel model)
         {
             var products = await _courseViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult
@@ -303,7 +303,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> AssociateProductToCoursePopup(string btnId, string productIdInput,
-            string productNameInput, CourseModel.AssociateProductToCourseModel model, [FromServices] IProductService productService, [FromServices] IWorkContext workContext)
+            string productNameInput, CourseModel.AssociateProductToCourseModel model, [FromServices] IProductService productService)
         {
             var associatedProduct = await productService.GetProductById(model.AssociatedToProductId);
             if (associatedProduct == null)

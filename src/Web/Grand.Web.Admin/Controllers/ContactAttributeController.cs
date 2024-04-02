@@ -146,8 +146,7 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id,
-            [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> Delete(string id)
         {
             if (ModelState.IsValid)
             {

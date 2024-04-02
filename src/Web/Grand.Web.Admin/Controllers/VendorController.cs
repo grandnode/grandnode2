@@ -279,7 +279,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
-        public async Task<IActionResult> Reviews(DataSourceRequest command, string vendorId, [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> Reviews(DataSourceRequest command, string vendorId)
         {
             var vendor = await _vendorService.GetVendorById(vendorId);
             if (vendor == null)

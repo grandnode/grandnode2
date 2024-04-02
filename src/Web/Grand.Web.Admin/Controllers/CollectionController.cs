@@ -352,7 +352,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext, [FromServices] IImportManager<CollectionDto> importManager)
+        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IImportManager<CollectionDto> importManager)
         {
             try
             {

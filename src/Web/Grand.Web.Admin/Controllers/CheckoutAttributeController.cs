@@ -167,8 +167,7 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id,
-            [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> Delete(string id)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(id);
             await _checkoutAttributeService.DeleteCheckoutAttribute(checkoutAttribute);

@@ -2305,7 +2305,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ClearAllAttributeCombinations(string productId, [FromServices] IProductAttributeService productAttributeService)
+        public async Task<IActionResult> ClearAllAttributeCombinations(string productId)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null)

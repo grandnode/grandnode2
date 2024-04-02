@@ -367,7 +367,7 @@ namespace Grand.Web.Controllers
 
         [DenySystemAccount]
         [HttpPost]
-        public virtual async Task<IActionResult> SetVendorReviewHelpfulness(string VendorReviewId, string vendorId, bool washelpful, [FromServices] ICustomerService customerService)
+        public virtual async Task<IActionResult> SetVendorReviewHelpfulness(string VendorReviewId, string vendorId, bool washelpful)
         {
             var vendor = await _vendorService.GetVendorById(vendorId);
             var vendorReview = await _vendorService.GetVendorReviewById(VendorReviewId);
