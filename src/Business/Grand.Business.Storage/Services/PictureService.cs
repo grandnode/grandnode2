@@ -99,7 +99,7 @@ namespace Grand.Business.Storage.Services
         /// <param name="pictureId">Picture identifier</param>
         /// <param name="mimeType">MIME type</param>
         /// <returns>Picture binary</returns>
-        protected virtual async Task<byte[]> LoadPictureFromFile(string pictureId, string mimeType)
+        protected async Task<byte[]> LoadPictureFromFile(string pictureId, string mimeType)
         {
             var lastPart = GetFileExtensionFromMimeType(mimeType);
             var fileName = $"{pictureId}_0.{lastPart}";
