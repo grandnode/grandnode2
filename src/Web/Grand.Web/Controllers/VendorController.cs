@@ -130,7 +130,7 @@ namespace Grand.Web.Controllers
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
         [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, IFormFile uploadedFile)
+        public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model)
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
                 return RedirectToRoute("HomePage");
