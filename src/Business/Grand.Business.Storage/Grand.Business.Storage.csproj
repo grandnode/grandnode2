@@ -7,8 +7,8 @@
     <ProjectReference Include="..\Grand.Business.Core\Grand.Business.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.302.20" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.307" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.303.8" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.307.9" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.7" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.7" />
