@@ -16,9 +16,6 @@ RUN set -e; \
         fi; \
     done
 
-# restore
-RUN dotnet restore /app/Web/Grand.Web/Grand.Web.csproj
-
 #build
 RUN dotnet build /app/Web/Grand.Web/Grand.Web.csproj --no-restore -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
