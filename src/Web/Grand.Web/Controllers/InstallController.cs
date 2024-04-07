@@ -27,7 +27,7 @@ namespace Grand.Web.Controllers
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMediator _mediator;
         private readonly DatabaseConfig _dbConfig;
-
+        private readonly ILogger<InstallController> _logger;
         /// <summary>
         /// Cookie name to language for the installation page
         /// </summary>
@@ -42,13 +42,15 @@ namespace Grand.Web.Controllers
             IHostApplicationLifetime applicationLifetime,
             IServiceProvider serviceProvider,
             IMediator mediator,
-            DatabaseConfig litedbConfig)
+            DatabaseConfig litedbConfig,
+            ILogger<InstallController> logger)
         {
             _cacheBase = cacheBase;
             _applicationLifetime = applicationLifetime;
             _serviceProvider = serviceProvider;
             _mediator = mediator;
             _dbConfig = litedbConfig;
+            _logger = logger;
         }
 
         #endregion
@@ -191,7 +193,7 @@ namespace Grand.Web.Controllers
                     ModelState.AddModelError("", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 }
             }
-            else if(string.IsNullOrEmpty(connectionString)) ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
+            else if (string.IsNullOrEmpty(connectionString)) ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
 
         }
 
@@ -200,6 +202,10 @@ namespace Grand.Web.Controllers
         {
             if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
+
+            var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
+            if (installed)
+                return View(new InstallModel { Installed = true });
 
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
 
@@ -228,6 +234,8 @@ namespace Grand.Web.Controllers
                     model.AdminEmail, model.AdminPassword, model.Collation,
                     model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
 
+                _logger.LogInformation("Database has been installed");
+
                 //reset cache
                 DataSettingsManager.ResetCache();
 
@@ -241,11 +249,11 @@ namespace Grand.Web.Controllers
                     {
                         var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
                         await plugin.Install();
+                        _logger.LogInformation($"Plugin {plugin.PluginInfo.FriendlyName} has been installed");
                     }
                     catch (Exception ex)
                     {
-                        var logger = _serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("InstallController");
-                        logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
+                        _logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
                             ex.Message + " " + ex.InnerException?.Message);
                     }
                 }
@@ -253,13 +261,16 @@ namespace Grand.Web.Controllers
                 //register default permissions
                 var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
                 await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
+                _logger.LogInformation("Permission has been installed");
 
                 //install migration process - install only header
                 var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
                 migrationProcess.InstallApplication();
 
+                _logger.LogInformation("Migration process has been executed");
+
                 //restart application
-                await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
+                await _cacheBase.SetAsync("Installed", async () => await Task.FromResult(true));
                 return View(new InstallModel { Installed = true });
             }
             catch (Exception exception)
@@ -271,6 +282,7 @@ namespace Grand.Web.Controllers
                 System.IO.File.Delete(CommonPath.SettingsPath);
 
                 ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
+                _logger.LogError(exception, exception.InnerException?.Message);
             }
             return View(PrepareModel(model));
         }
