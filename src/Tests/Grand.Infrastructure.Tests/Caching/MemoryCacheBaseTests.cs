@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Caching;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
@@ -96,6 +97,48 @@ namespace Grand.Infrastructure.Tests.Caching
             await _service.Clear();
             var result = _memoryCache.Get("key1");
             Assert.IsNull(result);
+        }
+
+        [TestMethod()]
+        public async Task SetAsync_Key_NotExist_ShouldSetCacheEntry()
+        {
+            // Arrange
+            var key = "testKey";
+            var cacheTime = 60;
+            var cacheEntry = "testValue";
+            
+            var acquireMock = new Mock<Func<Task<string>>>();
+            acquireMock.Setup(a => a.Invoke()).ReturnsAsync(cacheEntry);
+
+            // Act
+            var result = await _service.SetAsync(key, acquireMock.Object, cacheTime);
+
+            // Assert
+            acquireMock.Verify(a => a.Invoke(), Times.Once);
+            var cacheResult = _memoryCache.Get(key);
+            Assert.IsNotNull(cacheResult);
+            Assert.AreEqual(cacheEntry, cacheResult);
+        }
+        [TestMethod()]
+        public async Task SetAsync_Key_Exist_ShouldSetCacheEntry()
+        {
+            // Arrange
+            var key = "testKey";
+            var cacheTime = 60;
+            var cacheEntry = "testValue";
+
+            var acquireMock = new Mock<Func<Task<string>>>();
+            acquireMock.Setup(a => a.Invoke()).ReturnsAsync(cacheEntry);
+            _service.Get<string>(key, () => { return "fakeValue"; }, 1);
+
+            // Act
+            var result = await _service.SetAsync(key, acquireMock.Object, cacheTime);
+
+            // Assert
+            acquireMock.Verify(a => a.Invoke(), Times.Once);
+            var cacheResult = _memoryCache.Get(key);
+            Assert.IsNotNull(cacheResult);
+            Assert.AreEqual(cacheEntry, cacheResult);
         }
     }
 }

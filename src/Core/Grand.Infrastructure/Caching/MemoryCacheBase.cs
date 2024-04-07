@@ -17,7 +17,7 @@ namespace Grand.Infrastructure.Caching
         private readonly IMemoryCache _cache;
         private readonly IMediator _mediator;
         private readonly CacheConfig _cacheConfig;
-        
+
         private bool _disposed;
         private static CancellationTokenSource _resetCacheToken = new();
 
@@ -63,6 +63,27 @@ namespace Grand.Infrastructure.Caching
             return cacheEntry;
         }
 
+        public virtual Task<T> SetAsync<T>(string key, Func<Task<T>> acquire)
+        {
+            return SetAsync(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
+        }
+
+        public virtual async Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
+        {
+            SemaphoreSlim semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+            await semaphore.WaitAsync();
+            try
+            {
+                var cacheEntry = await acquire();
+                _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+                return cacheEntry;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
         public virtual T Get<T>(string key, Func<T> acquire)
         {
             return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
@@ -86,7 +107,7 @@ namespace Grand.Infrastructure.Caching
                 semaphore.Release();
             }
             return cacheEntry;
-        }        
+        }
 
         public virtual Task RemoveAsync(string key, bool publisher = true)
         {
@@ -166,7 +187,7 @@ namespace Grand.Infrastructure.Caching
         {
             if (reason != EvictionReason.Replaced)
                 CacheEntries.TryRemove(key.ToString(), out var _);
-            
+
         }
 
         #endregion
