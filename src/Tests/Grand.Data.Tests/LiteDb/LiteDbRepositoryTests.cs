@@ -66,7 +66,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task GetOneAsyncAsync_LiteRepository_Success()
+        public async Task GetOneAsync_LiteRepository_Success()
         {
             var myRepository = new LiteDBRepositoryMock<SampleCollection>();
             var product = new SampleCollection { Id = "1" };
@@ -76,7 +76,17 @@ namespace Grand.Data.Tests.LiteDb
 
             Assert.IsNotNull(p);
         }
+        [TestMethod()]
+        public async Task GetOneAsync_ToLowerInvariant_LiteRepository_Success()
+        {
+            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+            var product = new SampleCollection { Id = "1" };
+            await myRepository.InsertAsync(product);
 
+            var p = await myRepository.GetOneAsync(x => x.Id == "1".ToLowerInvariant());
+
+            Assert.IsNotNull(p);
+        }
         [TestMethod()]
         public async Task ClearAsync_LiteRepository_Success()
         {

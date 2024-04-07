@@ -100,7 +100,10 @@ namespace Grand.Data.LiteDb
         /// <returns>Entity</returns>
         public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
         {
-            return Task.FromResult(_collection.Find(predicate).FirstOrDefault());
+            var visitor = new ToLowerInvariantVisitor();
+            //WORKAROUND Issue #479 - Method ToLowerInvariant() in String are not supported when convert to BsonExpression
+            var modifiedExpression = (Expression<Func<T, bool>>)visitor.Visit(predicate);
+            return Task.FromResult(_collection.Find(modifiedExpression).FirstOrDefault());
         }
 
         /// <summary>
