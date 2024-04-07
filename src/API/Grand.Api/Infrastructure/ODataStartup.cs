@@ -56,8 +56,8 @@ namespace Grand.Api.Infrastructure
                 }).AddOData(opt =>
                 {
                     opt.EnableQueryFeatures(Configurations.MaxLimit);
-                    opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));
-                    opt.Select().Filter().Count();
+                    opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));                    
+                    opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(Configurations.MaxLimit);
                 });
 
                 services.AddScoped<ModelValidationAttribute>();
