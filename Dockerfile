@@ -9,22 +9,12 @@ ARG GIT_COMMIT
 ARG GIT_BRANCH
 
 # build plugins
-RUN dotnet build /app/Plugins/Authentication.Facebook -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Authentication.Google -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/DiscountRules.Standard -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/ExchangeRate.McExchange -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Payments.BrainTree -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Payments.CashOnDelivery -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Payments.StripeCheckout -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Shipping.ByWeight -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Shipping.FixedRateShipping -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Shipping.ShippingPoint -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Tax.CountryStateZip -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Tax.FixedRate -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Widgets.FacebookPixel -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Widgets.GoogleAnalytics -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Widgets.Slider -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
-RUN dotnet build /app/Plugins/Theme.Modern -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
+RUN set -e; \
+    for dir in /app/Plugins/*; do \
+        if [ -d "$dir" ]; then \
+            dotnet build $dir -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH; \
+        fi; \
+    done
 
 # restore
 RUN dotnet restore /app/Web/Grand.Web/Grand.Web.csproj
