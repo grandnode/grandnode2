@@ -23,7 +23,7 @@ RUN dotnet build /app/Web/Grand.Web/Grand.Web.csproj --no-restore -c Release -p:
 RUN dotnet publish /app/Web/Grand.Web --no-restore -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.19
 
 EXPOSE 8080
 
