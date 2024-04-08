@@ -14,8 +14,27 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Orders })
 }
 <div class="page account-page order-list-page pl-lg-3 pt-lg-0 pt-3">
-    <h1 class="generalTitle h2">@Loc["Account.CustomerOrders"]</h1>
-    @if (Model.Orders.Any())
+	<h1 class="generalTitle h2">@Loc["Account.CustomerOrders"]</h1>
+    
+	<!-- Search Bar 
+	<div class="order-search-bar mb-3">
+		<form method="get" action="@Url.Action("CustomerOrders")">
+			<div class="input-group">
+				<input type="text" class="form-control" name="searchOrderNumber" placeholder="@Loc["Account.CustomerOrders.SearchOrderNumber"]" />
+				<div class="input-group-append">
+					<button type="submit" class="btn btn-primary">@Loc["Account.CustomerOrders.Search"]</button>
+				</div>
+			</div>
+		</form>
+	</div> -->
+    @using (Html.BeginForm("Search", "Order", FormMethod.Post))
+	{
+		<label for="orderNumber">Order Number:</label>
+		<input type="text" name="orderNumber" required />
+		<button type="submit">Search</button>
+	}
+
+	@if (Model.Orders.Any())
     {
         <div class="account-order table-responsive">
             <table class="table hover-table">
