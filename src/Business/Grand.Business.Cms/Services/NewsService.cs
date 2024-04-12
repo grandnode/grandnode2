@@ -1,165 +1,165 @@
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
-using Grand.Data;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Cms.Services
+namespace Grand.Business.Cms.Services;
+
+/// <summary>
+///     News service
+/// </summary>
+public class NewsService : INewsService
 {
-    /// <summary>
-    /// News service
-    /// </summary>
-    public class NewsService : INewsService
+    #region Ctor
+
+    public NewsService(IRepository<NewsItem> newsItemRepository,
+        IMediator mediator,
+        IWorkContext workContext, AccessControlConfig accessControlConfig)
     {
-        #region Fields
-
-        private readonly IRepository<NewsItem> _newsItemRepository;
-        private readonly IMediator _mediator;
-        private readonly IWorkContext _workContext;
-        private readonly AccessControlConfig _accessControlConfig;
-        
-        #endregion
-
-        #region Ctor
-
-        public NewsService(IRepository<NewsItem> newsItemRepository,
-            IMediator mediator,
-            IWorkContext workContext, AccessControlConfig accessControlConfig)
-        {
-            _newsItemRepository = newsItemRepository;
-            _mediator = mediator;
-            _workContext = workContext;
-            _accessControlConfig = accessControlConfig;
-        }
-
-        #endregion
-
-        #region Methods
-
-
-        /// <summary>
-        /// Gets a news
-        /// </summary>
-        /// <param name="newsId">The news identifier</param>
-        /// <returns>News</returns>
-        public virtual Task<NewsItem> GetNewsById(string newsId)
-        {
-            return _newsItemRepository.GetByIdAsync(newsId);
-        }
-
-        /// <summary>
-        /// Gets all news
-        /// </summary>
-        /// <param name="storeId">Store identifier; 0 if you want to get all records</param>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <param name="ignoreAcl"></param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
-        /// <param name="newsTitle">News title</param>
-        /// <returns>News items</returns>
-        public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
-            int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false, string newsTitle = "")
-        {
-            var query = from p in _newsItemRepository.Table
-                        select p;
-
-            if (!string.IsNullOrWhiteSpace(newsTitle))
-                query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
-
-            if (!showHidden)
-            {
-                var utcNow = DateTime.UtcNow;
-                query = query.Where(n => n.Published);
-                query = query.Where(n => !n.StartDateUtc.HasValue || n.StartDateUtc <= utcNow);
-                query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
-            }
-
-            if ((!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations) ||
-                    (!ignoreAcl && !_accessControlConfig.IgnoreAcl))
-            {
-                if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
-                {
-                    var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    query = from p in query
-                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                            select p;
-                }
-                //Store acl
-                if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-                {
-                    query = from p in query
-                            where !p.LimitedToStores || p.Stores.Contains(storeId)
-                            select p;
-                }
-            }
-            query = query.OrderByDescending(n => n.CreatedOnUtc);
-            return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
-        }
-
-        /// <summary>
-        /// Inserts a news item
-        /// </summary>
-        /// <param name="news">News item</param>
-        public virtual async Task InsertNews(NewsItem news)
-        {
-            ArgumentNullException.ThrowIfNull(news);
-
-            await _newsItemRepository.InsertAsync(news);
-
-            //event notification
-            await _mediator.EntityInserted(news);
-        }
-
-        /// <summary>
-        /// Updates the news item
-        /// </summary>
-        /// <param name="news">News item</param>
-        public virtual async Task UpdateNews(NewsItem news)
-        {
-            ArgumentNullException.ThrowIfNull(news);
-
-            await _newsItemRepository.UpdateAsync(news);
-
-            //event notification
-            await _mediator.EntityUpdated(news);
-        }
-        /// <summary>
-        /// Deletes a news
-        /// </summary>
-        /// <param name="newsItem">News item</param>
-        public virtual async Task DeleteNews(NewsItem newsItem)
-        {
-            ArgumentNullException.ThrowIfNull(newsItem);
-
-            await _newsItemRepository.DeleteAsync(newsItem);
-
-            //event notification
-            await _mediator.EntityDeleted(newsItem);
-        }
-
-        /// <summary>
-        /// Gets all comments
-        /// </summary>
-        /// <param name="customerId">Customer identifier; "" to load all records</param>
-        /// <returns>Comments</returns>
-        public virtual async Task<IList<NewsComment>> GetAllComments(string customerId)
-        {
-            var query = from n in _newsItemRepository.Table
-                        from c in n.NewsComments
-                        select c;
-
-            var query2 = from c in query
-                         orderby c.CreatedOnUtc
-                         where customerId == "" || c.CustomerId == customerId
-                         select c;
-
-            return await Task.FromResult(query2.ToList());
-        }
-
-        #endregion
+        _newsItemRepository = newsItemRepository;
+        _mediator = mediator;
+        _workContext = workContext;
+        _accessControlConfig = accessControlConfig;
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly IRepository<NewsItem> _newsItemRepository;
+    private readonly IMediator _mediator;
+    private readonly IWorkContext _workContext;
+    private readonly AccessControlConfig _accessControlConfig;
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    ///     Gets a news
+    /// </summary>
+    /// <param name="newsId">The news identifier</param>
+    /// <returns>News</returns>
+    public virtual Task<NewsItem> GetNewsById(string newsId)
+    {
+        return _newsItemRepository.GetByIdAsync(newsId);
+    }
+
+    /// <summary>
+    ///     Gets all news
+    /// </summary>
+    /// <param name="storeId">Store identifier; 0 if you want to get all records</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="ignoreAcl"></param>
+    /// <param name="showHidden">A value indicating whether to show hidden records</param>
+    /// <param name="newsTitle">News title</param>
+    /// <returns>News items</returns>
+    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
+        int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false,
+        string newsTitle = "")
+    {
+        var query = from p in _newsItemRepository.Table
+            select p;
+
+        if (!string.IsNullOrWhiteSpace(newsTitle))
+            query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
+
+        if (!showHidden)
+        {
+            var utcNow = DateTime.UtcNow;
+            query = query.Where(n => n.Published);
+            query = query.Where(n => !n.StartDateUtc.HasValue || n.StartDateUtc <= utcNow);
+            query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
+        }
+
+        if ((!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations) ||
+            (!ignoreAcl && !_accessControlConfig.IgnoreAcl))
+        {
+            if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
+            {
+                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                query = from p in query
+                    where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                    select p;
+            }
+
+            //Store acl
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+                query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    select p;
+        }
+
+        query = query.OrderByDescending(n => n.CreatedOnUtc);
+        return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
+    }
+
+    /// <summary>
+    ///     Inserts a news item
+    /// </summary>
+    /// <param name="news">News item</param>
+    public virtual async Task InsertNews(NewsItem news)
+    {
+        ArgumentNullException.ThrowIfNull(news);
+
+        await _newsItemRepository.InsertAsync(news);
+
+        //event notification
+        await _mediator.EntityInserted(news);
+    }
+
+    /// <summary>
+    ///     Updates the news item
+    /// </summary>
+    /// <param name="news">News item</param>
+    public virtual async Task UpdateNews(NewsItem news)
+    {
+        ArgumentNullException.ThrowIfNull(news);
+
+        await _newsItemRepository.UpdateAsync(news);
+
+        //event notification
+        await _mediator.EntityUpdated(news);
+    }
+
+    /// <summary>
+    ///     Deletes a news
+    /// </summary>
+    /// <param name="newsItem">News item</param>
+    public virtual async Task DeleteNews(NewsItem newsItem)
+    {
+        ArgumentNullException.ThrowIfNull(newsItem);
+
+        await _newsItemRepository.DeleteAsync(newsItem);
+
+        //event notification
+        await _mediator.EntityDeleted(newsItem);
+    }
+
+    /// <summary>
+    ///     Gets all comments
+    /// </summary>
+    /// <param name="customerId">Customer identifier; "" to load all records</param>
+    /// <returns>Comments</returns>
+    public virtual async Task<IList<NewsComment>> GetAllComments(string customerId)
+    {
+        var query = from n in _newsItemRepository.Table
+            from c in n.NewsComments
+            select c;
+
+        var query2 = from c in query
+            orderby c.CreatedOnUtc
+            where customerId == "" || c.CustomerId == customerId
+            select c;
+
+        return await Task.FromResult(query2.ToList());
+    }
+
+    #endregion
 }
