@@ -6,88 +6,89 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Checkout.Services.Orders
+namespace Grand.Business.Checkout.Services.Orders;
+
+public class OrderStatusService : IOrderStatusService
 {
-    public class OrderStatusService : IOrderStatusService
+    private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
+    private readonly IRepository<OrderStatus> _orderStatusRepository;
+
+    public OrderStatusService(
+        IRepository<OrderStatus> orderStatusRepository,
+        ICacheBase cacheBase,
+        IMediator mediator)
     {
-        private readonly IRepository<OrderStatus> _orderStatusRepository;
-        private readonly ICacheBase _cacheBase;
-        private readonly IMediator _mediator;
+        _orderStatusRepository = orderStatusRepository;
+        _cacheBase = cacheBase;
+        _mediator = mediator;
+    }
 
-        public OrderStatusService(
-            IRepository<OrderStatus> orderStatusRepository,
-            ICacheBase cacheBase,
-            IMediator mediator)
+    public virtual async Task<IList<OrderStatus>> GetAll()
+    {
+        var orderStatuses = await _cacheBase.GetAsync(CacheKey.ORDER_STATUS_ALL, async () =>
         {
-            _orderStatusRepository = orderStatusRepository;
-            _cacheBase = cacheBase;
-            _mediator = mediator;
-        }
+            var query = from p in _orderStatusRepository.Table
+                select p;
 
-        public virtual async Task<IList<OrderStatus>> GetAll()
-        {
-            var orderStatuses = await _cacheBase.GetAsync(CacheKey.ORDER_STATUS_ALL, async () =>
-            {
-                var query = from p in _orderStatusRepository.Table
-                            select p;
+            query = query.OrderBy(l => l.DisplayOrder);
+            return await Task.FromResult(query.ToList());
+        });
 
-                query = query.OrderBy(l => l.DisplayOrder);
-                return await Task.FromResult(query.ToList());
-            });
+        return orderStatuses;
+    }
 
-            return orderStatuses;
-        }
-        public virtual async Task<OrderStatus> GetById(string id)
-        {
-            return (await GetAll()).FirstOrDefault(x => x.Id == id);
-        }
-        public virtual async Task<OrderStatus> GetByStatusId(int statusId)
-        {
-            return (await GetAll()).FirstOrDefault(x => x.StatusId == statusId);
-        }
+    public virtual async Task<OrderStatus> GetById(string id)
+    {
+        return (await GetAll()).FirstOrDefault(x => x.Id == id);
+    }
 
-        public virtual async Task Insert(OrderStatus orderStatus)
-        {
-            ArgumentNullException.ThrowIfNull(orderStatus);
+    public virtual async Task<OrderStatus> GetByStatusId(int statusId)
+    {
+        return (await GetAll()).FirstOrDefault(x => x.StatusId == statusId);
+    }
 
-            //insert order status
-            await _orderStatusRepository.InsertAsync(orderStatus);
+    public virtual async Task Insert(OrderStatus orderStatus)
+    {
+        ArgumentNullException.ThrowIfNull(orderStatus);
 
-            //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
+        //insert order status
+        await _orderStatusRepository.InsertAsync(orderStatus);
 
-            //event notification
-            await _mediator.EntityInserted(orderStatus);
-        }
+        //cache
+        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
 
-        public virtual async Task Update(OrderStatus orderStatus)
-        {
-            ArgumentNullException.ThrowIfNull(orderStatus);
+        //event notification
+        await _mediator.EntityInserted(orderStatus);
+    }
 
-            //update order status
-            await _orderStatusRepository.UpdateAsync(orderStatus);
+    public virtual async Task Update(OrderStatus orderStatus)
+    {
+        ArgumentNullException.ThrowIfNull(orderStatus);
 
-            //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
+        //update order status
+        await _orderStatusRepository.UpdateAsync(orderStatus);
 
-            //event notification
-            await _mediator.EntityUpdated(orderStatus);
-        }
-        public virtual async Task Delete(OrderStatus orderStatus)
-        {
-            ArgumentNullException.ThrowIfNull(orderStatus);
+        //cache
+        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
 
-            if (orderStatus.IsSystem)
-                throw new Exception("You can't delete system status");
+        //event notification
+        await _mediator.EntityUpdated(orderStatus);
+    }
 
-            await _orderStatusRepository.DeleteAsync(orderStatus);
+    public virtual async Task Delete(OrderStatus orderStatus)
+    {
+        ArgumentNullException.ThrowIfNull(orderStatus);
 
-            //cache
-            await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
+        if (orderStatus.IsSystem)
+            throw new Exception("You can't delete system status");
 
-            //event notification
-            await _mediator.EntityDeleted(orderStatus);
-        }
+        await _orderStatusRepository.DeleteAsync(orderStatus);
 
+        //cache
+        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
+
+        //event notification
+        await _mediator.EntityDeleted(orderStatus);
     }
 }

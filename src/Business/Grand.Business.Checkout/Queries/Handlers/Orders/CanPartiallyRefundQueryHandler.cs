@@ -3,41 +3,41 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using MediatR;
 
-namespace Grand.Business.Checkout.Queries.Handlers.Orders
+namespace Grand.Business.Checkout.Queries.Handlers.Orders;
+
+public class CanPartiallyRefundQueryHandler : IRequestHandler<CanPartiallyRefundQuery, bool>
 {
-    public class CanPartiallyRefundQueryHandler : IRequestHandler<CanPartiallyRefundQuery, bool>
+    private readonly IPaymentService _paymentService;
+
+    public CanPartiallyRefundQueryHandler(IPaymentService paymentService)
     {
-        private readonly IPaymentService _paymentService;
+        _paymentService = paymentService;
+    }
 
-        public CanPartiallyRefundQueryHandler(IPaymentService paymentService)
-        {
-            _paymentService = paymentService;
-        }
+    public async Task<bool> Handle(CanPartiallyRefundQuery request, CancellationToken cancellationToken)
+    {
+        var paymentTransaction = request.PaymentTransaction;
+        if (paymentTransaction == null)
+            throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-        public async Task<bool> Handle(CanPartiallyRefundQuery request, CancellationToken cancellationToken)
-        {
-            var paymentTransaction = request.PaymentTransaction;
-            if (paymentTransaction == null)
-                throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        var amountToRefund = request.AmountToRefund;
 
-            var amountToRefund = request.AmountToRefund;
+        if (paymentTransaction.TransactionAmount == 0)
+            return false;
 
-            if (paymentTransaction.TransactionAmount == 0)
-                return false;
+        //uncomment the lines below in order to allow this operation for cancelled orders
+        //if (order.OrderStatus == OrderStatus.Cancelled)
+        //    return false;
 
-            //uncomment the lines below in order to allow this operation for cancelled orders
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
+        var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+        if (canBeRefunded <= 0)
+            return false;
 
-            var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
-            if (canBeRefunded <= 0)
-                return false;
+        if (amountToRefund > canBeRefunded)
+            return false;
 
-            if (amountToRefund > canBeRefunded)
-                return false;
-
-            return paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded &&
-                   await _paymentService.SupportPartiallyRefund(paymentTransaction.PaymentMethodSystemName);
-        }
+        return paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid
+                   or TransactionStatus.PartiallyRefunded &&
+               await _paymentService.SupportPartiallyRefund(paymentTransaction.PaymentMethodSystemName);
     }
 }

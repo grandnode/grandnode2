@@ -3,30 +3,30 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Orders
+namespace Grand.Business.Checkout.Events.Orders;
+
+public class MerchandiseReturnDeletedEventHandler : INotificationHandler<EntityDeleted<MerchandiseReturn>>
 {
-    public class MerchandiseReturnDeletedEventHandler : INotificationHandler<EntityDeleted<MerchandiseReturn>>
+    private readonly IOrderService _orderService;
+
+    public MerchandiseReturnDeletedEventHandler(IOrderService orderService)
     {
-        private readonly IOrderService _orderService;
+        _orderService = orderService;
+    }
 
-        public MerchandiseReturnDeletedEventHandler(IOrderService orderService)
+    public async Task Handle(EntityDeleted<MerchandiseReturn> notification, CancellationToken cancellationToken)
+    {
+        var order = await _orderService.GetOrderById(notification.Entity.OrderId);
+        if (order != null)
         {
-            _orderService = orderService;
-        }
-
-        public async Task Handle(EntityDeleted<MerchandiseReturn> notification, CancellationToken cancellationToken)
-        {
-            var order = await _orderService.GetOrderById(notification.Entity.OrderId);
-            if (order != null)
+            foreach (var item in notification.Entity.MerchandiseReturnItems)
             {
-                foreach (var item in notification.Entity.MerchandiseReturnItems)
-                {
-                    var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-                    if (orderItem != null)
-                        orderItem.ReturnQty -= item.Quantity;
-                }
-                await _orderService.UpdateOrder(order);
+                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+                if (orderItem != null)
+                    orderItem.ReturnQty -= item.Quantity;
             }
+
+            await _orderService.UpdateOrder(order);
         }
     }
 }

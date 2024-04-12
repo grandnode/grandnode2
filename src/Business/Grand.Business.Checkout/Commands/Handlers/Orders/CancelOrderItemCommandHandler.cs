@@ -1,89 +1,82 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using MediatR;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders
+namespace Grand.Business.Checkout.Commands.Handlers.Orders;
+
+public class CancelOrderItemCommandHandler : IRequestHandler<CancelOrderItemCommand, (bool error, string message)>
 {
-    public class CancelOrderItemCommandHandler : IRequestHandler<CancelOrderItemCommand, (bool error, string message)>
+    private readonly IInventoryManageService _inventoryManageService;
+    private readonly IMediator _mediator;
+    private readonly IOrderService _orderService;
+    private readonly IProductService _productService;
+    private readonly IShipmentService _shipmentService;
+
+    public CancelOrderItemCommandHandler(
+        IMediator mediator,
+        IOrderService orderService,
+        IShipmentService shipmentService,
+        IProductService productService,
+        IInventoryManageService inventoryManageService)
     {
-        private readonly IMediator _mediator;
-        private readonly IOrderService _orderService;
-        private readonly IShipmentService _shipmentService;
-        private readonly IProductService _productService;
-        private readonly IInventoryManageService _inventoryManageService;
+        _mediator = mediator;
+        _orderService = orderService;
+        _shipmentService = shipmentService;
+        _productService = productService;
+        _inventoryManageService = inventoryManageService;
+    }
 
-        public CancelOrderItemCommandHandler(
-            IMediator mediator,
-            IOrderService orderService,
-            IShipmentService shipmentService,
-            IProductService productService,
-            IInventoryManageService inventoryManageService)
+    public async Task<(bool error, string message)> Handle(CancelOrderItemCommand request,
+        CancellationToken cancellationToken)
+    {
+        if (request.Order == null)
+            throw new ArgumentNullException(nameof(request.Order));
+
+        if (request.OrderItem == null)
+            throw new ArgumentNullException(nameof(request.OrderItem));
+
+        var product = await _productService.GetProductById(request.OrderItem.ProductId);
+        if (product == null)
+            return (true, "Product not exists.");
+
+        if (request.OrderItem.OpenQty == 0 || request.OrderItem.Status == OrderItemStatus.Close)
+            return (true, "You can't cancel this order item.");
+        if (product.IsGiftVoucher) return (true, "You can't cancel gift voucher, please delete it.");
+
+        //add a note
+        await _orderService.InsertOrderNote(new OrderNote {
+            Note = $"Order item has been canceled - {product.Name} - Qty: {request.OrderItem.OpenQty}",
+            DisplayToCustomer = false,
+            OrderId = request.Order.Id
+        });
+
+        await _inventoryManageService.AdjustReserved(product, request.OrderItem.OpenQty, request.OrderItem.Attributes,
+            request.OrderItem.WarehouseId);
+
+        request.OrderItem.CancelQty = request.OrderItem.OpenQty;
+        request.OrderItem.CancelAmount =
+            Math.Round(request.OrderItem.UnitPriceInclTax / request.OrderItem.CancelQty, 2);
+        request.OrderItem.OpenQty = 0;
+        request.OrderItem.Status = OrderItemStatus.Close;
+
+        if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
         {
-            _mediator = mediator;
-            _orderService = orderService;
-            _shipmentService = shipmentService;
-            _productService = productService;
-            _inventoryManageService = inventoryManageService;
+            var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
+            if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.ShippedDateUtc != null))
+                request.Order.ShippingStatusId = ShippingStatus.Shipped;
+            if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
+                request.Order.ShippingStatusId = ShippingStatus.Delivered;
         }
 
-        public async Task<(bool error, string message)> Handle(CancelOrderItemCommand request, CancellationToken cancellationToken)
-        {
-            if (request.Order == null)
-                throw new ArgumentNullException(nameof(request.Order));
+        await _orderService.UpdateOrder(request.Order);
 
-            if (request.OrderItem == null)
-                throw new ArgumentNullException(nameof(request.OrderItem));
+        //check order status
+        await _mediator.Send(new CheckOrderStatusCommand { Order = request.Order }, cancellationToken);
 
-            var product = await _productService.GetProductById(request.OrderItem.ProductId);
-            if (product == null)
-                return (true, "Product not exists.");
-
-            if (request.OrderItem.OpenQty == 0 || request.OrderItem.Status == OrderItemStatus.Close)
-            {
-                return (true, "You can't cancel this order item.");
-            }
-            if (product.IsGiftVoucher)
-            {
-                return (true, "You can't cancel gift voucher, please delete it.");
-            }
-
-            //add a note
-            await _orderService.InsertOrderNote(new OrderNote {
-                Note = $"Order item has been canceled - {product.Name} - Qty: {request.OrderItem.OpenQty}",
-                DisplayToCustomer = false,
-                OrderId = request.Order.Id
-            });
-
-            await _inventoryManageService.AdjustReserved(product, request.OrderItem.OpenQty, request.OrderItem.Attributes, request.OrderItem.WarehouseId);
-
-            request.OrderItem.CancelQty = request.OrderItem.OpenQty;
-            request.OrderItem.CancelAmount = Math.Round(request.OrderItem.UnitPriceInclTax / request.OrderItem.CancelQty, 2);
-            request.OrderItem.OpenQty = 0;
-            request.OrderItem.Status = OrderItemStatus.Close;
-
-            if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
-            {
-                var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
-                if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.ShippedDateUtc != null))
-                {
-                    request.Order.ShippingStatusId = ShippingStatus.Shipped;
-                }
-                if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
-                {
-                    request.Order.ShippingStatusId = ShippingStatus.Delivered;
-                }
-            }
-
-            await _orderService.UpdateOrder(request.Order);
-
-            //check order status
-            await _mediator.Send(new CheckOrderStatusCommand { Order = request.Order }, cancellationToken);
-
-            return (false, "");
-        }
+        return (false, "");
     }
 }

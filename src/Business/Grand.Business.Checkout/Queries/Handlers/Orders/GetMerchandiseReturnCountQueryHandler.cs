@@ -3,22 +3,22 @@ using Grand.Data;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Checkout.Queries.Handlers.Orders
+namespace Grand.Business.Checkout.Queries.Handlers.Orders;
+
+public class GetMerchandiseReturnCountQueryHandler : IRequestHandler<GetMerchandiseReturnCountQuery, int>
 {
-    public class GetMerchandiseReturnCountQueryHandler : IRequestHandler<GetMerchandiseReturnCountQuery, int>
+    private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
+
+    public GetMerchandiseReturnCountQueryHandler(IRepository<MerchandiseReturn> merchandiseReturnRepository)
     {
-        private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
+        _merchandiseReturnRepository = merchandiseReturnRepository;
+    }
 
-        public GetMerchandiseReturnCountQueryHandler(IRepository<MerchandiseReturn> merchandiseReturnRepository)
-        {
-            _merchandiseReturnRepository = merchandiseReturnRepository;
-        }
-
-        public async Task<int> Handle(GetMerchandiseReturnCountQuery request, CancellationToken cancellationToken)
-        {
-            return await Task.FromResult(
-                _merchandiseReturnRepository.Table.Count(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
-                                                              (string.IsNullOrEmpty(request.StoreId) || x.StoreId == request.StoreId)));
-        }
+    public async Task<int> Handle(GetMerchandiseReturnCountQuery request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(
+            _merchandiseReturnRepository.Table.Count(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
+                                                          (string.IsNullOrEmpty(request.StoreId) ||
+                                                           x.StoreId == request.StoreId)));
     }
 }
