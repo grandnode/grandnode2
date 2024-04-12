@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Grand.Infrastructure.TypeConverters.JsonConverters;
 
-public class StringConverter : System.Text.Json.Serialization.JsonConverter<string>
+public class StringConverter : JsonConverter<string>
 {
     public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -20,13 +21,12 @@ public class StringConverter : System.Text.Json.Serialization.JsonConverter<stri
             case JsonTokenType.String:
                 return reader.GetString();
             default:
-                throw new System.Text.Json.JsonException();
+                throw new JsonException();
         }
     }
- 
+
     public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
     {
         writer.WriteStringValue(value);
     }
- 
 }

@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message;
+
+public interface IMessagePublisher
 {
-    public interface IMessagePublisher
-    {
-        Task PublishAsync<TMessage>(TMessage msg) where TMessage : IMessageEvent;
-    }
+    Task PublishAsync<TMessage>(TMessage msg) where TMessage : IMessageEvent;
 }

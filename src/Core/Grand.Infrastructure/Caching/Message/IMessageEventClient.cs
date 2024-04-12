@@ -1,8 +1,6 @@
-﻿
-namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message;
+
+public interface IMessageEventClient : IMessageEvent
 {
-    public interface IMessageEventClient : IMessageEvent
-    {
-        string ClientId { get; set; }
-    }
+    string ClientId { get; set; }
 }

@@ -7,14 +7,15 @@ public class InterfaceConverter<TInterface, TConcrete> : JsonConverter<TInterfac
 {
     public override TInterface Read(
         ref Utf8JsonReader reader,
-        Type typeToConvert, 
+        Type typeToConvert,
         JsonSerializerOptions options)
     {
         return JsonSerializer.Deserialize<TConcrete>(ref reader, options);
     }
+
     public override void Write(
         Utf8JsonWriter writer,
-        TInterface value, 
+        TInterface value,
         JsonSerializerOptions options)
     {
         switch (value)
@@ -36,14 +37,14 @@ public class CaptchaConverter : JsonConverter<ICaptchaValidModel>
 {
     public override ICaptchaValidModel Read(
         ref Utf8JsonReader reader,
-        Type typeToConvert, 
+        Type typeToConvert,
         JsonSerializerOptions options)
     {
         return JsonSerializer.Deserialize<CaptchaModel>(ref reader, options);
     }
     public override void Write(
         Utf8JsonWriter writer,
-        ICaptchaValidModel value, 
+        ICaptchaValidModel value,
         JsonSerializerOptions options)
     {
         switch (value)

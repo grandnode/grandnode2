@@ -25,15 +25,15 @@ public class JsonBodyModelBinder : IModelBinder
             {
                 jsonPayload = await streamReader.ReadToEndAsync();
             }
-            var options = new JsonSerializerOptions
-            {
+
+            var options = new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true
             };
             options.Converters.Add(new StringConverter());
             bindingContext.Result =
                 ModelBindingResult.Success(JsonSerializer.Deserialize(jsonPayload, bindingContext.ModelType, options));
         }
-        else 
+        else
         {
             await _overriddenModelBinder.BindModelAsync(bindingContext);
         }

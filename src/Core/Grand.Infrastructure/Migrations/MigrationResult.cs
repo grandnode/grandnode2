@@ -1,8 +1,7 @@
-﻿namespace Grand.Infrastructure.Migrations
+﻿namespace Grand.Infrastructure.Migrations;
+
+public class MigrationResult
 {
-    public class MigrationResult
-    {
-        public bool Success;
-        public IBaseMigration Migration;
-    }
+    public IBaseMigration Migration;
+    public bool Success;
 }

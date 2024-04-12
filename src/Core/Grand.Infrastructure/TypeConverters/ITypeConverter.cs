@@ -1,15 +1,14 @@
-﻿namespace Grand.Infrastructure.TypeConverters
-{
-    public interface ITypeConverter
-    {
-        /// <summary>
-        /// Register converter
-        /// </summary>
-        void Register();
+﻿namespace Grand.Infrastructure.TypeConverters;
 
-        /// <summary>
-        /// Gets order of this configuration implementation
-        /// </summary>
-        int Order { get; }
-    }
+public interface ITypeConverter
+{
+    /// <summary>
+    ///     Gets order of this configuration implementation
+    /// </summary>
+    int Order { get; }
+
+    /// <summary>
+    ///     Register converter
+    /// </summary>
+    void Register();
 }

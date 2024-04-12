@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Caching.Constants
+﻿namespace Grand.Infrastructure.Caching.Constants;
+
+public static partial class CacheKey
 {
-    public static partial class CacheKey
-    {
-        public static string GRAND_NODE_VERSION => "Grand.node.version";
-    }
+    public static string GRAND_NODE_VERSION => "Grand.node.version";
 }

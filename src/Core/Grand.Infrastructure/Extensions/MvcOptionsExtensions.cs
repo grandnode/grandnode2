@@ -6,7 +6,8 @@ namespace Grand.Infrastructure.Extensions;
 
 public static class MvcOptionsExtensions
 {
-    public static void UseJsonBodyModelBinderProviderInsteadOf<T>(this MvcOptions mvcOptions) where T : IModelBinderProvider
+    public static void UseJsonBodyModelBinderProviderInsteadOf<T>(this MvcOptions mvcOptions)
+        where T : IModelBinderProvider
     {
         var replacedModelBinderProvider = mvcOptions.ModelBinderProviders.OfType<T>().FirstOrDefault();
         if (replacedModelBinderProvider == null) return;

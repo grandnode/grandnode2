@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Mapper
+﻿namespace Grand.Infrastructure.Mapper;
+
+public interface IAutoMapperProfile
 {
-    public interface IAutoMapperProfile
-    {
-        int Order { get; }
-    }
+    int Order { get; }
 }

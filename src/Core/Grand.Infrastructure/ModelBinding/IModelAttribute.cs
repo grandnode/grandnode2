@@ -1,10 +1,9 @@
-﻿namespace Grand.Infrastructure.ModelBinding
+﻿namespace Grand.Infrastructure.ModelBinding;
+
+public interface IModelAttribute
 {
-    public interface IModelAttribute
-    {
-        /// <summary>
-        /// Gets name of the attribute
-        /// </summary>
-        string Name { get; }
-    }
+    /// <summary>
+    ///     Gets name of the attribute
+    /// </summary>
+    string Name { get; }
 }
