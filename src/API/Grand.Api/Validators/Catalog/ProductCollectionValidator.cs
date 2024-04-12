@@ -4,19 +4,18 @@ using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 
-namespace Grand.Api.Validators.Catalog
+namespace Grand.Api.Validators.Catalog;
+
+public class ProductCollectionValidator : BaseGrandValidator<ProductCollectionDto>
 {
-    public class ProductCollectionValidator : BaseGrandValidator<ProductCollectionDto>
+    public ProductCollectionValidator(IEnumerable<IValidatorConsumer<ProductCollectionDto>> validators,
+        ITranslationService translationService, ICollectionService collectionService)
+        : base(validators)
     {
-        public ProductCollectionValidator(IEnumerable<IValidatorConsumer<ProductCollectionDto>> validators,
-            ITranslationService translationService, ICollectionService collectionService)
-            : base(validators)
+        RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var collection = await collectionService.GetCollectionById(x.CollectionId);
-                return collection != null;
-            }).WithMessage(translationService.GetResource("Api.Catalog.ProductCollection.Fields.CollectionId.NotExists"));
-        }
+            var collection = await collectionService.GetCollectionById(x.CollectionId);
+            return collection != null;
+        }).WithMessage(translationService.GetResource("Api.Catalog.ProductCollection.Fields.CollectionId.NotExists"));
     }
 }

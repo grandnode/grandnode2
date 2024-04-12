@@ -1,11 +1,10 @@
 ﻿using Grand.Api.Models;
 
-namespace Grand.Api.DTOs.Common
+namespace Grand.Api.DTOs.Common;
+
+public class LayoutDto : BaseApiEntityModel
 {
-    public class LayoutDto : BaseApiEntityModel
-    {
-        public string Name { get; set; }
-        public int DisplayOrder { get; set; }
-        public string ViewPath { get; set; }
-    }
+    public string Name { get; set; }
+    public int DisplayOrder { get; set; }
+    public string ViewPath { get; set; }
 }

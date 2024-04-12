@@ -1,7 +1,6 @@
-﻿namespace Grand.Api.DTOs.Catalog
+﻿namespace Grand.Api.DTOs.Catalog;
+
+public class ProductAttributeMappingDeleteDto
 {
-    public class ProductAttributeMappingDeleteDto
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

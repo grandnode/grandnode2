@@ -10,63 +10,65 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Api.Commands.Handlers.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog;
+
+public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryDto>
 {
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryDto>
+    private readonly ICategoryService _categoryService;
+    private readonly ILanguageService _languageService;
+    private readonly IPictureService _pictureService;
+
+    private readonly SeoSettings _seoSettings;
+    private readonly ISlugService _slugService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+
+    public UpdateCategoryCommandHandler(
+        ICategoryService categoryService,
+        ISlugService slugService,
+        ILanguageService languageService,
+        ITranslationService translationService,
+        IPictureService pictureService,
+        IWorkContext workContext,
+        SeoSettings seoSettings)
     {
-        private readonly ICategoryService _categoryService;
-        private readonly ISlugService _slugService;
-        private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
-        private readonly IPictureService _pictureService;
-        private readonly IWorkContext _workContext;
+        _categoryService = categoryService;
+        _slugService = slugService;
+        _languageService = languageService;
+        _translationService = translationService;
+        _pictureService = pictureService;
+        _workContext = workContext;
+        _seoSettings = seoSettings;
+    }
 
-        private readonly SeoSettings _seoSettings;
-
-        public UpdateCategoryCommandHandler(
-            ICategoryService categoryService,
-            ISlugService slugService,
-            ILanguageService languageService,
-            ITranslationService translationService,
-            IPictureService pictureService,
-            IWorkContext workContext,
-            SeoSettings seoSettings)
+    public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+    {
+        var category = await _categoryService.GetCategoryById(request.Model.Id);
+        var prevPictureId = category.PictureId;
+        category = request.Model.ToEntity(category);
+        request.Model.SeName = await category.ValidateSeName(request.Model.SeName, category.Name, true, _seoSettings,
+            _slugService, _languageService);
+        category.SeName = request.Model.SeName;
+        await _categoryService.UpdateCategory(category);
+        //search engine name
+        await _slugService.SaveSlug(category, request.Model.SeName, "");
+        await _categoryService.UpdateCategory(category);
+        //delete an old picture (if deleted or updated)
+        if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
         {
-            _categoryService = categoryService;
-            _slugService = slugService;
-            _languageService = languageService;
-            _translationService = translationService;
-            _pictureService = pictureService;
-            _workContext = workContext;
-            _seoSettings = seoSettings;
+            var prevPicture = await _pictureService.GetPictureById(prevPictureId);
+            if (prevPicture != null)
+                await _pictureService.DeletePicture(prevPicture);
         }
 
-        public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        //update picture seo file name
+        if (!string.IsNullOrEmpty(category.PictureId))
         {
-            var category = await _categoryService.GetCategoryById(request.Model.Id);
-            var prevPictureId = category.PictureId;
-            category = request.Model.ToEntity(category);
-            request.Model.SeName = await category.ValidateSeName(request.Model.SeName, category.Name, true, _seoSettings, _slugService, _languageService);
-            category.SeName = request.Model.SeName;
-            await _categoryService.UpdateCategory(category);
-            //search engine name
-            await _slugService.SaveSlug(category, request.Model.SeName, "");
-            await _categoryService.UpdateCategory(category);
-            //delete an old picture (if deleted or updated)
-            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
-            {
-                var prevPicture = await _pictureService.GetPictureById(prevPictureId);
-                if (prevPicture != null)
-                    await _pictureService.DeletePicture(prevPicture);
-            }
-            //update picture seo file name
-            if (!string.IsNullOrEmpty(category.PictureId))
-            {
-                var picture = await _pictureService.GetPictureById(category.PictureId);
-                if (picture != null)
-                    await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(category.Name));
-            }
-            return category.ToModel();
+            var picture = await _pictureService.GetPictureById(category.PictureId);
+            if (picture != null)
+                await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(category.Name));
         }
+
+        return category.ToModel();
     }
 }

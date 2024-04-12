@@ -1,10 +1,9 @@
 ﻿using Grand.Api.DTOs.Catalog;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Models.Catalog;
+
+public class AddSpecificationAttributeCommand : IRequest<SpecificationAttributeDto>
 {
-    public class AddSpecificationAttributeCommand : IRequest<SpecificationAttributeDto>
-    {
-        public SpecificationAttributeDto Model { get; set; }
-    }
+    public SpecificationAttributeDto Model { get; set; }
 }

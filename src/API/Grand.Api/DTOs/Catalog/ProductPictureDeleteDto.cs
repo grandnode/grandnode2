@@ -1,7 +1,6 @@
-﻿namespace Grand.Api.DTOs.Catalog
+﻿namespace Grand.Api.DTOs.Catalog;
+
+public class ProductPictureDeleteDto
 {
-    public class ProductPictureDeleteDto
-    {
-        public string PictureId { get; set; }
-    }
+    public string PictureId { get; set; }
 }

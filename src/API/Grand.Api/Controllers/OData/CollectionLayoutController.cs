@@ -1,6 +1,7 @@
 ﻿using Grand.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -8,46 +9,45 @@ using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
-namespace Grand.Api.Controllers.OData
+namespace Grand.Api.Controllers.OData;
+
+[Route("odata/CollectionLayout")]
+[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
+public class CollectionLayoutController : BaseODataController
 {
-    [Route("odata/CollectionLayout")]
-    [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-    public class CollectionLayoutController : BaseODataController
+    private readonly IMediator _mediator;
+    private readonly IPermissionService _permissionService;
+
+    public CollectionLayoutController(IMediator mediator, IPermissionService permissionService)
     {
-        private readonly IMediator _mediator;
-        private readonly IPermissionService _permissionService;
+        _mediator = mediator;
+        _permissionService = permissionService;
+    }
 
-        public CollectionLayoutController(IMediator mediator, IPermissionService permissionService)
-        {
-            _mediator = mediator;
-            _permissionService = permissionService;
-        }
+    [SwaggerOperation("Get entity from CollectionLayout by key", OperationId = "GetCollectionLayoutById")]
+    [HttpGet("{key}")]
+    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> Get([FromRoute] string key)
+    {
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        [SwaggerOperation(summary: "Get entity from CollectionLayout by key", OperationId = "GetCollectionLayoutById")]
-        [HttpGet("{key}")]
-        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Get([FromRoute] string key)
-        {
-            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
+        var layout = await _mediator.Send(new GetLayoutQuery { Id = key, LayoutName = typeof(CollectionLayout).Name });
+        if (!layout.Any()) return NotFound();
 
-            var layout = await _mediator.Send(new GetLayoutQuery { Id = key, LayoutName = typeof(Domain.Catalog.CollectionLayout).Name });
-            if (!layout.Any()) return NotFound();
+        return Ok(layout.FirstOrDefault());
+    }
 
-            return Ok(layout.FirstOrDefault());
-        }
+    [SwaggerOperation("Get entities from CollectionLayout", OperationId = "GetCollectionLayouts")]
+    [HttpGet]
+    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Get()
+    {
+        if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        [SwaggerOperation(summary: "Get entities from CollectionLayout", OperationId = "GetCollectionLayouts")]
-        [HttpGet]
-        [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
-        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get()
-        {
-            if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
-
-            return Ok(await _mediator.Send(new GetLayoutQuery { LayoutName = typeof(Domain.Catalog.CollectionLayout).Name }));
-        }
+        return Ok(await _mediator.Send(new GetLayoutQuery { LayoutName = typeof(CollectionLayout).Name }));
     }
 }

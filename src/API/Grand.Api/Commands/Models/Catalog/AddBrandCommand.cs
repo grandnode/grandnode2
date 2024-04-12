@@ -1,10 +1,9 @@
 ﻿using Grand.Api.DTOs.Catalog;
 using MediatR;
 
-namespace Grand.Api.Commands.Models.Catalog
+namespace Grand.Api.Commands.Models.Catalog;
+
+public class AddBrandCommand : IRequest<BrandDto>
 {
-    public class AddBrandCommand : IRequest<BrandDto>
-    {
-        public BrandDto Model { get; set; }
-    }
+    public BrandDto Model { get; set; }
 }

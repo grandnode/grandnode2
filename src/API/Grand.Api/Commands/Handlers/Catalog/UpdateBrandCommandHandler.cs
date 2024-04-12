@@ -10,63 +10,65 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Api.Commands.Handlers.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog;
+
+public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, BrandDto>
 {
-    public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, BrandDto>
+    private readonly IBrandService _brandService;
+    private readonly ILanguageService _languageService;
+    private readonly IPictureService _pictureService;
+
+    private readonly SeoSettings _seoSettings;
+    private readonly ISlugService _slugService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+
+    public UpdateBrandCommandHandler(
+        IBrandService brandService,
+        ISlugService slugService,
+        ILanguageService languageService,
+        ITranslationService translationService,
+        IPictureService pictureService,
+        IWorkContext workContext,
+        SeoSettings seoSettings)
     {
-        private readonly IBrandService _brandService;
-        private readonly ISlugService _slugService;
-        private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
-        private readonly IPictureService _pictureService;
-        private readonly IWorkContext _workContext;
+        _brandService = brandService;
+        _slugService = slugService;
+        _languageService = languageService;
+        _translationService = translationService;
+        _pictureService = pictureService;
+        _workContext = workContext;
+        _seoSettings = seoSettings;
+    }
 
-        private readonly SeoSettings _seoSettings;
-
-        public UpdateBrandCommandHandler(
-            IBrandService brandService,
-            ISlugService slugService,
-            ILanguageService languageService,
-            ITranslationService translationService,
-            IPictureService pictureService,
-            IWorkContext workContext,
-            SeoSettings seoSettings)
+    public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
+    {
+        var brand = await _brandService.GetBrandById(request.Model.Id);
+        var prevPictureId = brand.PictureId;
+        brand = request.Model.ToEntity(brand);
+        request.Model.SeName = await brand.ValidateSeName(request.Model.SeName, brand.Name, true, _seoSettings,
+            _slugService, _languageService);
+        brand.SeName = request.Model.SeName;
+        await _brandService.UpdateBrand(brand);
+        //search engine name
+        await _slugService.SaveSlug(brand, request.Model.SeName, "");
+        await _brandService.UpdateBrand(brand);
+        //delete an old picture (if deleted or updated)
+        if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
         {
-            _brandService = brandService;
-            _slugService = slugService;
-            _languageService = languageService;
-            _translationService = translationService;
-            _pictureService = pictureService;
-            _workContext = workContext;
-            _seoSettings = seoSettings;
+            var prevPicture = await _pictureService.GetPictureById(prevPictureId);
+            if (prevPicture != null)
+                await _pictureService.DeletePicture(prevPicture);
         }
 
-        public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
+        //update picture seo file name
+        if (!string.IsNullOrEmpty(brand.PictureId))
         {
-            var brand = await _brandService.GetBrandById(request.Model.Id);
-            var prevPictureId = brand.PictureId;
-            brand = request.Model.ToEntity(brand);
-            request.Model.SeName = await brand.ValidateSeName(request.Model.SeName, brand.Name, true, _seoSettings, _slugService, _languageService);
-            brand.SeName = request.Model.SeName;
-            await _brandService.UpdateBrand(brand);
-            //search engine name
-            await _slugService.SaveSlug(brand, request.Model.SeName, "");
-            await _brandService.UpdateBrand(brand);
-            //delete an old picture (if deleted or updated)
-            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != brand.PictureId)
-            {
-                var prevPicture = await _pictureService.GetPictureById(prevPictureId);
-                if (prevPicture != null)
-                    await _pictureService.DeletePicture(prevPicture);
-            }
-            //update picture seo file name
-            if (!string.IsNullOrEmpty(brand.PictureId))
-            {
-                var picture = await _pictureService.GetPictureById(brand.PictureId);
-                if (picture != null)
-                    await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(brand.Name));
-            }
-            return brand.ToModel();
+            var picture = await _pictureService.GetPictureById(brand.PictureId);
+            if (picture != null)
+                await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(brand.Name));
         }
+
+        return brand.ToModel();
     }
 }
