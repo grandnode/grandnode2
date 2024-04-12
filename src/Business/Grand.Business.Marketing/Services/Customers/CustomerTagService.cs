@@ -1,284 +1,284 @@
 using Grand.Business.Core.Interfaces.Marketing.Customers;
+using Grand.Data;
+using Grand.Domain;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using Grand.Domain;
-using Grand.Domain.Customers;
-using Grand.Data;
 using MediatR;
 
-namespace Grand.Business.Marketing.Services.Customers
+namespace Grand.Business.Marketing.Services.Customers;
+
+/// <summary>
+///     Customer tag service
+/// </summary>
+public class CustomerTagService : ICustomerTagService
 {
+    #region Ctor
+
     /// <summary>
-    /// Customer tag service
+    ///     Ctor
     /// </summary>
-    public class CustomerTagService : ICustomerTagService
+    public CustomerTagService(IRepository<CustomerTag> customerTagRepository,
+        IRepository<CustomerTagProduct> customerTagProductRepository,
+        IRepository<Customer> customerRepository,
+        IMediator mediator,
+        ICacheBase cacheBase
+    )
     {
-        #region Fields
+        _customerTagRepository = customerTagRepository;
+        _customerTagProductRepository = customerTagProductRepository;
+        _mediator = mediator;
+        _customerRepository = customerRepository;
+        _cacheBase = cacheBase;
+    }
 
-        private readonly IRepository<CustomerTag> _customerTagRepository;
-        private readonly IRepository<CustomerTagProduct> _customerTagProductRepository;
-        private readonly IRepository<Customer> _customerRepository;
-        private readonly IMediator _mediator;
-        private readonly ICacheBase _cacheBase;
+    #endregion
 
-        #endregion
+    /// <summary>
+    ///     Gets all customer for tag id
+    /// </summary>
+    /// <returns>Customers</returns>
+    public virtual async Task<IPagedList<Customer>> GetCustomersByTag(string customerTagId = "", int pageIndex = 0,
+        int pageSize = 2147483647)
+    {
+        var query = from c in _customerRepository.Table
+            where c.CustomerTags.Contains(customerTagId)
+            select c;
+        return await PagedList<Customer>.Create(query, pageIndex, pageSize);
+    }
 
-        #region Ctor
+    /// <summary>
+    ///     Delete a customer tag
+    /// </summary>
+    /// <param name="customerTag">Customer tag</param>
+    public virtual async Task DeleteCustomerTag(CustomerTag customerTag)
+    {
+        ArgumentNullException.ThrowIfNull(customerTag);
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public CustomerTagService(IRepository<CustomerTag> customerTagRepository,
-            IRepository<CustomerTagProduct> customerTagProductRepository,
-            IRepository<Customer> customerRepository,
-            IMediator mediator,
-            ICacheBase cacheBase
-            )
-        {
-            _customerTagRepository = customerTagRepository;
-            _customerTagProductRepository = customerTagProductRepository;
-            _mediator = mediator;
-            _customerRepository = customerRepository;
-            _cacheBase = cacheBase;
-        }
+        //update customer
+        await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
 
-        #endregion
+        //delete
+        await _customerTagRepository.DeleteAsync(customerTag);
 
-        /// <summary>
-        /// Gets all customer for tag id
-        /// </summary>
-        /// <returns>Customers</returns>
-        public virtual async Task<IPagedList<Customer>> GetCustomersByTag(string customerTagId = "", int pageIndex = 0, int pageSize = 2147483647)
-        {
-            var query = from c in _customerRepository.Table
-                        where c.CustomerTags.Contains(customerTagId)
-                        select c;
-            return await PagedList<Customer>.Create(query, pageIndex, pageSize);
-        }
+        //event notification
+        await _mediator.EntityDeleted(customerTag);
+    }
 
-        /// <summary>
-        /// Delete a customer tag
-        /// </summary>
-        /// <param name="customerTag">Customer tag</param>
-        public virtual async Task DeleteCustomerTag(CustomerTag customerTag)
-        {
-            ArgumentNullException.ThrowIfNull(customerTag);
+    /// <summary>
+    ///     Gets all customer tags
+    /// </summary>
+    /// <returns>Customer tags</returns>
+    public virtual async Task<IList<CustomerTag>> GetAllCustomerTags()
+    {
+        return await Task.FromResult(_customerTagRepository.Table.ToList());
+    }
 
-            //update customer
-            await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
+    /// <summary>
+    ///     Gets customer tag
+    /// </summary>
+    /// <param name="customerTagId">Customer tag identifier</param>
+    /// <returns>Customer tag</returns>
+    public virtual Task<CustomerTag> GetCustomerTagById(string customerTagId)
+    {
+        return _customerTagRepository.GetByIdAsync(customerTagId);
+    }
 
-            //delete
-            await _customerTagRepository.DeleteAsync(customerTag);
+    /// <summary>
+    ///     Gets customer tag by name
+    /// </summary>
+    /// <param name="name">Customer tag name</param>
+    /// <returns>Customer tag</returns>
+    public virtual async Task<CustomerTag> GetCustomerTagByName(string name)
+    {
+        var query = from pt in _customerTagRepository.Table
+            where pt.Name == name
+            select pt;
 
-            //event notification
-            await _mediator.EntityDeleted(customerTag);
-        }
+        return await Task.FromResult(query.FirstOrDefault());
+    }
 
-        /// <summary>
-        /// Gets all customer tags
-        /// </summary>
-        /// <returns>Customer tags</returns>
-        public virtual async Task<IList<CustomerTag>> GetAllCustomerTags()
-        {
-            return await Task.FromResult(_customerTagRepository.Table.ToList());
-        }
+    /// <summary>
+    ///     Gets customer tags search by name
+    /// </summary>
+    /// <param name="name">Customer tags name</param>
+    /// <returns>Customer tags</returns>
+    public virtual async Task<IList<CustomerTag>> GetCustomerTagsByName(string name)
+    {
+        var query = from pt in _customerTagRepository.Table
+            where pt.Name.ToLower().Contains(name.ToLower())
+            select pt;
+        return await Task.FromResult(query.ToList());
+    }
 
-        /// <summary>
-        /// Gets customer tag
-        /// </summary>
-        /// <param name="customerTagId">Customer tag identifier</param>
-        /// <returns>Customer tag</returns>
-        public virtual Task<CustomerTag> GetCustomerTagById(string customerTagId)
-        {
-            return _customerTagRepository.GetByIdAsync(customerTagId);
-        }
+    /// <summary>
+    ///     Inserts a customer tag
+    /// </summary>
+    /// <param name="customerTag">Customer tag</param>
+    public virtual async Task InsertCustomerTag(CustomerTag customerTag)
+    {
+        ArgumentNullException.ThrowIfNull(customerTag);
 
-        /// <summary>
-        /// Gets customer tag by name
-        /// </summary>
-        /// <param name="name">Customer tag name</param>
-        /// <returns>Customer tag</returns>
-        public virtual async Task<CustomerTag> GetCustomerTagByName(string name)
-        {
-            var query = from pt in _customerTagRepository.Table
-                        where pt.Name == name
-                        select pt;
+        await _customerTagRepository.InsertAsync(customerTag);
 
-            return await Task.FromResult(query.FirstOrDefault());
-        }
+        //event notification
+        await _mediator.EntityInserted(customerTag);
+    }
 
-        /// <summary>
-        /// Gets customer tags search by name
-        /// </summary>
-        /// <param name="name">Customer tags name</param>
-        /// <returns>Customer tags</returns>
-        public virtual async Task<IList<CustomerTag>> GetCustomerTagsByName(string name)
-        {
-            var query = from pt in _customerTagRepository.Table
-                        where pt.Name.ToLower().Contains(name.ToLower())
-                        select pt;
-            return await Task.FromResult(query.ToList());
-        }
+    /// <summary>
+    ///     Insert tag to a customer
+    /// </summary>
+    public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
+    {
+        await _customerRepository.AddToSet(customerId, x => x.CustomerTags, customerTagId);
+    }
 
-        /// <summary>
-        /// Inserts a customer tag
-        /// </summary>
-        /// <param name="customerTag">Customer tag</param>
-        public virtual async Task InsertCustomerTag(CustomerTag customerTag)
-        {
-            ArgumentNullException.ThrowIfNull(customerTag);
+    /// <summary>
+    ///     Delete tag from a customer
+    /// </summary>
+    public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
+    {
+        await _customerRepository.Pull(customerId, x => x.CustomerTags, customerTagId);
+    }
 
-            await _customerTagRepository.InsertAsync(customerTag);
+    /// <summary>
+    ///     Updates the customer tag
+    /// </summary>
+    /// <param name="customerTag">Customer tag</param>
+    public virtual async Task UpdateCustomerTag(CustomerTag customerTag)
+    {
+        ArgumentNullException.ThrowIfNull(customerTag);
 
-            //event notification
-            await _mediator.EntityInserted(customerTag);
-        }
+        await _customerTagRepository.UpdateAsync(customerTag);
 
-        /// <summary>
-        /// Insert tag to a customer
-        /// </summary>
-        public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
-        {
-            await _customerRepository.AddToSet(customerId, x => x.CustomerTags, customerTagId);
-        }
+        //event notification
+        await _mediator.EntityUpdated(customerTag);
+    }
 
-        /// <summary>
-        /// Delete tag from a customer
-        /// </summary>
-        public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
-        {
-            await _customerRepository.Pull(customerId, x => x.CustomerTags, customerTagId);
-        }
+    /// <summary>
+    ///     Get number of customers
+    /// </summary>
+    /// <param name="customerTagId">Customer tag identifier</param>
+    /// <returns>Number of customers</returns>
+    public virtual async Task<int> GetCustomerCount(string customerTagId)
+    {
+        var count = _customerRepository.Table.Count(x => x.CustomerTags.Contains(customerTagId));
+        if (count > 0)
+            return count;
+        return await Task.FromResult(0);
+    }
 
-        /// <summary>
-        /// Updates the customer tag
-        /// </summary>
-        /// <param name="customerTag">Customer tag</param>
-        public virtual async Task UpdateCustomerTag(CustomerTag customerTag)
-        {
-            ArgumentNullException.ThrowIfNull(customerTag);
+    #region Fields
 
-            await _customerTagRepository.UpdateAsync(customerTag);
+    private readonly IRepository<CustomerTag> _customerTagRepository;
+    private readonly IRepository<CustomerTagProduct> _customerTagProductRepository;
+    private readonly IRepository<Customer> _customerRepository;
+    private readonly IMediator _mediator;
+    private readonly ICacheBase _cacheBase;
 
-            //event notification
-            await _mediator.EntityUpdated(customerTag);
-        }
+    #endregion
 
-        /// <summary>
-        /// Get number of customers
-        /// </summary>
-        /// <param name="customerTagId">Customer tag identifier</param>
-        /// <returns>Number of customers</returns>
-        public virtual async Task<int> GetCustomerCount(string customerTagId)
-        {
-            var count = _customerRepository.Table.
-                Count(x => x.CustomerTags.Contains(customerTagId));
-            if (count > 0)
-                return count;
-            return await Task.FromResult(0);
-        }
+    #region Customer tag product
 
-        #region Customer tag product
-
-
-        /// <summary>
-        /// Gets customer tag products for customer tag
-        /// </summary>
-        /// <param name="customerTagId">Customer tag id</param>
-        /// <returns>Customer tag products</returns>
-        public virtual async Task<IList<CustomerTagProduct>> GetCustomerTagProducts(string customerTagId)
-        {
-            var key = string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagId);
-            return await _cacheBase.GetAsync(key, async () =>
-            {
-                var query = from cr in _customerTagProductRepository.Table
-                            where cr.CustomerTagId == customerTagId
-                            orderby cr.DisplayOrder
-                            select cr;
-                return await Task.FromResult(query.ToList());
-            });
-        }
-
-        /// <summary>
-        /// Gets customer tag products for customer tag
-        /// </summary>
-        /// <param name="customerTagId">Customer tag id</param>
-        /// <param name="productId">Product id</param>
-        /// <returns>Customer tag product</returns>
-        public virtual async Task<CustomerTagProduct> GetCustomerTagProduct(string customerTagId, string productId)
+    /// <summary>
+    ///     Gets customer tag products for customer tag
+    /// </summary>
+    /// <param name="customerTagId">Customer tag id</param>
+    /// <returns>Customer tag products</returns>
+    public virtual async Task<IList<CustomerTagProduct>> GetCustomerTagProducts(string customerTagId)
+    {
+        var key = string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagId);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from cr in _customerTagProductRepository.Table
-                        where cr.CustomerTagId == customerTagId && cr.ProductId == productId
-                        orderby cr.DisplayOrder
-                        select cr;
-            return await Task.FromResult(query.FirstOrDefault());
-        }
-
-        /// <summary>
-        /// Gets customer tag product
-        /// </summary>
-        /// <param name="id">id</param>
-        /// <returns>Customer tag product</returns>
-        public virtual Task<CustomerTagProduct> GetCustomerTagProductById(string id)
-        {
-            return _customerTagProductRepository.GetByIdAsync(id);
-        }
-
-        /// <summary>
-        /// Inserts a customer tag product
-        /// </summary>
-        /// <param name="customerTagProduct">Customer tag product</param>
-        public virtual async Task InsertCustomerTagProduct(CustomerTagProduct customerTagProduct)
-        {
-            ArgumentNullException.ThrowIfNull(customerTagProduct);
-
-            await _customerTagProductRepository.InsertAsync(customerTagProduct);
-
-            //clear cache
-            await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagProduct.CustomerTagId));
-            await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
-
-            //event notification
-            await _mediator.EntityInserted(customerTagProduct);
-        }
-
-        /// <summary>
-        /// Updates the customer tag product
-        /// </summary>
-        /// <param name="customerTagProduct">Customer tag product</param>
-        public virtual async Task UpdateCustomerTagProduct(CustomerTagProduct customerTagProduct)
-        {
-            ArgumentNullException.ThrowIfNull(customerTagProduct);
-
-            await _customerTagProductRepository.UpdateAsync(customerTagProduct);
-
-            //clear cache
-            await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagProduct.CustomerTagId));
-            await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
-
-            //event notification
-            await _mediator.EntityUpdated(customerTagProduct);
-        }
-
-        /// <summary>
-        /// Delete a customer tag product
-        /// </summary>
-        /// <param name="customerTagProduct">Customer tag product</param>
-        public virtual async Task DeleteCustomerTagProduct(CustomerTagProduct customerTagProduct)
-        {
-            ArgumentNullException.ThrowIfNull(customerTagProduct);
-
-            await _customerTagProductRepository.DeleteAsync(customerTagProduct);
-
-            //clear cache
-            await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagProduct.CustomerTagId));
-            await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
-            //event notification
-            await _mediator.EntityDeleted(customerTagProduct);
-        }
-
-        #endregion
-
+                where cr.CustomerTagId == customerTagId
+                orderby cr.DisplayOrder
+                select cr;
+            return await Task.FromResult(query.ToList());
+        });
     }
+
+    /// <summary>
+    ///     Gets customer tag products for customer tag
+    /// </summary>
+    /// <param name="customerTagId">Customer tag id</param>
+    /// <param name="productId">Product id</param>
+    /// <returns>Customer tag product</returns>
+    public virtual async Task<CustomerTagProduct> GetCustomerTagProduct(string customerTagId, string productId)
+    {
+        var query = from cr in _customerTagProductRepository.Table
+            where cr.CustomerTagId == customerTagId && cr.ProductId == productId
+            orderby cr.DisplayOrder
+            select cr;
+        return await Task.FromResult(query.FirstOrDefault());
+    }
+
+    /// <summary>
+    ///     Gets customer tag product
+    /// </summary>
+    /// <param name="id">id</param>
+    /// <returns>Customer tag product</returns>
+    public virtual Task<CustomerTagProduct> GetCustomerTagProductById(string id)
+    {
+        return _customerTagProductRepository.GetByIdAsync(id);
+    }
+
+    /// <summary>
+    ///     Inserts a customer tag product
+    /// </summary>
+    /// <param name="customerTagProduct">Customer tag product</param>
+    public virtual async Task InsertCustomerTagProduct(CustomerTagProduct customerTagProduct)
+    {
+        ArgumentNullException.ThrowIfNull(customerTagProduct);
+
+        await _customerTagProductRepository.InsertAsync(customerTagProduct);
+
+        //clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
+            customerTagProduct.CustomerTagId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
+
+        //event notification
+        await _mediator.EntityInserted(customerTagProduct);
+    }
+
+    /// <summary>
+    ///     Updates the customer tag product
+    /// </summary>
+    /// <param name="customerTagProduct">Customer tag product</param>
+    public virtual async Task UpdateCustomerTagProduct(CustomerTagProduct customerTagProduct)
+    {
+        ArgumentNullException.ThrowIfNull(customerTagProduct);
+
+        await _customerTagProductRepository.UpdateAsync(customerTagProduct);
+
+        //clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
+            customerTagProduct.CustomerTagId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
+
+        //event notification
+        await _mediator.EntityUpdated(customerTagProduct);
+    }
+
+    /// <summary>
+    ///     Delete a customer tag product
+    /// </summary>
+    /// <param name="customerTagProduct">Customer tag product</param>
+    public virtual async Task DeleteCustomerTagProduct(CustomerTagProduct customerTagProduct)
+    {
+        ArgumentNullException.ThrowIfNull(customerTagProduct);
+
+        await _customerTagProductRepository.DeleteAsync(customerTagProduct);
+
+        //clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
+            customerTagProduct.CustomerTagId));
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
+        //event notification
+        await _mediator.EntityDeleted(customerTagProduct);
+    }
+
+    #endregion
 }
