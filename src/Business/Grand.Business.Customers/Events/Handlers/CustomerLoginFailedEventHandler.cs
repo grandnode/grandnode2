@@ -5,11 +5,11 @@ using MediatR;
 
 namespace Grand.Business.Customers.Events.Handlers;
 
-public class CustomerLoginFailedEventHandler: INotificationHandler<CustomerLoginFailedEvent>
+public class CustomerLoginFailedEventHandler : INotificationHandler<CustomerLoginFailedEvent>
 {
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
-    
+
     public CustomerLoginFailedEventHandler(ICustomerService customerService, CustomerSettings customerSettings)
     {
         _customerService = customerService;
@@ -26,10 +26,12 @@ public class CustomerLoginFailedEventHandler: INotificationHandler<CustomerLogin
                 notification.Customer.FailedLoginAttempts >= _customerSettings.FailedPasswordAllowedAttempts)
             {
                 //lock out
-                notification.Customer.CannotLoginUntilDateUtc = DateTime.UtcNow.AddMinutes(_customerSettings.FailedPasswordLockoutMinutes);
+                notification.Customer.CannotLoginUntilDateUtc =
+                    DateTime.UtcNow.AddMinutes(_customerSettings.FailedPasswordLockoutMinutes);
                 //reset the counter
                 notification.Customer.FailedLoginAttempts = 0;
             }
+
             await _customerService.UpdateCustomerLastLoginDate(notification.Customer);
         }
     }
