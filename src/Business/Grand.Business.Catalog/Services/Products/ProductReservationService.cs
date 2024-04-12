@@ -1,186 +1,188 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Infrastructure.Extensions;
+using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Data;
+using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Catalog.Services.Products
+namespace Grand.Business.Catalog.Services.Products;
+
+/// <summary>
+///     Product reservation service
+/// </summary>
+public class ProductReservationService : IProductReservationService
 {
-    /// <summary>
-    /// Product reservation service
-    /// </summary>
-    public class ProductReservationService : IProductReservationService
+    private readonly IRepository<CustomerReservationsHelper> _customerReservationsHelperRepository;
+    private readonly IMediator _mediator;
+    private readonly IRepository<ProductReservation> _productReservationRepository;
+
+    public ProductReservationService(
+        IRepository<ProductReservation> productReservationRepository,
+        IRepository<CustomerReservationsHelper> customerReservationsHelperRepository,
+        IMediator mediator)
     {
-        private readonly IRepository<ProductReservation> _productReservationRepository;
-        private readonly IRepository<CustomerReservationsHelper> _customerReservationsHelperRepository;
-        private readonly IMediator _mediator;
+        _productReservationRepository = productReservationRepository;
+        _customerReservationsHelperRepository = customerReservationsHelperRepository;
+        _mediator = mediator;
+    }
 
-        public ProductReservationService(
-            IRepository<ProductReservation> productReservationRepository,
-            IRepository<CustomerReservationsHelper> customerReservationsHelperRepository,
-            IMediator mediator)
+
+    /// <summary>
+    ///     Gets product reservations for product Id
+    /// </summary>
+    /// <param name="productId">Product Id</param>
+    /// <param name="showVacant">Show vacant</param>
+    /// <param name="date">Date</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Product reservations</returns>
+    public virtual async Task<IPagedList<ProductReservation>> GetProductReservationsByProductId(string productId,
+        bool? showVacant, DateTime? date,
+        int pageIndex = 0, int pageSize = int.MaxValue)
+    {
+        var query = _productReservationRepository.Table.Where(x => x.ProductId == productId);
+
+        if (showVacant.HasValue)
+            query = showVacant.Value
+                ? query.Where(x => x.OrderId == "" || x.OrderId == null)
+                : query.Where(x => x.OrderId != "" && x.OrderId != null);
+
+        if (date.HasValue)
         {
-            _productReservationRepository = productReservationRepository;
-            _customerReservationsHelperRepository = customerReservationsHelperRepository;
-            _mediator = mediator;
+            var min = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0, 0);
+            var max = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 23, 59, 59, 999);
+
+            query = query.Where(x => x.Date >= min && x.Date <= max);
         }
 
+        query = query.OrderBy(x => x.Date);
+        return await PagedList<ProductReservation>.Create(query, pageIndex, pageSize);
+    }
 
-        /// <summary>
-        /// Gets product reservations for product Id
-        /// </summary>
-        /// <param name="productId">Product Id</param>
-        /// <param name="showVacant">Show vacant</param>
-        /// <param name="date">Date</param>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <returns>Product reservations</returns>
-        public virtual async Task<IPagedList<ProductReservation>> GetProductReservationsByProductId(string productId, bool? showVacant, DateTime? date,
-            int pageIndex = 0, int pageSize = int.MaxValue)
-        {
-            var query = _productReservationRepository.Table.Where(x => x.ProductId == productId);
+    /// <summary>
+    ///     Adds product reservation
+    /// </summary>
+    /// <param name="productReservation">Product reservation</param>
+    public virtual async Task InsertProductReservation(ProductReservation productReservation)
+    {
+        ArgumentNullException.ThrowIfNull(productReservation);
 
-            if (showVacant.HasValue)
-            {
-                query = showVacant.Value ? query.Where(x => x.OrderId == "" || x.OrderId == null) : query.Where(x => x.OrderId != "" && x.OrderId != null);
-            }
+        await _productReservationRepository.InsertAsync(productReservation);
 
-            if (date.HasValue)
-            {
-                var min = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0, 0);
-                var max = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 23, 59, 59, 999);
+        //event
+        await _mediator.EntityInserted(productReservation);
+    }
 
-                query = query.Where(x => x.Date >= min && x.Date <= max);
-            }
+    /// <summary>
+    ///     Updates product reservation
+    /// </summary>
+    /// <param name="productReservation">Product reservation</param>
+    public virtual async Task UpdateProductReservation(ProductReservation productReservation)
+    {
+        ArgumentNullException.ThrowIfNull(productReservation);
 
-            query = query.OrderBy(x => x.Date);
-            return await PagedList<ProductReservation>.Create(query, pageIndex, pageSize);
-        }
+        await _productReservationRepository.UpdateAsync(productReservation);
 
-        /// <summary>
-        /// Adds product reservation
-        /// </summary>
-        /// <param name="productReservation">Product reservation</param>
-        public virtual async Task InsertProductReservation(ProductReservation productReservation)
-        {
-            ArgumentNullException.ThrowIfNull(productReservation);
+        //event
+        await _mediator.EntityUpdated(productReservation);
+    }
 
-            await _productReservationRepository.InsertAsync(productReservation);
+    /// <summary>
+    ///     Deletes a product reservation
+    /// </summary>
+    /// <param name="productReservation">Product reservation</param>
+    public virtual async Task DeleteProductReservation(ProductReservation productReservation)
+    {
+        ArgumentNullException.ThrowIfNull(productReservation);
 
-            //event
-            await _mediator.EntityInserted(productReservation);
-        }
+        await _productReservationRepository.DeleteAsync(productReservation);
 
-        /// <summary>
-        /// Updates product reservation
-        /// </summary>
-        /// <param name="productReservation">Product reservation</param>
-        public virtual async Task UpdateProductReservation(ProductReservation productReservation)
-        {
-            ArgumentNullException.ThrowIfNull(productReservation);
+        //event
+        await _mediator.EntityDeleted(productReservation);
+    }
 
-            await _productReservationRepository.UpdateAsync(productReservation);
+    /// <summary>
+    ///     Gets product reservation for specified Id
+    /// </summary>
+    /// <param name="id">Product ident</param>
+    /// <returns>Product reservation</returns>
+    public virtual Task<ProductReservation> GetProductReservation(string id)
+    {
+        return _productReservationRepository.GetByIdAsync(id);
+    }
 
-            //event
-            await _mediator.EntityUpdated(productReservation);
-        }
+    /// <summary>
+    ///     Adds customer reservations helper
+    /// </summary>
+    /// <param name="crh"></param>
+    public virtual async Task InsertCustomerReservationsHelper(CustomerReservationsHelper crh)
+    {
+        ArgumentNullException.ThrowIfNull(crh);
 
-        /// <summary>
-        /// Deletes a product reservation
-        /// </summary>
-        /// <param name="productReservation">Product reservation</param>
-        public virtual async Task DeleteProductReservation(ProductReservation productReservation)
-        {
-            ArgumentNullException.ThrowIfNull(productReservation);
+        await _customerReservationsHelperRepository.InsertAsync(crh);
 
-            await _productReservationRepository.DeleteAsync(productReservation);
+        //event
+        await _mediator.EntityInserted(crh);
+    }
 
-            //event
-            await _mediator.EntityDeleted(productReservation);
-        }
+    /// <summary>
+    ///     Deletes customer reservations helper
+    /// </summary>
+    /// <param name="crh"></param>
+    public virtual async Task DeleteCustomerReservationsHelper(CustomerReservationsHelper crh)
+    {
+        ArgumentNullException.ThrowIfNull(crh);
 
-        /// <summary>
-        /// Gets product reservation for specified Id
-        /// </summary>
-        /// <param name="id">Product ident</param>
-        /// <returns>Product reservation</returns>
-        public virtual Task<ProductReservation> GetProductReservation(string id)
-        {
-            return _productReservationRepository.GetByIdAsync(id);
-        }
+        await _customerReservationsHelperRepository.DeleteAsync(crh);
 
-        /// <summary>
-        /// Adds customer reservations helper
-        /// </summary>
-        /// <param name="crh"></param>
-        public virtual async Task InsertCustomerReservationsHelper(CustomerReservationsHelper crh)
-        {
-            ArgumentNullException.ThrowIfNull(crh);
-
-            await _customerReservationsHelperRepository.InsertAsync(crh);
-
-            //event
-            await _mediator.EntityInserted(crh);
-        }
-
-        /// <summary>
-        /// Deletes customer reservations helper
-        /// </summary>
-        /// <param name="crh"></param>
-        public virtual async Task DeleteCustomerReservationsHelper(CustomerReservationsHelper crh)
-        {
-            ArgumentNullException.ThrowIfNull(crh);
-
-            await _customerReservationsHelperRepository.DeleteAsync(crh);
-
-            //event
-            await _mediator.EntityDeleted(crh);
-        }
+        //event
+        await _mediator.EntityDeleted(crh);
+    }
 
 
-        /// <summary>
-        /// Cancel reservations by orderId 
-        /// </summary>
-        /// <param name="orderId"></param>
-        public virtual async Task CancelReservationsByOrderId(string orderId)
-        {
-            if (!string.IsNullOrEmpty(orderId))
-            {
-                await _productReservationRepository.UpdateManyAsync(x => x.OrderId == orderId,
+    /// <summary>
+    ///     Cancel reservations by orderId
+    /// </summary>
+    /// <param name="orderId"></param>
+    public virtual async Task CancelReservationsByOrderId(string orderId)
+    {
+        if (!string.IsNullOrEmpty(orderId))
+            await _productReservationRepository.UpdateManyAsync(x => x.OrderId == orderId,
                 UpdateBuilder<ProductReservation>.Create().Set(x => x.OrderId, ""));
-            }
-        }
+    }
 
-        /// <summary>
-        /// Gets customer reservations helper by id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>CustomerReservationsHelper</returns>
-        public virtual Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id)
-        {
-            return _customerReservationsHelperRepository.GetByIdAsync(id);
-        }
+    /// <summary>
+    ///     Gets customer reservations helper by id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>CustomerReservationsHelper</returns>
+    public virtual Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id)
+    {
+        return _customerReservationsHelperRepository.GetByIdAsync(id);
+    }
 
-        /// <summary>
-        /// Gets customer reservations helpers
-        /// </summary>
-        /// <returns>List<CustomerReservationsHelper />
-        /// </returns>
-        public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
-        {
-            return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToList());
-        }
+    /// <summary>
+    ///     Gets customer reservations helpers
+    /// </summary>
+    /// <returns>
+    ///     List<CustomerReservationsHelper />
+    /// </returns>
+    public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
+    {
+        return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId)
+            .ToList());
+    }
 
-        /// <summary>
-        /// Gets customer reservations helper by Shopping Cart Item id
-        /// </summary>
-        /// <param name="sciId">sci ident</param>
-        /// <returns>IList<CustomerReservationsHelper />
-        /// </returns>
-        public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
-        {
-            return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToList());
-        }
+    /// <summary>
+    ///     Gets customer reservations helper by Shopping Cart Item id
+    /// </summary>
+    /// <param name="sciId">sci ident</param>
+    /// <returns>
+    ///     IList<CustomerReservationsHelper />
+    /// </returns>
+    public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
+    {
+        return await Task.FromResult(_customerReservationsHelperRepository.Table
+            .Where(x => x.ShoppingCartItemId == sciId).ToList());
     }
 }

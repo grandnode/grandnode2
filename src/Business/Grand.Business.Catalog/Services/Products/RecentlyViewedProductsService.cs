@@ -1,130 +1,124 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Data;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using Grand.Domain.Catalog;
-using Grand.Data;
 
-namespace Grand.Business.Catalog.Services.Products
+namespace Grand.Business.Catalog.Services.Products;
+
+/// <summary>
+///     Recently viewed products service
+/// </summary>
+public class RecentlyViewedProductsService : IRecentlyViewedProductsService
 {
+    #region Ctor
+
     /// <summary>
-    /// Recently viewed products service
+    ///     Ctor
     /// </summary>
-    public class RecentlyViewedProductsService : IRecentlyViewedProductsService
+    /// <param name="productService">Product service</param>
+    /// <param name="cacheBase">Cache manager</param>
+    /// <param name="catalogSettings">Catalog settings</param>
+    /// <param name="recentlyViewedProducts">Collection recentlyViewedProducts</param>
+    public RecentlyViewedProductsService(
+        IProductService productService,
+        ICacheBase cacheBase,
+        CatalogSettings catalogSettings,
+        IRepository<RecentlyViewedProduct> recentlyViewedProducts)
     {
-        #region Fields
+        _productService = productService;
+        _cacheBase = cacheBase;
+        _catalogSettings = catalogSettings;
+        _recentlyViewedProducts = recentlyViewedProducts;
+    }
 
-        private readonly IProductService _productService;
-        private readonly ICacheBase _cacheBase;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly IRepository<RecentlyViewedProduct> _recentlyViewedProducts;
+    #endregion
 
-        #endregion
+    #region Fields
 
-        #region Ctor
+    private readonly IProductService _productService;
+    private readonly ICacheBase _cacheBase;
+    private readonly CatalogSettings _catalogSettings;
+    private readonly IRepository<RecentlyViewedProduct> _recentlyViewedProducts;
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        /// <param name="productService">Product service</param>
-        /// <param name="cacheBase">Cache manager</param>
-        /// <param name="catalogSettings">Catalog settings</param>
-        /// <param name="recentlyViewedProducts">Collection recentlyViewedProducts</param>
-        public RecentlyViewedProductsService(
-            IProductService productService,
-            ICacheBase cacheBase,
-            CatalogSettings catalogSettings,
-            IRepository<RecentlyViewedProduct> recentlyViewedProducts)
-        {
-            _productService = productService;
-            _cacheBase = cacheBase;
-            _catalogSettings = catalogSettings;
-            _recentlyViewedProducts = recentlyViewedProducts;
-        }
+    #endregion
 
-        #endregion
+    #region Utilities
 
-        #region Utilities
+    protected IList<RecentlyViewedProduct> GetRecentlyViewedProducts(string customerId)
+    {
+        var query = from p in _recentlyViewedProducts.Table
+            where p.CustomerId == customerId
+            orderby p.CreatedOnUtc descending
+            select p;
 
+        return query.ToList();
+    }
 
-        protected IList<RecentlyViewedProduct> GetRecentlyViewedProducts(string customerId)
+    /// <summary>
+    ///     Gets a "recently viewed products" identifier list
+    /// </summary>
+    /// <param name="customerId">Customer ident</param>
+    /// <param name="number">Number of products to load</param>
+    /// <returns>"recently viewed products" list</returns>
+    protected async Task<IList<string>> GetRecentlyViewedProductsIds(string customerId, int number)
+    {
+        var key = string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_KEY, customerId, number);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _recentlyViewedProducts.Table
-                        where p.CustomerId == customerId
-                        orderby p.CreatedOnUtc descending
-                        select p;
-
-            return query.ToList();
-        }
-
-        /// <summary>
-        /// Gets a "recently viewed products" identifier list
-        /// </summary>
-        /// <param name="customerId">Customer ident</param>
-        /// <param name="number">Number of products to load</param>
-        /// <returns>"recently viewed products" list</returns>
-        protected async Task<IList<string>> GetRecentlyViewedProductsIds(string customerId, int number)
-        {
-            var key = string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_KEY, customerId, number);
-            return await _cacheBase.GetAsync(key, async () =>
-            {
-                var query = from p in _recentlyViewedProducts.Table
-                            where p.CustomerId == customerId
-                            orderby p.CreatedOnUtc descending
-                            select p.ProductId;
-                return await Task.FromResult(query.Take(number).ToList());
-            });
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Gets a "recently viewed products" list
-        /// </summary>
-        /// <param name="customerId">Customer ident</param>
-        /// <param name="number">Number of products to load</param>
-        /// <returns>"recently viewed products" list</returns>
-        public virtual async Task<IList<Product>> GetRecentlyViewedProducts(string customerId, int number)
-        {
-            var productIds = await GetRecentlyViewedProductsIds(customerId, number);
-            return (await _productService.GetProductsByIds(productIds.ToArray())).Where(product => product.Published).ToList();
-        }
-
-        /// <summary>
-        /// Adds a product to a recently viewed products list
-        /// </summary>
-        /// <param name="customerId">Customer ident</param>
-        /// <param name="productId">Product identifier</param>
-        public virtual async Task AddProductToRecentlyViewedList(string customerId, string productId)
-        {
-            if (!_catalogSettings.RecentlyViewedProductsEnabled)
-                return;
-
-            var recentlyViewedProducts = GetRecentlyViewedProducts(customerId);
-            var recentlyViewedProduct = recentlyViewedProducts.FirstOrDefault(x => x.ProductId == productId);
-            if (recentlyViewedProduct == null)
-            {
-                await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct { CustomerId = customerId, ProductId = productId });
-            }
-            else
-            {
-                await _recentlyViewedProducts.UpdateAsync(recentlyViewedProduct);
-            }
-            var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
-            if (maxProducts <= 0)
-                maxProducts = 10;
-
-            if (recentlyViewedProducts.Count > _catalogSettings.RecentlyViewedProductsNumber)
-            {
-                await _recentlyViewedProducts.DeleteAsync(recentlyViewedProducts.OrderBy(x => x.CreatedOnUtc).Take(recentlyViewedProducts.Count - _catalogSettings.RecentlyViewedProductsNumber));
-            }
-
-            //Clear cache
-            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_PATTERN_KEY, customerId));
-
-        }
-
-        #endregion
+                where p.CustomerId == customerId
+                orderby p.CreatedOnUtc descending
+                select p.ProductId;
+            return await Task.FromResult(query.Take(number).ToList());
+        });
     }
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    ///     Gets a "recently viewed products" list
+    /// </summary>
+    /// <param name="customerId">Customer ident</param>
+    /// <param name="number">Number of products to load</param>
+    /// <returns>"recently viewed products" list</returns>
+    public virtual async Task<IList<Product>> GetRecentlyViewedProducts(string customerId, int number)
+    {
+        var productIds = await GetRecentlyViewedProductsIds(customerId, number);
+        return (await _productService.GetProductsByIds(productIds.ToArray())).Where(product => product.Published)
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Adds a product to a recently viewed products list
+    /// </summary>
+    /// <param name="customerId">Customer ident</param>
+    /// <param name="productId">Product identifier</param>
+    public virtual async Task AddProductToRecentlyViewedList(string customerId, string productId)
+    {
+        if (!_catalogSettings.RecentlyViewedProductsEnabled)
+            return;
+
+        var recentlyViewedProducts = GetRecentlyViewedProducts(customerId);
+        var recentlyViewedProduct = recentlyViewedProducts.FirstOrDefault(x => x.ProductId == productId);
+        if (recentlyViewedProduct == null)
+            await _recentlyViewedProducts.InsertAsync(new RecentlyViewedProduct
+                { CustomerId = customerId, ProductId = productId });
+        else
+            await _recentlyViewedProducts.UpdateAsync(recentlyViewedProduct);
+        var maxProducts = _catalogSettings.RecentlyViewedProductsNumber;
+        if (maxProducts <= 0)
+            maxProducts = 10;
+
+        if (recentlyViewedProducts.Count > _catalogSettings.RecentlyViewedProductsNumber)
+            await _recentlyViewedProducts.DeleteAsync(recentlyViewedProducts.OrderBy(x => x.CreatedOnUtc)
+                .Take(recentlyViewedProducts.Count - _catalogSettings.RecentlyViewedProductsNumber));
+
+        //Clear cache
+        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.RECENTLY_VIEW_PRODUCTS_PATTERN_KEY, customerId));
+    }
+
+    #endregion
 }

@@ -14,12 +14,12 @@ namespace Grand.Business.Catalog.Services.Discounts;
 
 public class DiscountValidationService : IDiscountValidationService
 {
+    private readonly IRepository<DiscountCoupon> _discountCouponRepository;
     private readonly IDiscountProviderLoader _discountProviderLoader;
     private readonly IMediator _mediator;
-    private readonly IRepository<DiscountCoupon> _discountCouponRepository;
-    
+
     public DiscountValidationService(
-        IDiscountProviderLoader discountProviderLoader, 
+        IDiscountProviderLoader discountProviderLoader,
         IRepository<DiscountCoupon> discountCouponRepository,
         IMediator mediator)
     {
@@ -29,14 +29,15 @@ public class DiscountValidationService : IDiscountValidationService
     }
 
     /// <summary>
-    /// Validate discount
+    ///     Validate discount
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
     /// <param name="store">Store</param>
     /// <param name="currency">Currency</param>
     /// <returns>Discount validation result</returns>
-    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Store store,
+    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
+        Store store,
         Currency currency)
     {
         ArgumentNullException.ThrowIfNull(discount);
@@ -49,7 +50,7 @@ public class DiscountValidationService : IDiscountValidationService
     }
 
     /// <summary>
-    /// Validate discount
+    ///     Validate discount
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
@@ -69,7 +70,7 @@ public class DiscountValidationService : IDiscountValidationService
     }
 
     /// <summary>
-    /// Validate discount
+    ///     Validate discount
     /// </summary>
     /// <param name="discount">Discount</param>
     /// <param name="customer">Customer</param>
@@ -77,7 +78,8 @@ public class DiscountValidationService : IDiscountValidationService
     /// <param name="currency">Currency</param>
     /// <param name="couponCodesToValidate">Coupon codes</param>
     /// <returns>Discount validation result</returns>
-    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer, Store store,
+    public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
+        Store store,
         Currency currency, string[] couponCodesToValidate)
     {
         ArgumentNullException.ThrowIfNull(discount);
@@ -90,10 +92,10 @@ public class DiscountValidationService : IDiscountValidationService
             return result;
 
         //time range check
-        DateTime now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
         if (discount.StartDateUtc.HasValue)
         {
-            DateTime startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
+            var startDate = DateTime.SpecifyKind(discount.StartDateUtc.Value, DateTimeKind.Utc);
             if (startDate.CompareTo(now) > 0)
             {
                 result.UserErrorResource = "ShoppingCart.Discount.NotStartedYet";
@@ -103,7 +105,7 @@ public class DiscountValidationService : IDiscountValidationService
 
         if (discount.EndDateUtc.HasValue)
         {
-            DateTime endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(discount.EndDateUtc.Value, DateTimeKind.Utc);
             if (endDate.CompareTo(now) < 0)
             {
                 result.UserErrorResource = "ShoppingCart.Discount.Expired";
@@ -125,7 +127,6 @@ public class DiscountValidationService : IDiscountValidationService
                 return result;
             var exists = false;
             foreach (var item in couponCodesToValidate)
-            {
                 if (discount.Reused)
                 {
                     if (!await ExistsCodeInDiscount(item, discount.Id, null)) continue;
@@ -138,7 +139,6 @@ public class DiscountValidationService : IDiscountValidationService
                     result.CouponCode = item;
                     exists = true;
                 }
-            }
 
             if (!exists)
                 return result;
@@ -163,14 +163,16 @@ public class DiscountValidationService : IDiscountValidationService
         {
             case DiscountLimitationType.NTimes:
             {
-                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = discount.Id, PageSize = 1 });
+                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery
+                    { DiscountId = discount.Id, PageSize = 1 });
                 if (usedTimes.TotalCount >= discount.LimitationTimes)
                     return result;
             }
                 break;
             case DiscountLimitationType.NTimesPerUser:
             {
-                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = discount.Id, CustomerId = customer.Id, PageSize = 1 });
+                var usedTimes = await _mediator.Send(new GetDiscountUsageHistoryQuery
+                    { DiscountId = discount.Id, CustomerId = customer.Id, PageSize = 1 });
                 if (usedTimes.TotalCount >= discount.LimitationTimes)
                 {
                     result.UserErrorResource = "ShoppingCart.Discount.CannotBeUsedAnymore";
@@ -218,7 +220,7 @@ public class DiscountValidationService : IDiscountValidationService
     }
 
     /// <summary>
-    /// Exist coupon code in discount
+    ///     Exist coupon code in discount
     /// </summary>
     /// <param name="couponCode"></param>
     /// <param name="discountId"></param>

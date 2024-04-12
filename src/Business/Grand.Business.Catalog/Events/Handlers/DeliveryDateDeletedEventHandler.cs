@@ -1,24 +1,23 @@
-﻿using Grand.Domain.Catalog;
-using Grand.Data;
+﻿using Grand.Data;
+using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Catalog.Events.Handlers
+namespace Grand.Business.Catalog.Events.Handlers;
+
+public class DeliveryDateDeletedEventHandler : INotificationHandler<EntityDeleted<DeliveryDate>>
 {
-    public class DeliveryDateDeletedEventHandler : INotificationHandler<EntityDeleted<DeliveryDate>>
+    private readonly IRepository<Product> _productRepository;
+
+    public DeliveryDateDeletedEventHandler(IRepository<Product> productRepository)
     {
-        private readonly IRepository<Product> _productRepository;
+        _productRepository = productRepository;
+    }
 
-        public DeliveryDateDeletedEventHandler(IRepository<Product> productRepository)
-        {
-            _productRepository = productRepository;
-        }
-
-        public async Task Handle(EntityDeleted<DeliveryDate> notification, CancellationToken cancellationToken)
-        {
-            await _productRepository.UpdateManyAsync(x => x.DeliveryDateId == notification.Entity.Id,
-                        UpdateBuilder<Product>.Create().Set(x => x.DeliveryDateId, ""));
-        }
+    public async Task Handle(EntityDeleted<DeliveryDate> notification, CancellationToken cancellationToken)
+    {
+        await _productRepository.UpdateManyAsync(x => x.DeliveryDateId == notification.Entity.Id,
+            UpdateBuilder<Product>.Create().Set(x => x.DeliveryDateId, ""));
     }
 }

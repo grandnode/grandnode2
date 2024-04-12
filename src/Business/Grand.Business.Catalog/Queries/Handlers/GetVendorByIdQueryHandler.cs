@@ -3,20 +3,21 @@ using Grand.Data;
 using Grand.Domain.Vendors;
 using MediatR;
 
-namespace Grand.Business.Catalog.Queries.Handlers
+namespace Grand.Business.Catalog.Queries.Handlers;
+
+public class GetVendorByIdQueryHandler : IRequestHandler<GetVendorByIdQuery, Vendor>
 {
-    public class GetVendorByIdQueryHandler : IRequestHandler<GetVendorByIdQuery, Vendor>
+    private readonly IRepository<Vendor> _vendorRepository;
+
+    public GetVendorByIdQueryHandler(IRepository<Vendor> vendorRepository)
     {
-        private readonly IRepository<Vendor> _vendorRepository;
+        _vendorRepository = vendorRepository;
+    }
 
-        public GetVendorByIdQueryHandler(IRepository<Vendor> vendorRepository)
-        {
-            _vendorRepository = vendorRepository;
-        }
-
-        public Task<Vendor> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
-        {
-            return string.IsNullOrWhiteSpace(request.Id) ? Task.FromResult<Vendor>(null) : _vendorRepository.GetByIdAsync(request.Id);
-        }
+    public Task<Vendor> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
+    {
+        return string.IsNullOrWhiteSpace(request.Id)
+            ? Task.FromResult<Vendor>(null)
+            : _vendorRepository.GetByIdAsync(request.Id);
     }
 }
