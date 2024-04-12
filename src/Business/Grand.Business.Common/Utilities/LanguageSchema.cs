@@ -2,7 +2,7 @@
 
 public static class LanguageSchema
 {
-  public const string SchemaXsd = @"
+    public const string SchemaXsd = @"
     <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
       <xs:element name='Language'>
         <xs:complexType>
