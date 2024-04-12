@@ -1,48 +1,51 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-	</PropertyGroup>
-	<PropertyGroup>
-		<Product>grandnode</Product>
-		<PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>   
-		<RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
-		<PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/main/LICENSE</PackageLicenseUrl>
-		<RepositoryType>Git</RepositoryType>
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugSymbols>false</DebugSymbols>
-		<DebugType>none</DebugType>
-		<Optimize>true</Optimize>
-	</PropertyGroup>
-	<ItemGroup>
-		<Using Include="System"/>
-		<Using Include="System.Collections.Generic"/>
-		<Using Include="System.IO"/>
-		<Using Include="System.Text"/>
-		<Using Include="System.Linq"/>
-		<Using Include="System.Threading"/>
-		<Using Include="System.Threading.Tasks"/>
-	</ItemGroup>
-	<Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation" Condition="'$(SourceRevisionId)'==''">
-		<Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True" IgnoreExitCode="True">
-			<Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput" />
-		</Exec>
-	</Target>
-	<Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation" Condition="'$(GitBranch)'==''">
-		<Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="True" IgnoreExitCode="True">
-			<Output PropertyName="branch" TaskParameter="ConsoleOutput" />
-		</Exec>
-		<ItemGroup>
-			<AssemblyMetadata Include="GitBranch" Value="$(branch)" />
-		</ItemGroup>
-	</Target>
-	<ItemGroup Condition="'$(GitBranch)'!=''">
-		<AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" />
-	</ItemGroup>
-	<Target Name="SetVersion" BeforeTargets="PrepareForBuild">
-		<PropertyGroup>
-			<Version>2.2.0-beta</Version>
-		</PropertyGroup>
-	</Target>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Product>grandnode</Product>
+        <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
+        <PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryType>Git</RepositoryType>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>none</DebugType>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.IO" />
+        <Using Include="System.Text" />
+        <Using Include="System.Linq" />
+        <Using Include="System.Threading" />
+        <Using Include="System.Threading.Tasks" />
+    </ItemGroup>
+    <Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation"
+            Condition="'$(SourceRevisionId)'==''">
+        <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True"
+              IgnoreExitCode="True">
+            <Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput" />
+        </Exec>
+    </Target>
+    <Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation"
+            Condition="'$(GitBranch)'==''">
+        <Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="True" IgnoreExitCode="True">
+            <Output PropertyName="branch" TaskParameter="ConsoleOutput" />
+        </Exec>
+        <ItemGroup>
+            <AssemblyMetadata Include="GitBranch" Value="$(branch)" />
+        </ItemGroup>
+    </Target>
+    <ItemGroup Condition="'$(GitBranch)'!=''">
+        <AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" />
+    </ItemGroup>
+    <Target Name="SetVersion" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <Version>2.2.0-beta</Version>
+        </PropertyGroup>
+    </Target>
 </Project>
