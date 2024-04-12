@@ -1,32 +1,29 @@
 ﻿using Grand.Domain.Affiliates;
 using Grand.Domain.Common;
 
-namespace Grand.Business.System.Services.Installation
+namespace Grand.Business.System.Services.Installation;
+
+public partial class InstallationService
 {
-    public partial class InstallationService
+    protected virtual async Task InstallAffiliates()
     {
-        protected virtual async Task InstallAffiliates()
-        {
-            var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "USA");
-            var affiliateAddress = new Address
-            {
-                FirstName = "John",
-                LastName = "Smith",
-                Email = "affiliate_email@gmail.com",
-                Company = "Company name here...",
-                City = "New York",
-                Address1 = "21 West 52nd Street",
-                ZipPostalCode = "10021",
-                PhoneNumber = "123456789",
-                StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
-                CountryId = country?.Id,
-            };
-            var affilate = new Affiliate
-            {
-                Active = true,
-                Address = affiliateAddress
-            };
-            await _affiliateRepository.InsertAsync(affilate);
-        }
+        var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "USA");
+        var affiliateAddress = new Address {
+            FirstName = "John",
+            LastName = "Smith",
+            Email = "affiliate_email@gmail.com",
+            Company = "Company name here...",
+            City = "New York",
+            Address1 = "21 West 52nd Street",
+            ZipPostalCode = "10021",
+            PhoneNumber = "123456789",
+            StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
+            CountryId = country?.Id
+        };
+        var affilate = new Affiliate {
+            Active = true,
+            Address = affiliateAddress
+        };
+        await _affiliateRepository.InsertAsync(affilate);
     }
 }

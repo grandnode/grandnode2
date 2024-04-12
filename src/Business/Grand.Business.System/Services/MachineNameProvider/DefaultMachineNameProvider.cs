@@ -1,19 +1,19 @@
 ﻿//Contribution: Orchard project (http://www.orchardproject.net/)
+
 using Grand.Business.Core.Interfaces.System.MachineNameProvider;
 
-namespace Grand.Business.System.Services.MachineNameProvider
+namespace Grand.Business.System.Services.MachineNameProvider;
+
+/// <summary>
+///     Default machine name provider
+/// </summary>
+public class DefaultMachineNameProvider : IMachineNameProvider
 {
     /// <summary>
-    /// Default machine name provider
+    ///     Returns the name of the machine (instance) running the application.
     /// </summary>
-    public class DefaultMachineNameProvider : IMachineNameProvider
+    public string GetMachineName()
     {
-        /// <summary>
-        /// Returns the name of the machine (instance) running the application.
-        /// </summary>
-        public string GetMachineName()
-        {
-            return Environment.MachineName;
-        }
+        return Environment.MachineName;
     }
 }

@@ -1,56 +1,46 @@
 ﻿using Grand.Domain.Catalog;
 
-namespace Grand.Business.System.Services.Installation
+namespace Grand.Business.System.Services.Installation;
+
+public partial class InstallationService
 {
-    public partial class InstallationService
+    protected virtual Task InstallProductAttributes()
     {
-        protected virtual Task InstallProductAttributes()
-        {
-            var productAttributes = new List<ProductAttribute>
-            {
-                new ProductAttribute
-                {
-                    Name = "Color",
-                    SeName = "color"
-                },
-                new ProductAttribute
-                {
-                    Name = "Custom Text",
-                    SeName = "custom-text"
-                },
-                new ProductAttribute
-                {
-                    Name = "HDD",
-                    SeName = "hdd"
-                },
-                new ProductAttribute
-                {
-                    Name = "OS",
-                    SeName = "os"
-                },
-                new ProductAttribute
-                {
-                    Name = "Processor",
-                    SeName  = "processor"
-                },
-                new ProductAttribute
-                {
-                    Name = "RAM",
-                    SeName = "ram"
-                },
-                new ProductAttribute
-                {
-                    Name = "Size",
-                    SeName = "size"
-                },
-                new ProductAttribute
-                {
-                    Name = "Software",
-                    SeName = "software"
-                }
-            };
-            productAttributes.ForEach(x=>_productAttributeRepository.Insert(x));
-            return Task.CompletedTask;
-        }
+        var productAttributes = new List<ProductAttribute> {
+            new() {
+                Name = "Color",
+                SeName = "color"
+            },
+            new() {
+                Name = "Custom Text",
+                SeName = "custom-text"
+            },
+            new() {
+                Name = "HDD",
+                SeName = "hdd"
+            },
+            new() {
+                Name = "OS",
+                SeName = "os"
+            },
+            new() {
+                Name = "Processor",
+                SeName = "processor"
+            },
+            new() {
+                Name = "RAM",
+                SeName = "ram"
+            },
+            new() {
+                Name = "Size",
+                SeName = "size"
+            },
+            new() {
+                Name = "Software",
+                SeName = "software"
+            }
+        };
+        productAttributes.ForEach(x => _productAttributeRepository.Insert(x));
+        return Task.CompletedTask;
     }
 }
