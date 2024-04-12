@@ -1,86 +1,86 @@
 ﻿using Grand.Domain;
+using Grand.Domain.Common;
 using LiteDB;
 
-namespace Grand.Data.LiteDb
+namespace Grand.Data.LiteDb;
+
+public class LiteDBContext : IDatabaseContext
 {
-    public class LiteDBContext : IDatabaseContext
-    {        
-        protected LiteDatabase _database;
+    protected LiteDatabase _database;
 
-        public LiteDBContext(LiteDatabase database)
-        {
-            _database = database;
-        }
+    public LiteDBContext(LiteDatabase database)
+    {
+        _database = database;
+    }
 
-        public void SetConnection(string connectionString)
-        {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
+    public void SetConnection(string connectionString)
+    {
+        if (string.IsNullOrEmpty(connectionString))
+            throw new ArgumentNullException(nameof(connectionString));
+    }
 
-        }
+    //Not supported by LiteDB
+    public bool InstallProcessCreateTable => false;
+    public bool InstallProcessCreateIndex => true;
+
+    public IQueryable<T> Table<T>(string collectionName)
+    {
+        if (string.IsNullOrEmpty(collectionName))
+            throw new ArgumentNullException(nameof(collectionName));
+
+        return _database.GetCollection<T>(collectionName).FindAll().AsQueryable();
+    }
+
+    public async Task<bool> DatabaseExist()
+    {
+        return await Task.FromResult(_database.CollectionExists(nameof(GrandNodeVersion)));
+    }
+
+    public Task CreateTable(string name, string collation)
+    {
         //Not supported by LiteDB
-        public bool InstallProcessCreateTable => false;
-        public bool InstallProcessCreateIndex => true;
+        return Task.CompletedTask;
+    }
 
-        public IQueryable<T> Table<T>(string collectionName)
+    public Task DeleteTable(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(nameof(name));
+
+        _database.DropCollection(name);
+
+        return Task.CompletedTask;
+    }
+
+    public Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
+        bool unique = false) where T : BaseEntity
+    {
+        if (string.IsNullOrEmpty(indexName))
+            throw new ArgumentNullException(nameof(indexName));
+        try
         {
-            if (string.IsNullOrEmpty(collectionName))
-                throw new ArgumentNullException(nameof(collectionName));
-
-            return _database.GetCollection<T>(collectionName).FindAll().AsQueryable();
-        }
-
-        public async Task<bool> DatabaseExist()
-        {
-            return await Task.FromResult(_database.CollectionExists(nameof(Grand.Domain.Common.GrandNodeVersion)));
-        }
-
-        public Task CreateTable(string name, string collation)
-        {
-            //Not supported by LiteDB
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteTable(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
-
-            _database.DropCollection(name);
-
-            return Task.CompletedTask;
-        }
-
-        public Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false) where T : BaseEntity
-        {
-            if (string.IsNullOrEmpty(indexName))
-                throw new ArgumentNullException(nameof(indexName));
-            try
+            foreach (var (selector, value, fieldName) in orderBuilder?.Fields)
             {
-                foreach (var (selector, value, fieldName) in orderBuilder?.Fields)
-                {
-                    var col = _database.GetCollection<T>();
-                    if (selector != null)
-                        col.EnsureIndex(selector, unique);
-                }
+                var col = _database.GetCollection<T>();
+                if (selector != null)
+                    col.EnsureIndex(selector, unique);
             }
-            catch { }
-
-            return Task.CompletedTask;
         }
+        catch { }
 
-        public Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    {
+        if (string.IsNullOrEmpty(indexName))
+            throw new ArgumentNullException(nameof(indexName));
+        try
         {
-
-            if (string.IsNullOrEmpty(indexName))
-                throw new ArgumentNullException(nameof(indexName));
-            try
-            {
-                _database.GetCollection<T>().DropIndex(indexName);
-            }
-            catch { }
-
-            return Task.CompletedTask;
+            _database.GetCollection<T>().DropIndex(indexName);
         }
+        catch { }
+
+        return Task.CompletedTask;
     }
 }
