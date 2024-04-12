@@ -1,25 +1,27 @@
-namespace Grand.Domain.Orders
+namespace Grand.Domain.Orders;
+
+/// <summary>
+///     Represents an order status enumeration
+/// </summary>
+public enum OrderStatusSystem
 {
     /// <summary>
-    /// Represents an order status enumeration
+    ///     Pending
     /// </summary>
-    public enum OrderStatusSystem
-    {
-        /// <summary>
-        /// Pending
-        /// </summary>
-        Pending = 10,
-        /// <summary>
-        /// Processing
-        /// </summary>
-        Processing = 20,
-        /// <summary>
-        /// Complete
-        /// </summary>
-        Complete = 30,
-        /// <summary>
-        /// Cancelled
-        /// </summary>
-        Cancelled = 40
-    }
+    Pending = 10,
+
+    /// <summary>
+    ///     Processing
+    /// </summary>
+    Processing = 20,
+
+    /// <summary>
+    ///     Complete
+    /// </summary>
+    Complete = 30,
+
+    /// <summary>
+    ///     Cancelled
+    /// </summary>
+    Cancelled = 40
 }

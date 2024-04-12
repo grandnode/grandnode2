@@ -1,9 +1,8 @@
 ﻿using MongoDB.Bson;
 
-namespace Grand.Domain
+namespace Grand.Domain;
+
+public static class UniqueIdentifier
 {
-    public static class UniqueIdentifier
-    {
-        public static string New => ObjectId.GenerateNewId().ToString();
-    }
+    public static string New => ObjectId.GenerateNewId().ToString();
 }

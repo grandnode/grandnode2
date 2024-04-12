@@ -1,26 +1,29 @@
-﻿namespace Grand.Domain.Documents
+﻿namespace Grand.Domain.Documents;
+
+public enum DocumentStatus
 {
-    public enum DocumentStatus
-    {
-        /// <summary>
-        /// Open 
-        /// </summary>
-        Open = 0,
-        /// <summary>
-        /// Processing
-        /// </summary>
-        Processing = 10,
-        /// <summary>
-        /// Approved
-        /// </summary>
-        Approved = 20,
-        /// <summary>
-        /// Closed
-        /// </summary>
-        Closed = 30,
-        /// <summary>
-        /// Canceled
-        /// </summary>
-        Cancelled = 40
-    }
+    /// <summary>
+    ///     Open
+    /// </summary>
+    Open = 0,
+
+    /// <summary>
+    ///     Processing
+    /// </summary>
+    Processing = 10,
+
+    /// <summary>
+    ///     Approved
+    /// </summary>
+    Approved = 20,
+
+    /// <summary>
+    ///     Closed
+    /// </summary>
+    Closed = 30,
+
+    /// <summary>
+    ///     Canceled
+    /// </summary>
+    Cancelled = 40
 }

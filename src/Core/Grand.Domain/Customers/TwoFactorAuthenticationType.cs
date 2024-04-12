@@ -1,18 +1,19 @@
-﻿namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers;
+
+public enum TwoFactorAuthenticationType
 {
-    public enum TwoFactorAuthenticationType
-    {
-        /// <summary>
-        /// Google/MS authenticator
-        /// </summary>
-        AppVerification = 0,
-        /// <summary>
-        /// Email verification
-        /// </summary>
-        EmailVerification = 1,
-        /// <summary>
-        /// SMS verification
-        /// </summary>
-        SMSVerification = 2
-    }
+    /// <summary>
+    ///     Google/MS authenticator
+    /// </summary>
+    AppVerification = 0,
+
+    /// <summary>
+    ///     Email verification
+    /// </summary>
+    EmailVerification = 1,
+
+    /// <summary>
+    ///     SMS verification
+    /// </summary>
+    SMSVerification = 2
 }

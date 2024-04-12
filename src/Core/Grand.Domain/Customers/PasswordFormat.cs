@@ -1,9 +1,8 @@
-﻿namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers;
+
+public enum PasswordFormat
 {
-    public enum PasswordFormat
-    {
-        Clear = 0,
-        Hashed = 1,
-        Encrypted = 2
-    }
+    Clear = 0,
+    Hashed = 1,
+    Encrypted = 2
 }

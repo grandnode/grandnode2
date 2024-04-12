@@ -1,23 +1,22 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Domain.Customers
+namespace Grand.Domain.Customers;
+
+/// <summary>
+///     External authentication settings
+/// </summary>
+public class ExternalAuthenticationSettings : ISettings
 {
     /// <summary>
-    /// External authentication settings
+    ///     Constructor
     /// </summary>
-    public class ExternalAuthenticationSettings : ISettings
+    public ExternalAuthenticationSettings()
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public ExternalAuthenticationSettings()
-        {
-            ActiveAuthenticationMethodSystemNames = new List<string>();
-        }
-               
-        /// <summary>
-        /// Gets or sets system names of active payment methods
-        /// </summary>
-        public List<string> ActiveAuthenticationMethodSystemNames { get; set; }
+        ActiveAuthenticationMethodSystemNames = new List<string>();
     }
+
+    /// <summary>
+    ///     Gets or sets system names of active payment methods
+    /// </summary>
+    public List<string> ActiveAuthenticationMethodSystemNames { get; set; }
 }

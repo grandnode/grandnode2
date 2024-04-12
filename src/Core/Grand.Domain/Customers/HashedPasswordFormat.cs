@@ -1,10 +1,9 @@
-﻿namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers;
+
+public enum HashedPasswordFormat
 {
-    public enum HashedPasswordFormat
-    {
-        SHA1,
-        SHA256,
-        SHA384,
-        SHA512
-    }
+    SHA1,
+    SHA256,
+    SHA384,
+    SHA512
 }

@@ -1,9 +1,8 @@
-﻿namespace Grand.Domain.Orders
-{
-    public class OrderTax : SubBaseEntity
-    {
-        public double Percent { get; set; }
+﻿namespace Grand.Domain.Orders;
 
-        public double Amount { get; set; }
-    }
+public class OrderTax : SubBaseEntity
+{
+    public double Percent { get; set; }
+
+    public double Amount { get; set; }
 }

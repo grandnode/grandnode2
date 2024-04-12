@@ -1,9 +1,8 @@
-﻿namespace Grand.Domain.Configuration
+﻿namespace Grand.Domain.Configuration;
+
+/// <summary>
+///     Setting interface
+/// </summary>
+public interface ISettings
 {
-    /// <summary>
-    /// Setting interface
-    /// </summary>
-    public interface ISettings
-    {
-    }
 }

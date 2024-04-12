@@ -1,9 +1,8 @@
-﻿namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers;
+
+public class CustomerProductPrice : BaseEntity
 {
-    public class CustomerProductPrice: BaseEntity
-    {
-        public string CustomerId { get; set; }
-        public string ProductId { get; set; }
-        public double Price { get; set; }
-    }
+    public string CustomerId { get; set; }
+    public string ProductId { get; set; }
+    public double Price { get; set; }
 }

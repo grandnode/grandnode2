@@ -1,22 +1,19 @@
 using Grand.SharedKernel.Attributes;
 
-namespace Grand.Domain
+namespace Grand.Domain;
+
+public abstract class ParentEntity
 {
-    public abstract class ParentEntity
+    private string _id;
+
+    protected ParentEntity()
     {
-        protected ParentEntity()
-        {
-            _id = UniqueIdentifier.New;
-        }
+        _id = UniqueIdentifier.New;
+    }
 
-        [DBFieldName("_id")]
-        public string Id
-        {
-            get => _id;
-            set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;
-        }
-
-        private string _id;
-
+    [DBFieldName("_id")]
+    public string Id {
+        get => _id;
+        set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;
     }
 }

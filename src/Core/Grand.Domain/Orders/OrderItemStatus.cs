@@ -1,8 +1,7 @@
-﻿namespace Grand.Domain.Orders
+﻿namespace Grand.Domain.Orders;
+
+public enum OrderItemStatus
 {
-    public enum OrderItemStatus
-    {
-        Open = 0,
-        Close = 1
-    }
+    Open = 0,
+    Close = 1
 }

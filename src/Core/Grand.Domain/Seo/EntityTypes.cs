@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Seo;
+﻿using Grand.Domain.Knowledgebase;
+
+namespace Grand.Domain.Seo;
 
 public struct EntityTypes
 {
@@ -10,8 +12,7 @@ public struct EntityTypes
     public const string NewsItem = nameof(News.NewsItem);
     public const string BlogPost = nameof(Blogs.BlogPost);
     public const string Page = nameof(Pages.Page);
-    public const string KnowledgeBaseArticle = nameof(Knowledgebase.KnowledgebaseArticle);
-    public const string KnowledgeBaseCategory = nameof(Knowledgebase.KnowledgebaseCategory);
+    public const string KnowledgeBaseArticle = nameof(KnowledgebaseArticle);
+    public const string KnowledgeBaseCategory = nameof(KnowledgebaseCategory);
     public const string Course = nameof(Courses.Course);
-
 }

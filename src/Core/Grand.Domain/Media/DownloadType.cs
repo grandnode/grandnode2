@@ -3,55 +3,67 @@
 public enum DownloadType
 {
     /// <summary>
-    /// None
+    ///     None
     /// </summary>
     None = 0,
+
     /// <summary>
-    /// Product
+    ///     Product
     /// </summary>
     Product = 10,
+
     /// <summary>
-    /// Customer
+    ///     Customer
     /// </summary>
     Customer = 20,
+
     /// <summary>
-    /// Order
+    ///     Order
     /// </summary>
     Order = 30,
+
     /// <summary>
-    /// Shipment
+    ///     Shipment
     /// </summary>
     Shipment = 40,
+
     /// <summary>
-    /// Shipment
+    ///     Shipment
     /// </summary>
     MerchandiseReturn = 50,
+
     /// <summary>
-    /// Document
+    ///     Document
     /// </summary>
     Document = 60,
+
     /// <summary>
-    /// Course
+    ///     Course
     /// </summary>
     Course = 70,
+
     /// <summary>
-    /// Product attribute
+    ///     Product attribute
     /// </summary>
     ProductAttribute = 80,
+
     /// <summary>
-    /// Checkout attribute
+    ///     Checkout attribute
     /// </summary>
     CheckoutAttribute = 81,
+
     /// <summary>
-    /// Contact attribute
+    ///     Contact attribute
     /// </summary>
     ContactAttribute = 82,
+
     /// <summary>
-    /// Message template
+    ///     Message template
     /// </summary>
     MessageTemplate = 90,
+
     /// <summary>
-    /// Queued email
+    ///     Queued email
     /// </summary>
     QueuedEmail = 91
 }

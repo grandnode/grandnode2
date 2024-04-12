@@ -1,10 +1,9 @@
-namespace Grand.Domain.Seo
+namespace Grand.Domain.Seo;
+
+/// <summary>
+///     Represents an entity which use slug
+/// </summary>
+public interface ISlugEntity
 {
-    /// <summary>
-    /// Represents an entity which use slug
-    /// </summary>
-    public interface ISlugEntity
-    {
-        string SeName { get; set; }
-    }
+    string SeName { get; set; }
 }

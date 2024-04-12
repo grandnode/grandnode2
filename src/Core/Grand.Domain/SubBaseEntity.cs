@@ -1,8 +1,5 @@
-namespace Grand.Domain
+namespace Grand.Domain;
+
+public abstract class SubBaseEntity : ParentEntity
 {
-
-    public abstract class SubBaseEntity : ParentEntity
-    {
-
-    }
 }

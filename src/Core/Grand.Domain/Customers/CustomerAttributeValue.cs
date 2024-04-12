@@ -1,36 +1,34 @@
 using Grand.Domain.Localization;
 
-namespace Grand.Domain.Customers
+namespace Grand.Domain.Customers;
+
+/// <summary>
+///     Represents a customer attribute value
+/// </summary>
+public class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
 {
     /// <summary>
-    /// Represents a customer attribute value
+    ///     Gets or sets the customer attribute identifier
     /// </summary>
-    public class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
-    {
-        /// <summary>
-        /// Gets or sets the customer attribute identifier
-        /// </summary>
-        public string CustomerAttributeId { get; set; }
+    public string CustomerAttributeId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the checkout attribute name
-        /// </summary>
-        public string Name { get; set; }
+    /// <summary>
+    ///     Gets or sets the checkout attribute name
+    /// </summary>
+    public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the value is pre-selected
-        /// </summary>
-        public bool IsPreSelected { get; set; }
+    /// <summary>
+    ///     Gets or sets a value indicating whether the value is pre-selected
+    /// </summary>
+    public bool IsPreSelected { get; set; }
 
-        /// <summary>
-        /// Gets or sets the display order
-        /// </summary>
-        public int DisplayOrder { get; set; }
+    /// <summary>
+    ///     Gets or sets the display order
+    /// </summary>
+    public int DisplayOrder { get; set; }
 
-        /// <summary>
-        /// Gets or sets the collection of locales
-        /// </summary>
-        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
-    }
-
+    /// <summary>
+    ///     Gets or sets the collection of locales
+    /// </summary>
+    public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 }

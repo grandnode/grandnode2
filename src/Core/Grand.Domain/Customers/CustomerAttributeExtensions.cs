@@ -1,30 +1,29 @@
 using Grand.Domain.Catalog;
 
-namespace Grand.Domain.Customers
+namespace Grand.Domain.Customers;
+
+/// <summary>
+///     Extensions
+/// </summary>
+public static class CustomerAttributeExtensions
 {
     /// <summary>
-    /// Extensions
+    ///     A value indicating whether this customer attribute should have values
     /// </summary>
-    public static class CustomerAttributeExtensions
+    /// <param name="customerAttribute">Customer attribute</param>
+    /// <returns>Result</returns>
+    public static bool ShouldHaveValues(this CustomerAttribute customerAttribute)
     {
-        /// <summary>
-        /// A value indicating whether this customer attribute should have values
-        /// </summary>
-        /// <param name="customerAttribute">Customer attribute</param>
-        /// <returns>Result</returns>
-        public static bool ShouldHaveValues(this CustomerAttribute customerAttribute)
-        {
-            if (customerAttribute == null)
-                return false;
+        if (customerAttribute == null)
+            return false;
 
-            if (customerAttribute.AttributeControlTypeId == AttributeControlType.TextBox ||
-                customerAttribute.AttributeControlTypeId == AttributeControlType.MultilineTextbox ||
-                customerAttribute.AttributeControlTypeId == AttributeControlType.Datepicker ||
-                customerAttribute.AttributeControlTypeId == AttributeControlType.FileUpload)
-                return false;
+        if (customerAttribute.AttributeControlTypeId == AttributeControlType.TextBox ||
+            customerAttribute.AttributeControlTypeId == AttributeControlType.MultilineTextbox ||
+            customerAttribute.AttributeControlTypeId == AttributeControlType.Datepicker ||
+            customerAttribute.AttributeControlTypeId == AttributeControlType.FileUpload)
+            return false;
 
-            //other attribute controle types support values
-            return true;
-        }
+        //other attribute controle types support values
+        return true;
     }
 }

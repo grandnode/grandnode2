@@ -1,34 +1,32 @@
-namespace Grand.Domain.Discounts
+namespace Grand.Domain.Discounts;
+
+/// <summary>
+///     Represents a discount usage history entry
+/// </summary>
+public class DiscountUsageHistory : BaseEntity
 {
     /// <summary>
-    /// Represents a discount usage history entry
+    ///     Gets or sets the discount identifier
     /// </summary>
-    public class DiscountUsageHistory : BaseEntity
-    {
-        /// <summary>
-        /// Gets or sets the discount identifier
-        /// </summary>
-        public string DiscountId { get; set; }
+    public string DiscountId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the discount coupon code
-        /// </summary>
-        public string CouponCode { get; set; }
+    /// <summary>
+    ///     Gets or sets the discount coupon code
+    /// </summary>
+    public string CouponCode { get; set; }
 
-        /// <summary>
-        /// Gets or sets the order identifier
-        /// </summary>
-        public string OrderId { get; set; }
+    /// <summary>
+    ///     Gets or sets the order identifier
+    /// </summary>
+    public string OrderId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the customer identifier
-        /// </summary>
-        public string CustomerId { get; set; }
+    /// <summary>
+    ///     Gets or sets the customer identifier
+    /// </summary>
+    public string CustomerId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the canceled identifier
-        /// </summary>
-        public bool Canceled { get; set; }
-
-    }
+    /// <summary>
+    ///     Gets or sets the canceled identifier
+    /// </summary>
+    public bool Canceled { get; set; }
 }

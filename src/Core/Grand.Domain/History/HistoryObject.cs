@@ -1,7 +1,6 @@
-﻿namespace Grand.Domain.History
+﻿namespace Grand.Domain.History;
+
+public class HistoryObject : BaseEntity
 {
-    public class HistoryObject: BaseEntity
-    {
-        public BaseEntity Object { get; set; }
-    }
+    public BaseEntity Object { get; set; }
 }

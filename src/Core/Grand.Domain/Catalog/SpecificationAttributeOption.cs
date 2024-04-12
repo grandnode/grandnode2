@@ -1,35 +1,34 @@
 ﻿using Grand.Domain.Localization;
 
-namespace Grand.Domain.Catalog
+namespace Grand.Domain.Catalog;
+
+/// <summary>
+///     Represents a specification attribute option
+/// </summary>
+public class SpecificationAttributeOption : SubBaseEntity, ITranslationEntity
 {
     /// <summary>
-    /// Represents a specification attribute option
+    ///     Gets or sets the name
     /// </summary>
-    public class SpecificationAttributeOption : SubBaseEntity, ITranslationEntity
-    {
-        /// <summary>
-        /// Gets or sets the name
-        /// </summary>
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets the sename
-        /// </summary>
-        public string SeName { get; set; }
+    /// <summary>
+    ///     Gets or sets the sename
+    /// </summary>
+    public string SeName { get; set; }
 
-        /// <summary>
-        /// Gets or sets the color RGB value (used when you want to display "Color squares" instead of text)
-        /// </summary>
-        public string ColorSquaresRgb { get; set; }
+    /// <summary>
+    ///     Gets or sets the color RGB value (used when you want to display "Color squares" instead of text)
+    /// </summary>
+    public string ColorSquaresRgb { get; set; }
 
-        /// <summary>
-        /// Gets or sets the display order
-        /// </summary>
-        public int DisplayOrder { get; set; }
-        
-        /// <summary>
-        /// Gets or sets the collection of locales
-        /// </summary>
-        public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
-    }
+    /// <summary>
+    ///     Gets or sets the display order
+    /// </summary>
+    public int DisplayOrder { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the collection of locales
+    /// </summary>
+    public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 }

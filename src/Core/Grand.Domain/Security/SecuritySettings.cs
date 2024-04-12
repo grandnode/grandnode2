@@ -1,12 +1,11 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Domain.Security
+namespace Grand.Domain.Security;
+
+public class SecuritySettings : ISettings
 {
-    public class SecuritySettings : ISettings
-    {       
-        /// <summary>
-        /// Gets or sets a list of admin area allowed IP addresses
-        /// </summary>
-        public List<string> AdminAreaAllowedIpAddresses { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets a list of admin area allowed IP addresses
+    /// </summary>
+    public List<string> AdminAreaAllowedIpAddresses { get; set; }
 }

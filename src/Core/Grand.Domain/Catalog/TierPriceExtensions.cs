@@ -1,80 +1,80 @@
 using Grand.Domain.Customers;
 
-namespace Grand.Domain.Catalog
+namespace Grand.Domain.Catalog;
+
+public static class TierPriceExtensions
 {
-    public static class TierPriceExtensions
+    /// <summary>
+    ///     Filter tier prices by date range
+    /// </summary>
+    /// <param name="source">Tier prices</param>
+    /// <param name="date">Date in UTC; use null to filter by current</param>
+    /// <returns>Tier prices</returns>
+    public static IEnumerable<TierPrice> FilterByDate(this IEnumerable<TierPrice> source, DateTime? date = null)
     {
-        /// <summary>
-        /// Filter tier prices by date range
-        /// </summary>
-        /// <param name="source">Tier prices</param>
-        /// <param name="date">Date in UTC; use null to filter by current</param>
-        /// <returns>Tier prices</returns>
-        public static IEnumerable<TierPrice> FilterByDate(this IEnumerable<TierPrice> source, DateTime? date = null)
-        {
-            ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
-            date ??= DateTime.UtcNow;
+        date ??= DateTime.UtcNow;
 
-            return source.Where(tierPrice =>
-                (!tierPrice.StartDateTimeUtc.HasValue || tierPrice.StartDateTimeUtc.Value < date.Value) &&
-                (!tierPrice.EndDateTimeUtc.HasValue || tierPrice.EndDateTimeUtc.Value > date.Value));
-        }
-        /// <summary>
-        /// Filter tier prices by specified store
-        /// </summary>
-        /// <param name="source">Tier prices</param>
-        /// <param name="storeId">Store id</param>
-        /// <returns>Tier prices</returns>
-        public static IEnumerable<TierPrice> FilterByStore(this IEnumerable<TierPrice> source, string storeId)
-        {
-            ArgumentNullException.ThrowIfNull(source);
+        return source.Where(tierPrice =>
+            (!tierPrice.StartDateTimeUtc.HasValue || tierPrice.StartDateTimeUtc.Value < date.Value) &&
+            (!tierPrice.EndDateTimeUtc.HasValue || tierPrice.EndDateTimeUtc.Value > date.Value));
+    }
 
-            return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.StoreId) || tierPrice.StoreId == storeId);
-        }
+    /// <summary>
+    ///     Filter tier prices by specified store
+    /// </summary>
+    /// <param name="source">Tier prices</param>
+    /// <param name="storeId">Store id</param>
+    /// <returns>Tier prices</returns>
+    public static IEnumerable<TierPrice> FilterByStore(this IEnumerable<TierPrice> source, string storeId)
+    {
+        ArgumentNullException.ThrowIfNull(source);
 
-        /// <summary>
-        /// Filter tier prices for specified customer
-        /// </summary>
-        /// <param name="source">Tier prices</param>
-        /// <param name="customer">Customer</param>
-        /// <returns>Tier prices</returns>
-        public static IEnumerable<TierPrice> FilterForCustomer(this IEnumerable<TierPrice> source, Customer customer)
-        {
-            ArgumentNullException.ThrowIfNull(source);
+        return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.StoreId) || tierPrice.StoreId == storeId);
+    }
 
-            if (customer == null)
-                return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CustomerGroupId));
+    /// <summary>
+    ///     Filter tier prices for specified customer
+    /// </summary>
+    /// <param name="source">Tier prices</param>
+    /// <param name="customer">Customer</param>
+    /// <returns>Tier prices</returns>
+    public static IEnumerable<TierPrice> FilterForCustomer(this IEnumerable<TierPrice> source, Customer customer)
+    {
+        ArgumentNullException.ThrowIfNull(source);
 
-            return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CustomerGroupId) ||
-                customer.Groups.Contains(tierPrice.CustomerGroupId));
-        }
+        if (customer == null)
+            return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CustomerGroupId));
 
-        /// <summary>
-        /// Filter tier prices by specified currency
-        /// </summary>
-        /// <param name="source">Tier prices</param>
-        /// <param name="currencyCode">currencyCode</param>
-        /// <returns>Tier prices</returns>
-        public static IEnumerable<TierPrice> FilterByCurrency(this IEnumerable<TierPrice> source, string currencyCode)
-        {
-            ArgumentNullException.ThrowIfNull(source);
+        return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CustomerGroupId) ||
+                                         customer.Groups.Contains(tierPrice.CustomerGroupId));
+    }
 
-            return source.Where(tierPrice => string.IsNullOrEmpty(tierPrice.CurrencyCode) || tierPrice.CurrencyCode == currencyCode);
-        }
+    /// <summary>
+    ///     Filter tier prices by specified currency
+    /// </summary>
+    /// <param name="source">Tier prices</param>
+    /// <param name="currencyCode">currencyCode</param>
+    /// <returns>Tier prices</returns>
+    public static IEnumerable<TierPrice> FilterByCurrency(this IEnumerable<TierPrice> source, string currencyCode)
+    {
+        ArgumentNullException.ThrowIfNull(source);
 
-        /// <summary>
-        /// Remove duplicated quantities if exists
-        /// </summary>
-        /// <param name="source">Tier prices</param>
-        /// <returns>Tier prices</returns>
-        public static IEnumerable<TierPrice> RemoveDuplicatedQuantities(this IEnumerable<TierPrice> source)
-        {
-            ArgumentNullException.ThrowIfNull(source);
-            var result = source.OrderBy(x => x.Price).GroupBy(x => x.Quantity).Select(x => x.First()).OrderBy(x => x.Quantity).ToList();
-            return result;
-        }
+        return source.Where(tierPrice =>
+            string.IsNullOrEmpty(tierPrice.CurrencyCode) || tierPrice.CurrencyCode == currencyCode);
+    }
 
-
+    /// <summary>
+    ///     Remove duplicated quantities if exists
+    /// </summary>
+    /// <param name="source">Tier prices</param>
+    /// <returns>Tier prices</returns>
+    public static IEnumerable<TierPrice> RemoveDuplicatedQuantities(this IEnumerable<TierPrice> source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var result = source.OrderBy(x => x.Price).GroupBy(x => x.Quantity).Select(x => x.First())
+            .OrderBy(x => x.Quantity).ToList();
+        return result;
     }
 }

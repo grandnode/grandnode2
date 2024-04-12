@@ -1,17 +1,17 @@
-namespace Grand.Domain.Messages
+namespace Grand.Domain.Messages;
+
+/// <summary>
+///     Represents priority of queued email
+/// </summary>
+public enum QueuedEmailPriority
 {
     /// <summary>
-    /// Represents priority of queued email
+    ///     Low
     /// </summary>
-    public enum QueuedEmailPriority
-    {
-        /// <summary>
-        /// Low
-        /// </summary>
-        Low = 0,
-        /// <summary>
-        /// High
-        /// </summary>
-        High = 5
-    }
+    Low = 0,
+
+    /// <summary>
+    ///     High
+    /// </summary>
+    High = 5
 }

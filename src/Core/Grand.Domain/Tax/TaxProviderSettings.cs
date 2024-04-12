@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Domain.Tax
+namespace Grand.Domain.Tax;
+
+public class TaxProviderSettings : ISettings
 {
-    public class TaxProviderSettings : ISettings
-    {
-        public string ActiveTaxProviderSystemName { get; set; }
-    }
+    public string ActiveTaxProviderSystemName { get; set; }
 }
