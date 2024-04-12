@@ -1,8 +1,7 @@
 ﻿using MediatR;
 
-namespace Grand.Business.Core.Commands.Checkout.Orders
+namespace Grand.Business.Core.Commands.Checkout.Orders;
+
+public class PrepareOrderCodeCommand : IRequest<string>
 {
-    public class PrepareOrderCodeCommand : IRequest<string>
-    {
-    }
 }

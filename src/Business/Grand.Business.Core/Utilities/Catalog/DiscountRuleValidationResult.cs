@@ -1,18 +1,18 @@
-﻿namespace Grand.Business.Core.Utilities.Catalog
+﻿namespace Grand.Business.Core.Utilities.Catalog;
+
+/// <summary>
+///     Represents a result of discount requirement validation
+/// </summary>
+public class DiscountRuleValidationResult
 {
     /// <summary>
-    /// Represents a result of discount requirement validation
+    ///     Gets or sets a value that indicates if discount is valid or not
     /// </summary>
-    public class DiscountRuleValidationResult
-    {
-        /// <summary>
-        /// Gets or sets a value that indicates if discount is valid or not
-        /// </summary>
-        public bool IsValid { get; set; }
+    public bool IsValid { get; set; }
 
-        /// <summary>
-        /// Gets or sets an error for a customer that should be visible when a coupon code is entered (in case if "IsValid" is set to "false")
-        /// </summary>
-        public string UserError { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets an error for a customer that should be visible when a coupon code is entered (in case if "IsValid" is
+    ///     set to "false")
+    /// </summary>
+    public string UserError { get; set; }
 }

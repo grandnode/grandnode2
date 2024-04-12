@@ -5,16 +5,15 @@ using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages.Tokens
+namespace Grand.Business.Core.Commands.Messages.Tokens;
+
+public class GetOrderTokensCommand : IRequest<LiquidOrder>
 {
-    public class GetOrderTokensCommand : IRequest<LiquidOrder>
-    {
-        public Order Order { get; set; }
-        public Customer Customer { get; set; }
-        public Store Store { get; set; }
-        public DomainHost Host { get; set; }
-        public OrderNote OrderNote { get; set; } = null;
-        public Vendor Vendor { get; set; } = null;
-        public double RefundedAmount { get; set; } = 0;
-    }
+    public Order Order { get; set; }
+    public Customer Customer { get; set; }
+    public Store Store { get; set; }
+    public DomainHost Host { get; set; }
+    public OrderNote OrderNote { get; set; } = null;
+    public Vendor Vendor { get; set; } = null;
+    public double RefundedAmount { get; set; } = 0;
 }

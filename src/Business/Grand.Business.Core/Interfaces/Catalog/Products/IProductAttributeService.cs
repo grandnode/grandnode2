@@ -1,128 +1,130 @@
 using Grand.Domain;
 using Grand.Domain.Catalog;
 
-namespace Grand.Business.Core.Interfaces.Catalog.Products
+namespace Grand.Business.Core.Interfaces.Catalog.Products;
+
+/// <summary>
+///     Product attribute service interface
+/// </summary>
+public interface IProductAttributeService
 {
+    #region Product attributes
+
     /// <summary>
-    /// Product attribute service interface
+    ///     Deletes a product attribute
     /// </summary>
-    public interface IProductAttributeService
-    {
-        #region Product attributes
+    /// <param name="productAttribute">Product attribute</param>
+    Task DeleteProductAttribute(ProductAttribute productAttribute);
 
-        /// <summary>
-        /// Deletes a product attribute
-        /// </summary>
-        /// <param name="productAttribute">Product attribute</param>
-        Task DeleteProductAttribute(ProductAttribute productAttribute);
+    /// <summary>
+    ///     Gets all product attributes
+    /// </summary>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Product attributes</returns>
+    Task<IPagedList<ProductAttribute>> GetAllProductAttributes(int pageIndex = 0, int pageSize = int.MaxValue);
 
-        /// <summary>
-        /// Gets all product attributes
-        /// </summary>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <returns>Product attributes</returns>
-        Task<IPagedList<ProductAttribute>> GetAllProductAttributes(int pageIndex = 0, int pageSize = int.MaxValue);
+    /// <summary>
+    ///     Gets a product attribute
+    /// </summary>
+    /// <param name="productAttributeId">Product attribute identifier</param>
+    /// <returns>Product attribute </returns>
+    Task<ProductAttribute> GetProductAttributeById(string productAttributeId);
 
-        /// <summary>
-        /// Gets a product attribute 
-        /// </summary>
-        /// <param name="productAttributeId">Product attribute identifier</param>
-        /// <returns>Product attribute </returns>
-        Task<ProductAttribute> GetProductAttributeById(string productAttributeId);
+    /// <summary>
+    ///     Inserts a product attribute
+    /// </summary>
+    /// <param name="productAttribute">Product attribute</param>
+    Task InsertProductAttribute(ProductAttribute productAttribute);
 
-        /// <summary>
-        /// Inserts a product attribute
-        /// </summary>
-        /// <param name="productAttribute">Product attribute</param>
-        Task InsertProductAttribute(ProductAttribute productAttribute);
+    /// <summary>
+    ///     Updates the product attribute
+    /// </summary>
+    /// <param name="productAttribute">Product attribute</param>
+    Task UpdateProductAttribute(ProductAttribute productAttribute);
 
-        /// <summary>
-        /// Updates the product attribute
-        /// </summary>
-        /// <param name="productAttribute">Product attribute</param>
-        Task UpdateProductAttribute(ProductAttribute productAttribute);
+    #endregion
 
-        #endregion
+    #region Product attributes mappings
 
-        #region Product attributes mappings
+    /// <summary>
+    ///     Inserts a product attribute mapping
+    /// </summary>
+    /// <param name="productAttributeMapping">The product attribute mapping</param>
+    /// <param name="productId">Product ident</param>
+    Task InsertProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId);
 
-        
-        /// <summary>
-        /// Inserts a product attribute mapping
-        /// </summary>
-        /// <param name="productAttributeMapping">The product attribute mapping</param>
-        /// <param name="productId">Product ident</param>
-        Task InsertProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId);
+    /// <summary>
+    ///     Updates the product attribute mapping
+    /// </summary>
+    /// <param name="productAttributeMapping">The product attribute mapping</param>
+    /// <param name="productId">Product ident</param>
+    /// <param name="values">Update values</param>
+    Task UpdateProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId,
+        bool values = false);
 
-        /// <summary>
-        /// Updates the product attribute mapping
-        /// </summary>
-        /// <param name="productAttributeMapping">The product attribute mapping</param>
-        /// <param name="productId">Product ident</param>
-        /// <param name="values">Update values</param>
-        Task UpdateProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId, bool values = false);
+    /// <summary>
+    ///     Deletes a product attribute mapping
+    /// </summary>
+    /// <param name="productAttributeMapping">Product attribute mapping</param>
+    /// <param name="productId">Product ident</param>
+    Task DeleteProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId);
 
-        /// <summary>
-        /// Deletes a product attribute mapping
-        /// </summary>
-        /// <param name="productAttributeMapping">Product attribute mapping</param>
-        /// <param name="productId">Product ident</param>
-        Task DeleteProductAttributeMapping(ProductAttributeMapping productAttributeMapping, string productId);
+    #endregion
 
-        #endregion
+    #region Product attribute values
 
-        #region Product attribute values
+    /// <summary>
+    ///     Deletes a product attribute value
+    /// </summary>
+    /// <param name="productAttributeValue">Product attribute value</param>
+    /// <param name="productId">Product ident</param>
+    /// <param name="productAttributeMappingId">Product attr mapping ident</param>
+    Task DeleteProductAttributeValue(ProductAttributeValue productAttributeValue, string productId,
+        string productAttributeMappingId);
 
-        /// <summary>
-        /// Deletes a product attribute value
-        /// </summary>
-        /// <param name="productAttributeValue">Product attribute value</param>
-        /// <param name="productId">Product ident</param>
-        /// <param name="productAttributeMappingId">Product attr mapping ident</param>
-        Task DeleteProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId);
+    /// <summary>
+    ///     Inserts a product attribute value
+    /// </summary>
+    /// <param name="productAttributeValue">The product attribute value</param>
+    /// <param name="productId">Product ident</param>
+    /// <param name="productAttributeMappingId">Product attr mapping ident</param>
+    Task InsertProductAttributeValue(ProductAttributeValue productAttributeValue, string productId,
+        string productAttributeMappingId);
 
-        /// <summary>
-        /// Inserts a product attribute value
-        /// </summary>
-        /// <param name="productAttributeValue">The product attribute value</param>
-        /// <param name="productId">Product ident</param>
-        /// <param name="productAttributeMappingId">Product attr mapping ident</param>
-        Task InsertProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId);
+    /// <summary>
+    ///     Updates the product attribute value
+    /// </summary>
+    /// <param name="productAttributeValue">The product attribute value</param>
+    /// <param name="productId">Product ident</param>
+    /// <param name="productAttributeMappingId">Product attr mapping ident</param>
+    Task UpdateProductAttributeValue(ProductAttributeValue productAttributeValue, string productId,
+        string productAttributeMappingId);
 
-        /// <summary>
-        /// Updates the product attribute value
-        /// </summary>
-        /// <param name="productAttributeValue">The product attribute value</param>
-        /// <param name="productId">Product ident</param>
-        /// <param name="productAttributeMappingId">Product attr mapping ident</param>
-        Task UpdateProductAttributeValue(ProductAttributeValue productAttributeValue, string productId, string productAttributeMappingId);
+    #endregion
 
-        #endregion
+    #region Product attribute combinations
 
-        #region Product attribute combinations
+    /// <summary>
+    ///     Deletes a product attribute combination
+    /// </summary>
+    /// <param name="combination">Product attribute combination</param>
+    /// <param name="productId">Product ident</param>
+    Task DeleteProductAttributeCombination(ProductAttributeCombination combination, string productId);
 
-        /// <summary>
-        /// Deletes a product attribute combination
-        /// </summary>
-        /// <param name="combination">Product attribute combination</param>
-        /// <param name="productId">Product ident</param>
-        Task DeleteProductAttributeCombination(ProductAttributeCombination combination, string productId);
+    /// <summary>
+    ///     Inserts a product attribute combination
+    /// </summary>
+    /// <param name="combination">Product attribute combination</param>
+    /// <param name="productId">Product ident</param>
+    Task InsertProductAttributeCombination(ProductAttributeCombination combination, string productId);
 
-        /// <summary>
-        /// Inserts a product attribute combination
-        /// </summary>
-        /// <param name="combination">Product attribute combination</param>
-        /// <param name="productId">Product ident</param>
-        Task InsertProductAttributeCombination(ProductAttributeCombination combination, string productId);
+    /// <summary>
+    ///     Updates a product attribute combination
+    /// </summary>
+    /// <param name="combination">Product attribute combination</param>
+    /// <param name="productId">Product ident</param>
+    Task UpdateProductAttributeCombination(ProductAttributeCombination combination, string productId);
 
-        /// <summary>
-        /// Updates a product attribute combination
-        /// </summary>
-        /// <param name="combination">Product attribute combination</param>
-        /// <param name="productId">Product ident</param>
-        Task UpdateProductAttributeCombination(ProductAttributeCombination combination, string productId);
-
-        #endregion
-    }
+    #endregion
 }

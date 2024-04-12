@@ -1,24 +1,22 @@
-namespace Grand.Business.Core.Utilities.System
+namespace Grand.Business.Core.Utilities.System;
+
+/// <summary>
+///     Represents a best customer report line
+/// </summary>
+public class BestCustomerReportLine
 {
+    /// <summary>
+    ///     Gets or sets the customer identifier
+    /// </summary>
+    public string CustomerId { get; set; }
 
     /// <summary>
-    /// Represents a best customer report line
+    ///     Gets or sets the order total
     /// </summary>
-    public class BestCustomerReportLine
-    {
-        /// <summary>
-        /// Gets or sets the customer identifier
-        /// </summary>
-        public string CustomerId { get; set; }
+    public double OrderTotal { get; set; }
 
-        /// <summary>
-        /// Gets or sets the order total
-        /// </summary>
-        public double OrderTotal { get; set; }
-
-        /// <summary>
-        /// Gets or sets the order count
-        /// </summary>
-        public int OrderCount { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets the order count
+    /// </summary>
+    public int OrderCount { get; set; }
 }

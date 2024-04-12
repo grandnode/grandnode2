@@ -1,17 +1,14 @@
 ﻿using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Catalog
+namespace Grand.Business.Core.Events.Catalog;
+
+public class UpdateProductOnCartEvent : INotification
 {
-    public class UpdateProductOnCartEvent : INotification
+    public UpdateProductOnCartEvent(Product product)
     {
-        private readonly Product _product;
-
-        public UpdateProductOnCartEvent(Product product)
-        {
-            _product = product;
-        }
-
-        public Product Product => _product;
+        Product = product;
     }
+
+    public Product Product { get; }
 }

@@ -1,18 +1,17 @@
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Plugins;
 
-namespace Grand.Business.Core.Interfaces.Common.Providers
+namespace Grand.Business.Core.Interfaces.Common.Providers;
+
+/// <summary>
+///     Exchange rate provider interface
+/// </summary>
+public interface IExchangeRateProvider : IProvider
 {
     /// <summary>
-    /// Exchange rate provider interface
+    ///     Gets currency live rates
     /// </summary>
-    public interface IExchangeRateProvider : IProvider
-    {
-        /// <summary>
-        /// Gets currency live rates
-        /// </summary>
-        /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
-        /// <returns>Exchange rates</returns>
-        Task<IList<ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode);
-    }
+    /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
+    /// <returns>Exchange rates</returns>
+    Task<IList<ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode);
 }

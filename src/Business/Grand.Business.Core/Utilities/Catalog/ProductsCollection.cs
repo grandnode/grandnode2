@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Catalog;
 
-namespace Grand.Business.Core.Utilities.Catalog
+namespace Grand.Business.Core.Utilities.Catalog;
+
+public class ProductsCollection : ProductCollection
 {
-    public class ProductsCollection : ProductCollection
-    {
-        public string ProductId { get; set; }
-    }
+    public string ProductId { get; set; }
 }

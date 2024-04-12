@@ -3,10 +3,9 @@ using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure.Plugins;
 
-namespace Grand.Business.Core.Interfaces.Catalog.Discounts
+namespace Grand.Business.Core.Interfaces.Catalog.Discounts;
+
+public interface IDiscountAmountProvider : IProvider
 {
-    public interface IDiscountAmountProvider : IProvider
-    {
-        Task<double> DiscountAmount(Discount discount, Customer customer, Product product, double amount);
-    }
+    Task<double> DiscountAmount(Discount discount, Customer customer, Product product, double amount);
 }

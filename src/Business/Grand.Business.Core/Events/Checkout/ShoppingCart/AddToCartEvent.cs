@@ -3,23 +3,20 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.ShoppingCart
+namespace Grand.Business.Core.Events.Checkout.ShoppingCart;
+
+public class AddToCartEvent : INotification
 {
-    public class AddToCartEvent : INotification
+    public AddToCartEvent(Customer customer, ShoppingCartItem shoppingCartItem, Product product)
     {
-        private readonly Product _product;
-        private readonly Customer _customer;
-        private readonly ShoppingCartItem _shoppingCartItem;
-
-        public AddToCartEvent(Customer customer, ShoppingCartItem shoppingCartItem, Product product)
-        {
-            _customer = customer;
-            _shoppingCartItem = shoppingCartItem;
-            _product = product;
-        }
-
-        public Customer Customer => _customer;
-        public ShoppingCartItem ShoppingCartItem => _shoppingCartItem;
-        public Product Product => _product;
+        Customer = customer;
+        ShoppingCartItem = shoppingCartItem;
+        Product = product;
     }
+
+    public Customer Customer { get; }
+
+    public ShoppingCartItem ShoppingCartItem { get; }
+
+    public Product Product { get; }
 }

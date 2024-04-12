@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Business.Core.Queries.Customers
+namespace Grand.Business.Core.Queries.Customers;
+
+public class GetPasswordIsExpiredQuery : IRequest<bool>
 {
-    public class GetPasswordIsExpiredQuery : IRequest<bool>
-    {
-        public Customer Customer { get; set; }
-    }
+    public Customer Customer { get; set; }
 }

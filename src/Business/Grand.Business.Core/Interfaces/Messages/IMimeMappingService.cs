@@ -1,7 +1,6 @@
-﻿namespace Grand.Business.Core.Interfaces.Messages
+﻿namespace Grand.Business.Core.Interfaces.Messages;
+
+public interface IMimeMappingService
 {
-    public interface IMimeMappingService
-    {
-        string Map(string fName);
-    }
+    string Map(string fName);
 }

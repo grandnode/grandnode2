@@ -1,12 +1,11 @@
 ﻿using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Checkout.Orders
+namespace Grand.Business.Core.Commands.Checkout.Orders;
+
+public class CancelOrderCommand : IRequest<bool>
 {
-    public class CancelOrderCommand : IRequest<bool>
-    {
-        public Order Order { get; set; }
-        public bool NotifyCustomer { get; set; }
-        public bool NotifyStoreOwner { get; set; } = false;
-    }
+    public Order Order { get; set; }
+    public bool NotifyCustomer { get; set; }
+    public bool NotifyStoreOwner { get; set; } = false;
 }

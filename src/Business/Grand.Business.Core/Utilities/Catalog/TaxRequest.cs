@@ -2,36 +2,35 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 
-namespace Grand.Business.Core.Utilities.Catalog
+namespace Grand.Business.Core.Utilities.Catalog;
+
+/// <summary>
+///     Represents a request for tax calculation
+/// </summary>
+public class TaxRequest
 {
     /// <summary>
-    /// Represents a request for tax calculation
+    ///     Gets or sets a product
     /// </summary>
-    public class TaxRequest
-    {
-        /// <summary>
-        /// Gets or sets a product
-        /// </summary>
-        public Product Product { get; set; }
+    public Product Product { get; set; }
 
-        /// <summary>
-        /// Gets or sets a customer
-        /// </summary>
-        public Customer Customer { get; set; }
+    /// <summary>
+    ///     Gets or sets a customer
+    /// </summary>
+    public Customer Customer { get; set; }
 
-        /// <summary>
-        /// Gets or sets an address
-        /// </summary>
-        public Address Address { get; set; }
+    /// <summary>
+    ///     Gets or sets an address
+    /// </summary>
+    public Address Address { get; set; }
 
-        /// <summary>
-        /// Gets or sets a tax category identifier
-        /// </summary>
-        public string TaxCategoryId { get; set; }
+    /// <summary>
+    ///     Gets or sets a tax category identifier
+    /// </summary>
+    public string TaxCategoryId { get; set; }
 
-        /// <summary>
-        /// Gets or sets a price
-        /// </summary>
-        public double Price { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets a price
+    /// </summary>
+    public double Price { get; set; }
 }

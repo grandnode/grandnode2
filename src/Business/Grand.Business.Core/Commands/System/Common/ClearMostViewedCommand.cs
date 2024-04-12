@@ -1,8 +1,7 @@
 ﻿using MediatR;
 
-namespace Grand.Business.Core.Commands.System.Common
+namespace Grand.Business.Core.Commands.System.Common;
+
+public class ClearMostViewedCommand : IRequest<bool>
 {
-    public class ClearMostViewedCommand : IRequest<bool>
-    {
-    }
 }

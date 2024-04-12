@@ -6,4 +6,9 @@ using MediatR;
 
 namespace Grand.Business.Core.Queries.Catalog;
 
-public record GetDiscountAmountProvider(Discount Discount, Customer Customer, Product Product, Currency Currency, double Amount) : IRequest<double>;
+public record GetDiscountAmountProvider(
+    Discount Discount,
+    Customer Customer,
+    Product Product,
+    Currency Currency,
+    double Amount) : IRequest<double>;

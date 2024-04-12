@@ -1,24 +1,23 @@
-namespace Grand.Business.Core.Utilities.Catalog
+namespace Grand.Business.Core.Utilities.Catalog;
+
+/// <summary>
+///     Applied discount
+/// </summary>
+public class ApplyDiscount
 {
     /// <summary>
-    /// Applied discount
+    ///     Gets or sets the discount Id
     /// </summary>
-    public class ApplyDiscount
-    {
-        /// <summary>
-        /// Gets or sets the discount Id
-        /// </summary>
-        public string DiscountId { get; set; }
+    public string DiscountId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the discount 
-        /// </summary>
-        public string CouponCode { get; set; }
+    /// <summary>
+    ///     Gets or sets the discount
+    /// </summary>
+    public string CouponCode { get; set; }
 
 
-        /// <summary>
-        /// Gets or sets is discount is cumulative
-        /// </summary>
-        public bool IsCumulative { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets is discount is cumulative
+    /// </summary>
+    public bool IsCumulative { get; set; }
 }

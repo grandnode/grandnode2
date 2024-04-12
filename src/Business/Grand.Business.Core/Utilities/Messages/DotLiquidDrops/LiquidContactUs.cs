@@ -1,32 +1,26 @@
 ﻿using DotLiquid;
 
-namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
+namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+
+public class LiquidContactUs : Drop
 {
-    public class LiquidContactUs : Drop
+    public LiquidContactUs(string senderEmail, string senderName, string body, string attributeDescription)
     {
-        private readonly string senderEmail;
-        private readonly string senderName;
-        private readonly string body;
-        private readonly string attributeDescription;
+        SenderEmail = senderEmail;
+        SenderName = senderName;
+        Body = body;
+        AttributeDescription = attributeDescription;
 
-        public LiquidContactUs(string senderEmail, string senderName, string body, string attributeDescription)
-        {
-            this.senderEmail = senderEmail;
-            this.senderName = senderName;
-            this.body = body;
-            this.attributeDescription = attributeDescription;
-
-            AdditionalTokens = new Dictionary<string, string>();
-        }
-
-        public string SenderEmail => senderEmail;
-
-        public string SenderName => senderName;
-
-        public string Body => body;
-
-        public string AttributeDescription => attributeDescription;
-
-        public IDictionary<string, string> AdditionalTokens { get; set; }
+        AdditionalTokens = new Dictionary<string, string>();
     }
+
+    public string SenderEmail { get; }
+
+    public string SenderName { get; }
+
+    public string Body { get; }
+
+    public string AttributeDescription { get; }
+
+    public IDictionary<string, string> AdditionalTokens { get; set; }
 }

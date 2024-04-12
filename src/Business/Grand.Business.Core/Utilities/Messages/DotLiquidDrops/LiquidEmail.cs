@@ -1,16 +1,13 @@
 ﻿using DotLiquid;
 
-namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
+namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+
+public class LiquidEmail : Drop
 {
-    public class LiquidEmail : Drop
+    public LiquidEmail(string emailId)
     {
-        private readonly string _emailId;
-
-        public LiquidEmail(string emailId)
-        {
-            _emailId = emailId;
-        }
-
-        public string Id => _emailId;
+        Id = emailId;
     }
+
+    public string Id { get; }
 }
