@@ -4,10 +4,10 @@ using System.Text.Json;
 
 namespace Grand.Infrastructure.Tests.TypeConverters.Converter;
 
-[TestClass()]
+[TestClass]
 public class CaptchaInterfaceConverter
 {
-    [TestMethod()]
+    [TestMethod]
     public void ConvertFrom_CaptchaObject_To_Json()
     {
         //Arrange
@@ -22,11 +22,13 @@ public class CaptchaInterfaceConverter
         //Act
         var jsonString = JsonSerializer.Serialize(sample);
         //Assert
-        var expJson = "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":\"zzz\",\"ReCaptchaResponseField\":\"yyy\",\"ReCaptchaResponseValue\":\"uuu\",\"ReCaptchaResponse\":\"xxx\"}}";
-        
+        var expJson =
+            "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":\"zzz\",\"ReCaptchaResponseField\":\"yyy\",\"ReCaptchaResponseValue\":\"uuu\",\"ReCaptchaResponse\":\"xxx\"}}";
+
         Assert.AreEqual(expJson, jsonString);
     }
-    [TestMethod()]
+
+    [TestMethod]
     public void ConvertFrom_CaptchaNullObject_To_Json()
     {
         //Arrange
@@ -34,27 +36,29 @@ public class CaptchaInterfaceConverter
         //Act
         var jsonString = JsonSerializer.Serialize(sample);
         //Assert
-        var expJson = "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":null,\"ReCaptchaResponseField\":null,\"ReCaptchaResponseValue\":null,\"ReCaptchaResponse\":null}}";
+        var expJson =
+            "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":null,\"ReCaptchaResponseField\":null,\"ReCaptchaResponseValue\":null,\"ReCaptchaResponse\":null}}";
         Assert.AreEqual(expJson, jsonString);
-        
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ConvertFrom_Json_To_CaptchaObject()
     {
         //Arrange
-        var json = "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":\"zzz\",\"ReCaptchaResponseField\":\"yyy\",\"ReCaptchaResponseValue\":\"uuu\",\"ReCaptchaResponse\":\"xxx\"}}";
+        var json =
+            "{\"CaptchaValidModel\":{\"ReCaptchaChallengeField\":\"zzz\",\"ReCaptchaResponseField\":\"yyy\",\"ReCaptchaResponseValue\":\"uuu\",\"ReCaptchaResponse\":\"xxx\"}}";
 
         //Act
         var sample = JsonSerializer.Deserialize<SampleClass>(json);
         //Assert
         Assert.IsNotNull(sample);
-        Assert.AreEqual("zzz",sample.CaptchaValidModel.ReCaptchaChallengeField);
-        Assert.AreEqual("yyy",sample.CaptchaValidModel.ReCaptchaResponseField);
-        Assert.AreEqual("uuu",sample.CaptchaValidModel.ReCaptchaResponseValue);
-        Assert.AreEqual("xxx",sample.CaptchaValidModel.ReCaptchaResponse);
+        Assert.AreEqual("zzz", sample.CaptchaValidModel.ReCaptchaChallengeField);
+        Assert.AreEqual("yyy", sample.CaptchaValidModel.ReCaptchaResponseField);
+        Assert.AreEqual("uuu", sample.CaptchaValidModel.ReCaptchaResponseValue);
+        Assert.AreEqual("xxx", sample.CaptchaValidModel.ReCaptchaResponse);
     }
-    [TestMethod()]
+
+    [TestMethod]
     public void ConvertFrom_JsonEmptyCaptcha_To_CaptchaObject()
     {
         //Arrange
@@ -69,7 +73,7 @@ public class CaptchaInterfaceConverter
         Assert.IsNull(sample.CaptchaValidModel.ReCaptchaResponseValue);
         Assert.IsNull(sample.CaptchaValidModel.ReCaptchaResponse);
     }
-   
+
     public class SampleClass
     {
         public ICaptchaValidModel CaptchaValidModel { get; set; } = new CaptchaModel();

@@ -1,12 +1,11 @@
 ﻿using FluentValidation;
 
-namespace Grand.Infrastructure.Tests.Validators
+namespace Grand.Infrastructure.Tests.Validators;
+
+public class SourceTestValidator : AbstractValidator<SourceTest>
 {
-    public class SourceTestValidator : AbstractValidator<SourceTest>
+    public SourceTestValidator()
     {
-        public SourceTestValidator()
-        {
-            RuleFor(person => person.LastName).NotNull();
-        }
+        RuleFor(person => person.LastName).NotNull();
     }
 }

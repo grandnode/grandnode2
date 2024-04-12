@@ -1,8 +1,7 @@
-﻿namespace Grand.Infrastructure.Tests.Validators
+﻿namespace Grand.Infrastructure.Tests.Validators;
+
+public class SourceTest
 {
-    public class SourceTest
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-    }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 }

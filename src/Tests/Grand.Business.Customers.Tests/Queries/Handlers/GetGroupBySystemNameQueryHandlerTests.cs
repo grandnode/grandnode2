@@ -1,35 +1,35 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Queries.Customers;
 using Grand.Business.Customers.Queries.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Customers.Tests.Queries.Handlers
+namespace Grand.Business.Customers.Tests.Queries.Handlers;
+
+[TestClass]
+public class GetGroupBySystemNameQueryHandlerTests
 {
-    [TestClass()]
-    public class GetGroupBySystemNameQueryHandlerTests
+    private Mock<IGroupService> _groupServiceMock;
+    private GetGroupBySystemNameQueryHandler handler;
+
+    [TestInitialize]
+    public void Init()
     {
-        private Mock<IGroupService> _groupServiceMock;
-        private GetGroupBySystemNameQueryHandler handler;
+        _groupServiceMock = new Mock<IGroupService>();
+        handler = new GetGroupBySystemNameQueryHandler(_groupServiceMock.Object);
+    }
 
-        [TestInitialize()]
-        public void Init()
-        {
-            _groupServiceMock = new Mock<IGroupService>();
-            handler = new GetGroupBySystemNameQueryHandler(_groupServiceMock.Object);
-        }
+    [TestMethod]
+    public async Task HandleTest()
+    {
+        //Assert
+        var groupBySystemNameQuery = new GetGroupBySystemNameQuery {
+            SystemName = "sample"
+        };
 
-        [TestMethod()]
-        public async Task HandleTest()
-        {
-            //Assert
-            var groupBySystemNameQuery = new Core.Queries.Customers.GetGroupBySystemNameQuery {
-                SystemName = "sample"
-            };
-
-            //Act
-            _ = await handler.Handle(groupBySystemNameQuery, CancellationToken.None);
-            //Assert
-            _groupServiceMock.Verify(c => c.GetCustomerGroupBySystemName(It.IsAny<string>()), Times.Once);
-        }
+        //Act
+        _ = await handler.Handle(groupBySystemNameQuery, CancellationToken.None);
+        //Assert
+        _groupServiceMock.Verify(c => c.GetCustomerGroupBySystemName(It.IsAny<string>()), Times.Once);
     }
 }

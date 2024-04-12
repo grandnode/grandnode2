@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.System.Admin;
+using Grand.Data;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
-using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
@@ -12,20 +12,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Common.Tests;
 
 [TestClass]
 public class AuthorizeMenuAttributeTests
 {
-    private Mock<IPermissionService> _mockPermissionService;
     private Mock<IAdminSiteMapService> _mockAdminSiteMapService;
+    private AuthorizationFilterContext _mockFilterContext;
+    private Mock<IPermissionService> _mockPermissionService;
     private Mock<IWorkContext> _mockWorkContext;
     private SecurityConfig _securityConfig;
-    private AuthorizationFilterContext _mockFilterContext;
 
     [TestInitialize]
     public void Setup()
@@ -36,15 +36,14 @@ public class AuthorizeMenuAttributeTests
         _mockAdminSiteMapService = new Mock<IAdminSiteMapService>();
         _mockWorkContext = new Mock<IWorkContext>();
         _securityConfig = new SecurityConfig();
-        var filters = new List<IFilterMetadata>
-        {
-            new AuthorizeMenuAttribute(false)
+        var filters = new List<IFilterMetadata> {
+            new AuthorizeMenuAttribute()
         };
         _mockFilterContext = new AuthorizationFilterContext(GetMockedAuthorizationFilterContext(), filters);
     }
+
     private AuthorizationFilterContext GetMockedAuthorizationFilterContext()
     {
-        
         // Mocking HttpContext
         var httpContextMock = new Mock<HttpContext>();
 
@@ -59,26 +58,26 @@ public class AuthorizeMenuAttributeTests
 
 
         var actionContext = new ActionContext(
-            httpContextMock.Object, 
-            routeData, 
+            httpContextMock.Object,
+            routeData,
             actionDescriptorMock.Object
         );
 
         // Mocking filters for the context (can be empty if not needed for testing)
-        var filters = new List<IFilterMetadata>
-        {
-            new AuthorizeMenuAttribute(false)
+        var filters = new List<IFilterMetadata> {
+            new AuthorizeMenuAttribute()
         };
-        
+
         var authorizationFilterContext = new AuthorizationFilterContext(actionContext, filters);
 
         return authorizationFilterContext;
     }
+
     [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutIgnoreFilter_DatabaseNotInstalled()
     {
         // Arrange
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,
@@ -100,7 +99,7 @@ public class AuthorizeMenuAttributeTests
     {
         // Arrange
         _securityConfig.AuthorizeAdminMenu = false;
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,
@@ -121,11 +120,14 @@ public class AuthorizeMenuAttributeTests
     public async Task TestAuthorizeMenuAttribute_WithValidSiteMap_AllPermissions()
     {
         // Arrange
-        var menuSiteMap = new AdminSiteMap { AllPermissions = true, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction", ControllerName = "SampleController" };
+        var menuSiteMap = new AdminSiteMap {
+            AllPermissions = true, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction",
+            ControllerName = "SampleController"
+        };
         _mockAdminSiteMapService.Setup(s => s.GetSiteMap()).ReturnsAsync(new List<AdminSiteMap> { menuSiteMap });
         _mockPermissionService.Setup(s => s.Authorize(It.IsAny<string>(), It.IsAny<Customer>())).ReturnsAsync(false);
         _securityConfig.AuthorizeAdminMenu = true;
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,
@@ -140,17 +142,20 @@ public class AuthorizeMenuAttributeTests
         // Assert
         Assert.IsInstanceOfType(_mockFilterContext.Result, typeof(ForbidResult));
     }
-    
+
     [TestMethod]
     public async Task TestAuthorizeMenuAttribute_NoPermissionsInSiteMap()
     {
         // Arrange
-        var menuSiteMap = new AdminSiteMap { AllPermissions = true, PermissionNames = new List<string> { }, ActionName = "SampleAction", ControllerName = "SampleController" };
+        var menuSiteMap = new AdminSiteMap {
+            AllPermissions = true, PermissionNames = new List<string>(), ActionName = "SampleAction",
+            ControllerName = "SampleController"
+        };
         _mockAdminSiteMapService.Setup(s => s.GetSiteMap()).ReturnsAsync(new List<AdminSiteMap> { menuSiteMap });
         _mockPermissionService.Setup(s => s.Authorize(It.IsAny<string>(), It.IsAny<Customer>())).ReturnsAsync(false);
 
         _securityConfig.AuthorizeAdminMenu = true;
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,
@@ -166,17 +171,20 @@ public class AuthorizeMenuAttributeTests
         // No permissions in the sitemap, so no redirect should occur
         Assert.IsNull(_mockFilterContext.Result);
     }
-    
+
     [TestMethod]
     public async Task TestAuthorizeMenuAttribute_WithoutAllPermissions_Authorized()
     {
         // Arrange
-        var menuSiteMap = new AdminSiteMap { AllPermissions = false, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction", ControllerName = "SampleController" };
+        var menuSiteMap = new AdminSiteMap {
+            AllPermissions = false, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction",
+            ControllerName = "SampleController"
+        };
         _mockAdminSiteMapService.Setup(s => s.GetSiteMap()).ReturnsAsync(new List<AdminSiteMap> { menuSiteMap });
         _mockPermissionService.Setup(s => s.Authorize(It.IsAny<string>(), It.IsAny<Customer>())).ReturnsAsync(true);
         _securityConfig.AuthorizeAdminMenu = true;
 
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,
@@ -197,12 +205,15 @@ public class AuthorizeMenuAttributeTests
     public async Task TestAuthorizeMenuAttribute_WithoutAllPermissions_NotAuthorized()
     {
         // Arrange
-        var menuSiteMap = new AdminSiteMap { AllPermissions = false, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction", ControllerName = "SampleController" };
+        var menuSiteMap = new AdminSiteMap {
+            AllPermissions = false, PermissionNames = new List<string> { "Permission1" }, ActionName = "SampleAction",
+            ControllerName = "SampleController"
+        };
         _mockAdminSiteMapService.Setup(s => s.GetSiteMap()).ReturnsAsync(new List<AdminSiteMap> { menuSiteMap });
         _mockPermissionService.Setup(s => s.Authorize(It.IsAny<string>(), It.IsAny<Customer>())).ReturnsAsync(false);
         _securityConfig.AuthorizeAdminMenu = true;
 
-        var attribute = new AuthorizeMenuAttribute(false);
+        var attribute = new AuthorizeMenuAttribute();
         var filter = new AuthorizeMenuAttribute.AuthorizeMenuFilter(
             false,
             _mockPermissionService.Object,

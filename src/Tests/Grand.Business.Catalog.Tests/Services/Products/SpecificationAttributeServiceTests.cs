@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
-using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
@@ -10,239 +10,248 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Services.Products
+namespace Grand.Business.Catalog.Tests.Services.Products;
+
+[TestClass]
+public class SpecificationAttributeServiceTests
 {
-    [TestClass()]
-    public class SpecificationAttributeServiceTests
+    private MemoryCacheBase _cacheBase;
+    private Mock<IMediator> _mediatorMock;
+    private Mock<IProductService> _productServiceMock;
+    private IRepository<SpecificationAttribute> _repository;
+    private IRepository<Product> _repositoryProduct;
+
+    private SpecificationAttributeService service;
+
+    [TestInitialize]
+    public void Init()
     {
+        _repository = new MongoDBRepositoryTest<SpecificationAttribute>();
+        _repositoryProduct = new MongoDBRepositoryTest<Product>();
+        _mediatorMock = new Mock<IMediator>();
+        _productServiceMock = new Mock<IProductService>();
+        _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() =>
+            Task.FromResult((IList<Product>)new List<Product> {
+                new() { Id = "1", Published = true }, new() { Id = "2", Published = true },
+                new() { Id = "3", Published = true }
+            }));
+        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
+            new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        service = new SpecificationAttributeService(_cacheBase, _repository, _repositoryProduct, _mediatorMock.Object);
+    }
 
-        SpecificationAttributeService service;
-        private IRepository<SpecificationAttribute> _repository;
-        private IRepository<Product> _repositoryProduct;
-        private MemoryCacheBase _cacheBase;
-        private Mock<IMediator> _mediatorMock;
-        private Mock<IProductService> _productServiceMock;
+    [TestMethod]
+    public async Task GetSpecificationAttributeByIdTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test"
+        };
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-        [TestInitialize()]
-        public void Init()
-        {
-            _repository = new MongoDBRepositoryTest<SpecificationAttribute>();
-            _repositoryProduct = new MongoDBRepositoryTest<Product>();
-            _mediatorMock = new Mock<IMediator>();
-            _productServiceMock = new Mock<IProductService>();
-            _productServiceMock.Setup(a => a.GetProductsByIds(It.IsAny<string[]>(), false)).Returns(() => Task.FromResult((IList<Product>)new List<Product> { new Product { Id = "1", Published = true }, new Product { Id = "2", Published = true }, new Product { Id = "3", Published = true } }));
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
-            service = new SpecificationAttributeService(_cacheBase, _repository, _repositoryProduct, _mediatorMock.Object);
-        }       
+        //Act
+        var result = await service.GetSpecificationAttributeById(specificationAttribute.Id);
 
-        [TestMethod()]
-        public async Task GetSpecificationAttributeByIdTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test"
-            };
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("test", result.Name);
+    }
 
-            //Act
-            var result = await service.GetSpecificationAttributeById(specificationAttribute.Id);
+    [TestMethod]
+    public async Task GetSpecificationAttributeBySeNameTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-            //Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("test", result.Name);
-        }
+        //Act
+        var result = await service.GetSpecificationAttributeBySeName("test");
 
-        [TestMethod()]
-        public async Task GetSpecificationAttributeBySeNameTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("test", result.Name);
+    }
 
-            //Act
-            var result = await service.GetSpecificationAttributeBySeName("test");
+    [TestMethod]
+    public async Task GetSpecificationAttributesTest()
+    {
+        //Arrange
+        await service.InsertSpecificationAttribute(new SpecificationAttribute());
+        await service.InsertSpecificationAttribute(new SpecificationAttribute());
+        await service.InsertSpecificationAttribute(new SpecificationAttribute());
 
-            //Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("test", result.Name);
-        }
+        //Act
+        var result = await service.GetSpecificationAttributes();
 
-        [TestMethod()]
-        public async Task GetSpecificationAttributesTest()
-        {
-            //Arrange
-            await service.InsertSpecificationAttribute(new SpecificationAttribute());
-            await service.InsertSpecificationAttribute(new SpecificationAttribute());
-            await service.InsertSpecificationAttribute(new SpecificationAttribute());
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(3, result.Count);
+    }
 
-            //Act
-            var result = await service.GetSpecificationAttributes();
+    [TestMethod]
+    public async Task InsertSpecificationAttributeTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
 
-            //Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(3, result.Count);
-        }
+        //Act
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-        [TestMethod()]
-        public async Task InsertSpecificationAttributeTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
+        //Assert
+        Assert.AreEqual(1, _repository.Table.Count());
+    }
 
-            //Act
-            await service.InsertSpecificationAttribute(specificationAttribute);
+    [TestMethod]
+    public async Task UpdateSpecificationAttributeTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-            //Assert
-            Assert.AreEqual(1, _repository.Table.Count());
-        }
+        //Act
+        specificationAttribute.Name = "test2";
+        await service.UpdateSpecificationAttribute(specificationAttribute);
 
-        [TestMethod()]
-        public async Task UpdateSpecificationAttributeTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.AreEqual("test2", _repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id).Name);
+    }
 
-            //Act
-            specificationAttribute.Name = "test2";
-            await service.UpdateSpecificationAttribute(specificationAttribute);
+    [TestMethod]
+    public async Task DeleteSpecificationAttributeTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-            //Assert
-            Assert.AreEqual("test2", _repository.Table.FirstOrDefault(x=>x.Id == specificationAttribute.Id).Name);
-        }
+        //Act
+        await service.DeleteSpecificationAttribute(specificationAttribute);
 
-        [TestMethod()]
-        public async Task DeleteSpecificationAttributeTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id));
+    }
 
-            //Act
-            await service.DeleteSpecificationAttribute(specificationAttribute);
+    [TestMethod]
+    public async Task GetSpecificationAttributeByOptionIdTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
+        var attr = new SpecificationAttributeOption();
+        specificationAttribute.SpecificationAttributeOptions.Add(attr);
 
-            //Assert
-            Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id));
-        }
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-        [TestMethod()]
-        public async Task GetSpecificationAttributeByOptionIdTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
-            var attr = new SpecificationAttributeOption();
-            specificationAttribute.SpecificationAttributeOptions.Add(attr);
+        //Act
+        var result = await service.GetSpecificationAttributeByOptionId(attr.Id);
 
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.IsNotNull(result);
+    }
 
-            //Act
-            var result = await service.GetSpecificationAttributeByOptionId(attr.Id);
+    [TestMethod]
+    public async Task DeleteSpecificationAttributeOptionTest()
+    {
+        //Arrange
+        var specificationAttribute = new SpecificationAttribute {
+            Name = "test",
+            SeName = "test"
+        };
+        var attr = new SpecificationAttributeOption();
+        specificationAttribute.SpecificationAttributeOptions.Add(attr);
 
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        await service.InsertSpecificationAttribute(specificationAttribute);
 
-        [TestMethod()]
-        public async Task DeleteSpecificationAttributeOptionTest()
-        {
-            //Arrange
-            var specificationAttribute = new SpecificationAttribute {
-                Name = "test",
-                SeName = "test"
-            };
-            var attr = new SpecificationAttributeOption();
-            specificationAttribute.SpecificationAttributeOptions.Add(attr);
+        //Act
+        await service.DeleteSpecificationAttributeOption(attr);
 
-            await service.InsertSpecificationAttribute(specificationAttribute);
+        //Assert
+        Assert.AreEqual(0,
+            _repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id).SpecificationAttributeOptions
+                .Count);
+    }
 
-            //Act
-            await service.DeleteSpecificationAttributeOption(attr);
+    [TestMethod]
+    public async Task InsertProductSpecificationAttributeTest()
+    {
+        //Arrange
+        var product = new Product();
 
-            //Assert
-            Assert.AreEqual(0, _repository.Table.FirstOrDefault(x=>x.Id == specificationAttribute.Id).SpecificationAttributeOptions.Count);
-        }
+        await _repositoryProduct.InsertAsync(product);
 
-        [TestMethod()]
-        public async Task InsertProductSpecificationAttributeTest()
-        {
-            //Arrange
-            var product = new Product();
+        //Act
+        var attr = new ProductSpecificationAttribute();
+        await service.InsertProductSpecificationAttribute(attr, product.Id);
 
-            await _repositoryProduct.InsertAsync(product);
+        //Assert
+        Assert.AreEqual(1,
+            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes.Count);
+    }
 
-            //Act
-            var attr = new ProductSpecificationAttribute();
-            await service.InsertProductSpecificationAttribute(attr, product.Id);
+    [TestMethod]
+    public async Task UpdateProductSpecificationAttributeTest()
+    {
+        //Arrange
+        var product = new Product();
+        await _repositoryProduct.InsertAsync(product);
+        var attr = new ProductSpecificationAttribute();
+        await service.InsertProductSpecificationAttribute(attr, product.Id);
 
-            //Assert
-            Assert.AreEqual(1, _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes.Count);
-        }
+        //Act
+        attr.CustomName = "test";
+        await service.UpdateProductSpecificationAttribute(attr, product.Id);
 
-        [TestMethod()]
-        public async Task UpdateProductSpecificationAttributeTest()
-        {
-            //Arrange
-            var product = new Product();
-            await _repositoryProduct.InsertAsync(product);
-            var attr = new ProductSpecificationAttribute();
-            await service.InsertProductSpecificationAttribute(attr, product.Id);
+        //Assert
+        Assert.AreEqual("test",
+            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes
+                .FirstOrDefault(x => x.Id == attr.Id).CustomName);
+    }
 
-            //Act
-            attr.CustomName = "test";
-            await service.UpdateProductSpecificationAttribute(attr, product.Id);
+    [TestMethod]
+    public async Task DeleteProductSpecificationAttributeTest()
+    {
+        //Arrange
+        var product = new Product();
+        await _repositoryProduct.InsertAsync(product);
 
-            //Assert
-            Assert.AreEqual("test", _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes.FirstOrDefault(x=>x.Id == attr.Id).CustomName);
-        }
+        var attr = new ProductSpecificationAttribute();
+        await service.InsertProductSpecificationAttribute(attr, product.Id);
 
-        [TestMethod()]
-        public async Task DeleteProductSpecificationAttributeTest()
-        {
-            //Arrange
-            var product = new Product();
-            await _repositoryProduct.InsertAsync(product);
+        //Act
+        await service.DeleteProductSpecificationAttribute(attr, product.Id);
 
-            var attr = new ProductSpecificationAttribute();
-            await service.InsertProductSpecificationAttribute(attr, product.Id);
+        //Assert
+        Assert.AreEqual(0,
+            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes.Count);
+    }
 
-            //Act
-            await service.DeleteProductSpecificationAttribute(attr, product.Id);
+    [TestMethod]
+    public async Task GetProductSpecificationAttributeCountTest()
+    {
+        //Arrange
+        var product = new Product();
+        await _repositoryProduct.InsertAsync(product);
 
-            //Assert
-            Assert.AreEqual(0, _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes.Count);
+        var attr = new ProductSpecificationAttribute();
+        await service.InsertProductSpecificationAttribute(attr, product.Id);
 
-        }
+        //Act
+        var result = service.GetProductSpecificationAttributeCount();
 
-        [TestMethod()]
-        public async Task GetProductSpecificationAttributeCountTest()
-        {
-            //Arrange
-            var product = new Product();
-            await _repositoryProduct.InsertAsync(product);
-
-            var attr = new ProductSpecificationAttribute();
-            await service.InsertProductSpecificationAttribute(attr, product.Id);
-
-            //Act
-            var result = service.GetProductSpecificationAttributeCount();
-
-            //Assert
-            Assert.AreEqual(1,result);
-        }
+        //Assert
+        Assert.AreEqual(1, result);
     }
 }

@@ -1,4 +1,5 @@
 ﻿namespace Grand.SharedKernel.Tests;
+
 public enum SampleEnum
 {
     Test0 = 0,

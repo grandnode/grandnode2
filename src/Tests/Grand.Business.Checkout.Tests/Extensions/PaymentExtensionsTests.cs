@@ -4,43 +4,42 @@ using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Extensions
+namespace Grand.Business.Checkout.Tests.Extensions;
+
+[TestClass]
+public class PaymentExtensionsTests
 {
-    [TestClass()]
-    public class PaymentExtensionsTests
+    private Mock<IPaymentProvider> _providerMock;
+
+    [TestInitialize]
+    public void Init()
     {
-        private Mock<IPaymentProvider> _providerMock;
+        _providerMock = new Mock<IPaymentProvider>();
+    }
 
-        [TestInitialize]
-        public void Init()
-        {
-            _providerMock = new Mock<IPaymentProvider>();
-        }
+    [TestMethod]
+    public void IsPaymentMethodActive_ReturnExpectedResult()
+    {
+        var settings = new PaymentSettings();
+        _providerMock.Setup(c => c.SystemName).Returns("stripe");
+        settings.ActivePaymentProviderSystemNames.Add("stripe");
+        Assert.IsTrue(_providerMock.Object.IsPaymentMethodActive(settings));
+        _providerMock.Setup(c => c.SystemName).Returns("klarna");
+        Assert.IsFalse(_providerMock.Object.IsPaymentMethodActive(settings));
+    }
 
-        [TestMethod()]
-        public void IsPaymentMethodActive_ReturnExpectedResult()
-        {
-            var settings = new PaymentSettings();
-            _providerMock.Setup(c => c.SystemName).Returns("stripe");
-            settings.ActivePaymentProviderSystemNames.Add("stripe");
-            Assert.IsTrue(_providerMock.Object.IsPaymentMethodActive(settings));
-            _providerMock.Setup(c => c.SystemName).Returns("klarna");
-            Assert.IsFalse(_providerMock.Object.IsPaymentMethodActive(settings));
-        }
+    [TestMethod]
+    public void IsPaymentMethodActive_NullSettings_ThrowException()
+    {
+        PaymentSettings settings = null;
+        Assert.ThrowsException<ArgumentNullException>(() => _providerMock.Object.IsPaymentMethodActive(settings));
+    }
 
-        [TestMethod()]
-        public void IsPaymentMethodActive_NullSettings_ThrowException()
-        {
-            PaymentSettings settings = null;
-            Assert.ThrowsException<ArgumentNullException>(() => _providerMock.Object.IsPaymentMethodActive(settings));
-        }
-
-        [TestMethod()]
-        public void IsPaymentMethodActive_NullProvider_ThrowException()
-        {
-            IPaymentProvider provider = null;
-            var settings = new PaymentSettings();
-            Assert.ThrowsException<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
-        }
+    [TestMethod]
+    public void IsPaymentMethodActive_NullProvider_ThrowException()
+    {
+        IPaymentProvider provider = null;
+        var settings = new PaymentSettings();
+        Assert.ThrowsException<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
     }
 }

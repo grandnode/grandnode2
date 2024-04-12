@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Data.Tests.MongoDb;
 using Grand.Data;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -10,312 +10,315 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Services.Orders
+namespace Grand.Business.Checkout.Tests.Services.Orders;
+
+[TestClass]
+public class MerchandiseReturnServiceTests
 {
-    [TestClass()]
-    public class MerchandiseReturnServiceTests
+    private MemoryCacheBase _cacheBase;
+
+    private Mock<IMediator> _mediatorMock;
+    private IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
+    private IRepository<MerchandiseReturnNote> _merchandiseReturnNoteRepository;
+    private IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
+    private MerchandiseReturnService _merchandiseReturnService;
+
+    private IRepository<MerchandiseReturn> _repository;
+
+    [TestInitialize]
+    public void Init()
     {
-        private MerchandiseReturnService _merchandiseReturnService;
+        _repository = new MongoDBRepositoryTest<MerchandiseReturn>();
+        _merchandiseReturnActionRepository = new MongoDBRepositoryTest<MerchandiseReturnAction>();
+        _merchandiseReturnReasonRepository = new MongoDBRepositoryTest<MerchandiseReturnReason>();
+        _merchandiseReturnNoteRepository = new MongoDBRepositoryTest<MerchandiseReturnNote>();
 
-        private IRepository<MerchandiseReturn> _repository;
-        private IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
-        private IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
-        private IRepository<MerchandiseReturnNote> _merchandiseReturnNoteRepository;
+        _mediatorMock = new Mock<IMediator>();
 
-        private Mock<IMediator> _mediatorMock;
-        private MemoryCacheBase _cacheBase;
+        var query = from p in _repository.Table
+            select p;
+        _mediatorMock.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), default))
+            .Returns(Task.FromResult(query));
 
-        [TestInitialize()]
-        public void Init()
-        {
-            _repository = new MongoDBRepositoryTest<MerchandiseReturn>();
-            _merchandiseReturnActionRepository = new MongoDBRepositoryTest<MerchandiseReturnAction>();
-            _merchandiseReturnReasonRepository = new MongoDBRepositoryTest<MerchandiseReturnReason>();
-            _merchandiseReturnNoteRepository = new MongoDBRepositoryTest<MerchandiseReturnNote>();
+        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
+            new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-            _mediatorMock = new Mock<IMediator>();
+        _merchandiseReturnService = new MerchandiseReturnService(_repository, _merchandiseReturnActionRepository,
+            _merchandiseReturnReasonRepository, _merchandiseReturnNoteRepository, _cacheBase, _mediatorMock.Object);
+    }
 
-            var query = from p in _repository.Table
-                        select p;
-            _mediatorMock.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), default))
-               .Returns(Task.FromResult(query));
+    [TestMethod]
+    public async Task GetMerchandiseReturnByIdTest()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn();
+        await _repository.InsertAsync(merchandiseReturn);
 
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
+        //Act
+        var result = _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.Id);
 
-            _merchandiseReturnService = new MerchandiseReturnService(_repository, _merchandiseReturnActionRepository, _merchandiseReturnReasonRepository, _merchandiseReturnNoteRepository, _cacheBase, _mediatorMock.Object);
-        }
+        //Assert
+        Assert.IsNotNull(result);
+    }
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnByIdTest()
-        {
-            //Arange
-            var merchandiseReturn = new MerchandiseReturn();
-            await _repository.InsertAsync(merchandiseReturn);
+    [TestMethod]
+    public async Task GetMerchandiseReturnByIdTest_ReturnNumber()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn { ReturnNumber = 1 };
+        await _repository.InsertAsync(merchandiseReturn);
 
-            //Act
-            var result = _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.Id);
+        //Act
+        var result = _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.ReturnNumber);
 
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        //Assert
+        Assert.IsNotNull(result);
+    }
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnByIdTest_ReturnNumber()
-        {
-            //Arange
-            var merchandiseReturn = new MerchandiseReturn { ReturnNumber = 1 };
-            await _repository.InsertAsync(merchandiseReturn);
+    [TestMethod]
+    public async Task SearchMerchandiseReturnsTest()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn();
+        await _repository.InsertAsync(merchandiseReturn);
 
-            //Act
-            var result = _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.ReturnNumber);
+        //Act
+        var result = await _merchandiseReturnService.SearchMerchandiseReturns();
 
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        //Assert
+        Assert.IsTrue(result.Any());
+    }
 
-        [TestMethod()]
-        public async Task SearchMerchandiseReturnsTest()
-        {
-            //Arange
-            var merchandiseReturn = new MerchandiseReturn();
-            await _repository.InsertAsync(merchandiseReturn);
+    [TestMethod]
+    public async Task GetAllMerchandiseReturnActionsTest()
+    {
+        //Arrange
+        await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
+        await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
 
-            //Act
-            var result = await _merchandiseReturnService.SearchMerchandiseReturns();
+        //Act
+        var result = await _merchandiseReturnService.GetAllMerchandiseReturnActions();
 
-            //Assert
-            Assert.IsTrue(result.Any());
-        }
+        //Assert
+        Assert.IsTrue(result.Any());
+        Assert.AreEqual(2, result.Count);
+    }
 
-        [TestMethod()]
-        public async Task GetAllMerchandiseReturnActionsTest()
-        {
-            //Arrange
-            await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
-            await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
-            
-            //Act
-            var result = await _merchandiseReturnService.GetAllMerchandiseReturnActions();
+    [TestMethod]
+    public async Task GetMerchandiseReturnActionByIdTest()
+    {
+        //Arrange
+        await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction { Id = "1" });
+        await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
 
-            //Assert
-            Assert.IsTrue(result.Any());
-            Assert.AreEqual(2, result.Count);
-        }
+        //Act
+        var result = await _merchandiseReturnService.GetMerchandiseReturnActionById("1");
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnActionByIdTest()
-        {
-            //Arrange
-            await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction { Id = "1" });
-            await _merchandiseReturnActionRepository.InsertAsync(new MerchandiseReturnAction());
+        //Assert
+        Assert.IsNotNull(result);
+    }
 
-            //Act
-            var result = await _merchandiseReturnService.GetMerchandiseReturnActionById("1");
+    [TestMethod]
+    public async Task InsertMerchandiseReturnTest()
+    {
+        //Act
+        await _merchandiseReturnService.InsertMerchandiseReturn(new MerchandiseReturn());
 
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        //Assert
+        Assert.IsTrue(_repository.Table.Any());
+    }
 
-        [TestMethod()]
-        public async Task InsertMerchandiseReturnTest()
-        {
-            //Act
-            await _merchandiseReturnService.InsertMerchandiseReturn(new MerchandiseReturn());
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnTest()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn();
+        await _repository.InsertAsync(merchandiseReturn);
 
-            //Assert
-            Assert.IsTrue(_repository.Table.Any());
-        }
+        //Act
+        merchandiseReturn.CustomerComments = "test";
+        await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
 
-        [TestMethod()]
-        public async Task UpdateMerchandiseReturnTest()
-        {
-            //Arange
-            var merchandiseReturn = new MerchandiseReturn();
-            await _repository.InsertAsync(merchandiseReturn);
+        //Assert
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == merchandiseReturn.Id).CustomerComments == "test");
+    }
 
-            //Act
-            merchandiseReturn.CustomerComments = "test";
-            await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
+    [TestMethod]
+    public async Task DeleteMerchandiseReturnTest()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn();
+        await _repository.InsertAsync(merchandiseReturn);
 
-            //Assert
-            Assert.IsTrue(_repository.Table.FirstOrDefault(x=>x.Id == merchandiseReturn.Id).CustomerComments == "test");
-        }
+        //Act
+        await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
 
-        [TestMethod()]
-        public async Task DeleteMerchandiseReturnTest()
-        {
-            //Arange
-            var merchandiseReturn = new MerchandiseReturn();
-            await _repository.InsertAsync(merchandiseReturn);
+        //Assert
+        Assert.IsFalse(_repository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
+    [TestMethod]
+    public async Task InsertMerchandiseReturnActionTest()
+    {
+        //Act
+        await _merchandiseReturnService.InsertMerchandiseReturnAction(new MerchandiseReturnAction());
 
-            //Assert
-            Assert.IsFalse(_repository.Table.Any());
-        }
+        //Assert
+        Assert.IsTrue(_merchandiseReturnActionRepository.Table.Any());
+    }
 
-        [TestMethod()]
-        public async Task InsertMerchandiseReturnActionTest()
-        {
-            //Act
-            await _merchandiseReturnService.InsertMerchandiseReturnAction(new MerchandiseReturnAction());
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnActionTest()
+    {
+        //Arange
+        var merchandiseReturnAction = new MerchandiseReturnAction();
+        await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnAction);
 
-            //Assert
-            Assert.IsTrue(_merchandiseReturnActionRepository.Table.Any());
-        }
+        //Act
+        merchandiseReturnAction.Name = "test";
+        await _merchandiseReturnService.UpdateMerchandiseReturnAction(merchandiseReturnAction);
 
-        [TestMethod()]
-        public async Task UpdateMerchandiseReturnActionTest()
-        {
-            //Arange
-            var merchandiseReturnAction = new MerchandiseReturnAction();
-            await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnAction);
+        //Assert
+        Assert.IsTrue(_merchandiseReturnActionRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnAction.Id)
+            .Name == "test");
+    }
 
-            //Act
-            merchandiseReturnAction.Name = "test";
-            await _merchandiseReturnService.UpdateMerchandiseReturnAction(merchandiseReturnAction);
+    [TestMethod]
+    public async Task DeleteMerchandiseReturnActionTest()
+    {
+        //Arange
+        var merchandiseReturnAction = new MerchandiseReturnAction();
+        await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnAction);
 
-            //Assert
-            Assert.IsTrue(_merchandiseReturnActionRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnAction.Id).Name == "test");
-        }
+        //Act
+        await _merchandiseReturnService.DeleteMerchandiseReturnAction(merchandiseReturnAction);
 
-        [TestMethod()]
-        public async Task DeleteMerchandiseReturnActionTest()
-        {
-            //Arange
-            var merchandiseReturnAction = new MerchandiseReturnAction();
-            await _merchandiseReturnActionRepository.InsertAsync(merchandiseReturnAction);
+        //Assert
+        Assert.IsFalse(_merchandiseReturnActionRepository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.DeleteMerchandiseReturnAction(merchandiseReturnAction);
+    [TestMethod]
+    public async Task DeleteMerchandiseReturnReasonTest()
+    {
+        //Arange
+        var merchandiseReturnReason = new MerchandiseReturnReason();
+        await _merchandiseReturnReasonRepository.InsertAsync(merchandiseReturnReason);
 
-            //Assert
-            Assert.IsFalse(_merchandiseReturnActionRepository.Table.Any());
-        }
+        //Act
+        await _merchandiseReturnService.DeleteMerchandiseReturnReason(merchandiseReturnReason);
 
-        [TestMethod()]
-        public async Task DeleteMerchandiseReturnReasonTest()
-        {
-            //Arange
-            var merchandiseReturnReason = new MerchandiseReturnReason();
-            await _merchandiseReturnReasonRepository.InsertAsync(merchandiseReturnReason);
+        //Assert
+        Assert.IsFalse(_merchandiseReturnReasonRepository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.DeleteMerchandiseReturnReason(merchandiseReturnReason);
+    [TestMethod]
+    public async Task GetAllMerchandiseReturnReasonsTest()
+    {
+        //Arrange
+        await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason { Id = "1" });
+        await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason());
 
-            //Assert
-            Assert.IsFalse(_merchandiseReturnReasonRepository.Table.Any());
-        }
+        //Act
+        var result = await _merchandiseReturnService.GetAllMerchandiseReturnReasons();
 
-        [TestMethod()]
-        public async Task GetAllMerchandiseReturnReasonsTest()
-        {
-            //Arrange
-            await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason { Id = "1" });
-            await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason());
+        //Assert
+        Assert.AreEqual(2, result.Count);
+    }
 
-            //Act
-            var result = await _merchandiseReturnService.GetAllMerchandiseReturnReasons();
+    [TestMethod]
+    public async Task GetMerchandiseReturnReasonByIdTest()
+    {
+        //Arrange
+        await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason { Id = "1" });
+        await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason());
 
-            //Assert
-            Assert.AreEqual(2, result.Count);
-        }
+        //Act
+        var result = await _merchandiseReturnService.GetMerchandiseReturnReasonById("1");
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnReasonByIdTest()
-        {
-            //Arrange
-            await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason { Id = "1" });
-            await _merchandiseReturnReasonRepository.InsertAsync(new MerchandiseReturnReason());
+        //Assert
+        Assert.IsNotNull(result);
+    }
 
-            //Act
-            var result = await _merchandiseReturnService.GetMerchandiseReturnReasonById("1");
+    [TestMethod]
+    public async Task InsertMerchandiseReturnReasonTest()
+    {
+        //Arange
+        var merchandiseReturnReason = new MerchandiseReturnReason();
 
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        //Act
+        await _merchandiseReturnService.InsertMerchandiseReturnReason(merchandiseReturnReason);
 
-        [TestMethod()]
-        public async Task InsertMerchandiseReturnReasonTest()
-        {
-            //Arange
-            var merchandiseReturnReason = new MerchandiseReturnReason();
+        //Assert
+        Assert.IsTrue(_merchandiseReturnReasonRepository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.InsertMerchandiseReturnReason(merchandiseReturnReason);
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnReasonTest()
+    {
+        //Arange
+        var merchandiseReturnReason = new MerchandiseReturnReason();
+        await _merchandiseReturnReasonRepository.InsertAsync(merchandiseReturnReason);
+        //Act
+        merchandiseReturnReason.Name = "test";
+        await _merchandiseReturnService.UpdateMerchandiseReturnReason(merchandiseReturnReason);
 
-            //Assert
-            Assert.IsTrue(_merchandiseReturnReasonRepository.Table.Any());
-        }
+        //Assert
+        Assert.IsTrue(_merchandiseReturnReasonRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnReason.Id)
+            .Name == "test");
+    }
 
-        [TestMethod()]
-        public async Task UpdateMerchandiseReturnReasonTest()
-        {
-            //Arange
-            var merchandiseReturnReason = new MerchandiseReturnReason();
-            await _merchandiseReturnReasonRepository.InsertAsync(merchandiseReturnReason);
-            //Act
-            merchandiseReturnReason.Name = "test";
-            await _merchandiseReturnService.UpdateMerchandiseReturnReason(merchandiseReturnReason);
+    [TestMethod]
+    public async Task DeleteMerchandiseReturnNoteTest()
+    {
+        //Arange
+        var merchandiseReturnNote = new MerchandiseReturnNote();
+        await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
 
-            //Assert
-            Assert.IsTrue(_merchandiseReturnReasonRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnReason.Id).Name == "test");
-        }
+        //Act
+        await _merchandiseReturnService.DeleteMerchandiseReturnNote(merchandiseReturnNote);
 
-        [TestMethod()]
-        public async Task DeleteMerchandiseReturnNoteTest()
-        {
-            //Arange
-            var merchandiseReturnNote = new MerchandiseReturnNote();
-            await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
+        //Assert
+        Assert.IsFalse(_merchandiseReturnNoteRepository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.DeleteMerchandiseReturnNote(merchandiseReturnNote);
+    [TestMethod]
+    public async Task InsertMerchandiseReturnNoteTest()
+    {
+        //Arange
+        var merchandiseReturnNote = new MerchandiseReturnNote();
 
-            //Assert
-            Assert.IsFalse(_merchandiseReturnNoteRepository.Table.Any());
-        }
+        //Act
+        await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 
-        [TestMethod()]
-        public async Task InsertMerchandiseReturnNoteTest()
-        {
-            //Arange
-            var merchandiseReturnNote = new MerchandiseReturnNote();
+        //Assert
+        Assert.IsTrue(_merchandiseReturnNoteRepository.Table.Any());
+    }
 
-            //Act
-            await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
+    [TestMethod]
+    public async Task GetMerchandiseReturnNotesTest()
+    {
+        //Arange
+        var merchandiseReturnNote = new MerchandiseReturnNote { MerchandiseReturnId = "1" };
+        await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
 
-            //Assert
-            Assert.IsTrue(_merchandiseReturnNoteRepository.Table.Any());
-        }
+        //Act
+        var result = await _merchandiseReturnService.GetMerchandiseReturnNotes("1");
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnNotesTest()
-        {
-            //Arange
-            var merchandiseReturnNote = new MerchandiseReturnNote { MerchandiseReturnId = "1" };
-            await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
+        //Assert
+        Assert.AreEqual(1, result.Count);
+    }
 
-            //Act
-            var result = await _merchandiseReturnService.GetMerchandiseReturnNotes("1");
+    [TestMethod]
+    public async Task GetMerchandiseReturnNoteTest()
+    {
+        //Arange
+        var merchandiseReturnNote = new MerchandiseReturnNote { Id = "1" };
+        await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
 
-            //Assert
-            Assert.AreEqual(1, result.Count);
-        }
+        //Act
+        var result = await _merchandiseReturnService.GetMerchandiseReturnNote("1");
 
-        [TestMethod()]
-        public async Task GetMerchandiseReturnNoteTest()
-        {
-            //Arange
-            var merchandiseReturnNote = new MerchandiseReturnNote { Id = "1" };
-            await _merchandiseReturnNoteRepository.InsertAsync(merchandiseReturnNote);
-
-            //Act
-            var result = await _merchandiseReturnService.GetMerchandiseReturnNote("1");
-
-            //Assert
-            Assert.IsNotNull(result);
-        }
+        //Assert
+        Assert.IsNotNull(result);
     }
 }

@@ -1,540 +1,554 @@
-﻿using Grand.SharedKernel.Extensions;
+﻿using Grand.Domain.Common;
+using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Data.Tests.LiteDb
+namespace Grand.Data.Tests.LiteDb;
+
+[TestClass]
+public class LiteDbRepositoryTests
 {
-    [TestClass()]
-    public class LiteDbRepositoryTests
+    [TestInitialize]
+    public void Init()
     {
-        [TestInitialize()]
-        public void Init()
-        {
-            CommonPath.BaseDirectory = "";
-        }
+        CommonPath.BaseDirectory = "";
+    }
 
-        [TestMethod()]
-        public void Insert_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+    [TestMethod]
+    public void Insert_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
 
-            //Arrange
-            var product = new SampleCollection { Id = "1" };
-            //Act
-            myRepository.Insert(product);
-            //Assert
-            Assert.AreEqual(1, myRepository.Table.Count());
-            Assert.IsTrue(myRepository.Table.FirstOrDefault(x => x.Id == "1")!.CreatedBy == "user");
-        }
+        //Arrange
+        var product = new SampleCollection { Id = "1" };
+        //Act
+        myRepository.Insert(product);
+        //Assert
+        Assert.AreEqual(1, myRepository.Table.Count());
+        Assert.IsTrue(myRepository.Table.FirstOrDefault(x => x.Id == "1")!.CreatedBy == "user");
+    }
 
-        [TestMethod()]
-        public async Task InsertAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var product = new SampleCollection { Id = "11" };
-            //Act
-            await myRepository.InsertAsync(product);
-            var p = myRepository.GetById("11");
-            //Assert
-            Assert.IsNotNull(p);
-            Assert.AreEqual(1, myRepository.Table.Count());
-            Assert.IsTrue(p.CreatedBy == "user");
-        }
+    [TestMethod]
+    public async Task InsertAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var product = new SampleCollection { Id = "11" };
+        //Act
+        await myRepository.InsertAsync(product);
+        var p = myRepository.GetById("11");
+        //Assert
+        Assert.IsNotNull(p);
+        Assert.AreEqual(1, myRepository.Table.Count());
+        Assert.IsTrue(p.CreatedBy == "user");
+    }
 
-        [TestMethod()]
-        public async Task GetById_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+    [TestMethod]
+    public async Task GetById_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            var p = myRepository.GetById("1");
+        var p = myRepository.GetById("1");
 
-            Assert.IsNotNull(p);
-        }
+        Assert.IsNotNull(p);
+    }
 
-        [TestMethod()]
-        public async Task GetByIdAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+    [TestMethod]
+    public async Task GetByIdAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            var p = await myRepository.GetByIdAsync("1");
+        var p = await myRepository.GetByIdAsync("1");
 
-            Assert.IsNotNull(p);
-        }
+        Assert.IsNotNull(p);
+    }
 
-        [TestMethod()]
-        public async Task GetOneAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+    [TestMethod]
+    public async Task GetOneAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            var p = await myRepository.GetOneAsync(x => x.Id == "1");
+        var p = await myRepository.GetOneAsync(x => x.Id == "1");
 
-            Assert.IsNotNull(p);
-        }
-        [TestMethod()]
-        public async Task GetOneAsync_ToLowerInvariant_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+        Assert.IsNotNull(p);
+    }
 
-            var p = await myRepository.GetOneAsync(x => x.Id == "1".ToLowerInvariant());
+    [TestMethod]
+    public async Task GetOneAsync_ToLowerInvariant_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            Assert.IsNotNull(p);
-        }
-        [TestMethod()]
-        public async Task ClearAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+        var p = await myRepository.GetOneAsync(x => x.Id == "1".ToLowerInvariant());
 
-            await myRepository.ClearAsync();
+        Assert.IsNotNull(p);
+    }
 
-            Assert.IsTrue(myRepository.Table.Count() == 0);
-        }
+    [TestMethod]
+    public async Task ClearAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-        [TestMethod()]
-        public async Task AddToSet_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+        await myRepository.ClearAsync();
 
-            await myRepository.AddToSet("1", x => x.UserFields,
-                new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" });
+        Assert.IsTrue(myRepository.Table.Count() == 0);
+    }
 
-            //Act
-            await myRepository.AddToSet("1", x => x.UserFields,
-            new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" });
-            var p = myRepository.GetById("1");
+    [TestMethod]
+    public async Task AddToSet_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            //Assert
-            Assert.IsTrue(p.UserFields.Count == 2);
-            Assert.IsTrue(p.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p.UpdatedBy == "user");
+        await myRepository.AddToSet("1", x => x.UserFields,
+            new UserField { Key = "key", Value = "value", StoreId = "" });
 
-        }
+        //Act
+        await myRepository.AddToSet("1", x => x.UserFields,
+            new UserField { Key = "key2", Value = "value2", StoreId = "" });
+        var p = myRepository.GetById("1");
 
-        [TestMethod()]
-        public async Task Delete_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+        //Assert
+        Assert.IsTrue(p.UserFields.Count == 2);
+        Assert.IsTrue(p.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p.UpdatedBy == "user");
+    }
 
-            myRepository.Delete(product);
+    [TestMethod]
+    public async Task Delete_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            var p = myRepository.GetById("1");
+        myRepository.Delete(product);
 
-            Assert.IsNull(p);
-        }
+        var p = myRepository.GetById("1");
 
-        [TestMethod()]
-        public async Task DeleteAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var product = new SampleCollection { Id = "1" };
-            await myRepository.InsertAsync(product);
+        Assert.IsNull(p);
+    }
 
-            await myRepository.DeleteAsync(product);
+    [TestMethod]
+    public async Task DeleteAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var product = new SampleCollection { Id = "1" };
+        await myRepository.InsertAsync(product);
 
-            var p = myRepository.GetById("1");
+        await myRepository.DeleteAsync(product);
 
-            Assert.IsNull(p);
-        }
-        [TestMethod()]
-        public async Task DeleteManyAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var p = myRepository.GetById("1");
 
-            await myRepository.InsertAsync(new SampleCollection { Id = "1", Name = "Test" });
-            await myRepository.InsertAsync(new SampleCollection { Id = "2", Name = "Test" });
-            await myRepository.InsertAsync(new SampleCollection { Id = "3", Name = "Test2" });
+        Assert.IsNull(p);
+    }
 
-            await myRepository.DeleteManyAsync(x => x.Name == "Test");
+    [TestMethod]
+    public async Task DeleteManyAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
 
-            Assert.IsTrue(myRepository.Table.Count() == 1);
-        }
+        await myRepository.InsertAsync(new SampleCollection { Id = "1", Name = "Test" });
+        await myRepository.InsertAsync(new SampleCollection { Id = "2", Name = "Test" });
+        await myRepository.InsertAsync(new SampleCollection { Id = "3", Name = "Test2" });
 
-        [TestMethod()]
-        public async Task Pull_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                    Phones = new [] { "Phone1", "Phone2", "Phone3" }
-                },
-            new SampleCollection { Id = "2", Name = "Test2",
-                Phones = new [] { "Phone1", "Phone2", "Phone3" }
-                },
-            new SampleCollection { Id = "3", Name = "Test3" }
+        await myRepository.DeleteManyAsync(x => x.Name == "Test");
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
-            //Act
-            await myRepository.Pull("1", x => x.Phones, "Phone2");
-            var p = myRepository.GetById("1");
+        Assert.IsTrue(myRepository.Table.Count() == 1);
+    }
 
-            //Assert
-            Assert.IsTrue(p.Phones.Count == 2);
-            Assert.IsTrue(p.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p.UpdatedBy == "user");
-        }
-        [TestMethod()]
-        public async Task Pull_Many_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                    Phones = new [] { "Phone1", "Phone2", "Phone3" }
-                },
-            new SampleCollection { Id = "2", Name = "Test2",
-                Phones = new [] { "Phone1", "Phone2", "Phone3" }
-                },
-            new SampleCollection { Id = "3", Name = "Test3" }
+    [TestMethod]
+    public async Task Pull_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+            },
+            new() {
+                Id = "2", Name = "Test2",
+                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+            },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+        //Act
+        await myRepository.Pull("1", x => x.Phones, "Phone2");
+        var p = myRepository.GetById("1");
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
+        //Assert
+        Assert.IsTrue(p.Phones.Count == 2);
+        Assert.IsTrue(p.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p.UpdatedBy == "user");
+    }
 
-            //Act
-            await myRepository.Pull(String.Empty, x => x.Phones, "Phone2");
+    [TestMethod]
+    public async Task Pull_Many_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+            },
+            new() {
+                Id = "2", Name = "Test2",
+                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+            },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-            var p1 = myRepository.GetById("1");
-            var p2 = myRepository.GetById("2");
-            var p3 = myRepository.GetById("3");
+        //Act
+        await myRepository.Pull(string.Empty, x => x.Phones, "Phone2");
 
-            //Assert
-            Assert.IsTrue(p1.Phones.Count == 2 && p2.Phones.Count == 2 && p3.Phones.Count == 0);
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
+        var p1 = myRepository.GetById("1");
+        var p2 = myRepository.GetById("2");
+        var p3 = myRepository.GetById("3");
 
-        }
+        //Assert
+        Assert.IsTrue(p1.Phones.Count == 2 && p2.Phones.Count == 2 && p3.Phones.Count == 0);
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
-        [TestMethod()]
-        public async Task PullFilter_1_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
-            };
-            products.ForEach(x => myRepository.Insert(x));
-            //Act
-            await myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
-
-            var p1 = myRepository.GetById("1");
-
-            //Assert
-            Assert.IsTrue(p1.UserFields.Count == 2);
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
-
-        }
-
-        [TestMethod()]
-        public async Task PullFilter_2_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
-            };
-            products.ForEach(x => myRepository.Insert(x));
-
-            //Act
-            await myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
-
-            var p1 = myRepository.GetById("1");
-
-            //Assert
-            Assert.IsTrue(p1.UserFields.Count == 1);
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
-
-        }
-        [TestMethod()]
-        public async Task PullFilter_2_Many_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value1", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
+    [TestMethod]
+    public async Task PullFilter_1_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value1", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
                 }
             },
-            new SampleCollection { Id = "3", Name = "Test3" }
+            new() { Id = "2", Name = "Test2" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+        //Act
+        await myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
+        var p1 = myRepository.GetById("1");
 
-            //Act
-            await myRepository.PullFilter(String.Empty, x => x.UserFields, x => x.Value, "value");
+        //Assert
+        Assert.IsTrue(p1.UserFields.Count == 2);
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
-            var p1 = myRepository.GetById("1");
-            var p2 = myRepository.GetById("2");
+    [TestMethod]
+    public async Task PullFilter_2_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test2" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-            //Assert
-            Assert.IsTrue(p1.UserFields.Count == 1 && p2.UserFields.Count == 2);
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
-        }
+        //Act
+        await myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
+
+        var p1 = myRepository.GetById("1");
+
+        //Assert
+        Assert.IsTrue(p1.UserFields.Count == 1);
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
+
+    [TestMethod]
+    public async Task PullFilter_2_Many_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() {
+                Id = "2", Name = "Test2",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value1", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+
+        //Act
+        await myRepository.PullFilter(string.Empty, x => x.UserFields, x => x.Value, "value");
+
+        var p1 = myRepository.GetById("1");
+        var p2 = myRepository.GetById("2");
+
+        //Assert
+        Assert.IsTrue(p1.UserFields.Count == 1 && p2.UserFields.Count == 2);
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
 
-        [TestMethod()]
-        public void Update_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
+    [TestMethod]
+    public void Update_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test2" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
+        var p1_update = products.FirstOrDefault();
+        p1_update.Name = "update";
 
-            var p1_update = products.FirstOrDefault();
-            p1_update.Name = "update";
+        //Act
+        myRepository.Update(p1_update);
 
-            //Act
-            myRepository.Update(p1_update);
+        var p1 = myRepository.GetById("1");
 
-            var p1 = myRepository.GetById("1");
+        //Assert
+        Assert.IsTrue(p1.Name == "update");
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
-            //Assert
-            Assert.IsTrue(p1.Name == "update");
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
+    [TestMethod]
+    public async Task UpdateAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test2" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-        }
-        [TestMethod()]
-        public async Task UpdateAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
+        var p1_update = products.FirstOrDefault();
+        p1_update.Name = "update";
+        //Act
+        await myRepository.UpdateAsync(p1_update);
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
+        var p1 = myRepository.GetById("1");
+        //Assert
+        Assert.IsTrue(p1.Name == "update");
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
-            var p1_update = products.FirstOrDefault();
-            p1_update.Name = "update";
-            //Act
-            await myRepository.UpdateAsync(p1_update);
+    [TestMethod]
+    public async Task UpdateField_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test2" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+        //Act
+        await myRepository.UpdateField("1", x => x.Name, "update");
 
-            var p1 = myRepository.GetById("1");
-            //Assert
-            Assert.IsTrue(p1.Name == "update");
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
-        }
+        var p1 = myRepository.GetById("1");
 
-        [TestMethod()]
-        public async Task UpdateField_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test2" },
-            new SampleCollection { Id = "3", Name = "Test3" }
+        //Assert
+        Assert.IsTrue(p1.Name == "update");
+        Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p1.UpdatedBy == "user");
+    }
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
-            //Act
-            await myRepository.UpdateField("1", x => x.Name, "update");
+    [TestMethod]
+    public async Task IncField_MongoRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        var sample = new SampleCollection { Id = "1", Name = "Test" };
+        await myRepository.InsertAsync(sample);
 
-            var p1 = myRepository.GetById("1");
+        await myRepository.IncField("1", x => x.Count, 1);
+        await myRepository.IncField("1", x => x.Count, 1);
+        await myRepository.IncField("1", x => x.Count, 1);
 
-            //Assert
-            Assert.IsTrue(p1.Name == "update");
-            Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p1.UpdatedBy == "user");
+        var p1 = myRepository.GetById("1");
 
-        }
-        [TestMethod()]
-        public async Task IncField_MongoRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            var sample = new SampleCollection { Id = "1", Name = "Test" };
-            await myRepository.InsertAsync(sample);
+        Assert.IsTrue(p1.Count == 3);
+    }
 
-            await myRepository.IncField("1", x => x.Count, 1);
-            await myRepository.IncField("1", x => x.Count, 1);
-            await myRepository.IncField("1", x => x.Count, 1);
+    [TestMethod]
+    public async Task UpdateManyAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-            var p1 = myRepository.GetById("1");
+        //Act
+        await myRepository.UpdateManyAsync(x => x.Name == "Test",
+            UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
-            Assert.IsTrue(p1.Count == 3);
-        }
-        [TestMethod()]
-        public async Task UpdateManyAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
+        var pUpdated = myRepository.Table.Where(x => x.Name == "UpdateTest");
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
+        //Asser 
+        Assert.IsTrue(pUpdated.Count() == 2);
+        Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedBy == "user");
+    }
 
-            //Act
-            await myRepository.UpdateManyAsync(x => x.Name == "Test",
-                UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
+    [TestMethod]
+    public async Task UpdateOneAsync_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+        //Act
+        await myRepository.UpdateOneAsync(x => x.Name == "Test",
+            UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
-            var pUpdated = myRepository.Table.Where(x => x.Name == "UpdateTest");
+        var pUpdated = myRepository.Table.Where(x => x.Name == "UpdateTest");
 
-            //Asser 
-            Assert.IsTrue(pUpdated.Count() == 2);
-            Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedBy == "user");
+        //Assert
+        Assert.IsTrue(pUpdated.Count() == 1);
+        Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedBy == "user");
+    }
 
-        }
+    [TestMethod]
+    public async Task UpdateToSet_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
 
-        [TestMethod()]
-        public async Task UpdateOneAsync_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
+        //Act
+        await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key",
+            new UserField { Key = "key", Value = "update", StoreId = "1" });
+        var p = myRepository.GetById("1");
 
-            };
-            products.ForEach(x => myRepository.Insert(x));
-            //Act
-            await myRepository.UpdateOneAsync(x => x.Name == "Test",
-                UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
+        //Assert
+        Assert.IsTrue(p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value == "update");
+        Assert.IsTrue(p.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p.UpdatedBy == "user");
+    }
 
-            var pUpdated = myRepository.Table.Where(x => x.Name == "UpdateTest");
+    [TestMethod]
+    public async Task UpdateToSet_2_LiteRepository_Success()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        //Arrange
+        var products = new List<SampleCollection> {
+            new() {
+                Id = "1", Name = "Test",
+                UserFields = new List<UserField> {
+                    new() { Key = "key", Value = "value", StoreId = "" },
+                    new() { Key = "key1", Value = "value", StoreId = "" },
+                    new() { Key = "key2", Value = "value2", StoreId = "" }
+                }
+            },
+            new() { Id = "2", Name = "Test" },
+            new() { Id = "3", Name = "Test3" }
+        };
+        products.ForEach(x => myRepository.Insert(x));
+        //Act
+        await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key",
+            new UserField { Key = "key", Value = "update", StoreId = "1" });
 
-            //Assert
-            Assert.IsTrue(pUpdated.Count() == 1);
-            Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(pUpdated.FirstOrDefault()!.UpdatedBy == "user");
+        var p = myRepository.GetById("1");
 
-        }
-        [TestMethod()]
-        public async Task UpdateToSet_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
-            };
-            products.ForEach(x => myRepository.Insert(x));
-
-            //Act
-            await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
-            var p = myRepository.GetById("1");
-
-            //Assert
-            Assert.IsTrue(p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value == "update");
-            Assert.IsTrue(p.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p.UpdatedBy == "user");
-
-        }
-
-        [TestMethod()]
-        public async Task UpdateToSet_2_LiteRepository_Success()
-        {
-            var myRepository = new LiteDBRepositoryMock<SampleCollection>();
-            //Arrange
-            var products = new List<SampleCollection> {
-            new SampleCollection { Id = "1", Name = "Test",
-                UserFields = new List<Domain.Common.UserField> {
-                    new Domain.Common.UserField { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key1", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField { Key = "key2", Value = "value2", StoreId = "" }
-                } },
-            new SampleCollection { Id = "2", Name = "Test" },
-            new SampleCollection { Id = "3", Name = "Test3" }
-
-            };
-            products.ForEach(x => myRepository.Insert(x));
-            //Act
-            await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key", new Domain.Common.UserField { Key = "key", Value = "update", StoreId = "1" });
-
-            var p = myRepository.GetById("1");
-
-            //Assert
-            Assert.IsTrue(p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value == "update");
-            Assert.IsTrue(p.UpdatedOnUtc.HasValue);
-            Assert.IsTrue(p.UpdatedBy == "user");
-
-        }
+        //Assert
+        Assert.IsTrue(p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value == "update");
+        Assert.IsTrue(p.UpdatedOnUtc.HasValue);
+        Assert.IsTrue(p.UpdatedBy == "user");
     }
 }

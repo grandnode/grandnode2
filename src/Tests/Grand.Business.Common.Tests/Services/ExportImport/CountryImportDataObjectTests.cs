@@ -2,8 +2,8 @@
 using Grand.Business.Common.Services.ExportImport;
 using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Data.Tests.MongoDb;
 using Grand.Data;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -12,89 +12,105 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Tests.Services.ExportImport
+namespace Grand.Business.Common.Tests.Services.ExportImport;
+
+[TestClass]
+public class CountryImportDataObjectTests
 {
-    [TestClass()]
-    public class CountryImportDataObjectTests
+    private MemoryCacheBase _cacheBase;
+    private CountryImportDataObject _countryImportDataObject;
+    private ICountryService _countryService;
+    private Mock<IMediator> _mediatorMock;
+
+    private IRepository<Country> _repository;
+
+    [TestInitialize]
+    public void Init()
     {
-        private CountryImportDataObject _countryImportDataObject;
-        private ICountryService _countryService;
+        _repository = new MongoDBRepositoryTest<Country>();
 
-        private IRepository<Country> _repository;
-        private Mock<IMediator> _mediatorMock;
-        private MemoryCacheBase _cacheBase;
+        _mediatorMock = new Mock<IMediator>();
+        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
+            new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        var accessControlConfig = new AccessControlConfig();
+        _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase, accessControlConfig);
+        _countryImportDataObject = new CountryImportDataObject(_countryService);
+    }
 
-        [TestInitialize()]
-        public void Init()
-        {
-            _repository = new MongoDBRepositoryTest<Country>();
+    [TestMethod]
+    public async Task ExecuteTest_Import_Insert_NewStates()
+    {
+        //Arrange
+        var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
+        await _repository.InsertAsync(country);
+        var states = new List<CountryStatesDto> {
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true
+            },
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California",
+                Published = true, DisplayOrder = 1
+            }
+        };
+        //Act
+        await _countryImportDataObject.Execute(states);
 
-            _mediatorMock = new Mock<IMediator>();
-            _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1});
-            var accessControlConfig = new AccessControlConfig();
-            _countryService = new CountryService(_repository, _mediatorMock.Object, _cacheBase, accessControlConfig);
-            _countryImportDataObject = new CountryImportDataObject(_countryService);
-        }
+        //Assert
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any());
+    }
 
-        [TestMethod()]
-        public async Task ExecuteTest_Import_Insert_NewStates()
-        {
-            //Arrange
-            var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
-            await _repository.InsertAsync(country);
-            var states = new List<CountryStatesDto> { 
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
-            };
-            //Act
-            await _countryImportDataObject.Execute(states);
+    [TestMethod]
+    public async Task ExecuteTest_Import_Update_States()
+    {
+        //Arrange
+        var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
+        country.StateProvinces.Add(new StateProvince { Abbreviation = "AK" });
+        country.StateProvinces.Add(new StateProvince { Abbreviation = "CA" });
 
-            //Assert
-            Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any());
+        await _repository.InsertAsync(country);
+        var states = new List<CountryStatesDto> {
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true
+            },
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California",
+                Published = true, DisplayOrder = 1
+            }
+        };
+        //Act
+        await _countryImportDataObject.Execute(states);
 
-        }
-        [TestMethod()]
-        public async Task ExecuteTest_Import_Update_States()
-        {
-            //Arrange
-            var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
-            country.StateProvinces.Add(new StateProvince { Abbreviation = "AK" });
-            country.StateProvinces.Add(new StateProvince { Abbreviation = "CA" });
+        //Assert
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
+    }
 
-            await _repository.InsertAsync(country);
-            var states = new List<CountryStatesDto> {
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 }
-            };
-            //Act
-            await _countryImportDataObject.Execute(states);
+    [TestMethod]
+    public async Task ExecuteTest_Import_Insert_Update_States()
+    {
+        //Arrange
+        var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
+        country.StateProvinces.Add(new StateProvince { Abbreviation = "AK" });
+        country.StateProvinces.Add(new StateProvince { Abbreviation = "CA" });
 
-            //Assert
-            Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x=>x.Published));
+        await _repository.InsertAsync(country);
+        var states = new List<CountryStatesDto> {
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true
+            },
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California",
+                Published = true, DisplayOrder = 1
+            },
+            new() {
+                Country = country.TwoLetterIsoCode, Abbreviation = "HI", StateProvinceName = "Hawaii", Published = true,
+                DisplayOrder = 1
+            }
+        };
+        //Act
+        await _countryImportDataObject.Execute(states);
 
-        }
-
-        [TestMethod()]
-        public async Task ExecuteTest_Import_Insert_Update_States()
-        {
-            //Arrange
-            var country = new Country { TwoLetterIsoCode = "US", Name = "USA" };
-            country.StateProvinces.Add(new StateProvince { Abbreviation = "AK" });
-            country.StateProvinces.Add(new StateProvince { Abbreviation = "CA" });
-
-            await _repository.InsertAsync(country);
-            var states = new List<CountryStatesDto> {
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "AK", StateProvinceName = "Alaska", Published = true },
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "CA", StateProvinceName = "California", Published = true, DisplayOrder = 1 },
-                new CountryStatesDto { Country = country.TwoLetterIsoCode, Abbreviation = "HI", StateProvinceName = "Hawaii", Published = true, DisplayOrder = 1 }
-            };
-            //Act
-            await _countryImportDataObject.Execute(states);
-
-            //Assert
-            Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
-            Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Count == 3);
-
-        }
+        //Assert
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
+        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Count == 3);
     }
 }

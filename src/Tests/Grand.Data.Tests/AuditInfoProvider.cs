@@ -2,10 +2,6 @@
 
 public class AuditInfoProvider : IAuditInfoProvider
 {
-    public AuditInfoProvider()
-    {
-    }
-
     public string GetCurrentUser()
     {
         return "user";
