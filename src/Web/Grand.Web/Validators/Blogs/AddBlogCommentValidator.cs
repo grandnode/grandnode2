@@ -19,7 +19,8 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
     public AddBlogCommentValidator(
         IEnumerable<IValidatorConsumer<AddBlogCommentModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        CaptchaSettings captchaSettings, IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        CaptchaSettings captchaSettings, IHttpContextAccessor contextAccessor,
+        GoogleReCaptchaValidator googleReCaptchaValidator,
         BlogSettings blogSettings,
         IGroupService groupService, IWorkContext workContext, IBlogService blogService, IAclService aclService,
         ITranslationService translationService)
@@ -27,15 +28,13 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
     {
         RuleFor(x => x.CommentText).NotEmpty()
             .WithMessage(translationService.GetResource("Blog.Comments.CommentText.Required"));
-        
+
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             if (await groupService.IsGuest(workContext.CurrentCustomer) &&
                 !blogSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
                 context.AddFailure(
                     translationService.GetResource("Blog.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
 
             if (!blogSettings.Enabled)
                 context.AddFailure(
@@ -47,7 +46,7 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
 
             if (!aclService.Authorize(blogPost, workContext.CurrentStore.Id))
                 context.AddFailure(translationService.GetResource("Blog.Comments.NotAllowed"));
-            
+
             if (blogPost == null ||
                 (blogPost.StartDateUtc.HasValue && blogPost.StartDateUtc.Value >= DateTime.UtcNow) ||
                 (blogPost.EndDateUtc.HasValue && blogPost.EndDateUtc.Value <= DateTime.UtcNow))

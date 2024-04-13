@@ -4,33 +4,35 @@ using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
 using MediatR;
 
-namespace Grand.Web.Commands.Handler.Customers
+namespace Grand.Web.Commands.Handler.Customers;
+
+public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecoverySendCommand, bool>
 {
-    public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecoverySendCommand, bool>
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly IUserFieldService _userFieldService;
+
+    public PasswordRecoverySendCommandHandler(
+        IUserFieldService userFieldService,
+        IMessageProviderService messageProviderService)
     {
-        private readonly IUserFieldService _userFieldService;
-        private readonly IMessageProviderService _messageProviderService;
+        _userFieldService = userFieldService;
+        _messageProviderService = messageProviderService;
+    }
 
-        public PasswordRecoverySendCommandHandler(
-            IUserFieldService userFieldService,
-            IMessageProviderService messageProviderService)
-        {
-            _userFieldService = userFieldService;
-            _messageProviderService = messageProviderService;
-        }
+    public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
+    {
+        //save token and current date
+        var passwordRecoveryToken = Guid.NewGuid();
+        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryToken,
+            passwordRecoveryToken.ToString());
+        DateTime? generatedDateTime = DateTime.UtcNow;
+        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryTokenDateGenerated,
+            generatedDateTime);
 
-        public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
-        {
-            //save token and current date
-            var passwordRecoveryToken = Guid.NewGuid();
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryToken, passwordRecoveryToken.ToString());
-            DateTime? generatedDateTime = DateTime.UtcNow;
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryTokenDateGenerated, generatedDateTime);
+        //send email
+        await _messageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store,
+            request.Language.Id);
 
-            //send email
-            await _messageProviderService.SendCustomerPasswordRecoveryMessage(request.Customer, request.Store, request.Language.Id);
-
-            return true;
-        }
+        return true;
     }
 }

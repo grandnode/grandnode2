@@ -40,12 +40,15 @@
         @await RenderSectionAsync("Breadcrumb")
     }
 }
+
 @section meta {
-    @await RenderSectionAsync("meta", required: false)
+    @await RenderSectionAsync("meta", false)
 }
+
 @section head {
-    @await RenderSectionAsync("head", required: false)
+    @await RenderSectionAsync("head", false)
 }
+
 @if (!string.IsNullOrEmpty(currentCategoryId))
 {
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_category", additionalData = Model.Id })
@@ -61,7 +64,9 @@
 <div id="TwoColumns" class="row custom-container mt-3">
     <div class="d-lg-none d-block">
         <div class="col-12">
-            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile><b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]</button>
+            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile>
+                <b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]
+            </button>
         </div>
         <b-sidebar id="sidebar-mobile"
                    backdrop

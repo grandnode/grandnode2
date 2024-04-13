@@ -9,96 +9,94 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
 
-namespace Grand.Web.Features.Handlers.Orders
+namespace Grand.Web.Features.Handlers.Orders;
+
+public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList, CustomerOrderListModel>
 {
-    public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList, CustomerOrderListModel>
+    private readonly ICurrencyService _currencyService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly IGroupService _groupService;
+    private readonly IMediator _mediator;
+    private readonly IOrderService _orderService;
+    private readonly OrderSettings _orderSettings;
+    private readonly IOrderStatusService _orderStatusService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly ITranslationService _translationService;
+
+    public GetCustomerOrderListHandler(
+        IDateTimeService dateTimeService,
+        ITranslationService translationService,
+        IGroupService groupService,
+        IMediator mediator,
+        IPriceFormatter priceFormatter,
+        IOrderStatusService orderStatusService,
+        IOrderService orderService,
+        ICurrencyService currencyService,
+        OrderSettings orderSettings)
     {
-        private readonly IDateTimeService _dateTimeService;
-        private readonly ITranslationService _translationService;
-        private readonly IPriceFormatter _priceFormatter;
-        private readonly IGroupService _groupService;
-        private readonly IMediator _mediator;
-        private readonly IOrderStatusService _orderStatusService;
-        private readonly IOrderService _orderService;
-        private readonly ICurrencyService _currencyService;
-        private readonly OrderSettings _orderSettings;
+        _dateTimeService = dateTimeService;
+        _translationService = translationService;
+        _groupService = groupService;
+        _priceFormatter = priceFormatter;
+        _orderStatusService = orderStatusService;
+        _orderService = orderService;
+        _orderSettings = orderSettings;
+        _currencyService = currencyService;
+        _mediator = mediator;
+    }
 
-        public GetCustomerOrderListHandler(
-            IDateTimeService dateTimeService,
-            ITranslationService translationService,
-            IGroupService groupService,
-            IMediator mediator,
-            IPriceFormatter priceFormatter,
-            IOrderStatusService orderStatusService,
-            IOrderService orderService,
-            ICurrencyService currencyService,
-            OrderSettings orderSettings)
+    public async Task<CustomerOrderListModel> Handle(GetCustomerOrderList request, CancellationToken cancellationToken)
+    {
+        var model = new CustomerOrderListModel();
+        await PrepareOrder(model, request);
+        return model;
+    }
+
+    private async Task PrepareOrder(CustomerOrderListModel model, GetCustomerOrderList request)
+    {
+        if (request.Command.PageSize <= 0) request.Command.PageSize = _orderSettings.PageSize;
+        if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
+        if (request.Command.PageSize == 0)
+            request.Command.PageSize = 10;
+
+        var customerId = string.Empty;
+        var ownerId = string.Empty;
+
+        if (!await _groupService.IsOwner(request.Customer))
+            customerId = request.Customer.Id;
+        else
+            ownerId = request.Customer.Id;
+
+        var orders = await _orderService.SearchOrders(
+            customerId: customerId,
+            ownerId: ownerId,
+            storeId: request.Store.Id,
+            pageIndex: request.Command.PageNumber - 1,
+            pageSize: request.Command.PageSize);
+
+        model.PagingContext.LoadPagedList(orders);
+
+
+        foreach (var order in orders)
         {
-            _dateTimeService = dateTimeService;
-            _translationService = translationService;
-            _groupService = groupService;
-            _priceFormatter = priceFormatter;
-            _orderStatusService = orderStatusService;
-            _orderService = orderService;
-            _orderSettings = orderSettings;
-            _currencyService = currencyService;
-            _mediator = mediator;
+            var status = await _orderStatusService.GetByStatusId(order.OrderStatusId);
+            var orderModel = new CustomerOrderListModel.OrderDetailsModel {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                OrderCode = order.Code,
+                CustomerEmail = order.BillingAddress?.Email,
+                CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
+                OrderStatusId = order.OrderStatusId,
+                OrderStatus = status?.Name,
+                PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
+                ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
+                IsMerchandiseReturnAllowed =
+                    await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
+                OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,
+                    await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode))
+            };
+
+            model.Orders.Add(orderModel);
         }
-
-        public async Task<CustomerOrderListModel> Handle(GetCustomerOrderList request, CancellationToken cancellationToken)
-        {
-            var model = new CustomerOrderListModel();
-            await PrepareOrder(model, request);
-            return model;
-        }
-
-        private async Task PrepareOrder(CustomerOrderListModel model, GetCustomerOrderList request)
-        {
-            if (request.Command.PageSize <= 0) request.Command.PageSize = _orderSettings.PageSize;
-            if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
-            if (request.Command.PageSize == 0)
-                request.Command.PageSize = 10;
-
-            var customerId = string.Empty;
-            var ownerId = string.Empty;
-
-            if (!await _groupService.IsOwner(request.Customer))
-                customerId = request.Customer.Id;
-            else
-                ownerId = request.Customer.Id;
-
-            var orders = await _orderService.SearchOrders(
-                customerId: customerId,
-                ownerId : ownerId,
-                storeId: request.Store.Id,
-                pageIndex: request.Command.PageNumber - 1,
-                pageSize: request.Command.PageSize);
-
-            model.PagingContext.LoadPagedList(orders);
-
-            
-            foreach (var order in orders)
-            {
-                var status = await _orderStatusService.GetByStatusId(order.OrderStatusId);
-                var orderModel = new CustomerOrderListModel.OrderDetailsModel
-                {
-                    Id = order.Id,
-                    OrderNumber = order.OrderNumber,
-                    OrderCode = order.Code,
-                    CustomerEmail = order.BillingAddress?.Email,
-                    CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
-                    OrderStatusId = order.OrderStatusId,
-                    OrderStatus = status?.Name,
-                    PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
-                    ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
-                    IsMerchandiseReturnAllowed = await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
-                    OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,  await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode))
-                };
-
-                model.Orders.Add(orderModel);
-            }
-        }
-
-
     }
 }

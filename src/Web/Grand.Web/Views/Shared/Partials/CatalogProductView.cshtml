@@ -63,7 +63,6 @@
             }
             @if (Model.ProductType == ProductType.Auction)
             {
-
                 @if (Model.EndTime.HasValue)
                 {
                     <div class="countdown-box alert alert-info w-100 mb-1">
@@ -127,30 +126,30 @@
                 }
                 <table>
                     <tbody>
-                        @foreach (var item in group)
-                        {
-                            <tr class="attr">
-                                <td>
-                                    <div class="spec-name">
-                                        @{
-                                            var groupList = item.ToList();
-                                        }
-                                        @groupList[0].SpecificationAttributeName:
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="spec-value">
-                                        @foreach (var spec in groupList)
-                                        {
-                                            <span>
-                                                @Html.Raw(spec.ValueRaw)
-                                            </span>
-                                        }
-                                    </div>
-                                </td>
+                    @foreach (var item in group)
+                    {
+                        <tr class="attr">
+                            <td>
+                                <div class="spec-name">
+                                    @{
+                                        var groupList = item.ToList();
+                                    }
+                                    @groupList[0].SpecificationAttributeName:
+                                </div>
+                            </td>
+                            <td>
+                                <div class="spec-value">
+                                    @foreach (var spec in groupList)
+                                    {
+                                        <span>
+                                            @Html.Raw(spec.ValueRaw)
+                                        </span>
+                                    }
+                                </div>
+                            </td>
 
-                            </tr>
-                        }
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>
@@ -160,63 +159,65 @@
             <div class="attr-container">
                 <table>
                     <tbody>
-                        @foreach (var item in Model.ProductAttributeModels)
-                        {
-                            <tr class="attr">
-                                <td>
-                                    <div class="attr-name">
-                                        @item.Name
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="attr-value">
-                                        @foreach (var spec in item.Values)
+                    @foreach (var item in Model.ProductAttributeModels)
+                    {
+                        <tr class="attr">
+                            <td>
+                                <div class="attr-name">
+                                    @item.Name
+                                </div>
+                            </td>
+                            <td>
+                                <div class="attr-value">
+                                    @foreach (var spec in item.Values)
+                                    {
+                                        switch (item.AttributeControlType)
                                         {
-                                            switch (item.AttributeControlType)
-                                            {
-                                                case AttributeControlType.DropdownList:
-                                                case AttributeControlType.RadioList:
-                                                case AttributeControlType.Checkboxes:
-                                                case AttributeControlType.ReadonlyCheckboxes:
-                                                    <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                        @Html.Raw(spec.Name)
+                                            case AttributeControlType.DropdownList:
+                                            case AttributeControlType.RadioList:
+                                            case AttributeControlType.Checkboxes:
+                                            case AttributeControlType.ReadonlyCheckboxes:
+                                                <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    @Html.Raw(spec.Name)
+                                                </a>
+                                                break;
+                                            case AttributeControlType.ColorSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <a class="btn btn-sm btn-light name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
                                                     </a>
-                                                    break;
-                                                case AttributeControlType.ColorSquares:
-                                                    if (spec.PictureModel.FullSizeImageUrl != null)
-                                                    {
-                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                            <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                            <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </a>
-                                                    }
-                                                    break;
-                                                case AttributeControlType.ImageSquares:
-                                                    if (spec.PictureModel.FullSizeImageUrl != null)
-                                                    {
-                                                        <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                            <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                            <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </a>
-                                                    }
-                                                    break;
-                                            }
-                                        }
-                                    </div>
-                                </td>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
+                                                    </a>
+                                                }
 
-                            </tr>
-                        }
+                                                break;
+                                            case AttributeControlType.ImageSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </a>
+                                                }
+
+                                                break;
+                                        }
+                                    }
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>
@@ -244,10 +245,12 @@
                 {
                     addToCartText = Loc["ShoppingCart.Reservation"];
                 }
+
                 if (Model.ProductPrice.AvailableForPreOrder)
                 {
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
+
                 <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
                     <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
                     <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
@@ -258,7 +261,6 @@
             {
                 if (Model.ProductType == ProductType.Auction)
                 {
-
                     var addToCartText = Loc["ShoppingCart.Bids"];
                     <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
                         <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
@@ -276,4 +278,4 @@
             }
         </div>
     </div>
-</article> 
+</article>

@@ -1,6 +1,6 @@
 ﻿<div class="checkout-data" v-if="vmorder.BillingAddress">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_top" })
-   
+
     <div class="section select-billing-address">
         <label for="billing-address-select">@Loc["Checkout.SelectBillingAddressOrEnterNewOne"]</label>
         <div>
@@ -42,7 +42,7 @@
                         HtmlFieldPrefix = "BillingNewAddress"
                     }
                 };
-                <partial name="Partials/CreateOrUpdateAddress" model="Model.BillingAddress.BillingNewAddress" view-data="dataDictAddress" />
+                <partial name="Partials/CreateOrUpdateAddress" model="Model.BillingAddress.BillingNewAddress" view-data="dataDictAddress"/>
             }
         </div>
         <template v-if="vmorder.billingAddressErrors !== null">

@@ -5,6 +5,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Notes"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Notes })
@@ -36,7 +37,7 @@
                         <div class="d-inline-flex">
                             <span class="mb-2">
                                 <b-label class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</b-label>
-                                <a class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId})">@Loc["Customer.Notes.Download"]</a>
+                                <a class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId })">@Loc["Customer.Notes.Download"]</a>
                             </span>
                         </div>
                     }

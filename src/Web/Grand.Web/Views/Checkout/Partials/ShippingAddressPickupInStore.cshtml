@@ -5,7 +5,7 @@
     <div class="section pickup-in-store">
         <p class="selector">
             <label class="custom-control custom-checkbox">
-                <input asp-for="PickUpInStore" class="custom-control-input" v-model="vmorder.PickUpInStore" />
+                <input asp-for="PickUpInStore" class="custom-control-input" v-model="vmorder.PickUpInStore"/>
                 <span class="custom-control-label"></span>
                 <span class="custom-control-description" for="@Html.IdFor(model => model.PickUpInStore)">
                     @Loc["Checkout.PickupPoints"]
@@ -25,8 +25,9 @@
         {
             if (Model.PickUpInStoreOnly)
             {
-                <input asp-for="PickUpInStore" type="hidden" />
+                <input asp-for="PickUpInStore" type="hidden"/>
             }
+
             <div class="section select-pickup-points">
                 @if (Model.PickupPoints.Count == 1)
                 {
@@ -55,18 +56,22 @@
                             {
                                 addressLine.Append($", {point.Address.City}");
                             }
+
                             if (!string.IsNullOrEmpty(point.Address.ZipPostalCode))
                             {
                                 addressLine.Append($", {point.Address.ZipPostalCode}");
                             }
+
                             if (!string.IsNullOrEmpty(point.Address.Address1))
                             {
                                 addressLine.Append($", {point.Address.Address1}");
                             }
+
                             if (!string.IsNullOrEmpty(point.PickupFee))
                             {
                                 addressLine.Append($", {point.PickupFee}");
                             }
+
                             <option value="@point.Id">@(addressLine)</option>
                         }
                     </select>

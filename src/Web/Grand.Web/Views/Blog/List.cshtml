@@ -6,6 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Blog"]);
 }
+
 @section left {
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_before" })
     @await Component.InvokeAsync("BlogCategories")
@@ -15,6 +16,7 @@
     @await Component.InvokeAsync("BlogTags")
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_after" })
 }
+
 <div class="page blog-page">
     <h2 class="generalTitle">
         @if (string.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
@@ -34,7 +36,9 @@
         }
         @if (!string.IsNullOrEmpty(Model.SearchKeyword))
         {
-            <label class="mb-0 error-label red">@Loc["Blog.ResultsFor"] <i>@Model.SearchKeyword</i></label>
+            <label class="mb-0 error-label red">
+                @Loc["Blog.ResultsFor"] <i>@Model.SearchKeyword</i>
+            </label>
         }
     </h2>
     <form method="get" id="small-search-box-form-blog" asp-action="BlogByKeyword" asp-controller="Blog" novalidate="novalidate">
@@ -80,16 +84,16 @@
                                 @for (var i = 0; i < item.Tags.Count; i++)
                                 {
                                     var tag = item.Tags[i];
-                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new { tag})">@tag</a>
+                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new { tag })">@tag</a>
                                 }
                             </div>
                         }
                         <div class="buttons mt-3">
                             @if (item.AllowComments)
                             {
-                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName})#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
+                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName })#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
                             }
-                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName})" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName })" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -101,7 +105,7 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_post", additionalData = item.Id })
         }
     </div>
-    <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext" />
+    <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
 
     @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_posts" })
 </div>

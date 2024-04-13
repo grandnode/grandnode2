@@ -7,10 +7,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.MerchandiseReturnDetails"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
 }
+
 <div class="page account-page px-3">
     <h1 class="h2 generalTitle">@string.Format(Loc["Account.CustomerMerchandiseReturns.Title"], Model.ReturnNumber, Model.MerchandiseReturnStatus)</h1>
     <div class="row flex-column">
@@ -32,49 +34,51 @@
                                 <col width="1">
                             </colgroup>
                             <thead>
-                                <tr>
-                                    <th class="product text-center">
-                                        @Loc["Account.CustomerMerchandiseReturns.Item"]
-                                    </th>
-                                    <th class="quantity text-center">
-                                        @Loc["Account.CustomerMerchandiseReturns.Quantity"]
-                                    </th>
-                                    <th class="text-center">
-                                        @Loc["Account.CustomerMerchandiseReturns.UnitPrice"]
-                                    </th>
-                                    <th class="reason text-center">
-                                        @Loc["Account.CustomerMerchandiseReturns.Reason"]
-                                    </th>
-                                    <th class="text-center">
-                                        @Loc["Account.CustomerMerchandiseReturns.Action"]
-                                    </th>
-                                </tr>
+                            <tr>
+                                <th class="product text-center">
+                                    @Loc["Account.CustomerMerchandiseReturns.Item"]
+                                </th>
+                                <th class="quantity text-center">
+                                    @Loc["Account.CustomerMerchandiseReturns.Quantity"]
+                                </th>
+                                <th class="text-center">
+                                    @Loc["Account.CustomerMerchandiseReturns.UnitPrice"]
+                                </th>
+                                <th class="reason text-center">
+                                    @Loc["Account.CustomerMerchandiseReturns.Reason"]
+                                </th>
+                                <th class="text-center">
+                                    @Loc["Account.CustomerMerchandiseReturns.Action"]
+                                </th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.MerchandiseReturnItems)
-                                {
-                                    <tr class="item-container">
-                                        <td class="product">
-                                            <em><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></em>
-                                        </td>
+                            @foreach (var item in Model.MerchandiseReturnItems)
+                            {
+                                <tr class="item-container">
+                                    <td class="product">
+                                        <em>
+                                            <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                        </em>
+                                    </td>
 
-                                        <td class="quantity text-center">
-                                            @item.Quantity
-                                        </td>
+                                    <td class="quantity text-center">
+                                        @item.Quantity
+                                    </td>
 
-                                        <td class="quantity text-center">
-                                            @item.ProductPrice
-                                        </td>
+                                    <td class="quantity text-center">
+                                        @item.ProductPrice
+                                    </td>
 
-                                        <td class="text-center">
-                                            <span>@item.ReasonForReturn</span>
-                                        </td>
+                                    <td class="text-center">
+                                        <span>@item.ReasonForReturn</span>
+                                    </td>
 
-                                        <td class="text-center">
-                                            <span>@item.RequestedAction</span>
-                                        </td>
-                                    </tr>
-                                }
+                                    <td class="text-center">
+                                        <span>@item.RequestedAction</span>
+                                    </td>
+                                </tr>
+                            }
                             </tbody>
                         </table>
                     </div>
@@ -205,37 +209,37 @@
                     <div class="table-responsive">
                         <table class="table table-hover data-table">
                             <colgroup>
-                                <col />
-                                <col />
+                                <col/>
+                                <col/>
                             </colgroup>
                             <thead class="table-inverse">
-                                <tr class="row mx-0">
-                                    <th class="created-on col-4">
-                                        @Loc["MerchandiseReturns.Notes.CreatedOn"]
-                                    </th>
-                                    <th class="note col-8">
-                                        @Loc["MerchandiseReturns.Notes.Note"]
-                                    </th>
-                                </tr>
+                            <tr class="row mx-0">
+                                <th class="created-on col-4">
+                                    @Loc["MerchandiseReturns.Notes.CreatedOn"]
+                                </th>
+                                <th class="note col-8">
+                                    @Loc["MerchandiseReturns.Notes.Note"]
+                                </th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.MerchandiseReturnNotes)
-                                {
-                                    <tr class="row mx-0">
-                                        <td class="created-on col-4">
-                                            @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
-                                        </td>
-                                        <td class="note col-8">
-                                            @Html.Raw(item.Note)
-                                            @if (item.HasDownload)
-                                            {
-                                                <p class="download">
-                                                    <a href="@Url.RouteUrl("GetMerchandiseReturnNoteFile", new { merchandisereturnnoteid = item.Id })">@Loc["MerchandiseReturns.Notes.Download"]</a>
-                                                </p>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
+                            @foreach (var item in Model.MerchandiseReturnNotes)
+                            {
+                                <tr class="row mx-0">
+                                    <td class="created-on col-4">
+                                        @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
+                                    </td>
+                                    <td class="note col-8">
+                                        @Html.Raw(item.Note)
+                                        @if (item.HasDownload)
+                                        {
+                                            <p class="download">
+                                                <a href="@Url.RouteUrl("GetMerchandiseReturnNoteFile", new { merchandisereturnnoteid = item.Id })">@Loc["MerchandiseReturns.Notes.Download"]</a>
+                                            </p>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                             </tbody>
                         </table>
                     </div>

@@ -16,8 +16,8 @@
                     </div>
                     <div class="col-lg-5 col-12 px-lg-3 pr-lg-0 px-0 mt-lg-0 newsletter-inputs d-flex flex-column justify-content-center align-items-center">
                         <div class="input-group" role="group">
-                            <input id="newsletter-email" class="input-group-text form-control newsletter-email" 
-                                          placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
+                            <input id="newsletter-email" class="input-group-text form-control newsletter-email"
+                                   placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
                             <label for="newsletter-email" class="sr-only">newsletter</label>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
@@ -43,7 +43,7 @@
                         }
                         <div class="newsletter-validation text-white text-center w-100">
                             <span id="subscribe-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                            
+
                         </div>
                         <div id="newsletter-result-block" style="display: none;" class="newsletter-result text-center text-white w-100">
                             <div class="alert alert-info">
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-                <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe />
+                <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe/>
             </div>
 
         </div>

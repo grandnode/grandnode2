@@ -1,19 +1,18 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Knowledgebase
+namespace Grand.Web.Models.Knowledgebase;
+
+public class KnowledgebaseCategoryModel : BaseEntityModel
 {
-    public class KnowledgebaseCategoryModel : BaseEntityModel
-    {
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public bool IsCurrent { get; set; }
+    public bool IsCurrent { get; set; }
 
-        public List<KnowledgebaseCategoryModel> Children { get; set; }
+    public List<KnowledgebaseCategoryModel> Children { get; set; }
 
-        public KnowledgebaseCategoryModel Parent { get; set; }
+    public KnowledgebaseCategoryModel Parent { get; set; }
 
-        public string SeName { get; set; }
-    }
+    public string SeName { get; set; }
 }

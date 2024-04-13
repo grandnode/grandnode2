@@ -27,8 +27,8 @@
                         <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
                             <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                    data-val-required=@Loc["Vendors.ApplyAccount.Name.Required"] />
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-required=@Loc["Vendors.ApplyAccount.Name.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Name"></span>
                         </validation-provider>
@@ -37,8 +37,8 @@
                         <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.ApplyAccount.Email.Required"] />
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.ApplyAccount.Email.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -50,7 +50,7 @@
                     @if (Model.DisplayCaptcha)
                     {
                         <div class="captcha-box">
-                            <captcha />
+                            <captcha/>
                         </div>
                     }
                     <div asp-validation-summary="All" class="message-error"></div>
@@ -62,7 +62,7 @@
                                 HtmlFieldPrefix = "Address"
                             }
                         };
-                        <partial name="Partials/CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
+                        <partial name="Partials/CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress"/>
                     }
                     @if (Model.TermsOfServiceEnabled)
                     {
@@ -94,7 +94,7 @@
                                     }
                                     else
                                     {
-                                        <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new {SeName = "VendorTermsOfService" })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
+                                        <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new { SeName = "VendorTermsOfService" })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
                                     }
                                 </div>
                                 <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
@@ -104,7 +104,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12 buttons pt-1 pb-1">
-                        <input type="submit" id="apply-vendor" class="btn btn-info apply-vendor-button" value="@Loc["Vendors.ApplyAccount.Button"]" />
+                        <input type="submit" id="apply-vendor" class="btn btn-info apply-vendor-button" value="@Loc["Vendors.ApplyAccount.Button"]"/>
                     </div>
                 </div>
             </form>

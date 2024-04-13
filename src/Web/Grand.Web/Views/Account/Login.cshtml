@@ -16,7 +16,7 @@
             @* login main block *@
             <div class="col-12 mx-lg-0 mx-auto mt-3">
                 <validation-observer v-slot="{ handleSubmit }">
-                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" ref="form"  v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
+                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="h5 mb-0 text-center">
@@ -34,7 +34,7 @@
                                             </div>
                                             <div class="col-lg-9 col-12">
                                                 <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors, classes }">
-                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Login.Fields.UserName.Required"] />
+                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Login.Fields.UserName.Required"]/>
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Username"></span>
                                                 </validation-provider>
@@ -49,11 +49,11 @@
                                             </div>
                                             <div class="col-lg-9 col-12">
                                                 <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
-                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Login.Fields.Email.Required"] />
+                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Login.Fields.Email.Required"]/>
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Email"></span>
                                                 </validation-provider>
-                                                
+
                                             </div>
                                         </div>
                                     }
@@ -63,7 +63,7 @@
                                         </div>
                                         <div class="col-lg-9 col-12">
                                             <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
-                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-required=@Loc["Account.Login.Fields.Password.Required"] />
+                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" data-val-required=@Loc["Account.Login.Fields.Password.Required"]/>
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                                 <span asp-validation-for="Password"></span>
                                             </validation-provider>
@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
                                         <label class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" asp-for="RememberMe" />
+                                            <input class="custom-control-input" asp-for="RememberMe"/>
                                             <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
                                             <span class="custom-control-label"></span>
                                             <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
@@ -83,7 +83,7 @@
                                     @if (Model.DisplayCaptcha)
                                     {
                                         <div class="captcha-box">
-                                            <captcha />
+                                            <captcha/>
                                         </div>
                                     }
                                 </div>

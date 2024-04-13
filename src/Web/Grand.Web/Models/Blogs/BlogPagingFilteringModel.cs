@@ -1,45 +1,48 @@
 ﻿using Grand.Web.Common.Page.Paging;
 
-namespace Grand.Web.Models.Blogs
+namespace Grand.Web.Models.Blogs;
+
+public class BlogPagingFilteringModel : BasePageableModel
 {
-    public class BlogPagingFilteringModel : BasePageableModel
+    #region Methods
+
+    public virtual DateTime? GetParsedMonth()
     {
-        #region Methods
-
-        public virtual DateTime? GetParsedMonth()
+        DateTime? result = null;
+        if (string.IsNullOrEmpty(Month)) return null;
+        var tempDate = Month.Split(['-']);
+        if (tempDate.Length != 2) return null;
+        int.TryParse(tempDate[0], out var year);
+        int.TryParse(tempDate[1], out var month);
+        try
         {
-            DateTime? result = null;
-            if (string.IsNullOrEmpty(Month)) return null;
-            var tempDate = Month.Split(['-']);
-            if (tempDate.Length != 2) return null;
-            int.TryParse(tempDate[0], out var year);
-            int.TryParse(tempDate[1], out var month);
-            try
-            {
-                result = new DateTime(year, month, 1);
-            }
-            catch { }
-            return result;
+            result = new DateTime(year, month, 1);
         }
-        public virtual DateTime? GetFromMonth()
-        {
-            var filterByMonth = GetParsedMonth();
-            return filterByMonth;
-        }
-        public virtual DateTime? GetToMonth()
-        {
-            var filterByMonth = GetParsedMonth();
-            return filterByMonth?.AddMonths(1).AddSeconds(-1);
-        }
-        #endregion
+        catch { }
 
-        #region Properties
-
-        public string Month { get; set; }
-        public string Tag { get; set; }
-        public string CategorySeName { get; set; }
-        public string SearchKeyword { get; set; }
-
-        #endregion
+        return result;
     }
+
+    public virtual DateTime? GetFromMonth()
+    {
+        var filterByMonth = GetParsedMonth();
+        return filterByMonth;
+    }
+
+    public virtual DateTime? GetToMonth()
+    {
+        var filterByMonth = GetParsedMonth();
+        return filterByMonth?.AddMonths(1).AddSeconds(-1);
+    }
+
+    #endregion
+
+    #region Properties
+
+    public string Month { get; set; }
+    public string Tag { get; set; }
+    public string CategorySeName { get; set; }
+    public string SearchKeyword { get; set; }
+
+    #endregion
 }

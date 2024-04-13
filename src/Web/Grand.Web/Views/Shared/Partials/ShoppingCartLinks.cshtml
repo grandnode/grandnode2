@@ -1,13 +1,12 @@
-﻿@using Grand.Business.Core.Interfaces.Common.Security
+﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
+@using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Business.Core.Utilities.Common.Security
-@using Grand.Business.Core.Interfaces.Checkout.Orders
 @inject IWorkContext workContext
 @inject IPermissionService permissionService
 @inject IShoppingCartService shoppingCartService
 @inject ShoppingCartSettings shoppingCartSettings
 @inject CatalogSettings catalogSettings
 @{
-
     var shoppingCartTypes = new List<ShoppingCartType>
     {
         ShoppingCartType.ShoppingCart,
@@ -21,19 +20,20 @@
     var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
 
     var shoppingCartItems =
-        workContext.CurrentCustomer.ShoppingCartItems.Any() ?
-        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
-        .Sum(x => x.Quantity) : 0;
+        workContext.CurrentCustomer.ShoppingCartItems.Any()
+            ? (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
+            .Sum(x => x.Quantity)
+            : 0;
 
 
-    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ?
-        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.Wishlist))
-        .Sum(x => x.Quantity) : 0;
-
+    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any()
+        ? (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+        .Sum(x => x.Quantity)
+        : 0;
 }
 @if (catalogSettings.CompareProductsEnabled)
 {
-    <partial name="Partials/SidebarCompareProducts" />
+    <partial name="Partials/SidebarCompareProducts"/>
 }
 @if (wishlistEnabled || shoppingCartEnabled)
 {
@@ -41,9 +41,10 @@
     {
         if (wishlistEnabled)
         {
-            <partial name="Partials/SidebarWishlist" model="wishlistItems" />
+            <partial name="Partials/SidebarWishlist" model="wishlistItems"/>
         }
-        <partial name="Partials/SidebarShoppingCart" model="shoppingCartItems" />
+
+        <partial name="Partials/SidebarShoppingCart" model="shoppingCartItems"/>
     }
     else
     {
@@ -56,6 +57,7 @@
                 </a>
             </li>
         }
+
         if (shoppingCartEnabled)
         {
             <li class="nav-item">

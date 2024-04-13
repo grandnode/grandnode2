@@ -16,27 +16,24 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
     public MerchandiseReturnValidator(
         IEnumerable<IValidatorConsumer<MerchandiseReturnModel>> validators,
         OrderSettings orderSettings, IOrderService orderService, IProductService productService,
-        IMediator mediator, IAddressAttributeParser addressAttributeParser, 
+        IMediator mediator, IAddressAttributeParser addressAttributeParser,
         ITranslationService translationService)
         : base(validators)
     {
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate && orderSettings.MerchandiseReturns_PickupDateRequired && x.PickupDate == null)
-            {
+            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate &&
+                orderSettings.MerchandiseReturns_PickupDateRequired && x.PickupDate == null)
                 context.AddFailure(translationService.GetResource("MerchandiseReturns.PickupDateRequired"));
-            }
-            var customAttributes = await mediator.Send(new GetParseCustomAddressAttributes { SelectedAttributes = x.MerchandiseReturnNewAddress.SelectedAttributes }, _);
+            var customAttributes =
+                await mediator.Send(
+                    new GetParseCustomAddressAttributes
+                        { SelectedAttributes = x.MerchandiseReturnNewAddress.SelectedAttributes }, _);
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                context.AddFailure(error);
-            }
+            foreach (var error in customAttributeWarnings) context.AddFailure(error);
 
             if (!x.Items.Any(x => x.Quantity > 0))
-            {
                 context.AddFailure(translationService.GetResource("MerchandiseReturns.NoItemsSubmitted"));
-            }
             var vendors = new List<string>();
             var order = await orderService.GetOrderById(x.OrderId);
             foreach (var orderItem in order.OrderItems)
@@ -50,10 +47,9 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
 
                 vendors.Add(orderItem.VendorId);
             }
+
             if (vendors.Distinct().Count() > 1)
-            {
                 context.AddFailure(translationService.GetResource("MerchandiseReturns.MultiVendorsItems"));
-            }
         });
     }
 }

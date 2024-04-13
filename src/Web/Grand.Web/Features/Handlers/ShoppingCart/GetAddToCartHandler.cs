@@ -15,173 +15,176 @@ using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 
-namespace Grand.Web.Features.Handlers.ShoppingCart
+namespace Grand.Web.Features.Handlers.ShoppingCart;
+
+public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
 {
-    public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
+    private readonly IAuctionService _auctionService;
+    private readonly MediaSettings _mediaSettings;
+    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IPictureService _pictureService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly IPricingService _pricingService;
+    private readonly IProductAttributeFormatter _productAttributeFormatter;
+    private readonly IProductService _productService;
+    private readonly IShoppingCartService _shoppingCartService;
+    private readonly ShoppingCartSettings _shoppingCartSettings;
+    private readonly ITaxService _taxService;
+    private readonly TaxSettings _taxSettings;
+    private readonly ITranslationService _translationService;
+
+    public GetAddToCartHandler(
+        IProductAttributeFormatter productAttributeFormatter,
+        ITranslationService translationService,
+        ITaxService taxService,
+        IPricingService priceCalculationService,
+        IPriceFormatter priceFormatter,
+        IShoppingCartService shoppingCartService,
+        IOrderCalculationService orderTotalCalculationService,
+        IPictureService pictureService,
+        IProductService productService,
+        IAuctionService auctionService,
+        ShoppingCartSettings shoppingCartSettings,
+        TaxSettings taxSettings,
+        MediaSettings mediaSettings)
     {
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly ITranslationService _translationService;
-        private readonly ITaxService _taxService;
-        private readonly IPricingService _pricingService;
-        private readonly IPriceFormatter _priceFormatter;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IOrderCalculationService _orderTotalCalculationService;
-        private readonly IPictureService _pictureService;
-        private readonly IProductService _productService;
-        private readonly IAuctionService _auctionService;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly TaxSettings _taxSettings;
-        private readonly MediaSettings _mediaSettings;
+        _productAttributeFormatter = productAttributeFormatter;
+        _translationService = translationService;
+        _taxService = taxService;
+        _pricingService = priceCalculationService;
+        _priceFormatter = priceFormatter;
+        _shoppingCartService = shoppingCartService;
+        _orderTotalCalculationService = orderTotalCalculationService;
+        _pictureService = pictureService;
+        _productService = productService;
+        _auctionService = auctionService;
+        _shoppingCartSettings = shoppingCartSettings;
+        _taxSettings = taxSettings;
+        _mediaSettings = mediaSettings;
+    }
 
-        public GetAddToCartHandler(
-            IProductAttributeFormatter productAttributeFormatter,
-            ITranslationService translationService,
-            ITaxService taxService,
-            IPricingService priceCalculationService,
-            IPriceFormatter priceFormatter,
-            IShoppingCartService shoppingCartService,
-            IOrderCalculationService orderTotalCalculationService,
-            IPictureService pictureService,
-            IProductService productService,
-            IAuctionService auctionService,
-            ShoppingCartSettings shoppingCartSettings,
-            TaxSettings taxSettings,
-            MediaSettings mediaSettings)
+    public async Task<AddToCartModel> Handle(GetAddToCart request, CancellationToken cancellationToken)
+    {
+        var model = new AddToCartModel {
+            AttributeDescription =
+                await _productAttributeFormatter.FormatAttributes(request.Product, request.Attributes),
+            ProductSeName = request.Product.GetSeName(request.Language.Id),
+            CartType = request.CartType,
+            ProductId = request.Product.Id,
+            ProductName = request.Product.GetTranslation(x => x.Name, request.Language.Id),
+            Quantity = request.Quantity
+        };
+
+        //reservation info
+        if (request.Product.ProductTypeId == ProductType.Reservation)
         {
-            _productAttributeFormatter = productAttributeFormatter;
-            _translationService = translationService;
-            _taxService = taxService;
-            _pricingService = priceCalculationService;
-            _priceFormatter = priceFormatter;
-            _shoppingCartService = shoppingCartService;
-            _orderTotalCalculationService = orderTotalCalculationService;
-            _pictureService = pictureService;
-            _productService = productService;
-            _auctionService = auctionService;
-            _shoppingCartSettings = shoppingCartSettings;
-            _taxSettings = taxSettings;
-            _mediaSettings = mediaSettings;
+            if (request.EndDate == default(DateTime) || request.EndDate == null)
+                model.ReservationInfo =
+                    string.Format(_translationService.GetResource("ShoppingCart.Reservation.StartDate"),
+                        request.StartDate?.ToString(_shoppingCartSettings.ReservationDateFormat));
+            else
+                model.ReservationInfo = string.Format(_translationService.GetResource("ShoppingCart.Reservation.Date"),
+                    request.StartDate?.ToString(_shoppingCartSettings.ReservationDateFormat),
+                    request.EndDate?.ToString(_shoppingCartSettings.ReservationDateFormat));
+
+            if (!string.IsNullOrEmpty(request.Parameter))
+                model.ReservationInfo += "<br>" +
+                                         string.Format(
+                                             _translationService.GetResource("ShoppingCart.Reservation.Option"),
+                                             request.Parameter);
+            if (!string.IsNullOrEmpty(request.Duration))
+                model.ReservationInfo += "<br>" +
+                                         string.Format(
+                                             _translationService.GetResource("ShoppingCart.Reservation.Duration"),
+                                             request.Duration);
         }
 
-        public async Task<AddToCartModel> Handle(GetAddToCart request, CancellationToken cancellationToken)
+        if (request.CartType != ShoppingCartType.Auctions)
         {
-            var model = new AddToCartModel
+            model.ItemQuantity = request.Quantity;
+
+            //unit prices
+            if (request.Product.CallForPrice)
             {
-                AttributeDescription = await _productAttributeFormatter.FormatAttributes(request.Product, request.Attributes),
-                ProductSeName = request.Product.GetSeName(request.Language.Id),
-                CartType = request.CartType,
-                ProductId = request.Product.Id,
-                ProductName = request.Product.GetTranslation(x => x.Name, request.Language.Id),
-                Quantity = request.Quantity
-            };
-
-            //reservation info
-            if (request.Product.ProductTypeId == ProductType.Reservation)
-            {
-                if (request.EndDate == default(DateTime) || request.EndDate == null)
-                {
-                    model.ReservationInfo = string.Format(_translationService.GetResource("ShoppingCart.Reservation.StartDate"), request.StartDate?.ToString(_shoppingCartSettings.ReservationDateFormat));
-                }
-                else
-                {
-                    model.ReservationInfo = string.Format(_translationService.GetResource("ShoppingCart.Reservation.Date"), request.StartDate?.ToString(_shoppingCartSettings.ReservationDateFormat), request.EndDate?.ToString(_shoppingCartSettings.ReservationDateFormat));
-                }
-
-                if (!string.IsNullOrEmpty(request.Parameter))
-                {
-                    model.ReservationInfo += "<br>" + string.Format(_translationService.GetResource("ShoppingCart.Reservation.Option"), request.Parameter);
-                }
-                if (!string.IsNullOrEmpty(request.Duration))
-                {
-                    model.ReservationInfo += "<br>" + string.Format(_translationService.GetResource("ShoppingCart.Reservation.Duration"), request.Duration);
-                }
-            }
-
-            if (request.CartType != ShoppingCartType.Auctions)
-            {
-               
-                model.ItemQuantity = request.Quantity;
-
-                //unit prices
-                if (request.Product.CallForPrice)
-                {
-                    model.Price = _translationService.GetResource("Products.CallForPrice");
-                }
-                else
-                {
-                    var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
-                    model.Price = !request.CustomerEnteredPrice.HasValue ? _priceFormatter.FormatPrice(productprices.productprice) : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
-                    model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
-                    model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
-                }
-
-                //picture
-                model.Picture = await PrepareCartItemPicture(request);
+                model.Price = _translationService.GetResource("Products.CallForPrice");
             }
             else
             {
-                model.Picture = await PrepareCartItemPicture(request);
+                var productprices = await _taxService.GetProductPrice(request.Product,
+                    (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
+                model.Price = !request.CustomerEnteredPrice.HasValue
+                    ? _priceFormatter.FormatPrice(productprices.productprice)
+                    : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
+                model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
+                model.TotalPrice =
+                    _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
             }
 
-            var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, request.CartType);
-
-            if (request.CartType != ShoppingCartType.Auctions)
-            {
-                model.TotalItems = cart.Sum(x => x.Quantity);
-            }
-            else
-            {
-                model.TotalItems = 0;
-                var grouped = (await _auctionService.GetBidsByCustomerId(request.Customer.Id)).GroupBy(x => x.ProductId);
-                foreach (var item in grouped)
-                {
-                    var p = await _productService.GetProductById(item.Key);
-                    if (p != null && p.AvailableEndDateTimeUtc > DateTime.UtcNow)
-                    {
-                        model.TotalItems++;
-                    }
-                }
-            }
-
-
-            switch (request.CartType)
-            {
-                case ShoppingCartType.ShoppingCart:
-                {
-                    var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
-                    var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
-                    model.SubTotalIncludingTax = subTotalIncludingTax;
-                    model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
-                    model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
-                    if (shoppingCartSubTotal.discountAmount > 0)
-                    {
-                        model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency);
-                    }
-
-                    break;
-                }
-                case ShoppingCartType.Auctions:
-                    model.IsAuction = true;
-                    model.HighestBidValue = request.Product.HighestBid;
-                    model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
-                    model.EndTime = request.Product.AvailableEndDateTimeUtc;
-                    break;
-            }
-
-            return model;
-
+            //picture
+            model.Picture = await PrepareCartItemPicture(request);
         }
-
-        private async Task<PictureModel> PrepareCartItemPicture(GetAddToCart request)
+        else
         {
-            var sciPicture = await request.Product.GetProductPicture(request.Attributes, _productService, _pictureService);
-            return new PictureModel
-            {
-                Id = sciPicture?.Id,
-                ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.AddToCartThumbPictureSize),
-                Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), request.Product.Name),
-                AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"), request.Product.Name)
-            };
+            model.Picture = await PrepareCartItemPicture(request);
         }
+
+        var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, request.CartType);
+
+        if (request.CartType != ShoppingCartType.Auctions)
+        {
+            model.TotalItems = cart.Sum(x => x.Quantity);
+        }
+        else
+        {
+            model.TotalItems = 0;
+            var grouped = (await _auctionService.GetBidsByCustomerId(request.Customer.Id)).GroupBy(x => x.ProductId);
+            foreach (var item in grouped)
+            {
+                var p = await _productService.GetProductById(item.Key);
+                if (p != null && p.AvailableEndDateTimeUtc > DateTime.UtcNow) model.TotalItems++;
+            }
+        }
+
+
+        switch (request.CartType)
+        {
+            case ShoppingCartType.ShoppingCart:
+            {
+                var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
+                                           !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
+                var shoppingCartSubTotal =
+                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
+                model.SubTotalIncludingTax = subTotalIncludingTax;
+                model.SubTotal =
+                    _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency);
+                model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
+                if (shoppingCartSubTotal.discountAmount > 0)
+                    model.SubTotalDiscount =
+                        _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency);
+
+                break;
+            }
+            case ShoppingCartType.Auctions:
+                model.IsAuction = true;
+                model.HighestBidValue = request.Product.HighestBid;
+                model.HighestBid = _priceFormatter.FormatPrice(request.Product.HighestBid);
+                model.EndTime = request.Product.AvailableEndDateTimeUtc;
+                break;
+        }
+
+        return model;
+    }
+
+    private async Task<PictureModel> PrepareCartItemPicture(GetAddToCart request)
+    {
+        var sciPicture = await request.Product.GetProductPicture(request.Attributes, _productService, _pictureService);
+        return new PictureModel {
+            Id = sciPicture?.Id,
+            ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.AddToCartThumbPictureSize),
+            Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"),
+                request.Product.Name),
+            AlternateText = string.Format(_translationService.GetResource("Media.Product.ImageAlternateTextFormat"),
+                request.Product.Name)
+        };
     }
 }

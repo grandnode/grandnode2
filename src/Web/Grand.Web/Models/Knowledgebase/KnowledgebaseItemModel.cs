@@ -1,12 +1,11 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Knowledgebase
+namespace Grand.Web.Models.Knowledgebase;
+
+public class KnowledgebaseItemModel : BaseEntityModel
 {
-    public class KnowledgebaseItemModel : BaseEntityModel
-    {
-        public string Name { get; set; }
-        public string SeName { get; set; }
-        public bool IsArticle { get; set; }
-        public string FormattedBreadcrumbs { get; set; }
-    }
+    public string Name { get; set; }
+    public string SeName { get; set; }
+    public bool IsArticle { get; set; }
+    public string FormattedBreadcrumbs { get; set; }
 }

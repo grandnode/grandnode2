@@ -4,26 +4,26 @@ using Grand.Web.Features.Models.News;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class HomePageNewsViewComponent : BaseViewComponent
 {
-    public class HomePageNewsViewComponent : BaseViewComponent
+    private readonly IMediator _mediator;
+    private readonly NewsSettings _newsSettings;
+
+    public HomePageNewsViewComponent(IMediator mediator,
+        NewsSettings newsSettings)
     {
-        private readonly IMediator _mediator;
-        private readonly NewsSettings _newsSettings;
-        public HomePageNewsViewComponent(IMediator mediator,
-            NewsSettings newsSettings)
-        {
-            _mediator = mediator;
-            _newsSettings = newsSettings;
-        }
+        _mediator = mediator;
+        _newsSettings = newsSettings;
+    }
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
-                return Content("");
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
+            return Content("");
 
-            var model = await _mediator.Send(new GetHomePageNewsItems());
-            return !model.NewsItems.Any() ? Content("") : View(model);
-        }
+        var model = await _mediator.Send(new GetHomePageNewsItems());
+        return !model.NewsItems.Any() ? Content("") : View(model);
     }
 }

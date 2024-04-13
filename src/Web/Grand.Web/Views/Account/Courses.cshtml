@@ -5,6 +5,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Courses"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Courses })
@@ -39,7 +40,7 @@
                             </div>
                         }
                     </div>
-                </div> 
+                </div>
                 @if (!string.IsNullOrEmpty(item.ShortDescription))
                 {
                     <div class="card-body">

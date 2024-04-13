@@ -17,7 +17,7 @@
     {
         Category = category
     };
-    <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel" />
+    <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel"/>
 }
 
 @foreach (var mpage in Model.Pages)
@@ -30,7 +30,6 @@
 }
 @if (Model.Brands.Any())
 {
-
     <li class="-hasSubmenu" text="@Loc["Brands.Menu"]">
         <a href="#">
             <span class="title">@Loc["Brands.Menu"]</span>
@@ -65,7 +64,6 @@
 }
 @if (Model.Collections.Any())
 {
-
     <li class="-hasSubmenu" text="@Loc["Collections.Menu"]">
         <a href="#">
             <span class="title">@Loc["Collections.Menu"]</span>
@@ -108,6 +106,7 @@
             </a>
         </li>
     }
+
     @if (Model.DisplaySearchMenu)
     {
         <li>
@@ -116,6 +115,7 @@
             </a>
         </li>
     }
+
     @if (Model.DisplayCustomerMenu)
     {
         <li>
@@ -124,6 +124,7 @@
             </a>
         </li>
     }
+
     @if (Model.BlogEnabled && Model.DisplayBlogMenu)
     {
         <li>
@@ -132,6 +133,7 @@
             </a>
         </li>
     }
+
     @if (Model.DisplayContactUsMenu)
     {
         <li>

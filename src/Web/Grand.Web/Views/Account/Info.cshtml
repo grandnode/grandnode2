@@ -7,6 +7,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Info })
@@ -71,526 +72,531 @@
     });
 </script>
 <div class="page account-page customer-info-page pl-lg-3 pt-3 pt-lg-0">
-    @if (customerSettings.AllowUsersToExportData)
-    {
-        <button class="btn btn-info float-sm-right mt-2" onclick="location.href='/account/export'">
-            <b-icon icon="server"></b-icon> @Loc["Account.CustomerExportToXls"]
-        </button>
-    }
-    <h2 class="generalTitle">@Loc["Account.CustomerInfo"]</h2>
-    <validation-observer v-slot="{ handleSubmit }">
-        <form asp-route="CustomerInfo" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-            <div asp-validation-summary="All" class="message-error"></div>
-            <div class="card mb-3">
-                <h3 class="card-header">@Loc["Account.YourPersonalDetails"]</h3>
-                <div class="card-body">
-                    <fieldset class="form-fields">
-                        <legend class="sr-only">@Loc["Account.Fields.Gender"]</legend>
-                        @if (Model.GenderEnabled)
-                        {
-                            <label class="col-form-label">
-                                @Loc["Account.Fields.Gender"]:
-                            </label>
-                            <div class="form-group gender">
-                                <div class="flex-row">
-                                    <div class="custom-control custom-radio male custom-control-inline">
-                                        <input type="radio" asp-for="Gender" value="M" checked="@(Model.Gender == "M")" id="gender-male" class="custom-control-input" />
-                                        <label class="custom-control-label" for="gender-male">@Loc["Account.Fields.Gender.Male"]</label>
-                                    </div>
-                                    <div class="custom-control custom-radio female custom-control-inline">
-                                        <input type="radio" asp-for="Gender" value="F" checked="@(Model.Gender == "F")" id="gender-female" class="custom-control-input" />
-                                        <label class="custom-control-label" for="gender-female">@Loc["Account.Fields.Gender.Female"]</label>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </fieldset>
-                    <div class="form-row">
-                        <fieldset class="form-group col-sm-6 col-12">
-                            <legend class="sr-only">@Loc["account.fields.firstname"]</legend>
-                            @if (Model.FirstLastNameRequired)
-                            {
-                                <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
-                                    <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
-                                    <span class="required">*</span>
-                                    <input asp-for="FirstName" v-model="customer.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.FirstName.Required"] />
-                                    <span class="field-validation-error">{{ errors[0] }}</span>
-                                    <span asp-validation-for="FirstName"></span>
-                                </validation-provider>
-                            }
-                            else
-                            {
-                                <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
-                                <input asp-for="FirstName" class="form-control" data-val-length="The field FirstName must be a string with a maximum length of 200."/>
-                            }
-                        </fieldset>
-                        <fieldset class="form-group col-sm-6 col-12">
-                            <legend class="sr-only">@Loc["account.fields.lastname"]</legend>
-                            @if (Model.FirstLastNameRequired)
-                            {
-                                <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
-                                    <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
-                                    <span class="required">*</span>
-                                    <input asp-for="LastName" v-model="customer.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.LastName.Required"] />
-                                    <span class="field-validation-error">{{ errors[0] }}</span>
-                                    <span asp-validation-for="LastName"></span>
-                                </validation-provider>
-                            }
-                            else
-                            {
-                                <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
-                                <input asp-for="LastName" class="form-control" />
-                            }
-                        </fieldset>
-                    </div>
-                    @if (Model.DateOfBirthEnabled)
-                    {
-                        <fieldset class="form-group date-of-birth">
-                            <legend class="sr-only">@Loc["account.fields.dateofbirth"]</legend>
-                            <span class="col-form-label">
-                                @Loc["Account.Fields.DateOfBirth"]:
-                            </span>
-                            @if (Model.DateOfBirthRequired)
-                            {
-                                <span class="required">*</span>
-                            }
-                            <div class="input-group">
-                                <date-picker-dropdown control-day="@Html.IdFor(x => x.DateOfBirthDay)"
-                                                      control-month="@Html.IdFor(x => x.DateOfBirthMonth)"
-                                                      control-year="@Html.IdFor(x => x.DateOfBirthYear)"
-                                                      begin-year="@(DateTime.Now.Year - 100)"
-                                                      end-year="DateTime.Now.Year"
-                                                      selected-day="Model.DateOfBirthDay ?? 0"
-                                                      selected-month="Model.DateOfBirthMonth ?? 0"
-                                                      selected-year="Model.DateOfBirthYear ?? 0"
-                                                      PartialViewName="Partials/DatePickerDropDowns"
-                                                      class="col-12 input-group px-0" />
-
-                                <span asp-validation-for="DateOfBirthDay"></span>
-                                <span asp-validation-for="DateOfBirthMonth"></span>
-                                <span asp-validation-for="DateOfBirthYear"></span>
-                            </div>
-                        </fieldset>
-                    }
-                    <fieldset class="form-group row mail">
-                        <legend class="sr-only">@Loc["account.associatedexternalauth.email"]</legend>
-                        <div class="col-12">
-                            <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
-                                <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
-                                <span class="required">*</span>
-                                <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" asp-readonly=@(!Model.AllowUsersToChangeEmail) data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"] />
-                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                <span asp-validation-for="Email"></span>
-                            </validation-provider>
+@if (customerSettings.AllowUsersToExportData)
+{
+    <button class="btn btn-info float-sm-right mt-2" onclick="location.href='/account/export'">
+        <b-icon icon="server"></b-icon> @Loc["Account.CustomerExportToXls"]
+    </button>
+}
+<h2 class="generalTitle">@Loc["Account.CustomerInfo"]</h2>
+<validation-observer v-slot="{ handleSubmit }">
+<form asp-route="CustomerInfo" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+<div asp-validation-summary="All" class="message-error"></div>
+<div class="card mb-3">
+    <h3 class="card-header">@Loc["Account.YourPersonalDetails"]</h3>
+    <div class="card-body">
+        <fieldset class="form-fields">
+            <legend class="sr-only">@Loc["Account.Fields.Gender"]</legend>
+            @if (Model.GenderEnabled)
+            {
+                <label class="col-form-label">
+                    @Loc["Account.Fields.Gender"]:
+                </label>
+                <div class="form-group gender">
+                    <div class="flex-row">
+                        <div class="custom-control custom-radio male custom-control-inline">
+                            <input type="radio" asp-for="Gender" value="M" checked="@(Model.Gender == "M")" id="gender-male" class="custom-control-input"/>
+                            <label class="custom-control-label" for="gender-male">@Loc["Account.Fields.Gender.Male"]</label>
                         </div>
-                    </fieldset>
-                    @if (Model.UsernamesEnabled)
-                    {
-                        if (Model.AllowUsersToChangeUsernames)
+                        <div class="custom-control custom-radio female custom-control-inline">
+                            <input type="radio" asp-for="Gender" value="F" checked="@(Model.Gender == "F")" id="gender-female" class="custom-control-input"/>
+                            <label class="custom-control-label" for="gender-female">@Loc["Account.Fields.Gender.Female"]</label>
+                        </div>
+                    </div>
+                </div>
+            }
+        </fieldset>
+        <div class="form-row">
+            <fieldset class="form-group col-sm-6 col-12">
+                <legend class="sr-only">@Loc["account.fields.firstname"]</legend>
+                @if (Model.FirstLastNameRequired)
+                {
+                    <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
+                        <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
+                        <span class="required">*</span>
+                        <input asp-for="FirstName" v-model="customer.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.FirstName.Required"]/>
+                        <span class="field-validation-error">{{ errors[0] }}</span>
+                        <span asp-validation-for="FirstName"></span>
+                    </validation-provider>
+                }
+                else
+                {
+                    <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
+                    <input asp-for="FirstName" class="form-control" data-val-length="The field FirstName must be a string with a maximum length of 200."/>
+                }
+            </fieldset>
+            <fieldset class="form-group col-sm-6 col-12">
+                <legend class="sr-only">@Loc["account.fields.lastname"]</legend>
+                @if (Model.FirstLastNameRequired)
+                {
+                    <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
+                        <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
+                        <span class="required">*</span>
+                        <input asp-for="LastName" v-model="customer.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.LastName.Required"]/>
+                        <span class="field-validation-error">{{ errors[0] }}</span>
+                        <span asp-validation-for="LastName"></span>
+                    </validation-provider>
+                }
+                else
+                {
+                    <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
+                    <input asp-for="LastName" class="form-control"/>
+                }
+            </fieldset>
+        </div>
+        @if (Model.DateOfBirthEnabled)
+        {
+            <fieldset class="form-group date-of-birth">
+                <legend class="sr-only">@Loc["account.fields.dateofbirth"]</legend>
+                <span class="col-form-label">
+                    @Loc["Account.Fields.DateOfBirth"]:
+                </span>
+                @if (Model.DateOfBirthRequired)
+                {
+                    <span class="required">*</span>
+                }
+                <div class="input-group">
+                    <date-picker-dropdown control-day="@Html.IdFor(x => x.DateOfBirthDay)"
+                                          control-month="@Html.IdFor(x => x.DateOfBirthMonth)"
+                                          control-year="@Html.IdFor(x => x.DateOfBirthYear)"
+                                          begin-year="@(DateTime.Now.Year - 100)"
+                                          end-year="DateTime.Now.Year"
+                                          selected-day="Model.DateOfBirthDay ?? 0"
+                                          selected-month="Model.DateOfBirthMonth ?? 0"
+                                          selected-year="Model.DateOfBirthYear ?? 0"
+                                          PartialViewName="Partials/DatePickerDropDowns"
+                                          class="col-12 input-group px-0"/>
+
+                    <span asp-validation-for="DateOfBirthDay"></span>
+                    <span asp-validation-for="DateOfBirthMonth"></span>
+                    <span asp-validation-for="DateOfBirthYear"></span>
+                </div>
+            </fieldset>
+        }
+        <fieldset class="form-group row mail">
+            <legend class="sr-only">@Loc["account.associatedexternalauth.email"]</legend>
+            <div class="col-12">
+                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                    <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" asp-readonly="@(!Model.AllowUsersToChangeEmail)" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"]/>
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="Email"></span>
+                </validation-provider>
+            </div>
+        </fieldset>
+        @if (Model.UsernamesEnabled)
+        {
+            if (Model.AllowUsersToChangeUsernames)
+            {
+                <fieldset class="form-group row mb-0">
+                    <legend class="sr-only">@Loc["account.associatedexternalauth.email"]</legend>
+                    <div class="col-12">
+                        <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors, classes }">
+                            <label asp-for="Username" class="col-form-label">@Loc["Account.Fields.Username"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Username" v-model="customer.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Username.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Username"></span>
+                        </validation-provider>
+                        @if (Model.CheckUsernameAvailabilityEnabled)
                         {
-                            <fieldset class="form-group row mb-0">
-                                <legend class="sr-only">@Loc["account.associatedexternalauth.email"]</legend>
-                                <div class="col-12">
-                                    <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors, classes }">
-                                        <label asp-for="Username" class="col-form-label">@Loc["Account.Fields.Username"]:</label>
-                                        <span class="required">*</span>
-                                        <input asp-for="Username" v-model="customer.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Username.Required"] />
-                                        <span class="field-validation-error">{{ errors[0] }}</span>
-                                        <span asp-validation-for="Username"></span>
-                                    </validation-provider>
-                                    @if (Model.CheckUsernameAvailabilityEnabled)
-                                    {
-                                        <partial name="Partials/CheckUsernameAvailability" />
-                                    }
-                                </div>
-                            </fieldset>
+                            <partial name="Partials/CheckUsernameAvailability"/>
+                        }
+                    </div>
+                </fieldset>
+            }
+            else
+            {
+                <fieldset class="form-group row mb-0">
+                    <legend class="sr-only">@Loc["account.fields.username"]</legend>
+                    <div class="form-group">
+                        <label asp-for="Username" class="col-form-label px-3">@Loc["Account.Fields.Username"]:</label>
+                        <span class="readonly-username px-3">@Model.Username</span>
+                    </div>
+                </fieldset>
+            }
+        }
+    </div>
+</div>
+@if (Model.CompanyEnabled || Model.DisplayVatNumber)
+{
+    <div class="card mb-3">
+        <h3 class="card-header">@Loc["Account.CompanyDetails"]</h3>
+        <div class="card-body">
+            <div class="form-fields">
+                @if (Model.CompanyEnabled)
+                {
+                    <div class="form-group">
+                        @if (Model.CompanyRequired)
+                        {
+                            <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors, classes }">
+                                <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
+                                <span class="required">*</span>
+                                <input asp-for="Company" v-model="customer.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Company.Required"]/>
+                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                <span asp-validation-for="Company"></span>
+                            </validation-provider>
                         }
                         else
                         {
-                            <fieldset class="form-group row mb-0">
-                                <legend class="sr-only">@Loc["account.fields.username"]</legend>
-                                <div class="form-group">
-                                    <label asp-for="Username" class="col-form-label px-3">@Loc["Account.Fields.Username"]:</label>
-                                    <span class="readonly-username px-3">@Model.Username</span>
-                                </div>
-                            </fieldset>
+                            <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
+                            <input asp-for="Company" class="form-control"/>
+                            <span asp-validation-for="Company"></span>
                         }
-                    }
-                </div>
+                    </div>
+                }
+                @if (Model.DisplayVatNumber)
+                {
+                    <div class="form-group">
+                        <label asp-for="VatNumber" class="col-form-label">@Loc["Account.Fields.VatNumber"]:</label>
+                        <input asp-for="VatNumber" class="form-control"/>
+                        <span class="vat-status">@Model.VatNumberStatusNote</span>
+                        <span class="vat-note">
+                            <em>@Loc["Account.Fields.VatNumber.Note"]</em>
+                        </span>
+                    </div>
+                }
             </div>
-            @if (Model.CompanyEnabled || Model.DisplayVatNumber)
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">@Loc["Account.CompanyDetails"]</h3>
-                    <div class="card-body">
-                        <div class="form-fields">
-                            @if (Model.CompanyEnabled)
+        </div>
+    </div>
+}
+@if (Model.StreetAddressEnabled ||
+     Model.StreetAddress2Enabled ||
+     Model.ZipPostalCodeEnabled ||
+     Model.CityEnabled ||
+     Model.CountryEnabled)
+{
+    <div class="card mb-3">
+        <h3 class="card-header">
+            @Loc["Account.YourAddress"]
+        </h3>
+        <div class="card-body">
+            <div class="form-fields">
+                <div class="row d-flex">
+                    @if (Model.StreetAddressEnabled)
+                    {
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.streetaddress"]</legend>
+                            @if (Model.StreetAddressRequired)
                             {
-                                <div class="form-group">
-                                    @if (Model.CompanyRequired)
-                                    {
-                                        <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors, classes }">
-                                            <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
-                                            <span class="required">*</span>
-                                            <input asp-for="Company" v-model="customer.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.Company.Required"]/>
-                                            <span class="field-validation-error">{{ errors[0] }}</span>
-                                            <span asp-validation-for="Company"></span>
-                                        </validation-provider>
-                                    }
-                                    else
-                                    {
-                                        <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
-                                        <input asp-for="Company" class="form-control" />
-                                        <span asp-validation-for="Company"></span>
-                                    }
-                                </div>
+                                <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
+                                    <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
+                                    <span class="required">*</span>
+                                    <input asp-for="StreetAddress" v-model="customer.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress.Required"]/>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="StreetAddress"></span>
+                                </validation-provider>
                             }
-                            @if (Model.DisplayVatNumber)
+                            else
                             {
-                                <div class="form-group">
-                                    <label asp-for="VatNumber" class="col-form-label">@Loc["Account.Fields.VatNumber"]:</label>
-                                    <input asp-for="VatNumber" class="form-control" />
-                                    <span class="vat-status">@Model.VatNumberStatusNote</span>
-                                    <span class="vat-note"><em>@Loc["Account.Fields.VatNumber.Note"]</em></span>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-            @if (Model.StreetAddressEnabled ||
-        Model.StreetAddress2Enabled ||
-        Model.ZipPostalCodeEnabled ||
-        Model.CityEnabled ||
-        Model.CountryEnabled)
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">
-                        @Loc["Account.YourAddress"]
-                    </h3>
-                    <div class="card-body">
-                        <div class="form-fields">
-                            <div class="row d-flex">
-                                @if (Model.StreetAddressEnabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.streetaddress"]</legend>
-                                        @if (Model.StreetAddressRequired)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
-                                                <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
-                                                <span class="required">*</span>
-                                                <input asp-for="StreetAddress" v-model="customer.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress.Required"]/>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="StreetAddress"></span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
-                                            <input asp-for="StreetAddress" class="form-control" />
-                                            <span asp-validation-for="StreetAddress"></span>
-                                        }
-                                    </fieldset>
-                                }
-                                @if (Model.StreetAddress2Enabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.streetaddress2"]</legend>
-                                        @if (Model.StreetAddress2Required)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
-                                                <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
-                                                <span class="required">*</span>
-                                                <input asp-for="StreetAddress2" v-model="customer.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress2.Required"]/>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="StreetAddress2"></span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
-                                            <input asp-for="StreetAddress2" class="form-control" />
-                                            <span asp-validation-for="StreetAddress2"></span>
-                                        }
-                                    </fieldset>
-                                }
-                                @if (Model.ZipPostalCodeEnabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.zippostalcode"]</legend>
-                                        @if (Model.ZipPostalCodeRequired)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
-                                                <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
-                                                <span class="required">*</span>
-                                                <input asp-for="ZipPostalCode" v-model="customer.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.ZipPostalCode.Required"]/>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="ZipPostalCode"></span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
-                                            <input asp-for="ZipPostalCode" class="form-control" />
-                                            <span asp-validation-for="ZipPostalCode"></span>
-                                        }
-                                    </fieldset>
-                                }
-                                @if (Model.CityEnabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.city"]</legend>
-                                        @if (Model.CityRequired)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
-                                                <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
-                                                <span class="required">*</span>
-                                                <input asp-for="City" v-model="customer.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.City.Required"]/>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="City"></span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
-                                            <input asp-for="City" class="form-control" />
-                                            <span asp-validation-for="City"></span>
-                                        }
-                                    </fieldset>
-                                }
-                                @if (Model.CountryEnabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.country"]</legend>
-                                        @if (Model.CountryRequired)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
-                                                <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
-                                                <span class="required">*</span>
-                                                <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.Fields.Country.Required"]
-                                                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId"></select>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="CountryId"></span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
-                                            <select asp-for="CountryId" class="custom-select form-control" 
-                                             onchange="@Html.IdFor(model => model.CountryId)_select_element(this)"
-                                            asp-items="Model.AvailableCountries"></select>
-                                            
-                                        }
-                                    </fieldset>
-                                }
-                                @if (Model.CountryEnabled && Model.StateProvinceEnabled)
-                                {
-                                    <fieldset class="form-group col-12 col-sm-6">
-                                        <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
-                                        @if(Model.StateProvinceRequired)
-                                        {
-                                            <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
-                                                <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
-                                                @if (Model.StateProvinceRequired)
-                                                {
-                                                    <span class="required">*</span>
-                                                }
-                                                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
-                                                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                                <span asp-validation-for="StateProvinceId"></span>
-                                                <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                                            </validation-provider>
-                                        }
-                                        else
-                                        {
-                                            <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
-                                            <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
-                                                    asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
-                                            <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                                        }
-                                    </fieldset>
-                                }
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            }
-            @if (Model.PhoneEnabled || Model.FaxEnabled)
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">@Loc["Account.YourContactInformation"]</h3>
-                    <div class="card-body d-flex flex-row row">
-                        @if (Model.PhoneEnabled)
-                        {
-                            <fieldset class="form-group col-12 col-sm-6">
-                                <legend class="sr-only">@Loc["account.fields.phone"]</legend>
-                                @if (Model.PhoneRequired)
-                                {
-                                    <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
-                                        <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
-                                        <span class="required">*</span>
-                                        <input asp-for="Phone"  v-bind:class="[classes , 'form-control']" v-model="customer.Phone" data-val-required=@Loc["Account.Fields.Phone.Required"]/>
-                                        <span class="field-validation-error">{{ errors[0] }}</span>
-                                        <span asp-validation-for="Phone"></span>
-                                    </validation-provider>
-                                }
-                                else
-                                {
-                                    <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
-                                    <input asp-for="Phone" class="form-control" />
-                                    <span asp-validation-for="Phone"></span>
-                                }
-
-                            </fieldset>
-                        }
-                        @if (Model.FaxEnabled)
-                        {
-                            <fieldset class="form-group col-12 col-sm-6">
-                                <legend class="sr-only">@Loc["account.fields.fax"]</legend>
-                                @if (Model.FaxRequired)
-                                {
-                                    <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
-                                        <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
-                                        <span class="required">*</span>
-                                        <input asp-for="Fax" v-bind:class="[classes , 'form-control']" v-model="customer.Fax" data-val-required=@Loc["Account.Fields.Fax.Required"] />
-                                        <span class="field-validation-error">{{ errors[0] }}</span>
-                                        <span asp-validation-for="Fax"></span>
-                                    </validation-provider>
-                                }
-                                else
-                                {
-                                    <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
-                                    <input asp-for="Fax" class="form-control" />
-                                    <span asp-validation-for="Fax"></span>
-                                }
-                            </fieldset>
-                        }
-                    </div>
-                </div>
-            }
-
-            @if (Model.NewsletterEnabled || Model.CustomerAttributes.Any())
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">
-                        @Loc["Account.Options"]
-                    </h3>
-                    <div class="card-body">
-                        <fieldset class="form-fields">
-                            <legend class="sr-only">@Loc["account.fields.newsletter"]</legend>
-                            @if (Model.NewsletterEnabled)
-                            {
-                                <div class="form-group">
-                                    <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
-                                        <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()" />
-                                        <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
-                                        <span class="sr-only">@Loc["account.fields.newsletter"]</span>
-                                    </label>
-                                    <span asp-validation-for="Newsletter"></span>
-                                </div>
-                                <partial name="Partials/NewsLetterCategories" model="Model.NewsletterCategories" />
-                            }
-
-                            @if (Model.CustomerAttributes.Any())
-                            {
-                                <partial name="Partials/CustomerAttributes" model="Model.CustomerAttributes" />
+                                <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
+                                <input asp-for="StreetAddress" class="form-control"/>
+                                <span asp-validation-for="StreetAddress"></span>
                             }
                         </fieldset>
-                    </div>
-                </div>
-            }
-            @if (Model.NumberOfExternalAuthenticationProviders > 0)
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">@Loc["Account.AssociatedExternalAuth"]</h3>
-                    <div class="card-body">
-                        @if (Model.AssociatedExternalAuthRecords.Count > 0)
-                        {
-                            //existing associated external records
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <colgroup>
-                                        <col />
-                                        <col />
-                                        <col />
-                                    </colgroup>
-                                    <thead class="tab">
-                                        <tr>
-                                            <th class="auth-method-name">
-                                                @Loc["Account.AssociatedExternalAuth.AuthMethodName"]
-                                            </th>
-                                            <th class="email">
-                                                @Loc["Account.AssociatedExternalAuth.Email"]
-                                            </th>
-                                            <th class="external-id">
-                                                @Loc["Account.AssociatedExternalAuth.ExternalIdentifier"]
-                                            </th>
-                                            <th class="remove">
-                                                @Loc["Account.AssociatedExternalAuth.Remove"]
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in Model.AssociatedExternalAuthRecords)
-                                        {
-                                            <tr>
-                                                <td class="auth-method-name">
-                                                    @item.AuthMethodName
-                                                </td>
-                                                <td class="email">
-                                                    @item.Email
-                                                </td>
-                                                <td class="external-id">
-                                                    @CommonHelper.EnsureMaximumLength(item.ExternalIdentifier, 40, "...")
-                                                </td>
-                                                <td class="remove">
-                                                    <a href="#" onclick="removeexternalassociation('@item.Id')">@Loc["Account.AssociatedExternalAuth.Remove"]</a>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        @if (Model.NumberOfExternalAuthenticationProviders > Model.AssociatedExternalAuthRecords.Count)
-                        {
-                            //we can add more external records
-                            <div class="form-fields add-more-external-records">
-                                @Loc["Account.AssociatedExternalAuth.AddMoreRecords"] <a href="@Url.RouteUrl("Login", null, Context.Request.Scheme)">@Url.RouteUrl("Login", null, Context.Request.Scheme)</a>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-
-            @if (customerSettings.TwoFactorAuthenticationEnabled)
-            {
-                <div class="card mb-3">
-                    <h3 class="card-header">@Loc["Account.TwoFactorAuth"]</h3>
-                    @if (Model.Is2faEnabled)
+                    }
+                    @if (Model.StreetAddress2Enabled)
                     {
-                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Disable"], "DisableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.streetaddress2"]</legend>
+                            @if (Model.StreetAddress2Required)
+                            {
+                                <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
+                                    <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
+                                    <span class="required">*</span>
+                                    <input asp-for="StreetAddress2" v-model="customer.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.StreetAddress2.Required"]/>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="StreetAddress2"></span>
+                                </validation-provider>
+                            }
+                            else
+                            {
+                                <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
+                                <input asp-for="StreetAddress2" class="form-control"/>
+                                <span asp-validation-for="StreetAddress2"></span>
+                            }
+                        </fieldset>
+                    }
+                    @if (Model.ZipPostalCodeEnabled)
+                    {
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.zippostalcode"]</legend>
+                            @if (Model.ZipPostalCodeRequired)
+                            {
+                                <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
+                                    <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
+                                    <span class="required">*</span>
+                                    <input asp-for="ZipPostalCode" v-model="customer.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.ZipPostalCode.Required"]/>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="ZipPostalCode"></span>
+                                </validation-provider>
+                            }
+                            else
+                            {
+                                <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
+                                <input asp-for="ZipPostalCode" class="form-control"/>
+                                <span asp-validation-for="ZipPostalCode"></span>
+                            }
+                        </fieldset>
+                    }
+                    @if (Model.CityEnabled)
+                    {
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.city"]</legend>
+                            @if (Model.CityRequired)
+                            {
+                                <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
+                                    <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
+                                    <span class="required">*</span>
+                                    <input asp-for="City" v-model="customer.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" data-val-required=@Loc["Account.Fields.City.Required"]/>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="City"></span>
+                                </validation-provider>
+                            }
+                            else
+                            {
+                                <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
+                                <input asp-for="City" class="form-control"/>
+                                <span asp-validation-for="City"></span>
+                            }
+                        </fieldset>
+                    }
+                    @if (Model.CountryEnabled)
+                    {
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.country"]</legend>
+                            @if (Model.CountryRequired)
+                            {
+                                <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
+                                    <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
+                                    <span class="required">*</span>
+                                    <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.Fields.Country.Required"]
+                                            onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId">
+                                    </select>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="CountryId"></span>
+                                </validation-provider>
+                            }
+                            else
+                            {
+                                <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
+                                <select asp-for="CountryId" class="custom-select form-control"
+                                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)"
+                                        asp-items="Model.AvailableCountries">
+                                </select>
+                            }
+                        </fieldset>
+                    }
+                    @if (Model.CountryEnabled && Model.StateProvinceEnabled)
+                    {
+                        <fieldset class="form-group col-12 col-sm-6">
+                            <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
+                            @if (Model.StateProvinceRequired)
+                            {
+                                <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
+                                    <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
+                                    @if (Model.StateProvinceRequired)
+                                    {
+                                        <span class="required">*</span>
+                                    }
+                                    <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
+                                            onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId">
+                                    </select>
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                    <span asp-validation-for="StateProvinceId"></span>
+                                    <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                                </validation-provider>
+                            }
+                            else
+                            {
+                                <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
+                                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
+                                        asp-items="Model.AvailableStates" v-model="customer.StateProvinceId">
+                                </select>
+                                <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                            }
+                        </fieldset>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+@if (Model.PhoneEnabled || Model.FaxEnabled)
+{
+    <div class="card mb-3">
+        <h3 class="card-header">@Loc["Account.YourContactInformation"]</h3>
+        <div class="card-body d-flex flex-row row">
+            @if (Model.PhoneEnabled)
+            {
+                <fieldset class="form-group col-12 col-sm-6">
+                    <legend class="sr-only">@Loc["account.fields.phone"]</legend>
+                    @if (Model.PhoneRequired)
+                    {
+                        <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
+                            <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Phone" v-bind:class="[classes , 'form-control']" v-model="customer.Phone" data-val-required=@Loc["Account.Fields.Phone.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Phone"></span>
+                        </validation-provider>
                     }
                     else
                     {
-                        @Html.ActionLink(Loc["Account.TwoFactorAuth.Enable"], "EnableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
+                        <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
+                        <input asp-for="Phone" class="form-control"/>
+                        <span asp-validation-for="Phone"></span>
                     }
+
+                </fieldset>
+            }
+            @if (Model.FaxEnabled)
+            {
+                <fieldset class="form-group col-12 col-sm-6">
+                    <legend class="sr-only">@Loc["account.fields.fax"]</legend>
+                    @if (Model.FaxRequired)
+                    {
+                        <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
+                            <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Fax" v-bind:class="[classes , 'form-control']" v-model="customer.Fax" data-val-required=@Loc["Account.Fields.Fax.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Fax"></span>
+                        </validation-provider>
+                    }
+                    else
+                    {
+                        <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
+                        <input asp-for="Fax" class="form-control"/>
+                        <span asp-validation-for="Fax"></span>
+                    }
+                </fieldset>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.NewsletterEnabled || Model.CustomerAttributes.Any())
+{
+    <div class="card mb-3">
+        <h3 class="card-header">
+            @Loc["Account.Options"]
+        </h3>
+        <div class="card-body">
+            <fieldset class="form-fields">
+                <legend class="sr-only">@Loc["account.fields.newsletter"]</legend>
+                @if (Model.NewsletterEnabled)
+                {
+                    <div class="form-group">
+                        <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
+                            <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
+                            <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
+                            <span class="sr-only">@Loc["account.fields.newsletter"]</span>
+                        </label>
+                        <span asp-validation-for="Newsletter"></span>
+                    </div>
+                    <partial name="Partials/NewsLetterCategories" model="Model.NewsletterCategories"/>
+                }
+
+                @if (Model.CustomerAttributes.Any())
+                {
+                    <partial name="Partials/CustomerAttributes" model="Model.CustomerAttributes"/>
+                }
+            </fieldset>
+        </div>
+    </div>
+}
+@if (Model.NumberOfExternalAuthenticationProviders > 0)
+{
+    <div class="card mb-3">
+        <h3 class="card-header">@Loc["Account.AssociatedExternalAuth"]</h3>
+        <div class="card-body">
+            @if (Model.AssociatedExternalAuthRecords.Count > 0)
+            {
+                //existing associated external records
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <colgroup>
+                            <col/>
+                            <col/>
+                            <col/>
+                        </colgroup>
+                        <thead class="tab">
+                        <tr>
+                            <th class="auth-method-name">
+                                @Loc["Account.AssociatedExternalAuth.AuthMethodName"]
+                            </th>
+                            <th class="email">
+                                @Loc["Account.AssociatedExternalAuth.Email"]
+                            </th>
+                            <th class="external-id">
+                                @Loc["Account.AssociatedExternalAuth.ExternalIdentifier"]
+                            </th>
+                            <th class="remove">
+                                @Loc["Account.AssociatedExternalAuth.Remove"]
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.AssociatedExternalAuthRecords)
+                        {
+                            <tr>
+                                <td class="auth-method-name">
+                                    @item.AuthMethodName
+                                </td>
+                                <td class="email">
+                                    @item.Email
+                                </td>
+                                <td class="external-id">
+                                    @CommonHelper.EnsureMaximumLength(item.ExternalIdentifier, 40, "...")
+                                </td>
+                                <td class="remove">
+                                    <a href="#" onclick="removeexternalassociation('@item.Id')">@Loc["Account.AssociatedExternalAuth.Remove"]</a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
                 </div>
             }
-            <div class="generalMarginSupporter">
-                <input type="submit" value="@Loc["Common.Save"]" name="save-info-button" class="btn btn-secondary save-customer-info-button" />
-            </div>
-        </form>
-    </validation-observer>
+            @if (Model.NumberOfExternalAuthenticationProviders > Model.AssociatedExternalAuthRecords.Count)
+            {
+                //we can add more external records
+                <div class="form-fields add-more-external-records">
+                    @Loc["Account.AssociatedExternalAuth.AddMoreRecords"] <a href="@Url.RouteUrl("Login", null, Context.Request.Scheme)">@Url.RouteUrl("Login", null, Context.Request.Scheme)</a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@if (customerSettings.TwoFactorAuthenticationEnabled)
+{
+    <div class="card mb-3">
+        <h3 class="card-header">@Loc["Account.TwoFactorAuth"]</h3>
+        @if (Model.Is2faEnabled)
+        {
+            @Html.ActionLink(Loc["Account.TwoFactorAuth.Disable"], "DisableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
+        }
+        else
+        {
+            @Html.ActionLink(Loc["Account.TwoFactorAuth.Enable"], "EnableTwoFactorAuthenticator", "Account", new object(), new { @class = "btn btn-info login-button" })
+        }
+    </div>
+}
+<div class="generalMarginSupporter">
+    <input type="submit" value="@Loc["Common.Save"]" name="save-info-button" class="btn btn-secondary save-customer-info-button"/>
+</div>
+</form>
+</validation-observer>
 </div>
 <script asp-location="Footer" asp-order="300">
     var customer = new Vue({
         data: () => ({
             @{
-                <text>
+            <text>
                     FirstName: '@Html.Raw(Model.FirstName)',
                     LastName: '@Html.Raw(Model.LastName)',
                     Company: '@Html.Raw(Model.Company)',
@@ -606,26 +612,33 @@
                     Email: '@Html.Raw(Model.Email)',
                     @foreach (var item in Model.CustomerAttributes)
                     {
-                            @switch (item.AttributeControlType)
+                        @switch (item.AttributeControlType)
+                        {
+                            case AttributeControlType.DropdownList:
                             {
-                                case AttributeControlType.DropdownList:
+                                @foreach (var itemValue in item.Values)
                                 {
-                                    @foreach (var itemValue in item.Values)
+                                    if (itemValue.IsPreSelected)
                                     {
-                                        if (itemValue.IsPreSelected)
-                                        {
-                                            <text>customer_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
-                                            break;
-                                        }
-                                        <text>customer_attribute_</text> @item.Id <text>: '',</text>
+                                        <text>customer_attribute_</text>
+                                        @item.Id
+                                        <text>: '@itemValue.Id',</text>
+                                        break;
                                     }
+
+                                    <text>customer_attribute_</text>
+                                    @item.Id
+                                    <text>: '',</text>
                                 }
+                            }
                                 break;
-                                case AttributeControlType.Checkboxes:
-                                case AttributeControlType.RadioList:
-                                case AttributeControlType.ReadonlyCheckboxes:
-                                {
-                                    <text>customer_attribute_</text> @item.Id <text>: [
+                            case AttributeControlType.Checkboxes:
+                            case AttributeControlType.RadioList:
+                            case AttributeControlType.ReadonlyCheckboxes:
+                            {
+                                <text>customer_attribute_</text>
+                                @item.Id
+                                <text>: [
                                         @foreach (var itemValue in item.Values)
                                         {
                                             if (itemValue.IsPreSelected)
@@ -634,19 +647,26 @@
                                             }
                                         }
                                     ],</text>
-                                }
-                                break;
-                                case AttributeControlType.TextBox:
-                                case AttributeControlType.MultilineTextbox:
-                                {
-                                    <text>customer_attribute_</text> @item.Id <text>: @if (item.DefaultValue != null) { <text>'@item.DefaultValue'</text> } else { <text>''</text> },</text>
-                                }
-                                break;
                             }
-
-                     }
-                </text>
-            }
+                                break;
+                            case AttributeControlType.TextBox:
+                            case AttributeControlType.MultilineTextbox:
+                            {
+                                <text>customer_attribute_</text>
+                                @item.Id
+                                <text>: @if (item.DefaultValue != null)
+                                        {
+                                            <text>'@item.DefaultValue'</text>
+                                        }
+                                        else
+                                        {
+                                            <text>''</text>
+                                        },</text>
+                            }
+                                break;
+                        }
+                    }
+                </text>}
         }),
         created() {
             document.addEventListener("DOMContentLoaded", function () {

@@ -1,28 +1,26 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Customer
+namespace Grand.Web.Models.Customer;
+
+public class DocumentsModel : BaseModel
 {
-    public class DocumentsModel : BaseModel
-    {
-        public List<Document> DocumentList { get; set; } = new();
-        public DocumentPagingModel PagingContext { get; set; } = new();
-        public string CustomerId { get; set; }
-    }
+    public List<Document> DocumentList { get; set; } = new();
+    public DocumentPagingModel PagingContext { get; set; } = new();
+    public string CustomerId { get; set; }
+}
 
-    public class Document: BaseEntityModel
-    {
-        public string Number { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string DownloadId { get; set; }
-        public string Status { get; set; }
-        public string DocumentType { get; set; }
-        public string Link { get; set; }
-        public double Amount { get; set; }
-        public double OutstandAmount { get; set; }
-        public int Quantity { get; set; }
-        public DateTime? DocDate { get; set; }
-        public DateTime? DueDate { get; set; }
-
-    }
+public class Document : BaseEntityModel
+{
+    public string Number { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string DownloadId { get; set; }
+    public string Status { get; set; }
+    public string DocumentType { get; set; }
+    public string Link { get; set; }
+    public double Amount { get; set; }
+    public double OutstandAmount { get; set; }
+    public int Quantity { get; set; }
+    public DateTime? DocDate { get; set; }
+    public DateTime? DueDate { get; set; }
 }

@@ -4,12 +4,11 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.Orders;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Orders
+namespace Grand.Web.Features.Models.Orders;
+
+public class GetCustomerLoyaltyPoints : IRequest<CustomerLoyaltyPointsModel>
 {
-    public class GetCustomerLoyaltyPoints : IRequest<CustomerLoyaltyPointsModel>
-    {
-        public Customer Customer { get; set; }
-        public Store Store { get; set; }
-        public Currency Currency { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Store Store { get; set; }
+    public Currency Currency { get; set; }
 }

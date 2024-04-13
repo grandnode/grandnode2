@@ -20,7 +20,11 @@
         </li>
         <template>
             <li>
-                <b-sidebar id="sidebar-cart" backdrop @if (!supportRtl) { <text>right</text> }>
+                <b-sidebar id="sidebar-cart" backdrop
+                           @if (!supportRtl)
+                           {
+                               <text>right</text>
+                           }>
                     <template v-slot:title v-if="flycartindicator > 0">
                         @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("ShoppingCart")}\">{string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}")}</a>"))
                     </template>
@@ -40,8 +44,12 @@
                             <div class="attributes p-2" v-if="item.AttributeInfo">
                                 <div v-html="item.AttributeInfo"></div>
                             </div>
-                            <div class="price"><span>@Loc["ShoppingCart.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong></div>
-                            <div class="quantity"><span>@Loc["ShoppingCart.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong></div>
+                            <div class="price">
+                                <span>@Loc["ShoppingCart.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong>
+                            </div>
+                            <div class="quantity">
+                                <span>@Loc["ShoppingCart.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
+                            </div>
                         </div>
                         <div>
                             <a class="deleteitem" @@click="deletecartitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id)">

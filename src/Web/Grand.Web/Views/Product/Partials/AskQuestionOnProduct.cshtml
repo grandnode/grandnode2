@@ -1,12 +1,12 @@
 ﻿@model ProductAskQuestionSimpleModel
-<input value="@Model.Id" type="hidden" id="AskQuestionProductId" ref="AskQuestionProductId" name="AskQuestionProductId" />
+<input value="@Model.Id" type="hidden" id="AskQuestionProductId" ref="AskQuestionProductId" name="AskQuestionProductId"/>
 <div id="contact-us-product">
     <validation-observer ref="contact" tag="div">
         <fieldset class="form-group">
             <validation-provider tag="div" rules="required|email" name="AskQuestionEmail" v-slot="{ errors, classes }">
                 <label asp-for="AskQuestionEmail" class="col-form-label">@Loc["Products.AskQuestion.Email"]:</label>
                 <input asp-for="AskQuestionEmail" ref="AskQuestionEmail" v-model="askquestion.AskQuestionEmail" placeholder="@Loc["Products.AskQuestion.Email.Hint"]" v-bind:class="[classes , 'form-control ask-question-email']"
-                       data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Products.AskQuestion.Email.Required"] />
+                       data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Products.AskQuestion.Email.Required"]/>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="AskQuestionEmail"></span>
             </validation-provider>
@@ -15,7 +15,7 @@
             <validation-provider tag="div" rules="required" name="AskQuestionFullName" v-slot="{ errors, classes }">
                 <label asp-for="AskQuestionFullName" class="col-form-label">@Loc["Products.AskQuestion.FullName"]:</label>
                 <input asp-for="AskQuestionFullName" ref="AskQuestionFullName" v-model="askquestion.AskQuestionFullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" v-bind:class="[classes , 'form-control ask-question-fullname']"
-                       data-val-required=@Loc["Products.AskQuestion.FullName.Required"] />
+                       data-val-required=@Loc["Products.AskQuestion.FullName.Required"]/>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="AskQuestionFullName"></span>
             </validation-provider>

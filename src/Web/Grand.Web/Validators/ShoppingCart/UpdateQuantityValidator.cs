@@ -7,55 +7,50 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.ShoppingCart;
 
-namespace Grand.Web.Validators.ShoppingCart
+namespace Grand.Web.Validators.ShoppingCart;
+
+public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
 {
-    public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
+    public UpdateQuantityValidator(
+        IEnumerable<IValidatorConsumer<UpdateQuantityModel>> validators,
+        IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings,
+        IShoppingCartService shoppingCartService, IWorkContext workContext)
+        : base(validators)
     {
-        public UpdateQuantityValidator(
-            IEnumerable<IValidatorConsumer<UpdateQuantityModel>> validators,
-            IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings,
-            IShoppingCartService shoppingCartService, IWorkContext workContext)
-            : base(validators)
+        RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Wrong quantity");
+        RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Wrong quantity");
-            RuleFor(x => x).CustomAsync(async (x, context, _) =>
+            switch (x.ShoppingCartType)
             {
-                switch (x.ShoppingCartType)
+                case ShoppingCartType.ShoppingCart:
                 {
-                    case ShoppingCartType.ShoppingCart:
-                    {
-                        if (!await permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                            context.AddFailure("No permission");
-                        break;
-                    }
-                    case ShoppingCartType.Wishlist:
-                    {
-                        if (!await permissionService.Authorize(StandardPermission.EnableWishlist))
-                            context.AddFailure("No permission");
-                        break;
-                    }
+                    if (!await permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                        context.AddFailure("No permission");
+                    break;
                 }
-
-                var cart = (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, PrepareCartTypes()))
-                    .FirstOrDefault(z => z.Id == x.ShoppingCartId);
-                if (cart == null)
+                case ShoppingCartType.Wishlist:
                 {
-                    context.AddFailure("Shopping cart item not found");
+                    if (!await permissionService.Authorize(StandardPermission.EnableWishlist))
+                        context.AddFailure("No permission");
+                    break;
                 }
-            });
-            
-            ShoppingCartType[] PrepareCartTypes()
-            {
-                var shoppingCartTypes = new List<ShoppingCartType> {
-                    ShoppingCartType.ShoppingCart,
-                    ShoppingCartType.Wishlist
-                };
-                if (shoppingCartSettings.AllowOnHoldCart)
-                    shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
-
-                return shoppingCartTypes.ToArray();
             }
+
+            var cart = (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, PrepareCartTypes()))
+                .FirstOrDefault(z => z.Id == x.ShoppingCartId);
+            if (cart == null) context.AddFailure("Shopping cart item not found");
+        });
+
+        ShoppingCartType[] PrepareCartTypes()
+        {
+            var shoppingCartTypes = new List<ShoppingCartType> {
+                ShoppingCartType.ShoppingCart,
+                ShoppingCartType.Wishlist
+            };
+            if (shoppingCartSettings.AllowOnHoldCart)
+                shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
+
+            return shoppingCartTypes.ToArray();
         }
-        
     }
 }

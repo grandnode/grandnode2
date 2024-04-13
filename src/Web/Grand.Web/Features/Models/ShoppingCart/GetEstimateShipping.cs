@@ -6,15 +6,14 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 
-namespace Grand.Web.Features.Models.ShoppingCart
+namespace Grand.Web.Features.Models.ShoppingCart;
+
+public class GetEstimateShipping : IRequest<EstimateShippingModel>
 {
-    public class GetEstimateShipping : IRequest<EstimateShippingModel>
-    {
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-        public Currency Currency { get; set; }
-        public Store Store { get; set; }
-        public IList<ShoppingCartItem> Cart { get; set; }
-        public bool SetEstimateShippingDefaultAddress { get; set; } = true;
-    }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
+    public Currency Currency { get; set; }
+    public Store Store { get; set; }
+    public IList<ShoppingCartItem> Cart { get; set; }
+    public bool SetEstimateShippingDefaultAddress { get; set; } = true;
 }

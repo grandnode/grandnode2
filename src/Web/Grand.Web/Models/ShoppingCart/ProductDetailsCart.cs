@@ -22,7 +22,7 @@ public class ProductDetailsCart
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
     public IList<CustomAttributeModel> Attributes { get; set; }
+
     public string Reservation { get; set; }
     public string CustomerEnteredPrice { get; set; }
-    
 }

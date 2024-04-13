@@ -10,56 +10,58 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
 
-namespace Grand.Web.Features.Handlers.Catalog
+namespace Grand.Web.Features.Handlers.Catalog;
+
+public class GetHomepageBrandsHandler : IRequestHandler<GetHomepageBrands, IList<BrandModel>>
 {
-    public class GetHomepageBrandsHandler : IRequestHandler<GetHomepageBrands, IList<BrandModel>>
+    private readonly IBrandService _brandService;
+    private readonly ICacheBase _cacheBase;
+    private readonly MediaSettings _mediaSettings;
+    private readonly IPictureService _pictureService;
+    private readonly ITranslationService _translationService;
+
+    public GetHomepageBrandsHandler(
+        ICacheBase cacheBase,
+        IBrandService brandService,
+        IPictureService pictureService,
+        ITranslationService translationService,
+        MediaSettings mediaSettings)
     {
-        private readonly ICacheBase _cacheBase;
-        private readonly IBrandService _brandService;
-        private readonly IPictureService _pictureService;
-        private readonly ITranslationService _translationService;
-        private readonly MediaSettings _mediaSettings;
+        _cacheBase = cacheBase;
+        _brandService = brandService;
+        _pictureService = pictureService;
+        _translationService = translationService;
+        _mediaSettings = mediaSettings;
+    }
 
-        public GetHomepageBrandsHandler(
-            ICacheBase cacheBase,
-            IBrandService brandService,
-            IPictureService pictureService,
-            ITranslationService translationService,
-            MediaSettings mediaSettings)
+    public async Task<IList<BrandModel>> Handle(GetHomepageBrands request, CancellationToken cancellationToken)
+    {
+        var brandsCacheKey = string.Format(CacheKeyConst.BRAND_HOMEPAGE_KEY, request.Store.Id, request.Language.Id);
+
+        var model = await _cacheBase.GetAsync(brandsCacheKey, async () =>
         {
-            _cacheBase = cacheBase;
-            _brandService = brandService;
-            _pictureService = pictureService;
-            _translationService = translationService;
-            _mediaSettings = mediaSettings;
-        }
-
-        public async Task<IList<BrandModel>> Handle(GetHomepageBrands request, CancellationToken cancellationToken)
-        {
-            var brandsCacheKey = string.Format(CacheKeyConst.BRAND_HOMEPAGE_KEY, request.Store.Id, request.Language.Id);
-
-            var model = await _cacheBase.GetAsync(brandsCacheKey, async () =>
+            var modelBrands = new List<BrandModel>();
+            var allBrands = await _brandService.GetAllBrands(storeId: request.Store.Id);
+            foreach (var x in allBrands.Where(x => x.ShowOnHomePage))
             {
-                var modelBrands = new List<BrandModel>();
-                var allBrands = await _brandService.GetAllBrands(storeId: request.Store.Id);
-                foreach (var x in allBrands.Where(x => x.ShowOnHomePage))
-                {
-                    var brandModel = x.ToModel(request.Language);
-                    //prepare picture model
-                    brandModel.PictureModel = new PictureModel
-                    {
-                        Id = x.PictureId,
-                        FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
-                        ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
-                        Title = string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), brandModel.Name),
-                        AlternateText = string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), brandModel.Name)
-                    };
-                    modelBrands.Add(brandModel);
-                }
-                return modelBrands;
-            });
-            return model;
+                var brandModel = x.ToModel(request.Language);
+                //prepare picture model
+                brandModel.PictureModel = new PictureModel {
+                    Id = x.PictureId,
+                    FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
+                    ImageUrl =
+                        await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
+                    Title = string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"),
+                        brandModel.Name),
+                    AlternateText =
+                        string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"),
+                            brandModel.Name)
+                };
+                modelBrands.Add(brandModel);
+            }
 
-        }
+            return modelBrands;
+        });
+        return model;
     }
 }

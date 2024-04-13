@@ -1,9 +1,8 @@
 ﻿using MediatR;
 
-namespace Grand.Web.Features.Models.Common
+namespace Grand.Web.Features.Models.Common;
+
+public class GetRobotsTextFile : IRequest<string>
 {
-    public class GetRobotsTextFile : IRequest<string>
-    {
-        public string StoreId { get; set; }
-    }
+    public string StoreId { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace Grand.Web.Models.Checkout
+﻿namespace Grand.Web.Models.Checkout;
+
+public class UpdateSectionJsonModel
 {
-    public class UpdateSectionJsonModel
-    {
-        public string name { get; set; }        
-        public object model { get; set; }
-    }
+    public string name { get; set; }
+    public object model { get; set; }
 }

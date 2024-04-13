@@ -4,32 +4,31 @@ using Grand.Web.Common.Components;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class GetCoordinateViewComponent : BaseViewComponent
 {
-    public class GetCoordinateViewComponent : BaseViewComponent
+    private readonly CustomerSettings _customerSettings;
+    private readonly IWorkContext _workContext;
+
+    public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContext workContext)
     {
-        private readonly CustomerSettings _customerSettings;
-        private readonly IWorkContext _workContext;
+        _customerSettings = customerSettings;
+        _workContext = workContext;
+    }
 
-        public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContext workContext)
-        {
-            _customerSettings = customerSettings;
-            _workContext = workContext;
-        }
+    public IViewComponentResult Invoke()
+    {
+        if (!_customerSettings.GeoEnabled)
+            return Content("");
 
-        public IViewComponentResult Invoke()
-        {
-            if (!_customerSettings.GeoEnabled)
-                return Content("");
+        if (_workContext.CurrentCustomer.Coordinates == null)
+            return View(new LocationModel());
 
-            if(_workContext.CurrentCustomer.Coordinates == null)
-                return View(new LocationModel());
-
-            var model = new LocationModel {
-                Longitude = _workContext.CurrentCustomer.Coordinates.X,
-                Latitude = _workContext.CurrentCustomer.Coordinates.Y
-            };
-            return View(model);
-        }
+        var model = new LocationModel {
+            Longitude = _workContext.CurrentCustomer.Coordinates.X,
+            Latitude = _workContext.CurrentCustomer.Coordinates.Y
+        };
+        return View(model);
     }
 }

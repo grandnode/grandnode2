@@ -1,13 +1,12 @@
 ﻿using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class PartialViewComponent : BaseViewComponent
 {
-    public class PartialViewComponent : BaseViewComponent
+    public IViewComponentResult Invoke(string partialName, object additionalData = null)
     {
-        public IViewComponentResult Invoke(string partialName, object additionalData = null)
-        {
-            return View(partialName, additionalData);
-        }
+        return View(partialName, additionalData);
     }
 }

@@ -2,10 +2,9 @@
 using Grand.Web.Models.Checkout;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Checkout
+namespace Grand.Web.Features.Models.Checkout;
+
+public class GetPaymentInfo : IRequest<CheckoutPaymentInfoModel>
 {
-    public class GetPaymentInfo : IRequest<CheckoutPaymentInfoModel>
-    {
-        public IPaymentProvider PaymentMethod { get; set; }
-    }
+    public IPaymentProvider PaymentMethod { get; set; }
 }

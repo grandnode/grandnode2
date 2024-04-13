@@ -9,61 +9,60 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Vendors;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class VendorContactViewComponent : BaseViewComponent
 {
-    public class VendorContactViewComponent : BaseViewComponent
+    #region Constructors
+
+    public VendorContactViewComponent(
+        IVendorService vendorService,
+        IWorkContext workContext,
+        VendorSettings vendorSettings,
+        CommonSettings commonSettings,
+        CaptchaSettings captchaSettings)
     {
-        #region Fields
-        private readonly IVendorService _vendorService;
-        private readonly IWorkContext _workContext;
-        private readonly VendorSettings _vendorSettings;
-        private readonly CommonSettings _commonSettings;
-        private readonly CaptchaSettings _captchaSettings;
-        #endregion
-
-        #region Constructors
-
-        public VendorContactViewComponent(
-            IVendorService vendorService,
-            IWorkContext workContext,
-            VendorSettings vendorSettings,
-            CommonSettings commonSettings,
-            CaptchaSettings captchaSettings)
-        {
-            _vendorService = vendorService;
-            _workContext = workContext;
-            _vendorSettings = vendorSettings;
-            _commonSettings = commonSettings;
-            _captchaSettings = captchaSettings;
-        }
-
-        #endregion
-
-        #region Invoker
-
-        public async Task<IViewComponentResult> InvokeAsync(string vendorId)
-        {
-            if (!_vendorSettings.AllowCustomersToContactVendors)
-                return Content("");
-
-            var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor is not { Active: true } || vendor.Deleted)
-                return Content("");
-
-            var model = new ContactVendorModel {
-                Email = _workContext.CurrentCustomer.Email,
-                FullName = _workContext.CurrentCustomer.GetFullName(),
-                SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
-                VendorId = vendor.Id,
-                VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
-            };
-
-            return View(model);
-
-        }
-
-        #endregion
-
+        _vendorService = vendorService;
+        _workContext = workContext;
+        _vendorSettings = vendorSettings;
+        _commonSettings = commonSettings;
+        _captchaSettings = captchaSettings;
     }
+
+    #endregion
+
+    #region Invoker
+
+    public async Task<IViewComponentResult> InvokeAsync(string vendorId)
+    {
+        if (!_vendorSettings.AllowCustomersToContactVendors)
+            return Content("");
+
+        var vendor = await _vendorService.GetVendorById(vendorId);
+        if (vendor is not { Active: true } || vendor.Deleted)
+            return Content("");
+
+        var model = new ContactVendorModel {
+            Email = _workContext.CurrentCustomer.Email,
+            FullName = _workContext.CurrentCustomer.GetFullName(),
+            SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
+            DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
+            VendorId = vendor.Id,
+            VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+        };
+
+        return View(model);
+    }
+
+    #endregion
+
+    #region Fields
+
+    private readonly IVendorService _vendorService;
+    private readonly IWorkContext _workContext;
+    private readonly VendorSettings _vendorSettings;
+    private readonly CommonSettings _commonSettings;
+    private readonly CaptchaSettings _captchaSettings;
+
+    #endregion
 }

@@ -35,7 +35,7 @@
         Layout = "_LayoutPopup";
     }
 
-<script asp-location="Footer" asp-order="300">
+    <script asp-location="Footer" asp-order="300">
         function passwordProtect() {
             var postData = {
                 id: document.getElementById("@Html.IdFor(model => model.Id)").value,
@@ -78,7 +78,7 @@
 </script>
     <div class="page page-password" id="ph-password">
         <form id="passwordPage" asp-route="PageAuthenticate" method="post" onsubmit="return false">
-            <input asp-for="Id" type="hidden" />
+            <input asp-for="Id" type="hidden"/>
             <div class="enter-password-title">
                 @Loc["Page.EnterPassword"]
             </div>

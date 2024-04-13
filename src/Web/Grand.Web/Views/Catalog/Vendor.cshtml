@@ -32,7 +32,7 @@
                         @if (Model.VendorReviewOverview.AllowCustomerReviews)
                         {
                             <div>
-                                <partial name="Partials/VendorReviewOverview" model="Model.VendorReviewOverview" />
+                                <partial name="Partials/VendorReviewOverview" model="Model.VendorReviewOverview"/>
                             </div>
                         }
                     </div>
@@ -83,22 +83,27 @@
                                                 cityStateZip += ",";
                                             }
                                         }
+
                                         if (Model.Address.StateProvinceEnabled)
                                         {
                                             if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
+
                                             cityStateZip += Model.Address.StateProvinceName;
                                         }
+
                                         if (Model.Address.ZipPostalCodeEnabled)
                                         {
                                             if (!string.IsNullOrEmpty(cityStateZip))
                                             {
                                                 cityStateZip += " ";
                                             }
+
                                             cityStateZip += Model.Address.ZipPostalCode;
                                         }
+
                                         if (!string.IsNullOrEmpty(cityStateZip))
                                         {
                                             <li class="city-state-zip">
@@ -148,14 +153,14 @@
     </div>
     <div id="catalog-products">
         @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
-        <partial name="Partials/Selectors" />
+        <partial name="Partials/Selectors"/>
         <template v-if="catalog.Model.Products.length > 0">
             <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                 <div class="col-12 product-grid px-0">
                     <div class="form-row">
                         <template v-for="Model in catalog.Model.Products">
                             <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                <partial name="Partials/CatalogProductGridView" />
+                                <partial name="Partials/CatalogProductGridView"/>
                             </div>
                         </template>
                     </div>
@@ -166,13 +171,13 @@
                     <div class="col-12">
                         <div class="row">
                             <template v-for="Model in catalog.Model.Products">
-                                <partial name="Partials/CatalogProductListView" />
+                                <partial name="Partials/CatalogProductListView"/>
                             </template>
                         </div>
                     </div>
                 </div>
             </template>
-            <partial name="Partials/Pagination" />
+            <partial name="Partials/Pagination"/>
         </template>
         <template v-else>
             <div class="alert alert-info my-3">
@@ -185,7 +190,7 @@
 {
     <div id="captcha-container">
         <div class="captcha-box" id="captcha-box">
-            <captcha />
+            <captcha/>
         </div>
     </div>
 }
@@ -196,7 +201,8 @@
     @*Rendering filtering*@
     @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
     {
-        <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
+        <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter"/>
     }
 }
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

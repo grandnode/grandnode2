@@ -2,11 +2,10 @@
 using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Courses
+namespace Grand.Web.Features.Models.Courses;
+
+public class GetCheckOrder : IRequest<bool>
 {
-    public class GetCheckOrder : IRequest<bool>
-    {
-        public Customer Customer { get; set; }
-        public Course Course { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Course Course { get; set; }
 }

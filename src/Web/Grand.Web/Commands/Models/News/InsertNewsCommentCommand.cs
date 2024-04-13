@@ -2,11 +2,10 @@
 using Grand.Web.Models.News;
 using MediatR;
 
-namespace Grand.Web.Commands.Models.News
+namespace Grand.Web.Commands.Models.News;
+
+public class InsertNewsCommentCommand : IRequest<NewsComment>
 {
-    public class InsertNewsCommentCommand : IRequest<NewsComment>
-    {
-        public NewsItem NewsItem { get; set; }
-        public AddNewsCommentModel Model { get; set; }
-    }
+    public NewsItem NewsItem { get; set; }
+    public AddNewsCommentModel Model { get; set; }
 }

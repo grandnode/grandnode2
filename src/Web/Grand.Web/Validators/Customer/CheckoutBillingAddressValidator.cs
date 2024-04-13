@@ -8,20 +8,20 @@ using Grand.Web.Models.Common;
 using Grand.Web.Validators.Common;
 using MediatR;
 
-namespace Grand.Web.Validators.Customer
+namespace Grand.Web.Validators.Customer;
+
+public class CheckoutBillingAddressValidator : BaseGrandValidator<CheckoutBillingAddressModel>
 {
-    public class CheckoutBillingAddressValidator : BaseGrandValidator<CheckoutBillingAddressModel>
+    public CheckoutBillingAddressValidator(
+        IEnumerable<IValidatorConsumer<CheckoutBillingAddressModel>> validators,
+        IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
+        IMediator mediator, IAddressAttributeParser addressAttributeParser,
+        ITranslationService translationService,
+        ICountryService countryService,
+        AddressSettings addressSettings)
+        : base(validators)
     {
-        public CheckoutBillingAddressValidator(
-            IEnumerable<IValidatorConsumer<CheckoutBillingAddressModel>> validators,
-            IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
-            IMediator mediator, IAddressAttributeParser addressAttributeParser,
-            ITranslationService translationService,
-            ICountryService countryService,
-            AddressSettings addressSettings)
-            : base(validators)
-        {
-            RuleFor(x => x.BillingNewAddress).SetValidator(new AddressValidator(addressValidators, mediator, addressAttributeParser, translationService, countryService, addressSettings));
-        }
+        RuleFor(x => x.BillingNewAddress).SetValidator(new AddressValidator(addressValidators, mediator,
+            addressAttributeParser, translationService, countryService, addressSettings));
     }
 }

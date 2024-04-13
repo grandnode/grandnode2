@@ -1,4 +1,4 @@
-﻿@model Grand.Web.Models.Knowledgebase.KnowledgebaseArticleModel
+﻿@model KnowledgebaseArticleModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -16,8 +16,9 @@
 }
 
 @*Rendering breadcrumb section*@
+
 @section Breadcrumb
-    {
+{
     @if (Model.CategoryBreadcrumb.Any())
     {
         <ol class="breadcrumb">
@@ -78,7 +79,7 @@
                 }
             </div>
             <form asp-route="KnowledgebaseArticle" asp-route-sename="@Model.SeName" method="post">
-                <input type="hidden" name="articleId" value="@Model.Id" />
+                <input type="hidden" name="articleId" value="@Model.Id"/>
                 <div class="form-fields">
                     <div class="form-group">
                         <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Knowledgebase.Article.CommentText"]:</label>
@@ -88,19 +89,21 @@
                     @if (Model.AddNewComment.DisplayCaptcha)
                     {
                         <div class="captcha-box">
-                            <captcha />
+                            <captcha/>
                         </div>
                     }
                 </div>
                 <div class="buttons text-xs-center text-md-left generalMarginSupporter">
-                    <input type="submit" name="add-comment" asp-action="ArticleCommentAdd" class="btn btn-info blog-post-add-comment-button" value="@Loc["Knowledgebase.Article.Comments.SubmitButton"]" />
+                    <input type="submit" name="add-comment" asp-action="ArticleCommentAdd" class="btn btn-info blog-post-add-comment-button" value="@Loc["Knowledgebase.Article.Comments.SubmitButton"]"/>
                 </div>
             </form>
         </div>
         if (Model.Comments.Any())
         {
             <div class="comment-list">
-                <h4 class="generalTitle generalMarginSupporter"><strong>@Loc["Knowledgebase.Article.Comments"]</strong></h4>
+                <h4 class="generalTitle generalMarginSupporter">
+                    <strong>@Loc["Knowledgebase.Article.Comments"]</strong>
+                </h4>
                 <div class="comments">
                     @foreach (var comment in Model.Comments)
                     {

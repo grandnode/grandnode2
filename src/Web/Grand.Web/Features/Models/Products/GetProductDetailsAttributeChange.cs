@@ -5,14 +5,13 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Products
+namespace Grand.Web.Features.Models.Products;
+
+public class GetProductDetailsAttributeChange : IRequest<ProductDetailsAttributeChangeModel>
 {
-    public class GetProductDetailsAttributeChange : IRequest<ProductDetailsAttributeChangeModel>
-    {
-        public Customer Customer { get; set; }
-        public Currency Currency { get; set; }
-        public Store Store { get; set; }
-        public Product Product { get; set; }
-        public ProductModel Model { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Currency Currency { get; set; }
+    public Store Store { get; set; }
+    public Product Product { get; set; }
+    public ProductModel Model { get; set; }
 }

@@ -1,9 +1,8 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Newsletter
+namespace Grand.Web.Models.Newsletter;
+
+public class SubscriptionActivationModel : BaseModel
 {
-    public class SubscriptionActivationModel : BaseModel
-    {
-        public string Result { get; set; }
-    }
+    public string Result { get; set; }
 }
