@@ -9,11 +9,10 @@
     {
         Category = category
     };
-    <partial name="Partials/CategoryLine.Menu" model="categoryLineModel" />
+    <partial name="Partials/CategoryLine.Menu" model="categoryLineModel"/>
 }
 @if (Model.Brands.Any())
 {
-
     <li class="category -hasSubmenu" text="@Loc["Brands.Menu"]">
         <a href="@Url.RouteUrl("BrandList")">
             <span class="title">@Loc["Brands.Menu"]</span>
@@ -124,11 +123,11 @@
             }
         </ul>
     </li>
- }
-            @await Component.InvokeAsync("Widget", new { widgetZone = "header_menu_after" })
+}
+@await Component.InvokeAsync("Widget", new { widgetZone = "header_menu_after" })
 
-            @{
-                var rootCategoriesResponsive = Model.Categories.ToList();
-                //name it "Categories" if we have only categories. Otherwise, "Menu"
-                var responsiveMenuTitle = rootCategoriesResponsive.Any() && Model.Pages.Any() ? Loc["Categories"] : Loc["Menu"];
-            }
+@{
+    var rootCategoriesResponsive = Model.Categories.ToList();
+    //name it "Categories" if we have only categories. Otherwise, "Menu"
+    var responsiveMenuTitle = rootCategoriesResponsive.Any() && Model.Pages.Any() ? Loc["Categories"] : Loc["Menu"];
+}

@@ -1,140 +1,149 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Shipping.FixedRateShipping.Models;
 
-namespace Shipping.FixedRateShipping
+namespace Shipping.FixedRateShipping;
+
+public class FixedRateShippingProvider : IShippingRateCalculationProvider
 {
-    public class FixedRateShippingProvider : IShippingRateCalculationProvider
+    private readonly ICurrencyService _currencyService;
+    private readonly ISettingService _settingService;
+    private readonly ShippingFixedRateSettings _shippingFixedRateSettings;
+
+    private readonly IShippingMethodService _shippingMethodService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+
+
+    public FixedRateShippingProvider(
+        IShippingMethodService shippingMethodService,
+        IWorkContext workContext,
+        ISettingService settingService,
+        ICurrencyService currencyService,
+        ITranslationService translationService,
+        ShippingFixedRateSettings shippingFixedRateSettings
+    )
     {
+        _shippingMethodService = shippingMethodService;
+        _workContext = workContext;
+        _settingService = settingService;
+        _currencyService = currencyService;
+        _translationService = translationService;
+        _shippingFixedRateSettings = shippingFixedRateSettings;
+    }
 
-        private readonly IShippingMethodService _shippingMethodService;
-        private readonly IWorkContext _workContext;
-        private readonly ISettingService _settingService;
-        private readonly ICurrencyService _currencyService;
-        private readonly ITranslationService _translationService;
-        private readonly ShippingFixedRateSettings _shippingFixedRateSettings;
 
+    /// <summary>
+    ///     Gets available shipping options
+    /// </summary>
+    /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
+    /// <returns>Represents a response of getting shipping rate options</returns>
+    public async Task<GetShippingOptionResponse> GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
+    {
+        ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
 
-        public FixedRateShippingProvider(
-            IShippingMethodService shippingMethodService,
-            IWorkContext workContext,
-            ISettingService settingService,
-            ICurrencyService currencyService,
-            ITranslationService translationService,
-            ShippingFixedRateSettings shippingFixedRateSettings
-            )
+        var response = new GetShippingOptionResponse();
+
+        if (getShippingOptionRequest.Items == null || getShippingOptionRequest.Items.Count == 0)
         {
-            _shippingMethodService = shippingMethodService;
-            _workContext = workContext;
-            _settingService = settingService;
-            _currencyService = currencyService;
-            _translationService = translationService;
-            _shippingFixedRateSettings = shippingFixedRateSettings;
-        }
-        #region Utilities
-
-        private double GetRate(string shippingMethodId)
-        {
-            var key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
-            var rate = this._settingService.GetSettingByKey<FixedShippingRate>(key)?.Rate;
-            return rate ?? 0;
-        }
-
-        #endregion
-
-        
-        /// <summary>
-        ///  Gets available shipping options
-        /// </summary>
-        /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
-        /// <returns>Represents a response of getting shipping rate options</returns>
-        public async Task<GetShippingOptionResponse> GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
-        {
-            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
-
-            var response = new GetShippingOptionResponse();
-
-            if (getShippingOptionRequest.Items == null || getShippingOptionRequest.Items.Count == 0)
-            {
-                response.AddError("No shipment items");
-                return response;
-            }
-
-            var restrictByCountryId = getShippingOptionRequest.ShippingAddress != null && !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
-            var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId, getShippingOptionRequest.Customer);
-            foreach (var shippingMethod in shippingMethods)
-            {
-                var shippingOption = new ShippingOption
-                {
-                    Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                    Description = shippingMethod.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
-                    Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(GetRate(shippingMethod.Id), _workContext.WorkingCurrency)
-                };
-                response.ShippingOptions.Add(shippingOption);
-            }
-
+            response.AddError("No shipment items");
             return response;
         }
 
-        /// <summary>
-        /// Gets fixed shipping rate (if Shipping rate  method allows it and the rate can be calculated before checkout).
-        /// </summary>
-        /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
-        /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        public async Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        var restrictByCountryId =
+            getShippingOptionRequest.ShippingAddress != null &&
+            !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)
+                ? getShippingOptionRequest.ShippingAddress.CountryId
+                : "";
+        var shippingMethods =
+            await _shippingMethodService.GetAllShippingMethods(restrictByCountryId, getShippingOptionRequest.Customer);
+        foreach (var shippingMethod in shippingMethods)
         {
-            ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
-
-            var restrictByCountryId = getShippingOptionRequest.ShippingAddress != null && !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
-            var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId);
-
-            var rates = new List<double>();
-            foreach (var shippingMethod in shippingMethods)
-            {
-                var rate = GetRate(shippingMethod.Id);
-                if (!rates.Contains(rate))
-                    rates.Add(rate);
-            }
-
-            //return default rate if all of them equal
-            if (rates.Count == 1)
-                return rates[0];
-
-            return null;
+            var shippingOption = new ShippingOption {
+                Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                Description = shippingMethod.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
+                Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(GetRate(shippingMethod.Id),
+                    _workContext.WorkingCurrency)
+            };
+            response.ShippingOptions.Add(shippingOption);
         }
 
-        public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;
-
-        public IShipmentTracker ShipmentTracker => null;
-
-        public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
-        {
-            return await Task.FromResult(new List<string>());
-        }
-
-        public async Task<string> GetControllerRouteName()
-        {
-            return await Task.FromResult("");
-        }
-
-        public async Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart)
-        {
-            return await Task.FromResult(false);
-        }
-        public string ConfigurationUrl => FixedRateShippingDefaults.ConfigurationUrl;
-        public string SystemName => FixedRateShippingDefaults.ProviderSystemName;
-        public string FriendlyName => _translationService.GetResource(FixedRateShippingDefaults.FriendlyName);
-        public int Priority => _shippingFixedRateSettings.DisplayOrder;
-        public IList<string> LimitedToStores => new List<string>();
-        public IList<string> LimitedToGroups => new List<string>();
-
+        return response;
     }
+
+    /// <summary>
+    ///     Gets fixed shipping rate (if Shipping rate  method allows it and the rate can be calculated before checkout).
+    /// </summary>
+    /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
+    /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
+    public async Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+    {
+        ArgumentNullException.ThrowIfNull(getShippingOptionRequest);
+
+        var restrictByCountryId =
+            getShippingOptionRequest.ShippingAddress != null &&
+            !string.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)
+                ? getShippingOptionRequest.ShippingAddress.CountryId
+                : "";
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId);
+
+        var rates = new List<double>();
+        foreach (var shippingMethod in shippingMethods)
+        {
+            var rate = GetRate(shippingMethod.Id);
+            if (!rates.Contains(rate))
+                rates.Add(rate);
+        }
+
+        //return default rate if all of them equal
+        if (rates.Count == 1)
+            return rates[0];
+
+        return null;
+    }
+
+    public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;
+
+    public IShipmentTracker ShipmentTracker => null;
+
+    public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
+    {
+        return await Task.FromResult(new List<string>());
+    }
+
+    public async Task<string> GetControllerRouteName()
+    {
+        return await Task.FromResult("");
+    }
+
+    public async Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart)
+    {
+        return await Task.FromResult(false);
+    }
+
+    public string ConfigurationUrl => FixedRateShippingDefaults.ConfigurationUrl;
+    public string SystemName => FixedRateShippingDefaults.ProviderSystemName;
+    public string FriendlyName => _translationService.GetResource(FixedRateShippingDefaults.FriendlyName);
+    public int Priority => _shippingFixedRateSettings.DisplayOrder;
+    public IList<string> LimitedToStores => new List<string>();
+    public IList<string> LimitedToGroups => new List<string>();
+
+    #region Utilities
+
+    private double GetRate(string shippingMethodId)
+    {
+        var key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
+        var rate = _settingService.GetSettingByKey<FixedShippingRate>(key)?.Rate;
+        return rate ?? 0;
+    }
+
+    #endregion
 }

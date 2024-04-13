@@ -5,22 +5,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Widgets.FacebookPixel
+namespace Widgets.FacebookPixel;
+
+public class StartupApplication : IStartupApplication
 {
-    public class StartupApplication : IStartupApplication
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddScoped<IWidgetProvider, FacebookPixelProvider>();
-            services.AddScoped<IConsentCookie, FacebookPixelConsentCookie>();
-        }
-
-        public int Priority => 10;
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-        {
-
-        }
-        public bool BeforeConfigure => false;
+        services.AddScoped<IWidgetProvider, FacebookPixelProvider>();
+        services.AddScoped<IConsentCookie, FacebookPixelConsentCookie>();
     }
 
+    public int Priority => 10;
+
+    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public bool BeforeConfigure => false;
 }

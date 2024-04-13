@@ -11,11 +11,11 @@ namespace Payments.StripeCheckout.Services;
 
 public class StripeCheckoutService : IStripeCheckoutService
 {
-    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
-    private readonly IWorkContext _workContext;
     private readonly ILogger<StripeCheckoutService> _logger;
     private readonly IMediator _mediator;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
+    private readonly IWorkContext _workContext;
 
     public StripeCheckoutService(
         IWorkContext workContext,
@@ -56,6 +56,7 @@ public class StripeCheckoutService : IStripeCheckoutService
             _logger.LogError(e, "StripeException");
             return false;
         }
+
         return false;
     }
 
@@ -76,7 +77,7 @@ public class StripeCheckoutService : IStripeCheckoutService
             try
             {
                 paymentTransaction.AuthorizationTransactionId = paymentIntent.Id;
-                paymentTransaction.PaidAmount += (paymentIntent.Amount / 100);
+                paymentTransaction.PaidAmount += paymentIntent.Amount / 100;
                 await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
             }
             catch (Exception e)
@@ -102,24 +103,24 @@ public class StripeCheckoutService : IStripeCheckoutService
                     PriceData = new SessionLineItemPriceDataOptions {
                         UnitAmountDecimal = (decimal?)order.OrderTotal * 100,
                         ProductData = new SessionLineItemPriceDataProductDataOptions {
-                            Name = string.Format(_stripeCheckoutPaymentSettings.Line, order.OrderNumber),
+                            Name = string.Format(_stripeCheckoutPaymentSettings.Line, order.OrderNumber)
                         },
-                        Currency = order.CustomerCurrencyCode,
+                        Currency = order.CustomerCurrencyCode
                     },
-                    Quantity = 1,
+                    Quantity = 1
                 }
             ],
             ClientReferenceId = order.Id,
             CustomerEmail = order.CustomerEmail,
-            PaymentIntentData = new SessionPaymentIntentDataOptions() {
-                Metadata = new Dictionary<string, string> { { "order_guid", order.OrderGuid.ToString() } },
+            PaymentIntentData = new SessionPaymentIntentDataOptions {
+                Metadata = new Dictionary<string, string> { { "order_guid", order.OrderGuid.ToString() } }
             },
             Mode = "payment",
             SuccessUrl = $"{storeLocation}/orderdetails/{order.Id}",
-            CancelUrl = $"{storeLocation}/Plugins/PaymentStripeCheckout/CancelOrder/{order.Id}",
+            CancelUrl = $"{storeLocation}/Plugins/PaymentStripeCheckout/CancelOrder/{order.Id}"
         };
         var service = new SessionService();
-        Session session = await service.CreateAsync(options);
+        var session = await service.CreateAsync(options);
 
         return session;
     }

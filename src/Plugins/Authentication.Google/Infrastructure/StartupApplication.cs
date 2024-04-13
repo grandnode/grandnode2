@@ -5,21 +5,20 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Authentication.Google.Infrastructure
+namespace Authentication.Google.Infrastructure;
+
+public class StartupApplication : IStartupApplication
 {
-    public class StartupApplication : IStartupApplication
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddScoped<IExternalAuthenticationProvider, GoogleAuthenticationProvider>();
-        }
-
-        public int Priority => 10;
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-        {
-
-        }
-        public bool BeforeConfigure => false;
+        services.AddScoped<IExternalAuthenticationProvider, GoogleAuthenticationProvider>();
     }
 
+    public int Priority => 10;
+
+    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public bool BeforeConfigure => false;
 }

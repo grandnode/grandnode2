@@ -1,35 +1,33 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 
-namespace Authentication.Google
+namespace Authentication.Google;
+
+public class GoogleAuthenticationProvider : IExternalAuthenticationProvider
 {
-    public class GoogleAuthenticationProvider : IExternalAuthenticationProvider
+    private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
+
+    public GoogleAuthenticationProvider(GoogleExternalAuthSettings googleExternalAuthSettings)
     {
-        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
+        _googleExternalAuthSettings = googleExternalAuthSettings;
+    }
 
-        public GoogleAuthenticationProvider(GoogleExternalAuthSettings googleExternalAuthSettings)
-        {
-            _googleExternalAuthSettings = googleExternalAuthSettings;
-        }
+    public string ConfigurationUrl => GoogleAuthenticationDefaults.ConfigurationUrl;
 
-        public string ConfigurationUrl => GoogleAuthenticationDefaults.ConfigurationUrl;
+    public string SystemName => GoogleAuthenticationDefaults.ProviderSystemName;
 
-        public string SystemName => GoogleAuthenticationDefaults.ProviderSystemName;
+    public string FriendlyName => "Google authentication";
 
-        public string FriendlyName => "Google authentication";
+    public int Priority => _googleExternalAuthSettings.DisplayOrder;
 
-        public int Priority => _googleExternalAuthSettings.DisplayOrder;
+    public IList<string> LimitedToStores => new List<string>();
 
-        public IList<string> LimitedToStores => new List<string>();
+    public IList<string> LimitedToGroups => new List<string>();
 
-        public IList<string> LimitedToGroups => new List<string>();
-
-        /// <summary>
-        /// Gets a view component for displaying plugin in public store
-        /// </summary>
-        public async Task<string> GetPublicViewComponentName()
-        {
-            return await Task.FromResult("GoogleAuthentication");
-        }
-
+    /// <summary>
+    ///     Gets a view component for displaying plugin in public store
+    /// </summary>
+    public async Task<string> GetPublicViewComponentName()
+    {
+        return await Task.FromResult("GoogleAuthentication");
     }
 }

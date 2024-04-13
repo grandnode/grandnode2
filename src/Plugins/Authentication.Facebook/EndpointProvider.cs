@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace Authentication.Facebook
+namespace Authentication.Facebook;
+
+public class EndpointProvider : IEndpointProvider
 {
-    public class EndpointProvider : IEndpointProvider
+    public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
     {
-        public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
-        {
-            endpointRouteBuilder.MapControllerRoute("Plugin.ExternalAuth.Facebook.SignInFacebook",
-                 "fb-signin-failed",
-                 new { controller = "FacebookAuthentication", action = "FacebookSignInFailed" }
-            );
-        }
-        public int Priority => 10;
+        endpointRouteBuilder.MapControllerRoute("Plugin.ExternalAuth.Facebook.SignInFacebook",
+            "fb-signin-failed",
+            new { controller = "FacebookAuthentication", action = "FacebookSignInFailed" }
+        );
     }
+
+    public int Priority => 10;
 }

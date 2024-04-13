@@ -19,7 +19,7 @@
                         @foreach (var picture in Model.PictureModels)
                         {
                             <swiper-slide>
-                                <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" />
+                                <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
                             </swiper-slide>
                         }
                     </swiper>
@@ -28,7 +28,7 @@
                         @foreach (var picture in Model.PictureModels)
                         {
                             <swiper-slide>
-                                <img src="@picture.ImageUrl" data-srcs="@picture.ImageUrl" data-zoom-src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title" />
+                                <img src="@picture.ImageUrl" data-srcs="@picture.ImageUrl" data-zoom-src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
                                 @if (Model.DefaultPictureZoomEnabled)
                                 {
                                     <div class="zoom-button" onclick="zoomImg(this)">

@@ -1,32 +1,31 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 
-namespace Widgets.FacebookPixel
+namespace Widgets.FacebookPixel;
+
+public class FacebookPixelConsentCookie : IConsentCookie
 {
-    public class FacebookPixelConsentCookie : IConsentCookie
+    private readonly FacebookPixelSettings _facebookPixelSettings;
+
+    public FacebookPixelConsentCookie(FacebookPixelSettings facebookPixelSettings)
     {
-        private readonly FacebookPixelSettings _facebookPixelSettings;
+        _facebookPixelSettings = facebookPixelSettings;
+    }
 
-        public FacebookPixelConsentCookie(FacebookPixelSettings facebookPixelSettings)
-        {
-            _facebookPixelSettings = facebookPixelSettings;
-        }
+    public string SystemName => FacebookPixelDefaults.ConsentCookieSystemName;
 
-        public string SystemName => FacebookPixelDefaults.ConsentCookieSystemName;
+    public bool AllowToDisable => _facebookPixelSettings.AllowToDisableConsentCookie;
 
-        public bool AllowToDisable => _facebookPixelSettings.AllowToDisableConsentCookie;
+    public bool? DefaultState => _facebookPixelSettings.ConsentDefaultState;
 
-        public bool? DefaultState => _facebookPixelSettings.ConsentDefaultState;
+    public int DisplayOrder => 10;
 
-        public int DisplayOrder => 10;
+    public Task<string> FullDescription()
+    {
+        return Task.FromResult(_facebookPixelSettings.ConsentDescription);
+    }
 
-        public Task<string> FullDescription()
-        {
-            return Task.FromResult(_facebookPixelSettings.ConsentDescription);
-        }
-
-        public Task<string> Name()
-        {
-            return Task.FromResult(_facebookPixelSettings.ConsentName);
-        }
+    public Task<string> Name()
+    {
+        return Task.FromResult(_facebookPixelSettings.ConsentName);
     }
 }

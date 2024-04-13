@@ -11,80 +11,82 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.FacebookPixel.Models;
 
-namespace Widgets.FacebookPixel.Areas.Admin.Controllers
+namespace Widgets.FacebookPixel.Areas.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.Widgets)]
+public class WidgetsFacebookPixelController : BaseAdminPluginController
 {
-    [PermissionAuthorize(PermissionSystemName.Widgets)]
-    public class WidgetsFacebookPixelController : BaseAdminPluginController
+    private readonly ISettingService _settingService;
+    private readonly IStoreService _storeService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+
+    public WidgetsFacebookPixelController(IWorkContext workContext,
+        IStoreService storeService,
+        ISettingService settingService,
+        ITranslationService translationService)
     {
-        private readonly IWorkContext _workContext;
-        private readonly IStoreService _storeService;
-        private readonly ISettingService _settingService;
-        private readonly ITranslationService _translationService;
+        _workContext = workContext;
+        _storeService = storeService;
+        _settingService = settingService;
+        _translationService = translationService;
+    }
 
-        public WidgetsFacebookPixelController(IWorkContext workContext,
-            IStoreService storeService,
-            ISettingService settingService,
-            ITranslationService translationService)
-        {
-            _workContext = workContext;
-            _storeService = storeService;
-            _settingService = settingService;
-            _translationService = translationService;
-        }
-        protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
-        {
-            var stores = await storeService.GetAllStores();
-            if (stores.Count < 2)
-                return stores.FirstOrDefault()!.Id;
+    protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
+    {
+        var stores = await storeService.GetAllStores();
+        if (stores.Count < 2)
+            return stores.FirstOrDefault()!.Id;
 
-            var storeId = workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
-            var store = await storeService.GetStoreById(storeId);
+        var storeId =
+            workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
+                .AdminAreaStoreScopeConfiguration);
+        var store = await storeService.GetStoreById(storeId);
 
-            return store != null ? store.Id : "";
-        }
-        [AuthorizeAdmin]
-        public async Task<IActionResult> Configure()
-        {
-            //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
-            var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
-            var model = new ConfigurationModel {
-                PixelId = facebookPixelSettings.PixelId,
-                PixelScript = facebookPixelSettings.PixelScript,
-                AddToCartScript = facebookPixelSettings.AddToCartScript,
-                DetailsOrderScript = facebookPixelSettings.DetailsOrderScript,
-                AllowToDisableConsentCookie = facebookPixelSettings.AllowToDisableConsentCookie,
-                ConsentName = facebookPixelSettings.ConsentName,
-                ConsentDescription = facebookPixelSettings.ConsentDescription,
-                ConsentDefaultState = facebookPixelSettings.ConsentDefaultState
-            };
+        return store != null ? store.Id : "";
+    }
 
-            return View(model);
-        }
+    [AuthorizeAdmin]
+    public async Task<IActionResult> Configure()
+    {
+        //load settings for a chosen store scope
+        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
+        var model = new ConfigurationModel {
+            PixelId = facebookPixelSettings.PixelId,
+            PixelScript = facebookPixelSettings.PixelScript,
+            AddToCartScript = facebookPixelSettings.AddToCartScript,
+            DetailsOrderScript = facebookPixelSettings.DetailsOrderScript,
+            AllowToDisableConsentCookie = facebookPixelSettings.AllowToDisableConsentCookie,
+            ConsentName = facebookPixelSettings.ConsentName,
+            ConsentDescription = facebookPixelSettings.ConsentDescription,
+            ConsentDefaultState = facebookPixelSettings.ConsentDefaultState
+        };
 
-        [HttpPost]
-        [AuthorizeAdmin]
-        public async Task<IActionResult> Configure(ConfigurationModel model)
-        {
-            //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
-            var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
-            facebookPixelSettings.PixelId = model.PixelId;
-            facebookPixelSettings.PixelScript = model.PixelScript;
-            facebookPixelSettings.AddToCartScript = model.AddToCartScript;
-            facebookPixelSettings.DetailsOrderScript = model.DetailsOrderScript;
-            facebookPixelSettings.AllowToDisableConsentCookie = model.AllowToDisableConsentCookie;
-            facebookPixelSettings.ConsentName = model.ConsentName;
-            facebookPixelSettings.ConsentDescription = model.ConsentDescription;
-            facebookPixelSettings.ConsentDefaultState = model.ConsentDefaultState;
+        return View(model);
+    }
 
-            await _settingService.SaveSetting(facebookPixelSettings, storeScope);
+    [HttpPost]
+    [AuthorizeAdmin]
+    public async Task<IActionResult> Configure(ConfigurationModel model)
+    {
+        //load settings for a chosen store scope
+        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
+        facebookPixelSettings.PixelId = model.PixelId;
+        facebookPixelSettings.PixelScript = model.PixelScript;
+        facebookPixelSettings.AddToCartScript = model.AddToCartScript;
+        facebookPixelSettings.DetailsOrderScript = model.DetailsOrderScript;
+        facebookPixelSettings.AllowToDisableConsentCookie = model.AllowToDisableConsentCookie;
+        facebookPixelSettings.ConsentName = model.ConsentName;
+        facebookPixelSettings.ConsentDescription = model.ConsentDescription;
+        facebookPixelSettings.ConsentDefaultState = model.ConsentDefaultState;
 
-            //now clear settings cache
-            await _settingService.ClearCache();
-            Success(_translationService.GetResource("Admin.Plugins.Saved"));
-            return await Configure();
-        }
+        await _settingService.SaveSetting(facebookPixelSettings, storeScope);
 
+        //now clear settings cache
+        await _settingService.ClearCache();
+        Success(_translationService.GetResource("Admin.Plugins.Saved"));
+        return await Configure();
     }
 }

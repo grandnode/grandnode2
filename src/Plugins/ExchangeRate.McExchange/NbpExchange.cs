@@ -4,51 +4,53 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Xml;
 
-namespace ExchangeRate.McExchange
+namespace ExchangeRate.McExchange;
+
+internal class NbpExchange : IRateProvider
 {
-    internal class NbpExchange : IRateProvider
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public NbpExchange(IHttpClientFactory httpClientFactory)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        _httpClientFactory = httpClientFactory;
+    }
 
-        public NbpExchange(IHttpClientFactory httpClientFactory)
+    public async Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates()
+    {
+        var currentDate = DateTime.Today.AddDays(-1);
+        var httpClient = _httpClientFactory.CreateClient(Constant.DefaultHttpClientName);
+        httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Xml);
+        await using var response =
+            await httpClient.GetStreamAsync(
+                $"{Constant.NbpUrl}{currentDate.AddDays(-7):yyyy-MM-dd}/{currentDate:yyyy-MM-dd}");
+        var document = new XmlDocument();
+        document.Load(response);
+
+        var node = document.SelectNodes("//EffectiveDate")
+            .Cast<XmlElement>()
+            .OrderByDescending(x => x.InnerText)
+            .First();
+
+        var updateDate = DateTime.ParseExact(node.InnerText, "yyyy-MM-dd", null);
+        Debug.Assert(node.ParentNode != null, "node.ParentNode != null");
+        var ratesNode = node.ParentNode.SelectSingleNode("Rates");
+
+        var provider = new NumberFormatInfo {
+            CurrencyDecimalSeparator = ".",
+            NumberGroupSeparator = ""
+        };
+
+        var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
+        foreach (XmlNode node2 in ratesNode.ChildNodes)
         {
-            _httpClientFactory = httpClientFactory;
+            var rate = double.Parse(node2.SelectSingleNode("Mid").InnerText, provider);
+            exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate {
+                CurrencyCode = node2.SelectSingleNode("Code").InnerText,
+                Rate = Math.Round(1 / rate, 4, MidpointRounding.AwayFromZero),
+                UpdatedOn = updateDate
+            });
         }
-        public async Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates()
-        {
-            var currentDate = DateTime.Today.AddDays(-1);
-            var httpClient = _httpClientFactory.CreateClient(Constant.DefaultHttpClientName);
-            httpClient.DefaultRequestHeaders.Add("Accept", MediaTypeNames.Application.Xml);
-            await using var response = await httpClient.GetStreamAsync($"{Constant.NbpUrl}{currentDate.AddDays(-7):yyyy-MM-dd}/{currentDate:yyyy-MM-dd}");
-            var document = new XmlDocument();
-            document.Load(response);
 
-            var node = document.SelectNodes("//EffectiveDate")
-                .Cast<XmlElement>()
-                .OrderByDescending(x => x.InnerText)
-                .First();
-
-            var updateDate = DateTime.ParseExact(node.InnerText, "yyyy-MM-dd", null);
-            Debug.Assert(node.ParentNode != null, "node.ParentNode != null");
-            var ratesNode = node.ParentNode.SelectSingleNode("Rates");
-
-            var provider = new NumberFormatInfo {
-                CurrencyDecimalSeparator = ".",
-                NumberGroupSeparator = ""
-            };
-
-            var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
-            foreach (XmlNode node2 in ratesNode.ChildNodes)
-            {
-                var rate = double.Parse(node2.SelectSingleNode("Mid").InnerText, provider);
-                exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate {
-                    CurrencyCode = node2.SelectSingleNode("Code").InnerText,
-                    Rate = Math.Round(1 / rate, 4, MidpointRounding.AwayFromZero),
-                    UpdatedOn = updateDate
-                });
-            }
-            return exchangeRates;
-
-        }
+        return exchangeRates;
     }
 }

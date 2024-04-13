@@ -1,14 +1,10 @@
 using Grand.Infrastructure.Plugins;
 
-namespace Theme.Modern
+namespace Theme.Modern;
+
+/// <summary>
+///     Plugin
+/// </summary>
+public class MinimalThemePlugin : BasePlugin, IPlugin
 {
-    /// <summary>
-    /// Plugin
-    /// </summary>
-    public class MinimalThemePlugin : BasePlugin, IPlugin
-    {
-        public MinimalThemePlugin()
-        {
-        }
-    }
 }

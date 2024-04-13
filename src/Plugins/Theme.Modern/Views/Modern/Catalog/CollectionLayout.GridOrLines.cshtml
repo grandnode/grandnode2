@@ -3,14 +3,14 @@
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var collectionUrl = Url.RouteUrl("Collection", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var collectionUrl = Url.RouteUrl("Collection", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
 }
@@ -27,7 +27,9 @@
         <template v-if="catalog.Model.Description !== null">
             <div v-html="catalog.Model.Description"></div>
         </template>
-        <h1 class="generalTitle h2"><div>{{catalog.Model.Name}}</div></h1>
+        <h1 class="generalTitle h2">
+            <div>{{catalog.Model.Name}}</div>
+        </h1>
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_top", additionalData = Model.Id })
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_featured_products", additionalData = Model.Id })
         @*Rendering featured products section*@
@@ -47,42 +49,42 @@
         </template>
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_after_featured_products", additionalData = Model.Id })
         <div id="catalog-products">
-                @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_filters", additionalData = Model.Id })
-                <template v-if="catalog.Model !== undefined">
-                    <partial name="Partials/Selectors" />
-                    <template v-if="catalog.Model.Products.length > 0">
-                        <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                            <b-col cols="12" class="product-grid standard px-0">
-                                <b-form-row>
-                                    <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                        <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
-                                            <product-box-vue :Model="Model"></product-box-vue>
-                                        </b-col>
-                                    </template>
-                                </b-form-row>
-                            </b-col>
-                        </template>
-                        <template v-else>
-                            <div class="product-list">
-                                <b-col cols="12">
-                                    <b-row>
-                                        <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                            <product-box-list-vue :Model="Model"></product-box-list-vue>
-                                        </template>
-                                    </b-row>
-                                </b-col>
-                            </div>
-                        </template>
-                        @*<partial name="Partials/Pagination" />*@
-                        <partial name="Partials/ScrollPagination" />
+            @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_filters", additionalData = Model.Id })
+            <template v-if="catalog.Model !== undefined">
+                <partial name="Partials/Selectors"/>
+                <template v-if="catalog.Model.Products.length > 0">
+                    <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                        <b-col cols="12" class="product-grid standard px-0">
+                            <b-form-row>
+                                <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                    <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
+                                        <product-box-vue :Model="Model"></product-box-vue>
+                                    </b-col>
+                                </template>
+                            </b-form-row>
+                        </b-col>
                     </template>
                     <template v-else>
-                        <b-alert variant="info" show class="my-3">
-                            @Loc["search.noresultstext"]
-                        </b-alert>
+                        <div class="product-list">
+                            <b-col cols="12">
+                                <b-row>
+                                    <template :key="Model.Id" v-for="Model in catalog.Model.Products">
+                                        <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                    </template>
+                                </b-row>
+                            </b-col>
+                        </div>
                     </template>
+                    @*<partial name="Partials/Pagination" />*@
+                    <partial name="Partials/ScrollPagination"/>
                 </template>
-            </div>
+                <template v-else>
+                    <b-alert variant="info" show class="my-3">
+                        @Loc["search.noresultstext"]
+                    </b-alert>
+                </template>
+            </template>
+        </div>
 
         @*Rendering bottom description section*@
         <template v-if="catalog.Model.BottomDescription !== null">
@@ -93,13 +95,13 @@
     </div>
 </b-skeleton-wrapper>
 
-    @section filters
+@section filters
+{
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
     {
-        @*Rendering filtering section*@
-        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
-        {
-            <partial name="Partials/Filtering" />
-        }
+        <partial name="Partials/Filtering"/>
     }
+}
 
-    <partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

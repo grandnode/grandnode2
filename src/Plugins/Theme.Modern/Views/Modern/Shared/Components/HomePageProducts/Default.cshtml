@@ -3,7 +3,9 @@
     <div class="home-page-section">
         <div id="HomePageProducts" class="section">
             <div class="product-grid">
-                <h2 class="generalTitle text-center"><span>@Loc["HomePage.Products"]</span></h2>
+                <h2 class="generalTitle text-center">
+                    <span>@Loc["HomePage.Products"]</span>
+                </h2>
                 <div class="col-12 px-0">
                     <div class="item-row">
                         <div :key="Model.Id" v-for="Model in homePProducts.Model" class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-6 product-container mb-2">

@@ -3,9 +3,8 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Grand.Plugin.Tests")]
 
-namespace ExchangeRate.McExchange
+namespace ExchangeRate.McExchange;
+
+public class McExchangeRatePlugin : BasePlugin
 {
-    public class McExchangeRatePlugin : BasePlugin
-    {
-    }
 }

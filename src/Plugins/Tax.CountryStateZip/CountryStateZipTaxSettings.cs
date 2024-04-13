@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Tax.CountryStateZip
+namespace Tax.CountryStateZip;
+
+public class CountryStateZipTaxSettings : ISettings
 {
-    public class CountryStateZipTaxSettings : ISettings
-    {
-        public int DisplayOrder { get; set; }
-    }
+    public int DisplayOrder { get; set; }
 }

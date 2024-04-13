@@ -1,13 +1,12 @@
-﻿@model ShippingByWeightListModel
+﻿@using Grand.Domain.Common
+@model Shipping.ByWeight.Models.ShippingByWeightListModel
 @inject AdminAreaSettings adminAreaSettings
-@using Shipping.ByWeight.Models;
-@using Grand.Domain.Common;
 @{
     Layout = "_ConfigurePlugin";
 }
-<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers" />
+<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers"/>
 <form asp-controller="ShippingByWeight" asp-action="Configure" method="post" id="shipping-byweight-form">
-    
+
     <div class="note note-info">
         <strong>@Loc["Plugins.Shipping.ByWeight.Formula"]:</strong>
         @Loc["Plugins.Shipping.ByWeight.Formula.Value"]
@@ -25,7 +24,7 @@
             <a id="btnAddNewOption" href="@(addNewUrl)" class="btn default">
                 @Loc["Plugins.Shipping.ByWeight.AddRecord"]
             </a>
-            <input type="submit" id="btnRefresh" style="display: none" />
+            <input type="submit" id="btnRefresh" style="display: none"/>
         </div>
     </div>
     <script>
@@ -138,7 +137,7 @@
                     field: "Id",
                     title: "@Loc["Admin.Common.Edit"]",
                     width: 100,
-                    template: "<a href=\"@Url.Action("EditPopup","ShippingByWeight")?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
+                    template: "<a href=\"@Url.Action("EditPopup", "ShippingByWeight")?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
                 },  {
                     command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                     title: "@Loc["Admin.Common.Delete"]",
@@ -167,10 +166,10 @@
             <div class="panel-body">
                 <div class="form-body">
                     <div class="form-group">
-                        <admin-label asp-for="LimitMethodsToCreated" />
+                        <admin-label asp-for="LimitMethodsToCreated"/>
                         <div class="col-md-9 col-sm-9">
                             <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                <admin-input asp-for="LimitMethodsToCreated" />
+                                <admin-input asp-for="LimitMethodsToCreated"/>
                                 <div class="control__indicator"></div>
                             </label>
                             <span asp-validation-for="LimitMethodsToCreated"></span>
@@ -178,15 +177,15 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-3 col-sm-3 text-right">
-                            <admin-label asp-for="DisplayOrder" class="control-label" />
+                            <admin-label asp-for="DisplayOrder" class="control-label"/>
                         </div>
                         <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="DisplayOrder" />
+                            <admin-input asp-for="DisplayOrder"/>
                             <span asp-validation-for="DisplayOrder"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]" />
+                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]"/>
                         <script>
                     $(function () {
                         $('#savegeneralsettings').click(function () {

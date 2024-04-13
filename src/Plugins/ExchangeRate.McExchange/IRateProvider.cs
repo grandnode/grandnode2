@@ -1,7 +1,6 @@
-namespace ExchangeRate.McExchange
+namespace ExchangeRate.McExchange;
+
+internal interface IRateProvider
 {
-    internal interface IRateProvider
-    {
-        Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates();
-    }
+    Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates();
 }

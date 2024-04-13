@@ -1,9 +1,8 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Authentication.Google.Models
+namespace Authentication.Google.Models;
+
+public class FailedModel : BaseModel
 {
-    public class FailedModel : BaseModel
-    {
-        public string ErrorMessage { get; set; }
-    }
+    public string ErrorMessage { get; set; }
 }

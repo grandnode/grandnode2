@@ -1,16 +1,15 @@
-namespace Tax.CountryStateZip.Infrastructure.Cache
+namespace Tax.CountryStateZip.Infrastructure.Cache;
+
+/// <summary>
+///     Represents a tax rate
+/// </summary>
+public class TaxRateForCaching
 {
-    /// <summary>
-    /// Represents a tax rate
-    /// </summary>
-    public class TaxRateForCaching
-    {
-        public string Id { get; set; }
-        public string StoreId { get; set; }
-        public string TaxCategoryId { get; set; }
-        public string CountryId { get; set; }
-        public string StateProvinceId { get; set; }
-        public string Zip { get; set; }
-        public double Percentage { get; set; }
-    }
+    public string Id { get; set; }
+    public string StoreId { get; set; }
+    public string TaxCategoryId { get; set; }
+    public string CountryId { get; set; }
+    public string StateProvinceId { get; set; }
+    public string Zip { get; set; }
+    public double Percentage { get; set; }
 }

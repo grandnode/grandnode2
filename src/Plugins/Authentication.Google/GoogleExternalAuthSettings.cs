@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Authentication.Google
+namespace Authentication.Google;
+
+public class GoogleExternalAuthSettings : ISettings
 {
-    public class GoogleExternalAuthSettings : ISettings
-    {        
-        public int DisplayOrder { get; set; }
-    }
+    public int DisplayOrder { get; set; }
 }

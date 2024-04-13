@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Payments.BrainTree.Components
+namespace Payments.BrainTree.Components;
+
+[ViewComponent(Name = "PaymentBrainTreeScripts")]
+public class PaymentBrainTreeScripts : ViewComponent
 {
-    [ViewComponent(Name = "PaymentBrainTreeScripts")]
-    public class PaymentBrainTreeScripts : ViewComponent
+    public IViewComponentResult Invoke()
     {
-        public IViewComponentResult Invoke()
-        {
-            return View();
-        }
+        return View();
     }
 }

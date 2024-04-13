@@ -3,7 +3,7 @@
     Layout = "_ConfigurePlugin";
 }
 
-<input id="active-menu-item" type="hidden" value="/Admin/ExternalAuthentication/Methods" />
+<input id="active-menu-item" type="hidden" value="/Admin/ExternalAuthentication/Methods"/>
 <form asp-controller="GoogleAuthenticationSettings" asp-area="Admin" asp-action="Configure" method="post">
 
     <div class="panel-group">
@@ -14,35 +14,35 @@
             <div class="panel-body">
                 @Html.Raw(Loc["Plugins.ExternalAuth.Google.Description"])
                 <p>
-                    <br /><br />
-                    To edit google settings in the grandnode application, please open the file App_Settings.json, 
+                    <br/><br/>
+                    To edit google settings in the grandnode application, please open the file App_Settings.json,
                     find section GoogleSettings and enter the correct values.
                 </p>
                 <div class="form-group">
                     <div class="col-md-3 col-sm-3 text-right">
-                        <admin-label asp-for="ClientKeyIdentifier" class="control-label" />
+                        <admin-label asp-for="ClientKeyIdentifier" class="control-label"/>
                     </div>
                     <div class="col-md-9 col-sm-9">
-                        <input asp-for=ClientKeyIdentifier type="text"
-                        disabled class="form-control k-input text-box single-line" />
+                        <input asp-for="ClientKeyIdentifier" type="text"
+                               disabled class="form-control k-input text-box single-line"/>
                         <span asp-validation-for="ClientKeyIdentifier"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-3 col-sm-3 text-right">
-                        <admin-label asp-for="ClientSecret" class="control-label" />
+                        <admin-label asp-for="ClientSecret" class="control-label"/>
                     </div>
                     <div class="col-md-9 col-sm-9">
-                        <input asp-for=ClientSecret type="text" disabled class="form-control k-input text-box single-line" />
+                        <input asp-for="ClientSecret" type="text" disabled class="form-control k-input text-box single-line"/>
                         <span asp-validation-for="ClientSecret"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-3 col-sm-3 text-right">
-                        <admin-label asp-for="DisplayOrder" class="control-label" />
+                        <admin-label asp-for="DisplayOrder" class="control-label"/>
                     </div>
                     <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="DisplayOrder" />
+                        <admin-input asp-for="DisplayOrder"/>
                         <span asp-validation-for="DisplayOrder"></span>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
             <div class="panel-footer">
                 <div class="row">
                     <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                        <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]" />
+                        <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
                     </div>
                 </div>
             </div>

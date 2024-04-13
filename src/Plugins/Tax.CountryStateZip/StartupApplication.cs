@@ -6,21 +6,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tax.CountryStateZip.Services;
 
-namespace Tax.CountryStateZip
+namespace Tax.CountryStateZip;
+
+public class StartupApplication : IStartupApplication
 {
-    public class StartupApplication : IStartupApplication
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddScoped<ITaxRateService, TaxRateService>();
-            services.AddScoped<ITaxProvider, CountryStateZipTaxProvider>();
-        }
-
-        public int Priority => 20;
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-        {
-
-        }
-        public bool BeforeConfigure => false;
+        services.AddScoped<ITaxRateService, TaxRateService>();
+        services.AddScoped<ITaxProvider, CountryStateZipTaxProvider>();
     }
+
+    public int Priority => 20;
+
+    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public bool BeforeConfigure => false;
 }

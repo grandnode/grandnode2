@@ -1,8 +1,7 @@
-﻿@model ShippingByWeightModel
-@using Shipping.ByWeight.Models
-@using Microsoft.AspNetCore.Routing
+﻿@using Microsoft.AspNetCore.Routing
+@model Shipping.ByWeight.Models.ShippingByWeightModel
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 
 @if (ViewBag.RefreshPage == true)
 {
@@ -40,115 +39,117 @@
     <div class="form-body">
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="StoreId" class="control-label" />
+                <admin-label asp-for="StoreId" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                 <span asp-validation-for="StoreId"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="WarehouseId" class="control-label" />
+                <admin-label asp-for="WarehouseId" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses" />
+                <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
                 <span asp-validation-for="WarehouseId"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="CountryId" class="control-label" />
+                <admin-label asp-for="CountryId" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries" />
+                <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
                 <span asp-validation-for="CountryId"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="StateProvinceId" class="control-label" />
+                <admin-label asp-for="StateProvinceId" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="StateProvinceId" asp-items="Model.AvailableStates" />
+                <admin-select asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
                 <span asp-validation-for="StateProvinceId"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="Zip" class="control-label" />
+                <admin-label asp-for="Zip" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Zip" />
+                <admin-input asp-for="Zip"/>
                 <span asp-validation-for="Zip"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="ShippingMethodId" class="control-label" />
+                <admin-label asp-for="ShippingMethodId" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="ShippingMethodId" asp-items="Model.AvailableShippingMethods" />
+                <admin-select asp-for="ShippingMethodId" asp-items="Model.AvailableShippingMethods"/>
                 <span asp-validation-for="ShippingMethodId"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="From" class="control-label" />
+                <admin-label asp-for="From" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="From" /> [@Model.BaseWeightIn]
+                <admin-input asp-for="From"/> [@Model.BaseWeightIn]
                 <span asp-validation-for="From"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="To" class="control-label" />
+                <admin-label asp-for="To" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="To" /> [@Model.BaseWeightIn]
+                <admin-input asp-for="To"/> [@Model.BaseWeightIn]
                 <span asp-validation-for="To"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="AdditionalFixedCost" class="control-label" />
+                <admin-label asp-for="AdditionalFixedCost" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AdditionalFixedCost" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="AdditionalFixedCost"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="AdditionalFixedCost"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="LowerWeightLimit" class="control-label" />
+                <admin-label asp-for="LowerWeightLimit" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="LowerWeightLimit" />
+                <admin-input asp-for="LowerWeightLimit"/>
                 <span asp-validation-for="LowerWeightLimit"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="RatePerWeightUnit" class="control-label" />
+                <admin-label asp-for="RatePerWeightUnit" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="RatePerWeightUnit" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="RatePerWeightUnit"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="RatePerWeightUnit"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-md-3 col-sm-3 text-right">
-                <admin-label asp-for="PercentageRateOfSubtotal" class="control-label" />
+                <admin-label asp-for="PercentageRateOfSubtotal" class="control-label"/>
             </div>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PercentageRateOfSubtotal" />
+                <admin-input asp-for="PercentageRateOfSubtotal"/>
                 <span asp-validation-for="PercentageRateOfSubtotal"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i>@Loc["Admin.Common.Save"]</button>
+                <button class="btn btn-success" type="submit" name="save">
+                    <i class="fa fa-check"></i>@Loc["Admin.Common.Save"]
+                </button>
             </div>
         </div>
     </div>

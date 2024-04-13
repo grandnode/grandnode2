@@ -5,13 +5,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Courses"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Courses })
 }
 
 <div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.Courses"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.Courses"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>

@@ -4,88 +4,90 @@
     Layout = "_TwoColumns";
 
     //title
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/blog-news/blog-news.css">
 }
-        <div class="page news-item-page">
-            <a class="left-side-toggler" onclick="sideToggle()">
-                <div class="inner">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="text">
-                    @Loc["catalog.selectors.fiters"]
-                </div>
-            </a>
-            <b-card class="post-news mt-3">
-                <template v-slot:header>
-                    @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
-                    {
-                        <img class="img-fluid" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" />
-                    }
-                    <h1 class="h5 title generalTitle">
-                        <div>@Model.Title</div>
-                    </h1>
-                    <span class="date">
-                        @Model.CreatedOn.ToString("D")
-                    </span>
-                </template>
-                @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_body", additionalData = Model.Id })
-                @Html.Raw(Model.Full)
-            </b-card>
-            @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_comments", additionalData = Model.Id })
-            @if (Model.AllowComments)
+<div class="page news-item-page">
+    <a class="left-side-toggler" onclick="sideToggle()">
+        <div class="inner">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="text">
+            @Loc["catalog.selectors.fiters"]
+        </div>
+    </a>
+    <b-card class="post-news mt-3">
+        <template v-slot:header>
+            @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
             {
-                <fieldset class="new-comment py-3 px-0" id="comments">
-                    <h5><strong>@Loc["News.Comments.LeaveYourComment"]</strong></h5>
-                    <div class="notifications">
-                        <div asp-validation-summary="All" class="message-error"></div>
-                        @{
-                            var result = TempData["Grand.news.addcomment.result"] as string;
-                        }
-                        @if (!String.IsNullOrEmpty(result))
-                        {
-                            <div class="result alert alert-info">@result</div>
-                        }
-                    </div>
-                    <validation-observer v-slot="{ handleSubmit }">
-                                    <form id="addNewsComment" asp-action="NewsCommentAdd" asp-controller="News" method="post" v-on:submit.prevent="handleSubmit(news.submitNewsComment)">
-                                        <input type="hidden" name="Id" value="@Model.Id"/>
-                                        <fieldset class="form-group">
-                                            <validation-provider tag="div" rules="required" name="CommentTitle" v-slot="{ errors, classes }">
-                                                <label for="CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
-                                                <input name="CommentTitle" v-bind:class="[classes , 'form-control enter-comment-title']"
-                                                       data-val-required="@Loc["News.Comments.CommentTitle.Required"]"
-                                                       v-model="news.CommentTitle"/>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                            </validation-provider>
-                                        </fieldset>
-                                        <fieldset class="form-group">
-                                            <validation-provider tag="div" rules="required" name="CommentText" v-slot="{ errors, classes }">
-                                                <label for="CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
-                                                <textarea name="CommentText" v-model="news.CommentText" 
+                <img class="img-fluid" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText"/>
+            }
+            <h1 class="h5 title generalTitle">
+                <div>@Model.Title</div>
+            </h1>
+            <span class="date">
+                @Model.CreatedOn.ToString("D")
+            </span>
+        </template>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_body", additionalData = Model.Id })
+        @Html.Raw(Model.Full)
+    </b-card>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_comments", additionalData = Model.Id })
+    @if (Model.AllowComments)
+    {
+        <fieldset class="new-comment py-3 px-0" id="comments">
+            <h5>
+                <strong>@Loc["News.Comments.LeaveYourComment"]</strong>
+            </h5>
+            <div class="notifications">
+                <div asp-validation-summary="All" class="message-error"></div>
+                @{
+                    var result = TempData["Grand.news.addcomment.result"] as string;
+                }
+                @if (!string.IsNullOrEmpty(result))
+                {
+                    <div class="result alert alert-info">@result</div>
+                }
+            </div>
+            <validation-observer v-slot="{ handleSubmit }">
+                <form id="addNewsComment" asp-action="NewsCommentAdd" asp-controller="News" method="post" v-on:submit.prevent="handleSubmit(news.submitNewsComment)">
+                    <input type="hidden" name="Id" value="@Model.Id"/>
+                    <fieldset class="form-group">
+                        <validation-provider tag="div" rules="required" name="CommentTitle" v-slot="{ errors, classes }">
+                            <label for="CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
+                            <input name="CommentTitle" v-bind:class="[classes , 'form-control enter-comment-title']"
+                                   data-val-required="@Loc["News.Comments.CommentTitle.Required"]"
+                                   v-model="news.CommentTitle"/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <validation-provider tag="div" rules="required" name="CommentText" v-slot="{ errors, classes }">
+                            <label for="CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
+                            <textarea name="CommentText" v-model="news.CommentText" 
                                                         data-val-required="@Loc["News.Comments.CommentText.Required"]"
                                                         v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                            </validation-provider>
-                                        </fieldset>
-                                        @if (Model.AddNewComment.DisplayCaptcha)
-                                        {
-                                            <div class="captcha-box">
-                                                <captcha/>
-                                            </div>
-                                        }
-                                        <div class="buttons text-xs-center text-md-left generalMarginSupporter">
-                                            <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]"/>
-                                        </div>
-                                    </form>
-                                </validation-observer>
-                </fieldset>
-                <script asp-location="Footer" asp-order="300">
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
+                    </fieldset>
+                    @if (Model.AddNewComment.DisplayCaptcha)
+                    {
+                        <div class="captcha-box">
+                            <captcha/>
+                        </div>
+                    }
+                    <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                        <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]"/>
+                    </div>
+                </form>
+            </validation-observer>
+        </fieldset>
+        <script asp-location="Footer" asp-order="300">
                 var news = new Vue({
                     data: () => {
                         return {
@@ -156,6 +158,6 @@
                 </div>
             </div>
         </template>
-            }
-            @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_after_comments", additionalData = Model.Id })
-        </div>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_after_comments", additionalData = Model.Id })
+</div>

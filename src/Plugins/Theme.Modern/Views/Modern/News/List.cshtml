@@ -7,7 +7,9 @@
     pagebuilder.AddTitleParts(Loc["Title.NewsArchive"]);
 }
 <div class="page news-list-page">
-    <h1 class="generalTitle h2"><div>@Loc["News"]</div></h1>
+    <h1 class="generalTitle h2">
+        <div>@Loc["News"]</div>
+    </h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_before_items" })
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
@@ -28,7 +30,7 @@
                         @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                         {
                             <b-link class="img-container">
-                                <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" />
+                                <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"/>
                             </b-link>
                         }
                         <h3 class="h5 title">
@@ -51,7 +53,7 @@
                 </b-card>
             </b-col>
         }
-        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext" />
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
         @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
     </b-row>
 

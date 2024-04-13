@@ -1,6 +1,7 @@
-﻿@model ConfigurationModel
+﻿@using Widgets.Slider
+@model ConfigurationModel
 
-@inject Widgets.Slider.SliderWidgetSettings setting
+@inject SliderWidgetSettings setting
 
 <form method="post" id="widget-settings-form">
     <div class="panel-group">
@@ -9,28 +10,28 @@
                 <div class="form-body">
                     <div class="form-group">
                         <div class="col-md-3 col-sm-3 text-right">
-                            <admin-label asp-for="DisplayOrder" class="control-label" />
+                            <admin-label asp-for="DisplayOrder" class="control-label"/>
                         </div>
                         <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="DisplayOrder" />
+                            <admin-input asp-for="DisplayOrder"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <admin-label asp-for="CustomerGroups" />
+                        <admin-label asp-for="CustomerGroups"/>
                         <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="CustomerGroups" />
+                            <admin-input asp-for="CustomerGroups"/>
                             <span asp-validation-for="CustomerGroups"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <admin-label asp-for="Stores" />
+                        <admin-label asp-for="Stores"/>
                         <div class="col-md-9 col-sm-9">
-                            <admin-input asp-for="Stores" />
+                            <admin-input asp-for="Stores"/>
                             <span asp-validation-for="Stores"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]" />
+                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]"/>
                         <script>
                     $(function () {
                         $('#savegeneralsettings').click(function () {

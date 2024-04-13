@@ -2,9 +2,9 @@
 @model ProductOverviewModel
 @{
     //prepare "Add to cart" Axios link
-    string addtocartlink = "";
-    string addtowishlistlink = "";
-    string quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
+    var addtocartlink = "";
+    var addtowishlistlink = "";
+    var quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
 
     var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
     var quantity = 1;
@@ -18,6 +18,7 @@
         addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
         addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
     }
+
     var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
 }
 
@@ -42,65 +43,65 @@
             <div class="attr-container">
                 <table>
                     <tbody>
-                        @foreach (var item in Model.ProductAttributeModels)
-                        {
-                            <tr class="attr">
-                                <td>
-                                    @*<div class="attr-name">
+                    @foreach (var item in Model.ProductAttributeModels)
+                    {
+                        <tr class="attr">
+                            <td>
+                                @*<div class="attr-name">
                                             @item.Name
                                         </div>*@
-                                </td>
-                                <td>
-                                    <div class="attr-value">
-                                        @foreach (var spec in item.Values)
+                            </td>
+                            <td>
+                                <div class="attr-value">
+                                    @foreach (var spec in item.Values)
+                                    {
+                                        switch (item.AttributeControlType)
                                         {
-                                            switch (item.AttributeControlType)
-                                            {
-                                                case AttributeControlType.DropdownList:
-                                                case AttributeControlType.RadioList:
-                                                case AttributeControlType.Checkboxes:
-                                                case AttributeControlType.ReadonlyCheckboxes:
-                                                    <b-button variant="light" size="sm" class="name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                        @Html.Raw(spec.Name)
+                                            case AttributeControlType.DropdownList:
+                                            case AttributeControlType.RadioList:
+                                            case AttributeControlType.Checkboxes:
+                                            case AttributeControlType.ReadonlyCheckboxes:
+                                                <b-button variant="light" size="sm" class="name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    @Html.Raw(spec.Name)
+                                                </b-button>
+                                                break;
+                                            case AttributeControlType.ColorSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
                                                     </b-button>
-                                                    break;
-                                                case AttributeControlType.ColorSquares:
-                                                    if (spec.PictureModel.FullSizeImageUrl != null)
-                                                    {
-                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                            <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </b-button>
-                                                    }
-                                                    else
-                                                    {
-                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                            <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </b-button>
-                                                    }
-                                                    break;
-                                                case AttributeControlType.ImageSquares:
-                                                    if (spec.PictureModel.FullSizeImageUrl != null)
-                                                    {
-                                                        <b-button variant="light" size="sm" class="p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                            <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </b-button>
-                                                    }
-                                                    else
-                                                    {
-                                                        <b-button variant="light" size="sm" class="p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                            <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </b-button>
-                                                    }
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                        }
-                                    </div>
-                                </td>
+                                                }
+                                                else
+                                                {
+                                                    <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
+                                                    </b-button>
+                                                }
 
-                            </tr>
-                        }
+                                                break;
+                                            case AttributeControlType.ImageSquares:
+                                                if (spec.PictureModel.FullSizeImageUrl != null)
+                                                {
+                                                    <b-button variant="light" size="sm" class="p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </b-button>
+                                                }
+                                                else
+                                                {
+                                                    <b-button variant="light" size="sm" class="p-1 name image-container" href="@Url.RouteUrl("Product", new { Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name"/>
+                                                    </b-button>
+                                                }
+
+                                                break;
+                                        }
+                                    }
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
                     </tbody>
                 </table>
             </div>
@@ -113,10 +114,12 @@
                 {
                     addToCartText = Loc["ShoppingCart.Reservation"];
                 }
+
                 if (Model.ProductPrice.AvailableForPreOrder)
                 {
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
+
                 <b-button v-b-tooltip.hover.bottom title="@(addToCartText)" variant="outline-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
                     <span class="icons icon-handbag"></span>
                     <span class="sr-only">AddToCart</span>
@@ -126,7 +129,6 @@
             {
                 if (Model.ProductType == ProductType.Auction)
                 {
-
                     var addToCartText = Loc["ShoppingCart.Bids"];
                     <b-button v-b-tooltip.hover.bottom title="@(addToCartText)" variant="outline-secondary" class="add-to-cart-button" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
                         <span class="icons icon-bell"></span>
@@ -174,6 +176,7 @@
                 {
                     ratingValue = Convert.ToDecimal(Model.ReviewOverviewModel.RatingSum * (double)100 / Model.ReviewOverviewModel.TotalReviews / 100);
                 }
+
                 <template>
                     <div class="rating">
                         <b-form-rating id="rating-inline-grid-@Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
@@ -183,7 +186,6 @@
             }
             @if (Model.ProductType == ProductType.Auction)
             {
-
                 @if (Model.EndTime.HasValue)
                 {
                     <div class="countdown-box alert alert-info w-100 mb-1">
@@ -225,7 +227,7 @@
                         @(Model.ProductPrice.HighestBidValue > 0 ? Model.ProductPrice.HighestBid : Model.ProductPrice.StartPrice)
                     </div>
                 }
-                @if (!String.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
                 {
                     <div class="old-price price">
                         @Model.ProductPrice.OldPrice
@@ -252,10 +254,12 @@
                     {
                         addToCartText = Loc["ShoppingCart.Reservation"];
                     }
+
                     if (Model.ProductPrice.AvailableForPreOrder)
                     {
                         addToCartText = Loc["ShoppingCart.PreOrder"];
                     }
+
                     <b-button variant="outline-secondary" class="add-to-cart-button" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
                         <span class="add-cart-text">@(addToCartText)</span>
                         <span class="sr-only">AddToCart</span>
@@ -265,7 +269,6 @@
                 {
                     if (Model.ProductType == ProductType.Auction)
                     {
-
                         var addToCartText = Loc["ShoppingCart.Bids"];
                         <b-button variant="outline-secondary" class="add-to-cart-button" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
                             <span class="add-cart-text">@Loc["ShoppingCart.Bids"]</span>
@@ -276,4 +279,4 @@
             </div>
         </div>
     </div>
-</b-card> 
+</b-card>

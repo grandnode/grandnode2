@@ -6,10 +6,10 @@ namespace Payments.StripeCheckout.Models;
 public class ConfigurationModel : BaseModel
 {
     public string StoreScope { get; set; }
-    
+
     [GrandResourceDisplayName("Plugins.Payments.StripeCheckout.Fields.ApiKey")]
     public string ApiKey { get; set; }
-    
+
     [GrandResourceDisplayName("Plugins.Payments.StripeCheckout.Fields.WebhookEndpointSecret")]
     public string WebhookEndpointSecret { get; set; }
 

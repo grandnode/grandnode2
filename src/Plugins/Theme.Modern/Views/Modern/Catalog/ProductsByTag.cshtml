@@ -11,7 +11,7 @@
     var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(productsByTagUrl);
     }
 }
@@ -23,10 +23,12 @@
         </div>
     </template>
     <div id="catalog-products" class="page product-tag-page">
-        <h1 class="generalTitle h2"><div>@String.Format(Loc["Products.Tags.ProductsTaggedWith"], Model.TagName)</div></h1>
+        <h1 class="generalTitle h2">
+            <div>@string.Format(Loc["Products.Tags.ProductsTaggedWith"], Model.TagName)</div>
+        </h1>
         @await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_top", additionalData = Model.Id })
         <div id="catalog-products">
-            <partial name="Partials/Selectors" />
+            <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <b-col cols="12" class="product-grid px-0">
@@ -50,7 +52,7 @@
                         </b-col>
                     </div>
                 </template>
-                <partial name="Partials/ScrollPagination" />
+                <partial name="Partials/ScrollPagination"/>
             </template>
             <template v-else>
                 <b-alert variant="info" show class="my-3">
@@ -62,4 +64,4 @@
 </b-skeleton-wrapper>
 @await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_bottom", additionalData = Model.Id })
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

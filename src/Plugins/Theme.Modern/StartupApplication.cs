@@ -19,6 +19,6 @@ public class StartupApplication : IStartupApplication
     public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
     {
     }
-    
+
     public bool BeforeConfigure => false;
 }

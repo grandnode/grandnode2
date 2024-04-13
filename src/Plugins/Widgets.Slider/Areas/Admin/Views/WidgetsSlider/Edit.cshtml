@@ -5,7 +5,7 @@
     Layout = "_ConfigurePlugin";
 }
 <form asp-controller="WidgetsSlider" asp-action="Edit" method="post" id="slider-form">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -13,17 +13,23 @@
                     <div class="caption">
                         <i class="fa fa-sitemap"></i>
                         @Loc["Widgets.Slider.Edit"]
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Widgets.Slider.BackToList"], "Configure")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Widgets.Slider.BackToList"], "Configure")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                    <partial name="_CreateOrUpdate.cshtml" model="Model" />
+                    <partial name="_CreateOrUpdate.cshtml" model="Model"/>
                 </div>
             </div>
         </div>

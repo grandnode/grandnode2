@@ -1,23 +1,21 @@
 ﻿using Grand.Domain;
 using Shipping.ByWeight.Domain;
 
-namespace Shipping.ByWeight.Services
+namespace Shipping.ByWeight.Services;
+
+public interface IShippingByWeightService
 {
-    public interface IShippingByWeightService
-    {
-        Task DeleteShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
+    Task DeleteShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
 
-        Task<IPagedList<ShippingByWeightRecord>> GetAll(int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<ShippingByWeightRecord>> GetAll(int pageIndex = 0, int pageSize = int.MaxValue);
 
-        Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
-            string storeId, string warehouseId,
-            string countryId, string stateProvinceId, string zip, double weight);
+    Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
+        string storeId, string warehouseId,
+        string countryId, string stateProvinceId, string zip, double weight);
 
-        Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId);
+    Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId);
 
-        Task InsertShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
+    Task InsertShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
 
-        Task UpdateShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
-    }
-
+    Task UpdateShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
 }

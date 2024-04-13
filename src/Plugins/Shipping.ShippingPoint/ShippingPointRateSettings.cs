@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Shipping.ShippingPoint
+namespace Shipping.ShippingPoint;
+
+public class ShippingPointRateSettings : ISettings
 {
-    public class ShippingPointRateSettings : ISettings
-    {
-        public int DisplayOrder { get; set; }
-    }
+    public int DisplayOrder { get; set; }
 }
