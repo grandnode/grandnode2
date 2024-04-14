@@ -1,5 +1,5 @@
-﻿@model CourseModel
-@using Microsoft.AspNetCore.Mvc.Razor;
+﻿@using Microsoft.AspNetCore.Mvc.Razor
+@model CourseModel
 
 <script>
     $(document).ready(function () {
@@ -14,56 +14,57 @@
         }
     }
 </script>
-<vc:admin-widget widget-zone="course_details_info_top" additional-data="Model" />
+<vc:admin-widget widget-zone="course_details_info_top" additional-data="Model"/>
 
-@{ Func<int, HelperResult>
-         template = @<div class="form-body">
+@{
+    Func<int, HelperResult>
+        template = @<div class="form-body">
             <div class="form-group">
-                <admin-label asp-for="@Model.Locales[item].Name" />
+                <admin-label asp-for="@Model.Locales[item].Name"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name" />
+                    <admin-input asp-for="@Model.Locales[item].Name"/>
                     <span asp-validation-for="@Model.Locales[item].Name"></span>
                 </div>
             </div>
             <div class="form-group">
-                <admin-label asp-for="@Model.Locales[item].ShortDescription" />
+                <admin-label asp-for="@Model.Locales[item].ShortDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
                     <span asp-validation-for="@Model.Locales[item].ShortDescription"></span>
                 </div>
             </div>
             <div class="form-group">
-                <admin-label asp-for="@Model.Locales[item].Description" />
+                <admin-label asp-for="@Model.Locales[item].Description"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor" />
+                    <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor"/>
                     <span asp-validation-for="@Model.Locales[item].Description"></span>
                 </div>
             </div>
-            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
         </div>;
 }
 
 <div class="form-horizontal">
-    <localized-editor localized-template=@template name="course-info-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+    <localized-editor localized-template="@template" name="course-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
             <div class="form-group">
-                <admin-label asp-for="Name" />
+                <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name" />
+                    <admin-input asp-for="Name"/>
                     <span asp-validation-for="Name"></span>
                 </div>
             </div>
             <div class="form-group">
-                <admin-label asp-for="ShortDescription" />
+                <admin-label asp-for="ShortDescription"/>
                 <div class="col-md-9 col-sm-9">
                     <admin-textarea asp-for="ShortDescription"></admin-textarea>
                     <span asp-validation-for="ShortDescription"></span>
                 </div>
             </div>
             <div class="form-group">
-                <admin-label asp-for="Description" />
+                <admin-label asp-for="Description"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Description" asp-template="Editor" />
+                    <admin-input asp-for="Description" asp-template="Editor"/>
                     <span asp-validation-for="Description"></span>
                 </div>
             </div>
@@ -71,47 +72,47 @@
     </localized-editor>
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="PictureId" />
+            <admin-label asp-for="PictureId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PictureId" />
+                <admin-input asp-for="PictureId"/>
                 <span asp-validation-for="PictureId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="LevelId" />
+            <admin-label asp-for="LevelId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="LevelId" asp-items="Model.AvailableLevels" />
+                <admin-select asp-for="LevelId" asp-items="Model.AvailableLevels"/>
                 <span asp-validation-for="LevelId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Published" />
+            <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published" />
+                    <admin-input asp-for="Published"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DisplayOrder" />
+            <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" />
+                <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Stores" />
+            <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores" />
+                <admin-input asp-for="Stores"/>
                 <span asp-validation-for="Stores"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="ProductId" />
+            <admin-label asp-for="ProductId"/>
             <div class="col-md-9 col-sm-9">
-                <input asp-for="ProductId" type="hidden" />
+                <input asp-for="ProductId" type="hidden"/>
                 <label class="control-label" id="purchased-with-product-name">
                     @if (!string.IsNullOrEmpty(Model.ProductId) && !string.IsNullOrEmpty(Model.ProductName))
                     {
@@ -124,16 +125,13 @@
         <div class="form-group">
             <div class="col-md-3 col-sm-3"></div>
             <div class="col-md-9 col-sm-9">
-                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course",
-                                new { productIdInput = Html.IdFor(model => model.ProductId),
-                                    productNameInput = "purchased-with-product-name",
-                                    btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="k-button">
+                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course", new { productIdInput = Html.IdFor(model => model.ProductId), productNameInput = "purchased-with-product-name", btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="k-button">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Choose"]
                 </a>
                 <button type="button" id="purchased-with-product-name-remove" class="k-button">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Remove"]
                 </button>
-                <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none" />
+                <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none"/>
                 <script>
                             $(document).ready(function () {
                                 $('#btnAssociateProductToCoursePopup').magnificPopup({
@@ -168,4 +166,4 @@
     </div>
 </div>
 
-<vc:admin-widget widget-zone="course_details_info_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="course_details_info_bottom" additional-data="Model"/>

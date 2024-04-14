@@ -3,23 +3,22 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Components
+namespace Grand.Web.Admin.Components;
+
+public class CustomerReportRegisteredViewComponent : BaseAdminViewComponent
 {
-    public class CustomerReportRegisteredViewComponent : BaseAdminViewComponent
+    private readonly IPermissionService _permissionService;
+
+    public CustomerReportRegisteredViewComponent(IPermissionService permissionService)
     {
-        private readonly IPermissionService _permissionService;
+        _permissionService = permissionService;
+    }
 
-        public CustomerReportRegisteredViewComponent(IPermissionService permissionService)
-        {
-            _permissionService = permissionService;
-        }
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        if (!await _permissionService.Authorize(StandardPermission.ManageReports))
+            return Content("");
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageReports))
-                return Content("");
-
-            return View();
-        }
+        return View();
     }
 }

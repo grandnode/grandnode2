@@ -5,803 +5,823 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain;
+using Grand.Domain.Customers;
+using Grand.Domain.Directory;
+using Grand.Domain.Shipping;
+using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Extensions.Mapping.Settings;
+using Grand.Web.Admin.Models.Common;
+using Grand.Web.Admin.Models.Directory;
+using Grand.Web.Admin.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Domain.Directory;
-using Grand.Domain.Shipping;
-using Grand.Web.Admin.Models.Directory;
-using Grand.Web.Admin.Models.Shipping;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Web.Admin.Models.Common;
-using Grand.Domain;
-using Grand.Domain.Customers;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
 
-namespace Grand.Web.Admin.Controllers
+namespace Grand.Web.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.ShippingSettings)]
+public class ShippingController : BaseAdminController
 {
-    [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-    public class ShippingController : BaseAdminController
+    #region Constructors
+
+    public ShippingController(
+        IShippingService shippingService,
+        IShippingMethodService shippingMethodService,
+        IPickupPointService pickupPointService,
+        IDeliveryDateService deliveryDateService,
+        IWarehouseService warehouseService,
+        ISettingService settingService,
+        ICountryService countryService,
+        ITranslationService translationService,
+        ILanguageService languageService,
+        IStoreService storeService,
+        IGroupService groupService)
     {
-        #region Fields
+        _shippingService = shippingService;
+        _shippingMethodService = shippingMethodService;
+        _pickupPointService = pickupPointService;
+        _deliveryDateService = deliveryDateService;
+        _warehouseService = warehouseService;
+        _settingService = settingService;
+        _countryService = countryService;
+        _translationService = translationService;
+        _languageService = languageService;
+        _storeService = storeService;
+        _groupService = groupService;
+    }
 
-        private readonly IShippingService _shippingService;
-        private readonly IShippingMethodService _shippingMethodService;
-        private readonly IPickupPointService _pickupPointService;
-        private readonly IDeliveryDateService _deliveryDateService;
-        private readonly IWarehouseService _warehouseService;
-        private readonly ISettingService _settingService;
-        private readonly ICountryService _countryService;
-        private readonly ITranslationService _translationService;
-        private readonly ILanguageService _languageService;
-        private readonly IStoreService _storeService;
-        private readonly IGroupService _groupService;
+    #endregion
 
-        #endregion
+    #region Fields
 
-        #region Constructors
+    private readonly IShippingService _shippingService;
+    private readonly IShippingMethodService _shippingMethodService;
+    private readonly IPickupPointService _pickupPointService;
+    private readonly IDeliveryDateService _deliveryDateService;
+    private readonly IWarehouseService _warehouseService;
+    private readonly ISettingService _settingService;
+    private readonly ICountryService _countryService;
+    private readonly ITranslationService _translationService;
+    private readonly ILanguageService _languageService;
+    private readonly IStoreService _storeService;
+    private readonly IGroupService _groupService;
 
-        public ShippingController(
-            IShippingService shippingService,
-            IShippingMethodService shippingMethodService,
-            IPickupPointService pickupPointService,
-            IDeliveryDateService deliveryDateService,
-            IWarehouseService warehouseService,
-            ISettingService settingService,
-            ICountryService countryService,
-            ITranslationService translationService,
-            ILanguageService languageService,
-            IStoreService storeService,
-            IGroupService groupService)
+    #endregion
+
+    #region Utilities
+
+    protected virtual async Task PrepareAddressWarehouseModel(WarehouseModel model)
+    {
+        model.Address.AvailableCountries.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
+            model.Address.AvailableCountries.Add(new SelectListItem
+                { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
+        //states
+        var states = !string.IsNullOrEmpty(model.Address.CountryId)
+            ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces
+            : new List<StateProvince>();
+        if (states?.Count > 0)
+            foreach (var s in states)
+                model.Address.AvailableStates.Add(new SelectListItem
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
+
+        model.Address.CountryEnabled = true;
+        model.Address.StateProvinceEnabled = true;
+        model.Address.CityEnabled = true;
+        model.Address.StreetAddressEnabled = true;
+        model.Address.ZipPostalCodeEnabled = true;
+        model.Address.ZipPostalCodeRequired = true;
+        model.Address.PhoneEnabled = true;
+        model.Address.FaxEnabled = true;
+        model.Address.CompanyEnabled = true;
+    }
+
+    protected virtual async Task PreparePickupPointModel(PickupPointModel model)
+    {
+        model.Address.AvailableCountries.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
+            model.Address.AvailableCountries.Add(new SelectListItem
+                { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
+        //states
+        var states = !string.IsNullOrEmpty(model.Address.CountryId)
+            ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces
+            : new List<StateProvince>();
+        if (states?.Count > 0)
+            foreach (var s in states)
+                model.Address.AvailableStates.Add(new SelectListItem
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
+
+        model.Address.CountryEnabled = true;
+        model.Address.StateProvinceEnabled = true;
+        model.Address.CityEnabled = true;
+        model.Address.StreetAddressEnabled = true;
+        model.Address.ZipPostalCodeEnabled = true;
+        model.Address.ZipPostalCodeRequired = true;
+        model.Address.PhoneEnabled = true;
+        model.Address.FaxEnabled = true;
+        model.Address.CompanyEnabled = true;
+
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = ""
+        });
+        foreach (var c in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
+
+        model.AvailableWarehouses.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"),
+            Value = ""
+        });
+        foreach (var c in await _warehouseService.GetAllWarehouses())
+            model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
+    }
+
+    #endregion
+
+    #region Shipping rate  methods
+
+    public IActionResult Providers()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Providers(DataSourceRequest command)
+    {
+        var storeScope = await GetActiveStore();
+
+        var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
+        var shippingProvidersModel = new List<ShippingRateComputationMethodModel>();
+        var shippingProviders = _shippingService.LoadAllShippingRateCalculationProviders();
+        foreach (var shippingProvider in shippingProviders)
         {
-            _shippingService = shippingService;
-            _shippingMethodService = shippingMethodService;
-            _pickupPointService = pickupPointService;
-            _deliveryDateService = deliveryDateService;
-            _warehouseService = warehouseService;
-            _settingService = settingService;
-            _countryService = countryService;
-            _translationService = translationService;
-            _languageService = languageService;
-            _storeService = storeService;
-            _groupService = groupService;
+            var tmp1 = shippingProvider.ToModel();
+            tmp1.IsActive = shippingProvider.IsShippingRateMethodActive(_shippingProviderSettings);
+            shippingProvidersModel.Add(tmp1);
         }
 
-        #endregion
+        shippingProvidersModel = shippingProvidersModel.ToList();
+        var gridModel = new DataSourceResult {
+            Data = shippingProvidersModel,
+            Total = shippingProvidersModel.Count
+        };
 
-        #region Utilities
+        return Json(gridModel);
+    }
 
-        protected virtual async Task PrepareAddressWarehouseModel(WarehouseModel model)
+    [HttpPost]
+    public async Task<IActionResult> ProviderUpdate(ShippingRateComputationMethodModel model)
+    {
+        var storeScope = await GetActiveStore();
+
+        var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
+
+        var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
+        if (srcm.IsShippingRateMethodActive(_shippingProviderSettings))
         {
-            model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-            foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
-            //states
-            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states?.Count > 0)
+            if (!model.IsActive)
             {
-                foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
+                //mark as disabled
+                _shippingProviderSettings.ActiveSystemNames.Remove(srcm.SystemName);
+                await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
             }
-
-            model.Address.CountryEnabled = true;
-            model.Address.StateProvinceEnabled = true;
-            model.Address.CityEnabled = true;
-            model.Address.StreetAddressEnabled = true;
-            model.Address.ZipPostalCodeEnabled = true;
-            model.Address.ZipPostalCodeRequired = true;
-            model.Address.PhoneEnabled = true;
-            model.Address.FaxEnabled = true;
-            model.Address.CompanyEnabled = true;
         }
-
-        protected virtual async Task PreparePickupPointModel(PickupPointModel model)
+        else
         {
-            model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-            foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
-            //states
-            var states = !string.IsNullOrEmpty(model.Address.CountryId) ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states?.Count > 0)
+            if (model.IsActive)
             {
-                foreach (var s in states)
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
+                //mark as active
+                _shippingProviderSettings.ActiveSystemNames.Add(srcm.SystemName);
+                await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
             }
-
-            model.Address.CountryEnabled = true;
-            model.Address.StateProvinceEnabled = true;
-            model.Address.CityEnabled = true;
-            model.Address.StreetAddressEnabled = true;
-            model.Address.ZipPostalCodeEnabled = true;
-            model.Address.ZipPostalCodeRequired = true;
-            model.Address.PhoneEnabled = true;
-            model.Address.FaxEnabled = true;
-            model.Address.CompanyEnabled = true;
-
-            model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = "" });
-            foreach (var c in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
-
-            model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
-            foreach (var c in await _warehouseService.GetAllWarehouses())
-                model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
-
         }
 
-        #endregion
+        return new JsonResult("");
+    }
 
-        #region Shipping rate  methods
+    #endregion
 
-        public IActionResult Providers()
+    #region Shipping methods
+
+    public IActionResult Methods()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Methods(DataSourceRequest command)
+    {
+        var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
+            .Select(x => x.ToModel())
+            .ToList();
+        var gridModel = new DataSourceResult {
+            Data = shippingMethodsModel,
+            Total = shippingMethodsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+
+    public async Task<IActionResult> CreateMethod()
+    {
+        var model = new ShippingMethodModel();
+        //locales
+        await AddLocales(_languageService, model.Locales);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateMethod(ShippingMethodModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            return View();
+            var sm = model.ToEntity();
+            await _shippingMethodService.InsertShippingMethod(sm);
+
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Added"));
+            return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Providers(DataSourceRequest command)
-        {
-            var storeScope = await GetActiveStore();
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
 
-            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
-            var shippingProvidersModel = new List<ShippingRateComputationMethodModel>();
-            var shippingProviders = _shippingService.LoadAllShippingRateCalculationProviders();
-            foreach (var shippingProvider in shippingProviders)
-            {
-                var tmp1 = shippingProvider.ToModel();
-                tmp1.IsActive = shippingProvider.IsShippingRateMethodActive(_shippingProviderSettings);            
-                shippingProvidersModel.Add(tmp1);
-            }
-            shippingProvidersModel = shippingProvidersModel.ToList();
-            var gridModel = new DataSourceResult
-            {
-                Data = shippingProvidersModel,
-                Total = shippingProvidersModel.Count
-            };
-
-            return Json(gridModel);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ProviderUpdate(ShippingRateComputationMethodModel model)
-        {
-            var storeScope = await GetActiveStore();
-
-            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
-
-            var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
-            if (srcm.IsShippingRateMethodActive(_shippingProviderSettings))
-            {
-                if (!model.IsActive)
-                {
-                    //mark as disabled
-                    _shippingProviderSettings.ActiveSystemNames.Remove(srcm.SystemName);
-                    await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
-                }
-            }
-            else
-            {
-                if (model.IsActive)
-                {
-                    //mark as active
-                    _shippingProviderSettings.ActiveSystemNames.Add(srcm.SystemName);
-                    await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
-                }
-            }
-            return new JsonResult("");
-        }
-
-        #endregion
-
-        #region Shipping methods
-
-        public IActionResult Methods()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Methods(DataSourceRequest command)
-        {
-            var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
-                .Select(x => x.ToModel())
-                .ToList();
-            var gridModel = new DataSourceResult
-            {
-                Data = shippingMethodsModel,
-                Total = shippingMethodsModel.Count
-            };
-
-            return Json(gridModel);
-        }
-
-
-        public async Task<IActionResult> CreateMethod()
-        {
-            var model = new ShippingMethodModel();
-            //locales
-            await AddLocales(_languageService, model.Locales);
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> CreateMethod(ShippingMethodModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var sm = model.ToEntity();
-                await _shippingMethodService.InsertShippingMethod(sm);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Added"));
-                return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
-            }
-
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        public async Task<IActionResult> EditMethod(string id)
-        {
-            var sm = await _shippingMethodService.GetShippingMethodById(id);
-            if (sm == null)
-                //No shipping method found with the specified id
-                return RedirectToAction("Methods");
-
-            var model = sm.ToModel();
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
-                locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
-            });
-
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> EditMethod(ShippingMethodModel model, bool continueEditing)
-        {
-            var sm = await _shippingMethodService.GetShippingMethodById(model.Id);
-            if (sm == null)
-                //No shipping method found with the specified id
-                return RedirectToAction("Methods");
-
-            if (ModelState.IsValid)
-            {
-                sm = model.ToEntity(sm);
-                await _shippingMethodService.UpdateShippingMethod(sm);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Updated"));
-                return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
-            }
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteMethod(string id)
-        {
-            var sm = await _shippingMethodService.GetShippingMethodById(id);
-            if (sm == null)
-                //No shipping method found with the specified id
-                return RedirectToAction("Methods");
-
-            await _shippingMethodService.DeleteShippingMethod(sm);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Deleted"));
+    public async Task<IActionResult> EditMethod(string id)
+    {
+        var sm = await _shippingMethodService.GetShippingMethodById(id);
+        if (sm == null)
+            //No shipping method found with the specified id
             return RedirectToAction("Methods");
+
+        var model = sm.ToModel();
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
+            locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
+        });
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditMethod(ShippingMethodModel model, bool continueEditing)
+    {
+        var sm = await _shippingMethodService.GetShippingMethodById(model.Id);
+        if (sm == null)
+            //No shipping method found with the specified id
+            return RedirectToAction("Methods");
+
+        if (ModelState.IsValid)
+        {
+            sm = model.ToEntity(sm);
+            await _shippingMethodService.UpdateShippingMethod(sm);
+
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Updated"));
+            return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
         }
 
-        #endregion
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
 
-        #region Shipping Settings
+    [HttpPost]
+    public async Task<IActionResult> DeleteMethod(string id)
+    {
+        var sm = await _shippingMethodService.GetShippingMethodById(id);
+        if (sm == null)
+            //No shipping method found with the specified id
+            return RedirectToAction("Methods");
 
-        public async Task<IActionResult> Settings()
+        await _shippingMethodService.DeleteShippingMethod(sm);
+
+        Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Deleted"));
+        return RedirectToAction("Methods");
+    }
+
+    #endregion
+
+    #region Shipping Settings
+
+    public async Task<IActionResult> Settings()
+    {
+        //load settings for a chosen store scope
+        var storeScope = await GetActiveStore();
+        var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
+        var model = shippingSettings.ToModel();
+        model.ActiveStore = storeScope;
+
+        //shipping origin
+        var originAddress = shippingSettings.ShippingOriginAddress;
+        if (originAddress != null)
+            model.ShippingOriginAddress = await originAddress.ToModel(_countryService);
+        else
+            model.ShippingOriginAddress = new AddressModel();
+
+        model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
+            model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
+                { Text = c.Name, Value = c.Id, Selected = originAddress != null && c.Id == originAddress.CountryId });
+
+        var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId)
+            ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces
+            : new List<StateProvince>();
+        if (states?.Count > 0)
+            foreach (var s in states)
+                model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress?.StateProvinceId });
+
+        model.ShippingOriginAddress.CountryEnabled = true;
+        model.ShippingOriginAddress.StateProvinceEnabled = true;
+        model.ShippingOriginAddress.CityEnabled = true;
+        model.ShippingOriginAddress.StreetAddressEnabled = true;
+        model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
+        model.ShippingOriginAddress.ZipPostalCodeRequired = true;
+        model.ShippingOriginAddress.AddressTypeEnabled = false;
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Settings(ShippingSettingsModel model)
+    {
+        //load settings for a chosen store scope
+        var storeScope = await GetActiveStore();
+        var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
+        shippingSettings = model.ToEntity(shippingSettings);
+
+        await _settingService.SaveSetting(shippingSettings, storeScope);
+
+        Success(_translationService.GetResource("Admin.Configuration.Updated"));
+        return RedirectToAction("Settings");
+    }
+
+    #endregion
+
+    #region Delivery dates
+
+    public IActionResult DeliveryDates()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
+    {
+        var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
+            .Select(x => x.ToModel())
+            .ToList();
+        var gridModel = new DataSourceResult {
+            Data = deliveryDatesModel,
+            Total = deliveryDatesModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> CreateDeliveryDate()
+    {
+        var model = new DeliveryDateModel {
+            ColorSquaresRgb = "#000000"
+        };
+        //locales
+        await AddLocales(_languageService, model.Locales);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateDeliveryDate(DeliveryDateModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            //load settings for a chosen store scope
-            var storeScope = await GetActiveStore();
-            var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
-            var model = shippingSettings.ToModel();
-            model.ActiveStore = storeScope;
-
-            //shipping origin
-            var originAddress = shippingSettings.ShippingOriginAddress;
-            if (originAddress != null)
-            {
-                model.ShippingOriginAddress = await originAddress.ToModel(_countryService);
-            }
-            else
-                model.ShippingOriginAddress = new AddressModel();
-
-            model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-            foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-                model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = originAddress != null && c.Id == originAddress.CountryId });
-
-            var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId) ? (await _countryService.GetCountryById(originAddress.CountryId))?.StateProvinces : new List<StateProvince>();
-            if (states?.Count > 0)
-            {
-                foreach (var s in states)
-                    model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress?.StateProvinceId });
-            }
-
-            model.ShippingOriginAddress.CountryEnabled = true;
-            model.ShippingOriginAddress.StateProvinceEnabled = true;
-            model.ShippingOriginAddress.CityEnabled = true;
-            model.ShippingOriginAddress.StreetAddressEnabled = true;
-            model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
-            model.ShippingOriginAddress.ZipPostalCodeRequired = true;
-            model.ShippingOriginAddress.AddressTypeEnabled = false;
-
-            return View(model);
+            var deliveryDate = model.ToEntity();
+            await _deliveryDateService.InsertDeliveryDate(deliveryDate);
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Added"));
+            return continueEditing
+                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
+                : RedirectToAction("DeliveryDates");
         }
-        [HttpPost]
-        public async Task<IActionResult> Settings(ShippingSettingsModel model)
+
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
+
+    public async Task<IActionResult> EditDeliveryDate(string id)
+    {
+        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
+        if (deliveryDate == null)
+            //No delivery date found with the specified id
+            return RedirectToAction("DeliveryDates");
+
+        var model = deliveryDate.ToModel();
+
+        if (string.IsNullOrEmpty(model.ColorSquaresRgb)) model.ColorSquaresRgb = "#000000";
+
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
-            //load settings for a chosen store scope
-            var storeScope = await GetActiveStore();
-            var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
-            shippingSettings = model.ToEntity(shippingSettings);
+            locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
+        });
 
-            await _settingService.SaveSetting(shippingSettings, storeScope);
+        return View(model);
+    }
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
-            return RedirectToAction("Settings");
-        }
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditDeliveryDate(DeliveryDateModel model, bool continueEditing)
+    {
+        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(model.Id);
+        if (deliveryDate == null)
+            //No delivery date found with the specified id
+            return RedirectToAction("DeliveryDates");
 
-        #endregion
-
-        #region Delivery dates
-
-        public IActionResult DeliveryDates()
+        if (ModelState.IsValid)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
-        {
-            var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
-                .Select(x => x.ToModel())
-                .ToList();
-            var gridModel = new DataSourceResult
-            {
-                Data = deliveryDatesModel,
-                Total = deliveryDatesModel.Count
-            };
-
-            return Json(gridModel);
-        }
-
-        public async Task<IActionResult> CreateDeliveryDate()
-        {
-            var model = new DeliveryDateModel
-            {
-                ColorSquaresRgb = "#000000"
-            };
+            deliveryDate = model.ToEntity(deliveryDate);
+            await _deliveryDateService.UpdateDeliveryDate(deliveryDate);
             //locales
-            await AddLocales(_languageService, model.Locales);
-            return View(model);
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
+                : RedirectToAction("DeliveryDates");
         }
 
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> CreateDeliveryDate(DeliveryDateModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var deliveryDate = model.ToEntity();
-                await _deliveryDateService.InsertDeliveryDate(deliveryDate);
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Added"));
-                return continueEditing ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id }) : RedirectToAction("DeliveryDates");
-            }
 
-            //If we got this far, something failed, redisplay form
-            return View(model);
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteDeliveryDate(string id)
+    {
+        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
+        if (deliveryDate == null)
+            //No delivery date found with the specified id
+            return RedirectToAction("DeliveryDates");
+        if (ModelState.IsValid)
+        {
+            await _deliveryDateService.DeleteDeliveryDate(deliveryDate);
+
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Deleted"));
+            return RedirectToAction("DeliveryDates");
         }
 
-        public async Task<IActionResult> EditDeliveryDate(string id)
+        Error(ModelState);
+        return RedirectToAction("EditDeliveryDate", new { id });
+    }
+
+    #endregion
+
+    #region Warehouses
+
+    public IActionResult Warehouses()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Warehouses(DataSourceRequest command)
+    {
+        var warehousesModel = (await _warehouseService.GetAllWarehouses())
+            .Select(x => x.ToModel())
+            .ToList();
+        var gridModel = new DataSourceResult {
+            Data = warehousesModel,
+            Total = warehousesModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> CreateWarehouse()
+    {
+        var model = new WarehouseModel();
+        await PrepareAddressWarehouseModel(model);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateWarehouse(WarehouseModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
-            if (deliveryDate == null)
-                //No delivery date found with the specified id
-                return RedirectToAction("DeliveryDates");
+            var warehouse = model.ToEntity();
+            var address = model.Address.ToEntity();
+            warehouse.Address = address;
+            await _warehouseService.InsertWarehouse(warehouse);
 
-            var model = deliveryDate.ToModel();
-
-            if (string.IsNullOrEmpty(model.ColorSquaresRgb))
-            {
-                model.ColorSquaresRgb = "#000000";
-            }
-
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
-            });
-
-            return View(model);
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Added"));
+            return continueEditing
+                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
+                : RedirectToAction("Warehouses");
         }
 
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> EditDeliveryDate(DeliveryDateModel model, bool continueEditing)
-        {
-            var deliveryDate = await _deliveryDateService.GetDeliveryDateById(model.Id);
-            if (deliveryDate == null)
-                //No delivery date found with the specified id
-                return RedirectToAction("DeliveryDates");
+        //If we got this far, something failed, redisplay form
+        await PrepareAddressWarehouseModel(model);
+        return View(model);
+    }
 
-            if (ModelState.IsValid)
-            {
-                deliveryDate = model.ToEntity(deliveryDate);
-                await _deliveryDateService.UpdateDeliveryDate(deliveryDate);
-                //locales
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Updated"));
-                return continueEditing ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id }) : RedirectToAction("DeliveryDates");
-            }
-
-
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteDeliveryDate(string id)
-        {
-            var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
-            if (deliveryDate == null)
-                //No delivery date found with the specified id
-                return RedirectToAction("DeliveryDates");
-            if (ModelState.IsValid)
-            {
-                await _deliveryDateService.DeleteDeliveryDate(deliveryDate);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Deleted"));
-                return RedirectToAction("DeliveryDates");
-            }
-            Error(ModelState);
-            return RedirectToAction("EditDeliveryDate", new { id });
-        }
-
-        #endregion
-
-        #region Warehouses
-
-        public IActionResult Warehouses()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Warehouses(DataSourceRequest command)
-        {
-            var warehousesModel = (await _warehouseService.GetAllWarehouses())
-                .Select(x => x.ToModel())
-                .ToList();
-            var gridModel = new DataSourceResult
-            {
-                Data = warehousesModel,
-                Total = warehousesModel.Count
-            };
-
-            return Json(gridModel);
-        }
-        public async Task<IActionResult> CreateWarehouse()
-        {
-            var model = new WarehouseModel();
-            await PrepareAddressWarehouseModel(model);
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> CreateWarehouse(WarehouseModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var warehouse = model.ToEntity();
-                var address = model.Address.ToEntity();
-                warehouse.Address = address;
-                await _warehouseService.InsertWarehouse(warehouse);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Added"));
-                return continueEditing ? RedirectToAction("EditWarehouse", new { id = warehouse.Id }) : RedirectToAction("Warehouses");
-            }
-
-            //If we got this far, something failed, redisplay form
-            await PrepareAddressWarehouseModel(model);
-            return View(model);
-        }
-
-        public async Task<IActionResult> EditWarehouse(string id)
-        {
-            var warehouse = await _warehouseService.GetWarehouseById(id);
-            if (warehouse == null)
-                //No warehouse found with the specified id
-                return RedirectToAction("Warehouses");
-
-            var model = warehouse.ToModel();
-            await PrepareAddressWarehouseModel(model);
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> EditWarehouse(WarehouseModel model, bool continueEditing)
-        {
-            var warehouse = await _warehouseService.GetWarehouseById(model.Id);
-            if (warehouse == null)
-                //No warehouse found with the specified id
-                return RedirectToAction("Warehouses");
-
-            if (ModelState.IsValid)
-            {
-                warehouse = model.ToEntity(warehouse);
-                await _warehouseService.UpdateWarehouse(warehouse);
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Updated"));
-                return continueEditing ? RedirectToAction("EditWarehouse", new { id = warehouse.Id }) : RedirectToAction("Warehouses");
-            }
-
-            //If we got this far, something failed, redisplay form
-            await PrepareAddressWarehouseModel(model);
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteWarehouse(string id)
-        {
-            var warehouse = await _warehouseService.GetWarehouseById(id);
-            if (warehouse == null)
-                //No warehouse found with the specified id
-                return RedirectToAction("Warehouses");
-
-            await _warehouseService.DeleteWarehouse(warehouse);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.warehouses.Deleted"));
+    public async Task<IActionResult> EditWarehouse(string id)
+    {
+        var warehouse = await _warehouseService.GetWarehouseById(id);
+        if (warehouse == null)
+            //No warehouse found with the specified id
             return RedirectToAction("Warehouses");
+
+        var model = warehouse.ToModel();
+        await PrepareAddressWarehouseModel(model);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditWarehouse(WarehouseModel model, bool continueEditing)
+    {
+        var warehouse = await _warehouseService.GetWarehouseById(model.Id);
+        if (warehouse == null)
+            //No warehouse found with the specified id
+            return RedirectToAction("Warehouses");
+
+        if (ModelState.IsValid)
+        {
+            warehouse = model.ToEntity(warehouse);
+            await _warehouseService.UpdateWarehouse(warehouse);
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
+                : RedirectToAction("Warehouses");
         }
 
-        #endregion
+        //If we got this far, something failed, redisplay form
+        await PrepareAddressWarehouseModel(model);
+        return View(model);
+    }
 
-        #region PickupPoints
+    [HttpPost]
+    public async Task<IActionResult> DeleteWarehouse(string id)
+    {
+        var warehouse = await _warehouseService.GetWarehouseById(id);
+        if (warehouse == null)
+            //No warehouse found with the specified id
+            return RedirectToAction("Warehouses");
 
-        public IActionResult PickupPoints()
+        await _warehouseService.DeleteWarehouse(warehouse);
+
+        Success(_translationService.GetResource("Admin.Configuration.Shipping.warehouses.Deleted"));
+        return RedirectToAction("Warehouses");
+    }
+
+    #endregion
+
+    #region PickupPoints
+
+    public IActionResult PickupPoints()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> PickupPoints(DataSourceRequest command)
+    {
+        var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
+            .Select(x => x.ToModel())
+            .ToList();
+
+        var gridModel = new DataSourceResult {
+            Data = pickupPointsModel,
+            Total = pickupPointsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> CreatePickupPoint()
+    {
+        var model = new PickupPointModel();
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
+
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreatePickupPoint(PickupPointModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            return View();
+            var pickuppoint = model.ToEntity();
+            await _pickupPointService.InsertPickupPoint(pickuppoint);
+
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
+            return continueEditing
+                ? RedirectToAction("EditPickupPoint", new { id = pickuppoint.Id })
+                : RedirectToAction("PickupPoints");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PickupPoints(DataSourceRequest command)
-        {
-            var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
-                .Select(x => x.ToModel())
-                .ToList();
+        //If we got this far, something failed, redisplay form
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
 
-            var gridModel = new DataSourceResult
-            {
-                Data = pickupPointsModel,
-                Total = pickupPointsModel.Count
-            };
-
-            return Json(gridModel);
-        }
-
-        public async Task<IActionResult> CreatePickupPoint()
-        {
-            var model = new PickupPointModel();
-            await PreparePickupPointModel(model);
-            return View(model);
-        }
-
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> CreatePickupPoint(PickupPointModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var pickuppoint = model.ToEntity();
-                await _pickupPointService.InsertPickupPoint(pickuppoint);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
-                return continueEditing ? RedirectToAction("EditPickupPoint", new { id = pickuppoint.Id }) : RedirectToAction("PickupPoints");
-            }
-
-            //If we got this far, something failed, redisplay form
-            await PreparePickupPointModel(model);
-            return View(model);
-        }
-
-        public async Task<IActionResult> EditPickupPoint(string id)
-        {
-            var pickuppoint = await _pickupPointService.GetPickupPointById(id);
-            if (pickuppoint == null)
-                //No pickup pint found with the specified id
-                return RedirectToAction("PickupPoints");
-
-            var model = pickuppoint.ToModel();
-            await PreparePickupPointModel(model);
-
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> EditPickupPoint(PickupPointModel model, bool continueEditing)
-        {
-            var pickupPoint = await _pickupPointService.GetPickupPointById(model.Id);
-            if (pickupPoint == null)
-                //No pickup point found with the specified id
-                return RedirectToAction("PickupPoints");
-
-            if (ModelState.IsValid)
-            {
-                pickupPoint = model.ToEntity(pickupPoint);
-                await _pickupPointService.UpdatePickupPoint(pickupPoint);
-
-                Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
-                return continueEditing ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id }) : RedirectToAction("PickupPoints");
-            }
-            //If we got this far, something failed, redisplay form
-            await PreparePickupPointModel(model);
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeletePickupPoint(string id)
-        {
-            var pickupPoint = await _pickupPointService.GetPickupPointById(id);
-            if (pickupPoint == null)
-                //No pickup point found with the specified id
-                return RedirectToAction("PickupPoints");
-
-            await _pickupPointService.DeletePickupPoint(pickupPoint);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
+    public async Task<IActionResult> EditPickupPoint(string id)
+    {
+        var pickuppoint = await _pickupPointService.GetPickupPointById(id);
+        if (pickuppoint == null)
+            //No pickup pint found with the specified id
             return RedirectToAction("PickupPoints");
+
+        var model = pickuppoint.ToModel();
+        await PreparePickupPointModel(model);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditPickupPoint(PickupPointModel model, bool continueEditing)
+    {
+        var pickupPoint = await _pickupPointService.GetPickupPointById(model.Id);
+        if (pickupPoint == null)
+            //No pickup point found with the specified id
+            return RedirectToAction("PickupPoints");
+
+        if (ModelState.IsValid)
+        {
+            pickupPoint = model.ToEntity(pickupPoint);
+            await _pickupPointService.UpdatePickupPoint(pickupPoint);
+
+            Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
+                : RedirectToAction("PickupPoints");
         }
 
-        #endregion
+        //If we got this far, something failed, redisplay form
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
 
-        #region Restrictions
+    [HttpPost]
+    public async Task<IActionResult> DeletePickupPoint(string id)
+    {
+        var pickupPoint = await _pickupPointService.GetPickupPointById(id);
+        if (pickupPoint == null)
+            //No pickup point found with the specified id
+            return RedirectToAction("PickupPoints");
 
-        public async Task<IActionResult> Restrictions()
+        await _pickupPointService.DeletePickupPoint(pickupPoint);
+
+        Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
+        return RedirectToAction("PickupPoints");
+    }
+
+    #endregion
+
+    #region Restrictions
+
+    public async Task<IActionResult> Restrictions()
+    {
+        var model = new ShippingMethodRestrictionModel();
+
+        var countries = await _countryService.GetAllCountries(showHidden: true);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var customerGroups = await _groupService.GetAllCustomerGroups();
+
+        foreach (var country in countries)
+            model.AvailableCountries.Add(new CountryModel {
+                Id = country.Id,
+                Name = country.Name
+            });
+        foreach (var sm in shippingMethods)
+            model.AvailableShippingMethods.Add(new ShippingMethodModel {
+                Id = sm.Id,
+                Name = sm.Name
+            });
+        foreach (var r in customerGroups)
+            model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = r.Id, Name = r.Name });
+
+        foreach (var country in countries)
+        foreach (var shippingMethod in shippingMethods)
         {
-            var model = new ShippingMethodRestrictionModel();
+            var restricted = shippingMethod.CountryRestrictionExists(country.Id);
+            if (!model.Restricted.ContainsKey(country.Id))
+                model.Restricted[country.Id] = new Dictionary<string, bool>();
+            model.Restricted[country.Id][shippingMethod.Id] = restricted;
+        }
 
-            var countries = await _countryService.GetAllCountries(showHidden: true);
-            var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
-            var customerGroups = await _groupService.GetAllCustomerGroups();
+        foreach (var role in customerGroups)
+        foreach (var shippingMethod in shippingMethods)
+        {
+            var restricted = shippingMethod.CustomerGroupRestrictionExists(role.Id);
+            if (!model.RestictedGroup.ContainsKey(role.Id))
+                model.RestictedGroup[role.Id] = new Dictionary<string, bool>();
+            model.RestictedGroup[role.Id][shippingMethod.Id] = restricted;
+        }
 
-            foreach (var country in countries)
-            {
-                model.AvailableCountries.Add(new CountryModel
-                {
-                    Id = country.Id,
-                    Name = country.Name
-                });
-            }
-            foreach (var sm in shippingMethods)
-            {
-                model.AvailableShippingMethods.Add(new ShippingMethodModel
-                {
-                    Id = sm.Id,
-                    Name = sm.Name
-                });
-            }
-            foreach (var r in customerGroups)
-            {
-                model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = r.Id, Name = r.Name });
-            }
 
-            foreach (var country in countries)
-            {
-                foreach (var shippingMethod in shippingMethods)
-                {
-                    var restricted = shippingMethod.CountryRestrictionExists(country.Id);
-                    if (!model.Restricted.ContainsKey(country.Id))
-                        model.Restricted[country.Id] = new Dictionary<string, bool>();
-                    model.Restricted[country.Id][shippingMethod.Id] = restricted;
-                }
-            }
+        return View(model);
+    }
 
+    [HttpPost]
+    [ActionName("Restrictions")]
+    [RequestFormLimits(ValueCountLimit = 2048)]
+    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
+    {
+        var countries = await _countryService.GetAllCountries(showHidden: true);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var customerGroups = await _groupService.GetAllCustomerGroups();
+        foreach (var shippingMethod in shippingMethods)
+        {
+            await SaveRestrictedCountries(model, shippingMethod, countries);
+            await SaveRestrictedGroup(model, shippingMethod, customerGroups);
+        }
+
+        Success(_translationService.GetResource("Admin.Configuration.Shipping.Restrictions.Updated"));
+        //selected tab
+        await SaveSelectedTabIndex();
+
+        return RedirectToAction("Restrictions");
+    }
+
+    private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
+        IPagedList<CustomerGroup> customerGroups)
+    {
+        if (model.TryGetValue($"restrictgroup_{shippingMethod.Id}", out var roleIds))
+        {
+            var roleIdsToRestrict = roleIds.ToList();
             foreach (var role in customerGroups)
             {
-                foreach (var shippingMethod in shippingMethods)
+                var restrict = roleIdsToRestrict.Contains(role.Id);
+                if (restrict)
                 {
-                    var restricted = shippingMethod.CustomerGroupRestrictionExists(role.Id);
-                    if (!model.RestictedGroup.ContainsKey(role.Id))
-                        model.RestictedGroup[role.Id] = new Dictionary<string, bool>();
-                    model.RestictedGroup[role.Id][shippingMethod.Id] = restricted;
-                }
-            }
-
-
-            return View(model);
-        }
-
-        [HttpPost, ActionName("Restrictions")]
-        [RequestFormLimits(ValueCountLimit = 2048)]
-        public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
-        {
-            var countries = await _countryService.GetAllCountries(showHidden: true);
-            var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
-            var customerGroups = await _groupService.GetAllCustomerGroups();
-            foreach (var shippingMethod in shippingMethods)
-            {
-                await SaveRestrictedCountries(model, shippingMethod, countries);
-                await SaveRestrictedGroup(model, shippingMethod, customerGroups);
-            }
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.Restrictions.Updated"));
-            //selected tab
-            await SaveSelectedTabIndex();
-
-            return RedirectToAction("Restrictions");
-        }
-
-        private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod, IPagedList<CustomerGroup> customerGroups)
-        {
-            if (model.TryGetValue($"restrictgroup_{shippingMethod.Id}", out var roleIds))
-            {
-                var roleIdsToRestrict = roleIds.ToList();
-                foreach (var role in customerGroups)
-                {
-                    var restrict = roleIdsToRestrict.Contains(role.Id);
-                    if (restrict)
+                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) == null)
                     {
-                        if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) == null)
-                        {
-                            shippingMethod.RestrictedGroups.Add(role.Id);
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
+                        shippingMethod.RestrictedGroups.Add(role.Id);
+                        await _shippingMethodService.UpdateShippingMethod(shippingMethod);
                     }
-                    else
+                }
+                else
+                {
+                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) != null)
                     {
-                        if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) != null)
-                        {
-                            shippingMethod.RestrictedGroups.Remove(role.Id);
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
+                        shippingMethod.RestrictedGroups.Remove(role.Id);
+                        await _shippingMethodService.UpdateShippingMethod(shippingMethod);
                     }
                 }
             }
-            else
-            {
-                shippingMethod.RestrictedGroups.Clear();
-                await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-            }
         }
-
-        private async Task SaveRestrictedCountries(IDictionary<string, string[]> model, ShippingMethod shippingMethod, IList<Country> countries)
+        else
         {
-            if (model.TryGetValue($"restrict_{shippingMethod.Id}", out var countryIds))
-            {
-                var countryIdsToRestrict = countryIds.ToList();
-                foreach (var country in countries)
-                {
-                    var restrict = countryIdsToRestrict.Contains(country.Id);
-                    if (restrict)
-                    {
-                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
-                        {
-                            shippingMethod.RestrictedCountries.Add(country);
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
-                    }
-                    else
-                    {
-                        if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
-                        {
-                            shippingMethod.RestrictedCountries.Remove(
-                                shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
-                            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                shippingMethod.RestrictedCountries.Clear();
-                await _shippingMethodService.UpdateShippingMethod(shippingMethod);
-            }
+            shippingMethod.RestrictedGroups.Clear();
+            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
         }
-
-        #endregion
     }
+
+    private async Task SaveRestrictedCountries(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
+        IList<Country> countries)
+    {
+        if (model.TryGetValue($"restrict_{shippingMethod.Id}", out var countryIds))
+        {
+            var countryIdsToRestrict = countryIds.ToList();
+            foreach (var country in countries)
+            {
+                var restrict = countryIdsToRestrict.Contains(country.Id);
+                if (restrict)
+                {
+                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
+                    {
+                        shippingMethod.RestrictedCountries.Add(country);
+                        await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+                    }
+                }
+                else
+                {
+                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
+                    {
+                        shippingMethod.RestrictedCountries.Remove(
+                            shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
+                        await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+                    }
+                }
+            }
+        }
+        else
+        {
+            shippingMethod.RestrictedCountries.Clear();
+            await _shippingMethodService.UpdateShippingMethod(shippingMethod);
+        }
+    }
+
+    #endregion
 }

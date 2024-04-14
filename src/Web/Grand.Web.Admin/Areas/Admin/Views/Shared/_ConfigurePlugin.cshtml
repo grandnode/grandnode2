@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc.Controllers
-@using Grand.Infrastructure.Plugins
+﻿@using Grand.Infrastructure.Plugins
+@using Microsoft.AspNetCore.Mvc.Controllers
 @inject IServiceProvider ServiceProvider
 @{
     var plugin = PluginManager.FindPlugin((ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ControllerTypeInfo.AsType()).Instance(ServiceProvider);

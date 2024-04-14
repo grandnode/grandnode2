@@ -13,13 +13,6 @@ namespace Grand.Web.Admin.Controllers;
 [PermissionAuthorize(PermissionSystemName.Maintenance)]
 public class MenuController : BaseAdminController
 {
-    #region Fields
-
-    private readonly IMenuViewModelService _menuViewModelService;
-    private readonly ITranslationService _translationService;
-
-    #endregion
-
     #region Ctor
 
     public MenuController(
@@ -29,6 +22,13 @@ public class MenuController : BaseAdminController
         _menuViewModelService = menuViewModelService;
         _translationService = translationService;
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly IMenuViewModelService _menuViewModelService;
+    private readonly ITranslationService _translationService;
 
     #endregion
 
@@ -44,7 +44,7 @@ public class MenuController : BaseAdminController
     {
         return View();
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> ListItem()
     {
@@ -55,7 +55,7 @@ public class MenuController : BaseAdminController
         };
         return Json(gridModel);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> ChildItem(string parentId)
     {
@@ -66,6 +66,7 @@ public class MenuController : BaseAdminController
         };
         return Json(gridModel);
     }
+
     #region Create / Edit / Delete
 
     public IActionResult Create()
@@ -74,7 +75,8 @@ public class MenuController : BaseAdminController
         return View(model);
     }
 
-    [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(MenuModel model, bool continueEditing, string parentId)
     {
         if (ModelState.IsValid)
@@ -83,6 +85,7 @@ public class MenuController : BaseAdminController
             Success(_translationService.GetResource("Admin.Configuration.Menu.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = menu.Id }) : RedirectToAction("Index");
         }
+
         //If we got this far, something failed, redisplay form
         return View(model);
     }
@@ -99,7 +102,8 @@ public class MenuController : BaseAdminController
         return View(model);
     }
 
-    [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(MenuModel model, bool continueEditing)
     {
         var menu = await _menuViewModelService.GetMenuById(model.Id);
@@ -108,16 +112,15 @@ public class MenuController : BaseAdminController
             return RedirectToAction("Index");
 
         if (!ModelState.IsValid) return View(model);
-        
+
         await _menuViewModelService.UpdateMenuModel(model);
         Success(_translationService.GetResource("Admin.Configuration.Menu.Updated"));
 
         if (!continueEditing) return RedirectToAction("List");
-        
+
         //selected tab
         await SaveSelectedTabIndex();
         return RedirectToAction("Edit", new { id = menu.Id });
-
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Delete)]

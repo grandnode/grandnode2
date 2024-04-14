@@ -19,13 +19,13 @@
                 </div>
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="order_add_products_top" additional-data="Model" />
+                <vc:admin-widget widget-zone="order_add_products_top" additional-data="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="form-group popup">
-                            <admin-label class="col-sm-2 control-label" asp-for="SearchProductName" />
+                            <admin-label class="col-sm-2 control-label" asp-for="SearchProductName"/>
                             <div class="col-8 col-md-4 col-sm-4">
-                                <admin-input asp-for="SearchProductName" />
+                                <admin-input asp-for="SearchProductName"/>
                             </div>
                             <div class="col-8 col-md-6 col-sm-4 mt-mobile-10">
                                 <div class="btn-group btn-group-devided">
@@ -35,37 +35,39 @@
                                     <button type="button" class="btn btn-default filter-extend-button">
                                         <i class="fa fa-filter"></i>
                                     </button>
-                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                    <button class="btn btn-success" type="submit" name="save">
+                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group extend-collapse">
-                            <admin-label asp-for="SearchCategoryId" />
+                            <admin-label asp-for="SearchCategoryId"/>
                             <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="SearchCategoryId" />
+                                <admin-input asp-for="SearchCategoryId"/>
                             </div>
                         </div>
                         <div class="form-group extend-collapse">
-                            <admin-label asp-for="SearchBrandId" />
+                            <admin-label asp-for="SearchBrandId"/>
                             <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="SearchBrandId" />
+                                <admin-input asp-for="SearchBrandId"/>
                             </div>
                         </div>
                         <div class="form-group extend-collapse">
-                            <admin-label asp-for="SearchCollectionId" />
+                            <admin-label asp-for="SearchCollectionId"/>
                             <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="SearchCollectionId" />
+                                <admin-input asp-for="SearchCollectionId"/>
                             </div>
                         </div>
                         <div class="form-group extend-collapse">
-                            <admin-label asp-for="SearchProductTypeId" />
+                            <admin-label asp-for="SearchProductTypeId"/>
                             <div class="col-md-9 col-sm-9">
-                                <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
                             </div>
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="order_add_products_bottom" additional-data="Model" />
+                <vc:admin-widget widget-zone="order_add_products_bottom" additional-data="Model"/>
             </div>
             <div class="x_content">
                 <strong>@Loc["Admin.Orders.Products.AddNew.Note1"]</strong>
@@ -173,4 +175,4 @@
 </script>
 <div id="productdetails">
 </div>
-<input asp-for="OrderId" type="hidden" />
+<input asp-for="OrderId" type="hidden"/>

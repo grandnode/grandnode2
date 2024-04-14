@@ -3,48 +3,48 @@
 @inject OrderSettings orderSettings
 
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="merchandisereturn_tab_info_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_tab_info_top" additional-data="Model"/>
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="ReturnNumber" />
+            <admin-label asp-for="ReturnNumber"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.ReturnNumber</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="ExternalId" />
+            <admin-label asp-for="ExternalId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ExternalId" />
+                <admin-input asp-for="ExternalId"/>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="OrderId" />
+            <admin-label asp-for="OrderId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Html.ActionLink(Loc["Admin.Common.View"], "Edit", "Order", new { id = Model.OrderId }, new { })</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CustomerId" />
+            <admin-label asp-for="CustomerId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label"> @Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { }) </label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="MerchandiseReturnStatusId" />
+            <admin-label asp-for="MerchandiseReturnStatusId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="MerchandiseReturnStatusId" asp-items="((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId).ToSelectList(Context)" />
+                <admin-select asp-for="MerchandiseReturnStatusId" asp-items="((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId).ToSelectList(Context)"/>
                 <span asp-validation-for="MerchandiseReturnStatusId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CustomerComments" />
+            <admin-label asp-for="CustomerComments"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="CustomerComments"></admin-textarea>
                 <span asp-validation-for="CustomerComments"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="StaffNotes" />
+            <admin-label asp-for="StaffNotes"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="StaffNotes"></admin-textarea>
                 <span asp-validation-for="StaffNotes"></span>
@@ -53,23 +53,23 @@
         @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
         {
             <div class="form-group">
-                <admin-label asp-for="PickupDate" />
+                <admin-label asp-for="PickupDate"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="PickupDate" />
+                    <admin-input asp-for="PickupDate"/>
                 </div>
             </div>
         }
         <div class="form-group">
-            <admin-label asp-for="CreatedOn" />
+            <admin-label asp-for="CreatedOn"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Html.DisplayFor(model => model.CreatedOn)</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="NotifyCustomer" />
+            <admin-label asp-for="NotifyCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="NotifyCustomer" />
+                    <admin-input asp-for="NotifyCustomer"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="NotifyCustomer"></span>
@@ -79,7 +79,7 @@
             <div id="products-grid"></div>
         </div>
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_tab_info_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_tab_info_bottom" additional-data="Model"/>
 </div>
 
 

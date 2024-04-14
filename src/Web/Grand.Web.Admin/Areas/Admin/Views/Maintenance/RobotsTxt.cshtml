@@ -1,10 +1,11 @@
-﻿@model RobotsTxtModel
+﻿@using Constants = Grand.SharedUIResources.Constants
+@model RobotsTxtModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.System.RobotsTxt"];
 }
-<link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/codemirror.css" />
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.css"/>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
 
 <style>
     .CodeMirror {
@@ -14,7 +15,7 @@
     }
 </style>
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="Maintenance" asp-action="RobotsTxt" method="post">
+<form asp-area="@Grand.Web.Admin.Extensions.Constants.AreaAdmin" asp-controller="Maintenance" asp-action="RobotsTxt" method="post">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -25,10 +26,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="robots_txt_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="robots_txt_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content">
                     <div class="form-horizontal">
@@ -40,9 +43,9 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="form-group">
-                            <admin-label asp-for="Name" />
+                            <admin-label asp-for="Name"/>
                             <div class="col-md-9 col-sm-9">
-                                <admin-input asp-for="Name" />
+                                <admin-input asp-for="Name"/>
                                 <span asp-validation-for="Name"></span>
                             </div>
                         </div>

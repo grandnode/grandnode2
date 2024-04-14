@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Messages;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class NewsletterCategoryMappingExtensions
 {
-    public static class NewsletterCategoryMappingExtensions
+    public static NewsletterCategoryModel ToModel(this NewsletterCategory entity)
     {
-        public static NewsletterCategoryModel ToModel(this NewsletterCategory entity)
-        {
-            return entity.MapTo<NewsletterCategory, NewsletterCategoryModel>();
-        }
+        return entity.MapTo<NewsletterCategory, NewsletterCategoryModel>();
+    }
 
-        public static NewsletterCategory ToEntity(this NewsletterCategoryModel model)
-        {
-            return model.MapTo<NewsletterCategoryModel, NewsletterCategory>();
-        }
+    public static NewsletterCategory ToEntity(this NewsletterCategoryModel model)
+    {
+        return model.MapTo<NewsletterCategoryModel, NewsletterCategory>();
+    }
 
-        public static NewsletterCategory ToEntity(this NewsletterCategoryModel model, NewsletterCategory destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static NewsletterCategory ToEntity(this NewsletterCategoryModel model, NewsletterCategory destination)
+    {
+        return model.MapTo(destination);
     }
 }

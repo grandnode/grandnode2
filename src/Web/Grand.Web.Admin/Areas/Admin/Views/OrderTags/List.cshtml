@@ -1,26 +1,26 @@
 ﻿@inject AdminAreaSettings adminAreaSettings
 
-@{ 
+@{
     //page title
     ViewBag.Title = Loc["Admin.Orders.OrderTags"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="OrderTags" method="post" id="order-tags-form">
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="x_panel light form-fit">
-            <div class="x_title">
-                <div class="caption level-caption">
-                    <i class="fa fa-cubes"></i>
-                    @Loc["Admin.Orders.OrderTags"]
-                </div>
-                <vc:admin-widget widget-zone="order_tag_list_buttons" additional-data="null" />
-            </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="x_content">
-                        <div id="order-tags-grid"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption level-caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Admin.Orders.OrderTags"]
                     </div>
+                    <vc:admin-widget widget-zone="order_tag_list_buttons" additional-data="null"/>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="x_content">
+                            <div id="order-tags-grid"></div>
+                        </div>
                     </div>
                 </div>
             </div>

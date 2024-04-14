@@ -1,4 +1,5 @@
-﻿@model Grand.Web.Admin.Models.PushNotifications.MessagesModel
+﻿@using Constants = Grand.SharedUIResources.Constants
+@model Grand.Web.Admin.Models.PushNotifications.MessagesModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_AdminLayout";
@@ -6,7 +7,7 @@
     ViewBag.Title = Loc["Admin.PushNotifications.Messages"];
 }
 
-<script asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/chart.min.js"></script>
+<script asp-src="@(Constants.WwwRoot)/administration/chart.min.js"></script>
 
 <div class="row">
     <div class="col-md-12">
@@ -45,7 +46,7 @@ $(document).ready(function () {
             type: "json",
             transport: {
                 read: {
-                    url: "@Html.Raw(Url.Action("PushMessagesList", "PushNotifications", new { area = Constants.AreaAdmin }))",
+                    url: "@Html.Raw(Url.Action("PushMessagesList", "PushNotifications", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
                     type: "POST",
                     dataType: "json",
                     data: addAntiForgeryToken
@@ -106,7 +107,6 @@ $(document).ready(function () {
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))
 {
-    
     <script asp-location="Footer">
     $(document).ready(function () {
         var config = {

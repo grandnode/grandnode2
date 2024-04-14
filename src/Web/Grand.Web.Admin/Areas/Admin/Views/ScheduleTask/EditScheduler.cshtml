@@ -4,8 +4,8 @@
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="ScheduleTask" asp-action="EditScheduler" method="post">
     <div asp-validation-summary="All"></div>
-    
-    <input asp-for="Id" type="hidden" />
+
+    <input asp-for="Id" type="hidden"/>
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -20,8 +20,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -29,55 +33,55 @@
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="ScheduleTaskName" />
+                                <admin-label asp-for="ScheduleTaskName"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="control-label"> @Html.DisplayFor(model => model.ScheduleTaskName) </label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="LeasedByMachineName" />
+                                <admin-label asp-for="LeasedByMachineName"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="LeasedByMachineName" />
+                                    <admin-input asp-for="LeasedByMachineName"/>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <admin-label asp-for="Type" />
+                                <admin-label asp-for="Type"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="control-label"> @Html.DisplayFor(model => model.Type) </label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="Enabled" />
+                                <admin-label asp-for="Enabled"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="Enabled" />
+                                        <admin-input asp-for="Enabled"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="Enabled"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="StopOnError" />
+                                <admin-label asp-for="StopOnError"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="StopOnError" />
+                                        <admin-input asp-for="StopOnError"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="StopOnError"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="trTimeInterval">
-                                <admin-label asp-for="TimeInterval" />
+                                <admin-label asp-for="TimeInterval"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="TimeInterval" />
+                                    <admin-input asp-for="TimeInterval"/>
                                     <span asp-validation-for="TimeInterval"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="StoreId" />
+                                <admin-label asp-for="StoreId"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                 </div>
                             </div>
                         </div>

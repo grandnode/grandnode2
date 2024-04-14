@@ -1,108 +1,105 @@
-﻿using Grand.Web.Common.Link;
-using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using System.ComponentModel.DataAnnotations;
+using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Blogs
+namespace Grand.Web.Admin.Models.Blogs;
+
+public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel>, IStoreLinkModel
 {
-    public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel>, IStoreLinkModel
-    {
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
-        public string Title { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
+    public string Title { get; set; }
 
-        [UIHint("Picture")]
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Picture")]
-        public string PictureId { get; set; }
+    [UIHint("Picture")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Picture")]
+    public string PictureId { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
 
-        public string Body { get; set; }
+    public string Body { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
 
-        public string BodyOverview { get; set; }
+    public string BodyOverview { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.AllowComments")]
-        public bool AllowComments { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.AllowComments")]
+    public bool AllowComments { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Tags")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Tags")]
 
-        public string Tags { get; set; }
+    public string Tags { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Comments")]
-        public int Comments { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Comments")]
+    public int Comments { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.CreateDate")]
-        [UIHint("DateTime")]
-        public DateTime CreateDate { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.CreateDate")]
+    [UIHint("DateTime")]
+    public DateTime CreateDate { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.StartDate")]
-        [UIHint("DateTimeNullable")]
-        public DateTime? StartDate { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.StartDate")]
+    [UIHint("DateTimeNullable")]
+    public DateTime? StartDate { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.EndDate")]
-        [UIHint("DateTimeNullable")]
-        public DateTime? EndDate { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.EndDate")]
+    [UIHint("DateTimeNullable")]
+    public DateTime? EndDate { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
 
-        public string MetaKeywords { get; set; }
+    public string MetaKeywords { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
 
-        public string MetaDescription { get; set; }
+    public string MetaDescription { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
 
-        public string MetaTitle { get; set; }
+    public string MetaTitle { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
 
-        public string SeName { get; set; }
+    public string SeName { get; set; }
 
-        public IList<BlogLocalizedModel> Locales { get; set; } = new List<BlogLocalizedModel>();
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.CreatedOn")]
+    public DateTime CreatedOn { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.CreatedOn")]
-        public DateTime CreatedOn { get; set; }
+    public IList<BlogLocalizedModel> Locales { get; set; } = new List<BlogLocalizedModel>();
 
-        //Store acl
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
+    //Store acl
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
+}
 
-    }
+public class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+{
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
+    public string Title { get; set; }
 
-    public class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
-    {
-        public string LanguageId { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
-        public string Title { get; set; }
+    public string BodyOverview { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
 
-        public string BodyOverview { get; set; }
+    public string Body { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
 
-        public string Body { get; set; }
+    public string MetaKeywords { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
 
-        public string MetaKeywords { get; set; }
+    public string MetaDescription { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
 
-        public string MetaDescription { get; set; }
+    public string MetaTitle { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
+    public string LanguageId { get; set; }
 
-        public string MetaTitle { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
 
-        [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
-
-        public string SeName { get; set; }
-
-    }
+    public string SeName { get; set; }
 }

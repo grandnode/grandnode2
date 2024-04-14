@@ -13,12 +13,14 @@
                     @Loc["Admin.Configuration.Countries"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <input type="button" id="publish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.PublishSelected"]" />
-                    <input type="button" id="unpublish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.UnpublishSelected"]" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <input type="button" id="publish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.PublishSelected"]"/>
+                    <input type="button" id="unpublish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.UnpublishSelected"]"/>
                     <a href="@Url.Action("ExportExcel", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Countries.ExportStatesToExcel"]</a>
-                    <input type="submit" id="importexcel" name="importexcel" class="btn yellow" value="@Loc["Admin.Configuration.Countries.ImportStatesFromExcel"]" />
-                    <vc:admin-widget widget-zone="country_list_buttons" additional-data="null" />
+                    <input type="submit" id="importexcel" name="importexcel" class="btn yellow" value="@Loc["Admin.Configuration.Countries.ImportStatesFromExcel"]"/>
+                    <vc:admin-widget widget-zone="country_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -27,8 +29,8 @@
                         <div class="row align-items-end mb-3">
                             <div class="col-md-9 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="CountryName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="CountryName" />
+                                    <admin-label asp-for="CountryName" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="CountryName"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
@@ -251,19 +253,19 @@
 
 <div id="importexcel-window" style="display:none;">
     <form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
-        
+
         <table style="text-align:left;">
             <tr>
                 <td>
                     @Loc["Admin.Common.ExcelFile"]:
                 </td>
                 <td>
-                    <input type="file" id="importexcelfile" name="importexcelfile" />
+                    <input type="file" id="importexcelfile" name="importexcelfile"/>
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
-                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]" />
+                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]"/>
                 </td>
             </tr>
         </table>

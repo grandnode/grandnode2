@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Layouts;
 
-namespace Grand.Web.Admin.Extensions.Mapping.Layouts
+namespace Grand.Web.Admin.Extensions.Mapping.Layouts;
+
+public static class BrandLayoutMappingExtensions
 {
-    public static class BrandLayoutMappingExtensions
+    public static BrandLayoutModel ToModel(this BrandLayout entity)
     {
-        public static BrandLayoutModel ToModel(this BrandLayout entity)
-        {
-            return entity.MapTo<BrandLayout, BrandLayoutModel>();
-        }
+        return entity.MapTo<BrandLayout, BrandLayoutModel>();
+    }
 
-        public static BrandLayout ToEntity(this BrandLayoutModel model)
-        {
-            return model.MapTo<BrandLayoutModel, BrandLayout>();
-        }
+    public static BrandLayout ToEntity(this BrandLayoutModel model)
+    {
+        return model.MapTo<BrandLayoutModel, BrandLayout>();
+    }
 
-        public static BrandLayout ToEntity(this BrandLayoutModel model, BrandLayout destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static BrandLayout ToEntity(this BrandLayoutModel model, BrandLayout destination)
+    {
+        return model.MapTo(destination);
     }
 }

@@ -3,23 +3,22 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Components
+namespace Grand.Web.Admin.Components;
+
+public class OrderPeriodReportViewComponent : BaseAdminViewComponent
 {
-    public class OrderPeriodReportViewComponent : BaseAdminViewComponent
+    private readonly IPermissionService _permissionService;
+
+    public OrderPeriodReportViewComponent(IPermissionService permissionService)
     {
-        private readonly IPermissionService _permissionService;
+        _permissionService = permissionService;
+    }
 
-        public OrderPeriodReportViewComponent(IPermissionService permissionService)
-        {
-            _permissionService = permissionService;
-        }
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
+            return Content("");
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
-                return Content("");
-
-            return View();
-        }
+        return View();
     }
 }

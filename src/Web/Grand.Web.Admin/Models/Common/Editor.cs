@@ -1,8 +1,6 @@
-﻿
-namespace Grand.Web.Admin.Models.Common
+﻿namespace Grand.Web.Admin.Models.Common;
+
+public class Editor
 {
-    public class Editor
-    {
-        public string Content { get; set; }
-    }
+    public string Content { get; set; }
 }

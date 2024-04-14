@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Directory;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class MeasureWeightMappingExtensions
 {
-    public static class MeasureWeightMappingExtensions
+    public static MeasureWeightModel ToModel(this MeasureWeight entity)
     {
-        public static MeasureWeightModel ToModel(this MeasureWeight entity)
-        {
-            return entity.MapTo<MeasureWeight, MeasureWeightModel>();
-        }
+        return entity.MapTo<MeasureWeight, MeasureWeightModel>();
+    }
 
-        public static MeasureWeight ToEntity(this MeasureWeightModel model)
-        {
-            return model.MapTo<MeasureWeightModel, MeasureWeight>();
-        }
+    public static MeasureWeight ToEntity(this MeasureWeightModel model)
+    {
+        return model.MapTo<MeasureWeightModel, MeasureWeight>();
+    }
 
-        public static MeasureWeight ToEntity(this MeasureWeightModel model, MeasureWeight destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static MeasureWeight ToEntity(this MeasureWeightModel model, MeasureWeight destination)
+    {
+        return model.MapTo(destination);
     }
 }

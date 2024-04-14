@@ -78,10 +78,10 @@
     </strong>
 </p>
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="vendor_details_notes_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="vendor_details_notes_top" additional-data="Model"/>
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddVendorNoteMessage" />
+            <admin-label asp-for="AddVendorNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddVendorNoteMessage" style="height: 100px;"></admin-textarea>
                 <span asp-validation-for="AddVendorNoteMessage"></span>
@@ -90,10 +90,10 @@
     </div>
     <div class="actions">
         <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-            <input type="button" id="addVendorNote" class="k-button" value="@Loc["Admin.Vendors.VendorNotes.AddButton"]" />
+            <input type="button" id="addVendorNote" class="k-button" value="@Loc["Admin.Vendors.VendorNotes.AddButton"]"/>
         </div>
     </div>
-    <vc:admin-widget widget-zone="vendor_details_notes_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="vendor_details_notes_bottom" additional-data="Model"/>
 </div>
 <script>
     $(document).ready(function () {

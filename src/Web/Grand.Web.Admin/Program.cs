@@ -1,9 +1,7 @@
-﻿using Grand.Web.Admin.Extensions;
+﻿using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-
-Grand.SharedUIResources.Constants.WwwRoot = "";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +15,7 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
 builder.Configuration.AddAppSettingsJsonFile(args);
 
 //add services
-Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Configuration);
+StartupBase.ConfigureServices(builder.Services, builder.Configuration);
 
 builder.ConfigureApplicationSettings();
 
@@ -25,7 +23,7 @@ builder.ConfigureApplicationSettings();
 var app = builder.Build();
 
 //request pipeline
-Grand.Infrastructure.StartupBase.ConfigureRequestPipeline(app, builder.Environment);
+StartupBase.ConfigureRequestPipeline(app, builder.Environment);
 
 //run app
 app.Run();

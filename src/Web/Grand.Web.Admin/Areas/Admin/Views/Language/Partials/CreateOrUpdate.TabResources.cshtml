@@ -1,7 +1,7 @@
 ﻿@using Grand.Domain.Localization
 @model LanguageModel
 @inject AdminAreaSettings adminAreaSettings
-<vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model" />
+<vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model"/>
 <div class="panel panel-default">
     @if (string.IsNullOrEmpty(Model.Id))
     {
@@ -12,15 +12,15 @@
     <div class="form-horizontal">
         <div class="form-body">
             <div class="form-group">
-                <admin-label asp-for="Search.ResourceName" />
+                <admin-label asp-for="Search.ResourceName"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Search.ResourceName" />
+                    <admin-input asp-for="Search.ResourceName"/>
                 </div>
             </div>
             <div class="form-group">
-                <admin-label asp-for="Search.ResourceValue" />
+                <admin-label asp-for="Search.ResourceValue"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Search.ResourceValue" />
+                    <admin-input asp-for="Search.ResourceValue"/>
                 </div>
             </div>
             <div class="form-group">
@@ -37,7 +37,7 @@
         <div id="resources-grid"></div>
     </div>
 </div>
-<vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <script>
@@ -47,7 +47,7 @@
             var allArea = [
                 @foreach (var method in areas)
                 {
-                        <text>
+                    <text>
                         {
                             Id: '@(method.Value)',
                             Name: "@Html.Raw(method.Text)"
@@ -71,14 +71,14 @@
                     dataSource: {
                         transport: {
                             read: {
-                                url: "@Html.Raw(Url.Action("Resources", "Language", new {languageId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("Resources", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin }))",
                                 type: "POST",
                                 dataType: "json",
                                 //contentType: "application/json",
                                 data: additionalData
                             },
                             create: {
-                                url: "@Html.Raw(Url.Action("ResourceAdd", "Language", new {languageId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("ResourceAdd", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
@@ -214,5 +214,4 @@
                 }
             });
     </script>
-
 }

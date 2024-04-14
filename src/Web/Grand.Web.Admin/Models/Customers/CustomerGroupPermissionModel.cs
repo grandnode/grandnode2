@@ -1,19 +1,18 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Customers
+namespace Grand.Web.Admin.Models.Customers;
+
+public class CustomerGroupPermissionModel : BaseEntityModel
 {
-    public class CustomerGroupPermissionModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Name")]
-        public string Name { get; set; }
+    [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Name")]
+    public string Name { get; set; }
 
-        public string SystemName { get; set; }
+    public string SystemName { get; set; }
 
-        [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Access")]
-        public bool Access { get; set; }
+    [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Access")]
+    public bool Access { get; set; }
 
-        [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Actions")]
-        public IList<string> Actions { get; set; } = new List<string>();
-    }
+    [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Actions")]
+    public IList<string> Actions { get; set; } = new List<string>();
 }

@@ -14,9 +14,9 @@
                     @Loc["Admin.Catalog.ProductReviews"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <input type="button" id="approve-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.ApproveSelected"]" />
-                    <input type="button" id="disapprove-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.DisapproveSelected"]" />
-                    <vc:admin-widget widget-zone="product_review_list_buttons" additional-data="null" />
+                    <input type="button" id="approve-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.ApproveSelected"]"/>
+                    <input type="button" id="disapprove-selected" class="btn default" value="@Loc["Admin.Catalog.ProductReviews.DisapproveSelected"]"/>
+                    <vc:admin-widget widget-zone="product_review_list_buttons" additional-data="null"/>
                 </div>
             </div>
 
@@ -27,11 +27,11 @@
                             <div class="row align-items-end">
                                 <div class="col-md-4 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchProductId" class="control-label"  />
+                                        <admin-label asp-for="SearchProductId" class="control-label"/>
                                         <div>
-                                            <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off" />
+                                            <input type="text" class="form-control text-box single-line" id="search-product-name" autocomplete="off"/>
                                             <span id="search-product-friendly-name"></span>
-                                            <input type="button" id="search-product-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]" />
+                                            <input type="button" id="search-product-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
                                             <admin-textarea asp-for="SearchProductId" autocomplete="off" style="display: none;"></admin-textarea>
                                             <script>
                                                 $(document).ready(function() {
@@ -61,8 +61,8 @@
                                 </div>
                                 <div class="col-md-4 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchText" class="control-label" />
-                                        <admin-input asp-for="SearchText" />
+                                        <admin-label asp-for="SearchText" class="control-label"/>
+                                        <admin-input asp-for="SearchText"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-12">
@@ -82,21 +82,21 @@
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container">
                                 <div class="form-group">
-                                    <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="CreatedOnFrom" />
+                                        <admin-input asp-for="CreatedOnFrom"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="CreatedOnTo" />
+                                        <admin-input asp-for="CreatedOnTo"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                     </div>
                                 </div>
                             </div>

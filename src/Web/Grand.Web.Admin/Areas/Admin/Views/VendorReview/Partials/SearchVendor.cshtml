@@ -1,11 +1,11 @@
 ﻿@model VendorReviewListModel
 
 <div class="form-group">
-    <admin-label asp-for="SearchVendorId" />
+    <admin-label asp-for="SearchVendorId"/>
     <div class="col-md-4 col-sm-6">
-        <input type="text" class="form-control text-box single-line" id="search-vendor-name" autocomplete="on" />
+        <input type="text" class="form-control text-box single-line" id="search-vendor-name" autocomplete="on"/>
         <span id="search-vendor-friendly-name"></span>
-        <input type="button" id="search-vendor-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]" />
+        <input type="button" id="search-vendor-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]"/>
         @Html.TextBoxFor(model => model.SearchVendorId, new { autocomplete = "on", style = "display:none;" })
         <script>
             $(document).ready(function() {

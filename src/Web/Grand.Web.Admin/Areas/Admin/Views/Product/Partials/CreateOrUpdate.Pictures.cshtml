@@ -2,14 +2,14 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="product_details_pictures_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="productpictures-grid"></div>
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="product_details_pictures_top" additional-data="Model"/>
+        <div class="panel-body">
+            <div id="productpictures-grid"></div>
+        </div>
+        <vc:admin-widget widget-zone="product_details_pictures_bottom" additional-data="Model"/>
     </div>
-    <vc:admin-widget widget-zone="product_details_pictures_bottom" additional-data="Model" />
-</div>
-<script>
+    <script>
             $(document).ready(function () {
                 $("#productpictures-grid").kendoGrid({
                     dataBound: function () {
@@ -127,10 +127,10 @@
                     ViewData["Click"] = "btnRefreshProductPictures";
                 }
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddPictureModel.PictureId" />
+                    <admin-input asp-for="AddPictureModel.PictureId"/>
                     <span asp-validation-for="AddPictureModel.PictureId"></span>
                 </div>
-                <input type="submit" id="btnRefreshProductPictures" style="display: none" />
+                <input type="submit" id="btnRefreshProductPictures" style="display: none"/>
                 <script>
                     $(document).ready(function () {
                         $('#btnRefreshProductPictures').click(function () {

@@ -17,12 +17,12 @@
             <div id="products-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerGroup", new { customerGroupId = Model.Id, btnId = "btnRefreshProducts", formId = "customergroup-form", area = Constants.AreaAdmin  }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerGroups.Products.Fields.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none" />
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerGroup", new { customerGroupId = Model.Id, btnId = "btnRefreshProducts", formId = "customergroup-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerGroups.Products.Fields.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>
 
-        <script>
+    <script>
                 $(document).ready(function () {
                     $('#btnAddNewProduct').magnificPopup({
                         type: 'ajax',
@@ -41,7 +41,7 @@
                         dataSource: {
                             transport: {
                                 read: {
-                                    url: "@Html.Raw(Url.Action("Products", "CustomerGroup", new {customerGroupId = Model.Id, area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("Products", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken
@@ -122,7 +122,7 @@
                 });
         </script>
 
-        <script>
+    <script>
             $(document).ready(function () {
                 $('#btnRefreshProducts').click(function () {
                     var grid = $("#products-grid").data('kendoGrid');

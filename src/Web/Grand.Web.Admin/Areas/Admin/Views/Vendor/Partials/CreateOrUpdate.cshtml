@@ -1,31 +1,33 @@
-﻿@model VendorModel
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@model VendorModel
+@inject IPermissionService permissionService
 @{
     //has "Manage Documents" permission?
-    var canManageDocuments = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageDocuments);
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
 }
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 <admin-tabstrip name="vendor-edit" BindGrid="true">
     <items>
         <tabstrip-item text="@Loc["Admin.Vendors.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Vendors.Discounts"]" tab-index="2">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabDiscounts" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabDiscounts" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
@@ -34,14 +36,14 @@
             <tabstrip-item text="@Loc["Admin.Vendors.VendorNotes"]" tab-index="3">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabVendorNotes" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabVendorNotes" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
             <tabstrip-item text="@Loc["Admin.Vendors.Reviews"]" tab-index="4">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabVendorReviews" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabVendorReviews" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
@@ -51,7 +53,7 @@
             <tabstrip-item text="@Loc["Admin.Vendors.Documents"]" tab-index="5">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabDocuments" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabDocuments" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
@@ -59,10 +61,10 @@
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="6">
             <content>
                 <div>
-                    <partial name="Partials/UserFields" model="Model" />
+                    <partial name="Partials/UserFields" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="vendor_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="vendor_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>

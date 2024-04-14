@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["admin.marketing.newsLetterSubscriptions"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="NewsletterSubscription" asp-action="List" method="post">
-    
+
 
     <div class="row">
         <div class="col-md-12">
@@ -15,9 +15,9 @@
                         @Loc["admin.marketing.NewsLetterSubscriptions"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
-                        <input type="submit" name="exportcsv" asp-action="ExportCsv" class="btn default" value="@Loc["Admin.Common.ExportToCsv"]" />
-                        <input type="submit" id="importcsv" name="importcsv" class="btn default" value="@Loc["Admin.Common.ImportFromCsv"]" />
-                        <vc:admin-widget widget-zone="newsletter_subscription_list_buttons" additional-data="null" />
+                        <input type="submit" name="exportcsv" asp-action="ExportCsv" class="btn default" value="@Loc["Admin.Common.ExportToCsv"]"/>
+                        <input type="submit" id="importcsv" name="importcsv" class="btn default" value="@Loc["Admin.Common.ImportFromCsv"]"/>
+                        <vc:admin-widget widget-zone="newsletter_subscription_list_buttons" additional-data="null"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -27,8 +27,8 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchEmail" class="control-label" />
-                                            <admin-input asp-for="SearchEmail" />
+                                            <admin-label asp-for="SearchEmail" class="control-label"/>
+                                            <admin-input asp-for="SearchEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
@@ -49,21 +49,21 @@
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
                                 <div class="form-group">
-                                    <admin-label asp-for="ActiveId" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="ActiveId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="ActiveId" asp-items="Model.ActiveList" />
+                                        <admin-select asp-for="ActiveId" asp-items="Model.ActiveList"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="StoreId" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="StoreId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="SearchCategoryIds" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="SearchCategoryIds" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories" />
+                                        <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories"/>
                                     </div>
                                 </div>
                             </div>
@@ -227,27 +227,27 @@
         }
     </script>
 </form>
-    <div id="importcsv-window" style="display:none;">
-        <form asp-area="@Constants.AreaAdmin" asp-controller="NewsLetterSubscription" asp-action="ImportCsv" method="post" enctype="multipart/form-data">
-            
-            <table style="text-align:left;">
-                <tr>
-                    <td>
-                        @Loc["Admin.Common.CsvFile"]:
-                    </td>
-                    <td>
-                        <input type="file" id="importcsvfile" name="importcsvfile" />
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromCsv"]" />
-                    </td>
-                </tr>
-            </table>
-        </form>
-    </div>
-    <script>
+<div id="importcsv-window" style="display:none;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="NewsLetterSubscription" asp-action="ImportCsv" method="post" enctype="multipart/form-data">
+
+        <table style="text-align:left;">
+            <tr>
+                <td>
+                    @Loc["Admin.Common.CsvFile"]:
+                </td>
+                <td>
+                    <input type="file" id="importcsvfile" name="importcsvfile"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromCsv"]"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script>
     $(document).ready(function () {
         $("#importcsv").click(function (e) {
             e.preventDefault();

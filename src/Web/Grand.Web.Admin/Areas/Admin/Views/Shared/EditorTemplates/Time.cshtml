@@ -1,5 +1,5 @@
 @model DateTime
-<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToString("HH:mm"))" />
+<input id="@Html.IdForModel()" name="@Html.NameForModel()" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToString("HH:mm"))"/>
 <script>
     $(document).ready(function () {
         $("#@Html.IdForModel()").kendoTimePicker({ format: "HH:mm" });

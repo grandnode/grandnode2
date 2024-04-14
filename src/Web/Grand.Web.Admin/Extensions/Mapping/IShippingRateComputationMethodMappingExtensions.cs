@@ -2,13 +2,12 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class IShippingRateComputationMethodMappingExtensions
 {
-    public static class IShippingRateComputationMethodMappingExtensions
+    public static ShippingRateComputationMethodModel ToModel(this IShippingRateCalculationProvider entity)
     {
-        public static ShippingRateComputationMethodModel ToModel(this IShippingRateCalculationProvider entity)
-        {
-            return entity.MapTo<IShippingRateCalculationProvider, ShippingRateComputationMethodModel>();
-        }
+        return entity.MapTo<IShippingRateCalculationProvider, ShippingRateComputationMethodModel>();
     }
 }

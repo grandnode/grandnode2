@@ -4,68 +4,66 @@ using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Directory
+namespace Grand.Web.Admin.Models.Directory;
+
+public class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedModel>, IStoreLinkModel
 {
-    public class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedModel>, IStoreLinkModel
-    {
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CurrencyCode")]
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CurrencyCode")]
 
-        public string CurrencyCode { get; set; }
+    public string CurrencyCode { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.DisplayLocale")]
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.DisplayLocale")]
 
-        public string DisplayLocale { get; set; }
+    public string DisplayLocale { get; set; }
 
-        [UIHint("DoubleN4")]
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Rate")]
-        public double Rate { get; set; }
+    [UIHint("DoubleN4")]
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Rate")]
+    public double Rate { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CustomFormatting")]
-        public string CustomFormatting { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CustomFormatting")]
+    public string CustomFormatting { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.NumberDecimal")]
-        public int NumberDecimal { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.NumberDecimal")]
+    public int NumberDecimal { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Published")]
-        public bool Published { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Published")]
+    public bool Published { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CreatedOn")]
-        public DateTime CreatedOn { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CreatedOn")]
+    public DateTime CreatedOn { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency")]
-        public bool IsPrimaryExchangeRateCurrency { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency")]
+    public bool IsPrimaryExchangeRateCurrency { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency")]
-        public bool IsPrimaryStoreCurrency { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency")]
+    public bool IsPrimaryStoreCurrency { get; set; }
 
-        public IList<CurrencyLocalizedModel> Locales { get; set; } = new List<CurrencyLocalizedModel>();
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.RoundingType")]
+    public int RoundingTypeId { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.RoundingType")]
-        public int RoundingTypeId { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.MidpointRound")]
+    public int MidpointRoundId { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.MidpointRound")]
-        public int MidpointRoundId { get; set; }
+    public IList<CurrencyLocalizedModel> Locales { get; set; } = new List<CurrencyLocalizedModel>();
 
-        //Store acl
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
+    //Store acl
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
+}
 
-    }
+public class CurrencyLocalizedModel : ILocalizedModelLocal
+{
+    [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
 
-    public class CurrencyLocalizedModel : ILocalizedModelLocal
-    {
-        public string LanguageId { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
-
-        public string Name { get; set; }
-    }
+    public string LanguageId { get; set; }
 }

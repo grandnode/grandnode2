@@ -1,6 +1,7 @@
-﻿@model SystemInfoModel
+﻿@using Microsoft.AspNetCore.Http
+@model SystemInfoModel
 
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor;
+@inject IHttpContextAccessor httpContextAccessor;
 
 @{
     //page title
@@ -145,6 +146,7 @@
                                                         <br/>
                                                         <em>@assembly.Location</em>
                                                     }
+
                                                     <br/>
                                                 }
                                             </div>

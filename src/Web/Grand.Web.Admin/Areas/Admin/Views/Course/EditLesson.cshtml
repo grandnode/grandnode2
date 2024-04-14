@@ -4,8 +4,8 @@
     ViewBag.Title = Loc["Admin.Courses.Course.Lesson.Edit"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Course" asp-action="EditLesson" method="post" id="course-lesson-form">
-    <input asp-for="CourseId" type="hidden" />
-    
+    <input asp-for="CourseId" type="hidden"/>
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -13,19 +13,27 @@
                     <div class="caption">
                         <i class="fa fa-sitemap"></i>
                         @Loc["Admin.Courses.Course.Lesson.Edit"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Courses.Course.BackToCourse"], "Edit", "Course", new { Id = Model.CourseId })</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Courses.Course.BackToCourse"], "Edit", "Course", new { Id = Model.CourseId })
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
-                            <span id="course-lesson-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <span id="course-lesson-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="course_lesson_details_buttons" additional-data="Model" />
+                <vc:admin-widget widget-zone="course_lesson_details_buttons" additional-data="Model"/>
                 <div class="x_content form">
-                    <partial name="Partials/Lesson" model="Model" />
+                    <partial name="Partials/Lesson" model="Model"/>
                 </div>
             </div>
         </div>

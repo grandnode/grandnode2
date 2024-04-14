@@ -1,36 +1,35 @@
-﻿using Grand.Web.Common.Models;
-using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Models;
 
-namespace Grand.Web.Admin.Models.Directory
+namespace Grand.Web.Admin.Models.Directory;
+
+public class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
 {
-    public class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
-    {
-        public string CountryId { get; set; }
+    public string CountryId { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Abbreviation")]
+    [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Abbreviation")]
 
-        public string Abbreviation { get; set; }
+    public string Abbreviation { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Published")]
-        public bool Published { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Published")]
+    public bool Published { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
+    [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 
-        public IList<StateProvinceLocalizedModel> Locales { get; set; } = new List<StateProvinceLocalizedModel>();
-    }
+    public IList<StateProvinceLocalizedModel> Locales { get; set; } = new List<StateProvinceLocalizedModel>();
+}
 
-    public class StateProvinceLocalizedModel : ILocalizedModelLocal
-    {
-        public string LanguageId { get; set; }
+public class StateProvinceLocalizedModel : ILocalizedModelLocal
+{
+    [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
 
-        [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
+    public string Name { get; set; }
 
-        public string Name { get; set; }
-    }
+    public string LanguageId { get; set; }
 }

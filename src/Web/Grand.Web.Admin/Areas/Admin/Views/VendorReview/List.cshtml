@@ -1,7 +1,6 @@
 ﻿@model VendorReviewListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-
     //page title
     ViewBag.Title = Loc["Admin.VendorReviews"];
 }
@@ -17,7 +16,7 @@
                 <div class="actions btn-group btn-group-devided">
                     <button type="button" id="approve-selected" class="k-button"><span class="k-icon k-i-check-outline"></span>&nbsp;@Loc["Admin.VendorReviews.ApproveSelected"]</button>
                     <button type="button" id="disapprove-selected" class="k-button"><span class="k-icon k-i-close-outline"></span>&nbsp;@Loc["Admin.VendorReviews.DisapproveSelected"]</button>
-                    <vc:admin-widget widget-zone="vendor_review_list_buttons" additional-data="Model" />
+                    <vc:admin-widget widget-zone="vendor_review_list_buttons" additional-data="Model"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -27,8 +26,8 @@
                             <div class="row align-items-end">
                                 <div class="col-md-8 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchText" class="control-labe" />
-                                        <admin-input asp-for="SearchText" />
+                                        <admin-label asp-for="SearchText" class="control-labe"/>
+                                        <admin-input asp-for="SearchText"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-12">
@@ -48,18 +47,18 @@
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
                                 <div class="form-group">
-                                    <admin-label asp-for="CreatedOnFrom" />
+                                    <admin-label asp-for="CreatedOnFrom"/>
                                     <div class="col-md-4 col-sm-6">
-                                        <admin-input asp-for="CreatedOnFrom" />
+                                        <admin-input asp-for="CreatedOnFrom"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="CreatedOnTo" />
+                                    <admin-label asp-for="CreatedOnTo"/>
                                     <div class="col-md-4 col-sm-6">
-                                        <admin-input asp-for="CreatedOnTo" />
+                                        <admin-input asp-for="CreatedOnTo"/>
                                     </div>
                                 </div>
-                                <partial name="Partials/SearchVendor" model="Model" />
+                                <partial name="Partials/SearchVendor" model="Model"/>
                             </div>
                         </div>
                     </div>

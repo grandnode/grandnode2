@@ -1,8 +1,10 @@
-﻿@model string
-@inject Grand.Business.Core.Interfaces.Storage.IDownloadService downloadService
+﻿@using Grand.Business.Core.Interfaces.Storage
+@using Constants = Grand.SharedUIResources.Constants
+@model string
+@inject IDownloadService downloadService
 @{
-    <link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
-    <script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css"/>
+    <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
 
     var randomNumber = CommonHelper.GenerateRandomInteger();
     var clientId = "download" + randomNumber;
@@ -21,7 +23,7 @@
             $.ajax({
                 cache: false,
                 type: "POST",
-                url: "@(Url.Action("SaveDownloadUrl", "Download", new { area = Constants.AreaAdmin }))",
+                url: "@(Url.Action("SaveDownloadUrl", "Download", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
                 data: { "downloadUrl": downloadUrl, DownloadType: '@ViewData["DownloadType"]', ReferenceId: '@ViewData["ReferenceId"]' },
                 success: function (data) {
                     if (data.success) {
@@ -56,7 +58,7 @@
 
 </script>
 <div id="@(clientId + "value")">
-    <input asp-for="@Model" type="hidden" />
+    <input asp-for="@Model" type="hidden"/>
 </div>
 <div class="form-horizontal form-horizontal  portlet light bg-inverse form-bordered box green" style="border-top: 1px solid #5cd1db;">
     <div class="form-body">
@@ -69,7 +71,10 @@
                 <div class="col-md-6 col-sm-6">
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox control control-checkbox">
                         <input type="checkbox" class="check-box" name="cbUseDownloadURL@(randomNumber)" id="cbUseDownloadURL@(randomNumber)"
-                               @if (download is {UseDownloadUrl: true }) { <text> checked="checked" </text> } />
+                               @if (download is { UseDownloadUrl: true })
+                               {
+                                   <text> checked="checked" </text>
+                               }/>
                         <div class="control__indicator"></div>
                     </label>
                 </div>
@@ -82,9 +87,12 @@
             <div class="col-md-6 col-sm-6">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="downloadurl@(randomNumber)" id="downloadurl@(randomNumber)"
-                           @if (download != null && !string.IsNullOrEmpty(download.DownloadUrl)) { <text> value="@(download.DownloadUrl)" </text> } />
+                           @if (download != null && !string.IsNullOrEmpty(download.DownloadUrl))
+                           {
+                               <text> value="@(download.DownloadUrl)" </text>
+                           }/>
                     <div class="input-group-append">
-                        <input type="button" id="saveDownloadUrl@(randomNumber)" class="k-button" value="@Loc["Admin.Download.SaveDownloadURL"]" />
+                        <input type="button" id="saveDownloadUrl@(randomNumber)" class="k-button" value="@Loc["Admin.Download.SaveDownloadURL"]"/>
                     </div>
                 </div>
 
@@ -135,7 +143,7 @@
                         $(document).ready(function () {
                             $("#@clientId").fineUploader({
                                 request: {
-                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area = Constants.AreaAdmin }))',
+                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))',
                                     params: {
                                         DownloadType: '@ViewData["DownloadType"]',
                                         ReferenceId: '@ViewData["ReferenceId"]'
@@ -163,7 +171,7 @@
                 <div id="@(clientId + "downloadurl")">
                     @if (download != null)
                     {
-                        <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area = Constants.AreaAdmin }))" class="btn purple">@Loc["Admin.Download.DownloadUploadedFile"]</a>
+                        <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))" class="btn purple">@Loc["Admin.Download.DownloadUploadedFile"]</a>
                     }
                 </div>
                 <div>
@@ -180,5 +188,3 @@
         </div>
     </div>
 </div>
-
-

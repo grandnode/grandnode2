@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Customers.CustomerTags.EditCustomerTagDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="CustomerTag" asp-action="Edit" method="post" id="customertag-form">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -12,18 +12,26 @@
                     <div class="caption">
                         <i class="fa fa-tag"></i>
                         @Loc["Admin.Customers.CustomerTags.EditCustomerTagDetails"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Customers.CustomerTags.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Customers.CustomerTags.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
-                            <span id="customertag-delete" class="btn red"><i class="fa fa-trash-o"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span></span>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <span id="customertag-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

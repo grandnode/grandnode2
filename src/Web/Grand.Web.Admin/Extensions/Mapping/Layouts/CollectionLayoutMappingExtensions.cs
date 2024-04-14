@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Layouts;
 
-namespace Grand.Web.Admin.Extensions.Mapping.Layouts
+namespace Grand.Web.Admin.Extensions.Mapping.Layouts;
+
+public static class CollectionLayoutMappingExtensions
 {
-    public static class CollectionLayoutMappingExtensions
+    public static CollectionLayoutModel ToModel(this CollectionLayout entity)
     {
-        public static CollectionLayoutModel ToModel(this CollectionLayout entity)
-        {
-            return entity.MapTo<CollectionLayout, CollectionLayoutModel>();
-        }
+        return entity.MapTo<CollectionLayout, CollectionLayoutModel>();
+    }
 
-        public static CollectionLayout ToEntity(this CollectionLayoutModel model)
-        {
-            return model.MapTo<CollectionLayoutModel, CollectionLayout>();
-        }
+    public static CollectionLayout ToEntity(this CollectionLayoutModel model)
+    {
+        return model.MapTo<CollectionLayoutModel, CollectionLayout>();
+    }
 
-        public static CollectionLayout ToEntity(this CollectionLayoutModel model, CollectionLayout destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static CollectionLayout ToEntity(this CollectionLayoutModel model, CollectionLayout destination)
+    {
+        return model.MapTo(destination);
     }
 }

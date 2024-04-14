@@ -10,9 +10,9 @@
       asp-route-online="@Context.Request.Query["online"]"
       asp-route-formId="@Context.Request.Query["formId"]">
 
-    <input asp-for="Id" type="hidden" />
-    <input asp-for="MaxAmountToPaid" type="hidden" />
-    <input asp-for="CurrencyCode" type="hidden" />
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="MaxAmountToPaid" type="hidden"/>
+    <input asp-for="CurrencyCode" type="hidden"/>
 
     <div class="row">
         <div class="col-md-12">
@@ -23,21 +23,22 @@
                         @Loc["Admin.PaymentTransaction.Fields.PartialPaid"]
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="payment_transaction_partially_paid_buttons" additional-data="Model" />
+                <vc:admin-widget widget-zone="payment_transaction_partially_paid_buttons" additional-data="Model"/>
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="AmountToPaid" />
+                                <admin-label asp-for="AmountToPaid"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AmountToPaid" /> &nbsp; <span style="white-space: nowrap">
+                                    <admin-input asp-for="AmountToPaid"/> &nbsp;
+                                    <span style="white-space: nowrap">
                                         @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialPaid.AmountToPaid.Max"], Model.MaxAmountToPaid.ToString("N2"), Model.CurrencyCode)
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-actions">
-                            <input type="submit" name="partialpaidpaymenttransaction" value="@Loc["Admin.PaymentTransaction.Fields.Paid"]" id="partialpaidpaymenttransaction" class="btn default" />
+                            <input type="submit" name="partialpaidpaymenttransaction" value="@Loc["Admin.PaymentTransaction.Fields.Paid"]" id="partialpaidpaymenttransaction" class="btn default"/>
                         </div>
                     </div>
                 </div>

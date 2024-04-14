@@ -1,14 +1,14 @@
 ﻿@model MerchandiseReturnModel
 @inject AdminAreaSettings adminAreaSettings
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="merchandisereturn_documents_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_documents_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="merchandisereturn-documents-grid"></div>
     </div>
     <div class="panel-footer">
         <button type="button" class="k-button" onclick="location.href='@Url.Action("CreateDocument", "Document", new { ObjectId = Model.Id, Reference = (int)Reference.MerchandiseReturn, area = Constants.AreaAdmin })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_details_documents_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_details_documents_bottom" additional-data="Model"/>
 </div>
 
 <script>

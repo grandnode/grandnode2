@@ -8,11 +8,12 @@ namespace Grand.Web.Admin.Infrastructure;
 
 public class AdminThemeContext : ThemeContextBase
 {
-    private readonly StoreInformationSettings _storeInformationSettings;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly StoreInformationSettings _storeInformationSettings;
     private string _themeName;
+
     public AdminThemeContext(
-        IHttpContextAccessor contextAccessor, 
+        IHttpContextAccessor contextAccessor,
         SecurityConfig securityConfig,
         StoreInformationSettings storeInformationSettings) :
         base(contextAccessor, securityConfig)
@@ -27,12 +28,10 @@ public class AdminThemeContext : ThemeContextBase
     {
         if (!string.IsNullOrEmpty(_themeName))
             return _themeName;
-        
+
         var theme = "";
         if (_storeInformationSettings.AllowToSelectAdminTheme)
-        {
-            theme = _contextAccessor.HttpContext?.Request.Cookies[this.CookiesName];
-        }
+            theme = _contextAccessor.HttpContext?.Request.Cookies[CookiesName];
         //default store theme
         if (string.IsNullOrEmpty(theme))
             theme = _storeInformationSettings.DefaultStoreTheme;

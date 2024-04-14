@@ -4,19 +4,18 @@ using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.Extensions;
 
-namespace Grand.Web.Admin.Mapper
-{
-    public class AddressAttributeValueProfile : Profile, IAutoMapperProfile
-    {
-        public AddressAttributeValueProfile()
-        {
-            CreateMap<AddressAttributeValue, AddressAttributeValueModel>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore());
-            CreateMap<AddressAttributeValueModel, AddressAttributeValue>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
-        }
+namespace Grand.Web.Admin.Mapper;
 
-        public int Order => 0;
+public class AddressAttributeValueProfile : Profile, IAutoMapperProfile
+{
+    public AddressAttributeValueProfile()
+    {
+        CreateMap<AddressAttributeValue, AddressAttributeValueModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
+        CreateMap<AddressAttributeValueModel, AddressAttributeValue>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
     }
+
+    public int Order => 0;
 }

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Interfaces
+namespace Grand.Web.Admin.Interfaces;
+
+public interface IElFinderViewModelService
 {
-    public interface IElFinderViewModelService
-    {
-        Task SetupConnectorAsync();
-        Task<IActionResult> Connector();
-        Task<IActionResult> Thumbs(string id);
-    }
+    Task SetupConnectorAsync();
+    Task<IActionResult> Connector();
+    Task<IActionResult> Thumbs(string id);
 }

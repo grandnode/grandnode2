@@ -1,4 +1,5 @@
-﻿@model PluginListModel
+﻿@using System.Text.Encodings.Web
+@model PluginListModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Plugins.Local"];
@@ -7,7 +8,7 @@
     var remove = Url.Action("Remove", "Plugin", new { area = Constants.AreaAdmin });
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="List" method="post" id="plugins-form">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -18,7 +19,7 @@
                     </div>
                     <div class="actions btn-group btn-group-devided">
                         <a href="@Url.Action("ReloadList", new { area = Constants.AreaAdmin })" class="btn default" id="reload-plugin-list">@Loc["Admin.Plugins.ReloadList"]</a>
-                        <input type="button" id="importfile" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" />
+                        <input type="button" id="importfile" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -31,18 +32,23 @@
                             <li>@Loc["Admin.Plugins.Description.Step4"]</li>
                             <li>@Loc["Admin.Plugins.Description.Step5"]</li>
                         </ol>
-                        <p><strong>@Loc["Admin.Plugins.Description.Note"]</strong></p><br>
                         <p>
-                            You can download more grandnode plugins on our <a href="https://grandnode.com/extensions?utm_source=admin-panel&utm_medium=plugins&utm_campaign=admin-panel" target="_blank"><b>extensions directory</b></a>
+                            <strong>@Loc["Admin.Plugins.Description.Note"]</strong>
+                        </p><br>
+                        <p>
+                            You can download more grandnode plugins on our
+                            <a href="https://grandnode.com/extensions?utm_source=admin-panel&utm_medium=plugins&utm_campaign=admin-panel" target="_blank">
+                                <b>extensions directory</b>
+                            </a>
                         </p>
 
                     </div>
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="SearchLoadModeId" />
+                                <admin-label asp-for="SearchLoadModeId"/>
                                 <div class="col-md-4 col-sm-6">
-                                    <admin-select asp-for="SearchLoadModeId" asp-items="Model.AvailableLoadModes" />
+                                    <admin-select asp-for="SearchLoadModeId" asp-items="Model.AvailableLoadModes"/>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +64,7 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <vc:admin-widget widget-zone="plugin_list_top" additional-data="Model" />
+                    <vc:admin-widget widget-zone="plugin_list_top" additional-data="Model"/>
                     <div class="table-responsive">
                         <table id="plugins-table" class="plugins-table">
                             <tbody>
@@ -66,7 +72,7 @@
                         </table>
                     </div>
                     <div id="plugins-grid"></div>
-                    <vc:admin-widget widget-zone="plugin_list_bottom" additional-data="Model" />
+                    <vc:admin-widget widget-zone="plugin_list_bottom" additional-data="Model"/>
                 </div>
             </div>
         </div>
@@ -88,18 +94,18 @@
                 window.data('kendoWindow').center().open();
             });
             $("#plugins-grid").on("click", ".install-plugin-link", function (e) {
-                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');
+                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
                 return true;
             });
             $("#plugins-grid").on("click", ".uninstall-plugin-link", function (e) {
-                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Uninstall.Progress"]))');
+                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Uninstall.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
                 return true;
             });
             $("#plugins-form").on("click", "#reload-plugin-list", function (e) {
                 event.preventDefault();
-                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Reload.List"]))')
+                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Reload.List"]))')
                 $("html, body").animate({ scrollTop: 0 }, 400);
                 $.get($(this).attr("href"), function (data) { });
                 setTimeout(function () {
@@ -169,8 +175,8 @@
 </form>
 
 <div class="modal-dialog" id="importfile-window" style="display:none; padding: 0 10px;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadPlugin" method="post" enctype = "multipart/form-data">
-        
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadPlugin" method="post" enctype="multipart/form-data">
+
         <ul class="common-list">
             <li>
                 <strong>NOTE: It can take up to several minutes.</strong>
@@ -192,13 +198,13 @@
         <div class="form-group">
             &nbsp;
         </div>
-            <div class="form-group">
-                <div class="col-md-2">
-                    &nbsp;
-                </div>
-                <div class="col-md-10 text-right mt-10">
-                    <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" type="submit">
-                </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                &nbsp;
             </div>
+            <div class="col-md-10 text-right mt-10">
+                <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" type="submit">
+            </div>
+        </div>
     </form>
 </div>

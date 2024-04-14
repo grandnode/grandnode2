@@ -4,13 +4,13 @@
     {
         <div class="panel panel-default">
             <div class="panel-body">
-                <vc:admin-widget widget-zone="address_attribute_details_values_top" additional-data="Model" />
+                <vc:admin-widget widget-zone="address_attribute_details_values_top" additional-data="Model"/>
                 <div id="addressattributevalues-grid"></div>
-                <vc:admin-widget widget-zone="address_attribute_details_values_bottom" additional-data="Model" />
+                <vc:admin-widget widget-zone="address_attribute_details_values_bottom" additional-data="Model"/>
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
-                <input type="submit" id="btnRefresh" style="display: none" />
+                <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
         </div>
         <script>

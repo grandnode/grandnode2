@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Configuration.Shipping.Settings"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Shipping" asp-action="Settings" method="post">
-    
+
     <div asp-validation-summary="All"></div>
     <script>
     $(document).ready(function () {
@@ -32,10 +32,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="shipping_settings_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="shipping_settings_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content">
                     <div class="form-horizontal">
@@ -45,16 +47,16 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <vc:admin-widget widget-zone="shipping_settings_top" additional-data="null" />
+                    <vc:admin-widget widget-zone="shipping_settings_top" additional-data="null"/>
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="AllowPickUpInStore" class="control-label" />
+                                    <admin-label asp-for="AllowPickUpInStore" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AllowPickUpInStore" />
+                                        <admin-input asp-for="AllowPickUpInStore"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="AllowPickUpInStore"></span>
@@ -62,11 +64,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="FreeShippingOverXEnabled" class="control-label" />
+                                    <admin-label asp-for="FreeShippingOverXEnabled" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="FreeShippingOverXEnabled" />
+                                        <admin-input asp-for="FreeShippingOverXEnabled"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="FreeShippingOverXEnabled"></span>
@@ -74,20 +76,20 @@
                             </div>
                             <div class="form-group" id="pnlValueOfX">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="FreeShippingOverXValue" class="control-label" />
+                                    <admin-label asp-for="FreeShippingOverXValue" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
-                                    <admin-input asp-for="FreeShippingOverXValue" />
+                                    <admin-input asp-for="FreeShippingOverXValue"/>
                                     <span asp-validation-for="FreeShippingOverXValue"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlValueOfXincltax">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="FreeShippingOverXIncludingTax" class="control-label" />
+                                    <admin-label asp-for="FreeShippingOverXIncludingTax" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="FreeShippingOverXIncludingTax" />
+                                        <admin-input asp-for="FreeShippingOverXIncludingTax"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="FreeShippingOverXIncludingTax"></span>
@@ -95,11 +97,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="EstimateShippingEnabled" class="control-label" />
+                                    <admin-label asp-for="EstimateShippingEnabled" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="EstimateShippingEnabled" />
+                                        <admin-input asp-for="EstimateShippingEnabled"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="EstimateShippingEnabled"></span>
@@ -107,11 +109,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="DisplayShipmentEventsToCustomers" class="control-label" />
+                                    <admin-label asp-for="DisplayShipmentEventsToCustomers" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="DisplayShipmentEventsToCustomers" />
+                                        <admin-input asp-for="DisplayShipmentEventsToCustomers"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="DisplayShipmentEventsToCustomers"></span>
@@ -119,11 +121,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="DisplayShipmentEventsToStoreOwner" class="control-label" />
+                                    <admin-label asp-for="DisplayShipmentEventsToStoreOwner" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="DisplayShipmentEventsToStoreOwner" />
+                                        <admin-input asp-for="DisplayShipmentEventsToStoreOwner"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="DisplayShipmentEventsToStoreOwner"></span>
@@ -131,11 +133,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="SkipShippingMethodSelectionIfOnlyOne" class="control-label" />
+                                    <admin-label asp-for="SkipShippingMethodSelectionIfOnlyOne" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="SkipShippingMethodSelectionIfOnlyOne" />
+                                        <admin-input asp-for="SkipShippingMethodSelectionIfOnlyOne"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="SkipShippingMethodSelectionIfOnlyOne"></span>
@@ -143,11 +145,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="AdditionalShippingChargeByQty" class="control-label" />
+                                    <admin-label asp-for="AdditionalShippingChargeByQty" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AdditionalShippingChargeByQty" />
+                                        <admin-input asp-for="AdditionalShippingChargeByQty"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="AdditionalShippingChargeByQty"></span>
@@ -159,13 +161,13 @@
                                 </div>
                                 <div class="form-group" id="pnlShippingOriginAddress">
                                     <div>
-                                        <admin-input asp-for="ShippingOriginAddress" asp-template="Address" />
+                                        <admin-input asp-for="ShippingOriginAddress" asp-template="Address"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="shipping_settings_bottom" additional-data="null" />
+                    <vc:admin-widget widget-zone="shipping_settings_bottom" additional-data="null"/>
                 </div>
             </div>
         </div>

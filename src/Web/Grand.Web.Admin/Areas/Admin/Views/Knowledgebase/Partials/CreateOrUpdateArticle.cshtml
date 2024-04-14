@@ -1,30 +1,30 @@
 ﻿@model KnowledgebaseArticleModel
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 <admin-tabstrip name="knowledgebasearticle-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdateArticle.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdateArticle.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Seo"]" tab-index="1">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdateArticle.TabSeo" model="Model" />
+                    <partial name="Partials/CreateOrUpdateArticle.TabSeo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related"]" tab-index="2">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdateArticle.TabRelated" model="Model" />
+                    <partial name="Partials/CreateOrUpdateArticle.TabRelated" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="knowledgebase_article_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="knowledgebase_article_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>

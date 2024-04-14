@@ -14,26 +14,28 @@
                     <i class="fa fa-sitemap"></i>
                     @Loc["admin.configuration.senames"]
                 </div>
-                <vc:admin-widget widget-zone="senames_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="senames_buttons" additional-data="null"/>
                 <div class="actions btn-group btn-group-devided">
-                    <span id="delete-selected" class="btn red"><i class="fa fa-trash-o"></i> @Loc["admin.configuration.senames.DeleteSelected"]</span>
+                    <span id="delete-selected" class="btn red">
+                        <i class="fa fa-trash-o"></i> @Loc["admin.configuration.senames.DeleteSelected"]
+                    </span>
                 </div>
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="senames_top" additional-data="null" />
+                <vc:admin-widget widget-zone="senames_top" additional-data="null"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="row align-items-end mb-3">
                             <div class="col-md-6 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SeName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="SeName" />
+                                    <admin-label asp-for="SeName" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="SeName"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchActiveId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-select asp-for="SearchActiveId" asp-items="Model.AvailableActiveOptions" />
+                                    <admin-label asp-for="SearchActiveId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-select asp-for="SearchActiveId" asp-items="Model.AvailableActiveOptions"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
@@ -46,7 +48,7 @@
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="senames_bottom" additional-data="null" />
+                <vc:admin-widget widget-zone="senames_bottom" additional-data="null"/>
             </div>
             <div class="x_content">
                 <div id="sename-grid"></div>

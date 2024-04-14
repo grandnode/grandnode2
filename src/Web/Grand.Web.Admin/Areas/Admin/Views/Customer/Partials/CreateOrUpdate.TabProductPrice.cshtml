@@ -3,15 +3,15 @@
 @{
     <strong>@Loc["Admin.Customers.Customers.ProductPrice"]</strong>
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="customer_details_product_price_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="customer_details_product_price_top" additional-data="Model"/>
         <div class="panel-body">
             <div id="productprice-grid"></div>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none" />
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
-        <vc:admin-widget widget-zone="customer_details_product_price_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="customer_details_product_price_bottom" additional-data="Model"/>
     </div>
     <div class="note note-info">
         @Loc["Admin.Customers.Customers.ProductPrice.Price.Warning"]
@@ -124,5 +124,4 @@
             });
         });
     </script>
-
 }

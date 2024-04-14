@@ -8,8 +8,8 @@
       asp-route-KnowledgebaseId="@Context.Request.Query["KnowledgebaseId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
-    <input asp-for="ArticleId" type="hidden" />
+
+    <input asp-for="ArticleId" type="hidden"/>
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -26,8 +26,8 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-sm-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchArticleName" class="control-label" />
-                                            <admin-input asp-for="SearchArticleName" />
+                                            <admin-label asp-for="SearchArticleName" class="control-label"/>
+                                            <admin-input asp-for="SearchArticleName"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
@@ -36,13 +36,15 @@
                                                 <button class="btn btn-success filter-submit" id="search-articles">
                                                     <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                                <button class="btn btn-success" type="submit" name="save">
+                                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div id="articles-grid"></div>                         
+                            <div id="articles-grid"></div>
                         </div>
                     </div>
                 </div>

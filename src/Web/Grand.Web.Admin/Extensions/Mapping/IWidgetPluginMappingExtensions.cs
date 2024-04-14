@@ -2,13 +2,12 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Cms;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class IWidgetPluginMappingExtensions
 {
-    public static class IWidgetPluginMappingExtensions
+    public static WidgetModel ToModel(this IWidgetProvider entity)
     {
-        public static WidgetModel ToModel(this IWidgetProvider entity)
-        {
-            return entity.MapTo<IWidgetProvider, WidgetModel>();
-        }
+        return entity.MapTo<IWidgetProvider, WidgetModel>();
     }
 }

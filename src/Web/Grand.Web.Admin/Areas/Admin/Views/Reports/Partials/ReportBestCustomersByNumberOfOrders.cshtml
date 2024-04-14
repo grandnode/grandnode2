@@ -1,7 +1,7 @@
 ﻿@model BestCustomersReportModel
 @inject AdminAreaSettings adminAreaSettings
 
-<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_top" additional-data="Model" />
+<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_top" additional-data="Model"/>
 <div class="popup-window">
     <div class="form-horizontal">
         <div class="form-body">
@@ -9,14 +9,14 @@
                 <div class="row align-items-end">
                     <div class="col-md-4 col-ms-12 col-12">
                         <div class="form-group mb-0">
-                            <admin-label asp-for="StartDate" class="control-label" />
-                            <admin-input asp-for="StartDate" />
+                            <admin-label asp-for="StartDate" class="control-label"/>
+                            <admin-input asp-for="StartDate"/>
                         </div>
                     </div>
                     <div class="col-md-4 col-ms-12 col-12">
                         <div class="form-group mb-0">
-                            <admin-label asp-for="EndDate" class="control-label" />
-                            <admin-input asp-for="EndDate" />
+                            <admin-label asp-for="EndDate" class="control-label"/>
+                            <admin-input asp-for="EndDate"/>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12 col-12">
@@ -36,21 +36,21 @@
             <div class="collapse" id="filterCollapse">
                 <div class="drop-filters-container w-100">
                     <div class="form-group">
-                        <admin-label asp-for="OrderStatusId" class="control-label col-md-3 col-sm-3" />
+                        <admin-label asp-for="OrderStatusId" class="control-label col-md-3 col-sm-3"/>
                         <div class="col-md-9 col-sm-9">
-                            <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
+                            <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3" />
+                        <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
                         <div class="col-md-9 col-sm-9">
-                            <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+                            <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <admin-label asp-for="ShippingStatusId" class="control-label col-md-3 col-sm-3" />
+                        <admin-label asp-for="ShippingStatusId" class="control-label col-md-3 col-sm-3"/>
                         <div class="col-md-9 col-sm-9">
-                            <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses" />
+                            <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses"/>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
     </div>
     <div id="best-customers-numberoforders-grid"></div>
 </div>
-<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_bottom" additional-data="Model"/>
 <script>
 $(document).ready(function () {
     $("#best-customers-numberoforders-grid").kendoGrid({
@@ -133,4 +133,3 @@ function bestCustomersNumberOfOrdersAdditionalData(e) {
     return data;
 }
 </script>
-

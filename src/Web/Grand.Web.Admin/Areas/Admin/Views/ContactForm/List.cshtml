@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Admin.System.ContactForm"];
 }
 <form asp-controller="ContactForm" asp-action="List">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -15,8 +15,8 @@
                         @Loc["Admin.System.ContactForm"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
-                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.ContactForm.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " />
-                        <vc:admin-widget widget-zone="contact_form_list_buttons" additional-data="null" />
+                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.ContactForm.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                        <vc:admin-widget widget-zone="contact_form_list_buttons" additional-data="null"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -26,14 +26,14 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-4 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchEmail" class="control-label" />
-                                            <admin-input asp-for="SearchEmail" />
+                                            <admin-label asp-for="SearchEmail" class="control-label"/>
+                                            <admin-input asp-for="SearchEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="StoreId" class="control-label" />
-                                            <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                            <admin-label asp-for="StoreId" class="control-label"/>
+                                            <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
@@ -53,19 +53,19 @@
                             <div class="collapse" id="filterCollapse">
                                 <div class="drop-filters-container w-100">
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchStartDate" />
+                                        <admin-label asp-for="SearchStartDate"/>
                                         <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchStartDate" />
+                                            <admin-input asp-for="SearchStartDate"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchEndDate" />
+                                        <admin-label asp-for="SearchEndDate"/>
                                         <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchEndDate" />
+                                            <admin-input asp-for="SearchEndDate"/>
                                         </div>
                                     </div>
                                 </div>
-                            </div>                          
+                            </div>
                         </div>
                     </div>
                 </div>

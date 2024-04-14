@@ -1,6 +1,7 @@
-﻿@model DocumentListModel
+﻿@using Grand.Business.Core.Interfaces.Common.Localization
+@model DocumentListModel
 @inject AdminAreaSettings adminAreaSettings
-@inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService translationService 
+@inject ITranslationService translationService 
 @{
     //page title
     ViewBag.Title = Loc["Admin.Documents.Document.Manage"];
@@ -17,8 +18,10 @@
                     @Loc["Admin.Documents.Document.Manage"]
                 </div>
                 <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
-                    <a href="@Url.Action("CreateDocument", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="document_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("CreateDocument", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="document_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -28,14 +31,14 @@
                             <div class="row align-items-end">
                                 <div class="col-md-4 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchName" class="control-label" />
-                                        <admin-input asp-for="SearchName" />
+                                        <admin-label asp-for="SearchName" class="control-label"/>
+                                        <admin-input asp-for="SearchName"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchNumber" class="control-label" />
-                                        <admin-input asp-for="SearchNumber" />
+                                        <admin-label asp-for="SearchNumber" class="control-label"/>
+                                        <admin-input asp-for="SearchNumber"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-12">
@@ -55,13 +58,13 @@
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
                                 <div class="form-group">
-                                    <admin-label asp-for="SearchEmail" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="SearchEmail" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchEmail" />
+                                        <admin-input asp-for="SearchEmail"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="StatusId" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="StatusId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
                                         @Html.DropDownList("StatusId", selectedList, new { @class = "form-control" })
                                     </div>

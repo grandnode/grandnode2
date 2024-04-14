@@ -2,17 +2,17 @@
 @inject AdminAreaSettings adminAreaSettings
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="collection_details_products_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="products-grid"></div>
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="collection_details_products_top" additional-data="Model"/>
+        <div class="panel-body">
+            <div id="products-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Collection", new { collectionId = Model.Id, btnId = "btnRefreshProducts", formId = "collection-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Collections.Products.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
+        </div>
+        <vc:admin-widget widget-zone="collection_details_products_bottom" additional-data="Model"/>
     </div>
-    <div class="panel-footer">
-        <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Collection", new { collectionId = Model.Id, btnId = "btnRefreshProducts", formId = "collection-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Collections.Products.AddNew"]</a>
-        <input type="submit" id="btnRefreshProducts" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="collection_details_products_bottom" additional-data="Model" />
-</div>
     <script>
         $(document).ready(function () {
             $('#btnAddNewProduct').magnificPopup({

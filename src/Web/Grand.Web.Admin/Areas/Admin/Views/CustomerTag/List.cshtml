@@ -12,7 +12,9 @@
                     @Loc["Admin.Customers.CustomerTags"]
                 </div>
                 <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
                 </div>
             </div>
             <div class="x_content form">
@@ -72,4 +74,3 @@
         });
     });
 </script>
-        

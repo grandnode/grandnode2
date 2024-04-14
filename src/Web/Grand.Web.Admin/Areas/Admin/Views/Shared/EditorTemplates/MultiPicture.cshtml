@@ -1,3 +1,4 @@
+@using Constants = Grand.SharedUIResources.Constants
 @model string
 @{
     var random = CommonHelper.GenerateRandomInteger();
@@ -8,8 +9,8 @@
     var endpoint = ViewData["Endpoint"];
     var click = ViewData["Click"];
 }
-<link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
-<script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css"/>
+<script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
 
 <div id="@clientId"></div>
 

@@ -2,17 +2,18 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 
-namespace Grand.Web.Admin.Extensions.Mapping.Settings
+namespace Grand.Web.Admin.Extensions.Mapping.Settings;
+
+public static class KnowledgebaseSettingsMappingExtensions
 {
-    public static class KnowledgebaseSettingsMappingExtensions
+    public static ContentSettingsModel.KnowledgebaseSettingsModel ToModel(this KnowledgebaseSettings entity)
     {
-        public static ContentSettingsModel.KnowledgebaseSettingsModel ToModel(this KnowledgebaseSettings entity)
-        {
-            return entity.MapTo<KnowledgebaseSettings, ContentSettingsModel.KnowledgebaseSettingsModel>();
-        }
-        public static KnowledgebaseSettings ToEntity(this ContentSettingsModel.KnowledgebaseSettingsModel model, KnowledgebaseSettings destination)
-        {
-            return model.MapTo(destination);
-        }
+        return entity.MapTo<KnowledgebaseSettings, ContentSettingsModel.KnowledgebaseSettingsModel>();
+    }
+
+    public static KnowledgebaseSettings ToEntity(this ContentSettingsModel.KnowledgebaseSettingsModel model,
+        KnowledgebaseSettings destination)
+    {
+        return model.MapTo(destination);
     }
 }

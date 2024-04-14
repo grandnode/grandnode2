@@ -1,18 +1,20 @@
-﻿@model MerchandiseReturnModel
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@model MerchandiseReturnModel
 @inject OrderSettings orderSettings
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@inject IPermissionService permissionService
 @{
     //has "Manage Documents" permission?
-    var canManageDocuments = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageDocuments);
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
 }
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 <admin-tabstrip name="merchandisereturn-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
@@ -21,7 +23,7 @@
             <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Address"]" tab-index="1">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabAddress" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabAddress" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
@@ -31,7 +33,7 @@
             <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Documents"]" tab-index="2">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabDocuments" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabDocuments" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
@@ -39,7 +41,7 @@
         <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes"]" tab-index="3">
             <content>
                 <div>
-                    <partial name="Partials/MerchandiseReturnNotes" model="Model" />
+                    <partial name="Partials/MerchandiseReturnNotes" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
@@ -47,11 +49,11 @@
             <content>
                 <div>
                     <div class="form-horizontal">
-                        <partial name="Partials/UserFields" model="Model" />
+                        <partial name="Partials/UserFields" model="Model"/>
                     </div>
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="merchandisereturn_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="merchandisereturn_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>

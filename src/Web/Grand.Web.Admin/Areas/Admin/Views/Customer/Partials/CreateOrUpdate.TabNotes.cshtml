@@ -1,15 +1,16 @@
-﻿@model CustomerModel
+﻿@using Grand.Domain.Media
+@model CustomerModel
 @{
-    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Customer;
+    ViewData["DownloadType"] = DownloadType.Customer;
     ViewData["ReferenceId"] = Model.Id;
 }
 <div class="panel panel-default">
     <div class="panel-body">
-        <vc:admin-widget widget-zone="customer_details_notes_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="customer_details_notes_top" additional-data="Model"/>
         <div id="customernotes-grid"></div>
-        <vc:admin-widget widget-zone="customer_details_notes_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="customer_details_notes_bottom" additional-data="Model"/>
     </div>
-</div>            
+</div>
 <script>
         $(document).ready(function () {
             $("#customernotes-grid").kendoGrid({
@@ -122,45 +123,45 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddCustomerTitle" />
+            <admin-label asp-for="AddCustomerTitle"/>
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="AddCustomerTitle"/>
                 <span asp-validation-for="AddCustomerTitle"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddCustomerNoteMessage" />
+            <admin-label asp-for="AddCustomerNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddCustomerNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddCustomerNoteMessage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddCustomerNoteDownloadId" />
+            <admin-label asp-for="AddCustomerNoteDownloadId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddCustomerNoteHasDownload" />
-                     <div class="control__indicator"></div>
+                    <admin-input asp-for="AddCustomerNoteHasDownload"/>
+                    <div class="control__indicator"></div>
                 </label>
                 <div id="pnlAddCustomerNoteDownloadId">
-                    <admin-input asp-for="AddCustomerNoteDownloadId" />
+                    <admin-input asp-for="AddCustomerNoteDownloadId"/>
                     <span asp-validation-for="AddCustomerNoteDownloadId"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddCustomerNoteDisplayToCustomer" />
+            <admin-label asp-for="AddCustomerNoteDisplayToCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddCustomerNoteDisplayToCustomer" />
-                     <div class="control__indicator"></div>
+                    <admin-input asp-for="AddCustomerNoteDisplayToCustomer"/>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AddCustomerNoteDisplayToCustomer"></span>
             </div>
         </div>
         <div class="form-actions">
             <div class="offset-md-3 col-md-9 col-sm-9">
-                <input type="button" id="addCustomerNote" class="k-button" value="@Loc["Admin.Customers.CustomerNotes.AddButton"]" />
+                <input type="button" id="addCustomerNote" class="k-button" value="@Loc["Admin.Customers.CustomerNotes.AddButton"]"/>
             </div>
         </div>
     </div>

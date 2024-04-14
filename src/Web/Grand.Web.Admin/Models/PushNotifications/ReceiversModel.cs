@@ -1,11 +1,10 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.PushNotifications
-{
-    public class ReceiversModel : BaseModel
-    {
-        public int Allowed { get; set; }
+namespace Grand.Web.Admin.Models.PushNotifications;
 
-        public int Denied { get; set; }
-    }
+public class ReceiversModel : BaseModel
+{
+    public int Allowed { get; set; }
+
+    public int Denied { get; set; }
 }

@@ -1,11 +1,10 @@
 ﻿using Grand.Web.Admin.Models.Common;
 
-namespace Grand.Web.Admin.Models.Customers
-{
-    public class CustomerReviewModel
-    {
-        public string CustomerId { get; set; }
+namespace Grand.Web.Admin.Models.Customers;
 
-        public ReviewModel Review { get; set; }
-    }
+public class CustomerReviewModel
+{
+    public string CustomerId { get; set; }
+
+    public ReviewModel Review { get; set; }
 }

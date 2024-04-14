@@ -1,28 +1,27 @@
-﻿using Grand.Web.Common.Models;
-using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Models;
 
-namespace Grand.Web.Admin.Models.Settings
+namespace Grand.Web.Admin.Models.Settings;
+
+public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>
 {
-    public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>
-    {
-        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
+    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder")]
-        public int DisplayOrder { get; set; }
+    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 
-        public IList<MerchandiseReturnActionLocalizedModel> Locales { get; set; } = new List<MerchandiseReturnActionLocalizedModel>();
-    }
+    public IList<MerchandiseReturnActionLocalizedModel> Locales { get; set; } =
+        new List<MerchandiseReturnActionLocalizedModel>();
+}
 
-    public class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal
-    {
-        public string LanguageId { get; set; }
+public class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal
+{
+    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
 
-        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
+    public string Name { get; set; }
 
-        public string Name { get; set; }
-
-    }
+    public string LanguageId { get; set; }
 }

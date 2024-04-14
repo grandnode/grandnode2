@@ -1,27 +1,26 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Common
+namespace Grand.Web.Admin.Models.Common;
+
+public class UrlEntityModel : BaseEntityModel
 {
-    public class UrlEntityModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("admin.configuration.senames.Name")]
-        
-        public string Name { get; set; }
+    [GrandResourceDisplayName("admin.configuration.senames.Name")]
 
-        [GrandResourceDisplayName("admin.configuration.senames.EntityId")]
-        public string EntityId { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("admin.configuration.senames.EntityName")]
-        public string EntityName { get; set; }
+    [GrandResourceDisplayName("admin.configuration.senames.EntityId")]
+    public string EntityId { get; set; }
 
-        [GrandResourceDisplayName("admin.configuration.senames.IsActive")]
-        public bool IsActive { get; set; }
+    [GrandResourceDisplayName("admin.configuration.senames.EntityName")]
+    public string EntityName { get; set; }
 
-        [GrandResourceDisplayName("admin.configuration.senames.Language")]
-        public string Language { get; set; }
+    [GrandResourceDisplayName("admin.configuration.senames.IsActive")]
+    public bool IsActive { get; set; }
 
-        [GrandResourceDisplayName("admin.configuration.senames.Details")]
-        public string DetailsUrl { get; set; }
-    }
+    [GrandResourceDisplayName("admin.configuration.senames.Language")]
+    public string Language { get; set; }
+
+    [GrandResourceDisplayName("admin.configuration.senames.Details")]
+    public string DetailsUrl { get; set; }
 }

@@ -10,9 +10,9 @@
       asp-route-online="@Context.Request.Query["online"]"
       asp-route-formId="@Context.Request.Query["formId"]">
 
-    <input asp-for="Id" type="hidden" />
-    <input asp-for="MaxAmountToRefund" type="hidden" />
-    <input asp-for="CurrencyCode" type="hidden" />
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="MaxAmountToRefund" type="hidden"/>
+    <input asp-for="CurrencyCode" type="hidden"/>
 
     <div class="row">
         <div class="col-md-12">
@@ -23,21 +23,22 @@
                         @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="payment_transaction_partially_refund_buttons" additional-data="Model" />
+                <vc:admin-widget widget-zone="payment_transaction_partially_refund_buttons" additional-data="Model"/>
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="AmountToRefund" />
+                                <admin-label asp-for="AmountToRefund"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="AmountToRefund" /> &nbsp; <span style="white-space: nowrap">
+                                    <admin-input asp-for="AmountToRefund"/> &nbsp;
+                                    <span style="white-space: nowrap">
                                         @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-actions">
-                            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn default" />
+                            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn default"/>
                         </div>
                     </div>
                 </div>

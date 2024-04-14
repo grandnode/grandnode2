@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Tax.Categories"];
 }
@@ -12,7 +11,7 @@
                     <i class="fa fa-money"></i>
                     @Loc["Admin.Configuration.Tax.Categories"]
                 </div>
-                <vc:admin-widget widget-zone="tax_category_list_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="tax_category_list_buttons" additional-data="null"/>
             </div>
             <div class="x_content form">
                 <div class="form-horizontal">
@@ -28,7 +27,7 @@
 </div>
 
 
-    <script>
+<script>
         $(document).ready(function () {
             $("#tax-categories-grid").kendoGrid({
                 dataSource: {

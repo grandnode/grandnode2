@@ -12,7 +12,7 @@
         </div>
         <div class="panel-footer">
             <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = Constants.AreaAdmin }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SimilarProducts.AddNew"]</a>
-            <input type="submit" id="btnRefreshSimilarProducts" style="display: none" />
+            <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
         </div>
     </div>
 
@@ -120,7 +120,7 @@
             });
         });
     </script>
-           
+
     <script>
         $(document).ready(function () {
             $('#btnRefreshSimilarProducts').click(function () {
@@ -133,7 +133,6 @@
             });
         });
     </script>
-
 }
 else
 {

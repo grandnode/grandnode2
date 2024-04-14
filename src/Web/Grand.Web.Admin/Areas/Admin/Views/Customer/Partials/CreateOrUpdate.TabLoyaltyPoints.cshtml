@@ -2,11 +2,11 @@
 @inject AdminAreaSettings adminAreaSettings
 
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="customer_details_loyalty_points_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="customer_details_loyalty_points_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="customer-loyaltypoints-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="customer_details_loyalty_points_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="customer_details_loyalty_points_bottom" additional-data="Model"/>
 </div>
 
 <script>
@@ -82,30 +82,30 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddLoyaltyPointsValue" />
+            <admin-label asp-for="AddLoyaltyPointsValue"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AddLoyaltyPointsValue" />
+                <admin-input asp-for="AddLoyaltyPointsValue"/>
                 <span asp-validation-for="AddLoyaltyPointsValue"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddLoyaltyPointsMessage" />
+            <admin-label asp-for="AddLoyaltyPointsMessage"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="AddLoyaltyPointsMessage" />
+                <admin-input asp-for="AddLoyaltyPointsMessage"/>
                 <span asp-validation-for="AddLoyaltyPointsMessage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddLoyaltyPointsStoreId" />
+            <admin-label asp-for="AddLoyaltyPointsStoreId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores" />
+                <admin-select asp-for="AddLoyaltyPointsStoreId" asp-items="Model.LoyaltyPointsAvailableStores"/>
                 <span asp-validation-for="AddLoyaltyPointsStoreId"></span>
             </div>
         </div>
     </div>
     <div class="form-actions">
         <div class="offset-md-3">
-            <input type="button" id="addLoyaltyPoints" class="k-button" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]" />
+            <input type="button" id="addLoyaltyPoints" class="k-button" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]"/>
         </div>
     </div>
 </div>

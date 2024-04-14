@@ -2,18 +2,17 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="discount_details_applied_to_categories_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="categories-grid"></div>
-    </div>
-    <div class="panel-footer">
-        <a id="btnAddNewCategory" href="@(Url.Action("CategoryAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCategories", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCategories.AddNew"]</a>
-        <input type="submit" id="btnRefreshCategories" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="discount_details_applied_to_categories_bottom" additional-data="Model" />
-</div>
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="discount_details_applied_to_categories_top" additional-data="Model"/>
+            <div class="panel-body">
+                <div id="categories-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewCategory" href="@(Url.Action("CategoryAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCategories", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCategories.AddNew"]</a>
+                <input type="submit" id="btnRefreshCategories" style="display: none"/>
+            </div>
+            <vc:admin-widget widget-zone="discount_details_applied_to_categories_bottom" additional-data="Model"/>
+        </div>
         <script>
             $(document).ready(function () {
                 $('#btnAddNewCategory').magnificPopup({
@@ -104,7 +103,6 @@
                 });
             });
         </script>
-
     }
     else
     {

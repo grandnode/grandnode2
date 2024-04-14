@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="News" asp-action="Edit" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -12,23 +12,31 @@
                     <div class="caption">
                         <i class="fa fa-hacker-news"></i>
                         @Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"] - @Model.Title
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.News.NewsItems.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.News.NewsItems.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button type="button" onclick="window.open('@Url.RouteUrl("NewsItem", new { Model.SeName})','_blank');" class="btn purple">
+                            <button type="button" onclick="window.open('@Url.RouteUrl("NewsItem", new { Model.SeName })','_blank');" class="btn purple">
                                 <i class="fa fa-eye"></i>
                                 @Loc["Admin.Common.Preview"]
                             </button>
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
-                            <span id="newsitem-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
-                            <vc:admin-widget widget-zone="news_details_buttons" additional-data="Model" />
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <span id="newsitem-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
+                            <vc:admin-widget widget-zone="news_details_buttons" additional-data="Model"/>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

@@ -12,9 +12,11 @@
                     @Loc["admin.marketing.Campaigns"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
                 </div>
-                <vc:admin-widget widget-zone="campaign_list_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="campaign_list_buttons" additional-data="null"/>
             </div>
             <div class="x_content form">
                 <div class="form-horizontal">

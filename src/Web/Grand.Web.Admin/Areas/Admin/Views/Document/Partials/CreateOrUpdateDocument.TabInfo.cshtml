@@ -1,36 +1,37 @@
-﻿@model DocumentModel
+﻿@using Grand.Domain.Media
+@model DocumentModel
 @{
-    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Document;
+    ViewData["DownloadType"] = DownloadType.Document;
     ViewData["ReferenceId"] = Model.Id;
 }
-<vc:admin-widget widget-zone="document_details_info_top" additional-data="Model" />
+<vc:admin-widget widget-zone="document_details_info_top" additional-data="Model"/>
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="Number" />
+            <admin-label asp-for="Number"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Number" />
+                <admin-input asp-for="Number"/>
                 <span asp-validation-for="Number"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Name" />
+            <admin-label asp-for="Name"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name" />
+                <admin-input asp-for="Name"/>
                 <span asp-validation-for="Name"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Description" />
+            <admin-label asp-for="Description"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Description" asp-template="Editor" />
+                <admin-input asp-for="Description" asp-template="Editor"/>
                 <span asp-validation-for="Description"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="SeId" />
+            <admin-label asp-for="SeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="SeId" asp-items="Model.AvailableSelesEmployees" />
+                <admin-select asp-for="SeId" asp-items="Model.AvailableSelesEmployees"/>
                 <span asp-validation-for="SeId"></span>
             </div>
         </div>
@@ -39,80 +40,80 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="Link" />
+            <admin-label asp-for="Link"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Link" />
+                <admin-input asp-for="Link"/>
                 <span asp-validation-for="Link"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DocumentTypeId" />
+            <admin-label asp-for="DocumentTypeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DocumentTypeId" asp-items="Model.AvailableDocumentTypes" />
+                <admin-select asp-for="DocumentTypeId" asp-items="Model.AvailableDocumentTypes"/>
                 <span asp-validation-for="DocumentTypeId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="StatusId" />
+            <admin-label asp-for="StatusId"/>
             <div class="col-md-4 col-sm-6">
-                <admin-select asp-for="StatusId" asp-items="((DocumentStatus)Model.StatusId).ToSelectList(Context)" />
+                <admin-select asp-for="StatusId" asp-items="((DocumentStatus)Model.StatusId).ToSelectList(Context)"/>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="ReferenceId" />
+            <admin-label asp-for="ReferenceId"/>
             <div class="col-md-4 col-sm-6">
-                <admin-select asp-for="ReferenceId" asp-items="((Reference)Model.ReferenceId).ToSelectList(Context)" />
+                <admin-select asp-for="ReferenceId" asp-items="((Reference)Model.ReferenceId).ToSelectList(Context)"/>
             </div>
         </div>
         <div class="form-group object-reference">
-            <admin-label asp-for="ObjectId" />
+            <admin-label asp-for="ObjectId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ObjectId" />
+                <admin-input asp-for="ObjectId"/>
                 <span asp-validation-for="ObjectId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Published" />
+            <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published" />
+                    <admin-input asp-for="Published"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CustomerGroups" />
+            <admin-label asp-for="CustomerGroups"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CustomerGroups" />
+                <admin-input asp-for="CustomerGroups"/>
                 <span asp-validation-for="CustomerGroups"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Stores" />
+            <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores" />
+                <admin-input asp-for="Stores"/>
                 <span asp-validation-for="Stores"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DownloadId" />
+            <admin-label asp-for="DownloadId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DownloadId" />
+                <admin-input asp-for="DownloadId"/>
                 <span asp-validation-for="DownloadId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DisplayOrder" />
+            <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" />
+                <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Flag" />
+            <admin-label asp-for="Flag"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Flag" />
+                <admin-input asp-for="Flag"/>
                 <span asp-validation-for="Flag"></span>
             </div>
         </div>
@@ -121,12 +122,12 @@
                 ViewData["Reference"] = "Document";
                 ViewData["ObjectId"] = Model.Id;
             }
-            <admin-label asp-for="PictureId" />
+            <admin-label asp-for="PictureId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PictureId" />
+                <admin-input asp-for="PictureId"/>
                 <span asp-validation-for="PictureId"></span>
             </div>
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="document_details_info_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="document_details_info_bottom" additional-data="Model"/>

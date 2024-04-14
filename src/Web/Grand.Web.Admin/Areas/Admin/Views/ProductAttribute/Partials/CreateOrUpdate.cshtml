@@ -1,13 +1,13 @@
 ﻿@model ProductAttributeModel
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 <admin-tabstrip name="product-attribute-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
@@ -16,7 +16,7 @@
             <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.UsedByProducts"]" tab-index="1">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabUsedByProducts" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabUsedByProducts" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
@@ -24,17 +24,17 @@
         <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues"]" tab-index="2">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabPredefinedValues" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabPredefinedValues" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
             <content>
                 <div>
-                    <partial name="Partials/UserFields" model="Model" />
+                    <partial name="Partials/UserFields" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="product_attribute_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_attribute_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>

@@ -1,5 +1,5 @@
 ﻿@model PageListModel
-@{    
+@{
     //page title
     ViewBag.Title = Loc["Admin.Content.Pages"];
 }
@@ -13,8 +13,10 @@
                     @Loc["Admin.Content.Pages"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="page_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="page_list_buttons" additional-data="null"/>
                 </div>
 
             </div>
@@ -24,14 +26,14 @@
                         <div class="row align-items-end mb-1">
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                 </div>
                             </div>
                             <div class="col-md-6 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="Name" />
+                                    <admin-label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="Name"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
@@ -51,7 +53,6 @@
         </div>
     </div>
 </div>
-
 
 
 <script>

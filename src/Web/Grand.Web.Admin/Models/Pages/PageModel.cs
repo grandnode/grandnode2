@@ -5,122 +5,123 @@ using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Pages
+namespace Grand.Web.Admin.Models.Pages;
+
+public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
 {
-    public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
-    {
-        //Store acl
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.SystemName")]
+    public string SystemName { get; set; }
 
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInSitemap")]
+    public bool IncludeInSitemap { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.SystemName")]
-        public string SystemName { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInMenu")]
+    public bool IncludeInMenu { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInSitemap")]
-        public bool IncludeInSitemap { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow1")]
+    public bool IncludeInFooterRow1 { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInMenu")]
-        public bool IncludeInMenu { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow2")]
+    public bool IncludeInFooterRow2 { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow1")]
-        public bool IncludeInFooterRow1 { get; set; }
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow2")]
-        public bool IncludeInFooterRow2 { get; set; }
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow3")]
-        public bool IncludeInFooterRow3 { get; set; }
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInFooterRow3")]
+    public bool IncludeInFooterRow3 { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.AccessibleWhenStoreClosed")]
-        public bool AccessibleWhenStoreClosed { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.IsPasswordProtected")]
-        public bool IsPasswordProtected { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.AccessibleWhenStoreClosed")]
+    public bool AccessibleWhenStoreClosed { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Published")]
-        public bool Published { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.IsPasswordProtected")]
+    public bool IsPasswordProtected { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Password")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Published")]
+    public bool Published { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.URL")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Password")]
+    [DataType(DataType.Password)]
+    public string Password { get; set; }
 
-        public string Url { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.URL")]
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
+    public string Url { get; set; }
 
-        public string Title { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
+    public string Title { get; set; }
 
-        public string Body { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.PageLayout")]
-        public string PageLayoutId { get; set; }
-        public IList<SelectListItem> AvailablePageLayouts { get; set; } = new List<SelectListItem>();
+    public string Body { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.PageLayout")]
+    public string PageLayoutId { get; set; }
 
-        public string MetaKeywords { get; set; }
+    public IList<SelectListItem> AvailablePageLayouts { get; set; } = new List<SelectListItem>();
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
 
-        public string MetaDescription { get; set; }
+    public string MetaKeywords { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
 
-        public string MetaTitle { get; set; }
+    public string MetaDescription { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
 
-        public string SeName { get; set; }
+    public string MetaTitle { get; set; }
 
-        public IList<PageLocalizedModel> Locales { get; set; } = new List<PageLocalizedModel>();
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
 
-        //ACL
-        [UIHint("CustomerGroups")]
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToGroups")]
-        public string[] CustomerGroups { get; set; }
+    public string SeName { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.StartDate")]
-        [UIHint("DateTimeNullable")]
-        public DateTime? StartDateUtc { get; set; }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.StartDate")]
+    [UIHint("DateTimeNullable")]
+    public DateTime? StartDateUtc { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.EndDate")]
-        [UIHint("DateTimeNullable")]
-        public DateTime? EndDateUtc { get; set; }
-    }
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.EndDate")]
+    [UIHint("DateTimeNullable")]
+    public DateTime? EndDateUtc { get; set; }
 
-    public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
-    {
-        public string LanguageId { get; set; }
+    //ACL
+    [UIHint("CustomerGroups")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToGroups")]
+    public string[] CustomerGroups { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
+    public IList<PageLocalizedModel> Locales { get; set; } = new List<PageLocalizedModel>();
 
-        public string Title { get; set; }
+    //Store acl
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
+}
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
+public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
+{
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
 
-        public string Body { get; set; }
+    public string Title { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
 
-        public string MetaKeywords { get; set; }
+    public string Body { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
 
-        public string MetaDescription { get; set; }
+    public string MetaKeywords { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
 
-        public string MetaTitle { get; set; }
+    public string MetaDescription { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
 
-        public string SeName { get; set; }
+    public string MetaTitle { get; set; }
 
-    }
+    public string LanguageId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
+
+    public string SeName { get; set; }
 }

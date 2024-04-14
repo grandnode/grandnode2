@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Admin.Catalog.BulkEdit"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="BulkEdit" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -14,7 +14,7 @@
                         <i class="fa fa-cubes"></i>
                         @Loc["Admin.Catalog.BulkEdit"]
                     </div>
-                    <vc:admin-widget widget-zone="product_bulk_edit_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="product_bulk_edit_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -23,8 +23,8 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchProductName" class="control-label" />
-                                            <admin-input asp-for="SearchProductName" />
+                                            <admin-label asp-for="SearchProductName" class="control-label"/>
+                                            <admin-input asp-for="SearchProductName"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
@@ -44,33 +44,33 @@
                             <div class="collapse" id="filterCollapse">
                                 <div class="drop-filters-container w-100">
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchCategoryId" class="col-sm-3 control-label" />
+                                            <admin-input asp-for="SearchCategoryId" class="col-sm-3 control-label"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchBrandId" />
+                                            <admin-input asp-for="SearchBrandId"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchCollectionId" />
+                                            <admin-input asp-for="SearchCollectionId"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                            <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                            <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
                                         </div>
                                     </div>
                                 </div>
@@ -92,7 +92,7 @@
             var allInventoryMethod = [
                 @foreach (var method in methods)
                 {
-                        <text>
+                    <text>
                         {
                             Id: '@(method.Value)',
                             Name: "@Html.Raw(method.Text)"

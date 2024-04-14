@@ -14,8 +14,10 @@
                     @Loc["Admin.Vendors"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="vendor_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="vendor_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -25,8 +27,8 @@
                             <div class="row align-items-end">
                                 <div class="col-md-8 col-ms-12 col-12">
                                     <div class="form-group mb-0">
-                                        <admin-label asp-for="SearchName" class="control-labe" />
-                                        <admin-input asp-for="SearchName" />
+                                        <admin-label asp-for="SearchName" class="control-labe"/>
+                                        <admin-input asp-for="SearchName"/>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-12">

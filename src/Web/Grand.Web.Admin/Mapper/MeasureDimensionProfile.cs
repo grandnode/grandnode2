@@ -3,19 +3,18 @@ using Grand.Domain.Directory;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Directory;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class MeasureDimensionProfile : Profile, IAutoMapperProfile
 {
-    public class MeasureDimensionProfile : Profile, IAutoMapperProfile
+    public MeasureDimensionProfile()
     {
-        public MeasureDimensionProfile()
-        {
-            CreateMap<MeasureDimension, MeasureDimensionModel>()
-                .ForMember(dest => dest.IsPrimaryDimension, mo => mo.Ignore());
+        CreateMap<MeasureDimension, MeasureDimensionModel>()
+            .ForMember(dest => dest.IsPrimaryDimension, mo => mo.Ignore());
 
-            CreateMap<MeasureDimensionModel, MeasureDimension>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-        }
-
-        public int Order => 0;
+        CreateMap<MeasureDimensionModel, MeasureDimension>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
     }
+
+    public int Order => 0;
 }

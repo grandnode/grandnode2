@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Courses;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class CourseSubjectMappingExtensions
 {
-    public static class CourseSubjectMappingExtensions
+    public static CourseSubjectModel ToModel(this CourseSubject entity)
     {
-        public static CourseSubjectModel ToModel(this CourseSubject entity)
-        {
-            return entity.MapTo<CourseSubject, CourseSubjectModel>();
-        }
+        return entity.MapTo<CourseSubject, CourseSubjectModel>();
+    }
 
-        public static CourseSubject ToEntity(this CourseSubjectModel model)
-        {
-            return model.MapTo<CourseSubjectModel, CourseSubject>();
-        }
+    public static CourseSubject ToEntity(this CourseSubjectModel model)
+    {
+        return model.MapTo<CourseSubjectModel, CourseSubject>();
+    }
 
-        public static CourseSubject ToEntity(this CourseSubjectModel model, CourseSubject destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static CourseSubject ToEntity(this CourseSubjectModel model, CourseSubject destination)
+    {
+        return model.MapTo(destination);
     }
 }

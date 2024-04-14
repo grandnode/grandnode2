@@ -1,19 +1,19 @@
 ﻿@model CustomerModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-<strong>@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</strong>
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="customer_details_product_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="personalizedproduct-grid"></div>
+    <strong>@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</strong>
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="customer_details_product_top" additional-data="Model"/>
+        <div class="panel-body">
+            <div id="personalizedproduct-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
+            <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
+        </div>
+        <vc:admin-widget widget-zone="customer_details_product_bottom" additional-data="Model"/>
     </div>
-    <div class="panel-footer">
-        <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
-        <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="customer_details_product_bottom" additional-data="Model" />
-</div>
-<script>
+    <script>
     $(document).ready(function () {
              $('#btnAddNewPersonalizedProduct').magnificPopup({
                     type: 'ajax',
@@ -120,5 +120,4 @@
                 });
             });
     </script>
-
 }

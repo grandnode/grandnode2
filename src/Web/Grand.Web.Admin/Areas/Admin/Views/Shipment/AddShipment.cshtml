@@ -2,7 +2,6 @@
 @{
     //page title
     ViewBag.Title = string.Format(Loc["Admin.Orders.Shipments.AddNew.Title"], Model.OrderId);
-
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="AddShipment" method="post"
       asp-route-orderId="@Context.Request.Query["orderId"]">

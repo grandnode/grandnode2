@@ -12,8 +12,8 @@
 
 
     <div asp-validation-summary="All"></div>
-    <input asp-for="ProductId" type="hidden" />
-    <input asp-for="Id" type="hidden" />
+    <input asp-for="ProductId" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
 
     <div class="row">
         <div class="col-md-12">
@@ -35,66 +35,68 @@
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="ProductAttribute" />
+                                <admin-label asp-for="ProductAttribute"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="ProductAttributeId" asp-items="Model.AvailableProductAttribute" />
+                                    <admin-select asp-for="ProductAttributeId" asp-items="Model.AvailableProductAttribute"/>
                                     <span asp-validation-for="ProductAttributeId"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="TextPrompt" />
+                                <admin-label asp-for="TextPrompt"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="TextPrompt" />
+                                    <admin-input asp-for="TextPrompt"/>
                                     <span asp-validation-for="TextPrompt"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="IsRequired" class="col-sm-3 control-label" />
+                                <admin-label asp-for="IsRequired" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="IsRequired" />
+                                        <admin-input asp-for="IsRequired"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="IsRequired"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="ShowOnCatalogPage" class="col-sm-3 control-label" />
+                                <admin-label asp-for="ShowOnCatalogPage" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="ShowOnCatalogPage" />
+                                        <admin-input asp-for="ShowOnCatalogPage"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="ShowOnCatalogPage"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="AttributeControlType" />
+                                <admin-label asp-for="AttributeControlType"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="AttributeControlTypeId" asp-items="Model.AttributeControlTypeId.ToSelectList(Context, valuesToExclude: [(int)AttributeControlType.Hidden])" />
+                                    <admin-select asp-for="AttributeControlTypeId" asp-items="Model.AttributeControlTypeId.ToSelectList(Context, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
                                     <span asp-validation-for="AttributeControlTypeId"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="Combination" class="col-sm-3 control-label" />
+                                <admin-label asp-for="Combination" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="Combination" />
+                                        <admin-input asp-for="Combination"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="Combination"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="DisplayOrder" />
+                                <admin-label asp-for="DisplayOrder"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder" />
+                                    <admin-input asp-for="DisplayOrder"/>
                                     <span asp-validation-for="DisplayOrder"></span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                    <button class="btn btn-success" type="submit" name="save">
+                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                    </button>
                                 </div>
                             </div>
                         </div>

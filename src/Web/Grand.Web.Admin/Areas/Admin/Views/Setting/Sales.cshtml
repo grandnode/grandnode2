@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Admin.Settings.Sales"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Sales" method="post">
-    
+
     <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
@@ -17,10 +17,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="sales_settings_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="sales_settings_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content">
                     <div class="form-horizontal">
@@ -30,44 +32,43 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <vc:admin-widget widget-zone="sales_settings_top" additional-data="null" />
+                    <vc:admin-widget widget-zone="sales_settings_top" additional-data="null"/>
                     <admin-tabstrip name="salessettings-edit">
                         <items>
                             <tabstrip-item text="@Loc["Admin.Settings.Order"]" tab-index="0">
                                 <content>
                                     <div>
-                                        <partial name="Partials/Sales.TabOrderSettings" model="Model" />
+                                        <partial name="Partials/Sales.TabOrderSettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.Order.MerchandiseReturnSettings"]" tab-index="1">
                                 <content>
                                     <div>
-                                        <partial name="Partials/Sales.TabMerchandiseReturn" model="Model" />
+                                        <partial name="Partials/Sales.TabMerchandiseReturn" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.ShoppingCart"]" tab-index="2">
                                 <content>
                                     <div>
-                                        <partial name="Partials/Sales.TabShoppingCart" model="Model" />
+                                        <partial name="Partials/Sales.TabShoppingCart" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.LoyaltyPoints"]" tab-index="3">
                                 <content>
                                     <div>
-                                        <partial name="Partials/Sales.TabLoyaltyPoints" model="Model" />
+                                        <partial name="Partials/Sales.TabLoyaltyPoints" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <vc:admin-widget widget-zone="sales_settings_details_tabs" additional-data="Model" />
+                            <vc:admin-widget widget-zone="sales_settings_details_tabs" additional-data="Model"/>
                         </items>
                     </admin-tabstrip>
-                    <vc:admin-widget widget-zone="sales_settings_bottom" additional-data="null" />
+                    <vc:admin-widget widget-zone="sales_settings_bottom" additional-data="null"/>
                 </div>
             </div>
         </div>
     </div>
 </form>
-
