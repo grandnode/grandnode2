@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Vendor.Orders.MerchandiseReturns"];
 }
 <form asp-area="@Constants.AreaVendor" asp-controller="MerchandiseReturn" asp-action="List" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -14,7 +14,7 @@
                         <i class="fa fa-truck"></i>
                         @Loc["Vendor.Orders.MerchandiseReturns"]
                     </div>
-                    <vc:vendor-widget widget-zone="vendor_merchandisereturn_list_buttons" additional-data="null" />
+                    <vc:vendor-widget widget-zone="vendor_merchandisereturn_list_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -23,17 +23,17 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-4 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchCustomerEmail" class="control-label" />
-                                            <admin-input asp-for="SearchCustomerEmail" />
+                                            <admin-label asp-for="SearchCustomerEmail" class="control-label"/>
+                                            <admin-input asp-for="SearchCustomerEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="GoDirectlyToId" class="control-label" />
+                                            <admin-label asp-for="GoDirectlyToId" class="control-label"/>
                                             <div class="input-group mb-0" style="text-align:left">
-                                                <admin-input asp-for="GoDirectlyToId" />
+                                                <admin-input asp-for="GoDirectlyToId"/>
                                                 <span class="input-group-append">
-                                                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn" class="btn default" value="@Loc["Vendor.Common.Go"]" />
+                                                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn" class="btn default" value="@Loc["Vendor.Common.Go"]"/>
                                                 </span>
                                             </div>
                                         </div>
@@ -56,27 +56,27 @@
                         <div class="collapse" id="filterCollapse">
                             <div class="drop-filters-container w-100">
                                 <div class="form-group">
-                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="StartDate" />
+                                        <admin-input asp-for="StartDate"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="EndDate" />
+                                        <admin-input asp-for="EndDate"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="SearchCustomerEmail" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="SearchCustomerEmail" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="SearchCustomerEmail" />
+                                        <admin-input asp-for="SearchCustomerEmail"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="SearchMerchandiseReturnStatusId" class="col-sm-3 control-label" />
+                                    <admin-label asp-for="SearchMerchandiseReturnStatusId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus" />
+                                        <admin-select asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
                                     </div>
                                 </div>
                             </div>
@@ -86,13 +86,13 @@
                 <div class="x_content form">
                     <div class="x_content">
                         <div id="merchandisereturns-grid"></div>
-                    </div>     
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-    <script>
+<script>
     $(document).ready(function() {
         $("#merchandisereturns-grid").kendoGrid({
             dataSource: {
@@ -171,7 +171,7 @@
     });
     </script>
 
-    <script>
+<script>
     function additionalData() {
         var data = {
             SearchMerchandiseReturnStatusId: $('#@Html.IdFor(model => model.SearchMerchandiseReturnStatusId)').val(),

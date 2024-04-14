@@ -2,15 +2,15 @@
 @{
     Layout = "";
 }
-<form id="ProductSpecificationPopup" asp-area="@Constants.AreaVendor" 
-      asp-controller="Product" asp-action="ProductSpecAttrPopup" 
+<form id="ProductSpecificationPopup" asp-area="@Constants.AreaVendor"
+      asp-controller="Product" asp-action="ProductSpecAttrPopup"
       enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-Id="@Context.Request.Query["Id"]">
 
     <div asp-validation-summary="All"></div>
-    <input asp-for="ProductId" type="hidden" />
-    <input asp-for="Id" type="hidden" />
+    <input asp-for="ProductId" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
 
     <div class="row">
         <div class="col-md-12">
@@ -32,70 +32,72 @@
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
-                                <admin-label asp-for="AttributeTypeId" />
+                                <admin-label asp-for="AttributeTypeId"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="AttributeTypeId" asp-items="Model.AttributeTypeId.ToSelectList(Context)" />
+                                    <admin-select asp-for="AttributeTypeId" asp-items="Model.AttributeTypeId.ToSelectList(Context)"/>
                                     <span asp-validation-for="AttributeTypeId"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="disableOnCustom">
-                                <admin-label asp-for="SpecificationAttributeId" />
+                                <admin-label asp-for="SpecificationAttributeId"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="SpecificationAttributeId" asp-items="Model.AvailableAttributes" />
+                                    <admin-select asp-for="SpecificationAttributeId" asp-items="Model.AvailableAttributes"/>
                                     <span asp-validation-for="SpecificationAttributeId"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlSpecificationAttributeOptionId">
-                                <admin-label asp-for="SpecificationAttributeOptionId" />
+                                <admin-label asp-for="SpecificationAttributeOptionId"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="SpecificationAttributeOptionId" asp-items="Model.AvailableOptions" />
+                                    <admin-select asp-for="SpecificationAttributeOptionId" asp-items="Model.AvailableOptions"/>
                                     <span asp-validation-for="SpecificationAttributeOptionId"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlCustomName">
-                                <admin-label asp-for="CustomName" />
+                                <admin-label asp-for="CustomName"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="CustomName" />
+                                    <admin-input asp-for="CustomName"/>
                                     <span asp-validation-for="CustomName"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlCustomValue">
-                                <admin-label asp-for="CustomValue" />
+                                <admin-label asp-for="CustomValue"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="CustomValue" />
+                                    <admin-input asp-for="CustomValue"/>
                                     <span asp-validation-for="CustomValue"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlAllowFiltering">
-                                <admin-label asp-for="AllowFiltering" />
+                                <admin-label asp-for="AllowFiltering"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AllowFiltering" />
+                                        <admin-input asp-for="AllowFiltering"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="AllowFiltering"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="ShowOnProductPage" />
+                                <admin-label asp-for="ShowOnProductPage"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="ShowOnProductPage" />
+                                        <admin-input asp-for="ShowOnProductPage"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="ShowOnProductPage"></span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <admin-label asp-for="DisplayOrder" />
+                                <admin-label asp-for="DisplayOrder"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DisplayOrder" />
+                                    <admin-input asp-for="DisplayOrder"/>
                                     <span asp-validation-for="DisplayOrder"></span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                                    <button class="btn btn-success" type="submit" name="save">
+                                        <i class="fa fa-check"></i> @Loc["Vendor.Common.Save"]
+                                    </button>
                                 </div>
                             </div>
                         </div>

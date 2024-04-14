@@ -3,11 +3,11 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_top" additional-data="Model" />
+        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_top" additional-data="Model"/>
         <div class="panel-body">
             <div id="specificationattributes-grid"></div>
         </div>
-        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_bottom" additional-data="Model" />
+        <vc:vendor-widget widget-zone="vendor_product_details_specification_attribute_details_bottom" additional-data="Model"/>
         <div class="panel-footer">
             <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.SpecificationAttributes.AddButton"]</a>
         </div>
@@ -138,7 +138,7 @@
             });
             });
     </script>
-    <input type="submit" id="btnRefreshProductSpec" style="display: none" />
+    <input type="submit" id="btnRefreshProductSpec" style="display: none"/>
     <script>
         $(document).ready(function () {
             $('#btnRefreshProductSpec').click(function () {

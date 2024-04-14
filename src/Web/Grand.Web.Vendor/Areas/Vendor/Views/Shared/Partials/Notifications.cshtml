@@ -5,6 +5,7 @@
     {
         successMessages.AddRange((TempData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>)!);
     }
+
     if (ViewData[$"Grand.notifications.{NotifyType.Success}"] != null)
     {
         successMessages.AddRange((ViewData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>)!);
@@ -17,6 +18,7 @@
     {
         errorMessages.AddRange((TempData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>)!);
     }
+
     if (ViewData[$"Grand.notifications.{NotifyType.Error}"] != null)
     {
         errorMessages.AddRange((ViewData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>)!);
@@ -28,11 +30,11 @@
     {
         warningMessages.AddRange((TempData[$"Grand.notifications.{NotifyType.Warning}"] as IList<string>)!);
     }
+
     if (ViewData[$"Grand.notifications.{NotifyType.Warning}"] != null)
     {
         warningMessages.AddRange((ViewData[$"Grand.notifications.{NotifyType.Warning}"] as IList<string>)!);
     }
-
 }
 @foreach (var message in successMessages)
 {

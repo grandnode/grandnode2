@@ -1,11 +1,11 @@
 ﻿@model ShipmentModel
 
 <div class="panel panel-default">
-    <vc:vendor-widget widget-zone="vendor_order_shipment_details_notes_top" additional-data="Model" />
+    <vc:vendor-widget widget-zone="vendor_order_shipment_details_notes_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="shipmentnotes-grid"></div>
     </div>
-    <vc:vendor-widget widget-zone="vendor_order_shipment_details_notes_bottom" additional-data="Model" />
+    <vc:vendor-widget widget-zone="vendor_order_shipment_details_notes_bottom" additional-data="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -102,17 +102,17 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddShipmentNoteMessage" />
+            <admin-label asp-for="AddShipmentNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddShipmentNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddShipmentNoteMessage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddShipmentNoteDisplayToCustomer" />
+            <admin-label asp-for="AddShipmentNoteDisplayToCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddShipmentNoteDisplayToCustomer" />
+                    <admin-input asp-for="AddShipmentNoteDisplayToCustomer"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AddShipmentNoteDisplayToCustomer"></span>

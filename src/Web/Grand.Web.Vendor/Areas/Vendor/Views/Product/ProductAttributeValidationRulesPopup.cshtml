@@ -24,44 +24,46 @@
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group" @(attributeControlType != AttributeControlType.TextBox && attributeControlType != AttributeControlType.MultilineTextbox ? Html.Raw("style='display: none;'") : null)>
-                                <admin-label asp-for="ValidationMinLength" class="col-sm-3 control-label" />
+                                <admin-label asp-for="ValidationMinLength" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ValidationMinLength" />
+                                    <admin-input asp-for="ValidationMinLength"/>
                                     <span asp-validation-for="ValidationMinLength"></span>
                                 </div>
                             </div>
                             <div class="form-group" @(attributeControlType != AttributeControlType.TextBox && attributeControlType != AttributeControlType.MultilineTextbox ? Html.Raw("style='display: none;'") : null)>
-                                <admin-label asp-for="ValidationMaxLength" class="col-sm-3 control-label" />
+                                <admin-label asp-for="ValidationMaxLength" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ValidationMaxLength" />
+                                    <admin-input asp-for="ValidationMaxLength"/>
                                     <span asp-validation-for="ValidationMaxLength"></span>
                                 </div>
                             </div>
                             <div class="form-group" @(attributeControlType != AttributeControlType.FileUpload ? Html.Raw("style='display: none;'") : null)>
-                                <admin-label asp-for="ValidationFileAllowedExtensions" class="col-sm-3 control-label" />
+                                <admin-label asp-for="ValidationFileAllowedExtensions" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ValidationFileAllowedExtensions" />
+                                    <admin-input asp-for="ValidationFileAllowedExtensions"/>
                                     <span asp-validation-for="ValidationFileAllowedExtensions"></span>
                                 </div>
                             </div>
                             <div class="form-group" @(attributeControlType != AttributeControlType.FileUpload ? Html.Raw("style='display: none;'") : null)>
-                                <admin-label asp-for="ValidationFileMaximumSize" class="col-sm-3 control-label" />
+                                <admin-label asp-for="ValidationFileMaximumSize" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="ValidationFileMaximumSize" />
+                                    <admin-input asp-for="ValidationFileMaximumSize"/>
                                     <span asp-validation-for="ValidationFileMaximumSize"></span>
                                 </div>
                             </div>
                             <div class="form-group" @(attributeControlType != AttributeControlType.TextBox && attributeControlType != AttributeControlType.MultilineTextbox ? Html.Raw("style='display: none;'") : null)>
-                                <admin-label asp-for="DefaultValue" class="col-sm-3 control-label" />
+                                <admin-label asp-for="DefaultValue" class="col-sm-3 control-label"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="DefaultValue" />
+                                    <admin-input asp-for="DefaultValue"/>
                                     <span asp-validation-for="DefaultValue"></span>
                                 </div>
                             </div>
                             <div class="form-actions">
                                 <div class="row">
                                     <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Vendor.Common.Save"] </button>
+                                        <button class="btn btn-success" type="submit" name="save">
+                                            <i class="fa fa-check"></i> @Loc["Vendor.Common.Save"]
+                                        </button>
                                     </div>
                                 </div>
                             </div>

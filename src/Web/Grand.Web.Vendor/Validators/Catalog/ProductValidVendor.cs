@@ -7,7 +7,7 @@ using Grand.Web.Vendor.Models.Catalog;
 
 namespace Grand.Web.Vendor.Validators.Catalog;
 
-public class ProductValidVendor: BaseGrandValidator<IProductValidVendor>
+public class ProductValidVendor : BaseGrandValidator<IProductValidVendor>
 {
     public ProductValidVendor(
         IEnumerable<IValidatorConsumer<IProductValidVendor>> validators,
@@ -23,7 +23,7 @@ public class ProductValidVendor: BaseGrandValidator<IProductValidVendor>
     }
 }
 
-public class ProductRelatedValidVendor: BaseGrandValidator<IProductRelatedValidVendor>
+public class ProductRelatedValidVendor : BaseGrandValidator<IProductRelatedValidVendor>
 {
     public ProductRelatedValidVendor(
         IEnumerable<IValidatorConsumer<IProductRelatedValidVendor>> validators,
@@ -36,7 +36,8 @@ public class ProductRelatedValidVendor: BaseGrandValidator<IProductRelatedValidV
             if (product1 == null) return true;
             var product2 = await productService.GetProductById(x.ProductId2);
             if (product2 == null) return true;
-            return product1.VendorId == workContext.CurrentVendor.Id || product2.VendorId == workContext.CurrentVendor.Id;
+            return product1.VendorId == workContext.CurrentVendor.Id ||
+                   product2.VendorId == workContext.CurrentVendor.Id;
         }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }

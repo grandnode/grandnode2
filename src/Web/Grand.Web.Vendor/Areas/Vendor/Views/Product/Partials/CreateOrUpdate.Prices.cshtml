@@ -1,176 +1,176 @@
 ﻿@model ProductModel
-<vc:vendor-widget widget-zone="vendor_product_details_prices_top" additional-data="Model" />
+<vc:vendor-widget widget-zone="vendor_product_details_prices_top" additional-data="Model"/>
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="Price" />
+            <admin-label asp-for="Price"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Price" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="Price"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="Price"></span>
             </div>
         </div>
         <div class="form-group">
-            <partial name="Partials/CreateOrUpdate.ProductPrices" model="Model" />
+            <partial name="Partials/CreateOrUpdate.ProductPrices" model="Model"/>
         </div>
         <div class="form-group">
-            <admin-label asp-for="OldPrice" />
+            <admin-label asp-for="OldPrice"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="OldPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="OldPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="OldPrice"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CatalogPrice" />
+            <admin-label asp-for="CatalogPrice"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CatalogPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="CatalogPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="CatalogPrice"></span>
             </div>
         </div>
         <div class="form-group" id="pnlStartPrice">
-            <admin-label asp-for="StartPrice" />
+            <admin-label asp-for="StartPrice"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="StartPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="StartPrice"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="ProductCost" />
+            <admin-label asp-for="ProductCost"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="ProductCost" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="ProductCost"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="ProductCost"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DisableBuyButton" />
+            <admin-label asp-for="DisableBuyButton"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="DisableBuyButton" />
+                    <admin-input asp-for="DisableBuyButton"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="DisableBuyButton"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DisableWishlistButton" />
+            <admin-label asp-for="DisableWishlistButton"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="DisableWishlistButton" />
+                    <admin-input asp-for="DisableWishlistButton"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="DisableWishlistButton"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AvailableForPreOrder" />
+            <admin-label asp-for="AvailableForPreOrder"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AvailableForPreOrder" />
+                    <admin-input asp-for="AvailableForPreOrder"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AvailableForPreOrder"></span>
             </div>
         </div>
         <div class="form-group" id="pnlPreOrderDateTime">
-            <admin-label asp-for="PreOrderDateTime" />
+            <admin-label asp-for="PreOrderDateTime"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="PreOrderDateTime" />
+                <admin-input asp-for="PreOrderDateTime"/>
                 <span asp-validation-for="PreOrderDateTime"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CallForPrice" />
+            <admin-label asp-for="CallForPrice"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CallForPrice" />
+                    <admin-input asp-for="CallForPrice"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="CallForPrice"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="EnteredPrice" />
+            <admin-label asp-for="EnteredPrice"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="EnteredPrice" />
+                    <admin-input asp-for="EnteredPrice"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="EnteredPrice"></span>
             </div>
         </div>
         <div class="form-group" id="pnlMinEnteredPrice">
-            <admin-label asp-for="MinEnteredPrice" />
+            <admin-label asp-for="MinEnteredPrice"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MinEnteredPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="MinEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="MinEnteredPrice"></span>
             </div>
         </div>
         <div class="form-group" id="pnlMaxEnteredPrice">
-            <admin-label asp-for="MaxEnteredPrice" />
+            <admin-label asp-for="MaxEnteredPrice"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaxEnteredPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <admin-input asp-for="MaxEnteredPrice"/> [@Model.PrimaryStoreCurrencyCode]
                 <span asp-validation-for="MaxEnteredPrice"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="BasepriceEnabled" />
+            <admin-label asp-for="BasepriceEnabled"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="BasepriceEnabled" />
+                    <admin-input asp-for="BasepriceEnabled"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="BasepriceEnabled"></span>
             </div>
         </div>
         <div class="form-group" id="pnlBasepriceAmount">
-            <admin-label asp-for="BasepriceAmount" />
+            <admin-label asp-for="BasepriceAmount"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BasepriceAmount" />
+                <admin-input asp-for="BasepriceAmount"/>
                 <span asp-validation-for="BasepriceAmount"></span>
             </div>
         </div>
         <div class="form-group" id="pnlBasepriceUnit">
-            <admin-label asp-for="BasepriceUnitId" />
+            <admin-label asp-for="BasepriceUnitId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="BasepriceUnitId" asp-items="Model.AvailableBasepriceUnits" />
+                <admin-select asp-for="BasepriceUnitId" asp-items="Model.AvailableBasepriceUnits"/>
                 <span asp-validation-for="BasepriceUnitId"></span>
             </div>
         </div>
         <div class="form-group" id="pnlBasepriceBaseAmount">
-            <admin-label asp-for="BasepriceBaseAmount" />
+            <admin-label asp-for="BasepriceBaseAmount"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="BasepriceBaseAmount" />
+                <admin-input asp-for="BasepriceBaseAmount"/>
                 <span asp-validation-for="BasepriceBaseAmount"></span>
             </div>
         </div>
         <div class="form-group" id="pnlBasepriceBaseUnit">
-            <admin-label asp-for="BasepriceBaseUnitId" />
+            <admin-label asp-for="BasepriceBaseUnitId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="BasepriceBaseUnitId" asp-items="Model.AvailableBasepriceBaseUnits" />
+                <admin-select asp-for="BasepriceBaseUnitId" asp-items="Model.AvailableBasepriceBaseUnits"/>
                 <span asp-validation-for="BasepriceBaseUnitId"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="IsTaxExempt" />
+            <admin-label asp-for="IsTaxExempt"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsTaxExempt" />
+                    <admin-input asp-for="IsTaxExempt"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="IsTaxExempt"></span>
             </div>
         </div>
         <div class="form-group" id="pnlTaxCategory">
-            <admin-label asp-for="TaxCategoryId" />
+            <admin-label asp-for="TaxCategoryId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories" />
+                <admin-select asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
                 <span asp-validation-for="TaxCategoryId"></span>
             </div>
         </div>
         <div class="form-group" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices">
-            <admin-label asp-for="IsTele" />
+            <admin-label asp-for="IsTele"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox white-bg">
-                    <admin-input asp-for="IsTele" />
+                    <admin-input asp-for="IsTele"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="IsTele"></span>
@@ -191,7 +191,7 @@
         </div>
         <div class="panel-footer">
             <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.TierPrices.AddNew"]</a>
-            <input type="submit" id="btnRefreshTierPrices" style="display: none" />
+            <input type="submit" id="btnRefreshTierPrices" style="display: none"/>
         </div>
     </div>
 
@@ -333,4 +333,4 @@ else
     </div>
 }
 
-<vc:vendor-widget widget-zone="vendor_product_details_prices_bottom" additional-data="Model" />
+<vc:vendor-widget widget-zone="vendor_product_details_prices_bottom" additional-data="Model"/>

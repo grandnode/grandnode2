@@ -1,5 +1,6 @@
-﻿@model OrderModel
-<vc:vendor-widget widget-zone="vendor_order_details_address_top" additional-data="Model" />
+﻿@using Constants = Grand.SharedUIResources.Constants
+@model OrderModel
+<vc:vendor-widget widget-zone="vendor_order_details_address_top" additional-data="Model"/>
 <div class="card col-md-6">
     <div class="card-body">
         <h4 class="card-title">@Loc["Vendor.Orders.BillingInfo"]</h4>
@@ -290,14 +291,14 @@
                         }
                     </table>
                     <div style="padding-top: 15px;">
-                        <img alt="google maps" src="@Url.Content($"{Grand.SharedUIResources.Constants.WwwRoot}/administration/build/images/google-maps.gif")" />
+                        <img alt="google maps" src="@Url.Content($"{Constants.WwwRoot}/administration/build/images/google-maps.gif")"/>
                         <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" target="_blank">@Loc["Vendor.Orders.Fields.ShippingAddress.ViewOnGoogleMaps"]</a>
                     </div>
                 }
                 @if (Model.PickupAddress != null)
                 {
                     <div class="form-group">
-                        <admin-label asp-for="PickupAddress" />
+                        <admin-label asp-for="PickupAddress"/>
                         <div class="col-md-9 col-sm-9">
                             <table class="table table-bordered table-striped table-hover">
                                 @if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
@@ -355,12 +356,12 @@
                         <div class="form-body">
 
                             <div class="form-group">
-                                <admin-label asp-for="ShippingMethod" />
+                                <admin-label asp-for="ShippingMethod"/>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="control-label" id="lblShippingMethod">@Model.ShippingMethod</label>
                                     @if (!string.IsNullOrEmpty(Model.ShippingAdditionDescription))
                                     {
-                                        <br />
+                                        <br/>
                                         <label>@Html.Raw(Model.ShippingAdditionDescription)</label>
                                     }
                                 </div>
@@ -375,10 +376,9 @@
 }
 else
 {
-        <div class="card col-md-6">
-            <div class="note note-info">@Loc["Vendor.Orders.ShippingInfo.NotRequired"]</div>
-        </div>
-    
+    <div class="card col-md-6">
+        <div class="note note-info">@Loc["Vendor.Orders.ShippingInfo.NotRequired"]</div>
+    </div>
 }
 
-<vc:vendor-widget widget-zone="vendor_order_details_address_bottom" additional-data="Model" />
+<vc:vendor-widget widget-zone="vendor_order_details_address_bottom" additional-data="Model"/>

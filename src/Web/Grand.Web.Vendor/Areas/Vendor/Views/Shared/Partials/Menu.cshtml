@@ -1,6 +1,8 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Security
-@using Grand.Web.Common.Menu
 @using Grand.Business.Core.Interfaces.System.Admin
+@using Grand.Business.Core.Utilities.Common.Security
+@using Grand.Web.Common.Menu
+@using Constants = Grand.SharedUIResources.Constants
 @inject IPermissionService permissionService
 @inject IAdminSiteMapService adminSiteMapService
 @inject IEnumerable<IAdminMenuProvider> _adminMenuProviders
@@ -17,7 +19,9 @@
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
         <div class="navbar nav_title">
-            <a href="~/Vendor" class="site_title"><img src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/build/images/grandLogo.png" width="35" height="35" /> <span>GrandNode</span></a>
+            <a href="~/Vendor" class="site_title">
+                <img src="@(Constants.WwwRoot)/administration/build/images/grandLogo.png" width="35" height="35"/> <span>GrandNode</span>
+            </a>
         </div>
         <div class="clearfix"></div>
         <div class="main_menu_side hidden-print main_menu" id="sidebar-menu">
@@ -32,17 +36,18 @@
                         {
                             await adminMenuPlugin.ManageSiteMap(rootNode);
                         }
+
                         //"Plugins" menu item should be visible when it has some child nodes
                         var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
-                        if (pluginNode is {Visible: true })
+                        if (pluginNode is { Visible: true })
                         {
-                            var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManagePlugins);
+                            var hasManagePluginsPermission = await permissionService.Authorize(StandardPermission.ManagePlugins);
                             pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);
                         }
                     }
                     @foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
                     {
-                        <partial name="Partials/MenuItem" model="item" />
+                        <partial name="Partials/MenuItem" model="item"/>
                     }
                 </ul>
             </div>

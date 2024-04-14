@@ -7,7 +7,6 @@
 }
 
 
-
 <div class="row">
     <div class="col-md-12">
         <div class="x_panel light form-fit popup-window">
@@ -19,7 +18,7 @@
 
             </div>
             <div class="x_content form">
-                <vc:vendor-widget widget-zone="vendor_customer_report" additional-data="Model" />
+                <vc:vendor-widget widget-zone="vendor_customer_report" additional-data="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
@@ -29,14 +28,14 @@
                                         <div class="row align-items-end">
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="StartDate" class="control-label" />
-                                                    <admin-input asp-for="StartDate" />
+                                                    <admin-label asp-for="StartDate" class="control-label"/>
+                                                    <admin-input asp-for="StartDate"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="EndDate" class="control-label" />
-                                                    <admin-input asp-for="EndDate" />
+                                                    <admin-label asp-for="EndDate" class="control-label"/>
+                                                    <admin-input asp-for="EndDate"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12 col-12">
@@ -56,9 +55,9 @@
                                     <div class="collapse" id="filterCollapse">
                                         <div class="drop-filters-container w-100">
                                             <div class="form-group">
-                                                <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3" />
+                                                <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -125,7 +124,7 @@
         });
     });
 </script>
-    <script>
+<script>
 
         $(document).ready(function () {
 
