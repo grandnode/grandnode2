@@ -16,10 +16,7 @@ public class ValidatorFactory : IValidatorFactory
     public IValidator<T> GetValidator<T>()
     {
         var validator = _serviceProvider.GetService<IValidator<T>>();
-        if (validator != null)
-        {
-            return validator;
-        }
+        if (validator != null) return validator;
         throw new InvalidOperationException($"No validator found for type {typeof(T).Name}.");
     }
 }

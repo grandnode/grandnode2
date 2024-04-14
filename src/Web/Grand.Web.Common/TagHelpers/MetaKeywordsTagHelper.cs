@@ -1,34 +1,29 @@
 ﻿using Grand.Web.Common.Page;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers
+namespace Grand.Web.Common.TagHelpers;
+
+[HtmlTargetElement("meta-keywords", TagStructure = TagStructure.WithoutEndTag)]
+[HtmlTargetElement("meta-keywords", Attributes = PartAttributeName)]
+public class MetaKeywordsTagHelper : TagHelper
 {
-    [HtmlTargetElement("meta-keywords", TagStructure = TagStructure.WithoutEndTag)]
-    [HtmlTargetElement("meta-keywords", Attributes = PartAttributeName)]
-    public class MetaKeywordsTagHelper : TagHelper
+    private const string PartAttributeName = "asp-part";
+
+    private readonly IPageHeadBuilder _pageHeadBuilder;
+
+    public MetaKeywordsTagHelper(IPageHeadBuilder pageHeadBuilder)
     {
-        private const string PartAttributeName = "asp-part";
-        [HtmlAttributeName(PartAttributeName)]
-        public string Attribute { get; set; }
+        _pageHeadBuilder = pageHeadBuilder;
+    }
 
-        private readonly IPageHeadBuilder _pageHeadBuilder;
+    [HtmlAttributeName(PartAttributeName)] public string Attribute { get; set; }
 
-        public MetaKeywordsTagHelper(IPageHeadBuilder pageHeadBuilder)
-        {
-            _pageHeadBuilder = pageHeadBuilder;
-        }
-
-        public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            if (!string.IsNullOrEmpty(Attribute))
-            {
-                _pageHeadBuilder.AppendMetaKeywordParts(Attribute);
-            }
-            output.TagName = "meta";
-            output.Attributes.Add("name", "keywords");
-            output.Attributes.Add("content", _pageHeadBuilder.GenerateMetaKeywords());
-            return Task.CompletedTask;
-        }
-
+    public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        if (!string.IsNullOrEmpty(Attribute)) _pageHeadBuilder.AppendMetaKeywordParts(Attribute);
+        output.TagName = "meta";
+        output.Attributes.Add("name", "keywords");
+        output.Attributes.Add("content", _pageHeadBuilder.GenerateMetaKeywords());
+        return Task.CompletedTask;
     }
 }

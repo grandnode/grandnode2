@@ -10,130 +10,113 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures.Buffers;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace Grand.Web.Common.TagHelpers.Admin.Extend
+namespace Grand.Web.Common.TagHelpers.Admin.Extend;
+
+internal class TemplateBuilder
 {
-    internal class TemplateBuilder
+    private readonly object _additionalViewData;
+    private readonly IViewBufferScope _bufferScope;
+    private readonly string _htmlFieldName;
+    private readonly ModelMetadata _metadata;
+    private readonly ModelExplorer _modelExplorer;
+    private readonly bool _readOnly;
+    private readonly string _templateName;
+    private readonly ViewContext _viewContext;
+    private readonly ViewDataDictionary _viewData;
+    private readonly IViewEngine _viewEngine;
+    private object _model;
+
+    public TemplateBuilder(
+        IViewEngine viewEngine,
+        IViewBufferScope bufferScope,
+        ViewContext viewContext,
+        ViewDataDictionary viewData,
+        ModelExplorer modelExplorer,
+        string htmlFieldName,
+        string templateName,
+        bool readOnly,
+        object additionalViewData)
     {
-        private readonly IViewEngine _viewEngine;
-        private readonly IViewBufferScope _bufferScope;
-        private readonly ViewContext _viewContext;
-        private readonly ViewDataDictionary _viewData;
-        private readonly ModelExplorer _modelExplorer;
-        private object _model;
-        private readonly ModelMetadata _metadata;
-        private readonly string _htmlFieldName;
-        private readonly string _templateName;
-        private readonly bool _readOnly;
-        private readonly object _additionalViewData;
+        ArgumentNullException.ThrowIfNull(viewEngine);
+        ArgumentNullException.ThrowIfNull(bufferScope);
+        ArgumentNullException.ThrowIfNull(viewContext);
+        ArgumentNullException.ThrowIfNull(viewData);
+        ArgumentNullException.ThrowIfNull(modelExplorer);
 
-        public TemplateBuilder(
-            IViewEngine viewEngine,
-            IViewBufferScope bufferScope,
-            ViewContext viewContext,
-            ViewDataDictionary viewData,
-            ModelExplorer modelExplorer,
-            string htmlFieldName,
-            string templateName,
-            bool readOnly,
-            object additionalViewData)
+        _viewEngine = viewEngine;
+        _bufferScope = bufferScope;
+        _viewContext = viewContext;
+        _viewData = viewData;
+        _modelExplorer = modelExplorer;
+        _htmlFieldName = htmlFieldName;
+        _templateName = templateName;
+        _readOnly = readOnly;
+        _additionalViewData = additionalViewData;
+
+        _model = modelExplorer.Model;
+        _metadata = modelExplorer.Metadata;
+    }
+
+    public async Task<IHtmlContent> Build()
+    {
+        if (_metadata.ConvertEmptyStringToNull && string.Empty.Equals(_model)) _model = null;
+
+        // Normally this shouldn't happen, unless someone writes their own custom Object templates which
+        // don't check to make sure that the object hasn't already been displayed
+        if (_viewData.TemplateInfo.Visited(_modelExplorer)) return HtmlString.Empty;
+
+        // Create VDD of type object so any model type is allowed.
+        var viewData = new ViewDataDictionary<object>(_viewData) {
+            // Create a new ModelExplorer in order to preserve the model metadata of the original _viewData even
+            // though _model may have been reset to null. Otherwise we might lose track of the model type /property.
+            ModelExplorer = _modelExplorer.GetExplorerForModel(_model)
+        };
+
+        var formatString =
+            _readOnly ? viewData.ModelMetadata.DisplayFormatString : viewData.ModelMetadata.EditFormatString;
+
+        var formattedModelValue = _model;
+        if (_model == null)
         {
-            ArgumentNullException.ThrowIfNull(viewEngine);
-            ArgumentNullException.ThrowIfNull(bufferScope);
-            ArgumentNullException.ThrowIfNull(viewContext);
-            ArgumentNullException.ThrowIfNull(viewData);
-            ArgumentNullException.ThrowIfNull(modelExplorer);
-
-            _viewEngine = viewEngine;
-            _bufferScope = bufferScope;
-            _viewContext = viewContext;
-            _viewData = viewData;
-            _modelExplorer = modelExplorer;
-            _htmlFieldName = htmlFieldName;
-            _templateName = templateName;
-            _readOnly = readOnly;
-            _additionalViewData = additionalViewData;
-
-            _model = modelExplorer.Model;
-            _metadata = modelExplorer.Metadata;
+            if (_readOnly) formattedModelValue = _metadata.NullDisplayText;
+        }
+        else if (!string.IsNullOrEmpty(formatString))
+        {
+            formattedModelValue = string.Format(CultureInfo.CurrentCulture, formatString, _model);
+        }
+        else if (viewData.ModelMetadata.IsEnum && _model is Enum modelEnum)
+        {
+            // Cover the case where the model is an enum and we want the string value of it
+            var value = modelEnum.ToString("d");
+            var enumGrouped = viewData.ModelMetadata.EnumGroupedDisplayNamesAndValues;
+            Debug.Assert(enumGrouped != null);
+            foreach (var kvp in enumGrouped)
+                if (kvp.Value == value)
+                {
+                    // Creates a ModelExplorer with the same Metadata except that the Model is a string instead of an Enum
+                    formattedModelValue = kvp.Key.Name;
+                    break;
+                }
         }
 
-        public async Task<IHtmlContent> Build()
-        {
-            if (_metadata.ConvertEmptyStringToNull && string.Empty.Equals(_model))
-            {
-                _model = null;
-            }
+        viewData.TemplateInfo.FormattedModelValue = formattedModelValue;
+        viewData.TemplateInfo.HtmlFieldPrefix = _viewData.TemplateInfo.GetFullHtmlFieldName(_htmlFieldName);
 
-            // Normally this shouldn't happen, unless someone writes their own custom Object templates which
-            // don't check to make sure that the object hasn't already been displayed
-            if (_viewData.TemplateInfo.Visited(_modelExplorer))
-            {
-                return HtmlString.Empty;
-            }
+        if (_additionalViewData != null)
+            foreach (var kvp in HtmlHelper.ObjectToDictionary(_additionalViewData))
+                viewData[kvp.Key] = kvp.Value;
 
-            // Create VDD of type object so any model type is allowed.
-            var viewData = new ViewDataDictionary<object>(_viewData) {
-                // Create a new ModelExplorer in order to preserve the model metadata of the original _viewData even
-                // though _model may have been reset to null. Otherwise we might lose track of the model type /property.
-                ModelExplorer = _modelExplorer.GetExplorerForModel(_model)
-            };
+        var visitedObjectsKey = _model ?? _modelExplorer.ModelType;
+        viewData.TemplateInfo.AddVisited(visitedObjectsKey);
 
-            var formatString = _readOnly ?
-                viewData.ModelMetadata.DisplayFormatString :
-                viewData.ModelMetadata.EditFormatString;
+        var templateRenderer = new TemplateRenderer(
+            _viewEngine,
+            _bufferScope,
+            _viewContext,
+            viewData,
+            _templateName,
+            _readOnly);
 
-            var formattedModelValue = _model;
-            if (_model == null)
-            {
-                if (_readOnly)
-                {
-                    formattedModelValue = _metadata.NullDisplayText;
-                }
-            }
-            else if (!string.IsNullOrEmpty(formatString))
-            {
-                formattedModelValue = string.Format(CultureInfo.CurrentCulture, formatString, _model);
-            }
-            else if (viewData.ModelMetadata.IsEnum && _model is Enum modelEnum)
-            {
-                // Cover the case where the model is an enum and we want the string value of it
-                var value = modelEnum.ToString("d");
-                var enumGrouped = viewData.ModelMetadata.EnumGroupedDisplayNamesAndValues;
-                Debug.Assert(enumGrouped != null);
-                foreach (var kvp in enumGrouped)
-                {
-                    if (kvp.Value == value)
-                    {
-                        // Creates a ModelExplorer with the same Metadata except that the Model is a string instead of an Enum
-                        formattedModelValue = kvp.Key.Name;
-                        break;
-                    }
-                }
-            }
-
-            viewData.TemplateInfo.FormattedModelValue = formattedModelValue;
-            viewData.TemplateInfo.HtmlFieldPrefix = _viewData.TemplateInfo.GetFullHtmlFieldName(_htmlFieldName);
-
-            if (_additionalViewData != null)
-            {
-                foreach (var kvp in HtmlHelper.ObjectToDictionary(_additionalViewData))
-                {
-                    viewData[kvp.Key] = kvp.Value;
-                }
-            }
-
-            var visitedObjectsKey = _model ?? _modelExplorer.ModelType;
-            viewData.TemplateInfo.AddVisited(visitedObjectsKey);
-
-            var templateRenderer = new TemplateRenderer(
-                _viewEngine,
-                _bufferScope,
-                _viewContext, 
-                viewData,
-                _templateName,
-                _readOnly);
-
-            return await templateRenderer.Render();
-        }
+        return await templateRenderer.Render();
     }
 }

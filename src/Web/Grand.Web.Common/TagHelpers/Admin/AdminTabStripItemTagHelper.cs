@@ -2,52 +2,38 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin;
+
+[HtmlTargetElement("tabstrip-item")]
+public class AdminTabStripItemTagHelper : TagHelper
 {
-    [HtmlTargetElement("tabstrip-item")]
-    public class AdminTabStripItemTagHelper : TagHelper
+    [ViewContext] public ViewContext ViewContext { get; set; }
+
+    [HtmlAttributeName("Text")] public string Text { get; set; }
+
+    [HtmlAttributeName("tab-index")] public int CurrentIndex { set; get; }
+
+    private int GetSelectedTabIndex()
     {
-        [ViewContext]
-        public ViewContext ViewContext { get; set; }
+        var index = 0;
+        var dataKey = "Grand.selected-tab-index";
+        if (ViewContext.ViewData[dataKey] is int) index = (int)ViewContext.ViewData[dataKey];
+        if (ViewContext.TempData[dataKey] is int) index = (int)ViewContext.TempData[dataKey];
 
-        [HtmlAttributeName("Text")]
-        public string Text { get; set; }
+        if (index < 0)
+            index = 0;
 
-        [HtmlAttributeName("tab-index")]
-        public int CurrentIndex { set; get; }
+        return index;
+    }
 
-        private int GetSelectedTabIndex()
-        {
-            var index = 0;
-            var dataKey = "Grand.selected-tab-index";
-            if (this.ViewContext.ViewData[dataKey] is int)
-            {
-                index = (int)this.ViewContext.ViewData[dataKey];
-            }
-            if (this.ViewContext.TempData[dataKey] is int)
-            {
-                index = (int)this.ViewContext.TempData[dataKey];
-            }
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        _ = await output.GetChildContentAsync();
+        output.TagName = "li";
 
-            if (index < 0)
-                index = 0;
+        var selectedIndex = GetSelectedTabIndex();
+        if (selectedIndex == CurrentIndex) output.Attributes.SetAttribute("class", "k-state-active");
 
-            return index;
-        }
-
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            _ = await output.GetChildContentAsync();
-            output.TagName = "li";
-
-            var selectedIndex = GetSelectedTabIndex();
-            if (selectedIndex == CurrentIndex)
-            {
-                output.Attributes.SetAttribute("class", "k-state-active");
-            }
-
-            output.Content.AppendHtml(Text);
-        }
-
+        output.Content.AppendHtml(Text);
     }
 }

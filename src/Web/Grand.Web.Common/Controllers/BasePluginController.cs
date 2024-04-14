@@ -1,9 +1,8 @@
-﻿namespace Grand.Web.Common.Controllers
+﻿namespace Grand.Web.Common.Controllers;
+
+/// <summary>
+///     Base controller for plugins
+/// </summary>
+public abstract class BasePluginController : BaseController
 {
-    /// <summary>
-    /// Base controller for plugins
-    /// </summary>
-    public abstract class BasePluginController : BaseController
-    {
-    }
 }

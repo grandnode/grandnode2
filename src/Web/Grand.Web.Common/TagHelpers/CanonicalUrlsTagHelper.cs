@@ -1,24 +1,22 @@
 ﻿using Grand.Web.Common.Page;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers
+namespace Grand.Web.Common.TagHelpers;
+
+[HtmlTargetElement("canonical-urls", TagStructure = TagStructure.WithoutEndTag)]
+public class CanonicalUrlsTagHelper : TagHelper
 {
-    [HtmlTargetElement("canonical-urls", TagStructure = TagStructure.WithoutEndTag)]
-    public class CanonicalUrlsTagHelper : TagHelper
+    private readonly IPageHeadBuilder _pageHeadBuilder;
+
+    public CanonicalUrlsTagHelper(IPageHeadBuilder pageHeadBuilder)
     {
+        _pageHeadBuilder = pageHeadBuilder;
+    }
 
-        private readonly IPageHeadBuilder _pageHeadBuilder;
-
-        public CanonicalUrlsTagHelper(IPageHeadBuilder pageHeadBuilder)
-        {
-            _pageHeadBuilder = pageHeadBuilder;
-        }
-
-        public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            output.SuppressOutput();
-            output.Content.SetHtmlContent(_pageHeadBuilder.GenerateCanonicalUrls());
-            return Task.CompletedTask;
-        }
+    public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        output.SuppressOutput();
+        output.Content.SetHtmlContent(_pageHeadBuilder.GenerateCanonicalUrls());
+        return Task.CompletedTask;
     }
 }

@@ -4,8 +4,9 @@ public class DefaultThemeView : IThemeView
 {
     public string AreaName => "";
     public string ThemeName => "Default";
-    
-    public ThemeInfo ThemeInfo => new ("Default theme", "~/assets/samples/default-theme.jpg", "Default GrandNode theme", true);
+
+    public ThemeInfo ThemeInfo =>
+        new("Default theme", "~/assets/samples/default-theme.jpg", "Default GrandNode theme", true);
 
     public IEnumerable<string> GetViewLocations()
     {

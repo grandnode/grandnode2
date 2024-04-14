@@ -5,54 +5,53 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 
-namespace Grand.Web.Common.Components
+namespace Grand.Web.Common.Components;
+
+/// <summary>
+///     An <see cref="IViewComponentResult" /> which writes an <see cref="IHtmlContent" /> when executed.
+/// </summary>
+/// <remarks>
+///     The provided content will be HTML-encoded as specified when the content was created. To encoded and write
+///     text, use a <see cref="ContentViewComponentResult" />.
+/// </remarks>
+public class JsonContentViewComponentResult : IViewComponentResult
 {
     /// <summary>
-    /// An <see cref="IViewComponentResult"/> which writes an <see cref="IHtmlContent"/> when executed.
+    ///     Initializes a new <see cref="HtmlContentViewComponentResult" />.
     /// </summary>
-    /// <remarks>
-    /// The provided content will be HTML-encoded as specified when the content was created. To encoded and write
-    /// text, use a <see cref="ContentViewComponentResult"/>.
-    /// </remarks>
-    public class JsonContentViewComponentResult : IViewComponentResult
+    public JsonContentViewComponentResult(string content)
     {
-        /// <summary>
-        /// Initializes a new <see cref="HtmlContentViewComponentResult"/>.
-        /// </summary>
-        public JsonContentViewComponentResult(string content)
-        {
-            EncodedContent = content ?? throw new ArgumentNullException(nameof(content));
-        }
+        EncodedContent = content ?? throw new ArgumentNullException(nameof(content));
+    }
 
-        /// <summary>
-        /// Gets the encoded content.
-        /// </summary>
-        public string EncodedContent { get; }
+    /// <summary>
+    ///     Gets the encoded content.
+    /// </summary>
+    public string EncodedContent { get; }
 
-        /// <summary>
-        /// Set content type for response
-        /// </summary>
-        /// <param name="context"></param>
-        private static void ContentType(ViewComponentContext context)
-        {
-            context.ViewContext.HttpContext.Response.ContentType = "application/json";
-        }
+    public void Execute(ViewComponentContext context)
+    {
+        ContentType(context);
+        context.Writer.Write(EncodedContent);
+    }
 
-        public void Execute(ViewComponentContext context)
-        {
-            ContentType(context);
-            context.Writer.Write(EncodedContent);
-        }
+    /// <summary>
+    ///     Writes the <see cref="EncodedContent" />.
+    /// </summary>
+    /// <param name="context">The <see cref="ViewComponentContext" />.</param>
+    /// <returns>A completed <see cref="Task" />.</returns>
+    public async Task ExecuteAsync(ViewComponentContext context)
+    {
+        ContentType(context);
+        await context.Writer.WriteAsync(EncodedContent);
+    }
 
-        /// <summary>
-        /// Writes the <see cref="EncodedContent"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="ViewComponentContext"/>.</param>
-        /// <returns>A completed <see cref="Task"/>.</returns>
-        public async Task ExecuteAsync(ViewComponentContext context)
-        {
-            ContentType(context);
-            await context.Writer.WriteAsync(EncodedContent);
-        }
+    /// <summary>
+    ///     Set content type for response
+    /// </summary>
+    /// <param name="context"></param>
+    private static void ContentType(ViewComponentContext context)
+    {
+        context.ViewContext.HttpContext.Response.ContentType = "application/json";
     }
 }

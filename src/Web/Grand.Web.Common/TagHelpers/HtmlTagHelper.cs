@@ -2,47 +2,47 @@
 using Grand.Web.Common.Page;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers
+namespace Grand.Web.Common.TagHelpers;
+
+[HtmlTargetElement("html", Attributes = ForAttributeName)]
+public class HtmlTagHelper : TagHelper
 {
-    [HtmlTargetElement("html", Attributes = ForAttributeName)]
-    public class HtmlTagHelper : TagHelper
+    private const string ForAttributeName = "use-lang";
+
+    private readonly IPageHeadBuilder _pageHeadBuilder;
+    private readonly IWorkContext _workContext;
+
+    public HtmlTagHelper(IWorkContext workContext, IPageHeadBuilder pageHeadBuilder)
     {
-        private const string ForAttributeName = "use-lang";
+        _workContext = workContext;
+        _pageHeadBuilder = pageHeadBuilder;
+    }
 
-        [HtmlAttributeName(ForAttributeName)]
-        public bool UseLanguage { set; get; }
+    [HtmlAttributeName(ForAttributeName)] public bool UseLanguage { set; get; }
 
-        private readonly IPageHeadBuilder _pageHeadBuilder;
-        private readonly IWorkContext _workContext;
-
-        public HtmlTagHelper(IWorkContext workContext, IPageHeadBuilder pageHeadBuilder)
+    public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    {
+        if (UseLanguage)
         {
-            _workContext = workContext;
-            _pageHeadBuilder = pageHeadBuilder;
+            output.Attributes.Add("lang", _workContext.WorkingLanguage.UniqueSeoCode);
+            if (_workContext.WorkingLanguage.Rtl)
+                output.Attributes.Add("dir", "rtl");
         }
 
-        public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        var classes = _pageHeadBuilder.GeneratePageCssClasses();
+        if (string.IsNullOrEmpty(classes)) return Task.CompletedTask;
+        if (output.Attributes.ContainsName("class"))
         {
-            if (UseLanguage)
-            {
-                output.Attributes.Add("lang", _workContext.WorkingLanguage.UniqueSeoCode);
-                if(_workContext.WorkingLanguage.Rtl)
-                    output.Attributes.Add("dir", "rtl");
-            }
-
-            var classes = _pageHeadBuilder.GeneratePageCssClasses();
-            if (string.IsNullOrEmpty(classes)) return Task.CompletedTask;
-            if (output.Attributes.ContainsName("class"))
-            {
-                var attribute = output.Attributes["class"];
-                output.Attributes.Remove(attribute);
-                output.Attributes.Add("class", $"{attribute.Value} {classes}");
-            }
-            else
-                output.Attributes.Add("class", classes);
-
-
-            return Task.CompletedTask;
+            var attribute = output.Attributes["class"];
+            output.Attributes.Remove(attribute);
+            output.Attributes.Add("class", $"{attribute.Value} {classes}");
         }
+        else
+        {
+            output.Attributes.Add("class", classes);
+        }
+
+
+        return Task.CompletedTask;
     }
 }

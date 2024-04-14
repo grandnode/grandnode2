@@ -1,13 +1,12 @@
 ﻿//Contribution https://github.com/smartstore/SmartStoreNET/blob/2.0.x/src/Presentation/SmartStore.Web.Framework/Localization/ILocalizedModel.cs
 
-namespace Grand.Web.Common.Models
-{
-    public interface ILocalizedModel
-    {
+namespace Grand.Web.Common.Models;
 
-    }
-    public interface ILocalizedModel<TLocalizedModel> : ILocalizedModel
-    {
-        IList<TLocalizedModel> Locales { get; set; }
-    }
+public interface ILocalizedModel
+{
+}
+
+public interface ILocalizedModel<TLocalizedModel> : ILocalizedModel
+{
+    IList<TLocalizedModel> Locales { get; set; }
 }

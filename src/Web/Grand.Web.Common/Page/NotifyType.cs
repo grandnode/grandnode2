@@ -1,9 +1,8 @@
-﻿namespace Grand.Web.Common.Page
+﻿namespace Grand.Web.Common.Page;
+
+public enum NotifyType
 {
-    public enum NotifyType
-    {
-        Success,
-        Error,
-        Warning
-    }
+    Success,
+    Error,
+    Warning
 }

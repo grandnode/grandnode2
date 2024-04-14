@@ -1,14 +1,14 @@
-﻿namespace Grand.Web.Common.Page
+﻿namespace Grand.Web.Common.Page;
+
+public enum ResourceLocation
 {
-    public enum ResourceLocation
-    {
-        /// <summary>
-        /// Header
-        /// </summary>
-        Head,
-        /// <summary>
-        /// Footer
-        /// </summary>
-        Footer
-    }
+    /// <summary>
+    ///     Header
+    /// </summary>
+    Head,
+
+    /// <summary>
+    ///     Footer
+    /// </summary>
+    Footer
 }

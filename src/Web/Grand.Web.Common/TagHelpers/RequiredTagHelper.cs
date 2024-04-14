@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers
+namespace Grand.Web.Common.TagHelpers;
+
+[HtmlTargetElement("grand-required")]
+public class RequiredTagHelper : TagHelper
 {
-    [HtmlTargetElement("grand-required")]
-    public class RequiredTagHelper : TagHelper
+    public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        public override void Process(TagHelperContext context, TagHelperOutput output)
-        {
-            output.TagName = "span";
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.Attributes.SetAttribute("class", "required");
-            output.Content.SetContent("*");
-        }
+        output.TagName = "span";
+        output.TagMode = TagMode.StartTagAndEndTag;
+        output.Attributes.SetAttribute("class", "required");
+        output.Content.SetContent("*");
     }
 }
