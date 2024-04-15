@@ -83,7 +83,7 @@ var AxiosCart = {
             this.AxiosCart.resetLoadWaiting();
         });
     },
-
+    
     //update product on cart/wishlist
     updateitem: function (urlupdate) {
         var model;
@@ -259,5 +259,11 @@ var AxiosCart = {
     },
     deleteCookie: function (cname) {
         document.cookie = "" + cname +"=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+    },
+    copyEnteredQuantity: function (productid) {
+        var enteredQuantityField = document.querySelector('input[type="hidden"][name="EnteredQuantity"]');
+        if (enteredQuantityField) {
+            enteredQuantityField.value = document.querySelector('#addtocart_' + productid + '_EnteredQuantity').value;
+        }
     }
 };

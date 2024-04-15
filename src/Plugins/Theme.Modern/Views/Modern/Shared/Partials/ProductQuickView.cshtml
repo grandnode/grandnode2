@@ -215,6 +215,7 @@
             </div>
             <b-collapse visible class="collapse-panel" id="accordion-qv-group" accordion="accordion-qv-group" role="tabpanel">
                 <template v-if="PopupQuickViewVueModal.AssociatedProducts.length > 0">
+                    <input type="hidden" name="EnteredQuantity" id="EnteredQuantity">
                     <template v-for="variant in PopupQuickViewVueModal.AssociatedProducts">
                         <div class="card overflow-hidden associatedItem mb-3">
                             <div class="row" no-gutters>
