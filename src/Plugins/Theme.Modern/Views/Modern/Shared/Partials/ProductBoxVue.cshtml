@@ -209,7 +209,7 @@
             </a>
         </template>
         <template v-else>
-            <a class="add-to-cart-button btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+            <a class="add-to-cart-button btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
                 <template v-if="Model.ProductType == 20">
                     @Loc["ShoppingCart.Reservation"]
                 </template>
