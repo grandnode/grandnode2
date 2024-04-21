@@ -1,11 +1,11 @@
 name: Docker Image CI
 
 env:
-  TAG: 'latest'
+  TAG: '2.2.x'
   
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "2.2.x" ]
   workflow_dispatch:
   
 jobs:
